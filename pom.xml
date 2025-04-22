@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC24-SNAPSHOT</version>
+    <version>0.41.0-RC39-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC23</tag>
+        <tag>v0.41.0-RC38</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC5</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC19</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -129,77 +129,83 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>${rascal-maven.version}</version>
+                <version>0.30.0-RC19</version>
                 <configuration>
-                    <rascalBootstrapVersion>0.41.0-RC21</rascalBootstrapVersion>
-                    <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
-                    <bin>${project.build.outputDirectory}</bin>
-                    <srcs>
-                        <src>${project.basedir}/src/org/rascalmpl/library</src>
-                        <!-- do not typecheck the checker or the tutor yet 
-                        <src>${project.basedir}/src/org/rascalmpl/tutor</src>
-                        <src>${project.basedir}/src/org/rascalmpl/compiler</src>
-                        -->
-                    </srcs>
-                    <sourceLookup>|std:///|</sourceLookup>
-                    <funding>${project.basedir}/FUNDING</funding>
-                    <citation>${project.basedir}/CITATION.md</citation>
-                    <issues>|https://github.com/usethesource/rascal/issues|</issues>
-                    <srcIgnores>
-                        <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
-                    </srcIgnores>
-                    <enableStandardLibrary>false</enableStandardLibrary>
+                    <bootstrapRascalVersion>0.41.0-RC38</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
-                </configuration>
+                    </configuration> 
                 <executions>
-                    <!-- commented out for bootstrap purposes
                     <execution>
-                        <id>it-compile</id>
+                        <id>default-compile</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <parallel>true</parallel>
+                            <parallelPreChecks>
+                               <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
+                            </parallelPreChecks>
+                            <errorsAsWarnings>false</errorsAsWarnings> 
+                            <bin>${project.build.outputDirectory}</bin>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <libs>
+                            </libs>
+                            <srcIgnores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                            </srcIgnores>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>it-package</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution> -->
-
-		    <!-- commented out while bootstrapping the tutor
-                    <execution>
-                        <id>default-cli</id>
+                        <id>default-resources</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>tutor</goal>
                         </goals>
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
-                            <enableStandardLibrary>false</enableStandardLibrary>
                             <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
+                            <funding>${project.basedir}/FUNDING</funding>
+                            <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
-                            <ignores>
+                            <srcIgnores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            </ignores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                            </srcIgnores>
                         </configuration>
-                        </execution>
-		    -->
+                    </execution>
+                    <execution>
+                        <id>default-package</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <sourceLookup>|std:///|</sourceLookup>
+                        </configuration>
+                    </execution> 
                 </executions>
             </plugin>
             <plugin>
@@ -328,7 +334,7 @@
                                     </excludes>
                                 </filter>
                                 <filter>
-                                    <artifact>org.rascalmpl:typepal:*</artifact>
+                                    <artifact>org.rascalmpl:typepal</artifact>
                                     <excludes>
                                         <exclude>META-INF/*</exclude>
                                         <exclude>examples/**</exclude>
@@ -563,6 +569,7 @@
         </dependency>
     </dependencies>
     <profiles>
+        <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
         <profile>
             <id>unshaded</id>
             <build>
@@ -592,7 +599,8 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+            </profile>
+        -->
         <profile>
             <id>compiler-tests</id>
             <build>

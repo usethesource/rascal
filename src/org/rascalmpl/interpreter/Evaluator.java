@@ -102,6 +102,8 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
+import static org.rascalmpl.uri.jar.JarURIResolver.jarify;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -629,6 +631,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         Map<String, Type> expectedTypes = new HashMap<>();
         Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
         List<String> pathConfigParam = new LinkedList<>();
+        String pathConfigName = null;
 
         for (String kwp : kwTypes.getFieldNames()) {
             var kwtype = kwTypes.getFieldType(kwp);
@@ -640,6 +643,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 expectedTypes.put("project", tf.sourceLocationType());
                 // drop the path config parameter
                 pathConfigParam.add(kwp);
+                pathConfigName = kwp;
             }
             else {
                 expectedTypes.put(kwp, kwtype);
@@ -734,7 +738,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
 
-        if (params.get("project") != null) {
+        if (params.get("project") != null && pathConfigName != null) {
             // we have a project that can use automatic detection of PathConfig parameters.
             var pcfg = PathConfig.fromSourceProjectRascalManifest((ISourceLocation) params.get("project"), RascalConfigMode.INTERPRETER, true);
             var cons = pcfg.asConstructor();
@@ -759,6 +763,23 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     }
                 }
             }
+
+            params.put(pathConfigName, cons);
+        }
+        else if (pathConfigName != null) {
+            // Fold back the PathConfig-specific parameters,
+            // into a fresh pathConfig constructor, and remove them from the general list.
+            var pcfg = new PathConfig().asConstructor();
+
+            for (Entry<String, Type> e : PathConfig.PathConfigFields.entrySet()) {
+                var value = params.get(e.getKey());
+                if (value != null) {
+                    pcfg = pcfg.asWithKeywordParameters().setParameter(e.getKey(), value);
+                    params.remove(e.getKey());
+                }
+            }
+
+            params.put(pathConfigName, pcfg);
         }
 
         return params;
@@ -839,11 +860,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             try {
                 if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
-                    return new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
+                    return jarify(mavenize((ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
-                    return URIUtil.createFromURI(option.trim());
+                    return jarify(mavenize(URIUtil.createFromURI(option.trim())));
                 }
                 else {
                     // basic support for current and parent directory notation
@@ -860,7 +881,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
                     }
                     // OS specific notation for file paths
-                    return URIUtil.createFileLocation(option.trim());
+                    return jarify(mavenize(URIUtil.createFileLocation(option.trim())));
                 }
             }  
             catch (FactTypeUseException e) {
