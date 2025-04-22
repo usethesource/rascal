@@ -21,13 +21,13 @@ import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.http.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.INotebookOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.ISourceLocationCommandOutput;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.output.MimeTypes;
 import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
+import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 import org.rascalmpl.repl.parametric.ILanguageProtocol;
 import org.rascalmpl.repl.parametric.ParametricReplService;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -180,32 +180,18 @@ public class TermREPL {
                         case "jsonResponse":
                             return handleJSONResponse(response);
                         default: 
-                            return errorResponse("Unexpected constructor: " + response.getName());
+                            return new PrinterErrorCommandOutput("Unexpected constructor: " + response.getName());
                     }
                 }
             }
             catch (IOException e) {
-                return errorResponse(e.getMessage());
+                return new PrinterErrorCommandOutput(e.getMessage());
             }
             catch (Throwable e) {
-                return errorResponse(e.getMessage());
+                return new PrinterErrorCommandOutput(e.getMessage());
             }
         }
 
-        private ICommandOutput errorResponse(String message) {
-            return new IErrorCommandOutput() {
-                @Override
-                public ICommandOutput getError() {
-                    return () -> new AsciiStringOutputPrinter(message);
-                }
-                @Override
-                public IOutputPrinter asPlain() {
-                    return new AsciiStringOutputPrinter(message);
-                }
-            };
-        }
-
-        
         private ICommandOutput handleInteractiveContent(IConstructor content) throws IOException, UnsupportedEncodingException {
             String id = ((IString) content.get("id")).getValue();
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));

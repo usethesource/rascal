@@ -18,7 +18,7 @@ import lang::pico::\syntax::Main;
 
 import ParseTree;
 import util::ParseErrorRecovery;
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 Tree parsePico(str input, bool visualize=false) 
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);

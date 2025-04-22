@@ -1,10 +1,10 @@
 module lang::rascal::tests::concrete::recovery::bugs::FlowGraphOutOfMemoryBug
 
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
-import util::Benchmark;
 import util::ParseErrorRecovery;
 import String;
 
