@@ -25,8 +25,6 @@ import Set;
 import List;
 import vis::Text;
 
-import lang::rascal::grammar::definition::Modules;
-
 bool checkRecovery(type[&T<:Tree] begin, str input, list[str] expectedErrors, bool visualize=false) {
     Tree t = parser(begin, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
     return checkErrors(t, expectedErrors);
