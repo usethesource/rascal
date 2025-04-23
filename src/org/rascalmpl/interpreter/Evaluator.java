@@ -790,6 +790,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
             }
 
+            // normalize (only) the library locs
+            IList libs = (IList) pcfg.asWithKeywordParameters().getParameter("libs");
+            if (libs != null) {
+                libs = libs.stream()
+                    .map(ISourceLocation.class::cast)
+                    .map(c -> mavenize(c))
+                    .map(c -> jarify(c))
+                    .collect(vf.listWriter());
+                pcfg = pcfg.asWithKeywordParameters().setParameter("libs", libs);
+            }
+
+
             params.put(pathConfigName, pcfg);
         }
 
