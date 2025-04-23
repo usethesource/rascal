@@ -593,9 +593,9 @@ int main(
     bool warningsAsErrors         = false
 ) {
     if (verbose) {
-        println("PathConfig:")
+        println("PathConfig:");
         iprintln(pcfg);
-        println("Dirty modules:")
+        println("Dirty modules:");
         iprintln(modules);
     }
 
