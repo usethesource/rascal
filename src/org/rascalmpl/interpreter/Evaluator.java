@@ -770,6 +770,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 libs = libs.stream()
                     .map(ISourceLocation.class::cast)
                     .map(c -> mavenize(c))
+                    .map(c -> jarify(c))
                     .collect(vf.listWriter());
                 cons = cons.asWithKeywordParameters().setParameter("libs", libs);
             }
