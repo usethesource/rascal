@@ -406,7 +406,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
-				allAmbs &= hasAmbAncestors(predecessor, 3, new HashSet<>());
+				allAmbs &= hasAmbAncestors(predecessor, 2, new HashSet<>());
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
 
@@ -441,70 +441,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			}
 		}
 		
-		return true;
-	}
-
-	private static boolean hasAmbParents(AbstractStackNode<IConstructor> node, int max, Set<Integer> visited) {
-		if (visited.contains(node.getId())) {
-			return true;
-		}
-		visited.add(node.getId());
-
-		IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
-		if (edges != null && edges.size() > 0) {
-			for (int i = edges.size() - 1; i >= 0; --i) {
-				EdgesSet<IConstructor> edgesList = edges.getValue(i);
-				if (edgesList == null) {
-					return false;
-				}
-				int newMax = edgesList.size() > 1 ? max-1 : max;
-				if (newMax == 0) {
-					continue;
-				}
-				for (int j = edgesList.size() - 1; j >= 0; --j) {
-					AbstractStackNode<IConstructor> parent = edgesList.get(j);
-					if (!hasAmbParents(parent, newMax, visited)) {
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean hasAmbParents(AbstractNode node, int max) {
-		if (!(node instanceof AbstractContainerNode)) {
-			return false;
-		}
-
-		@SuppressWarnings("unchecked")
-		AbstractContainerNode<IConstructor> container = (AbstractContainerNode<IConstructor>) node;
-
-		ArrayList<Link> alternatives = container.getAdditionalAlternatives();
-		if (alternatives == null || alternatives.size() == 0) {
-			Link firstAlternative = container.getFirstAlternative();
-			if (firstAlternative == null) {
-				return false;
-			}
-			return hasAmbParents(firstAlternative.getNode(), max);
-		}
-
-		max -= 1;
-		if (max == 0) {
-			return true;
-		}
-
-		if (!hasAmbParents(container.getFirstAlternative().getNode(), max)) {
-			return false;
-		}
-
-		for (int i=alternatives.size()-1; i>=0; i--) {
-			if (!hasAmbParents(alternatives.get(i).getNode(), max)) {
-				return false;
-			}
-		}
-
 		return true;
 	}
 
