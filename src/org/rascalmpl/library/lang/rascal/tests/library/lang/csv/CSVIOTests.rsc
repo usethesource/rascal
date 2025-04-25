@@ -1,4 +1,3 @@
-//@ignoreCompiler{Tests randomly fails due to "inferred types"}
 module lang::rascal::tests::library::lang::csv::CSVIOTests
  
 import IO;
@@ -96,7 +95,12 @@ test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite
 
 bool checkType(type[value] expected, str input) {
     writeFile(targetFile, input);
-    return expected == getCSVType(targetFile);
+	// Reified types in the interpreter and in compiled code differ slightly:
+	// - the symbol is identical
+	// - the definitions are "smaller" in the compiled version (they only contain
+	//   symbols reachable from the symbol of the reified type).
+	// Therefore we only compare symbols here
+    return expected.symbol == getCSVType(targetFile).symbol;
 }
 
 test bool csvTypeInference1() = checkType(#rel[str,int], 
