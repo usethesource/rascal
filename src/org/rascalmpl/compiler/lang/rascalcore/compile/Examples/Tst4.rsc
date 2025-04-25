@@ -26,18 +26,86 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
 
-lexical TimePartNoTZ
-	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
-	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
-	;
 
-layout LAYOUTLIST
-	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
+import util::Reflective;
+import IO;
+import ParseTree;
+import util::Math;
+import lang::rascal::grammar::storage::ModuleParserStorage;
 
-lexical LAYOUT
-	=
-	// all the white space chars defined in Unicode 6.0 
-    [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] 
-	;
+lexical W = [\ ];
+layout L = W*;
+lexical A = [A];
+syntax As = A+;
 
-value main() = #TimePartNoTZ;
+// test bool storeParserNonModule() {
+//   storeParsers(#As, |memory://test-tmp/parsersA.jar|);
+//   p = loadParsers(|memory://test-tmp/parsersA.jar|);
+
+//   return p(#As, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+// }
+
+loc constructExampleProject() {
+    root = |memory://test-tmp/example-prj-<"<arbInt()>">|;
+    newRascalProject(root);
+    return root;
+}
+
+// fix for target scheme not working for "non-existing" projects
+PathConfig getTestPathConfig(loc root) {
+    pcfg = getProjectPathConfig(root);
+    pcfg.bin = root + "target/classes";
+    // remove std to avoid generating parsers for all modules in the library that contain syntax definitions
+    pcfg.srcs -= [|std:///|];
+    return pcfg;
+}
+
+value main(){ //test bool storeModuleParsersWorkedSimpleGrammar() {
+    root = constructExampleProject();
+	println("root: <root>");
+    writeFile(root + "src/main/rascal/A.rsc", "module A
+        'lexical A = [A];
+        ");
+    println("getTestPathConfig(root): <getTestPathConfig(root)>");
+    storeParsersForModules(getTestPathConfig(root));
+    
+    return exists(root + "target/classes/A.parsers");
+}
+
+// test bool storeModuleParsersWorkedForBiggerGrammar() {
+//     root = constructExampleProject();
+//     writeFile(root + "src/main/rascal/A.rsc", "module A
+//         'lexical W = [\\ ];
+//         'layout L = W*;
+//         'lexical A = [A];
+//         'syntax As = A+;
+//         ");
+    
+//     storeParsersForModules(getTestPathConfig(root));
+    
+//     return exists(root + "target/classes/A.parsers");
+// }
+
+
+
+// import util::Reflective;
+// import IO;
+// import ParseTree;
+// import util::Math;
+// import lang::rascal::grammar::storage::ModuleParserStorage;
+
+// lexical W = [\ ];
+// layout L = W*;
+// lexical A = [A];
+// syntax As = A+;
+
+// value main() { //test bool storeParserNonModule() {
+//   storeParsers(#As, |memory://test-tmp/parsersA.jar|);
+    
+//   p = loadParsers(|memory://test-tmp/parsersA.jar|);
+
+//   reifiedAs = type(sort("As"),(lex("W"):choice(lex("W"),{prod(lex("W"),[\char-class([range(32,32)])],{})}),layouts("L"):choice(layouts("L"),{prod(layouts("L"),[\iter-star(lex("W"))],{})}),sort("As"):choice(sort("As"),{prod(sort("As"),[\iter-seps(lex("A"),[layouts("L")])],{})}),lex("A"):choice(lex("A"),{prod(lex("A"),[\char-class([range(65,65)])],{})})));
+//   //return p(type(sort("As"), ()), "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+//   return p(#As, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+//   //return p(reifiedAs, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+// }
