@@ -213,6 +213,9 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
          *  - all the new characters after the last newline are buffered.
          */
         public void write(char[] n, int offset, int len) {
+            if (len == 0) {
+                return;
+            }
             int lastNL = startOfLastLine(n, offset, len);
 
             if (lastNL == -1) {
@@ -615,6 +618,12 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
     }
 
+    private static void boundsCheck(int full, int off, int len) {
+        if (len < 0 || off < 0 || off > full || (off + len) > full) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
     /**
      * Here we make sure the progress bars are gone just before
      * someone wants to print in the console. When the printing
@@ -626,6 +635,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     @Override
     public synchronized void write(String s, int off, int len) {
+        boundsCheck(s.length(), off, len);
+        if (len == 0) {
+            return;
+        }
         if (!bars.isEmpty()) {
             findUnfinishedLine().write(s, off, len);
         }
@@ -641,6 +654,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     @Override
     public synchronized void write(char[] buf, int off, int len)  {
+        boundsCheck(buf.length, off, len);
+        if (len == 0) {
+            return;
+        }
         if (!bars.isEmpty()) {
             findUnfinishedLine().write(buf, off, len);
         }

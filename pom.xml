@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC40-SNAPSHOT</version>
+    <version>0.41.0-RC42-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC20</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC21</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -129,9 +129,9 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.30.0-RC19</version>
+                <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC38</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC41</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
