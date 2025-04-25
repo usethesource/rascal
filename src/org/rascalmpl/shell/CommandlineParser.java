@@ -57,13 +57,19 @@ public class CommandlineParser {
     /**
      * Turns the String[] into a keyword parameter map for passing to an main IFunction.
      */
-    public Map<String, IValue> parseKeywordCommandLineArgs(String[] commandline, IFunction func) {
+    public Map<String, IValue> parseKeywordCommandLineArgs(String toolName, String[] commandline, IFunction func) {
         if (func.getType().getFieldTypes().getArity() > 0) {
-            throw new CommandlineError("main function should only have keyword parameters.", func);
+            throw new CommandlineError("main function should only have keyword parameters.", func.getType().getKeywordParameterTypes(), toolName);
         }
 
+        return parseKeywordCommandLineArgs(toolName, commandline, func.getType().getKeywordParameterTypes());
+    }
+
+    /**
+     * Turns the String[] into a keyword parameter map for passing to an main IFunction.
+     */
+    public Map<String, IValue> parseKeywordCommandLineArgs(String name, String[] commandline, Type kwTypes) {
         Map<String, Type> expectedTypes = new HashMap<>();
-        Type kwTypes = func.getType().getKeywordParameterTypes();
 
         List<String> pathConfigParam = new LinkedList<>();
         String pathConfigName = null;
@@ -101,7 +107,7 @@ public class CommandlineParser {
                 Type expected = expectedTypes.get(label);
 
                 if (expected == null) {
-                    throw new CommandlineError("unknown argument: " + label, func);
+                    throw new CommandlineError("unknown argument: " + label, kwTypes, name);
                 }
 
                 if (expected.isSubtypeOf(tf.boolType())) {
@@ -121,7 +127,7 @@ public class CommandlineParser {
                     continue;
                 }
                 else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                    throw new CommandlineError("expected option for " + label, func);
+                    throw new CommandlineError("expected option for " + label, kwTypes, name);
                 }
                 else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
                     if (!commandline[i+1].startsWith("-") && commandline[i+1].matches(".*" + File.pathSeparator + "(?!//).*")) {
@@ -132,7 +138,7 @@ public class CommandlineParser {
                         IListWriter writer = vf.listWriter();
                         
                         Arrays.stream(pathElems).forEach(e -> {
-                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), e));
+                            writer.append(parseCommandlineOption(name, tf.sourceLocationType(), e));
                         });
 
                         params.put(label, writer.done());
@@ -141,7 +147,7 @@ public class CommandlineParser {
                         IListWriter writer = vf.listWriter();
 
                         while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+                            writer.append(parseCommandlineOption(name, expected.getElementType(), commandline[++i]));
                         }
 
                         params.put(label, writer.done());
@@ -151,7 +157,7 @@ public class CommandlineParser {
                     IListWriter writer = vf.listWriter();
 
                     while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+                        writer.append(parseCommandlineOption(name, expected.getElementType(), commandline[++i]));
                     }
 
                     params.put(label, writer.done());
@@ -160,13 +166,13 @@ public class CommandlineParser {
                     ISetWriter writer = vf.setWriter();
 
                     while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+                        writer.insert(parseCommandlineOption(name, expected.getElementType(), commandline[++i]));
                     }
 
                     params.put(label, writer.done());
                 }
                 else {
-                    params.put(label, parseCommandlineOption(func, expected, commandline[++i]));
+                    params.put(label, parseCommandlineOption(name, expected, commandline[++i]));
                 }
             }
         }
@@ -282,7 +288,7 @@ public class CommandlineParser {
         }
     }
 
-    private IValue parseCommandlineOption(IFunction main, Type expected, String option) {
+    private IValue parseCommandlineOption(String toolName, Type expected, String option) {
         if (expected.isSubtypeOf(tf.stringType())) {
             // this accepts anything as a (unquoted, unescaped) string
             return vf.string(option);
@@ -307,23 +313,23 @@ public class CommandlineParser {
                         return URIUtil.correctLocation("cwd", "", "..");
                     }
                     else if (option.trim().startsWith(".." + File.separatorChar)) {
-                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + File.separatorChar + option);
+                        return parseCommandlineOption(toolName, expected, System.getProperty("user.dir") + File.separatorChar + option);
                     }
                     else if (option.trim().startsWith("." + File.separatorChar)) {
-                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
+                        return parseCommandlineOption(toolName, expected, System.getProperty("user.dir") + option.substring(1));
                     }
                     // OS specific notation for file paths
                     return jarify(mavenize(URIUtil.createFileLocation(option.trim())));
                 }
             }  
             catch (FactTypeUseException e) {
-                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", expected, toolName);
             } 
             catch (IOException e) {
-                throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
+                throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), expected, toolName);
             }     
             catch (URISyntaxException e) {
-                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", expected, toolName);
             }
         }
     
@@ -332,9 +338,9 @@ public class CommandlineParser {
         try {
             return new StandardTextReader().read(vf, expected, reader);
         } catch (FactTypeUseException e) {
-            throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+            throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", expected, toolName);
         } catch (IOException e) {
-            throw new CommandlineError("unexpected problem while parsing commandline:" + e.getMessage(), main);
+            throw new CommandlineError("unexpected problem while parsing commandline:" + e.getMessage(), expected, toolName);
         }
     }
 }

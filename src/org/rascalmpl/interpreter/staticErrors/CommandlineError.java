@@ -8,21 +8,23 @@ import io.usethesource.vallang.type.TypeFactory;
 
 public class CommandlineError extends RuntimeException {
   private static final long serialVersionUID = -5679812063174925071L;
-  private final IFunction main;
-  
-  public CommandlineError(String message, IFunction main) {
-    super(message);
-    this.main = main;
+  private final Type kwType;
+  private final String toolName;
+    
+    public CommandlineError(String message, Type kwType, String name) {
+      super(message);
+      this.kwType = kwType;
+      this.toolName = name;
   }
   
   public String help(String command) {
     TypeFactory tf = TypeFactory.getInstance();
     StringBuilder b = new StringBuilder();
     
-    b.append("Usage: ");
+    b.append("Usage: " + toolName);
     b.append(command);
     
-    Type kwargs = main.getType().getKeywordParameterTypes();
+    Type kwargs = kwType;
     
     if (kwargs.getArity() > 1) {
       b.append(" [options]\n\nOptions:\n");

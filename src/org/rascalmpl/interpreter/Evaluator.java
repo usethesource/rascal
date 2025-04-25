@@ -604,11 +604,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parser.parsePlainCommandLineArgs(commandline)}, null).getValue();
             }
             else if (main.hasKeywordArguments() && main.getArity() == 0) {
-                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(commandline, main);
+                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, main);
                 return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
             }
             else {
-                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
             }
         }
         catch (MatchFailed e) {
