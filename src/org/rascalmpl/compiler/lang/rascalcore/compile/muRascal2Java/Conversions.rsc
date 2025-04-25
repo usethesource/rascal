@@ -902,6 +902,9 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JG
         return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
     }
 }
+
+str atype2vtype(\start(AType atype), JGenie jg, bool inTest=false)
+    = atype2vtype(atype, jg, inTest=inTest);
     
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, RascalValueFactory.Symbol, \"keywords\", $RVF.string(\"<adtName>\"))";
