@@ -9,8 +9,6 @@ class and interface definitions which coincide with types, another may have high
 As a basic principle, the symbols for declared types always link to their definition in the source code using a location value, while other implicit types do not have such a link (i.e. `int` and `void`).
 
 We cater for languages to have a subtype relation to be defined, and a least upper bound computation. 
-
-You will find an interesting examples in ((lang::java::m3::TypeSymbol)).
 }
 @benefits{
 * symbolic types can be analyzed and manipulated symbolically, i.e. to instatiate parametrized types.
