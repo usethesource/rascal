@@ -3,6 +3,7 @@
 module lang::rascal::tests::functionality::Reification
 
 import ParseTree;
+import Set;
 
 data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
 data D[&T] = d1(&T fld);
@@ -49,7 +50,7 @@ test bool reifyReified3() = #type[D[int]].symbol == \reified(\adt("D", [\int()])
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
 test bool allConstructorsAreDefined() 
-  = (0 | it + 1 | /cons(_,_,_,_) := #P.definitions) == 7;
+  = size(#P.definitions[adt("P",[])].alternatives) == 7;
 
 test bool allConstructorsForAnAlternativeDefineTheSameSort() 
   = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
