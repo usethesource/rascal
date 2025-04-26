@@ -22,10 +22,8 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Triple;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
-import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
@@ -50,7 +48,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import io.usethesource.vallang.IConstructor;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
-	private static final int DEFAULT_RECOVERY_LIMIT = Integer.MAX_VALUE;
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
@@ -58,22 +55,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	private Set<Long> processedNodes = new HashSet<>();
 
 	private int recoveryCount = 0;
-	private static int recoveryLimit = setRecoveryLimit();
-	
-	private static int setRecoveryLimit() {
-		String limit = System.getenv("ERROR_RECOVERY_LIMIT");
-		recoveryLimit = DEFAULT_RECOVERY_LIMIT;
-		if (limit != null) {
-			try {
-				recoveryLimit = Integer.parseInt(limit);
-			} catch (NumberFormatException e) {
-				System.err.println("Invalid ERROR_RECOVERY_LIMIT value, using default: " + e.getMessage());
-			}
-		}
-		System.err.println("Error recovery limit: " + recoveryLimit);
-		return recoveryLimit; // Default limit
-	}
-
 	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
@@ -86,12 +67,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
-
-		if (recoveryCount > recoveryLimit) {
-			System.err.print("A");
-			return new DoubleArrayList<>();
-		}
-
 
 		// For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
 		// improve error recovery.
@@ -150,10 +125,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 					continuer.setIncomingEdges(edges);
 
 					skippingNode.addEdges(edges, startLocation);
-
-					if (recoveryCount++ > recoveryLimit) {
-						return recoveredNodes;
-					}
 				}
 			}
 		}
