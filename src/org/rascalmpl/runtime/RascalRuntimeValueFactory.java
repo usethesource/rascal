@@ -104,7 +104,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public class RascalRuntimeValueFactory extends RascalValueFactory {
     
     private final RascalExecutionContext rex;
-    
+    private ParserGenerator generator;
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
         .softValues()
         .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
@@ -116,7 +116,10 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     }
 
     private ParserGenerator getParserGenerator() {
-    	return ParserGeneratorFactory.getInstance(rex).getParserGenerator(this);
+        if (this.generator == null) {
+            	this.generator = ParserGeneratorFactory.getInstance(rex).getParserGenerator(this);
+        }
+        return generator;
     }
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
@@ -258,7 +261,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         
         // here the return type is parametrized and instantiated when the parser function is called with the
         // given start non-terminal:
-        
         Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
         
         Type functionType = tf.functionType(parameterType,
@@ -445,7 +447,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                //System.err.println(grammar);
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (Ambiguous e) {
