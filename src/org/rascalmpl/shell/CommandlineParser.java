@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.rascalmpl.interpreter.staticErrors.CommandlineError;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -221,6 +222,32 @@ public class CommandlineParser {
             params.put(pathConfigName, pcfg);
         }
 
+        if (pathConfigName != null) {
+            // normalize entries in libs and check srcs using mavenize and jarify, to make them into directories,
+            // if they are not directories already.
+            var reg = URIResolverRegistry.getInstance();
+            var pcfg = params.get(pathConfigName);
+            IList libs = (IList) pcfg.asWithKeywordParameters().get("libs");
+            if (libs != null) {
+                libs = libs.stream()
+                    .map(ISourceLocation.class::cast)
+                    .map(l -> reg.isDirectory(l) ? l : jarify(mavenize(l)))
+                    .collect(vf.listWriter());
+                pcfg = pcfg.asWithKeywordParameters().setParameter("libs", libs);
+            }
+
+            IList srcs = (IList) pcfg.asWithKeywordParameters().getParameter("srcs");
+            if (srcs != null) {
+                srcs = srcs.stream()
+                    .map(ISourceLocation.class::cast)
+                    .map(l -> reg.isDirectory(l) ? l : jarify(mavenize(l)))
+                    .collect(vf.listWriter());
+                pcfg = pcfg.asWithKeywordParameters().setParameter("srcs", srcs);
+            }
+
+            params.put(pathConfigName, pcfg);
+        }
+
         return params;
     }
 
@@ -298,11 +325,11 @@ public class CommandlineParser {
             try {
                 if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
-                    return jarify(mavenize((ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
+                    return (ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
-                    return jarify(mavenize(URIUtil.createFromURI(option.trim())));
+                    return URIUtil.createFromURI(option.trim());
                 }
                 else {
                     // basic support for current and parent directory notation
@@ -319,7 +346,7 @@ public class CommandlineParser {
                         return parseCommandlineOption(toolName, expected, System.getProperty("user.dir") + option.substring(1));
                     }
                     // OS specific notation for file paths
-                    return jarify(mavenize(URIUtil.createFileLocation(option.trim())));
+                    return URIUtil.createFileLocation(option.trim());
                 }
             }  
             catch (FactTypeUseException e) {
