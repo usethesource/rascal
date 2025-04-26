@@ -227,7 +227,7 @@ public class CommandlineParser {
             // if they are not directories already.
             var reg = URIResolverRegistry.getInstance();
             var pcfg = params.get(pathConfigName);
-            IList libs = (IList) pcfg.asWithKeywordParameters().get("libs");
+            IList libs = (IList) pcfg.asWithKeywordParameters().getParameter("libs");
             if (libs != null) {
                 libs = libs.stream()
                     .map(ISourceLocation.class::cast)
