@@ -103,4 +103,8 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
 		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE);
 	}
+
+	public boolean hasAmbiguities() {
+		return sortContainerNodeConverter.hasAmbiguities();
+	}
 }

@@ -250,7 +250,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
 
   @Override
   public ITree executeParser() {
-    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), -1, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   }
 
   @Override
