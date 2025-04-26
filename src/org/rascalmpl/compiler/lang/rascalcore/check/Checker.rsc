@@ -132,7 +132,7 @@ ModuleStatus rascalTModelForLocs(
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){
     pcfg = compilerConfig.typepalPathConfig;
-   
+    
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
@@ -579,7 +579,7 @@ we remove or rename keyword fields here, then they the client code must be adapt
 }
 int main(
     list[loc] modules             = [],  // dirty modules to check 
-    PathConfig pcfg               = getProjectPathConfig(|cwd:///|),
+    PathConfig pcfg               = pathConfig(),
     bool logPathConfig            = false,
     bool logImports               = false,
     bool verbose                  = false,
@@ -592,6 +592,13 @@ int main(
     bool errorsAsWarnings         = false,
     bool warningsAsErrors         = false
 ) {
+    if (verbose) {
+        println("PathConfig:");
+        iprintln(pcfg);
+        println("Dirty modules:");
+        iprintln(modules);
+    }
+
     pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
@@ -604,8 +611,17 @@ int main(
         warnUnusedPatternFormals = warnUnusedPatternFormals,
         infoModuleChecked        = infoModuleChecked
     );
-        
-    messages = check(modules, rascalConfig);
+
+    messages = [];
+    
+    if (modules == []) {
+        messages = [info("No modules to check.", |unknown:///|)];
+        return 0;
+    }
+    else {
+        messages = check(modules, rascalConfig);
+    }
+
     flatMessages = [*msgs | program(_, msgs) <- messages];
 
     return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
