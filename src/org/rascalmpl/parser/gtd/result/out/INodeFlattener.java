@@ -37,4 +37,6 @@ public interface INodeFlattener<T, P>{
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
 	
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, CacheMode cacheMode);	
+
+	boolean hasAmbiguities();	// Did we encounter any ambiguities during flattening?
 }

@@ -45,4 +45,9 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 	public AbstractNode convertWithErrors(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
 		return parseTree;
 	}
+
+	@Override
+	public boolean hasAmbiguities() {
+		return false;
+	}	
 }
