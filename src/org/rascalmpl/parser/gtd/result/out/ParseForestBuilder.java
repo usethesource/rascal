@@ -63,6 +63,7 @@ public class ParseForestBuilder<T, S> {
         this.actionExecutor = (IActionExecutor<IConstructor>) actionExecutor;
         this.converter = (INodeFlattener<IConstructor, S>) converter;
         this.nodeConstructorFactory = (INodeConstructorFactory<IConstructor, S>)nodeConstructorFactory;
+        this.positionStore = positionStore;
     }
 
     @SuppressWarnings("unchecked")
