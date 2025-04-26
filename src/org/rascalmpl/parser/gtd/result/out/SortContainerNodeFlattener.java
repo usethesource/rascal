@@ -28,6 +28,7 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
 public class SortContainerNodeFlattener<P, T, S>{
 	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
+	private boolean hasAmbiguities = false;
 
 	/**
 	 * Gather all the alternatives ending with the given child.
@@ -157,7 +158,8 @@ public class SortContainerNodeFlattener<P, T, S>{
 			result = gatheredAlternatives.get(0);
 		}
 		else if (nrOfAlternatives > 0) { // Ambiguous.
-			result = nodeConstructorFactory.createAmbiguityNode(gatheredAlternatives);
+			hasAmbiguities = true;
+			result = nodeConstructorFactory.createAmbiguityNode(gatheredAlternatives);			
 			result = actionExecutor.filterAmbiguity(result, environment);
 			if(result != null){
 				if(sourceLocation != null){
@@ -171,6 +173,10 @@ public class SortContainerNodeFlattener<P, T, S>{
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
 		return result;
+	}
+
+	public boolean hasAmbiguities() {
+		return hasAmbiguities;
 	}
 
 }

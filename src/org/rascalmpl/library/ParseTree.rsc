@@ -406,13 +406,13 @@ catch ParseError(loc l): {
 ```
 }
 
-&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
   
-&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 
@@ -440,7 +440,7 @@ The parse function behaves differently depending of the given keyword parameters
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -461,7 +461,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -552,7 +552,7 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
 this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
-java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
 @description{
@@ -560,7 +560,7 @@ This loader behaves just like ((loadParsers)), except that the resulting parser 
 bound to a specific non-terminal. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{

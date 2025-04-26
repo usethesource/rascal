@@ -240,7 +240,7 @@ public class Reflective {
 	public IValue parseModuleWithSpaces(ISourceLocation loc) {
 		IActionExecutor<ITree> actions = new NoActionExecutor();	
 		try {
-			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), -1, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}

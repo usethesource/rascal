@@ -35,6 +35,7 @@ int pruneCount = 10;
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
     str topSort = "",
+    int maxAmbDepth = 2,
     loc dir = |unknown:///|,
     str ext = "",
     int maxFiles = 1000000,
@@ -509,7 +510,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
 
         // Initialization run
         standardParser(input, testInput);
