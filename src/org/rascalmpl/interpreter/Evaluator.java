@@ -770,6 +770,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 libs = libs.stream()
                     .map(ISourceLocation.class::cast)
                     .map(c -> mavenize(c))
+                    .map(c -> jarify(c))
                     .collect(vf.listWriter());
                 cons = cons.asWithKeywordParameters().setParameter("libs", libs);
             }
@@ -788,6 +789,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     params.remove(e.getKey());
                 }
             }
+
+            // normalize (only) the library locs
+            IList libs = (IList) pcfg.asWithKeywordParameters().getParameter("libs");
+            if (libs != null) {
+                libs = libs.stream()
+                    .map(ISourceLocation.class::cast)
+                    .map(c -> mavenize(c))
+                    .map(c -> jarify(c))
+                    .collect(vf.listWriter());
+                pcfg = pcfg.asWithKeywordParameters().setParameter("libs", libs);
+            }
+
 
             params.put(pathConfigName, pcfg);
         }

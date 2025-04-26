@@ -592,6 +592,13 @@ int main(
     bool errorsAsWarnings         = false,
     bool warningsAsErrors         = false
 ) {
+    if (verbose) {
+        println("PathConfig:");
+        iprintln(pcfg);
+        println("Dirty modules:");
+        iprintln(modules);
+    }
+
     pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
