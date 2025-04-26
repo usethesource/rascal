@@ -9,7 +9,7 @@ The M3 ((Library:analysis::m3::Core)) defines basic concepts such as:
 *  uses: where declared artifacts are used
 *  types: which artifacts has which types
 
-From this ((Library:analysis::m3::Core)) is supposed to be extended with features specific for a programming language. See for example [Java M3]((lang::java::m3::Core)).
+From this ((Library:analysis::m3::Core)) is supposed to be extended with features specific for a programming language. 
 }
 @benefits{
 *  Qualified names in the shape of a location are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.

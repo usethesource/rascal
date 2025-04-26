@@ -67,13 +67,22 @@ public void defaultCompile(bool clean=false) {
 }
 
 int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-  loc license=|unknown:///|, loc citation = |unknown:///|, loc funding=|unknown:///|, loc releaseNotes=|unknown:///|,
-  bool errorsAsWarnings=false, bool warningsAsErrors=false) {
+  loc license=|unknown:///|, 
+  loc citation = |unknown:///|, 
+  loc funding=|unknown:///|, 
+  loc releaseNotes=|unknown:///|,
+  bool errorsAsWarnings=false, 
+  bool warningsAsErrors=false, 
+  bool isPackageCourse=true, 
+  str packageName="noPackageName") {
 
   if (license?) pcfg.license = license;
   if (citation?) pcfg.citation = citation;
   if (funding?) pcfg.funding = funding;
   if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
+  if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
+
+  if (packageName?) pcfg.packageName = packageName;
 
   messages = compile(pcfg);
   
@@ -82,6 +91,9 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
+  // all documentation ends up nested under the `docs` folder in the target
+  pcfg.bin = pcfg.bin + "docs";
+
   ind = createConceptIndex(pcfg);
   
   if (pcfg.isPackageCourse) {
@@ -241,19 +253,6 @@ void generatePackageIndex(PathConfig pcfg) {
     '    \</dependency\>
     '\</dependencies\> 
     '```
-    '**and** change the `Require-Libraries` field in `/path/to/yourProjectName/META-INF/RASCAL.MF` like so:
-    '
-    '```MF
-    'Manifest-Version: 0.0.1
-    'Project-Name: yourProjectName
-    'Source: path/to/src
-    'Require-Libraries: |lib://<pcfg.packageName>|
-    '
-    '
-    '```
-    ':::info
-    'dot.MF files _must_ end with an empty line.
-    ':::
     ");
 }
 
