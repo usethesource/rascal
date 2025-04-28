@@ -27,85 +27,26 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::compile::Examples::Tst4
 
 
-import util::Reflective;
-import IO;
 import ParseTree;
-import util::Math;
-import lang::rascal::grammar::storage::ModuleParserStorage;
+import IO;
+  
+data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
+data D[&T] = d1(&T fld);
+data P(int size = 0);
 
-lexical W = [\ ];
-layout L = W*;
-lexical A = [A];
-syntax As = A+;
+//@ignore{Does not work after changed TypeReifier in compiler}
+value main(){ //test bool allConstructorsHaveTheCommonKwParam(){
+    iprintln( #P.definitions[adt("P",[])].alternatives);
+    return  all (cons(_,_,kws,_) <- #P.definitions[adt("P",[])].alternatives, bprintln(kws), label("size", \int()) in kws);    
+  //=  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
+}  
+@ignoreCompiler{Does not work after changed TypeReifier in compiler}  
+test bool axiomHasItsKwParam()
+  =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
 
-// test bool storeParserNonModule() {
-//   storeParsers(#As, |memory://test-tmp/parsersA.jar|);
-//   p = loadParsers(|memory://test-tmp/parsersA.jar|);
-
-//   return p(#As, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
-// }
-
-loc constructExampleProject() {
-    root = |memory://test-tmp/example-prj-<"<arbInt()>">|;
-    newRascalProject(root);
-    return root;
-}
-
-// fix for target scheme not working for "non-existing" projects
-PathConfig getTestPathConfig(loc root) {
-    pcfg = getProjectPathConfig(root);
-    pcfg.bin = root + "target/classes";
-    // remove std to avoid generating parsers for all modules in the library that contain syntax definitions
-    pcfg.srcs -= [|std:///|];
-    return pcfg;
-}
-
-value main(){ //test bool storeModuleParsersWorkedSimpleGrammar() {
-    root = constructExampleProject();
-	println("root: <root>");
-    writeFile(root + "src/main/rascal/A.rsc", "module A
-        'lexical A = [A];
-        ");
-    println("getTestPathConfig(root): <getTestPathConfig(root)>");
-    storeParsersForModules(getTestPathConfig(root));
-    
-    return exists(root + "target/classes/A.parsers");
-}
-
-// test bool storeModuleParsersWorkedForBiggerGrammar() {
-//     root = constructExampleProject();
-//     writeFile(root + "src/main/rascal/A.rsc", "module A
-//         'lexical W = [\\ ];
-//         'layout L = W*;
-//         'lexical A = [A];
-//         'syntax As = A+;
-//         ");
-    
-//     storeParsersForModules(getTestPathConfig(root));
-    
-//     return exists(root + "target/classes/A.parsers");
-// }
-
-
-
-// import util::Reflective;
-// import IO;
-// import ParseTree;
-// import util::Math;
-// import lang::rascal::grammar::storage::ModuleParserStorage;
-
-// lexical W = [\ ];
-// layout L = W*;
-// lexical A = [A];
-// syntax As = A+;
-
-// value main() { //test bool storeParserNonModule() {
-//   storeParsers(#As, |memory://test-tmp/parsersA.jar|);
-    
-//   p = loadParsers(|memory://test-tmp/parsersA.jar|);
-
-//   reifiedAs = type(sort("As"),(lex("W"):choice(lex("W"),{prod(lex("W"),[\char-class([range(32,32)])],{})}),layouts("L"):choice(layouts("L"),{prod(layouts("L"),[\iter-star(lex("W"))],{})}),sort("As"):choice(sort("As"),{prod(sort("As"),[\iter-seps(lex("A"),[layouts("L")])],{})}),lex("A"):choice(lex("A"),{prod(lex("A"),[\char-class([range(65,65)])],{})})));
-//   //return p(type(sort("As"), ()), "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
-//   return p(#As, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
-//   //return p(reifiedAs, "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
-// }
+@ignore{Does not work after changed TypeReifier in compiler}  
+test bool axiomsKwParamIsExclusive()
+  =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
+  
+  
+  
