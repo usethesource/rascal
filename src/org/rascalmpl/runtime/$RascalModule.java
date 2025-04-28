@@ -1803,6 +1803,9 @@ public abstract class $RascalModule {
 			if(TreeAdapter.isTop(tree)){
 				tree = (ITree) org.rascalmpl.values.parsetrees.TreeAdapter.getArg(tree, "top");
 			}
+			if(TreeAdapter.isAmb(tree)){
+				return name == "amb" && arity == 1;
+			}
 			// Count the non-literal symbols in the argument list
 			IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
 			
