@@ -58,7 +58,7 @@ test bool allConstructorsForAnAlternativeDefineTheSameSort()
 test bool typeParameterReificationIsStatic1(&F _) = #&F.symbol == \parameter("F",\value());
 test bool typeParameterReificationIsStatic2(list[&F] _) = #list[&F].symbol == \list(\parameter("F",\value()));
 
-@ignore{issue #1007}
+//@ignore{issue #1007}
 test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
 
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
@@ -66,7 +66,7 @@ test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeO
 // New tests which can be enabled after succesful bootstrap
 data P(int size = 0);
 
-@ignore{Does not work after changed TypeReifier in compiler}
+@ignoreCompiler{Does not work after changed TypeReifier in compiler}
 test bool allConstructorsHaveTheCommonKwParam()
   =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
    
@@ -74,7 +74,7 @@ test bool allConstructorsHaveTheCommonKwParam()
 test bool axiomHasItsKwParam()
   =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
 
-@ignore{Does not work after changed TypeReifier in compiler}  
+@ignoreCompiler{Does not work after changed TypeReifier in compiler}  
 test bool axiomsKwParamIsExclusive()
   =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
   
