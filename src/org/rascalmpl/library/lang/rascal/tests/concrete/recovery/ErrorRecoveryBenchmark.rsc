@@ -50,6 +50,7 @@ void runLanguageTests() {
 void runRascalBatchTest(RecoveryTestConfig config) {
     int startTime = realTime();
     
+    println("Running batch test with config <config>");
     TestStats stats = batchRecoveryTest(config);
     int duration = realTime() - startTime;
     println();
@@ -104,5 +105,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=10", "max-files=3", "max-file-size=500"]);
+int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=5", "max-files=3", "max-file-size=500"]);
 int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);

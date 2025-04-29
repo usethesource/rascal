@@ -51,14 +51,15 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
+	private int maxAmbDepth;
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	private int recoveryCount = 0;
-	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
+	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser, int maxAmbDepth) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
 		this.stackNodeIdDispenser = stackNodeIdDispenser;
+		this.maxAmbDepth = maxAmbDepth;
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
-		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
+		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes, maxAmbDepth);
 
 		return reviveFailedNodes(input, location, failedNodes);
 	}
@@ -366,53 +367,64 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	 */
 	private static void collectUnmatchableMidProductionNodes(int location,
 		DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
-		ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
+		ArrayList<AbstractStackNode<IConstructor>> failedNodes, int maxAmbDepth) {
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
-			AbstractStackNode<IConstructor> failedNode =
-				unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
+			AbstractStackNode<IConstructor> node = unmatchableMidProductionNodes.getSecond(i);
+			AbstractStackNode<IConstructor> failedNode = node.getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 
 			// Merge the information on the predecessors into the failed node.
 			boolean allAmbs = failedNodePredecessors.size() >= 1;
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
-				allAmbs &= hasAmbAncestors(predecessor, 2, new HashSet<>());
+				boolean amb = hasAmbAncestors(predecessor, maxAmbDepth, new HashSet<>());
+				allAmbs &= amb;
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
 
-			if (!allAmbs) {
+			if (true || !allAmbs) {
 				failedNodes.add(failedNode);
 			}
 		}
 	}
 
-	private static boolean hasAmbAncestors(AbstractStackNode<IConstructor>node, int max, Set<Integer>visited) {
+	private static boolean hasAmbAncestors(AbstractStackNode<IConstructor> node, int max, Set<Integer> visited) {
 		if (visited.contains(node.getId())) {
-			return true;
+			return false;
 		}
 		visited.add(node.getId());
 
-		EdgesSet<IConstructor> edges = node.getIncomingEdges();
+		int count = 0;
+		var edges = node.getEdges();
 		if (edges == null || edges.size() == 0) {
 			return false;
 		}
 
-		for (int i = edges.size() - 1; i >= 0; --i) {
-			AbstractStackNode<IConstructor> parent = edges.get(i);
-			if (parent == null) {
-				return false;
-			}
-			int newMax = edges.size() > 1 ? max-1 : max;
-			if (newMax == 0) {
-				continue;
-			}
-			if (!hasAmbAncestors(parent, newMax, visited)) {
-				return false;
+        for (int i = edges.size() - 1; i >= 0; --i) {
+			EdgesSet<IConstructor> edgesList = edges.getValue(i);
+			if (edgesList != null) {
+				count += edgesList.size();
 			}
 		}
-		
-		return true;
+
+		if (count > 1) {
+			max -= 1;
+		}
+
+		for (int i = edges.size() - 1; i >= 0; --i) {
+			EdgesSet<IConstructor> edgesList = edges.getValue(i);
+			if (edgesList != null) {
+				for (int j = edgesList.size() - 1; j >= 0; --j) {
+                	AbstractStackNode<IConstructor> parentStackNode = edgesList.get(j);
+					if (hasAmbAncestors(parentStackNode, max, visited)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
