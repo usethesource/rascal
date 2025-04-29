@@ -414,7 +414,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
             IRecoverer<IConstructor> recoverer = null;
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(uri, parser, new StackNodeIdDispenser(parser));
+                recoverer = new ToTokenRecoverer(uri, parser, new StackNodeIdDispenser(parser), maxAmbDepth);
             }
 
             return (ITree) parser.parse(name, uri, input, maxAmbDepth, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity || allowRecovery), recoverer);

@@ -53,7 +53,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 * Convert the given node.
 	 */
 	@SuppressWarnings("unchecked")
-	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, CacheMode cacheMode){
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, CacheMode cacheMode, int maxAmbDepth){
 		T result = node.getTree();
 
 		if (result != null) {
@@ -68,13 +68,13 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 				result = literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
 				break;
 			case SortContainerNode.ID:
-				result = sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				result = sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment, maxAmbDepth);
 				break;
 			case ExpandableContainerNode.ID:
-				result = listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				result = listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment, maxAmbDepth);
 				break;
 			case RecoveredNode.ID:
-				result = convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment, cacheMode);
+				result = convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment, cacheMode, maxAmbDepth);
 				break;
 			case SkippedNode.ID:
 				result = skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
@@ -101,7 +101,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
-		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE);
+		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE, 2);
 	}
 
 	public boolean hasAmbiguities() {

@@ -406,13 +406,13 @@ catch ParseError(loc l): {
 }
 
 &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
 &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
   
 &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, input);
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 
 @synopsis{Generates a parser from an input grammar.}
