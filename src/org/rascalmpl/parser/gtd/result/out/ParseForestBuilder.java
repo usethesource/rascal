@@ -62,6 +62,7 @@ public class ParseForestBuilder<T, S> {
     public ParseForestBuilder(IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, int maxAmbLevel, INodeConstructorFactory<T, S> nodeConstructorFactory, PositionStore positionStore) {
         this.actionExecutor = (IActionExecutor<IConstructor>) actionExecutor;
         this.converter = (INodeFlattener<IConstructor, S>) converter;
+        this.maxAmbLevel = maxAmbLevel; 
         this.nodeConstructorFactory = (INodeConstructorFactory<IConstructor, S>)nodeConstructorFactory;
         this.positionStore = positionStore;
     }

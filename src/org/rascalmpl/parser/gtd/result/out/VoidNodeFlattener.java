@@ -35,7 +35,7 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 	}
 	
 	@Override
-	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment, INodeFlattener.CacheMode cacheMode){
+	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment, INodeFlattener.CacheMode cacheMode, int maxAmbDepth){
 		return parseTree;
 	}
 	
