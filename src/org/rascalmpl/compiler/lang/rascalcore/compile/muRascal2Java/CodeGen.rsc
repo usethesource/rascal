@@ -464,7 +464,7 @@ str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
     
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
-    //iprintln(fun); // print function
+    iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
@@ -693,10 +693,10 @@ str trans(muTreeUnparseToLowerCase(MuExp t), JGenie jg) = "$RVF.string(org.rasca
 // ---- Type parameters ---------------------------------------------------------
 
 str trans(muTypeParameterMap(set[AType] parameters), JGenie jg){
-    return "HashMap\<io.usethesource.vallang.type.Type,io.usethesource.vallang.type.Type\> $typeBindings = new HashMap\<\>();
-           '<for(p <- parameters){>
-           '$typeBindings.put(<jg.accessType(p)>, $TF.voidType());
-           '<}>";
+    return "HashMap\<io.usethesource.vallang.type.Type,io.usethesource.vallang.type.Type\> $typeBindings = new HashMap\<\>();\n";
+        //    '//<for(p <- parameters){>
+        //    '//$typeBindings.put(<jg.accessType(p)>, $TF.voidType());
+        //    '//<}>";
 }
 
 str trans(c:muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType), JGenie jg){
@@ -1486,29 +1486,29 @@ JCode trans(muForAll(str btscope, MuExp var, AType iterType, MuExp iterable, MuE
             ");
 }
 
-JCode trans(muForAny(str btscope, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont), JGenie jg){
-    iterCode = (muPrim("subsets", _, _, _, _) := iterable ||  muDescendantMatchIterator(_,_) := iterable) ? trans(iterable, jg) : transWithCast(iterType, iterable, jg);
+// JCode trans(muForAny(str btscope, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont), JGenie jg){
+//     iterCode = (muPrim("subsets", _, _, _, _) := iterable ||  muDescendantMatchIterator(_,_) := iterable) ? trans(iterable, jg) : transWithCast(iterType, iterable, jg);
 
-    if(isIterType(iterType)){
-        iterCode = "org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(<iterCode>)";
-    }
-    return
-        (muDescendantMatchIterator(_,_) := iterable) ? 
-            ("<isEmpty(btscope) ? "" : "<btscope>:">
-             'for(IValue <var.name> : <iterCode>){
-             '    <trans2Void(body, jg)>
-             '}
-             '<trans2Void(falseCont, jg)>
-             ")
-        :
-            ("<isEmpty(btscope) ? "" : "<btscope>:">
-            'for(IValue <var.name>_for : <iterCode>){
-            '    <atype2javatype(var.atype)> <var.name> = (<atype2javatype(var.atype)>) <var.name>_for;
-            '    <trans2Void(body, jg)>
-            '}
-            '<trans2Void(falseCont, jg)>
-            ");
-}
+//     if(isIterType(iterType)){
+//         iterCode = "org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(<iterCode>)";
+//     }
+//     return
+//         (muDescendantMatchIterator(_,_) := iterable) ? 
+//             ("<isEmpty(btscope) ? "" : "<btscope>:">
+//              'for(IValue <var.name> : <iterCode>){
+//              '    <trans2Void(body, jg)>
+//              '}
+//              '<trans2Void(falseCont, jg)>
+//              ")
+//         :
+//             ("<isEmpty(btscope) ? "" : "<btscope>:">
+//             'for(IValue <var.name>_for : <iterCode>){
+//             '    <atype2javatype(var.atype)> <var.name> = (<atype2javatype(var.atype)>) <var.name>_for;
+//             '    <trans2Void(body, jg)>
+//             '}
+//             '<trans2Void(falseCont, jg)>
+//             ");
+// }
 
 // muExists
 
