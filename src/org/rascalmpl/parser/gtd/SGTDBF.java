@@ -10,6 +10,7 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Map;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -23,9 +24,9 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
-import org.rascalmpl.parser.gtd.result.out.ParseForestBuilder;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -47,6 +48,15 @@ import org.rascalmpl.parser.uptr.debug.NopDebugListener;
 import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 /**
  * This is the core of the parser; it drives the parse process.
@@ -132,6 +142,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	
 	// Error recovery
 	private IRecoverer<P> recoverer;
+	private Map<IConstructor,IConstructor> processedTrees = new java.util.IdentityHashMap<>(); // Used to preserve sharing during error node introduction
 	
 	// Debugging
 	private IDebugListener<P> debugListener;
@@ -1514,99 +1525,240 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	/**
 	 * Parses with post parse filtering.
 	 */
-
-	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbLevel, IActionExecutor<T> actionExecutor,
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		return buildResult(result, converter, maxAmbLevel, nodeConstructorFactory, actionExecutor);
+		return buildResult(result, converter, nodeConstructorFactory, actionExecutor, maxAmbDepth);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, charsToInts(input), maxAmbLevel, actionExecutor, converter, nodeConstructorFactory,
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, actionExecutor, converter, nodeConstructorFactory,
 			recoverer, debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
-		return parse(nonterminal, inputURI, input, maxAmbLevel, actionExecutor, converter, nodeConstructorFactory, recoverer, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, recoverer, null);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, input, maxAmbLevel, actionExecutor, converter, nodeConstructorFactory, null,
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, null,
 			debugListener);
 	}
 
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(nonterminal, inputURI, input, maxAmbLevel, actionExecutor, converter, nodeConstructorFactory, null, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, null, null);
 	}
 
 	/**
 	 * Parses without post parse filtering.
 	 */
-	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		return buildResult(result, converter, maxAmbLevel, nodeConstructorFactory, new VoidActionExecutor<T>());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, charsToInts(input), maxAmbLevel, converter, nodeConstructorFactory, recoverer,
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, converter, nodeConstructorFactory, recoverer,
 			debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
-		return parse(nonterminal, inputURI, input, maxAmbLevel, converter, nodeConstructorFactory, recoverer, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, recoverer, null);
 	}
 
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, input, maxAmbLevel, converter, nodeConstructorFactory, null, debugListener);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, null, debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(nonterminal, inputURI, charsToInts(input), maxAmbLevel, converter, nodeConstructorFactory, null, null);
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, converter, nodeConstructorFactory, null, null);
 	}
 
-	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(startNode, inputURI, input, converter, nodeConstructorFactory);
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, 
+		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+		return parse(startNode, inputURI, input, INodeFlattener.NO_MAX_AMB_DEPTH, converter, nodeConstructorFactory);
 	}
 
-	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbLevel, INodeFlattener<T, S> converter,
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		return buildResult(result, converter, maxAmbLevel, nodeConstructorFactory, new VoidActionExecutor<T>());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
 	/**
 	 * Constructed the final parse result using the given converter.
 	 */
-	protected T buildResult(AbstractNode result, INodeFlattener<T, S> converter, int maxAmbLevel,
-		INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor) {
+	protected T buildResult(AbstractNode result, INodeFlattener<T, S> converter,
+		INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor, int maxAmbDepth) {
 	  initTime();
 	  try {
-		ParseForestBuilder<T,S> builder = new ParseForestBuilder<T, S>(actionExecutor, converter, maxAmbLevel, nodeConstructorFactory, positionStore);
-		return builder.buildParseForest(inputURI, result, recoverer != null && parseErrorRecovered);
+	    FilteringTracker filteringTracker = new FilteringTracker();
+	    // Invoke the forest flattener, a.k.a. "the bulldozer".
+	    Object rootEnvironment = actionExecutor != null ? actionExecutor.createRootEnvironment() : null;
+	    T parseResult = null;
+	    try {
+			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker,
+					actionExecutor, rootEnvironment, maxAmbDepth);
+		}
+		finally {
+		      actionExecutor.completed(rootEnvironment, (parseResult == null));
+	    }
+	    if(parseResult != null) {
+			if (recoverer != null && parseErrorRecovered) {
+				parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
+			}
+			return parseResult; // Success.
+	    }
+
+	    int offset = filteringTracker.getOffset();
+	    int endOffset = filteringTracker.getEndOffset();
+	    int length = endOffset - offset;
+	    int beginLine = positionStore.findLine(offset);
+	    int beginColumn = positionStore.getColumn(offset, beginLine);
+	    int endLine = positionStore.findLine(endOffset);
+	    int endColumn = positionStore.getColumn(endOffset, endLine);
+		throw new ParseError("All results were filtered", inputURI, offset, length,
+			beginLine + 1, endLine + 1,	beginColumn, endColumn);
 	  }
 	  finally {
 	    checkTime("Unbinarizing, post-parse filtering, and mapping to UPTR");
 	  }
 	}
 
+	/**
+	 * After parsing, parse trees will only contain `skipped` nodes. This post-processing step
+	 * transforms the original tree into a more useful form. In essence, subtrees containing errors look
+	 * like this after parsing: `appl(prod(S,[<argtypes>]),
+	 * [<child1>,<child2>,...,appl(skipped([<chars>]))])` This method transforms these trees into:
+	 * `appl(error(S,prod(S,[<argtypes>]),<dot>), [<child1>,<child2>,...,appl(skipped([<chars>]))])`
+	 * This means productions that failed to parse can be recognized at the top level. Note that this
+	 * can only be done when we know the actual type of T is IConstructor.
+	 */
+	@SuppressWarnings("unchecked")
+	private T introduceErrorNodes(T tree, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+		if (!(tree instanceof IConstructor)) {
+			return tree;
+		}
+
+		return (T) introduceErrorNodes((IConstructor) tree,
+			(INodeConstructorFactory<IConstructor, S>) nodeConstructorFactory);
+	}
+
+	private IConstructor introduceErrorNodes(IConstructor tree,
+		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+		IConstructor result = processedTrees.get(tree);
+		if (result != null) {
+			return result;
+		}
+
+		Type type = tree.getConstructorType();
+		if (type == RascalValueFactory.Tree_Appl) {
+			result = fixErrorAppl((ITree) tree, nodeConstructorFactory);
+		}
+		else if (type == RascalValueFactory.Tree_Char) {
+			result = tree;
+		}
+		else if (type == RascalValueFactory.Tree_Amb) {
+			result = fixErrorAmb((ITree) tree, nodeConstructorFactory);
+		}
+		else if (type == RascalValueFactory.Tree_Cycle) {
+			result = tree;
+		}
+		else {
+			throw new RuntimeException("Unrecognized tree type: " + type);
+		}
+
+		if (result != tree && tree.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
+			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+		}
+
+		processedTrees.put(tree, result);
+
+		return result;
+	}
+
+	private IConstructor fixErrorAppl(ITree tree,
+		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+
+		IValue prod = TreeAdapter.getProduction(tree);
+		IList childList = TreeAdapter.getArgs(tree);
+
+		ArrayList<IConstructor> newChildren = null;
+		boolean errorTree = false;
+		int childCount = childList.length();
+		for (int i=0; i<childCount; i++) {
+			IConstructor child = (IConstructor) childList.get(i);
+			IConstructor newChild = null;
+
+			// Last child could be a skipped child
+			if (i == childCount - 1
+					&& child.getConstructorType() == RascalValueFactory.Tree_Appl
+					&& TreeAdapter.getProduction((ITree)child).getConstructorType() == RascalValueFactory.Production_Skipped) {
+				errorTree = true;
+				newChild = child;
+			} else {
+				newChild = introduceErrorNodes(child, nodeConstructorFactory);
+			}
+
+			if ((newChild != child || errorTree) && newChildren == null) {
+				newChildren = new ArrayList<>(childCount);
+				for (int j=0; j<i; j++) {
+					newChildren.add((IConstructor) childList.get(j));
+				}
+			}
+
+			if (newChildren != null) {
+				newChildren.add(newChild);
+			}
+		}
+
+		if (errorTree) {
+			return nodeConstructorFactory.createErrorNode(newChildren, prod);
+		}
+		else if (newChildren != null) {
+			return nodeConstructorFactory.createSortNode(newChildren, prod);
+		}
+
+		return tree;
+	}
+
+	private IConstructor fixErrorAmb(ITree tree,
+		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+		ISet alternativeSet = TreeAdapter.getAlternatives(tree);
+		ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
+		boolean anyChanges = false;
+		for (IValue alt : alternativeSet) {
+			IConstructor newAlt = introduceErrorNodes((IConstructor) alt, nodeConstructorFactory);
+			if (newAlt != alt) {
+				anyChanges = true;
+			}
+			alternatives.add(newAlt);
+		}
+
+		if (anyChanges) {
+			return nodeConstructorFactory.createAmbiguityNode(alternatives);
+		}
+
+		return tree;
+	}
 
 	/**
 	 * Datastructure visualization for debugging purposes
