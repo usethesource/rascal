@@ -53,7 +53,7 @@ public class ForwardLink<E>{
 		this.maxAmbDepth = maxAmbDepth;
 	}
 
-	// Copy constructor
+	// Copy constructor with a different maxAmbDepth
 	public ForwardLink(ForwardLink<E> original, int maxAmbDepth) {
 		this.next = original.next;
 		this.length = original.length;

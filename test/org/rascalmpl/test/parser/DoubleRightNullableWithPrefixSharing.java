@@ -5,6 +5,7 @@ import java.io.StringReader;
 
 import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
@@ -108,7 +109,7 @@ public class DoubleRightNullableWithPrefixSharing extends org.rascalmpl.parser.g
 
   @Override
   public ITree executeParser() {
-    return parse("Stmt", null, "ii!".toCharArray(), -1, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+    return parse("Stmt", null, "ii!".toCharArray(), INodeFlattener.NO_MAX_AMB_DEPTH, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   }
 
   @Override

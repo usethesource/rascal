@@ -22,7 +22,6 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.ForwardLink;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.util.DebugUtil;
 
 /**
  * A converter for 'expandable' container result nodes.
@@ -262,10 +261,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			
 			// One prefix, so not ambiguous at this point
 			// Or the maximum ambiguity depth is reached and there are multiple prefixes, in that case we just continue with the first prefix.
-			if (postFix.maxAmbDepth <= 0) {
-				DebugUtil.opportunityToBreak();
-			}
-			if(prefixes.size() == 1 || postFix.maxAmbDepth <= 0 && prefixes.size() > 1 ){
+			if(prefixes.size() == 1 || (postFix.maxAmbDepth <= 0 && prefixes.size() > 1)){
 				Link prefix = prefixes.get(0);
 				
 				if(prefix == null){ // Start of the production encountered.
@@ -289,7 +285,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			}
 			
 			// Multiple prefixes, so the list is ambiguous at this point.
-			postFix = new ForwardLink<AbstractNode>(postFix, postFix.maxAmbDepth-1); // Make a copy
+			postFix = new ForwardLink<AbstractNode>(postFix, postFix.maxAmbDepth-1); // Make a copy with a lower maxAmbDepth just to be on the safe side
 			gatherAmbiguousProduction(converter, nodeConstructorFactory, prefixes, postFix, gatheredAlternatives, production, stack, depth, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 			
 			break;
