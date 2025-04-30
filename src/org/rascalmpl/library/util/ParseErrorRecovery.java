@@ -22,12 +22,9 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.parser.gtd.result.out.ParseForestBuilder;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -37,7 +34,6 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -78,14 +74,6 @@ public class ParseErrorRecovery {
 
     public IConstructor disambParseErrorsNoAmbiguity(IConstructor arg) {
         return disambiguate(arg, false, true, new HashMap<>()).tree;
-    }
-
-    public IFunction curry(IFunction func, IMap keywordParams, IEvaluatorContext ctx) {    
-        return CurriedFunction.create(ctx.getEvaluator(), func, null, keywordParams);
-    }
-
-    public IFunction curry(IFunction func, IValue arg, IMap keywordParams, IEvaluatorContext ctx) {
-        return CurriedFunction.create(ctx.getEvaluator(), func, arg, keywordParams);
     }
 
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, boolean buildTree, Map<IConstructor, ScoredTree> processedTrees) {
@@ -545,6 +533,84 @@ public class ParseErrorRecovery {
 
 
     public IConstructor pruneAmbiguities(IConstructor tree, IInteger maxDepth) {
-        return ParseForestBuilder.pruneAmbiguities((ITree) tree, maxDepth.intValue());
+        return pruneAmbiguities((ITree) tree, maxDepth.intValue(), new IdentityHashMap<>());
     }
+
+    private ITree pruneAmbiguities(ITree tree, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        ITree result = processedNodes.get(tree);
+        if (result != null) {
+            return result;
+        }
+
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl) {
+            result = pruneApplAmbiguities(tree, pruneDepth, processedNodes);
+        }
+        else if (type == RascalValueFactory.Tree_Amb) {
+            result = pruneAmbAmbiguities(tree, pruneDepth, processedNodes);
+        }
+        else {
+            result = tree;
+        }
+
+        processedNodes.put(tree, result);
+
+        return result;
+    }
+
+    private ITree pruneApplAmbiguities(ITree appl, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        IList args = TreeAdapter.getArgs(appl);
+        IListWriter newArgs = null;
+        int argCount = args.size();
+        for (int i = 0; i < argCount; i++) {
+            ITree arg = (ITree) args.get(i);
+            ITree newArg = pruneAmbiguities(arg, pruneDepth, processedNodes);
+            if (arg != newArg && newArgs == null) {
+                newArgs = rascalValues.listWriter();
+                for (int j = 0; j < i; j++) {
+                    newArgs.append(args.get(j));
+                }
+            }
+
+            if (newArgs != null) {
+                newArgs.append(newArg);
+            }
+        }
+
+        if (newArgs == null) {
+            return appl;
+        }
+
+        return TreeAdapter.setArgs(appl, newArgs.done());
+    }
+
+    private ITree pruneAmbAmbiguities(ITree amb, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        if (pruneDepth == 0) {
+            return pruneAmbiguities((ITree) alts.iterator().next(), 0, processedNodes);
+        }
+
+        ISetWriter newAlts = rascalValues.setWriter();
+
+        boolean anyChanges = false;
+        for (IValue alt : alts) {
+            ITree newAlt = pruneAmbiguities((ITree) alt, pruneDepth-1, processedNodes);
+            if (newAlt != alt) {
+                anyChanges = true;
+            }
+            newAlts.append(newAlt);
+        }
+
+        if (anyChanges) {
+            ITree newAmb = rascalValues.amb(newAlts.done());
+            if (amb.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
+                IValue loc = amb.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+                newAmb = (ITree) newAmb.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+            }
+            return newAmb;
+        }
+
+        return amb;
+    }
+
 }

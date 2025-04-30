@@ -22,6 +22,7 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  */
 public interface INodeFlattener<T, P>{
 	public enum CacheMode { CACHE_MODE_NONE, CACHE_MODE_SHARING_ONLY, CACHE_MODE_FULL };
+	public static final int NO_MAX_AMB_DEPTH = Integer.MAX_VALUE;
 
 	public static INodeFlattener.CacheMode getCacheMode(boolean cacheable, boolean hasSideEffects) {
 		if (hasSideEffects) {
@@ -34,9 +35,7 @@ public interface INodeFlattener<T, P>{
 	/**
 	 * Convert the given parse result.
 	 */
-	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
+	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, int maxAmbDepth);
 	
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, CacheMode cacheMode, int maxAmbDepth);	
-
-	boolean hasAmbiguities();	// Did we encounter any ambiguities during flattening?
 }

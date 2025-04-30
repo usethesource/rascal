@@ -100,11 +100,8 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	/**
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
-	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
-		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE, 2);
-	}
-
-	public boolean hasAmbiguities() {
-		return sortContainerNodeConverter.hasAmbiguities();
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, int maxAmbDepth){
+		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE,
+			maxAmbDepth == -1 ? NO_MAX_AMB_DEPTH : maxAmbDepth);
 	}
 }
