@@ -87,6 +87,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -1129,10 +1130,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
             
 				if (result.getStaticType().isString()) {
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, -1, false, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, INodeFlattener.NO_MAX_AMB_DEPTH, false, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, -1, false, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, 
+						INodeFlattener.NO_MAX_AMB_DEPTH, false, false);
 				}
 				
 				assert tree != null; // because we checked earlier

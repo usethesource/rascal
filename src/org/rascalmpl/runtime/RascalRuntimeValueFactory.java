@@ -48,6 +48,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
@@ -316,7 +317,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return parseObject(grammar, input.getValue(), URIUtil.rootLocation("unknown"), false, -1, false, false, filters);
+                return parseObject(grammar, input.getValue(), URIUtil.rootLocation("unknown"), false, INodeFlattener.NO_MAX_AMB_DEPTH, false, false, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -335,7 +336,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return parseObject(grammar, filters, input, false, -1, false, false);
+                return parseObject(grammar, filters, input, false, INodeFlattener.NO_MAX_AMB_DEPTH, false, false);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -414,7 +415,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
             IRecoverer<IConstructor> recoverer = null;
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(uri, parser, new StackNodeIdDispenser(parser), maxAmbDepth);
+                recoverer = new ToTokenRecoverer(uri, parser, new StackNodeIdDispenser(parser));
             }
 
             return (ITree) parser.parse(name, uri, input, maxAmbDepth, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity || allowRecovery), recoverer);
