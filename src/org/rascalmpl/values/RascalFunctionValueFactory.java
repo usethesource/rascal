@@ -51,6 +51,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
@@ -388,7 +389,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(-1), vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.NO_MAX_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
     public IString createHole(ITree part, IInteger index) {
@@ -520,7 +521,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         protected IValue firstAmbiguity(String methodName, IString input) {
             try {
-                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, -1, false, false, vf.set());
+                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, 
+                    INodeFlattener.NO_MAX_AMB_DEPTH, false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -536,7 +538,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         protected IValue firstAmbiguity(String methodName, ISourceLocation input) {
             try {
-                return parseObject(methodName, input, readAll(input), false, -1, false, false, vf.set());
+                return parseObject(methodName, input, readAll(input), false, 
+                    INodeFlattener.NO_MAX_AMB_DEPTH, false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -588,13 +591,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, boolean hasSideEffects, ISet filters) {
-            IActionExecutor<ITree> exec = createFilterExecutor(filters, hasSideEffects);
+            IActionExecutor<ITree> exec = filters.isEmpty() ? new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
             URI uri = location.getURI();
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance), maxAmbDepth);
+                recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
             }
             ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, maxAmbDepth, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
 
@@ -608,14 +611,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
     }
 
-    private static IActionExecutor<ITree> createFilterExecutor(ISet filters, boolean hasSideEffects) {
-        if (filters.isEmpty()) {
-            return new NoActionExecutor();
-        }
-
-        return new RascalFunctionActionExecutor(filters, !hasSideEffects);
-    }
-    
     /**
      * This class wraps the parseObject methods of the Evaluator by presenting it as an implementation of IFunction.
      * In this way library builtins can use the parser generator functionality of the Evaluator without knowing about

@@ -21,7 +21,6 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.ForwardLink;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.util.DebugUtil;
 
 /**
  * A converter for sort container result nodes.
@@ -66,6 +65,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
 			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode, maxAmbDepth), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 			if (maxAmbDepth <= 0) {
+				// We have reached the maximum ambiguity depth so break after the first alternative. No ambiguity cluster will be built.
 				break;
 			}
 		}
@@ -152,12 +152,12 @@ public class SortContainerNodeFlattener<P, T, S>{
 		// Gather the alternatives.
 		ArrayList<T> gatheredAlternatives = new ArrayList<>();
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		int newMaxAmbDepth = alternatives == null || alternatives.size() == 0 ? maxAmbDepth : maxAmbDepth - 1;
+
+		// Use a lower maxAmbDepth only if the current node is ambiguous (i.e. it has additional alternatives)
+		int newMaxAmbDepth = (alternatives == null || alternatives.size() == 0 || maxAmbDepth == 0) ? maxAmbDepth : maxAmbDepth - 1;
 		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects, newMaxAmbDepth);
 		ArrayList<P> productions = node.getAdditionalProductions();
-		if (alternatives != null && maxAmbDepth <= 0) {
-			DebugUtil.opportunityToBreak();
-		}
+		// If we reached the maximum ambiguity depth, we will not gather alternatives after the first.
 		if(alternatives != null && maxAmbDepth > 0) {
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects, newMaxAmbDepth);

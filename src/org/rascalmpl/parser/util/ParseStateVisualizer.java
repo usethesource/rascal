@@ -76,11 +76,11 @@ import io.usethesource.vallang.IConstructor;
  * The file 'replay.html' contains an simple example of a html file to navigate through these snapshots.
  */
 public class ParseStateVisualizer {
-    public static final boolean VISUALIZATION_ENABLED = true;
+    public static final boolean VISUALIZATION_ENABLED = false;
     private static final String VISUALIZATION_URI_PATTERN_ENV = "PARSER_VISUALIZATION_URI_PATTERN";
     private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
-    private static final boolean INCLUDE_INCOMING_EDGES = true;
+    private static final boolean INCLUDE_INCOMING_EDGES = false;
 
     public static final NodeId PARSER_ID = new NodeId("Parser");
     public static final NodeId TODO_LISTS_ID= new NodeId("todoLists");

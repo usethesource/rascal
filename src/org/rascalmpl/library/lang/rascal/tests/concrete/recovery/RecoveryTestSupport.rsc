@@ -90,6 +90,10 @@ java int countUniqueTreeNodes(Tree tree);
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 java int countTreeNodes(Tree tree);
 
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
+
+
 private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;

@@ -51,15 +51,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
-	private int maxAmbDepth;
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser, int maxAmbDepth) {
+	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
 		this.stackNodeIdDispenser = stackNodeIdDispenser;
-		this.maxAmbDepth = maxAmbDepth;
 	}
 
 	@Override
@@ -74,7 +72,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
-		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes, maxAmbDepth);
+		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
 
 		return reviveFailedNodes(input, location, failedNodes);
 	}
@@ -367,7 +365,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	 */
 	private static void collectUnmatchableMidProductionNodes(int location,
 		DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
-		ArrayList<AbstractStackNode<IConstructor>> failedNodes, int maxAmbDepth) {
+		ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
 			AbstractStackNode<IConstructor> node = unmatchableMidProductionNodes.getSecond(i);
