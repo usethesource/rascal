@@ -30,7 +30,7 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 	 * Returns the given tree.
 	 */
 	@Override
-	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
+	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment, int maxAmbDepth){
 		return parseTree;
 	}
 	
@@ -45,9 +45,4 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 	public AbstractNode convertWithErrors(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
 		return parseTree;
 	}
-
-	@Override
-	public boolean hasAmbiguities() {
-		return false;
-	}	
 }

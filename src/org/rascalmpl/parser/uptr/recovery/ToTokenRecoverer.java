@@ -374,57 +374,14 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			AbstractStackNode<IConstructor> failedNode = node.getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 
 			// Merge the information on the predecessors into the failed node.
-			boolean allAmbs = failedNodePredecessors.size() >= 1;
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
-				boolean amb = hasAmbAncestors(predecessor, maxAmbDepth, new HashSet<>());
-				allAmbs &= amb;
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
 
-			if (true || !allAmbs) {
-				failedNodes.add(failedNode);
-			}
+			failedNodes.add(failedNode);
 		}
-	}
-
-	private static boolean hasAmbAncestors(AbstractStackNode<IConstructor> node, int max, Set<Integer> visited) {
-		if (visited.contains(node.getId())) {
-			return false;
-		}
-		visited.add(node.getId());
-
-		int count = 0;
-		var edges = node.getEdges();
-		if (edges == null || edges.size() == 0) {
-			return false;
-		}
-
-        for (int i = edges.size() - 1; i >= 0; --i) {
-			EdgesSet<IConstructor> edgesList = edges.getValue(i);
-			if (edgesList != null) {
-				count += edgesList.size();
-			}
-		}
-
-		if (count > 1) {
-			max -= 1;
-		}
-
-		for (int i = edges.size() - 1; i >= 0; --i) {
-			EdgesSet<IConstructor> edgesList = edges.getValue(i);
-			if (edgesList != null) {
-				for (int j = edgesList.size() - 1; j >= 0; --j) {
-                	AbstractStackNode<IConstructor> parentStackNode = edgesList.get(j);
-					if (hasAmbAncestors(parentStackNode, max, visited)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 	/**

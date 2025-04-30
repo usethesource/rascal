@@ -29,7 +29,6 @@ import org.rascalmpl.parser.util.DebugUtil;
 public class SortContainerNodeFlattener<P, T, S>{
 	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
-	private boolean hasAmbiguities = false;
 
 	/**
 	 * Gather all the alternatives ending with the given child.
@@ -173,7 +172,6 @@ public class SortContainerNodeFlattener<P, T, S>{
 			result = gatheredAlternatives.get(0);
 		}
 		else if (nrOfAlternatives > 0) { // Ambiguous.
-			hasAmbiguities = true;
 			result = nodeConstructorFactory.createAmbiguityNode(gatheredAlternatives);			
 			result = actionExecutor.filterAmbiguity(result, environment);
 			if(result != null){
@@ -189,9 +187,4 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		return result;
 	}
-
-	public boolean hasAmbiguities() {
-		return hasAmbiguities;
-	}
-
 }
