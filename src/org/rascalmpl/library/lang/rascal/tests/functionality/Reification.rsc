@@ -58,7 +58,13 @@ test bool allConstructorsForAnAlternativeDefineTheSameSort()
 test bool typeParameterReificationIsStatic1(&F _) = #&F.symbol == \parameter("F",\value());
 test bool typeParameterReificationIsStatic2(list[&F] _) = #list[&F].symbol == \list(\parameter("F",\value()));
 
-//@ignore{issue #1007}
+@ignore{issue #1007}
+// Fails for:
+// Type parameters:
+// 	&T<:list[&F] => list[void]
+// 	&F => void
+// Actual parameters:
+// 	list[void] =>[]
 test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
 
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
