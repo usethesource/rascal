@@ -464,7 +464,7 @@ str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
     
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
-    iprintln(fun); // print function
+    //iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
