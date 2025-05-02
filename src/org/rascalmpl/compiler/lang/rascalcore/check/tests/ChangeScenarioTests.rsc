@@ -246,7 +246,7 @@ test bool removeConstructorAndRestoreIt(){
 //                              |       |       |
 //                             *C1!    *C1     *C1
 
-test bool nobreakingChange1(){
+test bool noBreakingChange1(){
     clearMemory();
     A1 = "module A";
     A2 = "module A
@@ -294,7 +294,7 @@ test bool nobreakingChange1(){
 //      |        |          |         |
 //      +--*E!---+          +---*E----+
 
-test bool nobreakingChange2(){
+test bool noBreakingChange2(){
     clearMemory();
     A1 = "module A";
     B1 = "module B import A;";
@@ -526,7 +526,7 @@ bool changeAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg, str inje
     println("CHANGE <moduleNames>");
     mlocs = [ getModuleLocation(mname, pcfg) | mname <- moduleNames ];
     changeModules(moduleNames, pcfg, injectedError=injectedError);
-    return expectReChecks(topLoc, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
+    return expectReChecks([topLoc, *mlocs], moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
 }
 
 test bool onlyChangedModulesAreReChecked1(){
