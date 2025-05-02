@@ -165,6 +165,24 @@ test bool all18()  = !(all([int X, int Y] <- {[1,10],[30,3],[2,20]}, X < Y));
 test bool all19()  = !(all([int X, int Y] <- [[1,10],[30,3],[2,20]], X < Y));
   		
 test bool all20()  = all(int i <- [0, 1] && [0, 1][i] == i);
+
+// Top-level enumerators
+
+test bool toplevelEnum1a() = 1 <- [0,1,2];
+
+test bool toplevelEnum1b() {
+    b = 1 <- [0,1,2];
+    return b;
+}
+
+@ignoreCompiler{Generates incorrect code}
+test bool toplevelEnum2a() = !(1 <- [0,0,2]);
+
+@ignoreCompiler{Generates incorrect code}
+test bool toplevelEnum2b() {
+    b = !(1 <- [0,0,2]);
+    return b;
+}
  
 //TODO: Settle this 		
 //@ignore{Changed semantics}
