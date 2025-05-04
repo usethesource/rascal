@@ -175,10 +175,8 @@ test bool toplevelEnum1b() {
     return b;
 }
 
-@ignoreCompiler{Generates incorrect code}
 test bool toplevelEnum2a() = !(1 <- [0,0,2]);
 
-@ignoreCompiler{Generates incorrect code}
 test bool toplevelEnum2b() {
     b = !(1 <- [0,0,2]);
     return b;
