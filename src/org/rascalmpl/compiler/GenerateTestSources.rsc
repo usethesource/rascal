@@ -68,7 +68,10 @@ void generateTestSources(list[str] cmdLineArgs) {
    if("all" in cmdLineArgs){
       modulesToCompile = getRascalModules(|std:///|);     
    } else {              
-       testFolders = [ REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
+       testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
+                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
+                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
+                      // , REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
                      ];
        
        modulesToCompile = [ *getRascalModules(testFolder, pcfg)
