@@ -1584,7 +1584,7 @@ MuExp translate(e:(Expression) `!<Expression exp>`) {
         //     return translateNoGenOp(exp1, pat, exp2, my_btscopes);
         //     }
         case (Expression) `<Pattern pat> \<- <Expression exp2>`:{
-             return translateQuantor([ exp1 ], quantorAll = true, negateGenerators = true);
+             return translateQuantor([ exp1 ], quantorAll = false, negateGenerators = true);
         }
         case (Expression) `any ( <{Expression ","}+ generators> )`:
             return translateQuantor([ g | g <- generators ], quantorAll = false, negateGenerators = true);
@@ -1615,7 +1615,7 @@ MuExp translateBool((Expression) `!<Expression exp>`, BTSCOPES btscopes, MuExp t
         // case (Expression) `<Pattern pat> \<- <Expression exp2>`:
         //     return translateNoGenOp(exp1, pat, exp2, btscopes, trueCont, falseCont);
         case (Expression) `<Pattern pat> \<- <Expression exp2>`:{
-            return muIfExp(translateQuantor([ exp1 ], quantorAll = true, negateGenerators = true), trueCont, falseCont);
+            return muIfExp(translateQuantor([ exp1 ], quantorAll = false, negateGenerators = true), trueCont, falseCont);
         }
         case (Expression) `any ( <{Expression ","}+ generators> )`:
             return muIfExp(translateQuantor([ g | g <- generators ], quantorAll = false, negateGenerators = true), trueCont, falseCont);
@@ -1851,7 +1851,7 @@ MuExp translateGenerator(Expression current, Pattern pat, Expression exp, BTSCOP
     // -- a syntactic list or optional
     if(isIterType(expType) || isOptType(expType)){
         if(muSucceed(enterGen) := trueCont){
-            code = translateQuantor([current], quantorAll = false, negateGenerators = true);
+            code = translateQuantor([current], quantorAll = false, negateGenerators = false);
             //code = muPrim("notempty", abool(), [getType(exp)], [translate(exp)], getLoc(current));
         } else {
             delta = getIterOrOptDelta(expType); // take care of skipping layout and separators
