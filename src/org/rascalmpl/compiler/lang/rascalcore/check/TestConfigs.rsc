@@ -35,7 +35,6 @@ import lang::rascalcore::check::ModuleLocations;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
@@ -151,8 +150,8 @@ public PathConfig getAllSrcPathConfig(bool keep = false) {
                         keep=keep);
 }
 
-public RascalCompilerConfig getAllSrcCompilerConfig(PathConfig pcfg, bool keep=keep){
-    return rascalCompilerConfig(pcfg, keep=keep)[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getAllSrcCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
