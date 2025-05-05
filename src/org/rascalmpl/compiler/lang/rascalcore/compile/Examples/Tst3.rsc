@@ -25,30 +25,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
+import lang::rascal::\syntax::Rascal;
 
-import ParseTree;
-import IO;
-
-syntax Aas
-  = nil: [a]*
-  | a:   [a][a]*
-  | aas: [a][a][a]*
-  ;
-  
-&T <: Tree ambFilter(amb(set[&T <: Tree] alternatives)) {
-  println("enter ambFilter");
-  set[&T <: Tree] result = {a | &T <: Tree a <- alternatives, !(a is nil)};
-  
-  if ({oneTree} := result) {
-    return oneTree;
-  }
-  println("ambFilter will return amb");
-  res = ParseTree::amb(result);
-  println("amb created");
-  return res;
-} 
-
-value main() //test bool resolveableAmbIsGone() 
-    = amb(_) !:= parse(#Aas, "a", allowAmbiguity=true, filters={ambFilter});
-
-//test bool twoAmbsLeft() = amb({_,_}) := parse(#Aas, "aa", allowAmbiguity=true, filters={ambFilter});
+void f((Statement) `<Label label>switch(<Expression expression>){<Case+ cases>}`) { }
