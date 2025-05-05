@@ -169,18 +169,29 @@ test bool all20()  = all(int i <- [0, 1] && [0, 1][i] == i);
 // Top-level enumerators
 
 test bool toplevelEnum1a() = 1 <- [0,1,2];
+test bool toplevelEnum1b() = !(1 <- [0,1,2]) == false;
 
-test bool toplevelEnum1b() {
+test bool toplevelEnum1c() {
     b = 1 <- [0,1,2];
     return b;
 }
 
-test bool toplevelEnum2a() = !(1 <- [0,0,2]);
+test bool toplevelEnum2a() = (1 <- [0,0,2]) == false;
+test bool toplevelEnum2b() = !(1 <- [0,0,2]);
 
-test bool toplevelEnum2b() {
+test bool toplevelEnum2c() {
     b = !(1 <- [0,0,2]);
     return b;
 }
+
+bool bidentity(bool b) = b;
+
+test bool toplevelEnumAsArg1() = bidentity(1 <- [0,1,2]);
+@ignoreCompiler{To be investigated}
+test bool toplevelEnumAsArg2() = !bidentity(!(1 <- [0,1,2]));
+test bool toplevelEnumAsArg3() = !bidentity(1 <- [0,0,2]);
+test bool toplevelEnumAsArg4() = bidentity(!(1 <- [0,0,2]));
+
  
 //TODO: Settle this 		
 //@ignore{Changed semantics}
