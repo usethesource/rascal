@@ -25,12 +25,29 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
+layout Layout = " "*;
+   
+syntax AB = "a" | "b";
+//syntax ABPlus = AB+ abs;
+syntax ABStar = AB* abs;
+// syntax ABPlusSep = {AB ","}+ abs;
+// syntax ABStarSep = {AB ","}* abs;
 
-import ParseTree;
+int size(&E* l) = (0 | it + 1 | _ <- l);
+    
 
+value main() // test bool sizeABStar2() 
+  = size(([ABStar]"a a").abs) == 2;
 
-start syntax A = "a";
+// test bool sizeABPlus2() = size(([ABPlus]"a b").abs) == 2;
 
+// test bool sizeABPlus3() = size(([ABPlus]"a b a").abs) == 3;
 
-value main() //test bool strExpr() 
-  = (A) `a` := parse(#A,"a");
+int size({&E &S}* l) = (0 | it + 1 | _ <- l);
+
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep0() = size(([ABStarSep]"").abs) == 0;
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep1() = size(([ABStarSep]"a").abs) == 1;
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep2() = size(([ABStarSep]"a, b").abs) == 2;
