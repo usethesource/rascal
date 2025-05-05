@@ -398,9 +398,10 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         for(int i <- index(resolver_formals_types)){
             if(   i < resolver_arity_formal_types 
                //&& unsetRec(def_type_formals[i]) != resolver_formals_types[i]
-               && !(isFunctionAType(def_type_formals[i]) && !isEmpty(getTypeParameters(def_type_formals[i])))
+               //&& !(isFunctionAType(def_type_formals[i]) && !isEmpty(getTypeParameters(def_type_formals[i])))
               ){
-                conds +=  vtypeisatype("$P<i>", "$P<i>Type", def_type_formals[i], jg);
+                conds += 
+                 vtypeisatype("$P<i>", "$P<i>Type", def_type_formals[i], jg);
                 //call_actuals += "(<atype2javatype(def_type_formals[i])>) $P<i>";
             } else {
                 ;//call_actuals += "$P<i>";
