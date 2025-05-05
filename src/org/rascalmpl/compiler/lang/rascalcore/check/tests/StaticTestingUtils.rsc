@@ -283,7 +283,7 @@ bool unexpectedTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs);
 
 bool unexpectedTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, unexpectedTypeMsgs);
+	= checkModuleAndFilter([mloc], unexpectedTypeMsgs);
 
 bool unexpectedType(str stmts)
 	= checkStatementsAndFilter(stmts, unexpectedTypeMsgs);
@@ -292,8 +292,8 @@ bool unexpectedType(str stmts)
 
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
 
-bool uninitializedInModule(str moduleText) = true;
-bool uninitialized(str stmts) = true;
+bool uninitializedInModule(str _) = true;
+bool uninitialized(str _) = true;
 
 //bool uninitialized(str stmts) =
 	//checkStatementsAndFilter(stmts, [
@@ -315,7 +315,7 @@ bool undeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs);
 
 bool undeclaredVariableInModule(loc mloc)
-	= checkModuleAndFilter(mloc, undeclaredVariableMsgs);
+	= checkModuleAndFilter([mloc], undeclaredVariableMsgs);
 
 bool undeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredVariableMsgs);
@@ -329,7 +329,7 @@ bool undeclaredTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
 
 bool undeclaredTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, undeclaredTypeMsgs);
+	= checkModuleAndFilter([mloc], undeclaredTypeMsgs);
 
 bool undeclaredType(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredTypeMsgs);
@@ -356,7 +356,7 @@ bool argumentMismatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, argumentMismatchMsgs);
 
 bool argumentMismatchInModule(loc mloc)
-	= checkModuleAndFilter(mloc, argumentMismatchMsgs);
+	= checkModuleAndFilter([mloc], argumentMismatchMsgs);
 
 bool argumentMismatch(str stmts) =
 	checkStatementsAndFilter(stmts, argumentMismatchMsgs);
@@ -372,7 +372,7 @@ bool redeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs);
 
 bool redeclaredVariableInModule(loc mloc)
-	= checkModuleAndFilter(mloc, redeclaredVariableMsgs);
+	= checkModuleAndFilter([mloc], redeclaredVariableMsgs);
 
 bool redeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, redeclaredVariableMsgs);
@@ -393,7 +393,7 @@ bool cannotMatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, cannotMatchMsgs);
 
 bool cannotMatchInModule(loc mloc)
-	= checkModuleAndFilter(mloc, cannotMatchMsgs);
+	= checkModuleAndFilter([mloc], cannotMatchMsgs);
 
 bool cannotMatch(str stmts) =
 	checkStatementsAndFilter(stmts, cannotMatchMsgs);
@@ -424,13 +424,13 @@ list[str] unexpectedDeclarationMsgs = [
 	"Non-well-formed _ type, labels must be distinct"
 ];
 
-bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = pathConfigForTesting())
-	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs, pathConfig=pathConfig);
+bool unexpectedDeclarationInModule(str moduleText)
+	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs);
 
-bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = pathConfigForTesting())
-	= checkModuleAndFilter([mloc], unexpectedDeclarationMsgs, pathConfig=pathConfig);
+bool unexpectedDeclarationInModule(loc mloc)
+	= checkModuleAndFilter([mloc], unexpectedDeclarationMsgs);
 
-bool unexpectedDeclaration(str stmts, PathConfig pathConfig = pathConfigForTesting()) =
+bool unexpectedDeclaration(str stmts) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------
@@ -444,7 +444,7 @@ bool missingModuleInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, missingModuleMsgs);
 
 bool missingModuleInModule(loc mloc)
-	= checkModuleAndFilter(mloc, missingModuleMsgs);
+	= checkModuleAndFilter([mloc], missingModuleMsgs);
 
 bool missingModule(str stmts) =
 	checkStatementsAndFilter(stmts, missingModuleMsgs);
@@ -460,7 +460,7 @@ bool illegalUseInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, illegalUseMsgs);
 
 bool illegalUseInModule(loc mloc)
-	= checkModuleAndFilter(mloc, illegalUseMsgs);
+	= checkModuleAndFilter([mloc], illegalUseMsgs);
 
 
 bool illegalUse(str stmts) =
@@ -476,7 +476,7 @@ bool nonVoidTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
 
 bool nonVoidTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, nonVoidTypeMsgs);
+	= checkModuleAndFilter([mloc], nonVoidTypeMsgs);
 
 bool nonVoidType(str stmts) =
     checkStatementsAndFilter(stmts, nonVoidTypeMsgs);
@@ -491,7 +491,7 @@ bool unsupportedInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unsupportedMsgs);
 
 bool unsupportedInModule(loc mloc)
-	= checkModuleAndFilter(mloc, unsupportedMsgs);
+	= checkModuleAndFilter([mloc], unsupportedMsgs);
 
 bool unsupported(str stmts) =
     checkStatementsAndFilter(stmts, unsupportedMsgs);
