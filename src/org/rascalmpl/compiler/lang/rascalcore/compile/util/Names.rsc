@@ -31,7 +31,6 @@ import List;
 import util::Reflective;
 
 data PathConfig(
-    loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
