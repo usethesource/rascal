@@ -47,7 +47,9 @@ import String;
 
 bool verbose = false;
 
-data PathConfig(loc resources=|unknown:///|, loc generatedSources=|unknown:///|);
+data PathConfig(
+    loc resources=|unknown:///|
+);
 
 data Project
     = project(str name, map[str moduleName, str moduleText] modules, PathConfig pcfg);
