@@ -333,6 +333,24 @@ public abstract class $RascalModule {
 	//TODO: consider caching this method
 	
 	public final boolean $isSubtypeOf(Type left, Type right) {
+		// TODO the following should be handled in ordinary isSubTypeOf in NonTerminalType
+		if(left instanceof NonTerminalType && (right instanceof NonTerminalType)){
+			NonTerminalType leftNT = (NonTerminalType) left;
+			IConstructor leftSym = leftNT.getSymbol();
+			NonTerminalType rightNT = (NonTerminalType) right;
+			IConstructor rightSym = rightNT.getSymbol();
+			if(SymbolAdapter.isStartSort(leftSym)){
+				System.err.println("START1");
+				leftSym = SymbolAdapter.getStart(leftSym);
+				return leftSym.equals(rightSym);
+			}
+			
+			if(SymbolAdapter.isStartSort(rightSym)){
+				System.err.println("START2");
+				rightSym = SymbolAdapter.getStart(rightSym);
+				return leftSym.equals(rightSym);
+			}
+		}
 		return left.isSubtypeOf(right);
 	}
 	
