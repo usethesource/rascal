@@ -1,4 +1,22 @@
+/**
+ * Copyright (c) 2025, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+ @description{
+    This module contains tests for error tree semantics in Rascal. As most of this functionality is not implemented yet (in the interprter),
+    most tests are currently disabled. All working tests are enabled.
+ }
 module lang::rascal::tests::concrete::recovery::ErrorTreeSemanticsTests
+
 
 // We need to produce an error tree to test with
 import lang::pico::\syntax::Main;
@@ -14,27 +32,27 @@ import Exception;
 data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
 
 @synopsis{Check if a tree is an error tree.}
-bool isParseError(appl(error(_, _, _), _)) = true;
-default bool isParseError(Tree tree) = false;
+private bool isParseError(appl(error(_, _, _), _)) = true;
+private default bool isParseError(Tree tree) = false;
 
-bool isSkipped(appl(skipped(_),_)) = true;
-default bool isSkkipped(Tree tree) = false;
+private bool isSkipped(appl(skipped(_),_)) = true;
+private default bool isSkkipped(Tree tree) = false;
 
 @synopsis{Check if a tree is an amb cluster}
-bool isAmbCluster(amb(_)) = true;
-default bool isAmbCluster(Tree tree) = false;
+private bool isAmbCluster(amb(_)) = true;
+private default bool isAmbCluster(Tree tree) = false;
 
 @synopsis{Get first amb child}
-set[Tree] getAmbAlternatives(amb(alts)) = alts;
+private set[Tree] getAmbAlternatives(amb(alts)) = alts;
 
 @synopsis{Check equality modulo location information}
-bool equals(appl(prod, args1), appl(prod, args2)) = allEqual(args1, args2);
-bool equals(amb(alts1), amb(alts2)) = size(alts1) == size(alts2) && allEqual(alts1, alts2);
-bool equals(cycle(Symbol sym, int length), cycle(sym, lenght)) = true;
-bool equals(char(int c), char(c)) = true;
-default bool equals(Tree tree1, Tree tree2) = false;
+private bool equals(appl(prod, args1), appl(prod, args2)) = allEqual(args1, args2);
+private bool equals(amb(alts1), amb(alts2)) = size(alts1) == size(alts2) && allEqual(alts1, alts2);
+private bool equals(cycle(Symbol sym, int length), cycle(sym, lenght)) = true;
+private bool equals(char(int c), char(c)) = true;
+private default bool equals(Tree tree1, Tree tree2) = false;
 
-bool allEqual(list[Tree] args1, list[Tree] args2) {
+private bool allEqual(list[Tree] args1, list[Tree] args2) {
     if (size(args1) != size(args2)) {
         return false;
     }
@@ -47,7 +65,7 @@ bool allEqual(list[Tree] args1, list[Tree] args2) {
     return true;
 }
 
-bool allEqual(set[Tree] args1, set[Tree] args2) {
+private bool allEqual(set[Tree] args1, set[Tree] args2) {
     if (size(args1) != size(args2)) {
         return false;
     }
@@ -69,13 +87,13 @@ bool allEqual(set[Tree] args1, set[Tree] args2) {
     return true;
 }
 
-str sortName(Tree tree) = printSymbol(tree.prod.def, true);
+private str sortName(Tree tree) = printSymbol(tree.prod.def, true);
 
-str getLabel(Tree tree) = tree.prod.def.name;
+private str getLabel(Tree tree) = tree.prod.def.name;
 
-Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true);
+private Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true);
 
-Program getTestProgram() = parsePico(
+private Program getTestProgram() = parsePico(
  "begin declare;
   while input do
     input x= 14;
@@ -83,7 +101,7 @@ Program getTestProgram() = parsePico(
   od
 end");
 
-Statement getTestStatement() {
+private Statement getTestStatement() {
     Program prg = getTestProgram();
     for (/(Statement)stat := prg, isParseError(stat), "<stat>" == "input x= 14") {
         return stat;
@@ -92,7 +110,7 @@ Statement getTestStatement() {
     fail;
 }
 
-Statement getWhileStatement() {
+private Statement getWhileStatement() {
     Program prg = getTestProgram();
     for (/(Statement)stat := prg, stat is loop, !isParseError(stat)) {
         return stat;
@@ -101,7 +119,7 @@ Statement getWhileStatement() {
     fail;
 }
 
-bool verifyTestTree() {
+test bool verifyTestTree() {
     Program prg = getTestProgram();
     println("tree:\n<prettyTree(prg)>");
     println("all errors:");
@@ -117,6 +135,7 @@ bool verifyTestTree() {
     return true;
 }
 
+@synopsis{Do some basic sanity checks on the test program}
 test bool testDeepMatch() {
     Program prg = getTestProgram();
     list[str] expected = ["assign", "assign", "loop"]; // Multiset of expected labels
@@ -133,6 +152,7 @@ test bool testDeepMatch() {
     return true;
 }
 
+@synopsis{Test that all error trees are visited}
 test bool testVisit() {
     Program prg = getTestProgram();
     list[str] expected = ["assign", "assign", "loop"]; // Multiset of expected labels
@@ -225,10 +245,11 @@ bool testIndexedFieldAssignmentAtOrAfterDot() {
     }
 }
 
+@description{Check that concrete syntax can be used to match holes with error subtrees.
+Also check that error trees cannot be deconstructed using concrete syntax.}
 bool testConcreteMatchWithErrors() {
     Statement whileStat = getWhileStatement();
 
-    println("whileStat: <prettyTree(whileStat)>");
     // A tree with error children should match
     if ((Statement)`while <Expression _> do <Statement stat1>; <Statement _> od` := whileStat) {
         assert isAmbCluster(stat1);
