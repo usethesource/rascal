@@ -166,7 +166,7 @@ test bool all19()  = !(all([int X, int Y] <- [[1,10],[30,3],[2,20]], X < Y));
   		
 test bool all20()  = all(int i <- [0, 1] && [0, 1][i] == i);
 
-// Top-level enumerators
+// Top-level enumerators/all/any
 
 test bool toplevelEnum1a() = 1 <- [0,1,2];
 test bool toplevelEnum1b() = !(1 <- [0,1,2]) == false;
@@ -192,6 +192,32 @@ test bool toplevelEnumAsArg2() = !bidentity(!(1 <- [0,1,2]));
 test bool toplevelEnumAsArg3() = !bidentity(1 <- [0,0,2]);
 test bool toplevelEnumAsArg4() = bidentity(!(1 <- [0,0,2]));
 
+
+test bool assignAny1(){
+    b = any(int X <- {1,2,3}, X > 2);
+    return b;
+}
+
+test bool assignAny2(){
+    b = any(int X <- {1,2,3}, X > 10);
+    return !b;
+}
+
+test bool anyAsArg1() = bidentity(any(int X <- {1,2,3}, X > 2));
+test bool anyAsArg2() = !bidentity(any(int X <- {1,2,3}, X > 10));
+
+test bool assignAll1(){
+    b = all(int X <- {1,2,3}, X > 0);
+    return b;
+}
+
+test bool assignAll2(){
+    b = all(int X <- {1,2,3}, X > 10);
+    return !b;
+}
+
+test bool allAsArg1() = bidentity(all(int X <- {1,2,3}, X > 0));
+test bool allAsArg2() = !bidentity(all(int X <- {1,2,3}, X > 10));
  
 //TODO: Settle this 		
 //@ignore{Changed semantics}
