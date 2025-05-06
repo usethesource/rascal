@@ -234,7 +234,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         eval.getOutPrinter().flush();
     }
 
-    protected void sourceLocationChanged(ISourceLocation srcPath, ISourceLocationChanged d) {
+    public void sourceLocationChanged(ISourceLocation srcPath, ISourceLocationChanged d) {
         if (URIUtil.isParentOf(srcPath, d.getLocation()) && d.getLocation().getPath().endsWith(".rsc")) {
             ISourceLocation relative = URIUtil.relativize(srcPath, d.getLocation());
             relative = URIUtil.removeExtension(relative);

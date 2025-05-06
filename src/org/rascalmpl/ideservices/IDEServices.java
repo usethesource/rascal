@@ -14,6 +14,11 @@ package org.rascalmpl.ideservices;
 
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -193,4 +198,9 @@ public interface IDEServices extends IRascalMonitor {
   default void unregisterLocations(IString scheme, IString auth) {
     URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
 	}
+
+  Set<Function<List<ISourceLocation>, Void>> workspaceSubscribers = new HashSet<>();
+  default void subscribeToWorkspaceUpdates(Function<List<ISourceLocation>, Void> callback) {
+    workspaceSubscribers.add(callback);
+  }
 }
