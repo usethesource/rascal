@@ -72,10 +72,6 @@ public class ParseErrorRecovery {
         return disambiguate(arg, allowAmbiguity.getValue(), true, new HashMap<>()).tree;
     }
 
-    public IConstructor disambParseErrorsNoAmbiguity(IConstructor arg) {
-        return disambiguate(arg, false, true, new HashMap<>()).tree;
-    }
-
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, boolean buildTree, Map<IConstructor, ScoredTree> processedTrees) {
         Type type = tree.getConstructorType();
         ScoredTree result;
@@ -530,7 +526,6 @@ public class ParseErrorRecovery {
     public void checkForRegularAmbiguities(IConstructor parseForest) {
         disambiguate(parseForest, false, false, new HashMap<>());
     }
-
 
     public IConstructor pruneAmbiguities(IConstructor tree, IInteger maxDepth) {
         return pruneAmbiguities((ITree) tree, maxDepth.intValue(), new IdentityHashMap<>());

@@ -109,7 +109,7 @@ public class DoubleRightNullableWithPrefixSharing extends org.rascalmpl.parser.g
 
   @Override
   public ITree executeParser() {
-    return parse("Stmt", null, "ii!".toCharArray(), INodeFlattener.NO_MAX_AMB_DEPTH, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+    return parse("Stmt", null, "ii!".toCharArray(), INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   }
 
   @Override
