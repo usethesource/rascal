@@ -7,11 +7,7 @@ import util::ParseErrorRecovery;
 import String;
 import IO;
 
-@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
-java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
-
-test bool testPreferAvoid() {
-    standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
+bool testPreferAvoid() {
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true, maxAmbDepth=1000);
     loc source = |std:///lang/sdf2/filters/PreferAvoid.rsc?deletedUntilEol=8:208:271|;
     str input = getTestInput(source);
