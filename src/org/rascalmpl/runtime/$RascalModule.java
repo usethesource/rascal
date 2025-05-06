@@ -58,6 +58,7 @@ import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.runtime.traverse.Traverse;
+import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -293,95 +294,13 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     }
 
     protected static Map<String, IValue> $parseCommandlineParameters(String module, String[] commandline, Type kwTypes) {
-        IValueFactory $VF = ValueFactoryFactory.getValueFactory();
-        TypeFactory $TF = TypeFactory.getInstance();
-        
-        Map<String, Type> expectedTypes = new HashMap<>();
-
-        for (String kwp : kwTypes.getFieldNames()) {
-            expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
-        }
-
-        Map<String, IValue> params = new HashMap<>();
-
-        for (int i = 0; i < commandline.length; i++) {
-            if (commandline[i].equals("-help")) {
-                $usage(module, "help", kwTypes);
-            }
-            else if (commandline[i].startsWith("-")) {
-                String label = commandline[i].replaceFirst("^-+", "");
-                Type expected = expectedTypes.get(label);
-
-                if (expected == null) {
-                   $usage(module, "unknown argument: " + label, kwTypes);
-                }
-
-                if (expected.isSubtypeOf(TypeFactory.getInstance().boolType())) {
-                    if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                        params.put(label, $VF.bool(true));
-                    }
-                    else if (i < commandline.length - 1) {
-                        String arg = commandline[++i].trim();
-                        if (arg.equals("1") || arg.equals("true")) {
-                            params.put(label, $VF.bool(true));
-                        }
-                        else {
-                            params.put(label, $VF.bool(false));
-                        }
-                    }
-
-                    continue;
-                }
-                else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                    $usage(module, "expected option for " + label, kwTypes);
-                }
-                else if (expected.isSubtypeOf($TF.listType($TF.valueType()))) {
-                    IListWriter writer = $VF.listWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.append($parseCommandlineOption(module, kwTypes, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else if (expected.isSubtypeOf($TF.setType($TF.valueType()))) {
-                    ISetWriter writer = $VF.setWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.insert($parseCommandlineOption(module, kwTypes, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else {
-                    params.put(label, $parseCommandlineOption(module, kwTypes, expected, commandline[++i]));
-                }
-            }
-        }
-
-        return params;
+		// reusing the same commandline parameter parser that the interpreter uses, based on the keyword parameter types
+		// of the function type of the `main` function.
+		try (PrintWriter writer = new PrintWriter(System.out)) {
+			// TODO: rather get this writer from the RascalExecutionContext, but the surrounding method is static still. FIXME.
+        	return new CommandlineParser(writer).parseKeywordCommandLineArgs(module, commandline, kwTypes);
+		}
     }    
-
-    private static IValue $parseCommandlineOption(String module, Type kwTypes, Type expected, String option) {
-        TypeFactory $TF = TypeFactory.getInstance();
-        IValueFactory $VF = ValueFactoryFactory.getValueFactory();
-        
-        if (expected.isSubtypeOf($TF.stringType())) {
-            return $VF.string(option);
-        }
-        else {
-            StringReader reader = new StringReader(option);
-            try {
-                return new StandardTextReader().read($VF, expected, reader);
-            } catch (FactTypeUseException e) {
-                $usage(module, "expected " + expected + " but got " + option + " (" + e.getMessage() + ")", kwTypes);
-            } catch (IOException e) {
-                $usage(module, "unexpected problem while parsing commandline:" + e.getMessage(), kwTypes);
-            }
-            
-            throw new IllegalArgumentException();
-        }
-    }
     
 	// ---- utility methods ---------------------------------------------------
 
