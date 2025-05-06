@@ -34,9 +34,12 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jline.terminal.Terminal;
@@ -57,6 +60,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -73,6 +77,7 @@ import io.usethesource.vallang.IValueFactory;
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
     protected Evaluator eval;
+    protected Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
     
     private final RascalValuePrinter printer;
 
@@ -140,6 +145,11 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
+            Set<String> changes = new HashSet<>();
+            changes.addAll(dirtyModules);
+            dirtyModules.removeAll(changes);
+            eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+            
             try {
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
@@ -222,6 +232,21 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public void flush() {
         eval.getErrorPrinter().flush();
         eval.getOutPrinter().flush();
+    }
+
+    protected void sourceLocationChanged(ISourceLocation srcPath, ISourceLocationChanged d) {
+        if (URIUtil.isParentOf(srcPath, d.getLocation()) && d.getLocation().getPath().endsWith(".rsc")) {
+            ISourceLocation relative = URIUtil.relativize(srcPath, d.getLocation());
+            relative = URIUtil.removeExtension(relative);
+
+            String modName = relative.getPath();
+            if (modName.startsWith("/")) {
+                modName = modName.substring(1);
+            }
+            modName = modName.replace("/", "::");
+            modName = modName.replace("\\", "::");
+            dirtyModules.add(modName);
+        }
     }
 
 }
