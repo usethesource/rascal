@@ -100,6 +100,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
@@ -574,6 +575,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
         IRascalMonitor old = setMonitor(monitor);
         Environment oldEnv = getCurrentEnvt();
+        CommandlineParser parser = new CommandlineParser(curOutWriter);
 
         try {
             ModuleEnvironment modEnv = getHeap().getModule(module);
@@ -599,14 +601,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             AbstractFunction main = (AbstractFunction) func;
 
             if (main.getArity() == 1 && main.getFormals().getFieldType(0).isSubtypeOf(tf.listType(tf.stringType()))) {
-                return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
+                return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parser.parsePlainCommandLineArgs(commandline)}, null).getValue();
             }
             else if (main.hasKeywordArguments() && main.getArity() == 0) {
-                Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
+                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, main);
                 return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
             }
             else {
-                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
             }
         }
         catch (MatchFailed e) {
@@ -616,316 +618,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         finally {
             setMonitor(old);
             setCurrentEnvt(oldEnv);
-        }
-    }
-
-    private IList parsePlainCommandLineArgs(String[] commandline) {
-        IListWriter w = vf.listWriter();
-        for (String arg : commandline) {
-            w.append(vf.string(arg));
-        }
-        return w.done();
-    }
-
-    public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-        Map<String, Type> expectedTypes = new HashMap<>();
-        Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
-        List<String> pathConfigParam = new LinkedList<>();
-        String pathConfigName = null;
-
-        for (String kwp : kwTypes.getFieldNames()) {
-            var kwtype = kwTypes.getFieldType(kwp);
-
-            if (kwtype == PathConfig.PathConfigType) {
-                // special case for PathConfig unfolds into the respective fields of PathConfig
-                expectedTypes.putAll(PathConfig.PathConfigFields);    
-                // add project parameter for automatic pathconfig settings
-                expectedTypes.put("project", tf.sourceLocationType());
-                // drop the path config parameter
-                pathConfigParam.add(kwp);
-                pathConfigName = kwp;
-            }
-            else {
-                expectedTypes.put(kwp, kwtype);
-            }
-        }
-
-        for (String param : pathConfigParam) {
-            expectedTypes.remove(param);
-        }
-
-        Map<String, IValue> params = new HashMap<>();
-
-        for (int i = 0; i < commandline.length; i++) {
-            if (List.of("-help", "--help", "/?", "?", "\\?", "-?", "--?").contains(commandline[i].trim())) {
-                printMainHelpMessage(kwTypes);
-                getOutPrinter().flush();
-                getErrorPrinter().flush();
-                System.exit(0);
-            }
-            else if (commandline[i].startsWith("-")) {
-                String label = commandline[i].replaceFirst("^-+", "");
-                Type expected = expectedTypes.get(label);
-
-                if (expected == null) {
-                    throw new CommandlineError("unknown argument: " + label, func);
-                }
-
-                if (expected.isSubtypeOf(tf.boolType())) {
-                    if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                        params.put(label, vf.bool(true));
-                    }
-                    else if (i < commandline.length - 1) {
-                        String arg = commandline[++i].trim();
-                        if (arg.equals("1") || arg.equals("true")) {
-                            params.put(label, vf.bool(true));
-                        }
-                        else {
-                            params.put(label, vf.bool(false));
-                        }
-                    }
-
-                    continue;
-                }
-                else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                    throw new CommandlineError("expected option for " + label, func);
-                }
-                else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
-                    if (!commandline[i+1].startsWith("-") && commandline[i+1].matches(".*" + File.pathSeparator + "(?!//).*")) {
-                        i++;
-        
-                        // we want to split on ; or : but not on ://
-                        String[] pathElems = commandline[i].trim().split(File.pathSeparator + "(?!//)");
-                        IListWriter writer = vf.listWriter();
-                        
-                        Arrays.stream(pathElems).forEach(e -> {
-                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), e));
-                        });
-
-                        params.put(label, writer.done());
-                    }
-                    else {
-                        IListWriter writer = vf.listWriter();
-
-                        while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
-                        }
-
-                        params.put(label, writer.done());
-                    }
-                }
-                else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
-                    IListWriter writer = vf.listWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-                    ISetWriter writer = vf.setWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else {
-                    params.put(label, parseCommandlineOption(func, expected, commandline[++i]));
-                }
-            }
-        }
-
-        if (params.get("project") != null && pathConfigName != null) {
-            // we have a project that can use automatic detection of PathConfig parameters.
-            var pcfg = PathConfig.fromSourceProjectRascalManifest((ISourceLocation) params.get("project"), RascalConfigMode.INTERPRETER, true);
-            var cons = pcfg.asConstructor();
-
-            for (Entry<String, Type> entry : PathConfig.PathConfigFields.entrySet()) {
-                if (params.get(entry.getKey()) != null) {
-                    if (entry.getValue() == tf.sourceLocationType()) {
-                        // normal loc fields overwrite the automatic ones (bin, generatedSources)
-                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), params.get(entry.getKey()));
-                    }
-                    else {
-                        // list[loc] fields get concatenated (ignores, srcs, libs)
-                        IList param1 = (IList) cons.asWithKeywordParameters().getParameter(entry.getKey());
-                        if (param1 == null) {
-                            param1 = vf.list();
-                        }
-                        IList param2 = (IList) params.get(entry.getKey());
-                        if (param2 == null) {
-                            param2 = vf.list();
-                        }
-                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), param1.concat(param2));
-                    }
-                }
-            }
-
-            // normalize (only) the library locs
-            IList libs = (IList) cons.asWithKeywordParameters().getParameter("libs");
-            if (libs != null) {
-                libs = libs.stream()
-                    .map(ISourceLocation.class::cast)
-                    .map(c -> mavenize(c))
-                    .map(c -> jarify(c))
-                    .collect(vf.listWriter());
-                cons = cons.asWithKeywordParameters().setParameter("libs", libs);
-            }
-
-            params.put(pathConfigName, cons);
-        }
-        else if (pathConfigName != null) {
-            // Fold back the PathConfig-specific parameters,
-            // into a fresh pathConfig constructor, and remove them from the general list.
-            var pcfg = new PathConfig().asConstructor();
-
-            for (Entry<String, Type> e : PathConfig.PathConfigFields.entrySet()) {
-                var value = params.get(e.getKey());
-                if (value != null) {
-                    pcfg = pcfg.asWithKeywordParameters().setParameter(e.getKey(), value);
-                    params.remove(e.getKey());
-                }
-            }
-
-            // normalize (only) the library locs
-            IList libs = (IList) pcfg.asWithKeywordParameters().getParameter("libs");
-            if (libs != null) {
-                libs = libs.stream()
-                    .map(ISourceLocation.class::cast)
-                    .map(c -> mavenize(c))
-                    .map(c -> jarify(c))
-                    .collect(vf.listWriter());
-                pcfg = pcfg.asWithKeywordParameters().setParameter("libs", libs);
-            }
-
-
-            params.put(pathConfigName, pcfg);
-        }
-
-        return params;
-    }
-
-    private void printMainHelpMessage(Type kwTypes) {
-        StackTraceElement trace[] = Thread.currentThread().getStackTrace();
-        String mainClass = trace[trace.length - 1].getClassName();
-        Map<String, Type> fields = new HashMap<>();
-        
-        var out = getOutPrinter();
-        out.println("Help for " + mainClass + "\n");
-
-        for (int i = 0; i < kwTypes.getArity(); i++) {
-            fields.put(kwTypes.getFieldName(i), kwTypes.getFieldType(i));
-        }
-
-        if (fields.containsValue(PathConfig.PathConfigType)) {
-            fields.putAll(PathConfig.PathConfigFields);
-            fields.put("project", tf.sourceLocationType());
-
-            // drop the pcfg field
-            var pcfgsKeys = fields.entrySet().stream()
-                .filter(e -> e.getValue() == PathConfig.PathConfigType)
-                .map(e -> e.getKey())
-                .collect(Collectors.toList());
-            pcfgsKeys.stream().forEach(k -> fields.remove(k));
-        }
-
-        if (fields.isEmpty()) {
-            out.println("\t-help    this help message is printed.");
-            out.println();
-            out.println("This command has no further parameters.");
-            return;
-        }
-
-        List<String> keys = fields.keySet().stream().collect(Collectors.toList());
-        keys.sort(String::compareTo);
-        int maxLength = keys.stream().max((a,b) -> Integer.compare(a.length(), b.length())).get().length();
-
-        for (String key : keys) {
-            String explanation = parameterTypeExplanation(key, fields.get(key));
-            out.println("    -" + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
-        }
-    }
-
-    private String parameterTypeExplanation(String key, Type type) {
-        if (key.equals("help") || key.equals("h") || key.equals("?")) {
-            return "this help message is printed.";
-        }
-        else if (type == tf.boolType()) {
-            return "true or false or nothing";
-        }
-        else if (type == tf.stringType()) {
-            return "any string value. Use \" or \' to include spaces.";
-        }
-        else if (type == tf.sourceLocationType()) {
-            return "a path, a URI, or a Rascal source location";
-        }
-        else if (type == tf.listType(tf.sourceLocationType())) {
-            return "a list of paths, URIs or Rascal locs separated by " + File.pathSeparator ;
-        }
-        else if (type.isSubtypeOf(tf.numberType())) {
-            return "a numerical value";
-        }
-        else {
-            return "a Rascal value expression of " + type;
-        }
-    }
-
-    private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
-        if (expected.isSubtypeOf(tf.stringType())) {
-            // this accepts anything as a (unquoted, unescaped) string
-            return vf.string(option);
-        }
-        else if (expected.isSubtypeOf(tf.sourceLocationType())) {
-            // locations are for file and folder paths. in 3 different notations
-            try {
-                if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
-                    // vallang syntax for locs with |scheme:///|
-                    return (ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
-                }
-                else if (option.contains("://")) {
-                    // encoded URI notation
-                    return URIUtil.createFromURI(option.trim());
-                }
-                else {
-                    // basic support for current and parent directory notation
-                    if (option.trim().equals(".")) {
-                        return URIUtil.rootLocation("cwd");
-                    }
-                    else if (option.trim().equals("..")) {
-                        return URIUtil.correctLocation("cwd", "", "..");
-                    }
-                    else if (option.trim().startsWith(".." + File.separatorChar)) {
-                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + File.separatorChar + option);
-                    }
-                    else if (option.trim().startsWith("." + File.separatorChar)) {
-                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
-                    }
-                    // OS specific notation for file paths
-                    return URIUtil.createFileLocation(option.trim());
-                }
-            }  
-            catch (FactTypeUseException e) {
-                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-            } 
-            catch (IOException e) {
-                throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
-            }     
-            catch (URISyntaxException e) {
-                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-            }
-        }
-    
-        // otherwise we use the vallang parser:
-        StringReader reader = new StringReader(option);
-        try {
-            return new StandardTextReader().read(vf, expected, reader);
-        } catch (FactTypeUseException e) {
-            throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-        } catch (IOException e) {
-            throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
         }
     }
 
