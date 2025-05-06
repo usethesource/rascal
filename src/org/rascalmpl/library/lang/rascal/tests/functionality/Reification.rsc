@@ -65,17 +65,17 @@ test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeO
 // New tests which can be enabled after succesful bootstrap
 data P(int size = 0);
 
-@ignore{Does not work after changed TypeReifier in compiler}
-test bool allConstructorsHaveTheCommonKwParam()
-  =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
+// @ignore{Does not work after changed TypeReifier in compiler}
+// test bool allConstructorsHaveTheCommonKwParam()
+//   =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
    
 @ignoreCompiler{Does not work after changed TypeReifier in compiler}  
 test bool axiomHasItsKwParam()
   =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
 
-@ignore{Does not work after changed TypeReifier in compiler}  
-test bool axiomsKwParamIsExclusive()
-  =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
+// @ignore{Does not work after changed TypeReifier in compiler}  
+// test bool axiomsKwParamIsExclusive()
+//   =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
   
   
   
