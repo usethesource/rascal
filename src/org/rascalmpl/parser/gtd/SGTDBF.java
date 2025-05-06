@@ -1592,7 +1592,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, 
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(startNode, inputURI, input, INodeFlattener.NO_MAX_AMB_DEPTH, converter, nodeConstructorFactory);
+		return parse(startNode, inputURI, input, INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, converter, nodeConstructorFactory);
 	}
 
 	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
