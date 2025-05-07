@@ -171,12 +171,11 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
-            Set<String> changes = new HashSet<>();
-            changes.addAll(dirtyModules);
-            dirtyModules.removeAll(changes);
-            eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
-            
             try {
+                Set<String> changes = new HashSet<>();
+                changes.addAll(dirtyModules);
+                dirtyModules.removeAll(changes);
+                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
