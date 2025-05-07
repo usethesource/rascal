@@ -758,9 +758,12 @@ syntax FunctionModifiers
 	= \modifierlist: FunctionModifier* modifiers ;
 
 syntax Comprehension
-	= @breakable{results,generators} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
-	| @breakable{from,to,generators} \map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
-	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
+	= @breakable{results,generators} \set :       "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| @breakable{from,to,generators} \map :       "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| @breakable{results,generators} \list:       "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" 
+	| @breakable{result,generators}  \all : "all" "(" {Expression ","}+ results "|" {Expression ","}+ generators ")"
+	| @breakable{result,generators}  \any : "any" "(" {Expression ","}+ results "|" {Expression ","}+ generators ")"
+	;
 
 syntax Variant
 	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
