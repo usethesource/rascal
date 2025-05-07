@@ -31,6 +31,7 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.static
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
@@ -61,11 +62,13 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -78,6 +81,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
     protected Evaluator eval;
     protected Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
+
+    URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
     private final RascalValuePrinter printer;
 
@@ -137,9 +142,30 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             throw new IllegalStateException("Already initialized");
         }
         eval = buildEvaluator(input, stdout, stderr, services);
+
+        // Register watches for all watchable locations on the search path for automatic reloading
+        eval.getRascalResolver().collect().stream().filter(this::isWatchable).forEach(p -> {
+            try {
+                reg.watch(p, true, d -> sourceLocationChanged(p, d));
+            }
+            catch (IOException e) {
+                e.printStackTrace(stderr);
+            }
+        });
         return services;
     }
 
+    private boolean isWatchable(ISourceLocation loc) {
+        for (var capability : reg.capabilities(loc)) {
+            // see the `IOCapability` ADT in `IO.rsc`
+            switch (((IConstructor)capability).getName()) {
+                case "watching":
+                case "writing":
+                    return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
