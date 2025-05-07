@@ -54,6 +54,21 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	private Set<Long> processedNodes = new HashSet<>();
 
+	private static final int DEFAULT_SKIP_LIMIT = 5;
+	private static int skipLimit = readSkipLimit();
+
+	private static int readSkipLimit() {
+		String limitSpec = System.getenv("RASCAL_RECOVERER_SKIP_LIMIT");
+		if (limitSpec != null) {
+			try {
+				return Integer.parseInt(limitSpec);
+			} catch (NumberFormatException e) {
+				return DEFAULT_SKIP_LIMIT;
+			}
+		}
+		return DEFAULT_SKIP_LIMIT;
+	}
+
 	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
@@ -83,11 +98,12 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Sort nodes by start location
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
-
+		
 		//  Keep track of previously added nodes so we can reuse them when we encounter
 		// a node with the same constructor, start location, and skip length
 		Map<Triple<IConstructor, Integer, Integer>, SkippingStackNode<IConstructor>> addedNodes = new HashMap<>();
 
+		//System.err.println("    recoveryNodes.size: " + recoveryNodes.size());
 		for (int i = 0; i<recoveryNodes.size(); i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
@@ -96,13 +112,23 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 			// Handle every possible continuation associated with the recovery node (there can be more then one
 			// because of prefix-sharing).
+			//System.err.println("        at " + recoveryNode.getStartLocation() + ", prods.size: " + prods.size() + ", node: " + recoveryNode.toShortString());
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
 				IConstructor sort = ProductionAdapter.getType(prod);
 
 				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, location, recoveryNode, prod, startLocation);
+				skippingNodes.sort((n1, n2) -> Integer.compare(n1.getLength(), n2.getLength()));
+
+				int skipNodesAdded = 0;
+				//System.err.println("            skippingNodes: " + skippingNodes.size());
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
+					if (++skipNodesAdded > skipLimit) {
+						break;
+					}
+
+					//System.err.println("                skipping " + skippingNode.getLength() + " chars from " + skippingNode.getStartLocation());
 					int skipLength = skippingNode.getLength();
 					Triple<IConstructor, Integer, Integer> key = Triple.of(sort, startLocation, skipLength);
 
@@ -127,6 +153,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				}
 			}
 		}
+		//System.err.println("recoveredNodes.size: " + recoveredNodes.size());
 		
 		return recoveredNodes;
 	}
@@ -158,6 +185,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
+		//System.err.println("  endMatchers: " + endMatchers.size());
 		for (InputMatcher endMatcher : endMatchers) {
 			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
@@ -169,6 +197,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Find the first token of the next production and skip until before that
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
+		//System.err.println("  nextMatchers: " + nextMatchers.size());
 		for (InputMatcher nextMatcher : nextMatchers) {
 			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
 			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
@@ -209,18 +238,23 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		visitedNodes.add(last.getId());
 
 		if (isNullable(last)) {
+			//System.err.println("    Looking before nullable node: " + last.toShortString());
 			addEndMatchers(prod, dot-1, matchers, visitedNodes);
+			//System.err.println("    Done looking before");
 		}
 
+		//System.err.println("    Adding end matchers for: " + last.toShortString());
 		last.accept(new StackNodeVisitorAdapter<IConstructor, Void>() {
 			@Override
 			public Void visit(LiteralStackNode<IConstructor> literal) {
+				//System.err.println("      adding literal matcher: " + literal.toShortString());
 				matchers.add(new LiteralMatcher(literal.getLiteral()));
 				return null;
 			}
 
 			@Override
 			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
+				//System.err.println("      adding case insensitive literal matcher: " + literal.toShortString());
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 				return null;
 			}
@@ -228,6 +262,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			@Override
 			public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
 				String name = nonTerminal.getName();
+				//System.err.println("      adding non terminal matchers for: " + name);
 				AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 				for (AbstractStackNode<IConstructor> alternative : alternatives) {
 					addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
@@ -235,6 +270,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				return null;
 			}
 		});
+		//System.err.println("    Done adding end matchers for: " + last.toShortString());
 	}
 
 	private AbstractStackNode<IConstructor> getSingleParentStack(AbstractStackNode<IConstructor> stackNode) {
@@ -331,6 +367,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		int location,
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
 		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<>();
+
+		//System.out.println("Reviving " + failedNodes.size() + " nodes");
 
 		for (int i = failedNodes.size() - 1; i >= 0; --i) {
 			AbstractStackNode<IConstructor> failedNode = failedNodes.get(i);

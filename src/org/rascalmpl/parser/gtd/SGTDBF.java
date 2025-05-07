@@ -1528,9 +1528,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
+		long start = System.currentTimeMillis();
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		return buildResult(result, converter, nodeConstructorFactory, actionExecutor, maxAmbDepth);
+		long parseEnd = System.currentTimeMillis();
+		T tree = buildResult(result, converter, nodeConstructorFactory, actionExecutor, maxAmbDepth);
+		long flattenEnd = System.currentTimeMillis();
+		//System.err.println("Parse duration: " + (parseEnd - start) + "ms., flatten duration: " + (flattenEnd - parseEnd) + "ms.");
+		return tree;
 	}
 	
 	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
