@@ -346,6 +346,9 @@ public class NonTerminalType extends RascalType {
 		if (other == RascalValueFactory.Tree) {
 			return true;
 		}
+		else if (other.isParameter()) {
+			return other.intersects(this);
+		}
 		else if (other instanceof NonTerminalType) {
 			return ((NonTerminalType) other).intersectsWithNonTerminal(this);
 		}
