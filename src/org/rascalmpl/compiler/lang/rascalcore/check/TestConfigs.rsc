@@ -43,7 +43,7 @@ data PathConfig(
 // ----  Various PathConfigs  ---------------------------------------------
 // use the `download-test-jars.sh` to download these dependencies (and make sure to keep the versions up to date)
 
-public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
+public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC38/|;
 public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
 public loc OUTDATED_TYPEPAL 
                   = |mvn://org.rascalmpl--typepal--0.14.1/|;
@@ -219,9 +219,8 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
 }
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
-    TMP_RASCAL = //|project://rascal/|; ////REPO + "rascal"; 
-                |tmp:///rascal/|;
-    copy(|project://rascal/|, TMP_RASCAL, recursive=true, overwrite=true);
+    TMP_RASCAL = |tmp:///rascal/|;
+    copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
     
     pcfg = makePathConfig([ TMP_RASCAL + "src/org/rascalmpl/library",
                             TMP_RASCAL + "test/org/rascalmpl/benchmark/",
@@ -229,13 +228,6 @@ public PathConfig getRascalWritablePathConfig(bool keep = false) {
                           ],
                           [], 
                           keep=keep);
-    // println("exists1: <exists(TMP_RASCAL + "src/org/rascalmpl/library")>");
-    // println("exists2: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis")>");
-    // println("exists3: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars")>");
-    // println("exists4: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc")>");
-    // //
-    // iprintln(find("Ambiguity.rsc", [TMP_RASCAL +  "src/org/rascalmpl/library/analysis/grammars"]));
-    // Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
     return pcfg;
 }
 
