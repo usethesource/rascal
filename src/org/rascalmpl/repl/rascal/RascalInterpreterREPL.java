@@ -80,7 +80,7 @@ import io.usethesource.vallang.IValueFactory;
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
     protected Evaluator eval;
-    protected Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
+    protected final Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
 
     URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
