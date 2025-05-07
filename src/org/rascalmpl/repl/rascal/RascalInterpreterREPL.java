@@ -157,7 +157,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     private boolean isWatchable(ISourceLocation loc) {
-        return reg.isSchemeNativelyWatchable(loc) || reg.isSchemeWritable(loc);
+        return reg.hasNativelyWatchableScheme(loc) || reg.hasWritableScheme(loc);
     }
 
     @Override
