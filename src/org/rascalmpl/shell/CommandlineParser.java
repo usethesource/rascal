@@ -58,17 +58,6 @@ public class CommandlineParser {
     /**
      * Turns the String[] into a keyword parameter map for passing to an main IFunction.
      */
-    public Map<String, IValue> parseKeywordCommandLineArgs(String toolName, String[] commandline, IFunction func) {
-        if (func.getType().getFieldTypes().getArity() > 0) {
-            throw new CommandlineError("main function should only have keyword parameters.", func.getType().getKeywordParameterTypes(), toolName);
-        }
-
-        return parseKeywordCommandLineArgs(toolName, commandline, func.getType().getKeywordParameterTypes());
-    }
-
-    /**
-     * Turns the String[] into a keyword parameter map for passing to an main IFunction.
-     */
     public Map<String, IValue> parseKeywordCommandLineArgs(String name, String[] commandline, Type kwTypes) {
         Map<String, Type> expectedTypes = new HashMap<>();
 
