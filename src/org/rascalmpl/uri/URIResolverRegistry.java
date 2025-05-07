@@ -1137,4 +1137,24 @@ public class URIResolverRegistry {
 		return result.done();
 	}
 
+	public boolean isReadable(ISourceLocation loc) {
+		return inputResolvers.containsKey(loc.getScheme());
+	}
+
+	public boolean isWritable(ISourceLocation loc) {
+		return outputResolvers.containsKey(loc.getScheme());
+	}
+
+	public boolean isEfficientlyClassloadable(ISourceLocation loc) {
+		return classloaderResolvers.containsKey(loc.getScheme());
+	}
+
+	public boolean isLogical(ISourceLocation loc) {
+		return logicalResolvers.containsKey(loc.getScheme());
+	}
+
+	public boolean isNativelyWatchable(ISourceLocation loc) {
+		return watchers.containsKey(loc.getScheme());
+	}
+
 }
