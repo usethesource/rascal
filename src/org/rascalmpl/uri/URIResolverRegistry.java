@@ -1137,23 +1137,23 @@ public class URIResolverRegistry {
 		return result.done();
 	}
 
-	public boolean isSchemeReadable(ISourceLocation loc) {
+	public boolean hasReadableScheme(ISourceLocation loc) {
 		return inputResolvers.containsKey(loc.getScheme()) || inputResolvers.containsKey(safeResolve(loc).getScheme());
 	}
 
-	public boolean isSchemeWritable(ISourceLocation loc) {
+	public boolean hasWritableScheme(ISourceLocation loc) {
 		return outputResolvers.containsKey(loc.getScheme()) || outputResolvers.containsKey(safeResolve(loc).getScheme());
 	}
 
-	public boolean isSchemeEfficientlyClassloadable(ISourceLocation loc) {
+	public boolean hasEfficientlyClassloadableScheme(ISourceLocation loc) {
 		return classloaderResolvers.containsKey(loc.getScheme()) || classloaderResolvers.containsKey(safeResolve(loc).getScheme());
 	}
 
-	public boolean isSchemeLogical(ISourceLocation loc) {
+	public boolean hasLogicalScheme(ISourceLocation loc) {
 		return logicalResolvers.containsKey(loc.getScheme());
 	}
 
-	public boolean isSchemeNativelyWatchable(ISourceLocation loc) {
+	public boolean hasNativelyWatchableScheme(ISourceLocation loc) {
 		return watchers.containsKey(loc.getScheme()) || watchers.containsKey(safeResolve(loc).getScheme());
 	}
 
