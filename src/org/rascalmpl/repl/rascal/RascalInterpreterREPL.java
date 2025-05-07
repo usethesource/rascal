@@ -157,15 +157,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     private boolean isWatchable(ISourceLocation loc) {
-        for (var capability : reg.capabilities(loc)) {
-            // see the `IOCapability` ADT in `IO.rsc`
-            switch (((IConstructor)capability).getName()) {
-                case "watching":
-                case "writing":
-                    return true;
-            }
-        }
-        return false;
+        return reg.isNativelyWatchable(loc) || reg.isWritable(loc);
     }
 
     @Override
