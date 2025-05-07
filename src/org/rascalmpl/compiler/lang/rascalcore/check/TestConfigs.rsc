@@ -126,15 +126,8 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources     = COMPILED + "/src/main/java",
         generatedTestSources = COMPILED + "/src/test/java/",
         resources            = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        testResources        = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        testResources        = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                 = libraries
-        // srcs                 = sources,
-        // bin                  = keep ? COMPILED_RASCAL + "/target/classes" : repo,
-        // generatedSources     = keep ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
-        // generatedTestSources = keep ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
-        // resources            = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
-        // testResources        = keep ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
-        // libs                 = libraries
     ); 
 }
 
