@@ -149,6 +149,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 reg.watch(p, true, d -> sourceLocationChanged(p, d));
             }
             catch (IOException e) {
+                stderr.println("Failed to register watch for " + p);
                 e.printStackTrace(stderr);
             }
         });
