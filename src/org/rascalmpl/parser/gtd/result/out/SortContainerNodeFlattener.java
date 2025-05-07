@@ -54,20 +54,11 @@ public class SortContainerNodeFlattener<P, T, S>{
 			return;
 		}
 		
-		int maxAmbDepth = postFix.maxAmbDepth;
-		if (prefixes.size() > 1) {
-			maxAmbDepth--;
-		}
-
 		for(int i = prefixes.size() - 1; i >= 0; --i){ // Traverse all the prefixes (can be more then one in case of ambiguity).
 			Link prefix = prefixes.get(i);
 			boolean cacheable = parentCacheable || prefix.isCacheable();
 			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
-			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode, maxAmbDepth), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
-			if (maxAmbDepth <= 0) {
-				// We have reached the maximum ambiguity depth so break after the first alternative. No ambiguity cluster will be built.
-				break;
-			}
+			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode, postFix.maxAmbDepth), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 		}
 	}
 	
