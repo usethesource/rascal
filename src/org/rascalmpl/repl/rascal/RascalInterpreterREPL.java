@@ -82,7 +82,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected Evaluator eval;
     protected final Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
 
-    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+    private final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
     private final RascalValuePrinter printer;
 
