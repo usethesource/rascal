@@ -13,7 +13,12 @@
 package org.rascalmpl.uri.project;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
 
@@ -25,22 +30,33 @@ import io.usethesource.vallang.ISourceLocation;
  * scheme. 
  */
 public class ProjectURIResolver implements ILogicalSourceLocationResolver {
-    private ISourceLocation root;
-    private String name;
+    private final Map<String, ISourceLocation> projects = new ConcurrentHashMap<>();
+
+    public ProjectURIResolver(IDEServices services) {
+        services.subscribeToWorkspaceUpdates(updateWorkspace);
+    }
 
     public ProjectURIResolver(ISourceLocation root, String name) {
-        this.root = root;
-        this.name = name;
+        projects.put(name, root);
     }
-    
+
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        if (!input.getAuthority().equals(name)) {
+        var project = input.getAuthority();
+        if (!projects.containsKey(project)) {
             return null;
         }
         
-        return URIUtil.getChildLocation(root, input.getPath());
+        return URIUtil.getChildLocation(projects.get(project), input.getPath());
     }
+
+    public Function<List<ISourceLocation>, Void> updateWorkspace = locs -> {
+        projects.clear();
+        for (var l : locs) {
+            projects.put(URIUtil.getLocationName(l), l);
+        }
+        return null;
+    };
 
     @Override
     public String scheme() {
@@ -49,6 +65,6 @@ public class ProjectURIResolver implements ILogicalSourceLocationResolver {
 
     @Override
     public String authority() {
-        return name;
+        return "";
     }
 }
