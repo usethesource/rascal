@@ -604,7 +604,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parser.parsePlainCommandLineArgs(commandline)}, null).getValue();
             }
             else if (main.hasKeywordArguments() && main.getArity() == 0) {
-                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, main);
+                if (main.getType().getFieldTypes().getArity() > 0) {
+                    throw new CommandlineError("main function should only have keyword parameters.", main.getType().getKeywordParameterTypes(), module);
+                }
+
+                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, func.getStaticType().getKeywordParameterTypes());
                 return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
             }
             else {
