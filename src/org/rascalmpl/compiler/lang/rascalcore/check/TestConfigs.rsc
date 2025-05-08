@@ -41,9 +41,10 @@ data PathConfig(
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
-// use the `download-test-jars.sh` to download these dependencies (and make sure to keep the versions up to date)
+// use the `download-test-jars.sh` to download these dependencies 
+// (and make sure to KEEP THE VERSIONS up to date)
 
-public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.40.17/|;
+public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
 public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
 public loc OUTDATED_TYPEPAL 
                   = |mvn://org.rascalmpl--typepal--0.14.1/|;
