@@ -502,7 +502,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
     str topSort = config.topSort;
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
-        standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
+        value(str,loc) standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
         recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
 
         // Initialization run
@@ -510,10 +510,16 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
 
         // Timed run
         int startTime = realTime();
-        Tree tree = standardParser(input, testInput);
+        value t = standardParser(input, testInput);
         int referenceParseTime = max(1, realTime() - startTime);
-        int referenceNodeCount = countTreeNodes(tree);
-        int referenceNodeCountUnique = countUniqueTreeNodes(tree);
+        int referenceNodeCount = 0;
+        int referenceNodeCountUnique = 0;
+        if (Tree tree := t) {
+            referenceNodeCount = countTreeNodes(tree);
+            referenceNodeCountUnique = countUniqueTreeNodes(tree);
+        } else {
+            throw "Not a tree? <t>";
+        }
 
         recoverySuccessLimit = size(input)/4;
 
