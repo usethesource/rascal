@@ -133,7 +133,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
@@ -145,11 +144,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return left.add(right);
 
 		}
-
 	}
 
 	static public class All extends org.rascalmpl.ast.Expression.All {
-
 		public All(ISourceLocation __param1, IConstructor tree,
 				java.util.List<org.rascalmpl.ast.Expression> __param2) {
 			super(__param1, tree, __param2);
@@ -157,66 +154,59 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-
 			return new BasicBooleanResult(__eval, this);
-
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public Result interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);	
+		public Result interpret(IEvaluator<Result<IValue>> eval) {
+			eval.setCurrentAST(this);
+			eval.notifyAboutSuspension(this);	
 			
-			java.util.List<org.rascalmpl.ast.Expression> producers = this
-					.getGenerators();
+			java.util.List<org.rascalmpl.ast.Expression> producers = this.getGenerators();
 			int size = producers.size();
 			IBooleanResult[] gens = new IBooleanResult[size];
 			Environment[] olds = new Environment[size];
-			Environment old = __eval.getCurrentEnvt();
+			Environment old = eval.getCurrentEnvt();
 			int i = 0;
 
 			try {
-				olds[0] = __eval.getCurrentEnvt();
-				__eval.pushEnv();
-				gens[0] = producers.get(0).getBacktracker(__eval);
+				olds[0] = eval.getCurrentEnvt();
+				eval.pushEnv();
+				gens[0] = producers.get(0).getBacktracker(eval);
 				gens[0].init();
 
 				while (i >= 0 && i < size) {
-					if (__eval.isInterrupted()) {
-						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
+					if (eval.isInterrupted()) {
+						throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext()) {
 						if (!gens[i].next()) {
-							return new BoolResult(TF.boolType(), __eval
-									.__getVf().bool(false), __eval);
+							return new BoolResult(TF.boolType(), VF.bool(false), eval);
 						}
 
 						if (i == size - 1) {
-							__eval.unwind(olds[i]);
-							__eval.pushEnv();
+							eval.unwind(olds[i]);
+							eval.pushEnv();
 						} else {
 							i++;
-							gens[i] = producers.get(i).getBacktracker(__eval);
+							gens[i] = producers.get(i).getBacktracker(eval);
 							gens[i].init();
-							olds[i] = __eval.getCurrentEnvt();
-							__eval.pushEnv();
+							olds[i] = eval.getCurrentEnvt();
+							eval.pushEnv();
 						}
 					} else {
-						__eval.unwind(olds[i]);
+						eval.unwind(olds[i]);
 						i--;
 					}
 				}
-			} finally {
-				__eval.unwind(old);
+			} 
+			finally {
+				eval.unwind(old);
 			}
 
-			return new BoolResult(TF.boolType(), __eval.__getVf().bool(true),
-					__eval);
-
+			return new BoolResult(TF.boolType(), eval.__getVf().bool(true), eval);
 		}
-
 	}
 
 	static public class And extends org.rascalmpl.ast.Expression.And {
