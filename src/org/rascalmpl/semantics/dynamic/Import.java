@@ -403,7 +403,7 @@ private static boolean isDeprecated(Module preModule){
 
       try {
         eval.jobTodo(jobName, 1);
-        tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+        tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, INodeFlattener.UNLIMITED_AMB_DEPTH, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
       } 
       catch (ParseError e) {
         throw new SyntaxError("module", IRascalValueFactory.getInstance().sourceLocation(location, e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()));
@@ -488,7 +488,7 @@ private static boolean isDeprecated(Module preModule){
             }
             else if (reg.exists(parserCacheFile)) {
               // if we cached a ModuleFile.parsers file, we will use the parser from that (typically after deployment time)
-              parsers = vf.loadParsers(parserCacheFile, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_MAX_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set());
+              parsers = vf.loadParsers(parserCacheFile, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set());
             }
             else {
               // otherwise we have to generate a fresh parser for this module now
@@ -496,7 +496,7 @@ private static boolean isDeprecated(Module preModule){
               IMap syntaxDefinition = env.getSyntaxDefinition();
               IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
               IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-              parsers = vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_MAX_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+              parsers = vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
             }
         
             try {
