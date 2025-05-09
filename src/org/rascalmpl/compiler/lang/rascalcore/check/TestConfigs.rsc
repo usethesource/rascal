@@ -214,13 +214,10 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
-    println("getRascalWritablePathConfig: <RASCAL>.ls");
-    iprintln(RASCAL.ls);
     copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
     
-    pcfg = makePathConfig([ TMP_RASCAL + "src/org/rascalmpl/library",
-                            TMP_RASCAL + "test/org/rascalmpl/benchmark/",
-                            TMP_RASCAL + "src/org/rascalmpl/compiler"
+    pcfg = makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
+                            TMP_RASCAL + "org/rascalmpl/compiler"
                           ],
                           [], 
                           keep=keep);
