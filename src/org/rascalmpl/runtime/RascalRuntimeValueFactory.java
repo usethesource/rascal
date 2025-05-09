@@ -317,7 +317,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return parseObject(grammar, input.getValue(), URIUtil.rootLocation("unknown"), false, INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, false, false, filters);
+                return parseObject(grammar, input.getValue(), URIUtil.rootLocation("unknown"), false, INodeFlattener.UNLIMITED_AMB_DEPTH, false, false, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -336,7 +336,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return parseObject(grammar, filters, input, false, INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, false, false);
+                return parseObject(grammar, filters, input, false, INodeFlattener.UNLIMITED_AMB_DEPTH, false, false);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();

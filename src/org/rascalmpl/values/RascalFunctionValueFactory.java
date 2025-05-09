@@ -389,7 +389,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_MAX_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
     public IString createHole(ITree part, IInteger index) {
@@ -522,7 +522,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected IValue firstAmbiguity(String methodName, IString input) {
             try {
                 return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, 
-                    INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, false, false, vf.set());
+                    INodeFlattener.UNLIMITED_AMB_DEPTH, false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -539,7 +539,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected IValue firstAmbiguity(String methodName, ISourceLocation input) {
             try {
                 return parseObject(methodName, input, readAll(input), false, 
-                    INodeFlattener.UNLIMITED_MAX_AMB_DEPTH, false, false, vf.set());
+                    INodeFlattener.UNLIMITED_AMB_DEPTH, false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
