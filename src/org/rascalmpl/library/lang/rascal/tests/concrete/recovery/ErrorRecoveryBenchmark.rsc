@@ -67,6 +67,8 @@ int main(list[str] args) {
     int maxFileSize = 1000000;
     int minFileSize = 0;
     int fromFile = 0;
+    int skipChars = 1;
+    int skipOffset = 0;
     loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
     int memoVerificationTimeout = 0;
     bool abortOnNoMemoTimeout = false;
@@ -81,6 +83,8 @@ int main(list[str] args) {
                 case "from-file": fromFile = toInt(val);
                 case "stat-file": statFile = readTextValueString(#loc, val);
                 case "memo-verification-timeout": memoVerificationTimeout = toInt(val);
+                case "skip-chars": skipChars = toInt(val);
+                case "skip-offset": skipOffset = toInt(val);
             }
             println("arg: <arg>");
         } else switch (toLowerCase(arg)) {
@@ -98,6 +102,8 @@ int main(list[str] args) {
         minFileSize=minFileSize,
         maxFileSize=maxFileSize,
         fromFile=fromFile,
+        skipChars=skipChars,
+        skipOffset=skipOffset,
         statFile=statFile
     );
     runRascalBatchTest(config);
@@ -105,5 +111,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500"]);
+int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "skip-chars=5"]);
 int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);

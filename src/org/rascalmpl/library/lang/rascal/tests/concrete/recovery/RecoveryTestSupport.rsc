@@ -30,8 +30,6 @@ import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
-int pruneCount = 10;
-
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
     str topSort = "",
@@ -42,6 +40,8 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int minFileSize = 0,
     int maxFileSize = 1000000000,
     int fromFile = 0,
+    int skipChars = 1,
+    int skipOffset = 0,
     loc statFile = |unknown:///|
 );
 
@@ -94,7 +94,7 @@ java int countTreeNodes(Tree tree);
 java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
 
 
-private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
+private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique) {
     int startTime = 0;
     int duration = 0;
     int disambDuration = -1;
@@ -153,14 +153,6 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                     measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
                 }
                 result = "recovery";
-
-                // amb filtering stats
-                for (int i <- [0..pruneCount]) {
-                    Tree pruned = pruneAmbiguities(tree, maxDepth=i);
-                    int unique = countUniqueTreeNodes(pruned);
-                    int total= countTreeNodes(pruned);
-                    prunedStats += ",<total>,<unique>";
-                }
             }
         } catch ParseError(_): {
             result = "error"; 
@@ -170,14 +162,11 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     }
 
     if (config.statFile != |unknown:///|) {
-        int ratio = percent(duration, referenceParseTime);
-        if (prunedStats == "") {
-            for (_ <- [0..pruneCount]) {
-                prunedStats += ",<nodeCount>,<nodeCountUnique>";
-            }
-        }
+        int durationRatio = percent(duration, referenceParseTime);
+        int nodeRatio = percent(nodeCount, referenceNodeCount);
+        int unodeRatio = percent(nodeCountUnique, referenceNodeCountUnique);
 
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique><prunedStats>\n");
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>,<nodeRatio>,<unodeRatio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
     }
 
     return measurement;
@@ -299,31 +288,31 @@ TestStats mergeStats(TestStats stats, TestStats stats2) {
 }
 
 // Backwards compatible version
-FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|)
-    = testSingleCharDeletions(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
+FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|)
+    = testSingleCharDeletions(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=begin, end=end);
 
-FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
+FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int len = size(input);
-    int i = begin;
+    int i = begin+config.skipOffset;
 
     while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         source.query = "deletedChar=<i>";
-        TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime);
+        TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
         }
-        i = i+1;
+        i = i+config.skipChars;
     }
 
     return stats;
 }
 
 // Backwards compatible version
-FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) 
-    = testDeleteUntilEol(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
+FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) 
+    = testDeleteUntilEol(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=begin, end=end);
 
 str getDeleteUntilEolInput(str input, int begin) {
     int lineStart = 0;
@@ -335,7 +324,6 @@ str getDeleteUntilEolInput(str input, int begin) {
         if (lineEnd < begin) {
             continue;
         }
-        lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
             if (pos < begin) {
                 continue;
@@ -351,20 +339,20 @@ str getDeleteUntilEolInput(str input, int begin) {
     throw "Line not found";
 }
 
-FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
+FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
     int line = 0;
+    int pos = begin;
     for (int lineEnd <- lineEndings) {
         line = line+1;
         if (lineEnd < begin) {
             continue;
         }
-        lineLength = lineEnd - lineStart;
-        for (int pos <- [lineStart..lineEnd]) {
-            // Check boundaries (only used for quick bug testing)
+        while (pos <= lineEnd) {
+            // Check boundaries (used for quick bug testing)
             if (end != -1 && end < pos) {
                 return stats;
             }
@@ -373,8 +361,9 @@ FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc ori
             }
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
-            TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime);
+            TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
+            pos += config.skipChars;
         }
         lineStart = lineEnd+1;
         println();
@@ -521,8 +510,10 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
 
         // Timed run
         int startTime = realTime();
-        standardParser(input, testInput);
+        Tree tree = standardParser(input, testInput);
         int referenceParseTime = max(1, realTime() - startTime);
+        int referenceNodeCount = countTreeNodes(tree);
+        int referenceNodeCountUnique = countUniqueTreeNodes(tree);
 
         recoverySuccessLimit = size(input)/4;
 
@@ -530,12 +521,12 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
 
         println();
         println("Single char deletions:");
-        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit);
+        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=config.skipOffset);
         printFileStats(singleCharDeletionStats);
 
         println();
         println("Deletes until end-of-line:");
-        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit);
+        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=config.skipOffset);
         printFileStats(deleteUntilEolStats);
 
         FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
@@ -556,11 +547,7 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        str pruneHeader = "";
-        for (int i <- [0..pruneCount]) {
-            pruneHeader += ",prune<i>,uprune<i>";
-        }
-        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes<pruneHeader>\n");
+        writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
     }
 
     return runBatchRecoveryTest(config, testStats());
