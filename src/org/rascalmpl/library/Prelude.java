@@ -78,9 +78,8 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
-import org.rascalmpl.types.RascalType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -2403,7 +2402,7 @@ public class Prelude {
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), values.integer(-1), allowRecovery, hasSideEffects, values.bool(true), filters);
+	    return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
 	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
@@ -2411,7 +2410,7 @@ public class Prelude {
     }
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), values.integer(-1), allowRecovery, hasSideEffects, values.bool(true), filters);
+        return rascalValues.parsers(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
