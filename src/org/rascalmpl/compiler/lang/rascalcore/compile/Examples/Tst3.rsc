@@ -25,7 +25,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-void main(){ 
-    node f = "foo"();
-    str hey = /"foo"() := f ? "kk" : "ll";          
-}
+import lang::rascal::\syntax::Rascal;
+
+void f((Statement) `<Label label>switch(<Expression expression>){<Case+ cases>}`) { }

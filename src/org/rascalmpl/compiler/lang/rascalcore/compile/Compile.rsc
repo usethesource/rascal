@@ -79,10 +79,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     
     <tplFound, tplFile> = getTPLReadLoc(qualifiedModuleName, pcfg);
    
-    if(tplFound && exists(classFile) && lastModified(classFile) > lastModified(tplFile)){
-        println("Reusing compiled Java file for: <qualifiedModuleName>");
-        return tm.messages;
-    }
+    // if(tplFound && exists(classFile) && lastModified(classFile) > lastModified(tplFile)){
+    //     println("Reusing compiled Java file for: <qualifiedModuleName>");
+    //     return tm.messages;
+    // }
     
     <tm, muMod> = r2mu(M, tm, compilerConfig);
    

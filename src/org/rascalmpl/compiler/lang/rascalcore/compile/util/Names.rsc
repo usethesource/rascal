@@ -31,7 +31,6 @@ import List;
 import util::Reflective;
 
 data PathConfig(
-    loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
@@ -142,6 +141,16 @@ str asBaseInterfaceName(str qname){
 
 str asADTName(str adtName)
     = "ADT_<asJavaName(adtName, completeId=false)>";
+
+str asNTName(str adtName){
+    if(startsWith(adtName, "ADT_")){
+        return "NT_<adtName[4..]>";
+    }
+    if(adtName[0] == "$"){
+        return adtName;
+    }
+    return "NT_<asJavaName(adtName, completeId=false)>"; 
+}   
     
 set[str] javaKeywords = {
     "abstract", "continue", "for",        "new",       "switch",
