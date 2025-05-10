@@ -42,7 +42,6 @@ import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -54,19 +53,22 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	private static final int DEFAULT_SKIP_LIMIT = 5;
-	private static int skipLimit = readSkipLimit();
+	private static final int DEFAULT_SKIP_LIMIT = 10;
+	private static final int DEFAULT_SKIP_WINDOW = 20480;
+	private static int skipLimit = readEnvVar("RASCAL_RECOVERER_SKIP_LIMIT", DEFAULT_SKIP_LIMIT);
+	private static int skipWindow = readEnvVar("RASCAL_RECOVERER_SKIP_WINDOW", DEFAULT_SKIP_WINDOW);
 
-	private static int readSkipLimit() {
-		String limitSpec = System.getenv("RASCAL_RECOVERER_SKIP_LIMIT");
+
+	private static int readEnvVar(String envVar, int defaultValue) {
+		String limitSpec = System.getenv(envVar);
 		if (limitSpec != null) {
 			try {
 				return Integer.parseInt(limitSpec);
 			} catch (NumberFormatException e) {
-				return DEFAULT_SKIP_LIMIT;
+				return defaultValue;
 			}
 		}
-		return DEFAULT_SKIP_LIMIT;
+		return defaultValue;
 	}
 
 	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
@@ -119,15 +121,9 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				IConstructor sort = ProductionAdapter.getType(prod);
 
 				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, location, recoveryNode, prod, startLocation);
-				skippingNodes.sort((n1, n2) -> Integer.compare(n1.getLength(), n2.getLength()));
 
-				int skipNodesAdded = 0;
-				//System.err.println("            skippingNodes: " + skippingNodes.size());
+				System.err.println("            skippingNodes: " + skippingNodes.size());
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
-					if (++skipNodesAdded > skipLimit) {
-						break;
-					}
-
 					//System.err.println("                skipping " + skippingNode.getLength() + " chars from " + skippingNode.getStartLocation());
 					int skipLength = skippingNode.getLength();
 					Triple<IConstructor, Integer, Integer> key = Triple.of(sort, startLocation, skipLength);
@@ -183,27 +179,36 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			return nodes; // No other nodes would be useful
 		}
 
-		// Find the last token of this production and skip until after that
+		// Try to find a match in  limited window starting at the current location
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
-		//System.err.println("  endMatchers: " + endMatchers.size());
-		for (InputMatcher endMatcher : endMatchers) {
-			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
-			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
-			if (endMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
-				addSkippingStackNode(nodes, prod, startLocation, result);
-			}
-		}
-
-		// Find the first token of the next production and skip until before that
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
-		//System.err.println("  nextMatchers: " + nextMatchers.size());
-		for (InputMatcher nextMatcher : nextMatchers) {
-			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
-			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
-			if (nextMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
-				addSkippingStackNode(nodes, prod, startLocation, result);
+
+		int end = Math.min(location+skipWindow, input.length);
+		for (int pos=location; pos<end; pos++) {
+			// Find the last token of this production and skip until after that
+			for (InputMatcher endMatcher : endMatchers) {
+				int matchEnd = endMatcher.match(input, pos);
+				if (matchEnd > 0) {
+					result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, matchEnd);
+					addSkippingStackNode(nodes, prod, startLocation, result);
+					if (nodes.size() >= skipLimit) {
+						return nodes; // No other nodes would be useful
+					}
+				}
+			}
+
+			// Find the first token of the next production and skip until before that
+			if (pos > location) {
+				for (InputMatcher nextMatcher : nextMatchers) {
+					int matchEnd = nextMatcher.match(input, pos);
+					if (matchEnd > 0) {
+						result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, pos);
+						addSkippingStackNode(nodes, prod, startLocation, result);
+						if (nodes.size() >= skipLimit) {
+							return nodes; // No other nodes would be useful
+						}
+					}
+				}
 			}
 		}
 
