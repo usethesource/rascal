@@ -130,7 +130,6 @@ bool checkStatementsAndFilter(str stmts, list[str] expected) {
      throw abbrev("<msgs>");
 }
 bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-	clearMemory();
 	mloc = writeModule(moduleText);
 	return checkModuleAndFilter([mloc], expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
