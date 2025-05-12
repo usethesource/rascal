@@ -393,7 +393,6 @@ void printFileStats(FileStats fileStats) {
     printStat("Successful parses", fileStats.successfulParses, fileStats.totalParses);
     int failedParses = fileStats.totalParses - fileStats.successfulParses;
     printStat("Successful recoveries", fileStats.successfulRecoveries, failedParses);
-    printStat("Successful disambiguations", fileStats.successfulDisambiguations, failedParses);
     printStat("Failed recoveries", fileStats.failedRecoveries, failedParses);
     printStat("Parse errors", fileStats.parseErrors, failedParses);
     printStat("Slow parses", fileStats.slowParses, failedParses);
@@ -521,7 +520,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
             throw "Not a tree? <t>";
         }
 
-        recoverySuccessLimit = size(input)/4;
+        recoverySuccessLimit = 2048; //size(input)/4;
 
         println("Error recovery of <config.syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
 
