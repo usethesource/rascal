@@ -31,12 +31,16 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.static
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jline.terminal.Terminal;
@@ -57,11 +61,14 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -73,6 +80,9 @@ import io.usethesource.vallang.IValueFactory;
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
     protected Evaluator eval;
+    protected final Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
+
+    private final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
     private final RascalValuePrinter printer;
 
@@ -132,15 +142,33 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             throw new IllegalStateException("Already initialized");
         }
         eval = buildEvaluator(input, stdout, stderr, services);
+
+        // Register watches for all watchable locations on the search path for automatic reloading
+        eval.getRascalResolver().collect().stream().filter(this::isWatchable).forEach(p -> {
+            try {
+                reg.watch(p, true, d -> sourceLocationChanged(p, d));
+            }
+            catch (IOException e) {
+                stderr.println("Failed to register watch for " + p);
+                e.printStackTrace(stderr);
+            }
+        });
         return services;
     }
 
+    private boolean isWatchable(ISourceLocation loc) {
+        return reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc);
+    }
 
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
+                Set<String> changes = new HashSet<>();
+                changes.addAll(dirtyModules);
+                dirtyModules.removeAll(changes);
+                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
@@ -222,6 +250,21 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public void flush() {
         eval.getErrorPrinter().flush();
         eval.getOutPrinter().flush();
+    }
+
+    protected void sourceLocationChanged(ISourceLocation srcPath, ISourceLocationChanged d) {
+        if (URIUtil.isParentOf(srcPath, d.getLocation()) && d.getLocation().getPath().endsWith(".rsc")) {
+            ISourceLocation relative = URIUtil.relativize(srcPath, d.getLocation());
+            relative = URIUtil.removeExtension(relative);
+
+            String modName = relative.getPath();
+            if (modName.startsWith("/")) {
+                modName = modName.substring(1);
+            }
+            modName = modName.replace("/", "::");
+            modName = modName.replace("\\", "::");
+            dirtyModules.add(modName);
+        }
     }
 
 }
