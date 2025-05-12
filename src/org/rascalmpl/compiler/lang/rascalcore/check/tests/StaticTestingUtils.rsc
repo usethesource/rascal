@@ -113,6 +113,7 @@ set[Message] getAllMessages(ModuleStatus r)
 	= { m | mname <- r.messages, m <- r.messages[mname] };
 
 ModuleStatus checkStatements(str stmts) {
+	clearMemory();
 	mloc = composeModule(stmts);
    	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
@@ -129,11 +130,13 @@ bool checkStatementsAndFilter(str stmts, list[str] expected) {
      throw abbrev("<msgs>");
 }
 bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
+	clearMemory();
 	mloc = writeModule(moduleText);
 	return checkModuleAndFilter([mloc], expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
 bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-    ms = rascalTModelForLocs(mlocs, rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
+    clearMemory();
+	ms = rascalTModelForLocs(mlocs, rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
 	msgs = getAllMessages(ms);
 	if (verbose) {
      	println(msgs);
@@ -155,6 +158,7 @@ bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = f
 }
 
 bool checkOK(str stmts) {
+	clearMemory();
      errors = getErrorMessages(checkStatements(stmts));
      if(size(errors) == 0)
         return true;
@@ -162,6 +166,7 @@ bool checkOK(str stmts) {
 }
 
 bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) {
+	clearMemory();
      errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1));
      if(size(errors) == 0)
         return true;
@@ -169,6 +174,7 @@ bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesti
 }
 
 bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting()){
+	clearMemory();
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
 	pathConfig.srcs += pathConfigForTesting().srcs;
 	mloc = writeModule(moduleText);

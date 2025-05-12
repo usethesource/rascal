@@ -174,6 +174,8 @@ public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool keep=true){
 public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
     TMP_TYPEPAL = |tmp:///typepal/|;
+    remove(TMP_RASCAL, recursive = true);
+    remove(TMP_TYPEPAL, recursive = true);
     copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
     copy(TYPEPAL, TMP_TYPEPAL, recursive=true, overwrite=true);
     return makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
@@ -214,6 +216,7 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
+    remove(TMP_RASCAL, recursive = true);
     copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
     println("getRascalWritablePathConfig:"); iprintln(TMP_RASCAL.ls);
     pcfg = makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
