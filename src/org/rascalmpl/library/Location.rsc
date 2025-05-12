@@ -37,9 +37,7 @@ loc relativize(list[loc] haystack, loc needle) {
     if (h <- haystack, loc r := relativize(h, needle), r != needle) {
         return r;
     }
-    else {
-        fail relativize;
-    }
+    throw PathNotFound(needle);
 }
 
 @synopsis{Shortens an absolute path to a jar inside the local maven repository.}
