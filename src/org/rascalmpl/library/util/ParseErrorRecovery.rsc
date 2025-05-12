@@ -73,3 +73,7 @@ list[Tree] findBestParseErrors(Tree tree) = findAllParseErrors(disambiguateParse
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
 Tree(Tree) createParseErrorFilter(bool allowAmbiguity) =
     Tree(Tree t)  { return disambiguateParseErrors(t, allowAmbiguity=allowAmbiguity); };
+
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);

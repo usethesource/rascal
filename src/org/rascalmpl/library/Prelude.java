@@ -78,9 +78,8 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
-import org.rascalmpl.types.RascalType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -2394,24 +2393,28 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+	private IInteger firstAmbiguityMaxAmbDepth(IBool allowRecovery) {
+		return values.integer(allowRecovery.getValue() ? INodeFlattener.DEFAULT_RECOVERY_AMB_DEPTH : INodeFlattener.UNLIMITED_AMB_DEPTH);
 	}
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, values.bool(false), hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), hasSideEffects, values.bool(false), filters);
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
+	    return rascalValues.parser(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
     }
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
+        return rascalValues.parsers(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
@@ -2426,18 +2429,18 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IInteger maxAmbDepth, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
