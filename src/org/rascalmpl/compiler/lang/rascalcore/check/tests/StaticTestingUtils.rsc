@@ -431,7 +431,7 @@ bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = getDe
 bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter([mloc], unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
-bool unexpectedDeclarationInModule(str stmts) =
+bool unexpectedDeclaration(str stmts) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------
