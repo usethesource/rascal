@@ -54,6 +54,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.result.DateTimeResult;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.runtime.traverse.Traverse;
@@ -74,6 +75,8 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
+
+import com.ibm.icu.util.Calendar;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -340,13 +343,11 @@ public abstract class $RascalModule {
 			NonTerminalType rightNT = (NonTerminalType) right;
 			IConstructor rightSym = rightNT.getSymbol();
 			if(SymbolAdapter.isStartSort(leftSym)){
-				System.err.println("START1");
 				leftSym = SymbolAdapter.getStart(leftSym);
 				return leftSym.equals(rightSym);
 			}
 			
 			if(SymbolAdapter.isStartSort(rightSym)){
-				System.err.println("START2");
 				rightSym = SymbolAdapter.getStart(rightSym);
 				return leftSym.equals(rightSym);
 			}
@@ -4017,6 +4018,10 @@ public abstract class $RascalModule {
 				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		}
+
+	public final IValue $adatetime_subtract_adatetime(final IValue lhs, final IValue rhs){
+		throw new InternalCompilerError("Subtraction on datetime not implemented");
+	}
 	 
 	// ---- product -----------------------------------------------------------
 

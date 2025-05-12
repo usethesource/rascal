@@ -25,6 +25,46 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-import lang::rascal::\syntax::Rascal;
 
-void f((Statement) `<Label label>switch(<Expression expression>){<Case+ cases>}`) { }
+import util::Benchmark;
+import IO;
+import DateTime;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import util::Reflective;
+
+int NUM_RUNS = 100;
+
+int TypeMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case TypeVar _: i = i + 1;
+        }
+    }
+    println("Elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
+
+int ProdMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case (TypeVar) `&<Name _>`: i = i + 1;
+            case (TypeVar) `&<Name _> \<: <Type _>`: i = i + 1;
+        }
+    }
+    println("Elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
+ 
+value main(){
+    m = parseModuleWithSpaces(|std:///List.rsc|);
+    println("ProdMatch:");
+    a = ProdMatch(m);
+    println("TypeMatch:");
+    b = TypeMatch(m);
+    return <a,b>;
+}
