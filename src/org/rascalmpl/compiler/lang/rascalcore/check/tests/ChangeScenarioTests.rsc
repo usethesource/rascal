@@ -457,6 +457,7 @@ void safeRemove(loc l){
 }
 
 test bool onlyTouchedModulesAreReChecked0(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
     topLoc = getRascalModuleLocation("List", pcfg);
@@ -468,6 +469,7 @@ test bool onlyTouchedModulesAreReChecked0(){
 }
 
 test bool onlyTouchedModulesAreReChecked1(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
     topLoc = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
@@ -482,6 +484,7 @@ test bool onlyTouchedModulesAreReChecked1(){
 
 @ignore{Very expensive test}
 test bool onlyTouchedModulesAreReChecked2(){
+    clearMemory();
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.resources);
     topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
@@ -530,6 +533,7 @@ bool changeAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg, str inje
 }
 
 test bool onlyChangedModulesAreReChecked1(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
     str topName = "analysis::grammars::Ambiguity";
@@ -562,6 +566,7 @@ test bool onlyChangedModulesAreReChecked1(){
 
 @ignore{Very expensive test}
 test bool onlyChangedModulesAreReChecked2(){
+    clearMemory();
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.resources);
     topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
