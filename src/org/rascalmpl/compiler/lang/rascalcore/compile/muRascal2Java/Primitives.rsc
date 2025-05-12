@@ -577,6 +577,8 @@ JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie 
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b), !equivalent(getElementType(a), b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapAType(a), isMapAType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$adatetime_subtract_adatetime(<x>,<y>)"     
+                                                                                                when isDateTimeAType(a), isDateTimeAType(b);
 
 // ---- delete ----------------------------------------------------------------
 JCode transPrim("delete", AType r, [AType a, AType b], [str x, str y], JGenie jg)        = "<x>.delete(<y>)";
