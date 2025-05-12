@@ -2393,6 +2393,10 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
+	private IInteger firstAmbiguityMaxAmbDepth(IBool allowRecovery) {
+		return values.integer(allowRecovery.getValue() ? INodeFlattener.DEFAULT_RECOVERY_AMB_DEPTH : INodeFlattener.UNLIMITED_AMB_DEPTH);
+	}
+
 	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 	    return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
 	}
@@ -2402,7 +2406,7 @@ public class Prelude {
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), allowRecovery, hasSideEffects, values.bool(true), filters);
+	    return rascalValues.parser(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
 	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
@@ -2410,7 +2414,7 @@ public class Prelude {
     }
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), allowRecovery, hasSideEffects, values.bool(true), filters);
+        return rascalValues.parsers(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
