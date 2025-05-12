@@ -171,7 +171,6 @@ bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesti
 }
 
 bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting()){
-	clearMemory();
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
 	pathConfig.srcs += pathConfigForTesting().srcs;
 	mloc = writeModule(moduleText);
