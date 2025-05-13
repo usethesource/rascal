@@ -180,6 +180,7 @@
                             <license>${project.basedir}/LICENSE</license>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
+                            <version>${project.version}</version>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>

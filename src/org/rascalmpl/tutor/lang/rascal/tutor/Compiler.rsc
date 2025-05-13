@@ -76,7 +76,8 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   bool isPackageCourse  = false, 
   str groupId           = "org.rascalmpl",
   str artifactId        = "rascal",
-  str version           = getRascalVersion()) {
+  str version           = getRascalVersion(),
+  str packageName       = "rascal") {
 
   if (license?)         pcfg.license         = license;
   if (citation?)        pcfg.citation        = citation;
