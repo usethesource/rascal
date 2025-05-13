@@ -84,9 +84,13 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
 
-  if (!(groupId?)) throw "missing groupId parameter";
-  if (!(artifactId)) throw "missing artifactId parameter";
-  if (!(version)) throw "missing version parameter";
+  // can only use this when maven plugin has changed
+  if (isPackageCourse) {
+    // if (!(groupId?)) throw "missing groupId parameter";
+    // if (!(artifactId)) throw "missing artifactId parameter";
+    // if (!(version)) throw "missing version parameter";
+    ;
+  }
 
   pcfg.packageArtifactId = artifactId;
   pcfg.packageGroupId = groupId;
@@ -126,7 +130,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   // this information, however, is not easy to obtain outside of the build
   // environment of the current project. Therefore we store it here and now.
 
-  if (!pcfg.packageName?) {
+  if (!pcfg.isPackageCourse) {
     return;
   }
 
@@ -258,7 +262,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '```xml
     '\<dependencies\>
     '    \<dependency\>  
-    '        \<groupId\><pcfg.packageGroup>\</groupId\>
+    '        \<groupId\><pcfg.packageGroupId>\</groupId\>
     '        \<artifactId\><pcfg.packageArtifactId>\</artifactId\>
     '        \<version\><pcfg.packageVersion>\</version\>
     '    \</dependency\>
