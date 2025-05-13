@@ -67,37 +67,27 @@ public void defaultCompile(bool clean=false) {
 }
 
 int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-  loc license=|unknown:///|, 
-  loc citation = |unknown:///|, 
-  loc funding=|unknown:///|, 
-  loc releaseNotes=|unknown:///|,
-  bool errorsAsWarnings=false, 
-  bool warningsAsErrors=false, 
-  bool isPackageCourse=true, 
-  str groupId="",
-  str artifactId="",
-  str version="") {
+  loc license           =|unknown:///|, 
+  loc citation          = |unknown:///|, 
+  loc funding           = |unknown:///|, 
+  loc releaseNotes      = |unknown:///|,
+  bool errorsAsWarnings = false, 
+  bool warningsAsErrors = false, 
+  bool isPackageCourse  = false, 
+  str groupId           = "org.rascalmpl",
+  str artifactId        = "rascal",
+  str version           = getRascalVersion()) {
 
-  if (license?) pcfg.license = license;
-  if (citation?) pcfg.citation = citation;
-  if (funding?) pcfg.funding = funding;
-  if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
+  if (license?)         pcfg.license         = license;
+  if (citation?)        pcfg.citation        = citation;
+  if (funding?)         pcfg.funding         = funding;
+  if (releaseNotes?)    pcfg.releaseNotes    = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
-
-  // can only use this when maven plugin has changed
-  if (isPackageCourse) {
-    // if (!(groupId?)) throw "missing groupId parameter";
-    // if (!(artifactId)) throw "missing artifactId parameter";
-    // if (!(version)) throw "missing version parameter";
-    ;
-  }
+  if (isPackageCourse?) pcfg.packageName     = "<groupId>.<artifactId>";
 
   pcfg.packageArtifactId = artifactId;
-  pcfg.packageGroupId = groupId;
-  pcfg.packageVersion = version;
-
-  // downstream we use packageName? to see if we are a package:
-  if (isPackageCourse?) pcfg.packageName = "<groupId>.<artifactId>";
+  pcfg.packageGroupId    = groupId;
+  pcfg.packageVersion    = version;
 
   messages = compile(pcfg);
   
