@@ -56,9 +56,12 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	private static final int DEFAULT_SKIP_LIMIT = 5;
 	private static final int DEFAULT_SKIP_WINDOW = 2048;
+	private static final int DEFAULT_RECOVERY_LIMIT = 50;
 	private static int skipLimit = readEnvVar("RASCAL_RECOVERER_SKIP_LIMIT", DEFAULT_SKIP_LIMIT);
 	private static int skipWindow = readEnvVar("RASCAL_RECOVERER_SKIP_WINDOW", DEFAULT_SKIP_WINDOW);
+	private static int recoveryLimit = readEnvVar("RASCAL_RECOVERER_RECOVERY_LIMIT", DEFAULT_RECOVERY_LIMIT);
 
+	private int count = 0;
 
 	private static int readEnvVar(String envVar, int defaultValue) {
 		String limitSpec = System.getenv(envVar);
@@ -84,6 +87,11 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
+
+		// Cut off error recovery if we have encountered too many errors
+		if (count > recoveryLimit) {
+			return new DoubleArrayList<>();
+		}
 
 		// For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
 		// improve error recovery.
