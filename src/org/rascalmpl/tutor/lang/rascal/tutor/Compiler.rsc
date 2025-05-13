@@ -74,7 +74,9 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   bool errorsAsWarnings=false, 
   bool warningsAsErrors=false, 
   bool isPackageCourse=true, 
-  str packageName="noPackageName") {
+  str groupId="",
+  str artifactId="",
+  str version="") {
 
   if (license?) pcfg.license = license;
   if (citation?) pcfg.citation = citation;
@@ -82,7 +84,16 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
 
-  if (packageName?) pcfg.packageName = packageName;
+  if (!(groupId?)) throw "missing groupId parameter";
+  if (!(artifactId)) throw "missing artifactId parameter";
+  if (!(version)) throw "missing version parameter";
+
+  pcfg.packageArtifactId = artifactId;
+  pcfg.packageGroupId = groupId;
+  pcfg.packageVersion = version;
+
+  // downstream we use packageName? to see if we are a package:
+  if (isPackageCourse?) pcfg.packageName = "<groupId>.<artifactId>";
 
   messages = compile(pcfg);
   
@@ -124,15 +135,15 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   }
 
   if (pcfg.citation? && exists(pcfg.citation)) {
-    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.md");
+    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.txt");
   }
 
   if (pcfg.funding? && exists(pcfg.funding)) {
-    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.md");
+    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.txt");
   }
 
   if (pcfg.releaseNotes? && exists(pcfg.releaseNotes)) {
-    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
+    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.txt");
   }
 
   dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
@@ -182,9 +193,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '
       ':::info
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
-      'Citing software **recognizes** the associated investment and the quality of the result.
-      'If you use open-source software, it is becoming standard practise to recognize the work as
-      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'Citing software recognizes the associated investment and the quality of the result.
+      'If you use open-source software, it is becoming standard practise to recognize the work by citing it (as shown below). 
+      'In turn their effort might be awarded with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
       'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
@@ -248,7 +259,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '\<dependencies\>
     '    \<dependency\>  
     '        \<groupId\><pcfg.packageGroup>\</groupId\>
-    '        \<artifactId\><pcfg.packageName>\</artifactId\>
+    '        \<artifactId\><pcfg.packageArtifactId>\</artifactId\>
     '        \<version\><pcfg.packageVersion>\</version\>
     '    \</dependency\>
     '\</dependencies\> 
