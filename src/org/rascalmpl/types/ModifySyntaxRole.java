@@ -93,11 +93,7 @@ public abstract class ModifySyntaxRole extends RascalType {
             return applyToData(arg);
         }
         
-        // this should not happen, but for robustness sake we return the unmodified type.
-        assert false  : "can not modify " + arg + " to " + this; 
-        
-        // `data[int] => int`
-        return arg; // TODO @rodin @jurgen moet dit niet een throw zijn? de type-checker mag dit niet toelaten
+        throw new IllegalArgumentException("Do not know how to apply the " + getClass().getSimpleName() + " syntax role modifier to " + arg);
     }
 
     protected abstract Type applyToRole(ModifySyntaxRole role);

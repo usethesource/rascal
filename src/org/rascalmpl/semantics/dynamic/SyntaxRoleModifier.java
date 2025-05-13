@@ -15,6 +15,8 @@ package org.rascalmpl.semantics.dynamic;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonWellformedType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -29,7 +31,12 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			return RTF.modifyToSyntax(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			try {
+				return RTF.modifyToSyntax(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			}
+			catch (IllegalArgumentException e) {
+				throw new NonWellformedType(e.getMessage(), eval.getCurrentAST());
+			}
 		}
 	}
 
@@ -40,7 +47,12 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			return RTF.modifyToLexical(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			try {
+				return RTF.modifyToLexical(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			}
+			catch (IllegalArgumentException e) {
+				throw new NonWellformedType(e.getMessage(), eval.getCurrentAST());
+			}
 		}
 	}
 
@@ -51,7 +63,12 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			return RTF.modifyToLayout(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			try {
+				return RTF.modifyToLayout(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			}
+			catch (IllegalArgumentException e) {
+				throw new NonWellformedType(e.getMessage(), eval.getCurrentAST());
+			}
 		}
 	}
 
@@ -62,7 +79,12 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			return RTF.modifyToKeyword(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			try {
+				return RTF.modifyToKeyword(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			}
+			catch (IllegalArgumentException e) {
+				throw new NonWellformedType(e.getMessage(), eval.getCurrentAST());
+			}
 		}
 	}
 
@@ -73,7 +95,12 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			return RTF.modifyToData(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			try {
+				return RTF.modifyToData(getArg().typeOf(__eval, eval, instantiateTypeParameters));
+			}
+			catch (IllegalArgumentException e) {
+				throw new NonWellformedType(e.getMessage(), eval.getCurrentAST());
+			}
 		}
 	}
 
