@@ -40,8 +40,7 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int minFileSize = 0,
     int maxFileSize = 1000000000,
     int fromFile = 0,
-    int skipChars = 1,
-    int skipOffset = 0,
+    int sampleWindow = 1,
     loc statFile = |unknown:///|
 );
 
@@ -105,7 +104,6 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int nodeCountUnique = 0;
     int disambNodeCount = 0;
     int disambNodeCountUnique = 0;
-    str prunedStats = "";
 
     TestMeasurement measurement = successfulParse();
     try {
@@ -294,7 +292,7 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
 FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int referenceNodeCount, int referenceNodeCountUnique, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int len = size(input);
-    int i = begin+config.skipOffset;
+    int i = begin;
 
     while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
@@ -304,7 +302,7 @@ FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, lo
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
         }
-        i = i+config.skipChars;
+        i += 1+arbInt(config.sampleWindow);
     }
 
     return stats;
@@ -357,13 +355,14 @@ FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc ori
                 return stats;
             }
             if (pos < begin) {
+                pos += 1+arbInt(config.sampleWindow);
                 continue;
             }
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
             TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
-            pos += config.skipChars;
+            pos += 1+arbInt(config.sampleWindow);
         }
         lineStart = lineEnd+1;
         println();
@@ -466,7 +465,6 @@ void printStats(TestStats stats) {
     printFrequencyTableHeader();
     printFrequencyTableStats("Succesful parses", stats.successfulParses);
     printFrequencyTableStats("Succesful recoveries", stats.successfulRecoveries);
-    printFrequencyTableStats("Succesful disambiguations", stats.successfulDisambiguations);
     printFrequencyTableStats("Failed recoveries", stats.failedRecoveries);
     printFrequencyTableStats("Parse errors", stats.parseErrors);
     printFrequencyTableStats("Slow parses", stats.slowParses);
@@ -523,15 +521,16 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
         recoverySuccessLimit = 2048; //size(input)/4;
 
         println("Error recovery of <config.syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
+        println("Configuration: <config>");
 
         println();
         println("Single char deletions:");
-        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=config.skipOffset);
+        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
         printFileStats(singleCharDeletionStats);
 
         println();
         println("Deletes until end-of-line:");
-        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit, begin=config.skipOffset);
+        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
         printFileStats(deleteUntilEolStats);
 
         FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);

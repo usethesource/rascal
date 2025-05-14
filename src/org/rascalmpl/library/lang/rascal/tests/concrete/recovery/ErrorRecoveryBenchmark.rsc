@@ -17,6 +17,7 @@ import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import IO;
 import ValueIO;
 import util::Benchmark;
+import util::Math;
 import String;
 
 void runTestC() { testRecoveryC(); }
@@ -67,8 +68,7 @@ int main(list[str] args) {
     int maxFileSize = 1000000;
     int minFileSize = 0;
     int fromFile = 0;
-    int skipChars = 1;
-    int skipOffset = 0;
+    int sampleWindow = 1;
     loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
     int memoVerificationTimeout = 0;
     bool abortOnNoMemoTimeout = false;
@@ -83,10 +83,10 @@ int main(list[str] args) {
                 case "from-file": fromFile = toInt(val);
                 case "stat-file": statFile = readTextValueString(#loc, val);
                 case "memo-verification-timeout": memoVerificationTimeout = toInt(val);
-                case "skip-chars": skipChars = toInt(val);
-                case "skip-offset": skipOffset = toInt(val);
+                case "sample-window": sampleWindow = toInt(val);
+                case "random-seed": arbSeed(toInt(val));
+                default: { println("Unknown argument <arg>"); return 1; }
             }
-            println("arg: <arg>");
         } else switch (toLowerCase(arg)) {
             case "abort-on-no-memo-timeout": abortOnNoMemoTimeout = true;
         }
@@ -102,8 +102,7 @@ int main(list[str] args) {
         minFileSize=minFileSize,
         maxFileSize=maxFileSize,
         fromFile=fromFile,
-        skipChars=skipChars,
-        skipOffset=skipOffset,
+        sampleWindow=sampleWindow,
         statFile=statFile
     );
     runRascalBatchTest(config);
@@ -111,5 +110,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "skip-chars=5"]);
+int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1"]);
 int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);
