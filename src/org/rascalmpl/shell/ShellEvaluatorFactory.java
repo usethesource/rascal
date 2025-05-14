@@ -27,7 +27,7 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getEvaluatorForMain(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+    public static Evaluator getBasicEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
