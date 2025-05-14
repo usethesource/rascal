@@ -67,6 +67,14 @@
         },
         {
             "type": "java",
+            "name": "Attach Mvn Vallang",
+            "request": "attach",
+            "projectName": "vallang",
+            "hostName": "localhost",
+            "port": 8000
+        },
+        {
+            "type": "java",
             "name": "Attach Rascal LSP Terminal",
             "request": "attach",
             "projectName": "rascal-lsp",
