@@ -28,8 +28,12 @@ import io.usethesource.vallang.IValueFactory;
 public class ShellEvaluatorFactory {
 
     public static Evaluator getBasicEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        return getBasicEvaluator(input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
+    }
+
+    public static Evaluator getBasicEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootModule) {
         GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
+        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(rootModule, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
         Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
