@@ -38,12 +38,7 @@ public class ShellEvaluatorFactory {
     }
 
     public static Evaluator getDefaultEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
+        Evaluator evaluator = getBasicEvaluator(input, stdout, stderr, monitor);
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
