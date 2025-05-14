@@ -69,7 +69,6 @@ import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
@@ -483,9 +482,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
@@ -603,6 +602,7 @@ int main(
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
+        logImports               = logImports,
         verbose                  = verbose,
         logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
@@ -612,10 +612,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
 
-    messages = [];
+    list[ModuleMessages] messages = [];
     
     if (modules == []) {
-        messages = [info("No modules to check.", |unknown:///|)];
+        //messages = [info("No modules to check.", |unknown:///|)];
         return 0;
     }
     else {

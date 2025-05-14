@@ -35,14 +35,14 @@ import lang::rascalcore::check::ModuleLocations;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
-// use the `download-test-jars.sh` to download these dependencies (and make sure to keep the versions up to date)
+// use the `download-test-jars.sh` to download these dependencies 
+// (and make sure to KEEP THE VERSIONS up to date)
 
 public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
 public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
@@ -127,15 +127,8 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources     = COMPILED + "/src/main/java",
         generatedTestSources = COMPILED + "/src/test/java/",
         resources            = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        testResources        = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        testResources        = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                 = libraries
-        // srcs                 = sources,
-        // bin                  = keep ? COMPILED_RASCAL + "/target/classes" : repo,
-        // generatedSources     = keep ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
-        // generatedTestSources = keep ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
-        // resources            = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
-        // testResources        = keep ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
-        // libs                 = libraries
     ); 
 }
 
@@ -149,6 +142,10 @@ public PathConfig getAllSrcPathConfig(bool keep = false) {
                         ],
                         [ ], 
                         keep=keep);
+}
+
+public RascalCompilerConfig getAllSrcCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
@@ -166,6 +163,10 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
                         keep=keep);
 }
 
+public RascalCompilerConfig getAllSrcREPOCompilerConfig(PathConfig pcfg, bool keep=true){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
+}
+
 public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool keep=true){
     return rascalCompilerConfig(getAllSrcREPOPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
@@ -173,6 +174,8 @@ public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool keep=true){
 public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
     TMP_TYPEPAL = |tmp:///typepal/|;
+    remove(TMP_RASCAL, recursive = true);
+    remove(TMP_TYPEPAL, recursive = true);
     copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
     copy(TYPEPAL, TMP_TYPEPAL, recursive=true, overwrite=true);
     return makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
@@ -212,23 +215,14 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
 }
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
-    TMP_RASCAL = //|project://rascal/|; ////REPO + "rascal"; 
-                |tmp:///rascal/|;
-    copy(|project://rascal/|, TMP_RASCAL, recursive=true, overwrite=true);
-    
-    pcfg = makePathConfig([ TMP_RASCAL + "src/org/rascalmpl/library",
-                            TMP_RASCAL + "test/org/rascalmpl/benchmark/",
-                            TMP_RASCAL + "src/org/rascalmpl/compiler"
+    TMP_RASCAL = |tmp:///rascal/|;
+    remove(TMP_RASCAL, recursive = true);
+    copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
+    pcfg = makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
+                            TMP_RASCAL + "org/rascalmpl/compiler"
                           ],
                           [], 
                           keep=keep);
-    // println("exists1: <exists(TMP_RASCAL + "src/org/rascalmpl/library")>");
-    // println("exists2: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis")>");
-    // println("exists3: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars")>");
-    // println("exists4: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc")>");
-    // //
-    // iprintln(find("Ambiguity.rsc", [TMP_RASCAL +  "src/org/rascalmpl/library/analysis/grammars"]));
-    // Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
     return pcfg;
 }
 

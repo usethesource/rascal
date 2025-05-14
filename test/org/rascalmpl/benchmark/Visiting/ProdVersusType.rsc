@@ -24,11 +24,10 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst3
+module Visiting::ProdVersusType
 
 import util::Benchmark;
 import IO;
-import DateTime;
 import ParseTree;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
@@ -43,7 +42,7 @@ int TypeMatch(Tree tr) {
             case TypeVar _: i = i + 1;
         }
     }
-    println("Elapsed: <(cpuTime() - s)/1000000> ms");
+    println("TypeMatch elapsed: <(cpuTime() - s)/1000000> ms");
     return i;
 }
 
@@ -56,12 +55,19 @@ int ProdMatch(Tree tr) {
             case (TypeVar) `&<Name _> \<: <Type _>`: i = i + 1;
         }
     }
-    println("Elapsed: <(cpuTime() - s)/1000000> ms");
+    println("ProdMatch elapsed: <(cpuTime() - s)/1000000> ms");
     return i;
 }
  
+ void warmup(start[Module] m){
+    for(_ <- [0..5]){
+        ProdMatch(m);
+        TypeMatch(m);
+    }
+ }
 value main(){
     m = parseModuleWithSpaces(|std:///List.rsc|);
+    warmup(m);
     println("ProdMatch:");
     a = ProdMatch(m);
     println("TypeMatch:");
