@@ -187,12 +187,9 @@ private MuExp tcc("end-of-line", []) = muCon(ParseTree::\end-of-line());
 private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label));
 
 // Grammar
-
-// TODO: this should be excluded as long as IValues in the constants file are being created
-// in another IValueFactory than the RascalRuntimeValueFactory.
-//private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)]) = muCon(Grammar::grammar(starts, rules));
+private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)])
+    = muCon(grammar(starts, rules));
   
-
 default MuExp tcc(str name, list[MuExp] args) { 
     throw "NotConstant"; 
 }
