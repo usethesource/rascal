@@ -40,6 +40,7 @@ import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -206,7 +207,11 @@ public class Eval {
 		private int duration = -1;
 		
 		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
-			this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, services);
+			if (!pcfg.getSrcs().isEmpty()) {
+				this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, (ISourceLocation)pcfg.getSrcs().get(0), input, stdout, stderr, services);
+			} else {
+				this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, URIUtil.rootLocation("cwd"), input, stdout, stderr, services);
+			}
 		}
 
 		public IValue staticTypeOf(String line) {
