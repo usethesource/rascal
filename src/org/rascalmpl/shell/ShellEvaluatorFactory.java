@@ -1,9 +1,7 @@
 package org.rascalmpl.shell;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.net.URISyntaxException;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
@@ -23,7 +21,6 @@ import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
