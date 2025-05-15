@@ -30,105 +30,42 @@ import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TestEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.Messages;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
-import org.rascalmpl.uri.project.ProjectURIResolver;
-import org.rascalmpl.uri.project.TargetURIResolver;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
-    private static Evaluator evaluator;
-    private static GlobalEnvironment heap;
-    private static ModuleEnvironment root;
+    private final Evaluator evaluator;
     private Description desc;
 
     private final String prefix;
     private final ISourceLocation projectRoot;
     private final Class<?> clazz;
 
-    static {
-        try {
-            heap = new GlobalEnvironment();
-            root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJunitConsoleMonitor.getInstance());
-        
-            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-            evaluator.getConfiguration().setErrors(true);
-        } 
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }  
+    private final static String JUNIT_TEST = "___junit_test___";
+
 
     public RascalJUnitTestRunner(Class<?> clazz) {
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
-        this.projectRoot = inferProjectRoot(clazz);
+        projectRoot = inferProjectRootFromClass(clazz);
         this.clazz = clazz;
         
         System.err.println("Rascal JUnit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
         System.err.println("Rascal JUnit project root: " + projectRoot);
-        
 
         if (projectRoot != null) {
-            configureProjectEvaluator(evaluator, projectRoot);
-        }
-        else {
+            evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            evaluator.getConfiguration().setErrors(true);
+        } else {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
         }
     }
     
-    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        String projectName = new RascalManifest().getProjectName(projectRoot);
-        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-        
-        try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
-            
-            System.err.println("Source path:");
-            for (IValue path : pcfg.getSrcs()) {
-                ISourceLocation locPath = MavenRepositoryURIResolver.mavenize((ISourceLocation)path);
-                evaluator.addRascalSearchPath(locPath); 
-                System.err.println("- " + locPath);
-            }
-
-            System.err.println("Class loader path:");
-            for (IValue p: pcfg.getLibsAndTarget()) {
-                System.err.println("- " + p);
-            }
-            
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
-            evaluator.addClassLoader(cl);
-
-            if (pcfg.getMessages().length() > 0) {
-                System.err.println("Messages:");
-                Messages.write(pcfg.getMessages(), pcfg.getSrcs(), new PrintWriter(System.err, true));
-            }
-            
-        }
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    public static ISourceLocation inferProjectRoot(Class<?> clazz) {
+    public static ISourceLocation inferProjectRootFromClass(Class<?> clazz) {
         
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -224,7 +161,7 @@ public class RascalJUnitTestRunner extends Runner {
 
                     try {
                         evaluator.doNextImport(jobName, name);
-                        List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
+                        List<AbstractFunction> tests = evaluator.getHeap().getModule(name.replaceAll("\\\\","")).getTests();
                     
                         if (tests.isEmpty()) {
                             continue;
