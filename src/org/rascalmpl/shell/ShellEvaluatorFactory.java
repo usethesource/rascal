@@ -55,21 +55,12 @@ public class ShellEvaluatorFactory {
         return evaluator;
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+    public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        Evaluator evaluator = getBasicEvaluator(input, stdout, stderr, monitor);
 
-        try {
-            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.createFileLocation(fileOrFolderInProject.toString()));
-            if (rootFolder != null) {
-                configureProjectEvaluator(evaluator, rootFolder);
-            }
-        }
-        catch (URISyntaxException e) {
-            e.printStackTrace(stderr);
+        ISourceLocation rootFolder = PathConfig.inferProjectRoot(fileOrFolderInProject);
+        if (rootFolder != null) {
+            configureProjectEvaluator(evaluator, rootFolder);
         }
 
         return evaluator;
