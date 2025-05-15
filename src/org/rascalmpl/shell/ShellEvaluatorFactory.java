@@ -59,7 +59,7 @@ public class ShellEvaluatorFactory {
     }
     
     public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
-        var evaluator = getBasicEvaluator(input, stdout, stderr, monitor);
+        var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         var reg = URIResolverRegistry.getInstance();
 
         var srcs = pcfg.getSrcs();
