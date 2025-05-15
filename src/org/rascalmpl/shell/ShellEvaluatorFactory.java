@@ -21,7 +21,6 @@ import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
@@ -30,10 +29,9 @@ public class ShellEvaluatorFactory {
     }
 
     public static Evaluator getBasicEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
-        GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(rootEnvironment, heap));
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
+        var heap = new GlobalEnvironment();
+        var root = heap.addModule(new ModuleEnvironment(rootEnvironment, heap));
+        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
         return evaluator;
@@ -44,42 +42,35 @@ public class ShellEvaluatorFactory {
     }
 
     public static Evaluator getDefaultEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        var reg = URIResolverRegistry.getInstance();
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
-            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.rootLocation("cwd"));
-            if (rootFolder != null) {
-                return getDefaultEvaluatorForLocation(rootFolder, input, stdout, stderr, monitor, rootEnvironment);
-            }
+            return getDefaultEvaluatorForLocation(URIUtil.rootLocation("cwd"), input, stdout, stderr, monitor, rootEnvironment);
         }
         return getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
     }
 
-    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        return getDefaultEvaluatorForPathConfig(pcfg, projectFile, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
     
-    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         var reg = URIResolverRegistry.getInstance();
 
-        var srcs = pcfg.getSrcs();
-        if (!srcs.isEmpty()) {
-            var projectRoot = (ISourceLocation)srcs.get(0);
-            var projectName = new RascalManifest().getProjectName(projectRoot);
-            reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-            reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-        }
+        var projectRoot = PathConfig.inferProjectRoot(projectFile);
+        var projectName = new RascalManifest().getProjectName(projectRoot);
+        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
         stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
         stdout.println("Rascal search path:");
-        for (var srcPath : srcs) {
+        for (var srcPath : pcfg.getSrcs()) {
             var path = MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath);
             stdout.println("- " + path);
             evaluator.addRascalSearchPath(path);
         }
 
-        //TODO: libs vs libs+target
-        var libs = /*projectName == "rascal" ? pcfg.getLibs() :*/ pcfg.getLibsAndTarget();
+        var libs = pcfg.getLibsAndTarget();
         stdout.println("Rascal classloader path:");
         for (var lib : libs) {
             var path = (ISourceLocation)lib;
@@ -90,23 +81,19 @@ public class ShellEvaluatorFactory {
 
         if (!pcfg.getMessages().isEmpty()) {
             stdout.println("PathConfig messages:");
-            Messages.write(pcfg.getMessages(), srcs, stdout);
+            Messages.write(pcfg.getMessages(), pcfg.getSrcs(), stdout);
         }
 
         return evaluator;
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        return getDefaultEvaluatorForLocation(fileOrFolderInProject, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
+    public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        return getDefaultEvaluatorForLocation(projectFile, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
-        var rootFolder = PathConfig.inferProjectRoot(fileOrFolderInProject);
-        if (rootFolder != null) {
-            var pcfg = PathConfig.fromSourceProjectRascalManifest(rootFolder, RascalConfigMode.INTERPRETER, true);
-            return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, rootEnvironment);
-        }
-        return getDefaultEvaluator(input, stdout, stderr, monitor, rootEnvironment);
+    public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
+        var pcfg = PathConfig.fromSourceProjectMemberRascalManifest(projectFile, RascalConfigMode.INTERPRETER);
+        return getDefaultEvaluatorForPathConfig(pcfg, projectFile, input, stdout, stderr, monitor, rootEnvironment);
     }
 
 }
