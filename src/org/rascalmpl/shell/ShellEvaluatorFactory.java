@@ -17,6 +17,7 @@ import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -50,6 +51,44 @@ public class ShellEvaluatorFactory {
             if (rootFolder != null) {
                 configureProjectEvaluator(evaluator, rootFolder);
             }
+        }
+
+        return evaluator;
+    }
+
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        var evaluator = getBasicEvaluator(input, stdout, stderr, monitor);
+        var reg = URIResolverRegistry.getInstance();
+
+        var srcs = pcfg.getSrcs();
+        if (!srcs.isEmpty()) {
+            var projectRoot = (ISourceLocation)srcs.get(0);
+            var projectName = new RascalManifest().getProjectName(projectRoot);
+            reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+            reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+        }
+
+        stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
+        stdout.println("Rascal search path:");
+        for (var srcPath : srcs) {
+            var path = MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath);
+            stdout.println("- " + path);
+            evaluator.addRascalSearchPath(path);
+        }
+
+        //TODO: libs vs libs+target
+        var libs = /*projectName == "rascal" ? pcfg.getLibs() :*/ pcfg.getLibsAndTarget();
+        stdout.println("Rascal classloader path:");
+        for (var lib : libs) {
+            var path = (ISourceLocation)lib;
+            stdout.println("- " + lib);
+            evaluator.addRascalSearchPath(path);
+        }
+        evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
+
+        if (!pcfg.getMessages().isEmpty()) {
+            stdout.println("PathConfig messages:");
+            Messages.write(pcfg.getMessages(), srcs, stdout);
         }
 
         return evaluator;
