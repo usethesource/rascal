@@ -32,9 +32,9 @@ import org.junit.After;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -52,20 +52,18 @@ public class TestFramework {
 	
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
+
+	private final static String ROOT_TEST_MODULE = "___test___";
 	
 	static{
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___test___", heap));
-		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), root, heap);
+		var projectRoot = RascalJUnitTestRunner.inferProjectRootFromClass(TestFramework.class);
+		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_MODULE);
+		heap = evaluator.getHeap();
+		root = heap.getModule(ROOT_TEST_MODULE);
 	
 		stdout = evaluator.getOutPrinter();
 		stderr = evaluator.getErrorPrinter();
 
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		
-		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
-		
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");
