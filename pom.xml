@@ -459,7 +459,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.0-RC15</version>
+            <version>1.0.0-RC17</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
