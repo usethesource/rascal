@@ -116,6 +116,7 @@ public class ParserTest {
 	@Test
 	public void testAlternative(){
 		executeParser(new Alternative1());
+		executeParser(new Alternative2());
 	}
 	
 	@Test
