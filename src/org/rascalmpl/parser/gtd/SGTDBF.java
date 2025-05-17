@@ -1301,7 +1301,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					expanded = true;
 				}
 				
-				if(stack.canBeEmpty()){ // Star list, optional or empty sequence.
+				if(stack.canBeEmpty()){ // Star list, optional or empty sequence / alternative.
 					AbstractStackNode<P> empty =
 						stack.getEmptyChild().getCleanCopyWithResult(location, EpsilonStackNode.EPSILON_RESULT);
 					empty.initEdges();

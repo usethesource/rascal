@@ -20,6 +20,7 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 	private final String name;
 	
 	private final AbstractStackNode<P>[] children;
+	private final AbstractStackNode<P> emptyChild;
 	
 	public AlternativeStackNode(int id, int dot, P production, AbstractStackNode<P>[] alternatives){
 		super(id, dot);
@@ -28,6 +29,7 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		this.name = String.valueOf(id);
 		
 		this.children = generateAlternatives(alternatives);
+		this.emptyChild = children.length == 0 ? generateEmptyChild() : null;
 	}
 	
 	public AlternativeStackNode(int id, int dot, P production, AbstractStackNode<P>[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
@@ -37,6 +39,7 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		this.name = String.valueOf(id);
 		
 		this.children = generateAlternatives(alternatives);
+		this.emptyChild = children.length == 0 ? generateEmptyChild() : null;
 	}
 	
 	private AlternativeStackNode(AlternativeStackNode<P> original, int startLocation){
@@ -46,6 +49,7 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		name = original.name;
 
 		children = original.children;
+		this.emptyChild = original.emptyChild;
 	}
 
 	/**
@@ -67,6 +71,16 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		
 		return children;
 	}
+
+	/**
+	 * Generates and initializes the empty child for usage in empty alternatives.
+	 */
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+		empty.setAlternativeProduction(production);
+		return empty;
+	}
 	
 	public String getName(){
 		return name;
@@ -81,11 +95,14 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 	
 	public boolean canBeEmpty(){
-		return false;
+		return children.length == 0;
 	}
 	
 	public AbstractStackNode<P> getEmptyChild(){
-		throw new UnsupportedOperationException();
+		if(children.length > 0) {
+			throw new UnsupportedOperationException();
+		}
+		return emptyChild;
 	}
 
 	@Override
