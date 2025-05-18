@@ -27,11 +27,15 @@ import Set;
 import List;
 import Exception;
 import vis::Text;
+import ValueIO;
+import util::Eval;
+
 
 import lang::rascal::grammar::definition::Modules;
 
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
+    str syntaxModule = "",
     str topSort = "",
     int maxAmbDepth = 2,
     loc dir = |unknown:///|,
@@ -299,10 +303,12 @@ FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, lo
         source.query = "deletedChar=<i>";
         TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
-        if (i < len && substring(input, i, i+1) == "\n") {
+        int skip = 1 + arbInt(config.sampleWindow);
+        int next = min(i+skip, len);
+        for (/\n/ := substring(input, i, next)) {
             println();
         }
-        i += 1+arbInt(config.sampleWindow);
+        i += 1 + arbInt(config.sampleWindow);
     }
 
     return stats;
@@ -362,7 +368,7 @@ FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc ori
             source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
             TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
-            pos += 1+arbInt(config.sampleWindow);
+            pos += 1 + arbInt(config.sampleWindow);
         }
         lineStart = lineEnd+1;
         println();
@@ -475,9 +481,14 @@ void printStats(TestStats stats) {
     println();
 }
 
-private str syntaxLocToModuleName(loc syntaxFile) {
-    str path = replaceLast(substring(syntaxFile.path, 1), ".rsc", "");
-    return replaceAll(path, "/", "::");
+private str getTopSort(RecoveryTestConfig config) {
+    if (contains(config.topSort, "::")) {
+        // Fully qualified 
+        int last = findLast(config.topSort, "::");
+        return substring(config.topSort, last+2);
+    }
+
+    return config.topSort;
 }
 
 loc zippedFile(str zip, str path) {
@@ -492,72 +503,94 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) =
 FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput) = testErrorRecovery(config, testInput, readFile(testInput));
 
 FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input) {
-    Module \module = parse(#start[Module], config.syntaxFile).top;
-    str modName = syntaxLocToModuleName(config.syntaxFile);
-    Grammar gram = modules2grammar(modName, {\module});
-
-    str topSort = config.topSort;
-    if (sym:\start(\sort(topSort)) <- gram.starts) {
-        type[value] begin = type(sym, gram.rules);
-        value(str,loc) standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
-
-        // Initialization run
-        standardParser(input, testInput);
-
-        // Timed run
-        int startTime = realTime();
-        value t = standardParser(input, testInput);
-        int referenceParseTime = max(1, realTime() - startTime);
-        int referenceNodeCount = 0;
-        int referenceNodeCountUnique = 0;
-        if (Tree tree := t) {
-            referenceNodeCount = countTreeNodes(tree);
-            referenceNodeCountUnique = countUniqueTreeNodes(tree);
-        } else {
-            throw "Not a tree? <t>";
-        }
-
-        recoverySuccessLimit = 2048; //size(input)/4;
-
-        println("Error recovery of <config.syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
-        println("Configuration: <config>");
-
-        println();
-        println("Single char deletions:");
-        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
-        printFileStats(singleCharDeletionStats);
-
-        println();
-        println("Deletes until end-of-line:");
-        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
-        printFileStats(deleteUntilEolStats);
-
-        FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
-        println();
-        println("-----------------------------------------------------------");
-        println("Total test stats for <testInput>:");
-        printFileStats(stats);
-        return stats;
+    type[value] begin = type(\void(), ());
+    str topSort = getTopSort(config);
+    if (config.syntaxModule != "") {
+        // Use module
+        println ("Loading start type from syntax module: <config.syntaxModule>, topSort=<topSort>");
+        RascalRuntime rt = createRascalRuntime();
+        rt.eval(#void, "import <config.syntaxModule>;");
+        begin = rt.eval(#type[value], "type[value] begin = #start[<topSort>];").val;
     } else {
-        throw "Cannot find top sort <topSort> in <gram>";
+        // Use file
+        Module \module = parse(#start[Module], config.syntaxFile).top;
+        str modName = replaceAll("<\module.header.name>",  "\\", "");
+        println("Loading start type from file <config.syntaxFile>, module name: <modName>, topSort: <topSort>");
+        Grammar gram = modules2grammar(modName, {\module});
+
+        if (sym:\start(\sort(topSort)) <- gram.starts) {
+            begin = type(sym, gram.rules);
+        } else {
+            throw "Cannot find top sort <topSort> in <gram>";
+        }
     }
+
+    value(str,loc) standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
+    recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
+
+    // Initialization run
+    standardParser(input, testInput);
+
+    // Timed run
+    int startTime = realTime();
+    value t = standardParser(input, testInput);
+    int referenceParseTime = max(1, realTime() - startTime);
+    int referenceNodeCount = 0;
+    int referenceNodeCountUnique = 0;
+    if (Tree tree := t) {
+        referenceNodeCount = countTreeNodes(tree);
+        referenceNodeCountUnique = countUniqueTreeNodes(tree);
+    } else {
+        throw "Not a tree? <t>";
+    }
+
+    recoverySuccessLimit = 2048; //size(input)/4;
+
+    str syntaxSpec = config.syntaxModule == "" ? "<config.syntaxFile>" : config.syntaxModule;
+    println("Error recovery of <syntaxSpec> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
+    println("Configuration: <config>");
+
+    println();
+    println("Single char deletions:");
+    FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
+    printFileStats(singleCharDeletionStats);
+
+    println();
+    println("Deletes until end-of-line:");
+    FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
+    printFileStats(deleteUntilEolStats);
+
+    FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
+    println();
+    println("-----------------------------------------------------------");
+    println("Total test stats for <testInput>:");
+    printFileStats(stats);
+    return stats;
 }
 
 private int fileNr = 0;
 
 
-TestStats batchRecoveryTest(RecoveryTestConfig config) {
+void batchRecoveryTest(RecoveryTestConfig config) {
+    println("Running batch test with config <config>");
+
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
         writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
     }
 
-    return runBatchRecoveryTest(config, testStats());
+    int startTime = realTime();
+    TestStats stats = runBatchRecoveryTest(config, testStats());
+    int duration = realTime() - startTime;
+
+    println();
+    println("==================================================================");
+    println("Recovery batch test done in <duration/1000> seconds, total result:");
+    printStats(stats);
 }
 
-list[loc] gatherFiles(loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int fromFile) {
+private list[loc] gatherFiles(loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int fromFile) {
     list[loc] files = [];
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
@@ -586,11 +619,10 @@ list[loc] gatherFiles(loc dir, str ext, int maxFiles, int minFileSize, int maxFi
     return files;
 }
 
-TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumulativeStats) {
+private TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumulativeStats) {
     list[loc] files = gatherFiles(config.dir, config.ext, config.maxFiles, config.minFileSize, config.maxFileSize, config.fromFile);
     int fileCount = size(files);
     println("Batch testing <fileCount> files");
-    println("Config: <config>");
 
     int index = 0;
     for (file <- files) {
@@ -598,12 +630,14 @@ TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumulativeSt
         index += 1;
         println("========================================================================");
         println("Testing file #<index> <file> (<fileCount-cumulativeStats.filesTested> of <fileCount> left)");
-        FileStats fileStats = testErrorRecovery(config, file, content);
-        cumulativeStats = consolidateStats(cumulativeStats, fileStats);
-        println();
-        println("------------------------------------------------------------------------");
-        println("Cumulative stats after testing <file>:");
-        printStats(cumulativeStats);
+        try {
+            FileStats fileStats = testErrorRecovery(config, file, content);
+            cumulativeStats = consolidateStats(cumulativeStats, fileStats);
+            println();
+            println("------------------------------------------------------------------------");
+            println("Cumulative stats after testing <file>:");
+            printStats(cumulativeStats);
+        } catch ParseError(l): println("Ignoring file because it cannot be parsed: <l>");
     }
 
     return cumulativeStats;
@@ -623,4 +657,57 @@ str getTestInput(loc testUri) {
     }
 
     throw "Unsupported test location: <testUri>";
+}
+
+RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
+    loc sourceLoc = |unknown:///|;
+    str syntaxSpec = "rascal";
+    int maxAmbDepth = 2;
+    int maxFiles = 1000;
+    int maxFileSize = 1000000;
+    int minFileSize = 0;
+    int fromFile = 0;
+    int sampleWindow = 1;
+    loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
+
+    for (str arg <- args) {
+        if (/<name:[^=]*>=<val:.*>/ := arg) {
+            switch (toLowerCase(name)) {
+                case "syntax": syntaxSpec = val;
+                case "source-loc": sourceLoc = readTextValueString(#loc, val);
+                case "max-amb-depth": maxAmbDepth = toInt(val);
+                case "max-files": maxFiles = toInt(val);
+                case "min-file-size": minFileSize = toInt(val);
+                case "max-file-size": maxFileSize = toInt(val);
+                case "from-file": fromFile = toInt(val);
+                case "stat-file": statFile = readTextValueString(#loc, val);
+                case "sample-window": sampleWindow = toInt(val);
+                case "random-seed": arbSeed(toInt(val));
+                default: { throw IllegalArgument(arg, "Unknown argument"); }
+            }
+        }
+    }
+
+    RecoveryTestConfig config = createSyntaxConfig(syntaxSpec);
+    config.maxAmbDepth=maxAmbDepth;
+    config.dir=sourceLoc;
+    config.maxFiles=maxFiles;
+    config.minFileSize=minFileSize;
+    config.maxFileSize=maxFileSize;
+    config.fromFile=fromFile;
+    config.sampleWindow=sampleWindow;
+    config.statFile=statFile;
+
+    return config;
+}
+
+private RecoveryTestConfig createSyntaxConfig(str spec) {
+    println("Determining test config based on syntax spec: <spec>");
+    switch (spec) {
+        case "rascal": return recoveryTestConfig(syntaxFile=|std:///lang/rascal/syntax/Rascal.rsc|, topSort="Module", ext=".rsc");
+        case "java18": return recoveryTestConfig(syntaxFile=|cwd:///src/lang/java/syntax/Java18.rsc|, topSort="CompilationUnit", ext=".java");
+        case "java15": return recoveryTestConfig(syntaxFile=|cwd:///src/lang/java/syntax/Java15.rsc|, topSort="CompilationUnit", ext=".java");
+        case "cobol": return recoveryTestConfig(syntaxModule="lang::vscobolii::Main", topSort="VSCobolII", ext=".CBL");
+        default: throw IllegalArgument(spec, "Unknown syntax spec"); // TODO: parse as syntax file, top sort, and extension spec
+    }
 }
