@@ -54,7 +54,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	private static final int DEFAULT_SKIP_LIMIT = 5;
+	private static final int DEFAULT_SKIP_LIMIT = 3;
 	private static final int DEFAULT_SKIP_WINDOW = 2048;
 	private static final int DEFAULT_RECOVERY_LIMIT = 50;
 	private static int skipLimit = readEnvVar("RASCAL_RECOVERER_SKIP_LIMIT", DEFAULT_SKIP_LIMIT);
@@ -67,11 +67,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		String limitSpec = System.getenv(envVar);
 		if (limitSpec != null) {
 			try {
+				System.err.println("Using enviroment variable " + envVar + " = " + limitSpec);
 				return Integer.parseInt(limitSpec);
 			} catch (NumberFormatException e) {
 				return defaultValue;
 			}
 		}
+		System.err.println("Using default value for " + envVar + " = " + defaultValue);
 		return defaultValue;
 	}
 
@@ -89,7 +91,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
 
 		// Cut off error recovery if we have encountered too many errors
-		if (count > recoveryLimit) {
+		if (++count > recoveryLimit) {
 			return new DoubleArrayList<>();
 		}
 
