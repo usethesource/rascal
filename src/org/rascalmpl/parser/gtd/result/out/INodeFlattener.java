@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
 public interface INodeFlattener<T, P>{
 	public enum CacheMode { CACHE_MODE_NONE, CACHE_MODE_SHARING_ONLY, CACHE_MODE_FULL };
 	public static final int UNLIMITED_AMB_DEPTH = Integer.MAX_VALUE;
+	public static final int DEFAULT_RECOVERY_AMB_DEPTH = 2;
 
 	public static INodeFlattener.CacheMode getCacheMode(boolean cacheable, boolean hasSideEffects) {
 		if (hasSideEffects) {
