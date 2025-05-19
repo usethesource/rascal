@@ -63,4 +63,4 @@ done
 name="$SYNTAX-$MIN_FILE_SIZE-$MAX_FILE_SIZE-$SKIP_LIMIT-$RECOV_LIMIT-$SAMPLE_WINDOW"
 
 scp benchmark.sh root@$host:/tmp/benchmark.sh
-ssh -t root@$host screen -S $name "/tmp/benchmark.sh $args"
+ssh -t root@$host screen -L -Logfile "/tmp/screen-$name.log" -S $name "/tmp/benchmark.sh $args"
