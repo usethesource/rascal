@@ -51,15 +51,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
+	private int maxRecoveryAttempts;
+	private int maxRecoveryTokens;
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	private static final int DEFAULT_SKIP_LIMIT = 3;
 	private static final int DEFAULT_SKIP_WINDOW = 2048;
-	private static final int DEFAULT_RECOVERY_LIMIT = 50;
-	private static int skipLimit = readEnvVar("RASCAL_RECOVERER_SKIP_LIMIT", DEFAULT_SKIP_LIMIT);
 	private static int skipWindow = readEnvVar("RASCAL_RECOVERER_SKIP_WINDOW", DEFAULT_SKIP_WINDOW);
-	private static int recoveryLimit = readEnvVar("RASCAL_RECOVERER_RECOVERY_LIMIT", DEFAULT_RECOVERY_LIMIT);
 
 	private int count = 0;
 
@@ -77,10 +75,12 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		return defaultValue;
 	}
 
-	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
+	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser, int maxRecoveryAttempts, int maxRecoveryTokens) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
 		this.stackNodeIdDispenser = stackNodeIdDispenser;
+		this.maxRecoveryAttempts = maxRecoveryAttempts;
+		this.maxRecoveryTokens = maxRecoveryTokens;
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
 
 		// Cut off error recovery if we have encountered too many errors
-		if (++count > recoveryLimit) {
+		if (++count > maxRecoveryAttempts) {
 			return new DoubleArrayList<>();
 		}
 
@@ -183,7 +183,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 
 		int end = Math.min(location+skipWindow, input.length);
-		outer: for (int pos=location; pos<end && nodes.size() < skipLimit; pos++) {
+		outer: for (int pos=location; pos<end && nodes.size() < maxRecoveryTokens; pos++) {
 			// Find the last token of this production and skip until after that
 			Iterator<InputMatcher> endIter = endMatchers.iterator();
 			while (endIter.hasNext()) {
