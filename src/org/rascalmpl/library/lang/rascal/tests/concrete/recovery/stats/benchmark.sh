@@ -2,7 +2,7 @@
 set -e
 
 SYNTAX=rascal
-SOURCE_LOC=
+TEST_SET=main
 MIN_FILE_SIZE=0
 MAX_FILE_SIZE=10240
 SKIP_LIMIT=3
@@ -15,13 +15,18 @@ SHOW_LOG=false
 # Pull in JARFILE, LABEL, TIME, and VERSION variables
 eval `cat $HOME/.recovery-benchmark.info`
 RASCAL_JAR="$HOME/jars/$JARFILE"
+if [ ! -f "$RASCAL_JAR" ]
+then
+  echo "Rascal jar not found at $RASCAL_JAR"
+  exit 1
+fi
 
 if [[ $1 == "-h" || $1 == "--help" ]]
 then
   echo "Usage: benchmark.sh [options]"
   echo "Options:"
   echo "  -s, --syntax <syntax>        Specify the syntax (default: rascal, alternatives: java18, java15, cobol)"
-  echo "  -l, --source-loc <loc>       Specify the source location (default: |home:///test-sources/<syntax>|)"
+  echo "  -t, --test-set <path>        Specify the source set under ~/test-sources/<syntax> (default: main)"
   echo "  -m, --min-file-size <size>   Specify the minimum file size (default: 0)"
   echo "  -M, --max-file-size <size>   Specify the maximum file size (default: 10240)"
   echo "  -s, --skip-limit <limit>     Specify the skip limit (default: 3)"
@@ -48,8 +53,8 @@ while [[ $# -gt 0 ]]; do
     #  shift # past argument
     #  shift # past value
     #  ;;
-    -l|--source-loc)
-      SOURCE_LOC="$2"
+    -t|--test-set)
+      TEST_SET="$2"
       shift # past argument
       shift # past value
       ;;
@@ -104,10 +109,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-#if [ -z "${TESTID}" ]
-#then
-#	echo "Must specify --testid (or -i)"
-#fi
+SOURCE_LOC="|home:///test-sources/$SYNTAX/$TEST_SET|"
 
 # Rascal example:
 # - Working directory is $HOME/rascal-test-sources, this script is on $PATH
@@ -128,13 +130,13 @@ export RASCAL_RECOVERER_SKIP_LIMIT=$SKIP_LIMIT
 export RASCAL_RECOVERER_SKIP_WINDOW=$SKIP_WINDOW
 export RASCAL_RECOVERER_RECOVERY_LIMIT=$RECOV_LIMIT
 
-LOGDIR="$HOME/logs/$SYNTAX"
-STATDIR="$HOME/stats/$SYNTAX"
+LOGDIR="$HOME/logs/$SYNTAX/$TEST_SET"
+STATDIR="$HOME/stats/$SYNTAX/$TEST_SET"
 mkdir -p $LOGDIR
 mkdir -p $STATDIR
 
 TESTTAG="skip-limit=$RASCAL_RECOVERER_SKIP_LIMIT,skip-window=$RASCAL_RECOVERER_SKIP_WINDOW,recovery-limit=$RASCAL_RECOVERER_RECOVERY_LIMIT,sample-window=$SAMPLE_WINDOW,seed=$RANDOM_SEED"
-RUNID="$LABEL-$VERSION-$MIN_FILE_SIZE-$MAX_FILE_SIZE:$TESTTAG"
+RUNID="$LABEL-$MIN_FILE_SIZE-$MAX_FILE_SIZE,$TESTTAG"
 
 if [ -z "${SOURCE_LOC}" ]
 then
@@ -142,7 +144,7 @@ then
 fi
 
 LOG_FILE="$LOGDIR/log-$RUNID.txt"
-STAT_LOC="|home:///stats/$SYNTAX/$TESTID/stats-$RUNID.txt|"
+STAT_LOC="|home:///stats/$SYNTAX/$TEST_SET/stats-$RUNID.txt|"
 
 echo "SETTINGS USED:"
 echo "SYNTAX=$SYNTAX"
@@ -173,4 +175,3 @@ else
   MODULE=lang::rascal::tests::concrete::recovery::ErrorRecoveryBenchmark
   java -Xmx1G -jar -Drascal.monitor.batch $RASCAL_JAR $MODULE syntax=$SYNTAX source-loc="$SOURCE_LOC" max-amb-depth=2 min-file-size=$MIN_FILE_SIZE max-file-size=$MAX_FILE_SIZE sample-window=$SAMPLE_WINDOW random-seed=$RANDOM_SEED stat-file="$STAT_LOC" >& $LOG_FILE
 fi
-
