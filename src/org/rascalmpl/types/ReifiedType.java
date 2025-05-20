@@ -14,6 +14,7 @@ package org.rascalmpl.types;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -78,9 +79,8 @@ public class ReifiedType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Function<RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
-            // TODO: for now the interpreter tests can not handle this yet, so we return something else
-//            return RascalTypeFactory.getInstance().reifiedType(next.get());
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
+            // because we don't have a random value generator for reified types, yet, we should avoid generating random instances of reified types here.
             return TypeFactory.getInstance().boolType();
         }
 	}

@@ -200,10 +200,9 @@ public class NonTerminalType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Function<RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
-            // TODO: the interpreter breaks on random non-terminals still, so we return a string instead
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
+            // because we don't have random generator yet for ITree instances, we should avoid generating random non-terminal instances
             return TypeFactory.getInstance().stringType();
-//            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
         }
     }
     
