@@ -21,15 +21,11 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,8 +39,6 @@ import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
-
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -90,8 +84,6 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
@@ -103,24 +95,18 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
-import static org.rascalmpl.uri.jar.JarURIResolver.jarify;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
