@@ -111,7 +111,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Sort nodes by start location
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
-		
+
 		//  Keep track of previously added nodes so we can reuse them when we encounter
 		// a node with the same constructor, start location, and skip length
 		Map<Triple<IConstructor, Integer, Integer>, SkippingStackNode<IConstructor>> addedNodes = new HashMap<>();
