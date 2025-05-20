@@ -39,6 +39,7 @@ import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -90,6 +91,7 @@ import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.shell.CommandlineParser;
@@ -841,7 +843,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(String command, ISourceLocation location) throws ImplementationError {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             ModuleEnvironment curMod = getCurrentModuleEnvironment();
@@ -863,7 +865,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IMap syntaxDefinition = curMod.getSyntaxDefinition();
         IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
         IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+        return vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
     }
 
     private Result<IValue> evalMore(String command, ISourceLocation location)
@@ -872,7 +874,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         ITree tree;
 
         IActionExecutor<ITree> actionExecutor = new NoActionExecutor();
-        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
@@ -923,7 +925,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private ITree parseCommand(String command, ISourceLocation location) {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
             tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
@@ -937,7 +939,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         try {
             __setInterrupt(false);
             IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
                 tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
