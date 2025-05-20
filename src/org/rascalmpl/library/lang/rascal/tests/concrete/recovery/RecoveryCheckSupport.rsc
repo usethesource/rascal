@@ -26,7 +26,7 @@ import List;
 import vis::Text;
 
 bool checkRecovery(type[&T<:Tree] begin, str input, list[str] expectedErrors, bool visualize=false) {
-    Tree t = parser(begin, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+    Tree t = parser(begin, allowRecovery=true, allowAmbiguity=true, maxRecoveryTokens=1000, maxRecoveryAttempts=1000)(input, |unknown:///?visualize=<"<visualize>">|);
     return checkErrors(t, expectedErrors);
 }
 
