@@ -43,6 +43,8 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int maxFiles = 1000000,
     int minFileSize = 0,
     int maxFileSize = 1000000000,
+    int maxRecoveryAttempts = 50,
+    int maxRecoveryTokens = 3,
     int fromFile = 0,
     int sampleWindow = 1,
     loc statFile = |unknown:///|
@@ -526,7 +528,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
     }
 
     value(str,loc) standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-    recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
+    recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true, maxRecoveryAttempts=config.maxRecoveryAttempts, maxRecoveryTokens=config.maxRecoveryTokens);
 
     // Initialization run
     standardParser(input, testInput);
@@ -666,6 +668,8 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
     int maxFiles = 1000;
     int maxFileSize = 1000000;
     int minFileSize = 0;
+    int maxRecoveryAttempts = 50;
+    int maxRecoveryTokens = 3;
     int fromFile = 0;
     int sampleWindow = 1;
     loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
@@ -679,6 +683,8 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
                 case "max-files": maxFiles = toInt(val);
                 case "min-file-size": minFileSize = toInt(val);
                 case "max-file-size": maxFileSize = toInt(val);
+                case "max-recovery-attempts": maxRecoveryAttempts = toInt(val);
+                case "max-recovery-tokens": maxRecoveryTokens = toInt(val);
                 case "from-file": fromFile = toInt(val);
                 case "stat-file": statFile = readTextValueString(#loc, val);
                 case "sample-window": sampleWindow = toInt(val);
@@ -694,6 +700,8 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
     config.maxFiles=maxFiles;
     config.minFileSize=minFileSize;
     config.maxFileSize=maxFileSize;
+    config.maxRecoveryAttempts=maxRecoveryAttempts;
+    config.maxRecoveryTokens=maxRecoveryTokens;
     config.fromFile=fromFile;
     config.sampleWindow=sampleWindow;
     config.statFile=statFile;

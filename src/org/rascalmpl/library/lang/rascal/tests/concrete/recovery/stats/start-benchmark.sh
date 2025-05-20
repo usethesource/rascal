@@ -17,8 +17,8 @@ args="$@"
 SYNTAX=rascal
 MIN_FILE_SIZE=0
 MAX_FILE_SIZE=10240
-SKIP_LIMIT=3
-RECOV_LIMIT=50
+MAX_RECOVERY_ATTEMPTS=50
+MAX_RECOVERY_TOKENS=3
 SAMPLE_WINDOW=1
 
 while [[ $# -gt 0 ]]; do
@@ -38,13 +38,13 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    -s|--skip-limit)
-      SKIP_LIMIT="$2"
+    -r|--max-recovery-attempts)
+      MAX_RECOVERY_ATTEMPTS="$2"
       shift # past argument
       shift # past value
       ;;
-    -r|--recov-limit)
-      RECOV_LIMIT="$2"
+    -t|--max-recovery-tokens)
+      MAX_RECOVERY_TOKENS="$2"
       shift # past argument
       shift # past value
       ;;
@@ -60,7 +60,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-name="$SYNTAX-$MIN_FILE_SIZE-$MAX_FILE_SIZE-$SKIP_LIMIT-$RECOV_LIMIT-$SAMPLE_WINDOW"
+name="$SYNTAX-$MIN_FILE_SIZE-$MAX_FILE_SIZE-$MAX_RECOVERY_ATTEMPTS-$MAX_RECOVERY_TOKENS-$SAMPLE_WINDOW"
 
 scp benchmark.sh root@$host:/tmp/benchmark.sh
 ssh -t root@$host screen -L -Logfile "/tmp/screen-$name.log" -S $name "/tmp/benchmark.sh $args"
