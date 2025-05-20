@@ -33,6 +33,7 @@ public class JavaRunner {
      * This is to translate JUnit test results to Rascal messages
      */
     private final class TestRunListener extends RunListener {
+        @SuppressWarnings("unused")
         private final Class<?> clz;
         private final IListWriter messages;
 
