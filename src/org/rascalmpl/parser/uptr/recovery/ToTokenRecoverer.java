@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.BitSet;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
@@ -183,31 +184,33 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 
 		int end = Math.min(location+skipWindow, input.length);
-		outer: for (int pos=location; pos<end && nodes.size() < maxRecoveryTokens; pos++) {
+		BitSet skipSet = new BitSet(end-startLocation);
+		for (int pos=startLocation; pos<end && nodes.size() < maxRecoveryTokens; pos++) {
 			// Find the last token of this production and skip until after that
 			Iterator<InputMatcher> endIter = endMatchers.iterator();
 			while (endIter.hasNext()) {
 				InputMatcher endMatcher = endIter.next();
 				int matchEnd = endMatcher.match(input, pos);
-				if (matchEnd > 0) {
+				if (matchEnd > 0 && !skipSet.get(matchEnd-startLocation)) {
 					result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, matchEnd);
+					skipSet.set(matchEnd-startLocation);
 					nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 					endIter.remove();
-					continue outer;
 				}
 			}
 
 			// Find the first token of the next production and skip until before that
-			if (pos > location) {
+			if (pos > startLocation) {
 				Iterator<InputMatcher> nextIter = nextMatchers.iterator();
 				while (nextIter.hasNext()) {
 					InputMatcher nextMatcher = nextIter.next();
 					int matchEnd = nextMatcher.match(input, pos);
-					if (matchEnd > 0) {
+					if (matchEnd > 0 && !skipSet.get(pos-startLocation)) {
 						result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, pos);
+						skipSet.set(pos-startLocation);
 						nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 						nextIter.remove();
-						continue outer;
+						break;
 					}
 				}
 			}
