@@ -20,8 +20,6 @@ import org.junit.Test;
 import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
 
-import junit.framework.TestCase;
-
 public class RecursiveTestSuite extends Suite {
 
 	public RecursiveTestSuite(Class<?> setupClass)
@@ -69,9 +67,6 @@ public class RecursiveTestSuite extends Suite {
 					    if (includeRascalTests) {
 					        result.add(currentClass);
 					    }
-					}
-					else if (TestCase.class.isAssignableFrom(currentClass)) {
-						result.add(currentClass);
 					}
 					else {
 						for (Method m: currentClass.getMethods()) {
