@@ -319,9 +319,8 @@ public class PathConfig {
      * 
      * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
      * @return
-     * @throws URISyntaxException
      */
-    public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) throws IOException {
+    public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) {
         if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
             projectMember = URIUtil.getParentLocation(projectMember);
         }
