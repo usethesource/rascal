@@ -29,13 +29,13 @@ public interface IGTD<P, T, S> extends ExpectsProvider<P> {
 	 * using the supplied node converter. This parse method does not perform
 	 * semantic actions during result construction.
 	 */
-	Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory);
 	
-	Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugger);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugger);
 	
-	Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer);
 	
-	Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugger);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugger);
 	
 	/**
 	 * Parse the input string, using the given non-terminal as start node. If
@@ -43,11 +43,11 @@ public interface IGTD<P, T, S> extends ExpectsProvider<P> {
 	 * using the supplied node converter. During result construction the action
 	 * executor will be used to execute semantic actions.
 	 */
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory);
 	
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugger);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugger);
 
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer);
 
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugger);
+	Object parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugger);
 }
