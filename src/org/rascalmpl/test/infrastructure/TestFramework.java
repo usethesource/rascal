@@ -53,18 +53,18 @@ public class TestFramework {
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
 
-	private final static String ROOT_TEST_MODULE = "___test___";
+	private final static String ROOT_TEST_ENVIRONMENT = "___test___";
 	
 	static{
 		var projectLoc = RascalJUnitTestRunner.inferProjectRootFromClass(TestFramework.class);
 		if (projectLoc == null) {
 			projectLoc = URIUtil.rootLocation("cwd");
 		}
-		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_MODULE);
+		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_ENVIRONMENT);
 
 		ShellEvaluatorFactory.registerProjectAndTargetResolver(projectLoc);
 		heap = evaluator.getHeap();
-		root = heap.getModule(ROOT_TEST_MODULE);
+		root = heap.getModule(ROOT_TEST_ENVIRONMENT);
 	
 		stdout = evaluator.getOutPrinter();
 		stderr = evaluator.getErrorPrinter();
