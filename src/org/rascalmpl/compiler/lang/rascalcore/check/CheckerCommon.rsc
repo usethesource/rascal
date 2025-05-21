@@ -117,7 +117,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     fileName = intercalate("/", parts) + ".tpl";
     dirName = makeDirName(qualifiedModuleName);
 
-    for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?
+    for(loc dir <- [pcfg.bin] + pcfg.libs){   // In a bin or lib directory?
         fileLoc = dir + "<getCompiledPackage(qualifiedModuleName, pcfg)>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
