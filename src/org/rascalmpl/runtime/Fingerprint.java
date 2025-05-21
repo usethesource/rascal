@@ -36,8 +36,8 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
+// TODO: (JV) this class has been replaced by IValue::getMatchFingerPrint for faster dispatch.
 public class Fingerprint {
-	
 	private static final int boolHashCode = "bool".hashCode();
 	private static final int intHashCode = "num".hashCode();
 	private static final int realHashCode = "num".hashCode();

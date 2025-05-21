@@ -750,6 +750,7 @@ public class PathConfig {
     }
 
     // right now cannot be called, since we have to wait for VS Code to be able to mix these project and file locs
+    @SuppressWarnings("unused")
     private static ISourceLocation upgradeToProjectScheme(ISourceLocation loc, String projectName) {
         if (loc.getScheme().equals("project") || projectName == null || projectName.isBlank()) {
             return loc;

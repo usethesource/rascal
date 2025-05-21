@@ -38,6 +38,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class GenerateActuals {
 	static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
@@ -46,12 +47,14 @@ public class GenerateActuals {
 	final int maxWidth;
 	final int tries;
 	final Random random;
+	final RandomTypesConfig typesConfig;
 
 	public GenerateActuals(int maxDepth, int maxWidth, int tries){
 		this.maxDepth = maxDepth;
 		this.maxWidth = maxWidth;
 		this.tries = tries;
 		this.random = new Random();
+		this.typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
 	}
 	
 	public Stream<IValue[]> generateActuals(Type[] formals, TypeStore $TS) {
@@ -64,14 +67,20 @@ public class GenerateActuals {
 		}
 
 		Stream<IValue[]> s = 
-				Stream.generate(() -> 
-				{ IValue[] values = new IValue[formals.length];
-				for (int n = 0; n < values.length; n++) {
-//					System.err.print("n = " + n + ", types[n] = " + types[n]);
-					values[n] = types[n].randomValue(random, $VF, $TS, tpbindings, maxDepth, maxWidth);
-//					System.err.println(", values[n] = " + values[n]);
-				}
-				return values;
+				Stream.generate(() -> { 
+					IValue[] values = new IValue[formals.length];
+
+					for (int n = 0; n < values.length; n++) {
+						if (n > 1 && types[n-1] == types[n] && random.nextInt(4) == 0 /* p=25% */) {
+							// once in a while duplicate a parameter, but only if it fits the same type
+							values[n] = values[n-1];
+							continue;
+						}
+						
+						values[n] = types[n].randomValue(random, typesConfig, $VF, $TS, tpbindings, maxDepth, maxWidth);
+					}
+
+					return values;
 				});
 		return s.limit(tries);
 	}
