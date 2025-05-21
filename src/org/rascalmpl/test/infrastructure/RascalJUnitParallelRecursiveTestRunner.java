@@ -297,6 +297,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private void initializeEvaluator() {
             if (projectRoot != null) {
                 evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+                ShellEvaluatorFactory.registerProjectAndTargetResolver(projectRoot);
             } else {
                 evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
             }

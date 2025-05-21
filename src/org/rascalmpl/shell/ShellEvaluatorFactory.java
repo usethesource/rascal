@@ -49,19 +49,13 @@ public class ShellEvaluatorFactory {
         return getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
     }
 
-    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        return getDefaultEvaluatorForPathConfig(pcfg, projectFile, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
     
-    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
-        var reg = URIResolverRegistry.getInstance();
-
-        var projectRoot = PathConfig.inferProjectRoot(projectFile);
-        var projectName = new RascalManifest().getProjectName(projectRoot);
-        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-
+        
         stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
         stdout.println("Rascal search path:");
         for (var srcPath : pcfg.getSrcs()) {
@@ -93,7 +87,19 @@ public class ShellEvaluatorFactory {
 
     public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var pcfg = PathConfig.fromSourceProjectMemberRascalManifest(projectFile, RascalConfigMode.INTERPRETER);
-        return getDefaultEvaluatorForPathConfig(pcfg, projectFile, input, stdout, stderr, monitor, rootEnvironment);
+        return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, rootEnvironment);
+    }
+
+    public static void registerProjectAndTargetResolver(ISourceLocation projectFile) {
+        var reg = URIResolverRegistry.getInstance();
+        var projectRoot = PathConfig.inferProjectRoot(projectFile);
+        if (projectRoot != null) {
+            var projectName = new RascalManifest().getProjectName(projectRoot);
+            if (!projectName.equals("")) {
+                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+            }
+        }
     }
 
 }
