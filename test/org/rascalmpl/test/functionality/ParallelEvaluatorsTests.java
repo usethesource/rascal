@@ -31,7 +31,7 @@ public class ParallelEvaluatorsTests {
     };
 
     private static Evaluator freshEvaluator() {
-        var evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), monitor);
+        var evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), monitor, "___test___");
         
         evaluator.setTestResultListener(new ITestResultListener() {
             @Override
