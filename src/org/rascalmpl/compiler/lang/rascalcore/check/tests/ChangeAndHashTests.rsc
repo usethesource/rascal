@@ -121,7 +121,6 @@ tuple[TModel old, TModel new] checkBoth(str oldM, str newM){
         srcs=[|memory://stableHashProject/src|],
         bin=|memory://stableHashProject/bin|,
         generatedSources=|memory://stableHashProject/generated|,
-        resources=|memory://stableHashProject/resources|,
         libs=[]
     );
 
