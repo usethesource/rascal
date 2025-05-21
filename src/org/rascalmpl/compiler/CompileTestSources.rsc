@@ -44,8 +44,7 @@ import lang::rascalcore::compile::util::Names;
 loc REPO = |file:///Users/paulklint/git/|;
 
 PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/classes",
-                                        generatedSources = REPO + "generated-sources/target/generated-sources",
-                                        resources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
+                                        generatedSources = REPO + "generated-sources/target/generated-sources"
                                        );
 void main() = compileTestSources(manualTestConfig);
 
