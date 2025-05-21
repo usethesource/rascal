@@ -32,13 +32,13 @@ public class SortContainerNodeFlattener<P, T, S>{
 	/**
 	 * Gather all the alternatives ending with the given child.
 	 */
-	private void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, boolean hasSideEffects){
+	private void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, boolean hasSideEffects, int maxAmbDepth){
 		AbstractNode resultNode = child.getNode();
 
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
 			boolean cacheable = child.isCacheable();
 			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, cacheMode), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, cacheMode, maxAmbDepth), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, NO_NODES, gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
@@ -58,7 +58,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 			Link prefix = prefixes.get(i);
 			boolean cacheable = parentCacheable || prefix.isCacheable();
 			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
-			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
+			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode, postFix.maxAmbDepth), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 		}
 	}
 	
@@ -73,11 +73,13 @@ public class SortContainerNodeFlattener<P, T, S>{
 		ArrayList<T> children = new ArrayList<>();
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix.element;
+			INodeFlattener.CacheMode cacheMode = postFix.cacheMode;
+			int maxAmbDepth = postFix.maxAmbDepth;
 			postFix = postFix.next;
 
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 
-			T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, environment, postFix.cacheMode);
+			T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, environment, cacheMode, maxAmbDepth);
 
 			if(constructedNode == null){
 				actionExecutor.exitedProduction(production, true, newEnvironment); // Filtered.
@@ -107,7 +109,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 	/**
 	 * Converts the given sort container result node to the UPTR format.
 	 */
-	public T convertToUPTR(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, SortContainerNode<P> node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	public T convertToUPTR(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, SortContainerNode<P> node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, int maxAmbDepth){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 
@@ -140,12 +142,16 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		// Gather the alternatives.
 		ArrayList<T> gatheredAlternatives = new ArrayList<>();
-		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
+
+		// Use a lower maxAmbDepth only if the current node is ambiguous (i.e. it has additional alternatives)
+		int newMaxAmbDepth = (alternatives == null || alternatives.size() == 0 || maxAmbDepth == 0) ? maxAmbDepth : maxAmbDepth - 1;
+		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects, newMaxAmbDepth);
 		ArrayList<P> productions = node.getAdditionalProductions();
-		if(alternatives != null){
+		// If we reached the maximum ambiguity depth, we will not gather alternatives after the first.
+		if(alternatives != null && maxAmbDepth > 0) {
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
+				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects, newMaxAmbDepth);
 			}
 		}
 		
@@ -157,7 +163,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 			result = gatheredAlternatives.get(0);
 		}
 		else if (nrOfAlternatives > 0) { // Ambiguous.
-			result = nodeConstructorFactory.createAmbiguityNode(gatheredAlternatives);
+			result = nodeConstructorFactory.createAmbiguityNode(gatheredAlternatives);			
 			result = actionExecutor.filterAmbiguity(result, environment);
 			if(result != null){
 				if(sourceLocation != null){
@@ -172,5 +178,4 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		return result;
 	}
-
 }
