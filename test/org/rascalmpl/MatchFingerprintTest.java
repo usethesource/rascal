@@ -45,7 +45,7 @@ import junit.framework.TestCase;
  * that runs the compiler.
  */
 public class MatchFingerprintTest extends TestCase {
-    private final Evaluator eval = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), RascalJunitConsoleMonitor.getInstance());
+    private final Evaluator eval = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), RascalJunitConsoleMonitor.getInstance(), "root");
     private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
     private final TypeFactory TF = TypeFactory.getInstance();
 
