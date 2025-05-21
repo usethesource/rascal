@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-if [ "$#" -lt 2 ]; then
+if [ "$#" -lt 1 ]; then
   echo "This script deploys the Rascal jar to a remote benchmarking server"
-  echo "Usage:L= $0 <host> <screen-id> <benchmark-args>"
+  echo "Usage: $0 <host> <benchmark-args>"
   exit 1
 fi
 
@@ -15,6 +15,7 @@ args="$@"
 
 # Find some characteristics in the arguments to base the screen name on
 SYNTAX=rascal
+TEST_SET=main
 MIN_FILE_SIZE=0
 MAX_FILE_SIZE=10240
 MAX_RECOVERY_ATTEMPTS=50
@@ -25,6 +26,11 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -s|--syntax)
       SYNTAX="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -i|--test-set-id)
+      TEST_SET="$2"
       shift # past argument
       shift # past value
       ;;
@@ -60,7 +66,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-name="$SYNTAX-$MIN_FILE_SIZE-$MAX_FILE_SIZE-$MAX_RECOVERY_ATTEMPTS-$MAX_RECOVERY_TOKENS-$SAMPLE_WINDOW"
+name="$SYNTAX-$TEST_SET-$MIN_FILE_SIZE-$MAX_FILE_SIZE-$MAX_RECOVERY_ATTEMPTS-$MAX_RECOVERY_TOKENS-$SAMPLE_WINDOW"
 
 scp benchmark.sh root@$host:/tmp/benchmark.sh
 ssh -t root@$host screen -L -Logfile "/tmp/screen-$name.log" -S $name "/tmp/benchmark.sh $args"
