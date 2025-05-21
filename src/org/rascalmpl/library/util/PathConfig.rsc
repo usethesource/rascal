@@ -7,7 +7,11 @@
 }
 module util::PathConfig
 
+import Exception;
+import IO;
+import Location;
 import Message;
+import String;
 
 data RascalConfigMode
     = compiler()
@@ -27,13 +31,55 @@ transparantly. A PathConfig is also a log of the configuration process.
 * `resources` is a list of files or folders that must be copied to the bin folder, syncronized with the binary output of a compiler.
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
 }
-data PathConfig 
-  = pathConfig(
-        loc projectRoot        = |unknown:///|,
-        list[loc] srcs         = [],  
-        list[loc] ignores      = [],  
-        loc bin                = |unknown:///|,
-        list[loc] resources    = [],
-        list[loc] libs         = [],          
-        list[Message] messages = []
-    );
+@benefits{
+* `main` functions which have a keyword parameter of type ((PathConfig)) are automatically augmented with commandline parameters for every field of ((PathConfig))
+* `messages` can be printed in a standard way using ((mainMessageHandler))
+* ((PathConfig)) is a reusable bridge between language processing functions and different execution environments such as VScode, the commandline or Maven.
+* ((PathConfig)) makes all configuration processors of file-based language processors explicit and transparent
+* ((PathConfig)) is programming language and domain-specific language independent
+}
+data PathConfig = pathConfig(
+    loc projectRoot        = |unknown:///|,
+    list[loc] srcs         = [],  
+    list[loc] ignores      = [],  
+    loc bin                = |unknown:///|,
+    list[loc] resources    = [],
+    list[loc] libs         = [],          
+    list[Message] messages = []
+);
+
+@synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
+str sourceModule(loc moduleFile, PathConfig pcfg, str packageSep = "::") throws PathNotFound 
+  = sourceModule(moduleFile, pcfg.srcs, packageSep = packageSep);
+
+str sourceModule(loc moduleFile, list[loc] srcs, str packageSep = "::") throws PathNotFound
+  = replaceAll(relativize(srcs, moduleFile)[extension=""].path[1..], "/", packageSep);
+
+@synopsis{Compute a fully qualified module name for a library file, relative to the library roots of a project}
+str libraryModule(loc libraryFile, PathConfig pcfg, str packageSep = "::", str binaryExtension = "class", str binaryPrefix = "") throws PathNotFound 
+  = libraryModule(moduleFile, pcfg.libs, packageSep = packageSep, binaryExtension = binaryExtension, binaryPrefix = binaryPrefix);
+
+str libraryModule(loc libraryFile, list[loc] libs, str packageSep = "::", str binaryExtension = "class", str binaryPrefix = ") throws PathNotFound
+  = replaceAll(relativize(libs, libraryFile)[extension=""].path[1..], "/", packageSep);  
+
+@synopsis{Find out in which library file a module was implemented.}
+loc libraryFile(str qualifiedModuleName, PathConfig pcfg, str packageSep = "::", str binaryExtension = "class", str binaryPrefix = "") throws PathNotFound
+  = libraryFile(qualifiedModuleName, pcfg.libs, packageSep = packageSep, binaryExtension = binaryExtension, binaryPrefix = binaryPrefix);
+
+loc libraryFile(str qualifiedModuleName, list[loc] libs, str packageSep = "::", str binaryExtension = "class", str binaryPrefix = "") throws PathNotFound {
+    = resolve(libs, (|relative:///| + binaryPrefix + replaceAll(qualifiedModuleName, packageSep, "/"))[extension=binaryExtension]);
+
+@synopsis{Find out in which source file a module was implemented.}
+loc sourceFile(str qualifiedModuleName, PathConfig pcfg, str packageSep = "::", str sourceExtension = "rsc") throws PathNotFound
+  = sourceFile(qualifiedModuleName, pcfg.srcs, packageSep = packageSep, sourceExtension = sourceExtension);
+
+loc sourceFile(str qualifiedModuleName, list[loc] srcs, str packageSep = "::", str sourceExtension = "rsc") throws PathNotFound {
+    resolve(libs, (|relative:///| + binaryPrefix + replaceAll(qualifiedModuleName, packageSep, "/"))[extension=sourceExtension]);
+
+@synopsis{Compute the binary file location for a fully qualified source module name}
+loc targetFile(str sourceModule, PathConfig pcfg, str packageSep = "::", str binaryExtension = "class", str binaryPrefix="")
+  = targetFile(sourceModule, pcfg.bin, packageSep = packageSep, binaryExtension = binaryExtension);
+
+loc targetFile(str sourceModule, loc bin, str packageSep = "::", str binaryExtension = "class", str binaryPrefix = "")
+  = (bin + binaryPrefix + replaceAll(sourceModule, packageSep, "/"))[extension=binaryExtension];
+
