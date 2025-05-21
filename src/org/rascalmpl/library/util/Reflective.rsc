@@ -24,6 +24,11 @@ import Message;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
+data RascalConfigMode
+    = compiler()
+    | interpreter()
+    ;
+
 @synopsis{Returns the system-dependent line separator string}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str getLineSeparator();
