@@ -295,13 +295,13 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void initializeEvaluator() {
-            stdout = new PrintWriter(System.out, true);
-            stderr = new PrintWriter(System.err, true);
             if (projectRoot != null) {
-                evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), stderr, stdout, RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+                evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
             } else {
-                evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), stderr, stdout, RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+                evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
             }
+            stdout = evaluator.getOutPrinter();
+            stderr = evaluator.getErrorPrinter();
             evaluator.getConfiguration().setErrors(true);
         }
 
