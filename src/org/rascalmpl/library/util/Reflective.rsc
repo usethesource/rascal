@@ -43,18 +43,18 @@ public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseMo
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
-// @synopsis{Makes the location of a jar file explicit, based on the project name}
-// @description{
-// The classpath of the current JVM is searched and jar files are searched that contain
-// META-INF/MANIFEST.MF file that match the given `projectName`.
-// }
-// @benefits{
-// * This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
-// into testing ((PathConfig))s.
-// * The classpath is not used implicitly in this way, but rather explicitly. This helps
-// in making configuration issues tractable.
-// * The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
-// }
+@synopsis{Makes the location of a jar file explicit, based on the project name}
+@description{
+The classpath of the current JVM is searched and jar files are searched that contain
+META-INF/MANIFEST.MF file that match the given `projectName`.
+}
+@benefits{
+* This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
+into testing ((PathConfig))s.
+* The classpath is not used implicitly in this way, but rather explicitly. This helps
+in making configuration issues tractable.
+* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
