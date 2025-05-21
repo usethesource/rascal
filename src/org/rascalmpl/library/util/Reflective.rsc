@@ -12,6 +12,7 @@
 @bootstrapParser
 module util::Reflective
 
+extend util::PathConfig;
 
 import IO;
 import List;
@@ -37,59 +38,6 @@ public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseMo
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
-data RascalConfigMode
-    = compiler()
-    | interpreter()
-    ;
-
-@synopsis{General configuration (via path references) of a compiler or interpreter.}
-@description{
-A PathConfig is the result of dependency resolution and other configuration steps. Typically,
-IDEs produce the information to fill a PathConfig, such that language tools can consume it
-transparantly. A PathConfig is also a log of the configuration process. 
-
-* `srcs` list of root directories to search for source files; to interpret or to compile.
-* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
-* `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
-* `libs` is a list of binary dependency files (typically jar files or target folders) on other projects, for checking and linking purposes.
-* `generatedSources` is where generated (intermediate) source code that has to be compiled further is located.
-* `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
-}
-data PathConfig 
-  = pathConfig(
-        list[loc] srcs = [],  
-        list[loc] ignores = [],  
-        loc bin = |unknown:///|,
-        loc generatedSources = |unknown:///|,
-        list[loc] libs = [],          
-        list[Message] messages = []
-    );
-
-data RascalManifest
-  = rascalManifest(
-      str \Project-Name = "Project",
-      str \Main-Module = "Plugin",
-      str \Main-Function = "main", 
-      list[str] Source = ["src"],
-      str Bin = "bin",
-      list[str] \Required-Libraries = [],
-      list[str] \Required-Dependencies = []
-    ); 
-
-data JavaBundleManifest
-  = javaManifest(
-      str \Manifest-Version = "",
-      str \Bundle-SymbolicName = "",
-      str \Bundle-RequiredExecutionEnvironment = "JavaSE-1.8",
-      list[str] \Require-Bundle = [],
-      str \Bundle-Version = "0.0.0.qualifier",
-      list[str] \Export-Package = [],
-      str \Bundle-Vendor = "",
-      str \Bundle-Name = "",
-      list[str] \Bundle-ClassPath = [],
-      list[str] \Import-Package = [] 
-    );
-
 // @synopsis{Makes the location of a jar file explicit, based on the project name}
 // @description{
 // The classpath of the current JVM is searched and jar files are searched that contain
@@ -110,28 +58,6 @@ loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
-@synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
-  by the folders which are nested under these roots as configured in their respective
-  META-INF/RASCAL.MF files.}
-PathConfig applyManifests(PathConfig cfg) {
-   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
-
-   list[loc] expandSrcs(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
-   default list[loc] expandSrcs(loc p, str _) = [p];
-   
-   list[loc] expandlibs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
-   default list[loc] expandlibs(loc p, str _) = [p];
-    
-   loc expandBin(loc p) = p + mf[p].Bin when mf[p]?;
-   default loc expandBin(loc p) = p;
-   
-   cfg.srcs = [*expandSrcs(p) | p <- cfg.srcs];
-   cfg.libs = [*expandlibs(p) | p <- cfg.libs];
-   cfg.bin  = expandBin(cfg.bin);
-   
-   return cfg;
-}
-
 @deprecated{Function will be moved to Rascal compiler}
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
