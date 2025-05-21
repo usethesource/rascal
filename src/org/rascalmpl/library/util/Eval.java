@@ -207,10 +207,11 @@ public class Eval {
 		private int duration = -1;
 		
 		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
+			this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, services);
 			if (!pcfg.getSrcs().isEmpty()) {
-				this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, (ISourceLocation)pcfg.getSrcs().get(0), input, stdout, stderr, services);
+				ShellEvaluatorFactory.registerProjectAndTargetResolver((ISourceLocation)pcfg.getSrcs().get(0));
 			} else {
-				this.eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, URIUtil.rootLocation("cwd"), input, stdout, stderr, services);
+				ShellEvaluatorFactory.registerProjectAndTargetResolver(URIUtil.rootLocation("cwd"));
 			}
 		}
 
