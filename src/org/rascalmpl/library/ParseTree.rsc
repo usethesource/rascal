@@ -438,11 +438,16 @@ The parse function behaves differently depending of the given keyword parameters
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
      * `maxAmbDepth`: can be used to limit the maximum depth of ambiguity clusters. For instance, when set to 1, no ambiguities within ambiguities are produced.
-                      When set to 0, all ambiguity clusters will be removed. When set to -1 no ambiguity filtering will take place.
+                      When set to 0, all ambiguity clusters will be removed. When set to -1 no ambiguity filtering will take place. Note that ambiguity pruning
+                      is done by dropping all but the first alternative (which is more or less random but repeatable).
      * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
                          special `error` and `skipped` productions are included in the resulting parse tree. More documentation will be added here when this feature matures.
                          Note that if `allowRecovery` is set to true, the resulting tree can still contain ambiguity nodes related to recovered parse errors, even if `allowAmbiguity`
                          is set to false. When a 'regular` (non-error) ambiguity is found an exception is still thrown in this case.
+     * `maxRecoveryAttempts`: *** experimental *** the maximum number of recovery attempts to make when a parse error is encountered.
+                              Only relevant when `allowRecovery` is set to true.
+     * `maxRecoveryTokens`: *** experimental *** the maximum number of tokens considered on each recovery attempt.
+                            Only relevant when `allowRecovery` is set to true.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
