@@ -2446,12 +2446,12 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
-		IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
-		Type type = value.getType();
-		if (type.isAbstractData()) {
-			return (IConstructor)value;
-		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
+	    IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
+        Type type = value.getType();
+        if (type.isAbstractData()) {
+            return (IConstructor)value;
+        }
+        throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	protected java.lang.String unescapedConsName(ITree tree) {
