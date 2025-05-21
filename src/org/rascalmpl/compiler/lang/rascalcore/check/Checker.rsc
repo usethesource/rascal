@@ -69,10 +69,7 @@ import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedTestSources=|unknown:///|
 );
 
 void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
@@ -90,14 +87,6 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
     }
     for(lb <- pcfg.libs){
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
-    }
-
-    if(!exists(pcfg.resources)) {
-        try {
-            mkDirectory(pcfg.resources);
-        } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
-        }
     }
 
     return msgs;
@@ -483,9 +472,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
@@ -599,10 +588,9 @@ int main(
         iprintln(modules);
     }
 
-    pcfg.resources = pcfg.bin;
-
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
+        logImports               = logImports,
         verbose                  = verbose,
         logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
@@ -612,10 +600,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
 
-    messages = [];
+    list[ModuleMessages] messages = [];
     
     if (modules == []) {
-        messages = [info("No modules to check.", |unknown:///|)];
+        //messages = [info("No modules to check.", |unknown:///|)];
         return 0;
     }
     else {

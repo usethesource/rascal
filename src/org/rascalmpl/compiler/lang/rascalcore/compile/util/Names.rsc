@@ -31,10 +31,7 @@ import List;
 import util::Reflective;
 
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedTestSources=|unknown:///|
 );
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
@@ -116,7 +113,7 @@ loc getGeneratedTestSrcsDir(str qualifiedModuleName, PathConfig pcfg){
 }
 
 loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.resources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
+    return pcfg.generatedSources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
     parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
@@ -142,6 +139,16 @@ str asBaseInterfaceName(str qname){
 
 str asADTName(str adtName)
     = "ADT_<asJavaName(adtName, completeId=false)>";
+
+str asNTName(str adtName){
+    if(startsWith(adtName, "ADT_")){
+        return "NT_<adtName[4..]>";
+    }
+    if(adtName[0] == "$"){
+        return adtName;
+    }
+    return "NT_<asJavaName(adtName, completeId=false)>"; 
+}   
     
 set[str] javaKeywords = {
     "abstract", "continue", "for",        "new",       "switch",
