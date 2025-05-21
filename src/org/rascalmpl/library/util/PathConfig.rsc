@@ -100,6 +100,7 @@ str libraryModule(loc libraryFile, list[loc] libs, LanguageFileConfig fcfg) thro
 @synopsis{Find out in which library file a module was implemented.}
 @description{
 * ((libraryFile)) is the inverse of ((libraryModule))
+* the computed file has to exist in at least one of the library modules. Otherwise ((PathNotFound)) is thrown.
 }
 loc libraryFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
     = libraryFile(qualifiedModuleName, pcfg.libs, fcfg);
@@ -127,7 +128,8 @@ loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg)
 
 @synopsis{Compute the binary file location for a fully qualified source module name}
 @description{
-* ((targetFile)) is the inverse of ((targetModule))
+* ((targetFile)) is the inverse of ((targetModule)).
+* the returned target location does not have to exist yet.
 }
 loc targetFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
     = targetFile(sourceModule, pcfg.bin, fcfg);
