@@ -35,9 +35,7 @@ import lang::rascalcore::check::ModuleLocations;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedTestSources=|unknown:///|
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
@@ -77,7 +75,6 @@ public PathConfig getDefaultTestingPathConfig() {
         srcs = [ |memory:///test-modules/|, |std:///|  ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ ]
     );
 }
@@ -95,7 +92,6 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
         srcs = [ |memory:///test-modules/| ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ |lib://rascal| ]
     );
 }
@@ -126,8 +122,6 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         bin                  = COMPILED + (keep ? "/target/classes" : "rascal"),
         generatedSources     = COMPILED + "/src/main/java",
         generatedTestSources = COMPILED + "/src/test/java/",
-        resources            = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        testResources        = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                 = libraries
     ); 
 }
@@ -204,15 +198,6 @@ public RascalCompilerConfig getRascalCompilerConfig(bool keep=true){
     return rascalCompilerConfig(getRascalPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
 
-public PathConfig getRascalAsLibPathConfig(bool keep = false) {
-    return pathConfig(
-        srcs = [  ],
-        bin = RASCAL + "rascal",
-        generatedSources = RASCAL,
-        resources = RASCAL + "rascal",
-        libs = [ RASCAL]
-    );
-}
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
@@ -307,7 +292,6 @@ public PathConfig getVSCodePathConfig() {
     return 
     pathConfig(
   ignores=[],
-  resources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   bin=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
   libs=[
@@ -315,14 +299,6 @@ public PathConfig getVSCodePathConfig() {
     |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.15.0/typepal-0.15.0.jar!/|
   ],
   srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal/|]);
-        // pathConfig(
-        // bin = REPO + "compiled-rascal/target/classes",
-        // generatedSources = REPO + "compiled-rascal/src/main/java",
-        // generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        // resources = REPO + "compiled-rascal/src/main/java",
-        // testResources = REPO + "compiled-rascal/src/test/java",
-        // libs=[VS_RASCAL_JAR, VS_TYPEPAL_JAR, VS_RASCAL_CORE_JAR],
-        // srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal|]);
 }
 
 public RascalCompilerConfig getVSCodeCompilerConfig(){
