@@ -13,6 +13,24 @@ RANDOM_SEED=0
 SHOW_LOG=false
 COUNT_NODES=false
 
+
+if [[ $1 == "-h" || $1 == "--help" ]]
+then
+  echo "Usage: benchmark.sh [options]"
+  echo "Options:"
+  echo "  -s, --syntax <syntax>               Syntax used (default: $SYNTAX, alternatives: java18, java15, cobol)"
+  echo "  -i, --test-set-id <path>            Test set under ~/test-sources/<syntax> (default: $TEST_SET)"
+  echo "  -m, --min-file-size <size>          Minimum test file size (default: $MIN_FILE_SIZE)"
+  echo "  -M, --max-file-size <size>          Maximum test file size (default: $MAX_FILE_SIZE)"
+  echo "  -r, --max-recovery-attempts <limit> Maximum number of recovery attempts (default: $MAX_RECOVERY_ATTEMPTS)"
+  echo "  -t, --max-recovery-tokens <limit>   Maximum number of recovery tokens (default: $MAX_RECOVERY_TOKENS)"
+  echo "  -S, --sample-window <window>        Sample window (default: $SAMPLE_WINDOW)"
+  echo "  -R, --random-seed <seed>            Random seed used to determine sample within sample window (default: $RANDOM_SEED)"
+  echo "  -c, --count-nodes true|false        Count nodes in the parse tree (default: $COUNT_NODES)"
+  echo "  -L, --log                           Show log output (using 'tail -f', default: $SHOW_LOG)"
+  exit
+fi
+
 # Pull in JARFILE, LABEL, TIME, and VERSION variables
 eval `cat $HOME/.recovery-benchmark.info`
 RASCAL_JAR="$HOME/jars/$JARFILE"
@@ -20,24 +38,6 @@ if [ ! -f "$RASCAL_JAR" ]
 then
   echo "Rascal jar not found at $RASCAL_JAR"
   exit 1
-fi
-
-if [[ $1 == "-h" || $1 == "--help" ]]
-then
-  echo "Usage: benchmark.sh [options]"
-  echo "Options:"
-  echo "  -s, --syntax <syntax>               Specify the syntax (default: rascal, alternatives: java18, java15, cobol)"
-  echo "  -i, --test-set-id <path>            Specify the source set under ~/test-sources/<syntax> (default: main)"
-  echo "  -m, --min-file-size <size>          Specify the minimum file size (default: 0)"
-  echo "  -M, --max-file-size <size>          Specify the maximum file size (default: 10240)"
-  echo "  -r, --max-recovery-attempts <limit> Specify the maximum number of recovery attempts (default: 50)"
-  echo "  -t, --max-recovery-tokens <limit>   Specify the maximum number of recovery tokens (default: 3)"
-  echo "  -w, --skip-window <window>          Specify the skip window (default: 2048)"
-  echo "  -S, --sample-window <window>        Specify the sample window (default: 1)"
-  echo "  -R, --random-seed <seed>            Specify the random seed (default: 0)"
-  echo "  -c, --count-nodes true|false        Count nodes in the parse tree (default: false)"
-  echo "  -L, --log                           Show log output (using 'tail -f')"
-  exit
 fi
 
 
@@ -72,11 +72,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     -t|--max-recovery-tokens)
       MAX_RECOVERY_TOKENS="$2"
-      shift # past argument
-      shift # past value
-      ;;
-    -w|--skip-window)
-      SKIP_WINDOW="$2"
       shift # past argument
       shift # past value
       ;;
@@ -122,15 +117,12 @@ SOURCE_LOC="|home:///test-sources/$SYNTAX/$TEST_SET|"
 # - Stats will be written to $HOME/stats/java18/m3/stats-$VERSION-0-10240:max-recovery-tokens=3,skip-window=2048,recov-limit=50,sample-window=1,seed=0.txt
 #
 
-# This is passed on as environment variable (only supported in debug builds)
-export RASCAL_RECOVERER_SKIP_WINDOW=$SKIP_WINDOW
-
 LOGDIR="$HOME/logs/$SYNTAX/$TEST_SET"
 STATDIR="$HOME/stats/$SYNTAX/$TEST_SET"
 mkdir -p $LOGDIR
 mkdir -p $STATDIR
 
-TESTTAG="max-recovery-attempts=$MAX_RECOVERY_ATTEMPTS,max-recovery-tokens=$MAX_RECOVERY_TOKENS,skip-window=$RASCAL_RECOVERER_SKIP_WINDOW,sample-window=$SAMPLE_WINDOW,seed=$RANDOM_SEED"
+TESTTAG="max-recovery-attempts=$MAX_RECOVERY_ATTEMPTS,max-recovery-tokens=$MAX_RECOVERY_TOKENS,sample-window=$SAMPLE_WINDOW,seed=$RANDOM_SEED"
 if [ $COUNT_NODES == "true" ] || [ $COUNT_NODES == "1" ]
 then
   TESTTAG="$TESTTAG,count-nodes"
@@ -152,7 +144,6 @@ echo "MIN_FILE_SIZE=$MIN_FILE_SIZE"
 echo "MAX_FILE_SIZE=$MAX_FILE_SIZE"
 echo "MAX_RECOVERY_ATTEMPTS=$MAX_RECOVERY_ATTEMPTS"
 echo "MAX_RECOVERY_TOKENS=$MAX_RECOVERY_TOKENS"
-echo "SKIP_WINDOW=$SKIP_WINDOW"
 echo "SAMPLE_WINDOW=$SAMPLE_WINDOW"
 echo "RANDOM_SEED=$RANDOM_SEED"
 echo "COUNT_NODES=$COUNT_NODES"
