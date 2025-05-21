@@ -50,7 +50,7 @@ public class RascalJUnitTestRunner extends Runner {
 
 
     public RascalJUnitTestRunner(Class<?> clazz) {
-        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
+        prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
         projectRoot = inferProjectRootFromClass(clazz);
         this.clazz = clazz;
         
@@ -59,6 +59,7 @@ public class RascalJUnitTestRunner extends Runner {
 
         if (projectRoot != null) {
             evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            ShellEvaluatorFactory.registerProjectAndTargetResolver(projectRoot);
             evaluator.getConfiguration().setErrors(true);
         } else {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
