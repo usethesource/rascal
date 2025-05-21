@@ -29,11 +29,8 @@ package org.rascalmpl.runtime;
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -57,6 +54,7 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.result.DateTimeResult;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
@@ -68,7 +66,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
@@ -99,7 +96,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -2758,7 +2754,7 @@ public abstract class $RascalModule {
 	// ---- parse -------------------------------------------------------------
 	
 	public final IValue $parse(final IValue reified, IString inputText, ISourceLocation inputLocation) {
-		IFunction parser = $RVF.parser(reified, $RVF.bool(true), $RVF.bool(false), $RVF.bool(false), $RVF.bool(false), $RVF.set());
+		IFunction parser = $RVF.parser(reified, $VF.bool(true), $VF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $VF.bool(false), $VF.bool(false), $VF.bool(false), $VF.set());
 		return parser.call(inputText, inputLocation);
 	}
 
