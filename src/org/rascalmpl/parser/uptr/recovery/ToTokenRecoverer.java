@@ -49,6 +49,8 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import io.usethesource.vallang.IConstructor;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
+	private static final boolean LOOKAHEAD_FROM_ENV = false;
+
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
@@ -57,23 +59,24 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	private static final int DEFAULT_SKIP_WINDOW = 2048;
-	private static int skipWindow = readEnvVar("RASCAL_RECOVERER_SKIP_WINDOW", DEFAULT_SKIP_WINDOW);
+	private static final int DEFAULT_LOOKAHEAD = 2048;
+	private static int maxLookahead = readLookahead();
 
 	private int count = 0;
 
-	private static int readEnvVar(String envVar, int defaultValue) {
-		String limitSpec = System.getenv(envVar);
-		if (limitSpec != null) {
-			try {
-				System.err.println("Using enviroment variable " + envVar + " = " + limitSpec);
-				return Integer.parseInt(limitSpec);
-			} catch (NumberFormatException e) {
-				return defaultValue;
+	private static int readLookahead() {
+		if (LOOKAHEAD_FROM_ENV) {
+			String limitSpec = System.getenv("RASCAL_RECOVERER_SKIP_WINDOW");
+			if (limitSpec != null) {
+				try {
+					return Integer.parseInt(limitSpec);
+				} catch (NumberFormatException e) {
+					return DEFAULT_LOOKAHEAD;
+				}
 			}
 		}
-		System.err.println("Using default value for " + envVar + " = " + defaultValue);
-		return defaultValue;
+
+		return DEFAULT_LOOKAHEAD;
 	}
 
 	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser, int maxRecoveryAttempts, int maxRecoveryTokens) {
@@ -183,9 +186,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 
-		int end = Math.min(location+skipWindow, input.length);
+		int end = Math.min(location+maxLookahead, input.length);
 		BitSet skipSet = new BitSet(end-startLocation);
-		for (int pos=startLocation; pos<end && nodes.size() < maxRecoveryTokens; pos++) {
+		int pos = startLocation;
+		while (pos<end && nodes.size() < maxRecoveryTokens) {
 			// Find the last token of this production and skip until after that
 			Iterator<InputMatcher> endIter = endMatchers.iterator();
 			while (endIter.hasNext()) {
@@ -214,6 +218,12 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 					}
 				}
 			}
+
+			pos++;
+		}
+
+		if (pos == location+maxLookahead) {
+			System.err.println("Max lookeahead reached: " + maxLookahead);
 		}
 
 		return nodes;

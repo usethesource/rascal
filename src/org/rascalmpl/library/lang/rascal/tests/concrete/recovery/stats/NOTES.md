@@ -1,7 +1,7 @@
 # Error recovery benchmarking
 
 The scripts in this directory can be used to benchmark error recovery of different languages.
-The scripts assume the benchmarks will be run on a remote server that can be accessed using "ssh root@<host>".
+The scripts assume the benchmarks will be run on a remote server that can be accessed using `ssh root@<host>`.
 
 The following scripts are provided:
 
