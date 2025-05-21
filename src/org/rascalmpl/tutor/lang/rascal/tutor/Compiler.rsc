@@ -67,22 +67,28 @@ public void defaultCompile(bool clean=false) {
 }
 
 int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-  loc license=|unknown:///|, 
-  loc citation = |unknown:///|, 
-  loc funding=|unknown:///|, 
-  loc releaseNotes=|unknown:///|,
-  bool errorsAsWarnings=false, 
-  bool warningsAsErrors=false, 
-  bool isPackageCourse=true, 
-  str packageName="noPackageName") {
+  loc license           =|unknown:///|, 
+  loc citation          = |unknown:///|, 
+  loc funding           = |unknown:///|, 
+  loc releaseNotes      = |unknown:///|,
+  bool errorsAsWarnings = false, 
+  bool warningsAsErrors = false, 
+  bool isPackageCourse  = false, 
+  str groupId           = "org.rascalmpl",
+  str artifactId        = "rascal",
+  str version           = getRascalVersion(),
+  str packageName       = "rascal") {
 
-  if (license?) pcfg.license = license;
-  if (citation?) pcfg.citation = citation;
-  if (funding?) pcfg.funding = funding;
-  if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
+  if (license?)         pcfg.license         = license;
+  if (citation?)        pcfg.citation        = citation;
+  if (funding?)         pcfg.funding         = funding;
+  if (releaseNotes?)    pcfg.releaseNotes    = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
+  if (isPackageCourse?) pcfg.packageName     = "<groupId>.<artifactId>";
 
-  if (packageName?) pcfg.packageName = packageName;
+  pcfg.packageArtifactId = artifactId;
+  pcfg.packageGroupId    = groupId;
+  pcfg.packageVersion    = version;
 
   messages = compile(pcfg);
   
@@ -115,7 +121,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   // this information, however, is not easy to obtain outside of the build
   // environment of the current project. Therefore we store it here and now.
 
-  if (!pcfg.packageName?) {
+  if (!pcfg.isPackageCourse) {
     return;
   }
 
@@ -124,15 +130,15 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   }
 
   if (pcfg.citation? && exists(pcfg.citation)) {
-    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.md");
+    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.txt");
   }
 
   if (pcfg.funding? && exists(pcfg.funding)) {
-    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.md");
+    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.txt");
   }
 
   if (pcfg.releaseNotes? && exists(pcfg.releaseNotes)) {
-    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
+    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.txt");
   }
 
   dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
@@ -182,9 +188,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '
       ':::info
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
-      'Citing software **recognizes** the associated investment and the quality of the result.
-      'If you use open-source software, it is becoming standard practise to recognize the work as
-      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'Citing software recognizes the associated investment and the quality of the result.
+      'If you use open-source software, it is becoming standard practise to recognize the work by citing it (as shown below). 
+      'In turn their effort might be awarded with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
       'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
@@ -247,8 +253,8 @@ void generatePackageIndex(PathConfig pcfg) {
     '```xml
     '\<dependencies\>
     '    \<dependency\>  
-    '        \<groupId\><pcfg.packageGroup>\</groupId\>
-    '        \<artifactId\><pcfg.packageName>\</artifactId\>
+    '        \<groupId\><pcfg.packageGroupId>\</groupId\>
+    '        \<artifactId\><pcfg.packageArtifactId>\</artifactId\>
     '        \<version\><pcfg.packageVersion>\</version\>
     '    \</dependency\>
     '\</dependencies\> 

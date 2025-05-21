@@ -7,8 +7,10 @@ import IO;
 import util::Reflective;
 
 data PathConfig(
-  str  packageName="",
-  str  packageGroup="",
+  str  packageArtifactId="",
+  str  packageGroupId="",
+  str  packageVersion=getRascalVersion(),
+  str  packageName = "<packageGroupId>.<packageArtifactId>",
   loc  packageRoot=|unknown:///|,
   loc  sources=|http://github.com/usethesource/rascal|,
   loc  issues=|http://github.com/usethesource/rascal/issues|,
@@ -16,7 +18,6 @@ data PathConfig(
   loc  citation=|cwd:///CITATION.md|,
   loc  funding=|cwd:///FUNDING.md|,
   loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
-  str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
 );
 
@@ -35,10 +36,8 @@ str modulePath(/^<prefix:.*>::Index$/) = modulePath("<prefix>::module_Index");
 default str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
 default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
  
-@synopsis{capitalizes and removes hyphens}
-default str package(str input) = input;
-str package(str input:/^[a-z].*$/) = package(capitalize(input));
-str package(/^<prefix:[a-zA-Z\_0-9]*>\-<rest:.*>$/) = package("<prefix><capitalize(rest)>");
+@synopsis{keep the groupId.artifactId style and also the capitalization as-is}
+str package(str input) = input;
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
