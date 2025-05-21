@@ -11,6 +11,7 @@ SKIP_WINDOW=2048
 SAMPLE_WINDOW=1
 RANDOM_SEED=0
 SHOW_LOG=false
+COUNT_NODES=false
 
 # Pull in JARFILE, LABEL, TIME, and VERSION variables
 eval `cat $HOME/.recovery-benchmark.info`
@@ -34,6 +35,7 @@ then
   echo "  -w, --skip-window <window>          Specify the skip window (default: 2048)"
   echo "  -S, --sample-window <window>        Specify the sample window (default: 1)"
   echo "  -R, --random-seed <seed>            Specify the random seed (default: 0)"
+  echo "  -c, --count-nodes true|false        Count nodes in the parse tree (default: false)"
   echo "  -L, --log                           Show log output (using 'tail -f')"
   exit
 fi
@@ -88,6 +90,11 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    -C|--count-nodes)
+      COUNT_NODES="$2"
+      shift # past argument
+      shift # past value
+      ;;
     -L|--log)
       SHOW_LOG=true
       shift  
@@ -124,6 +131,10 @@ mkdir -p $LOGDIR
 mkdir -p $STATDIR
 
 TESTTAG="max-recovery-attempts=$MAX_RECOVERY_ATTEMPTS,max-recovery-tokens=$MAX_RECOVERY_TOKENS,skip-window=$RASCAL_RECOVERER_SKIP_WINDOW,sample-window=$SAMPLE_WINDOW,seed=$RANDOM_SEED"
+if [ $COUNT_NODES == "true" ] || [ $COUNT_NODES == "1" ]
+then
+  TESTTAG="$TESTTAG,count-nodes"
+fi
 RUNID="$LABEL-$MIN_FILE_SIZE-$MAX_FILE_SIZE,$TESTTAG"
 
 if [ -z "${SOURCE_LOC}" ]
@@ -144,6 +155,7 @@ echo "MAX_RECOVERY_TOKENS=$MAX_RECOVERY_TOKENS"
 echo "SKIP_WINDOW=$SKIP_WINDOW"
 echo "SAMPLE_WINDOW=$SAMPLE_WINDOW"
 echo "RANDOM_SEED=$RANDOM_SEED"
+echo "COUNT_NODES=$COUNT_NODES"
 echo "LOG_FILE=$LOG_FILE"
 echo "STAT_LOC=$STAT_LOC"
 
@@ -161,5 +173,5 @@ then
 else
   echo "Starting benchmark, logging to $LOG_FILE"
   MODULE=lang::rascal::tests::concrete::recovery::ErrorRecoveryBenchmark
-  java -Xmx1G -jar -Drascal.monitor.batch $RASCAL_JAR $MODULE syntax=$SYNTAX source-loc="$SOURCE_LOC" max-amb-depth=2 min-file-size=$MIN_FILE_SIZE max-file-size=$MAX_FILE_SIZE max-recovery-attempts=$MAX_RECOVERY_ATTEMPTS max-recovery-tokens=$MAX_RECOVERY_TOKENS sample-window=$SAMPLE_WINDOW random-seed=$RANDOM_SEED stat-file="$STAT_LOC" >& $LOG_FILE
+  java -Xmx1G -jar -Drascal.monitor.batch $RASCAL_JAR $MODULE syntax=$SYNTAX source-loc="$SOURCE_LOC" max-amb-depth=2 min-file-size=$MIN_FILE_SIZE max-file-size=$MAX_FILE_SIZE max-recovery-attempts=$MAX_RECOVERY_ATTEMPTS max-recovery-tokens=$MAX_RECOVERY_TOKENS sample-window=$SAMPLE_WINDOW random-seed=$RANDOM_SEED stat-file="$STAT_LOC" count-nodes="$COUNT_NODES" >& $LOG_FILE
 fi

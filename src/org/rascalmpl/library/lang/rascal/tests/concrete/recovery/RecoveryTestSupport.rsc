@@ -47,6 +47,8 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int maxRecoveryTokens = 3,
     int fromFile = 0,
     int sampleWindow = 1,
+    bool countNodes = false,
+    bool verifyResult = false,
     loc statFile = |unknown:///|
 );
 
@@ -103,74 +105,64 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int startTime = 0;
     int duration = 0;
     int disambDuration = -1;
-    int errorCount = 0;
-    int errorSize=0;
+    int errorCount = -1;
+    int errorSize = -1;
     str result = "?";
-    int nodeCount = 0;
-    int nodeCountUnique = 0;
-    int disambNodeCount = 0;
-    int disambNodeCountUnique = 0;
+    int nodeCount = -1;
+    int nodeCountUnique = -1;
+    int disambNodeCount = -1;
+    int disambNodeCountUnique = -1;
 
     TestMeasurement measurement = successfulParse();
+    startTime = realTime();
     try {
-        startTime = realTime();
-        Tree tree = standardParser(input, source);
-        duration = realTime() - startTime;
-        measurement = successfulParse(source=source, duration=duration);
-        result = "success";
-        nodeCount = countTreeNodes(tree);
-        nodeCountUnique = countUniqueTreeNodes(tree);
-        disambNodeCount = nodeCount;
-        disambNodeCountUnique = nodeCountUnique;
-    } catch ParseError(_): {
-        startTime = realTime();
-        try {
-            Tree tree = char(0);
-            int parseEndTime = startTime;
+        Tree tree = recoveryParser(input, source);
+        int parseEndTime = realTime();
 
-            Tree t = recoveryParser(input, source);
-            tree = t;
-            parseEndTime = realTime();
-            duration = parseEndTime - startTime;
-                        
-            if (tree == char(0)) {
-                result = "skipped";
-                measurement = skipped(source=source);
-            } else {
+        duration = parseEndTime - startTime;
+        if (config.countNodes) {
+            nodeCount = countTreeNodes(tree);
+            nodeCountUnique = countUniqueTreeNodes(tree);
+        }
+
+        if (hasParseErrors(tree)) {
+            if (config.countNodes) {
                 Tree disambTree = disambiguateParseErrors(tree);
                 disambDuration = realTime() - parseEndTime;
-                
-                nodeCount = countTreeNodes(tree);
-                nodeCountUnique = countUniqueTreeNodes(tree);
-                disambNodeCount = countTreeNodes(disambTree);
-                disambNodeCountUnique = countUniqueTreeNodes(disambTree);
+                disambNodeCount = nodeCount;
+                disambNodeCountUnique = nodeCountUnique;
 
                 list[Tree] errors = findAllParseErrors(disambTree);
                 errorCount = size(errors);
-                if ("<tree>" != input) {
-                    throw "Yield of recovered tree does not match the original input";
-                }
-                if (errors == []) {
-                    measurement = successfulDisambiguation(source=source, duration=duration);
-                } else {
-                    errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
-                    measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
-                }
-                result = "recovery";
+                errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
             }
-        } catch ParseError(_): {
-            result = "error"; 
-            duration = realTime() - startTime;
-            measurement = parseError(source=source, duration=duration);
+
+            measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
+            result = "recovery";
+
+            if (config.verifyResult && "<tree>" != input) {
+                throw "Yield of recovered tree does not match the original input";
+            }
+        } else {
+            measurement = successfulParse(source=source, duration=duration);
+            result = "success";
         }
+    } catch ParseError(_): {
+        result = "error"; 
+        duration = realTime() - startTime;
+        measurement = parseError(source=source, duration=duration);
     }
 
     if (config.statFile != |unknown:///|) {
         int durationRatio = percent(duration, referenceParseTime);
-        int nodeRatio = percent(nodeCount, referenceNodeCount);
-        int unodeRatio = percent(nodeCountUnique, referenceNodeCountUnique);
+        if (config.countNodes) {
+            int nodeRatio = percent(nodeCount, referenceNodeCount);
+            int unodeRatio = percent(nodeCountUnique, referenceNodeCountUnique);
 
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>,<nodeRatio>,<unodeRatio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
+            appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>,<nodeRatio>,<unodeRatio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
+        } else {
+            appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>\n");
+        }
     }
 
     return measurement;
@@ -387,7 +379,7 @@ int statLabelWidth = 40;
 int statFieldWidth = 10;
 
 
-void printFileStats(FileStats fileStats) {
+void printFileStats(RecoveryTestConfig config, FileStats fileStats) {
     void printStat(str label, int stat, int total, bool prints=true) {
         int pct = total == 0 ? 0 : stat*100/total;
         print(left(label + ":", statLabelWidth));
@@ -405,8 +397,10 @@ void printFileStats(FileStats fileStats) {
     printStat("Slow parses", fileStats.slowParses, failedParses);
     printFrequencyTableHeader();
     printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2(ratio)", printTotal=false);
-    printFrequencyTableStats("Parse error count", fileStats.errorCounts, unit="errors");
-    printFrequencyTableStats("Error size", fileStats.errorSizes, unit="chars");
+    if (config.countNodes) {
+        printFrequencyTableStats("Parse error count", fileStats.errorCounts, unit="errors");
+        printFrequencyTableStats("Error size", fileStats.errorSizes, unit="chars");
+    }
 }
 
 void printFrequencyTableHeader() {
@@ -465,7 +459,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
     }
 }
 
-void printStats(TestStats stats) {
+void printStats(RecoveryTestConfig config, TestStats stats) {
     if (stats.filesTested != 1) {
         println("Files tested:         <stats.filesTested>");
     }
@@ -476,9 +470,11 @@ void printStats(TestStats stats) {
     printFrequencyTableStats("Failed recoveries", stats.failedRecoveries);
     printFrequencyTableStats("Parse errors", stats.parseErrors);
     printFrequencyTableStats("Slow parses", stats.slowParses);
-    printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
-    printFrequencyTableStats("Parse error counts", stats.errorCounts, unit = "errors", ignoreZero=true);
-    printFrequencyTableStats("Parse error sizes", stats.errorSizes, unit = "chars", ignoreZero=true);
+    if (config.countNodes) {
+        printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
+        printFrequencyTableStats("Parse error counts", stats.errorCounts, unit = "errors", ignoreZero=true);
+        printFrequencyTableStats("Parse error sizes", stats.errorSizes, unit = "chars", ignoreZero=true);
+    }
 
     println();
 }
@@ -555,18 +551,18 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
     println();
     println("Single char deletions:");
     FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
-    printFileStats(singleCharDeletionStats);
+    printFileStats(config, singleCharDeletionStats);
 
     println();
     println("Deletes until end-of-line:");
     FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, referenceNodeCount, referenceNodeCountUnique, recoverySuccessLimit);
-    printFileStats(deleteUntilEolStats);
+    printFileStats(config, deleteUntilEolStats);
 
     FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
     println();
     println("-----------------------------------------------------------");
     println("Total test stats for <testInput>:");
-    printFileStats(stats);
+    printFileStats(config, stats);
     return stats;
 }
 
@@ -579,7 +575,11 @@ void batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+        if (config.countNodes) {
+            writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+        } else {
+            writeFile(config.statFile, "source,size,result,duration,durationRatio\n");
+        }
     }
 
     int startTime = realTime();
@@ -589,7 +589,7 @@ void batchRecoveryTest(RecoveryTestConfig config) {
     println();
     println("==================================================================");
     println("Recovery batch test done in <duration/1000> seconds, total result:");
-    printStats(stats);
+    printStats(config, stats);
 }
 
 private list[loc] gatherFiles(loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int fromFile) {
@@ -638,7 +638,7 @@ private TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumu
             println();
             println("------------------------------------------------------------------------");
             println("Cumulative stats after testing <file>:");
-            printStats(cumulativeStats);
+            printStats(config, cumulativeStats);
         } catch ParseError(l): println("Ignoring file because it cannot be parsed: <l>");
     }
 
@@ -672,6 +672,7 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
     int maxRecoveryTokens = 3;
     int fromFile = 0;
     int sampleWindow = 1;
+    bool countNodes = false;
     loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
 
     for (str arg <- args) {
@@ -689,6 +690,7 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
                 case "stat-file": statFile = readTextValueString(#loc, val);
                 case "sample-window": sampleWindow = toInt(val);
                 case "random-seed": arbSeed(toInt(val));
+                case "count-nodes": countNodes = val == "true" || val == "1";
                 default: { throw IllegalArgument(arg, "Unknown argument"); }
             }
         }
@@ -704,6 +706,7 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
     config.maxRecoveryTokens=maxRecoveryTokens;
     config.fromFile=fromFile;
     config.sampleWindow=sampleWindow;
+    config.countNodes = countNodes;
     config.statFile=statFile;
 
     return config;
