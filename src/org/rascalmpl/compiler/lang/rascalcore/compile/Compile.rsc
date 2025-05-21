@@ -133,7 +133,7 @@ list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
     pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, moduleLoc);
     if(!isEmpty(msgs)){
-        return msgs;
+        return toList(msgs);
     }
     moduleName = "**unknown**";
     try {
@@ -178,8 +178,6 @@ void main(
     bool errorsAsWarnings         = false,
     bool warningsAsErrors         = false
     ) {
-
-    pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
