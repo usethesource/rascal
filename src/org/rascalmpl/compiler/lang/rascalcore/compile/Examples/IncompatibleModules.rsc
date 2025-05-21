@@ -19,7 +19,6 @@ PathConfig pcfg = pathConfig(
                    , projectDir + "src/org/rascalmpl/compiler"
                    , projectDir + "test/org/rascalmpl/benchmark"],
             bin = projectDir + "target/classes",
-            resources = projectDir + "target/classes",
             libs = [typepalLib]
         );
 
