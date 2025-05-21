@@ -13,13 +13,16 @@ import IO;
 import Location;
 import Message;
 import String;
+import util::UUID;
 
-@synopsis{General configuration (via path references) of a compiler or interpreter.}
+@synopsis{General configuration (via locations) of a file-based language processor.}
 @description{
 A PathConfig is the result of dependency resolution and other configuration steps. Typically,
 IDEs produce the information to fill a PathConfig, such that language tools can consume it
-transparantly. A PathConfig is also a log of the configuration process. 
+transparantly. A PathConfig is also a log of the configuration process. Typically a single
+((pathConfig)) instance configures the language processor for a single source project tree.
 
+* `projectRoot` is the root directory of the source project tree that is being configured.
 * `srcs` list of root directories to search for source files; to interpret or to compile.
 * `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
 * `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
@@ -45,27 +48,35 @@ data PathConfig = pathConfig(
     list[Message] messages = []
 );
 
-@synopsis{Defines the parameters of mappings between qualified module names and source and target files or library files.}
+@synopsis{Defines the parameters of mappings between qualified module names and source, target, and library files.}
 @description{
 For most languages a single `fileConfig()` instance is enough to define:
 * the mapping from source files and source folders to fully qualified module names, and back: ((sourceModule)) and ((sourceFile))
 * the mapping from binary library files to fully qualified module names and back: ((libraryModule)) and ((libraryFile))
 * the mapping from source files to target folder in the bin folder, and back: ((targetFile)) and ((targetModule))
+
+Together with a ((PathConfig)) instance, the above six functions can be re-used to build a language processor that supports:
+* execution (testing) of generated files from the `bin` folder, using `libs` as run-time dependencies
+* using binary compile-time libraries, using `libs` to find binary interfaces to previously generated targets
+* packaging binary (generated) files as `jar` files to be re-used later as `libs` dependencies
+* modular language processors that work incrementally per changed source file or changed dependency
 }
 @benefits{
 * one ((fileConfig)) constant can be reused for configure all six different mapping functions.  
 * a simple `fileConfig()` constant is configured for the Rascal compiler by default (.tpl files as binary extension).
-* the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance.
+* the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance for one project.
+* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `sourceModule` and then 
+seeing if it exists also in one of the libraries using `libraryFile`.
 }
 @pitfalls{
 * If a compiler produces multiple target files from a single source file, then you might have to configure
-different instances of ((fileConfig)) for every target ((binaryExt)).
+different instances of ((fileConfig)) for every target `binaryExt`.
 * if the mapping between qualified module names and source files or binary files is different ---it has more parameters than defined by ((LanguageFileConfig))--- then you have to write your own
 versions of ((sourceModule)), ((sourceFile)), ((libraryModule)), ((libraryFile)), ((targetFile)) and ((targetModule)).
 }
 data LanguageFileConfig = fileConfig(
     str packageSep = "::",
-    str binaryExt  = "class",
+    str binaryExt  = "tpl",
     str binaryRoot = "rascal",
     str binaryEsc  = "$",
     str sourceExt  = "rsc"
@@ -90,11 +101,12 @@ str libraryModule(loc libraryFile, PathConfig pcfg, LanguageFileConfig fcfg) thr
 
 str libraryModule(loc libraryFile, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
   loc relative       = relativize(libs, libraryFile);
-  relative.file      = "<fcfg.binaryEsc><relative.file>";
+
+  relative.file      = relative.file[size(fcfg.binaryEsc)..];
+  relative.path      = relative.path[1 + size(fcfg.binaryRoot)..];
   relative.extension = "";
 
-  str moduleName = relative.path[1 + size(fcfg.binaryRoot)];
-  return replaceAll(moduleName, "/", fcfg.packageSep);
+  return replaceAll(relative.path[1..], "/", fcfg.packageSep);
 }
 
 @synopsis{Find out in which library file a module was implemented.}
@@ -147,3 +159,85 @@ str targetModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throw
 str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound
     = replaceAll(relativize(bin, targetFile)[extension=""].path[1 + size(fcfg.binaryRoot)], "/", fcfg.packageSep);
   
+
+// below we have some core tests of the above features  
+
+private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
+
+test bool moduleExceptionWithSrc() {
+    pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
+    fcfg = fileConfig();
+    return sourceModule(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg, fcfg) 
+        == "Exception";
+}
+
+test bool moduleReflectiveWithSrc() {
+    pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
+    fcfg = fileConfig();
+
+    return sourceModule(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg, fcfg) 
+        == "util::Reflective";
+}
+
+test bool moduleExceptionOnlyTplModule() {
+    tplFile = testLibraryLoc + "/lib/rascal/$Exception.tpl";
+    writeFile(tplFile, "$Exception.tpl (only file matters, content irrelevant)");
+    pcfg = pathConfig(libs=[testLibraryLoc + "/lib/"]);
+    fcfg = fileConfig();
+
+    return libraryModule(tplFile, pcfg, fcfg) == "Exception";
+}
+
+test bool moduleExceptionOnlyTplFile() {
+    tplFile = testLibraryLoc + "/lib/rascal/$Exception.tpl";
+    writeFile(tplFile, "$Exception.tpl (only file matters, content irrelevant)");
+    pcfg = pathConfig(libs=[testLibraryLoc + "/lib/"]);
+    fcfg = fileConfig();
+
+    return libraryFile("Exception", pcfg, fcfg) == tplFile;
+}
+
+test bool moduleReflectiveOnlyTplModule() {
+    writeFile(testLibraryLoc + "/libs/rascal/util/$Reflective.tpl",
+        "util::Reflective (only file matters, content irrelevant)");
+    pcfg = pathConfig(srcs = [],
+                    libs=[testLibraryLoc + "libs"]
+                     );
+    fcfg = fileConfig();
+
+println(libraryModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) );
+    return libraryModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) 
+            == "util::Reflective";
+}
+
+test bool moduleReflectiveOnlyTplFile() {
+    libFile = testLibraryLoc + "/libs/rascal/util/$Reflective.tpl";
+    writeFile(libFile, "util::$Reflective.tpl (only file matters, content irrelevant)");
+    pcfg = pathConfig(srcs = [],
+                    libs=[testLibraryLoc + "libs"]
+                     );
+    fcfg = fileConfig();
+
+    return libraryFile("util::Reflective", pcfg, fcfg) == libFile;
+}
+
+test bool longestModuleReflectiveOnlyTpl() {
+    writeFile(testLibraryLoc + "/1/libs/rascal/$Reflective.tpl", "$Reflective.tpl at top level (only file matters, content irrelevant)");
+    writeFile(testLibraryLoc + "/2/libs/rascal/util/$Reflective.tpl",
+        "util::$Reflective.tpl in subdir util (only file matters, content irrelevant)");
+    pcfg = pathConfig(srcs= [], 
+                      libs=[testLibraryLoc + "1/libs", testLibraryLoc + "2/libs"]
+                     );
+    fcfg = fileConfig();
+    return libraryFile("util::Reflective", pcfg, fcfg) == testLibraryLoc + "2/libs/rascal/util/$Reflective.tpl";
+}
+
+test bool moduleOnlyInSecondSrc(){
+    testLibrarySrc = testLibraryLoc + "src/org/rascalmpl/library/";
+    ESrc = testLibrarySrc + "E.rsc";
+    writeFile(ESrc,  "module E");
+
+    pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|, testLibrarySrc]);
+    fcfg = fileConfig();
+    return sourceModule(ESrc, pcfg, fcfg) == "E";
+}
