@@ -19,7 +19,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public interface IFunction extends IExternalValue {
     
