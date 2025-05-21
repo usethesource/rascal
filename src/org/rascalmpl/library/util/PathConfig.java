@@ -765,6 +765,7 @@ public class PathConfig {
 
     }
 
+    // TODO: JV look into canonical forms rather than alias resolution to fix this issue
     private static boolean semanticallySame(ISourceLocation a, ISourceLocation b) {
         if (!a.getScheme().equals("file")) {
             return a.equals(b);
