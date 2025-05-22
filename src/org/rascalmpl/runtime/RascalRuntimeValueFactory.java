@@ -457,7 +457,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
             }
             catch (UndeclaredNonTerminalException e){
-                throw RuntimeExceptionFactory.illegalArgument(vf.string(e.getName()));
+                throw RuntimeExceptionFactory.illegalArgument(vf.string("Unknown nonterminal: " + e.getName()));
             }
         }
         
