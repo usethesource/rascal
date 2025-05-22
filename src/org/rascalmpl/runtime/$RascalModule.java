@@ -204,7 +204,7 @@ public abstract class $RascalModule {
                     args[i] = getClass().getClassLoader();
                 }
                 else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
-                    args[i] = new RascalRuntimeValueFactory(rex);
+                    args[i] = $RVF;
                 }
                 else if (formals[i].isAssignableFrom($RascalModule.class)) {
                     args[i] = this;
@@ -2754,7 +2754,7 @@ public abstract class $RascalModule {
 	// ---- parse -------------------------------------------------------------
 	
 	public final IValue $parse(final IValue reified, IString inputText, ISourceLocation inputLocation) {
-		IFunction parser = $RVF.parser(reified, $VF.bool(true), $VF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $VF.bool(false), $VF.bool(false), $VF.bool(false), $VF.set());
+		IFunction parser = $RVF.parser(reified, $RVF.bool(true), $RVF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $RVF.bool(false), $RVF.bool(false), $RVF.bool(false), $RVF.set());
 		return parser.call(inputText, inputLocation);
 	}
 
