@@ -181,7 +181,10 @@ public abstract class $RascalModule {
             Class<?>[] formals = constructor.getParameterTypes();
 
             for (int i = 0; i < constructor.getParameterCount(); i++) {
-                if (formals[i].isAssignableFrom(IValueFactory.class)) {
+                if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+                    args[i] = $RVF;
+                }
+				else if (formals[i].isAssignableFrom(IValueFactory.class)) {
                     args[i] = $RVF;
                 }
                 else if (formals[i].isAssignableFrom(TypeStore.class)) {
