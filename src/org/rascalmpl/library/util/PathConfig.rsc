@@ -82,6 +82,54 @@ data LanguageFileConfig = fileConfig(
     str sourceExt  = "rsc"
 );
 
+@synopsis{Produces the latest up-to-date file to load for a given module name, searching in the bin folder, the srcs folder and the libraries.}
+@description{
+We find the right file to source for the given `moduleName`:
+1. If the binary target file is younger than the source file, the binary target wins
+2. If a binary target is found, without a corresponding source unit, we try the libraries instead because a source module can have been deleted.
+3. If a source file is found, without a binary target, this source file is returned.
+4. Otherwise we search in the libraries for a binary file and return it.
+5. We throw PathNotFound if a module can not be resolved using either the bin, srcs, or libs 
+
+In other words, ((latestModuleFile)) prefers newer binaries over older source files, and source files over library modules.
+If a module is present in both libraries and the current project, then the current project's sources shadow the libraries.
+
+This function is based on the core features of ((sourceFile)), ((targetFile)), and ((libraryFile)).
+
+It throws ((PathNotFound)) if a module can not be found in source, target or library locations, and also if a target
+location exists but not a corresponding source location or a library location.
+}
+@benefits{
+* Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)).
+* Provides the basic setup for creating a programming language or DSL with independent libraries/components to depend on.
+}
+loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound {
+    loc source(str name) {
+        try { return sourceFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
+    }
+    loc target(str name) {
+        try { return targetFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
+    }
+
+    switch (<source(qualifiedModuleName), target(qualifiedModuleName)>) {
+        // no source or target, look in the libs:
+        case <|notFound:///|, |notFound:///|>: 
+            return libraryFile(qualifiedModuleName, pcfg, fcfg);
+        // deleted module or no source module found, so look in the libs:
+        case <|notFound:///|, loc _tgt>: 
+            return libraryFile(qualifiedModuleName, pcfg, fcfg);
+        // source module found, without a target, so return source:
+        case <loc src , |notFound:///|>: 
+            return src;
+        // source and target both found, return the last modified one:
+        case <loc src, loc tgt> : 
+            return lastModified(src) > lastModified(tgt) ? src : tgt;
+        // the general fallback is to look in the libraries, or throw PathNotFound:
+        default:
+            return libraryFile(qualifiedModuleName, pcfg, fcfg);
+    }
+}
+
 @synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
 @description{
 * ((sourceModule)) is the inverse of ((sourceFile))
@@ -146,8 +194,13 @@ loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg)
 loc targetFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
     = targetFile(sourceModule, pcfg.bin, fcfg);
 
-loc targetFile(str sourceModule, loc bin, LanguageFileConfig fcfg)
-    = (bin + fcfg.binaryRoot + replaceAll(sourceModule, fcfg.packageSep, "/"))[extension=fcfg.binaryExt];
+loc targetFile(str sourceModule, loc bin, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(sourceModule, fcfg.packageSep, "/");
+    relative.file      = "<fcfg.binaryEsc><relative.file>";
+    relative.extension = fcfg.binaryExt;
+
+    return bin + fcfg.binaryRoot + relative.path;
+}
 
 @synopsis{Computing a fully qualified module name back from a file in the target folder}
 @description{
@@ -156,13 +209,31 @@ loc targetFile(str sourceModule, loc bin, LanguageFileConfig fcfg)
 str targetModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
   = targetModule(targetFile, pcfg.bin, fcfg);
 
-str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound
-    = replaceAll(relativize(bin, targetFile)[extension=""].path[1 + size(fcfg.binaryRoot)], "/", fcfg.packageSep);
-  
+str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(bin, targetFile);
+    relative.extension = "";
+    relative.file      = relative.file[size(fcfg.binaryEsc)..];
+    relative.path      = relative.path[1 + size(fcfg.binaryRoot)..];
+
+    return replaceAll(relative.path[1..], "/", fcfg.packageSep);
+} 
 
 // below we have some core tests of the above features  
 
 private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
+
+test bool inverseTargetFileModule() {
+    pcfg = pathConfig(
+        bin=testLibraryLoc + "target/classes",
+        srcs=[|project://rascal/src/org/rascalmpl/library/|]
+    );
+    fcfg = fileConfig();
+
+    tgt = targetFile("util::Monitor", pcfg, fcfg);
+    writeFile(tgt, "blabla");
+
+    return targetModule(tgt, pcfg, fcfg) == "util::Monitor";
+}
 
 test bool moduleExceptionWithSrc() {
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);

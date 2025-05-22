@@ -147,7 +147,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
 } 
 
 void generatePackageIndex(PathConfig pcfg) {
-  targetFile = pcfg.bin + "Packages" + package(pcfg.packageName) + "index.md";
+  loc targetFile = pcfg.bin + "Packages" + package(pcfg.packageName) + "index.md";
 
   if (pcfg.license?) {
     writeFile(targetFile.parent + "License.md", 
@@ -314,7 +314,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       j=i;
       j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
 
-      targetFile = pcfg.bin 
+      loc targetFile = pcfg.bin 
         + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, j)[extension="md"].path;
@@ -371,7 +371,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
     p2r = pathToRoot(pcfg.currentRoot, d, pcfg.isPackageCourse);
     title = (d == pcfg.currentRoot && d.file in {"src","rascal","api"}) ? "API" : d.file;
 
-    targetFile = pcfg.bin 
+    loc targetFile = pcfg.bin 
       + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
       + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
       + relativize(pcfg.currentRoot, d).path
