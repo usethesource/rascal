@@ -181,7 +181,7 @@ loc sourceFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg
     = sourceFile(qualifiedModuleName, pcfg.srcs, fcfg);
 
 loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound {
-    loc relative = |relative:///| + fcfg.binaryRoot + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
+    loc relative = |relative:///| + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
     relative.extension = fcfg.sourceExt;
     return resolve(srcs, relative);
 }
@@ -233,6 +233,19 @@ test bool inverseTargetFileModule() {
     writeFile(tgt, "blabla");
 
     return targetModule(tgt, pcfg, fcfg) == "util::Monitor";
+}
+
+test bool inverseSourceFileModule() {
+    pcfg = pathConfig(
+        bin=testLibraryLoc + "target/classes",
+        srcs=[|project://rascal/src/org/rascalmpl/library/|]
+    );
+    fcfg = fileConfig();
+
+    src = sourceFile("util::Monitor", pcfg, fcfg);
+    writeFile(src, "blabla");
+
+    return sourceModule(src, pcfg, fcfg) == "util::Monitor";
 }
 
 test bool moduleExceptionWithSrc() {
