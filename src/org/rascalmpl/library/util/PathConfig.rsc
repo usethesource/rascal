@@ -102,6 +102,8 @@ location exists but not a corresponding source location or a library location.
 @benefits{
 * Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)).
 * Provides the basic setup for creating a programming language or DSL with independent libraries/components to depend on.
+* Use `returnValue.extension == fcfg.binaryExt` to detect if you need to read a binary or parse the source code.
+* The `PathNotFound` exception should be caught by the code that processes `import` statements in your language.
 }
 loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound {
     loc source(str name) {
