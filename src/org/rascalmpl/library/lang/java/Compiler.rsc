@@ -49,13 +49,6 @@ import util::UUID;
 list[Message] compileJava(PathConfig pcfg) 
     = compileJavaSourceFolders(pcfg.srcs, pcfg.bin, libs=pcfg.libs);
 
-@synopsis{Compile the generated sources from a PathConfig}
-@description{
-It is assumed that the pcfg.generatedSources folder is already filled with generated Java 2code.
-}
-list[Message] compileGeneratedSources(PathConfig pcfg)
-    = compileJavaSourceFolders([pcfg.generatedSources], pcfg.bin, libs=pcfg.libs);
-
 @synopsis{Compile a single Java source file}
 @pitfalls{
 * `file` has to be reachable from `srcs`
