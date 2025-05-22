@@ -245,7 +245,6 @@ test bool inverseSourceFileModule() {
     fcfg = fileConfig();
 
     src = sourceFile("util::Monitor", pcfg, fcfg);
-    writeFile(src, "blabla");
 
     return sourceModule(src, pcfg, fcfg) == "util::Monitor";
 }
@@ -253,11 +252,11 @@ test bool inverseSourceFileModule() {
 test bool inverseLibraryFileModule() {
     pcfg = pathConfig(
         bin=testLibraryLoc + "target/classes",
-        libs=[|project://rascal/src/org/rascalmpl/library/|]
+        libs=[testLibraryLoc + "libs"]
     );
     fcfg = fileConfig();
 
-    writeFile(|project://rascal/src/org/rascalmpl/library/rascal/util/$Monitor.tpl|, "blabla");
+    writeFile(testLibraryLoc + "libs" + "rascal/util/$Monitor.tpl", "blabla");
     lib = libraryFile("util::Monitor", pcfg, fcfg);
 
     return libraryModule(lib, pcfg, fcfg) == "util::Monitor";
