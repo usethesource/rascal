@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+
+import org.checkerframework.checker.units.qual.m;
 import org.jline.utils.OSUtils;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
@@ -57,7 +59,8 @@ public class PathConfig {
         "bin", tf.sourceLocationType(),
         "resources", tf.listType(tf.sourceLocationType()),
         "libs", tf.listType(tf.sourceLocationType()),
-        "messages", tf.listType(Messages.Message)
+        "messages", tf.listType(Messages.Message),
+        "generatedSources", tf.sourceLocationType() // backward compatibility
     );
     private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
     
