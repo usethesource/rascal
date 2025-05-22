@@ -303,7 +303,6 @@ test bool moduleReflectiveOnlyTplModule() {
                      );
     fcfg = fileConfig();
 
-println(libraryModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) );
     return libraryModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) 
             == "util::Reflective";
 }
