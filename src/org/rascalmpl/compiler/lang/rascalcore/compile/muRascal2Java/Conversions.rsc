@@ -646,6 +646,9 @@ str escapeForJRegExp(str s){
 
 str inlineComment(value v){
     s = "<v>";
+    if(size(s) > 100){
+        s = s[..100] + " ...";
+    }
     q = str _ := v ? "\"" : "";
     return "/*<q><replaceAll(s, "*/", "*\\/")><q>*/";
 }
@@ -654,10 +657,14 @@ str inlineComment(value v){
 /*  Convert a Rascal value to the equivalent IValue                          */
 /*****************************************************************************/
 
-str value2IValue(value x) = value2IValue(x, ());
-str value2IValue(value x, map[value, int] constants) = doValue2IValue(x, constants);
+str value2IValueConstant(value x,  map[value, int] constants)
+    = "((<value2outertype(x)>)$constants.get(<constants[x]>)<inlineComment(x)>)";
 
-str value2IValueRec(value x, map[value, int] constants) = "((<value2outertype(x)>)$constants.get(<constants[x]>)<inlineComment(x)>)" when constants[x]?;
+str value2IValue(value x) = value2IValue(x, ());
+str value2IValue(value x, map[value, int] constants)
+    = x in constants ? value2IValueConstant(x, constants) : doValue2IValue(x, constants);
+
+str value2IValueRec(value x, map[value, int] constants) = value2IValueConstant(x, constants) when x in constants;
 default str value2IValueRec(value x, map[value, int] constants) = doValue2IValue(x, constants);
 
 str doValue2IValue(bool b, map[value, int] constants) = "$RVF.bool(<b>)";
@@ -694,7 +701,8 @@ str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup, map[value, int] constants
 str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>)";
 str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>, <value2IValueRec(tup[9], constants)>)";
 
-str doValue2IValue(map[&K,&V] mp, map[value, int] constants) = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
+str doValue2IValue(map[&K,&V] mp, map[value, int] constants)
+    = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
 
 str doValue2IValue(type[&T] typeValue, map[value, int] constants) {
    return "$RVF.reifiedType(<value2IValueRec(typeValue.symbol, constants)>,<value2IValueRec(typeValue.definitions, constants)>)";
