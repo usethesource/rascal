@@ -26,18 +26,55 @@ import Exception;
 
 @synopsis{Extracts a path relative to a parent location.}
 @description{
-So from `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
-If the outside does not envelop the inside, then the original loc is returned.
+* From `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
+* If the outside does not envelop the inside, then the original loc is returned.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 java loc relativize(loc outside, loc inside);
 
 @synopsis{Find the first `haystack` folder the `needle` can be found in and relativize it, or fail.}
-loc relativize(list[loc] haystack, loc needle) {
+@description{
+* From `[|x:///a/b|]` as haystack and `|x:///a/b/c|` as needle this makes `|relative:///c|`.
+* If none of the `haystack` locations contain the `needle`, a `PathNotFound` exception is thrown.
+}
+loc relativize(list[loc] haystack, loc needle) throws PathNotFound {
     if (h <- haystack, loc r := relativize(h, needle), r != needle) {
         return r;
     }
     throw PathNotFound(needle);
+}
+
+@synsopis{Concatenate a relative path to a given surrounding path}
+@description{
+* `relative` must be of scheme `relative:///` or `SchemeNotSupported` will be thrown
+* ((resolve)) is the opposite of ((relativize))
+* the return value does not necessarily exist
+}
+loc resolve(loc outside, loc relative) = outside + relative.path when relative.scheme == "relative";
+default loc resolve(loc _, loc relative) {
+    throw SchemeNotSupported(relative);
+}
+
+@synopsis{Find the right folder in which a relative location is to be found and return the complete path}
+@description{
+* `relative` must be of scheme `relative:///`
+* ((resolve)) is the opposite of ((relativize))
+* if a file can not be found in any of the `haystack` folders, then `PathNotFound`` is thrown.
+* if `force` is true then a location relative to the first element of the haystack will be returned, even if the file was not found anywhere in the haystack.
+}
+loc resolve(list[loc] haystack, loc relative, bool force = false) throws PathNotFound {
+    assert relative.scheme == "relative";
+    assert haystack != [];
+
+    for (loc outside <- haystack, loc candidate := resolve(outside, relative), exists(candidate)) {
+        return candidate;
+    }
+
+    if (force && haystack != []) {
+        return resolve(haystack[0], relative);
+    }
+
+    throw PathNotFound(relative);
 }
 
 @synopsis{Shortens an absolute path to a jar inside the local maven repository.}
