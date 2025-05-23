@@ -319,9 +319,8 @@ public class PathConfig {
      * 
      * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
      * @return
-     * @throws URISyntaxException
      */
-    public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) throws IOException {
+    public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) {
         if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
             projectMember = URIUtil.getParentLocation(projectMember);
         }
@@ -750,6 +749,7 @@ public class PathConfig {
     }
 
     // right now cannot be called, since we have to wait for VS Code to be able to mix these project and file locs
+    @SuppressWarnings("unused")
     private static ISourceLocation upgradeToProjectScheme(ISourceLocation loc, String projectName) {
         if (loc.getScheme().equals("project") || projectName == null || projectName.isBlank()) {
             return loc;

@@ -50,6 +50,7 @@ void runLanguageTests() {
 void runRascalBatchTest(RecoveryTestConfig config) {
     int startTime = realTime();
     
+    println("Running batch test with config <config>");
     TestStats stats = batchRecoveryTest(config);
     int duration = realTime() - startTime;
     println();
@@ -61,6 +62,7 @@ void runRascalBatchTest(RecoveryTestConfig config) {
 // Usage: ErrorRecoveryBenchmark <base-loc> [<max-files> [<min-file-size> [<max-file-size> [<from-file>]]]]
 int main(list[str] args) {
     loc baseLoc  = readTextValueString(#loc, args[0]);
+    int maxAmbDepth = 2;
     int maxFiles = 1000;
     int maxFileSize = 1000000;
     int minFileSize = 0;
@@ -72,6 +74,7 @@ int main(list[str] args) {
     for (str arg <- args) {
         if (/<name:[^=]*>=<val:.*>/ := arg) {
             switch (toLowerCase(name)) {
+                case "max-amb-depth": maxAmbDepth = toInt(val);
                 case "max-files": maxFiles = toInt(val);
                 case "max-file-size": maxFileSize = toInt(val);
                 case "min-file-size": minFileSize = toInt(val);
@@ -88,6 +91,7 @@ int main(list[str] args) {
     RecoveryTestConfig config = recoveryTestConfig(
         syntaxFile=|std:///lang/rascal/syntax/Rascal.rsc|,
         topSort="Module",
+        maxAmbDepth=maxAmbDepth,
         dir=baseLoc,
         ext=".rsc",
         maxFiles=maxFiles,
@@ -101,5 +105,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["|std:///|", "max-files=3", "max-file-size=500"]);
+int rascalSmokeTest() = main(["|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500"]);
 int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);
