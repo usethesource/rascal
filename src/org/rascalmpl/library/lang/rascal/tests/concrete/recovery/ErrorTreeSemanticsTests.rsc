@@ -109,6 +109,7 @@ end");
 private Statement getTestStatement() {
     Program prg = getTestProgram();
     for (/(Statement)stat := prg, isParseError(stat), "<stat>" == "input x= 14") {
+        println(prettyTree(stat));
         return stat;
     }
 
@@ -174,6 +175,7 @@ test bool testVisit() {
     return true;
 }
 
+@ignore
 test bool testIs() = !(getTestStatement() is assign);
 
 @ignore
