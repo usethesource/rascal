@@ -103,20 +103,6 @@ done
 
 SOURCE_LOC="|home:///test-sources/$SYNTAX/$TEST_SET|"
 
-# Rascal example:
-# - Working directory is $HOME/rascal-test-sources, this script is on $PATH
-# - Run this script: "benchmark.sh -i typepal -l '|home:///rascal-test-sources/typepal|'
-# - Log will be written to $HOME/logs/rascal/typepal/log-$VERSION-0-10240:max-recovery-tokens=3,skip-window=2048,recov-limit=50.txt
-# - Stats will be written to $HOME/stats/rascal/typepal/stats-$VERSION-0-10240-max-recovery-tokens=3,skip-window=2048,recov-limit=50,sample-window=1,seed=0.txt
-#
-#
-# Java example:
-# - Working directory is java-air directory, this script is on $PATH
-# - Run this script: "benchmark.sh -s java18 -i m3 -l '|cwd:///src/lang/java/m3|'"
-# - Log will be written to $HOME/logs/java18/m3/log-$VERSION-0-10240:max-recovery-tokens=3,skip-window=2048,recov-limit=50.txt
-# - Stats will be written to $HOME/stats/java18/m3/stats-$VERSION-0-10240:max-recovery-tokens=3,skip-window=2048,recov-limit=50,sample-window=1,seed=0.txt
-#
-
 LOGDIR="$HOME/logs/$SYNTAX/$TEST_SET"
 STATDIR="$HOME/stats/$SYNTAX/$TEST_SET"
 mkdir -p $LOGDIR
