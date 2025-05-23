@@ -31,6 +31,11 @@ public class LiteralMatcher implements InputMatcher {
     @Override
     public int match(int[] input, int location) {
         int length = chars.length;
+
+        if (input.length < location + length) {
+            return -1;
+        }
+
         for (int i=0; i<length; i++) {
             if (input[location + i] != chars[i]) {
                 return -1;
