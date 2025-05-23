@@ -24,9 +24,9 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 
 * `projectRoot` is the root directory of the source project tree that is being configured.
 * `srcs` list of root directories to search for source files; to interpret or to compile.
-* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
-* `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
-* `libs` is a list of binary dependency files (typically jar files or target folders) on other projects, for checking and linking purposes.
+* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, and/or skipped when the compiler arives there.)
+* `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or some other executable archive later.
+* `libs` is a list of binary dependencies (typically jar files or target folders) on other projects, for checking and linking purposes. Each entry is expected to return `true` for ((isDirectory)).
 * `resources` is a list of files or folders that will be copied *by the compiler* to the bin folder, synchronized with its other (binary) output files..
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
 }
@@ -139,8 +139,12 @@ loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfi
 str sourceModule(loc moduleFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound 
     = sourceModule(moduleFile, pcfg.srcs, fcfg);
 
-str sourceModule(loc moduleFile, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound
-    = replaceAll(relativize(srcs, moduleFile)[extension=""].path[1..], "/", fcfg.packageSep);
+str sourceModule(loc moduleFile, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound {
+    loc relative = relativize(srcs, moduleFile);
+    relative.extension = "";
+
+    return replaceAll(relative.path[1..], "/", fcfg.packageSep);
+}
 
 @synopsis{Compute a fully qualified module name for a library file, relative to the library roots of a project}
 @description{
@@ -178,14 +182,16 @@ loc libraryFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg
 @synopsis{Find out in which source file a module was implemented.}
 @description{
 * ((sourceFile)) is the inverse of ((sourceModule))
+* throws ((PathNotFound)) if the designated source file does not exist, unless `force == true`.
+* if `force` then the first elements of the `srcs` path is used as parent to the new module file.
 }
-loc sourceFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-    = sourceFile(qualifiedModuleName, pcfg.srcs, fcfg);
+loc sourceFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg, bool force = false) throws PathNotFound
+    = sourceFile(qualifiedModuleName, pcfg.srcs, fcfg, force = force);
 
-loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound {
+loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, bool force = false) throws PathNotFound {
     loc relative = |relative:///| + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
     relative.extension = fcfg.sourceExt;
-    return resolve(srcs, relative);
+    return resolve(srcs, relative, force = force);
 }
 
 @synopsis{Compute the binary file location for a fully qualified source module name}
