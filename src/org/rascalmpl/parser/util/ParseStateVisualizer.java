@@ -80,6 +80,7 @@ public class ParseStateVisualizer {
     private static final String VISUALIZATION_URI_PATTERN_ENV = "PARSER_VISUALIZATION_URI_PATTERN";
     private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
+    private static final boolean INCLUDE_INCOMING_EDGES = false;
 
     public static final NodeId PARSER_ID = new NodeId("Parser");
     public static final NodeId TODO_LISTS_ID= new NodeId("todoLists");
@@ -97,6 +98,7 @@ public class ParseStateVisualizer {
 
     private static final String COLOR_CACHEABLE = "lightgreen";
     private static final String COLOR_NON_EMPTY_PREFIX = "orange";
+    private static final String COLOR_INCOMING = "red";
 
     private static final String LAYOUT_PREFIX = "layouts_";
     private static final String LABEL_STACK = "Stack";
@@ -316,6 +318,17 @@ public class ParseStateVisualizer {
                         DotNode parentDotNode = addStack(graph, parentStackNode);
                         graph.addEdge(node.getId(), parentDotNode.getId());
                     }
+                }
+            }
+        }
+
+        if (INCLUDE_INCOMING_EDGES) {
+            EdgesSet<P> incomingEdges = stackNode.getIncomingEdges();
+            if (incomingEdges != null) {
+                for (int j = incomingEdges.size() - 1; j >= 0; --j) {
+                    AbstractStackNode<P> incomingStackNode = incomingEdges.get(j);
+                    DotNode incomingNode = addStack(graph, incomingStackNode);
+                    graph.addEdge(node.getId(), incomingNode.getId(), "", COLOR_INCOMING);
                 }
             }
         }

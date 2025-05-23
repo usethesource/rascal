@@ -19,8 +19,6 @@ import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.functions.IFunction;
-
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
@@ -53,17 +51,6 @@ public class CommandlineParser {
             w.append(vf.string(arg));
         }
         return w.done();
-    }
-
-    /**
-     * Turns the String[] into a keyword parameter map for passing to an main IFunction.
-     */
-    public Map<String, IValue> parseKeywordCommandLineArgs(String toolName, String[] commandline, IFunction func) {
-        if (func.getType().getFieldTypes().getArity() > 0) {
-            throw new CommandlineError("main function should only have keyword parameters.", func.getType().getKeywordParameterTypes(), toolName);
-        }
-
-        return parseKeywordCommandLineArgs(toolName, commandline, func.getType().getKeywordParameterTypes());
     }
 
     /**

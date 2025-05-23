@@ -24,8 +24,6 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.fs.FSEntry;
