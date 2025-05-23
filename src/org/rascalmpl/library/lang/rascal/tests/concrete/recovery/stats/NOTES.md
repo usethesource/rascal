@@ -1,7 +1,13 @@
 # Error recovery benchmarking
 
 The scripts in this directory can be used to benchmark error recovery of different languages.
-The scripts assume the benchmarks will be run on a remote server that can be accessed using `ssh root@<host>`.
+The following setup is assumed by these scripots:
+
+- The benchmarks will be run on a remote server that can be accessed using `ssh root@<host>`.
+- Test sources are already on the remote server in `$HOME/test-sources/<syntax>/<test-set-id>`. The default test-set-id is `main`.
+
+Benchmark logs are stored under `$HOME/logs/<syntax>/<test-set-id>` on the benchmark server.
+Benchmark statistics are stored under `$HOME/logs/<syntax>/<test-set-id>` on the benchmark server.
 
 The following scripts are provided:
 
