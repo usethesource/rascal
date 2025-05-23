@@ -368,8 +368,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
-			AbstractStackNode<IConstructor> failedNode =
-				unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
+			AbstractStackNode<IConstructor> node = unmatchableMidProductionNodes.getSecond(i);
+			AbstractStackNode<IConstructor> failedNode = node.getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 
 			// Merge the information on the predecessors into the failed node.
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
@@ -377,7 +377,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
-			
+
 			failedNodes.add(failedNode);
 		}
 	}
