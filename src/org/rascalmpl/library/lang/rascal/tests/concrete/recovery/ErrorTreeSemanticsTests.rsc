@@ -13,7 +13,7 @@
  **/
  @description{
     This module contains tests for error tree semantics in Rascal. As most of this functionality is not implemented yet (in the interprter),
-    most tests are currently disabled. All working tests are enabled.
+    most tests are currently ignored. All working tests are enabled.
  }
 module lang::rascal::tests::concrete::recovery::ErrorTreeSemanticsTests
 
@@ -28,6 +28,10 @@ import vis::Text;
 import Set;
 import Exception;
 
+// Ambiguous syntax to check amb memoization
+syntax Amb = AmbWord () | () AmbWord;
+syntax AmbWord = "^" [a-z] "$" () | "^" () [a-z] "$";
+
 // Will be defined in ParseTree module:
 data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
 
@@ -35,6 +39,7 @@ data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
 private bool isParseError(appl(error(_, _, _), _)) = true;
 private default bool isParseError(Tree tree) = false;
 
+@synopsis{Check if a tree is a skipped tree.}
 private bool isSkipped(appl(skipped(_),_)) = true;
 private default bool isSkkipped(Tree tree) = false;
 
@@ -91,7 +96,7 @@ private str sortName(Tree tree) = printSymbol(tree.prod.def, true);
 
 private str getLabel(Tree tree) = tree.prod.def.name;
 
-private Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true);
+private Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true, maxAmbDepth=10);
 
 private Program getTestProgram() = parsePico(
  "begin declare;
@@ -171,13 +176,22 @@ test bool testVisit() {
 
 test bool testIs() = !(getTestStatement() is assign);
 
-bool testHasBeforeDot() = getTestStatement() has var;
-bool testHasAfterDot() = !(getTestStatement() has val);
+@ignore
+test bool testHasBeforeDot() = getTestStatement() has var;
 
-bool testIsDefinedBeforeDot() = getTestStatement().var?;
-bool testIsDefineAfterDot() = !getTestStatement().val?;
+@ignore
+test bool testHasAfterDot() = !(getTestStatement() has val);
 
-bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
+@ignore
+test bool testIsDefinedBeforeDot() = getTestStatement().var?;
+
+@ignore
+test bool testIsDefineAfterDot() = !getTestStatement().val?;
+
+@ignore
+test bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
+
+@ignore
 bool testFieldAccessAfterDot() {
     try {
         getTestStatement().val;
@@ -187,13 +201,15 @@ bool testFieldAccessAfterDot() {
     }
 }
 
-bool testFieldAssignmentBeforeDot() {
+@ignore
+test bool testFieldAssignmentBeforeDot() {
     Statement stat = getTestStatement();
     stat.var = (Id)`hello`;
     return "<stat>" == "hello x= 14";
 }
 
-bool testFieldAssignmentAfterDot() {
+@ignore
+test bool testFieldAssignmentAfterDot() {
     try {
         stat = getTestStatement();
         stat.val = (Expression)`hello`;
@@ -203,12 +219,14 @@ bool testFieldAssignmentAfterDot() {
     }
 }
 
-bool testBracketFieldAssignmentBeforeDot() {
+@ignore
+test bool testBracketFieldAssignmentBeforeDot() {
     stat = getTestStatement();
     return "<stat[var=(Id)`hello`]>" == "hello x= 14";
 }
 
-bool testBracketFieldAssignmentAfterDot() {
+@ignore
+test bool testBracketFieldAssignmentAfterDot() {
     stat = getTestStatement();
     try {
         stat[val=(Expression)`hello`];
@@ -219,7 +237,9 @@ bool testBracketFieldAssignmentAfterDot() {
 }
 
 test bool testIndexedFieldBeforeDot() = equals(getTestStatement()[0], (Id)`input`);
-bool testIndexedFieldAtOrAfterDot() {
+
+@ignore
+test bool testIndexedFieldAtOrAfterDot() {
     try {
         getTestStatement()[1];
         return false;
@@ -228,14 +248,16 @@ bool testIndexedFieldAtOrAfterDot() {
     }
 }
 
-bool testIndexedFieldAssignmentBeforeDot() {
+@ignore
+test bool testIndexedFieldAssignmentBeforeDot() {
     // Note that this currently does also not work on regular trees (in the interpreter)!
     Statement stat = getTestStatement();
     stat[0] = (Id)`hello`;
     return "<stat>" == "hello x= 14";
 }
 
-bool testIndexedFieldAssignmentAtOrAfterDot() {
+@ignore
+test bool testIndexedFieldAssignmentAtOrAfterDot() {
     Statement stat = getTestStatement();
     try {
         stat[1] = (Id)`hello`;
@@ -247,7 +269,8 @@ bool testIndexedFieldAssignmentAtOrAfterDot() {
 
 @description{Check that concrete syntax can be used to match holes with error subtrees.
 Also check that error trees cannot be deconstructed using concrete syntax.}
-bool testConcreteMatchWithErrors() {
+@ignore
+test bool testConcreteMatchWithErrors() {
     Statement whileStat = getWhileStatement();
 
     // A tree with error children should match
@@ -267,4 +290,146 @@ bool testConcreteMatchWithErrors() {
     }
 
     return false;
+}
+
+@description{
+This function a test tree that has plenty of oppoertunities to memo amb children:
+ ❖
+ ├─ Amb = AmbWord  () 
+ │  ├─ ❖
+ │  │  ├─ !error dot=4: AmbWord = "^"  ()  [a-z]  "$"
+ │  │  │  ├─ ()
+ │  │  │  └─ skipped
+ │  │  │     ├─ X
+ │  │  │     └─ $
+ │  │  ├─ !error dot=1: AmbWord = "^"  [a-z]  "$"  ()
+ │  │  │  └─ skipped
+ │  │  │     ├─ X
+ │  │  │     └─ $
+ │  │  └─ !error dot=2: AmbWord = "^"  [a-z]  "$"  ()
+ │  │     └─ skipped
+ │  │        ├─ X
+ │  │        └─ $
+ │  └─ ()
+ └─ Amb = ()  AmbWord
+    ├─ ()
+    └─ ❖
+       ├─ !error dot=4: AmbWord = "^"  ()  [a-z]  "$"
+       │  ├─ ()
+       │  └─ skipped
+       │     ├─ X
+       │     └─ $
+       ├─ !error dot=1: AmbWord = "^"  [a-z]  "$"  ()
+       │  └─ skipped
+       │     ├─ X
+       │     └─ $
+       └─ !error dot=2: AmbWord = "^"  [a-z]  "$"  ()
+          └─ skipped
+             ├─ X
+             └─ $
+}
+private Amb ambTestTree() = parse(#Amb, "^X$", allowRecovery=true, allowAmbiguity=true);
+
+@ignore
+test bool testDeepMatchAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    // Count the number of errors that is actually found by a deep match
+    int count = (0 | it + 1 | /appl(error(_,_,_),_) := ambTree);
+
+    // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
+}
+
+@ignore
+test bool testVisitAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    int count = 0;
+    visit(ambTree) {
+        case appl(error(_,_,_),_): count = count + 1;
+    }
+
+    // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
+}
+
+@ignore
+test bool testVisitReplacementAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    // Return a different tree for each index
+    AmbWord replacement(int index) {
+        list[str] letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" ];
+        return parse(#AmbWord, "^" + letters[count] + "$", allowAmbiguity=true, maxAmbDepth=0);
+    }
+
+    int count = 0;
+    visitedTree = visit(ambTree) {
+        case appl(error(_,_,_),_) => {
+            count = count + 1;
+            replacement(count);
+        }
+    }
+
+    /*
+visitedTree without memoization:
+ ❖
+ ├─ Amb = AmbWord  ()
+ │  ├─ ❖
+ │  │  ├─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │  │  ├─ ()
+ │  │  │  └─ b
+ │  │  ├─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │  │  ├─ ()
+ │  │  │  └─ c
+ │  │  └─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │     ├─ ()
+ │  │     └─ d
+ │  └─ ()
+ └─ Amb = ()  AmbWord
+    ├─ ()
+    └─ ❖
+       ├─ AmbWord = "^"  ()  [a-z]  "$"
+       │  ├─ ()
+       │  └─ g
+       ├─ AmbWord = "^"  ()  [a-z]  "$"
+       │  ├─ ()
+       │  └─ e
+       └─ AmbWord = "^"  ()  [a-z]  "$"
+          ├─ ()
+          └─ f
+
+Expected with memoization:
+ ├─ Amb = AmbWord  ()
+ │  ├─ ❖
+ │  │  ├─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │  │  ├─ ()
+ │  │  │  └─ b
+ │  │  ├─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │  │  ├─ ()
+ │  │  │  └─ c
+ │  │  └─ AmbWord = "^"  ()  [a-z]  "$"
+ │  │     ├─ ()
+ │  │     └─ d
+ │  └─ ()
+ └─ Amb = ()  AmbWord
+    ├─ ()
+    └─ ❖
+       ├─ AmbWord = "^"  ()  [a-z]  "$"
+       │  ├─ ()
+       │  └─ b
+       ├─ AmbWord = "^"  ()  [a-z]  "$"
+       │  ├─ ()
+       │  └─ c
+       └─ AmbWord = "^"  ()  [a-z]  "$"
+          ├─ ()
+          └─ d
+    */
+
+    print(prettyTree(ambTree));
+    print(prettyTree(visitedTree));
+
+    // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
 }
