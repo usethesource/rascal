@@ -293,13 +293,14 @@ FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, lo
     int i = begin;
 
     while (i < len && (end == -1 || i<=end)) {
-        str modifiedInput = substring(input, 0, i) + substring(input, i+1);
+        str modifiedInput = input[..i] + input[i+1..];
+
         source.query = "deletedChar=<i>";
         TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         int skip = 1 + arbInt(config.sampleWindow);
         int next = min(i+skip, len);
-        for (/\n/ := substring(input, i, next)) {
+        for (contains(substring(input, i, next), "\n")) {
             println();
         }
         i += 1 + arbInt(config.sampleWindow);
@@ -358,7 +359,7 @@ FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc ori
                 pos += 1+arbInt(config.sampleWindow);
                 continue;
             }
-            modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
+            str modifiedInput = input[..pos] + input[lineEnd..];
             source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
             TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime, referenceNodeCount, referenceNodeCountUnique);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
