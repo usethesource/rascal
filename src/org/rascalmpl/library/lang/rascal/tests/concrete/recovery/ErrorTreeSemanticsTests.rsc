@@ -96,7 +96,7 @@ private str sortName(Tree tree) = printSymbol(tree.prod.def, true);
 
 private str getLabel(Tree tree) = tree.prod.def.name;
 
-private Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true, maxAmbDepth=10);
+private Program parsePico(str input) = parse(#Program, input, allowRecovery=true, allowAmbiguity=true);
 
 private Program getTestProgram() = parsePico(
  "begin declare;
@@ -271,7 +271,6 @@ test bool testIndexedFieldAssignmentAtOrAfterDot() {
 
 @description{Check that concrete syntax can be used to match holes with error subtrees.
 Also check that error trees cannot be deconstructed using concrete syntax.}
-@ignore
 test bool testConcreteMatchWithErrors() {
     Statement whileStat = getWhileStatement();
 
