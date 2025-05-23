@@ -418,17 +418,14 @@ Expected with memoization:
     └─ ❖
        ├─ AmbWord = "^"  ()  [a-z]  "$"
        │  ├─ ()
-       │  └─ b
+       │  └─ d
        ├─ AmbWord = "^"  ()  [a-z]  "$"
        │  ├─ ()
-       │  └─ c
+       │  └─ b
        └─ AmbWord = "^"  ()  [a-z]  "$"
           ├─ ()
-          └─ d
+          └─ c
     */
-
-    print(prettyTree(ambTree));
-    print(prettyTree(visitedTree));
 
     // There will only be 3 matches if deep matches are memoized, 6 if they are not.
     return count == 3;
