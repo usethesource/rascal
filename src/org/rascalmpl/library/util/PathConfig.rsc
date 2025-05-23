@@ -89,7 +89,8 @@ We find the right file to source for the given `moduleName`:
 2. If a binary target is found, without a corresponding source unit, we try the libraries instead because a source module can have been deleted.
 3. If a source file is found, without a binary target, this source file is returned.
 4. Otherwise we search in the libraries for a binary file and return it.
-5. We throw PathNotFound if a module can not be resolved using either the bin, srcs, or libs 
+5. We throw ((PathNotFound)) if a module can not be resolved using either the bin, srcs, or libs, and also
+if the only place we found the module in was a target folder. 
 
 In other words, ((latestModuleFile)) prefers newer binaries over older source files, and source files over library modules.
 If a module is present in both libraries and the current project, then the current project's sources shadow the libraries.
