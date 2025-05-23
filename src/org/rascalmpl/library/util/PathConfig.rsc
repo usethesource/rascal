@@ -115,22 +115,18 @@ loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfi
     }
 
     switch (<source(qualifiedModuleName), target(qualifiedModuleName)>) {
-        // no source or target, look in the libs:
         case <|notFound:///|, |notFound:///|>: 
             return libraryFile(qualifiedModuleName, pcfg, fcfg);
-        // deleted module or no source module found, so look in the libs:
-        case <|notFound:///|, loc _tgt>: 
+        case <|notFound:///|, loc _tgt      >: 
             return libraryFile(qualifiedModuleName, pcfg, fcfg);
-        // source module found, without a target, so return source:
-        case <loc src , |notFound:///|>: 
+        case <loc src       , |notFound:///|>: 
             return src;
-        // source and target both found, return the last modified one:
-        case <loc src, loc tgt> : 
+        case <loc src       , loc tgt       >: 
             return lastModified(src) > lastModified(tgt) ? src : tgt;
-        // the general fallback is to look in the libraries, or throw PathNotFound:
-        default:
-            return libraryFile(qualifiedModuleName, pcfg, fcfg);
     }
+
+    assert false : "unreachable code";
+    throw PathNotFound(|module:///| + qualifiedModuleName);   
 }
 
 @synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
@@ -184,7 +180,7 @@ loc libraryFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg
 @description{
 * ((sourceFile)) is the inverse of ((sourceModule))
 * throws ((PathNotFound)) if the designated source file does not exist, unless `force == true`.
-* if `force` then the first elements of the `srcs` path is used as parent to the new module file.
+* if `force` then the first element of the `srcs` path is used as parent to the new module file.
 }
 loc sourceFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg, bool force = false) throws PathNotFound
     = sourceFile(qualifiedModuleName, pcfg.srcs, fcfg, force = force);
