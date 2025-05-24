@@ -27,34 +27,7 @@ public interface InputMatcher {
     public static InputMatcher FAIL = new FailingMatcher();
 
     // Find a match in the input. Returning `null` means no match has been found.
-    MatchResult findMatch(int[] input, int startLocation, int maxLength);
-
-    public static class MatchResult {
-        private final int start;
-        private final int length;
-
-        public MatchResult(int start, int length) {
-            this.start = start;
-            this.length = length;
-        }
-
-        public int getStart() {
-            return start;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public int getEnd() {
-            return start + length;
-        }
-
-        @Override
-        public String toString() {
-            return "MatchResult [start=" + start + ", length=" + length + "]";
-        }        
-    }
+    int match(int[] input, int location);
 
     public static InputMatcher createMatcher(IConstructor constructor) {
         if (constructor.getConstructorType() == RascalValueFactory.Symbol_Lit) {

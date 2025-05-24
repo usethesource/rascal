@@ -14,7 +14,7 @@ test bool testFlowGraphBug() {
     loc source = |std:///analysis/m3/FlowGraph.rsc|;
     input = readFile(source);
     // Resulted in extremely long runtime and eventually an out-of-memory exception
-    testSingleCharDeletions(standardParser, recoveryParser, source, input, 200, 150, begin=387, end=387);
+    testSingleCharDeletions(standardParser, recoveryParser, source, input, 200, 150, 100, 100, begin=387, end=387);
     // If the deletion test completes, the test succeeds
     return true;
 }
