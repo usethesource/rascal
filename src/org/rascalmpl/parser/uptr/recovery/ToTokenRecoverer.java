@@ -164,6 +164,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 
 		int end = Math.min(location + MAX_RECOVERY_LOOKAHEAD, input.length);
+		if (startLocation + MAX_RECOVERY_LOOKAHEAD < end) {
+			return nodes;
+		}
+
 		BitSet skipSet = new BitSet(end-startLocation);
 		int pos = startLocation;
 		while (pos<end && nodes.size() < maxRecoveryTokens) {
