@@ -16,8 +16,6 @@ bool testFCA() {
     str input = getTestInput(source);
     //println("input: <input>");
     Tree result = recoveryParser(input, source);
-    for (i <- [1..2])
-        recoveryParser(input, source);
     println("total nodes: <countTreeNodes(result)>");
     println("unique nodes: <countUniqueTreeNodes(result)>");
     assert input == "<result>";
