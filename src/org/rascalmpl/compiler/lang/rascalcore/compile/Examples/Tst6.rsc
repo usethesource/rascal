@@ -26,19 +26,23 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @bootstrapParser
 module lang::rascalcore::compile::Examples::Tst6
-
-import util::Reflective;
+import IO;
 import ParseTree;
 import lang::rascal::grammar::storage::ModuleParserStorage;
-
+    
 lexical W = [\ ];
 layout L = W*;
 lexical A = [A];
-syntax As = A+;
-
+start syntax As = A+;
+    
 value main() { //test bool storeParserNonModule() {
-  storeParsers(#As, |memory://test-tmp/parsersA.jar|);
-  p = loadParsers(|memory://test-tmp/parsersA.jar|);
-
-  return p(type(sort("As"), ()), "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+  storeParsers(#As, |home://test-tmp/parsersA.jar|);
+  p = loadParsers(|home://test-tmp/parsersA.jar|);
+  println("p1");
+  p1 = p(type(sort("As"), ()), "A A", |origin:///|);
+  println("p1 = <p1>");
+  println("p2");
+  p2 = parse(#As, "A A", |origin:///|);
+  println("p2 = <p2>");
+  return p1 == p2;
 }
