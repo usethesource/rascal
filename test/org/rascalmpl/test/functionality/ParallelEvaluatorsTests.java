@@ -17,10 +17,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -34,12 +31,8 @@ public class ParallelEvaluatorsTests {
     };
 
     private static Evaluator freshEvaluator() {
-        var heap = new GlobalEnvironment();
-        var root = heap.addModule(new ModuleEnvironment("___test___", heap));
+        var evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), monitor, "___test___");
         
-        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out),  root, heap, monitor);
-        
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
             @Override
             public void start(String context, int count) { 
