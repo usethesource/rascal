@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
@@ -55,9 +57,11 @@ public class PathConfig {
     public static final Map<String, Type> PathConfigFields = Map.of(
         "projectRoot", tf.sourceLocationType(),
         "srcs", tf.listType(tf.sourceLocationType()),
+        "generatedSources", tf.sourceLocationType(),
         "ignores", tf.listType(tf.sourceLocationType()),
         "bin", tf.sourceLocationType(),
         "resources", tf.listType(tf.sourceLocationType()),
+        "generatedResources", tf.sourceLocationType(),
         "libs", tf.listType(tf.sourceLocationType()),
         "messages", tf.listType(Messages.Message),
         "generatedSources", tf.sourceLocationType() // backward compatibility
@@ -66,10 +70,12 @@ public class PathConfig {
     
     private final ISourceLocation projectRoot;
     private final List<ISourceLocation> srcs;		
+    private final ISourceLocation generatedSources;
     private final List<ISourceLocation> libs;     
     private final ISourceLocation bin;  
     private final List<ISourceLocation> ignores; 	
-    private final List<ISourceLocation> resources;     
+    private final List<ISourceLocation> resources; 
+    private final ISourceLocation generatedResources;    
     private final List<IConstructor> messages;     
     
 
@@ -77,8 +83,10 @@ public class PathConfig {
     private static final ISourceLocation defaultProjectRoot = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultIgnores = Collections.emptyList();
     private static final List<ISourceLocation> defaultResources = Collections.emptyList();
+    private static final ISourceLocation defaultGeneratedResources = URIUtil.unknownLocation();
     private static final List<IConstructor> defaultMessages = Collections.emptyList();
     private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
+    private static final ISourceLocation defaultGeneratedSources = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
     public static enum RascalConfigMode {
@@ -89,10 +97,12 @@ public class PathConfig {
     public PathConfig() {
         projectRoot = defaultProjectRoot;
         srcs = Collections.emptyList();
+        generatedSources = defaultGeneratedSources;
         ignores = defaultIgnores;
         bin = defaultBin;
         libs = Collections.emptyList();
         resources = defaultResources;
+        generatedResources = defaultGeneratedResources;
         messages = defaultMessages;
     }
 
@@ -100,10 +110,12 @@ public class PathConfig {
         this(
             projectRoot(pcfg),
             srcs(pcfg), 
+            generatedSources(pcfg),
             libs(pcfg), 
             bin(pcfg), 
             ignores(pcfg), 
-            resources(pcfg), 
+            resources(pcfg),
+            generatedResources(pcfg), 
             messages(pcfg)
         );
     }
@@ -111,26 +123,30 @@ public class PathConfig {
     /**
      * For rebuilding a changed PathConfig
      */
-    private PathConfig(ISourceLocation projectRoot, List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, List<ISourceLocation> resources, List<IConstructor> messages) {
+    private PathConfig(ISourceLocation projectRoot, List<ISourceLocation> srcs, ISourceLocation generatedSources, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, List<ISourceLocation> resources, ISourceLocation generatedResources, List<IConstructor> messages) {
         this.projectRoot = projectRoot;
         this.srcs = srcs;
+        this.generatedSources = generatedSources;
         this.ignores = ignores;
         this.bin = bin;
         this.libs = ignores;
         this.resources = resources;
+        this.generatedResources = generatedResources;
         this.messages = messages;
     }
 
     /**
      * For rebuilding a changed PathConfig
      */
-    private PathConfig(ISourceLocation projectRoot, IList srcs, IList libs, ISourceLocation bin, IList ignores, IList resources, IList messages) {
+    private PathConfig(ISourceLocation projectRoot, IList srcs, ISourceLocation generatedSources, IList libs, ISourceLocation bin, IList ignores, IList resources, ISourceLocation generatedResources, IList messages) {
         this.projectRoot = projectRoot;
         this.srcs = srcs.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
+        this.generatedSources = generatedSources;
         this.ignores = ignores.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
         this.bin = bin;
         this.libs = libs.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
         this.resources = resources.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());;
+        this.generatedResources = generatedResources;
         this.messages = messages.stream().map(IConstructor.class::cast).collect(Collectors.toList());;
     }
 
@@ -141,6 +157,11 @@ public class PathConfig {
     private static IList resources(IConstructor pcfg) {
         IList val = (IList) pcfg.asWithKeywordParameters().getParameter("resources");
         return val == null ? defaultResources.stream().collect(vf.listWriter()) : val;
+    }
+
+    private static ISourceLocation generatedResources(IConstructor pcfg) {
+        ISourceLocation val = (ISourceLocation) pcfg.asWithKeywordParameters().getParameter("generatedResources");
+        return val == null ? defaultGeneratedResources : val;
     }
 
     private static IList ignores(IConstructor pcfg) {
@@ -165,6 +186,11 @@ public class PathConfig {
         return getListValueFromConstructor(pcfg, Collections.emptyList(), "srcs");
     }
 
+    private static ISourceLocation generatedSources(IConstructor pcfg) {
+        ISourceLocation val = (ISourceLocation) pcfg.asWithKeywordParameters().getParameter("generatedSources");
+        return val == null ? defaultGeneratedSources : val;
+    }
+
     private static ISourceLocation projectRoot(IConstructor pcfg) {
         ISourceLocation val = (ISourceLocation) pcfg.asWithKeywordParameters().getParameter("projectRoot");
         return val == null ? defaultProjectRoot : val;
@@ -178,7 +204,7 @@ public class PathConfig {
         return defaultBin;
     }
     
-    public static IList getDefaultresources() {
+    public static IList getDefaultResources() {
         return defaultResources.stream().collect(vf.listWriter());
     }
 
@@ -215,18 +241,18 @@ public class PathConfig {
     public PathConfig addSourceLoc(ISourceLocation dir) throws IOException {
         List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
         extendedsrcs.add(dir);
-        return new PathConfig(projectRoot, extendedsrcs, libs, bin, ignores, resources, messages);
+        return new PathConfig(projectRoot, extendedsrcs, generatedSources, libs, bin, ignores, resources, generatedResources, messages);
     }
     
     public PathConfig addResource(ISourceLocation loc) {
         List<ISourceLocation> extendedResources = new ArrayList<ISourceLocation>(resources);
         extendedResources.add(loc);
 
-        return new PathConfig(loc, srcs, libs, bin, ignores, extendedResources, messages);
+        return new PathConfig(projectRoot, srcs, generatedSources, libs, bin, ignores, extendedResources, generatedResources, messages);
     }
 
-    public PathConfig setResources(List<ISourceLocation> dir) throws IOException {
-        return new PathConfig(projectRoot, srcs, libs, bin, ignores, dir, messages);
+    public PathConfig setResources(List<ISourceLocation> resources) throws IOException {
+        return new PathConfig(projectRoot, srcs, generatedSources, libs, bin, ignores, resources, generatedResources, messages);
     }
     
     public IList getIgnores() {
@@ -236,7 +262,7 @@ public class PathConfig {
     public PathConfig addIgnoreLoc(ISourceLocation dir) throws IOException {
         List<ISourceLocation> extendedignores = new ArrayList<ISourceLocation>(ignores);
         extendedignores.add(dir);
-        return new PathConfig(projectRoot, srcs, libs, bin, extendedignores, resources, messages);
+        return new PathConfig(projectRoot, srcs, generatedSources, libs, bin, extendedignores, resources, generatedResources, messages);
     }
     
     public IList getLibs() {
@@ -250,7 +276,7 @@ public class PathConfig {
     public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
         List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
         extendedlibs.add(dir);
-        return new PathConfig(projectRoot, srcs, extendedlibs, bin, ignores, resources, messages);
+        return new PathConfig(projectRoot, srcs, generatedSources, extendedlibs, bin, ignores, resources, generatedResources, messages);
     }
     
     /**
@@ -358,9 +384,11 @@ public class PathConfig {
 
             ISourceLocation projectRoot = (ISourceLocation) kwp.getParameter("projectRoot");
             IList srcs = (IList) kwp.getParameter("srcs");
+            ISourceLocation generatedSources = (ISourceLocation) kwp.getParameter("generatedSources");
             IList libs =  (IList) kwp.getParameter("libs");
             IList ignores = (IList) kwp.getParameter("ignores");
             IList resources = (IList) kwp.getParameter("resources");
+            ISourceLocation generatedResources = (ISourceLocation) kwp.getParameter("generatedResources");
             IList messages = (IList) kwp.getParameter("messages");
 
             ISourceLocation bin = (ISourceLocation) kwp.getParameter("bin");
@@ -368,10 +396,12 @@ public class PathConfig {
             return new PathConfig(
                 projectRoot != null ? projectRoot : defaultProjectRoot,
                 srcs != null ? srcs : vf.list(), 
+                generatedSources != null ? generatedSources : defaultGeneratedResources,
                 libs != null ? libs : vf.list(),
                 bin != null ? bin : defaultBin,
                 ignores != null ? ignores : vf.list(),
                 resources != null ? resources : vf.list(),
+                generatedResources != null ? generatedResources : defaultGeneratedResources,
                 messages != null ? messages : vf.list()
             );
         } 
@@ -659,12 +689,16 @@ public class PathConfig {
         }
 
         ISourceLocation target;
+        
         if (manifestRoot.getScheme().equals("project")) {
             target = URIUtil.correctLocation("target", projectName, "");
         } 
         else {
             target = URIUtil.getChildLocation(manifestRoot, "target/classes");
         }
+
+        ISourceLocation generatedSources = URIUtil.getChildLocation(manifestRoot, "target/generated-sources");
+        ISourceLocation generatedResources = URIUtil.getChildLocation(manifestRoot, "target/generated-resources");
 
         try {
             var mavenClasspath = getPomXmlCompilerClasspath(manifestRoot, messages);
@@ -691,10 +725,12 @@ public class PathConfig {
         return new PathConfig(
                 manifestRoot,
                 srcsWriter.done(), 
+                generatedSources,
                 libsWriter.done(), 
                 target, 
                 vf.list(),
                 resourcesWriter.done(), 
+                generatedResources,
                 messages.done()
         );
     }
