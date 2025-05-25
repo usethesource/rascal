@@ -6,6 +6,22 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @synopsis{Standard intermediate storage format for configuring file-based language processors (such as interpreters, type-checkers and compilers)}
+@description{
+The module offers the ((PathConfig)) datatype which standardizes the configuration of source code projects.
+Together with ((LanguageFileConfig)) automatic mappings from source files to target files, and back, can
+be computed.
+
+The following reusable invertible mapping functions are provided for the sake of convenience and
+for the sake of consistent interpretation of a ((PathConfig)) instance. We map fully qualified
+module names to their corresponding file locations on disk:
+
+| module-str to loc | loc to module-str  | ((PathConfig)) field used |
+| ----------------- |------------------- | -------------         | 
+| ((sourceFile))    | ((sourceModule))   | `srcs`                |
+| ((targetFile))    | ((targetModule))   | `bin`                 |
+| ((libraryFile))   | ((libraryModule))  | `libs`                | 
+| ((generatedFile)) | ((generatedModule)) | `generatedSources`   | 
+}
 module util::PathConfig
 
 import Exception;
@@ -132,6 +148,18 @@ loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfi
 
     assert false : "unreachable code";
     throw PathNotFound(|module:///| + qualifiedModuleName);   
+}
+
+@synopsis{Copy all resources to the bin folder, keeping the folder structure as-is.}
+void copyResources(PathConfig pcfg) {
+    for (loc root <- pcfg.resources) {
+        copy(root, pcfg.bin, recursive=true);
+    }
+}
+
+@synopsis{Copy all the generated resources to the bin folder, keeping the folder structure as-is.}
+void copyGeneratedResources(PathConfig pcfg) {
+    copy(pcfg.generatedResources, pcfg.bin, recursive=true);
 }
 
 @synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
