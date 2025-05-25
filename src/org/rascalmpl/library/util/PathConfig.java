@@ -63,8 +63,7 @@ public class PathConfig {
         "resources", tf.listType(tf.sourceLocationType()),
         "generatedResources", tf.sourceLocationType(),
         "libs", tf.listType(tf.sourceLocationType()),
-        "messages", tf.listType(Messages.Message),
-        "generatedSources", tf.sourceLocationType() // backward compatibility
+        "messages", tf.listType(Messages.Message)
     );
     private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
     
