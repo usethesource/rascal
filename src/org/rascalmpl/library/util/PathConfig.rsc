@@ -24,10 +24,12 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 
 * `projectRoot` is the root directory of the source project tree that is being configured.
 * `srcs` list of root directories to search for source files; to interpret or to compile.
-* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, and/or skipped when the compiler arives there.)
+* `generatedSources` is the place where intermediate code is written; this code is not to be committed to version control.
+* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, and/or skipped when the compiler arrives there.)
 * `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or some other executable archive later.
 * `libs` is a list of binary dependencies (typically jar files or target folders) on other projects, for checking and linking purposes. Each entry is expected to return `true` for ((isDirectory)).
 * `resources` is a list of files or folders that will be copied *by the compiler* to the bin folder, synchronized with its other (binary) output files..
+* `generatedResources` is the place where intermediate resources are being written before they are copied to the `bin` folder. These files are not to be committed to version control.
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
 }
 @benefits{
@@ -41,9 +43,11 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 data PathConfig = pathConfig(
     loc projectRoot        = |unknown:///|,
     list[loc] srcs         = [],  
+    loc generatedSources   = |unknown:///|,
     list[loc] ignores      = [],  
     loc bin                = |unknown:///|,
     list[loc] resources    = [],
+    loc generatedResources = |unknown:///|,
     list[loc] libs         = [],          
     list[Message] messages = []
 );
@@ -77,9 +81,10 @@ versions of ((sourceModule)), ((sourceFile)), ((libraryModule)), ((libraryFile))
 data LanguageFileConfig = fileConfig(
     str packageSep = "::",
     str binaryExt  = "tpl",
-    str binaryRoot = "rascal",
-    str binaryEsc  = "$",
-    str sourceExt  = "rsc"
+    str targetRoot = "rascal",
+    str targetEsc  = "$",
+    str sourceExt  = "rsc",
+    str generatedExt = "java"
 );
 
 @synopsis{Produces the latest up-to-date file to load for a given module name, searching in the bin folder, the srcs folder and the libraries.}
@@ -153,8 +158,8 @@ str libraryModule(loc libraryFile, PathConfig pcfg, LanguageFileConfig fcfg) thr
 str libraryModule(loc libraryFile, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
   loc relative       = relativize(libs, libraryFile);
 
-  relative.file      = relative.file[size(fcfg.binaryEsc)..];
-  relative.path      = relative.path[1 + size(fcfg.binaryRoot)..];
+  relative.file      = relative.file[size(fcfg.targetEsc)..];
+  relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
   relative.extension = "";
 
   return replaceAll(relative.path[1..], "/", fcfg.packageSep);
@@ -169,9 +174,9 @@ loc libraryFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcf
     = libraryFile(qualifiedModuleName, pcfg.libs, fcfg);
 
 loc libraryFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
-    loc relativeFile       = |relative:///| + fcfg.binaryRoot + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
+    loc relativeFile       = |relative:///| + fcfg.targetRoot + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
     relativeFile.extension = fcfg.binaryExt;
-    relativeFile.file      = "<fcfg.binaryEsc><relativeFile.file>";
+    relativeFile.file      = "<fcfg.targetEsc><relativeFile.file>";
 
     return resolve(libs, relativeFile);
 }
@@ -201,10 +206,10 @@ loc targetFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
 
 loc targetFile(str sourceModule, loc bin, LanguageFileConfig fcfg) {
     relative           = |relative:///| + replaceAll(sourceModule, fcfg.packageSep, "/");
-    relative.file      = "<fcfg.binaryEsc><relative.file>";
+    relative.file      = "<fcfg.targetEsc><relative.file>";
     relative.extension = fcfg.binaryExt;
 
-    return bin + fcfg.binaryRoot + relative.path;
+    return bin + fcfg.targetRoot + relative.path;
 }
 
 @synopsis{Computing a fully qualified module name back from a file in the target folder}
@@ -217,8 +222,40 @@ str targetModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throw
 str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
     relative           = relativize(bin, targetFile);
     relative.extension = "";
-    relative.file      = relative.file[size(fcfg.binaryEsc)..];
-    relative.path      = relative.path[1 + size(fcfg.binaryRoot)..];
+    relative.file      = relative.file[size(fcfg.targetEsc)..];
+    relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
+
+    return replaceAll(relative.path[1..], "/", fcfg.packageSep);
+} 
+
+@synopsis{Compute the binary file location for a fully qualified source module name}
+@description{
+* ((generatedFile)) is the inverse of ((generatedModule)).
+* the returned target location does not have to exist yet.
+}
+loc generatedFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
+    = generatedFile(sourceModule, pcfg.generatedSources, fcfg);
+
+loc generatedFile(str sourceModule, loc generated, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(sourceModule, fcfg.packageSep, "/");
+    relative.file      = "<fcfg.targetEsc><relative.file>";
+    relative.extension = fcfg.generatedExt;
+
+    return generated + fcfg.targetRoot + relative.path;
+}
+
+@synopsis{Computing a fully qualified module name back from a file in the target folder}
+@description{
+* ((targetModule)) is the inverse of ((targetFile))
+}
+str generatedModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
+  = generatedModule(targetFile, pcfg.generatedSources, fcfg);
+
+str generatedModule(loc targetFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(generated, targetFile);
+    relative.extension = "";
+    relative.file      = relative.file[size(fcfg.targetEsc)..];
+    relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
 
     return replaceAll(relative.path[1..], "/", fcfg.packageSep);
 } 
@@ -238,6 +275,20 @@ test bool inverseTargetFileModule() {
     writeFile(tgt, "blabla");
 
     return targetModule(tgt, pcfg, fcfg) == "util::Monitor";
+}
+
+test bool inverseGeneratedFileModule() {
+    pcfg = pathConfig(
+        bin=testLibraryLoc + "target/classes",
+        generatedSources=testLibraryLoc + "target/generated-sources",
+        srcs=[|project://rascal/src/org/rascalmpl/library/|]
+    );
+    fcfg = fileConfig();
+
+    tgt = generatedFile("util::Monitor", pcfg, fcfg);
+    writeFile(tgt, "blabla");
+
+    return generatedModule(tgt, pcfg, fcfg) == "util::Monitor";
 }
 
 test bool inverseSourceFileModule() {
