@@ -36,11 +36,11 @@ We are committed to making participation in this community a harassment-free exp
 
 Examples of unacceptable behavior by participants include the use of sexual language or imagery, derogatory comments or personal attacks, trolling, public or private harassment, insults, or other unprofessional conduct.
 
-[Project Owners](/about/processes.html) have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct. Contributors who do not follow the Code of Conduct may be removed from the project team.
+[Project Owners](http://www.usethesource.io/about/processes.html) have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct. Contributors who do not follow the Code of Conduct may be removed from the project team.
 
 This code of conduct applies both within project spaces and in public spaces when an individual is representing the UseTheSource community or one of its projects.
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by [opening an issue](https://github.com/usethesource/usethesource.github.io/issues) or contacting one or more of the [Project Owners](/projects/).
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by [opening an issue](https://github.com/usethesource/usethesource.github.io/issues) or contacting one or more of the [Project Owners](http://www.usethesource.io/projects/).
 
 This Code of Conduct is adapted from the Contributor Covenant, version 1.1.0, available from <http://contributor-covenant.org/version/1/1/0/>
 

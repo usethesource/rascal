@@ -87,6 +87,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -1073,27 +1074,27 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return false;
 		}
 
-    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
+    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
 			IString str = vf.string(new String(input));
-		
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, str, location);
 			}
 			else {
-        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
+        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.integer(maxAmbDepth), vf.bool(allowRecovery), vf.integer(maxRecoveryAttempts), vf.integer(maxRecoveryTokens), vf.bool(hasSideEffects), vf.bool(false), filters);
 				return (ITree) parser.call(vf.string(new String(input)), location);
 			}
     	}
 
-		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
+		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-			
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, location, location);
 			}
 			else {
-				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
+				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.integer(maxAmbDepth), vf.bool(allowRecovery), vf.integer(maxRecoveryAttempts), vf.integer(maxRecoveryTokens), vf.bool(hasSideEffects), vf.bool(false), filters);
         		return (ITree) parser.call(location, location);
 			}
     	}
@@ -1129,10 +1130,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
             
 				if (result.getStaticType().isString()) {
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, false, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, 
+						INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false);
 				}
 				
 				assert tree != null; // because we checked earlier

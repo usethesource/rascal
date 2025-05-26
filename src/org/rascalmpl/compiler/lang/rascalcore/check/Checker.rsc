@@ -69,10 +69,10 @@ import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedSources       =|unknown:///|,
+    loc generatedTestSources   =|unknown:///|,
+    loc generatedResources     = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
@@ -92,11 +92,12 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    if(!exists(pcfg.resources)) {
+    
+    if(!exists(pcfg.generatedResources)) {
         try {
-            mkDirectory(pcfg.resources);
+            mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
+            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
         }
     }
 
@@ -598,8 +599,6 @@ int main(
         println("Dirty modules:");
         iprintln(modules);
     }
-
-    pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,

@@ -37,8 +37,8 @@ import lang::rascalcore::check::ModuleLocations;
 data PathConfig(
     loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedResources=|unknown:///|,
+    loc generatedTestResources = |unknown:///|
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
@@ -77,7 +77,7 @@ public PathConfig getDefaultTestingPathConfig() {
         srcs = [ |memory:///test-modules/|, |std:///|  ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ ]
     );
 }
@@ -95,7 +95,7 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
         srcs = [ |memory:///test-modules/| ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ |lib://rascal| ]
     );
 }
@@ -126,14 +126,14 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         bin                  = COMPILED + (keep ? "/target/classes" : "rascal"),
         generatedSources     = COMPILED + "/src/main/java",
         generatedTestSources = COMPILED + "/src/test/java/",
-        resources            = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        testResources        = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedResources    = COMPILED + (keep ? "/src/main/java" : "rascal"),
+        generatedRestResources= COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
         libs                 = libraries
         // srcs                 = sources,
         // bin                  = keep ? COMPILED_RASCAL + "/target/classes" : repo,
         // generatedSources     = keep ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
         // generatedTestSources = keep ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
-        // resources            = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
+        // generatedResources   = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
         // testResources        = keep ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
         // libs                 = libraries
     ); 
@@ -206,7 +206,7 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
         srcs = [  ],
         bin = RASCAL + "rascal",
         generatedSources = RASCAL,
-        resources = RASCAL + "rascal",
+        generatedResources = RASCAL + "rascal",
         libs = [ RASCAL]
     );
 }
@@ -313,7 +313,7 @@ public PathConfig getVSCodePathConfig() {
     return 
     pathConfig(
   ignores=[],
-  resources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
+  generatedResources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   bin=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
   libs=[
@@ -325,8 +325,8 @@ public PathConfig getVSCodePathConfig() {
         // bin = REPO + "compiled-rascal/target/classes",
         // generatedSources = REPO + "compiled-rascal/src/main/java",
         // generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        // resources = REPO + "compiled-rascal/src/main/java",
-        // testResources = REPO + "compiled-rascal/src/test/java",
+        // generatedResources = REPO + "compiled-rascal/src/main/java",
+        // generatedTestResources = REPO + "compiled-rascal/src/test/java",
         // libs=[VS_RASCAL_JAR, VS_TYPEPAL_JAR, VS_RASCAL_CORE_JAR],
         // srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal|]);
 }
