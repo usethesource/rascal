@@ -15,9 +15,11 @@ package org.rascalmpl.parser.uptr.recovery;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.BitSet;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
@@ -42,7 +44,6 @@ import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -51,13 +52,21 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
+	private int maxRecoveryAttempts;
+	private int maxRecoveryTokens;
 
 	private Set<Long> processedNodes = new HashSet<>();
 
-	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
+	private static final int MAX_RECOVERY_LOOKAHEAD = 2048;
+
+	private int count = 0;
+
+	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser, int maxRecoveryAttempts, int maxRecoveryTokens) {
 		this.uri = uri;
 		this.expectsProvider = expectsProvider;
 		this.stackNodeIdDispenser = stackNodeIdDispenser;
+		this.maxRecoveryAttempts = maxRecoveryAttempts;
+		this.maxRecoveryTokens = maxRecoveryTokens;
 	}
 
 	@Override
@@ -66,6 +75,11 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
+
+		// Cut off error recovery if we have encountered too many errors
+		if (++count > maxRecoveryAttempts) {
+			return new DoubleArrayList<>();
+		}
 
 		// For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
 		// improve error recovery.
@@ -102,6 +116,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				IConstructor sort = ProductionAdapter.getType(prod);
 
 				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, location, recoveryNode, prod, startLocation);
+
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
 					int skipLength = skippingNode.getLength();
 					Triple<IConstructor, Integer, Integer> key = Triple.of(sort, startLocation, skipLength);
@@ -127,20 +142,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				}
 			}
 		}
-		
+
 		return recoveredNodes;
-	}
-
-	// Add a new SkippingStackNode, but only if another node with the same result does not already exist
-	private void addSkippingStackNode(List<SkippingStackNode<IConstructor>> nodes, IConstructor prod, int startLocation, SkippedNode result) {
-		for (SkippingStackNode<IConstructor> node : nodes) {
-			if (((SkippedNode)node.getResult()).getLength() == result.getLength()) {
-				// Already added
-				return;
-			}
-		}
-
-		nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 	}
 
 	private List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input, int location,
@@ -152,30 +155,52 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// If we are at the end of the input, skip nothing
 		if (location >= input.length) {
 			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
-			addSkippingStackNode(nodes, prod, startLocation, result);
+			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			return nodes; // No other nodes would be useful
 		}
 
-		// Find the last token of this production and skip until after that
+		// Try to find a match in  limited window starting at the current location
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
-		for (InputMatcher endMatcher : endMatchers) {
-			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
-			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
-			if (endMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
-				addSkippingStackNode(nodes, prod, startLocation, result);
-			}
+		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
+
+		int end = Math.min(location + MAX_RECOVERY_LOOKAHEAD, input.length);
+		if (startLocation + MAX_RECOVERY_LOOKAHEAD < end) {
+			return nodes;
 		}
 
-		// Find the first token of the next production and skip until before that
-		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
-		for (InputMatcher nextMatcher : nextMatchers) {
-			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
-			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
-			if (nextMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
-				addSkippingStackNode(nodes, prod, startLocation, result);
+		BitSet skipSet = new BitSet(end-startLocation);
+		int pos = startLocation;
+		while (pos<end && nodes.size() < maxRecoveryTokens) {
+			// Find the last token of this production and skip until after that
+			Iterator<InputMatcher> endIter = endMatchers.iterator();
+			while (endIter.hasNext()) {
+				InputMatcher endMatcher = endIter.next();
+				int matchEnd = endMatcher.match(input, pos);
+				if (matchEnd > 0 && !skipSet.get(matchEnd-startLocation)) {
+					result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, matchEnd);
+					skipSet.set(matchEnd-startLocation);
+					nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+					endIter.remove();
+				}
 			}
+
+			// Find the first token of the next production and skip until before that
+			if (pos > startLocation) {
+				Iterator<InputMatcher> nextIter = nextMatchers.iterator();
+				while (nextIter.hasNext()) {
+					InputMatcher nextMatcher = nextIter.next();
+					int matchEnd = nextMatcher.match(input, pos);
+					if (matchEnd > 0 && !skipSet.get(pos-startLocation)) {
+						result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, pos);
+						skipSet.set(pos-startLocation);
+						nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+						nextIter.remove();
+						break;
+					}
+				}
+			}
+
+			pos++;
 		}
 
 		return nodes;
