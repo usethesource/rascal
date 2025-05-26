@@ -71,6 +71,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   loc citation          = |unknown:///|, 
   loc funding           = |unknown:///|, 
   loc releaseNotes      = |unknown:///|,
+  list[str] authors     = [],
   bool errorsAsWarnings = false, 
   bool warningsAsErrors = false, 
   bool isPackageCourse  = false, 
@@ -125,6 +126,12 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     return;
   }
 
+  if (pcfg.authors? && pcfg.authors != []) {
+    writeFile(pcfg.bin + "AUTHORS_<pcfg.packageName>.txt",
+        "<for (str author <- authors) {><author>
+        '<}>");
+  }
+
   if (pcfg.license? && exists(pcfg.license)) {
     copy(pcfg.license, pcfg.bin + "LICENSE_<pcfg.packageName>.txt");
   }
@@ -164,16 +171,26 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
+  if (pcfg.authors? && pcfg.authors != []) {
+    writeFile(targetFile.parent + "Authors.md",
+      "---
+      'title: Authors of <pcfg.groupId>.<pcfg.artifactId>
+      '---
+      '
+      '<for (str author <- pcfg.authors) {>* <author>
+      '<}>");
+  }
+
   if (pcfg.funding?) {
     writeFile(targetFile.parent + "Funding.md", 
       "---
-      'title: Funding 
+      'title: Funding for <pcfg.artifactId>
       '---
       '
       ':::info
       'Open-source software is free for use, yet it does not come for free.
       'The following sources of funding have been instrumental in the creation 
-      'and maintenance of <pcfg.packageName>. You may consider also to become
+      'and maintenance of <pcfg.artifactId>. You may consider also to become
       'a [sponsor](https://github.com/sponsors/usethesource?o=esb)
       ':::
       '
@@ -220,9 +237,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '<}>
       '
       ':::info
-      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageName> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
+      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.artifactId> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
       '
-      'The authors contributing to <pcfg.packageName> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
+      'The authors contributing to <pcfg.artifactId> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
       ':::
       "
     );
@@ -235,6 +252,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '
     'This is the documentation for version <pcfg.packageVersion> of <pcfg.packageName>.
     '
+    '<if (pcfg.authors?, pcfg.authors != []) {>* [Authors](../../Packages/<package(pcfg.packageName)>/Authors.md)<}>
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
