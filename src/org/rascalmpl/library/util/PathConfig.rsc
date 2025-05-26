@@ -153,18 +153,6 @@ loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfi
     throw PathNotFound(|module:///| + qualifiedModuleName);   
 }
 
-@synopsis{Copy all resources to the bin folder, keeping the folder structure as-is.}
-void copyResources(PathConfig pcfg) {
-    for (loc root <- pcfg.resources) {
-        copy(root, pcfg.bin, recursive=true);
-    }
-}
-
-@synopsis{Copy all the generated resources to the bin folder, keeping the folder structure as-is.}
-void copyGeneratedResources(PathConfig pcfg) {
-    copy(pcfg.generatedResources, pcfg.bin, recursive=true);
-}
-
 @synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
 @description{
 * ((srcsModule)) is the inverse of ((srcsFile))
@@ -233,63 +221,66 @@ loc srcsFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, b
 * the returned target location does not have to exist yet.
 }
 loc binFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = binFile(srcsModule, pcfg.bin, fcfg);
-
-loc binFile(str srcsModule, loc bin, LanguageFileConfig fcfg) {
-    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
-    relative.file      = "<fcfg.targetEsc><relative.file>";
-    relative.extension = fcfg.binExt;
-
-    return bin + fcfg.targetRoot + relative.path;
-}
+    = generatedXFile(srcsModule, pcfg.bin, fcfg.binExt, fcfg);
 
 @synopsis{Computing a fully qualified module name back from a file in the target folder}
 @description{
 * ((binModule)) is the inverse of ((binFile))
 }
 str binModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = binModule(binFile, pcfg.bin, fcfg);
+  = generatedXModule(binFile, pcfg.bin, fcfg);
 
-str binModule(loc binFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
-    relative           = relativize(bin, binFile);
-    relative.extension = "";
-    relative.file      = relative.file[size(fcfg.targetEsc)..];
-    relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
-
-    return replaceAll(relative.path[1..], "/", fcfg.packageSep);
-} 
-
-@synopsis{Compute the binary file location for a fully qualified source module name}
+@synopsis{Compute the generated file location for a fully qualified source module name}
 @description{
 * ((generatedSourcesFile)) is the inverse of ((generatedSourcesModule)).
 * the returned target location does not have to exist yet.
 }
 loc generatedSourcesFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = generatedSourcesFile(srcsModule, pcfg.generatedSources, fcfg);
+    = generatedXFile(srcsModule, pcfg.generatedSources, fcfg.generatedSourcesExt, fcfg);
 
-loc generatedSourcesFile(str srcsModule, loc generated, LanguageFileConfig fcfg) {
-    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
-    relative.file      = "<fcfg.targetEsc><relative.file>";
-    relative.extension = fcfg.generatedSourcesExt;
-
-    return generated + fcfg.targetRoot + relative.path;
-}
-
-@synopsis{Computing a fully qualified module name back from a file in the target folder}
+@synopsis{Computing a fully qualified module name back from a file in the generatedSources folder}
 @description{
 * ((binModule)) is the inverse of ((binFile))
 }
 str generatedSourcesModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = generatedSourcesModule(binFile, pcfg.generatedSources, fcfg);
+  = generatedXModule(binFile, pcfg.generatedSources, fcfg);
 
-str generatedSourcesModule(loc binFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
-    relative           = relativize(generated, binFile);
+@synopsis{Compute the generated resources location for a fully qualified source module name}
+@description{
+* ((generatedResourcesFile)) is the inverse of ((generatedResourcesModule)).
+* the returned target location does not have to exist yet.
+}
+loc generatedResourcesFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
+    = generatedXFile(srcsModule, pcfg.generatedResources, fcfg.generatedResourcesExt, fcfg);
+
+// reusable private functions below here
+
+@synopsis{Recovers the original module name back from a file that was generated.}
+private str generatedXModule(loc targetFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(generated, targetFile);
     relative.extension = "";
     relative.file      = relative.file[size(fcfg.targetEsc)..];
     relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
 
     return replaceAll(relative.path[1..], "/", fcfg.packageSep);
 } 
+
+@synopsis{Compute a target file name for a generated folder with a given extension}
+private loc generatedXFile(str srcsModule, loc generated, str ext, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
+    relative.file      = "<fcfg.targetEsc><relative.file>";
+    relative.extension = ext;
+
+    return generated + fcfg.targetRoot + relative.path;
+}
+
+@synopsis{Computing a fully qualified module name back from a file in the generatedSources folder}
+@description{
+* ((binModule)) is the inverse of ((binFile))
+}
+str generatedResourcesModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
+  = generatedXModule(binFile, pcfg.generatedResources, fcfg);
+
 
 // below we have some core tests of the above features  
 
@@ -324,8 +315,10 @@ test bool inverseGeneratedSourcesFileModule() {
 test bool inverseSrcsFileModule() {
     pcfg = pathConfig(
         bin=testLibraryLoc + "target/classes",
-        srcs=[|project://rascal/src/org/rascalmpl/library/|]
+        srcs=[testLibraryLoc + "src/main/rascal"]
     );
+
+    writeFile(pcfg.srcs[0] + "src/main/rascal/util/Monitor.rsc", "module util::Monitor");
     fcfg = fileConfig();
 
     src = srcsFile("util::Monitor", pcfg, fcfg);
@@ -338,7 +331,7 @@ test bool inverseLibsFileModule() {
         bin=testLibraryLoc + "target/classes",
         libs=[testLibraryLoc + "libs"]
     );
-    fcfg = fileConfig();
+    fcfg = fileConfig(binExt="tpl");
 
     writeFile(testLibraryLoc + "libs" + "rascal/util/$Monitor.tpl", "blabla");
     lib = libsFile("util::Monitor", pcfg, fcfg);
@@ -374,7 +367,7 @@ test bool moduleExceptionOnlyTplFile() {
     tplFile = testLibraryLoc + "/lib/rascal/$Exception.tpl";
     writeFile(tplFile, "$Exception.tpl (only file matters, content irrelevant)");
     pcfg = pathConfig(libs=[testLibraryLoc + "/lib/"]);
-    fcfg = fileConfig();
+    fcfg = fileConfig(binExt="tpl");
 
     return libsFile("Exception", pcfg, fcfg) == tplFile;
 }
@@ -397,7 +390,7 @@ test bool moduleReflectiveOnlyTplFile() {
     pcfg = pathConfig(srcs = [],
                     libs=[testLibraryLoc + "libs"]
                      );
-    fcfg = fileConfig();
+    fcfg = fileConfig(binExt="tpl");
 
     return libsFile("util::Reflective", pcfg, fcfg) == libFile;
 }
