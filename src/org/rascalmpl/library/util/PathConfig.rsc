@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@synopsis{Standard intermediate storage format for configuring file-based language processors (such as interpreters, type-checkers and compilers)}
+@synopsis{Standard intermediate storage format for configuring language processors (such as interpreters, type-checkers and compilers)}
 @description{
 The module offers the ((PathConfig)) datatype which standardizes the configuration of source code projects.
 Together with ((LanguageFileConfig)) automatic mappings from source files to target files, and back, can
@@ -15,7 +15,7 @@ The following reusable invertible mapping functions are provided for the sake of
 for the sake of consistent interpretation of a ((PathConfig)) instance. We map fully qualified
 module names to their corresponding file locations on disk:
 
-| module-str to loc | loc to module-str  | ((PathConfig)) field used |
+| qualified module name (`str`) to file path (`loc`) | file path (`loc`) to qualified module name (`str`)  | ((PathConfig)) field used |
 | ----------------- |------------------- | -------------         | 
 | ((srcsFile))    | ((srcsModule))   | `srcs`                |
 | ((binFile))    | ((binModule))   | `bin`                 |
@@ -30,7 +30,7 @@ import Message;
 import String;
 import util::UUID;
 
-@synopsis{General configuration (via locations) of a file-based language processor.}
+@synopsis{General configuration (via locations) of a language processor.}
 @description{
 A PathConfig is the result of dependency resolution and other configuration steps. Typically,
 IDEs produce the information to fill a PathConfig, such that language tools can consume it
@@ -68,8 +68,6 @@ data PathConfig = pathConfig(
 For most languages a single `fileConfig()` instance is enough to define:
 * the mapping from source files and source folders to fully qualified module names, and back: ((srcsModule)) and ((srcsFile))
 * the mapping from binary library files to fully qualified module names and back: ((libsModule)) and ((libsFile))
-* the mapping from generated source files to fully qualified module names and back: ((generatedSourcesModule)) and ((generatedSourcesFile))
-* the mapping from generated resource files to fully qualified module names and back: ((generatedResourcesModule)) and ((generatedResourcesFile))
 * the mapping from source files to target files in the bin folder, and back: ((binFile)) and ((binModule))
 
 Together with a ((PathConfig)) instance, the above six functions can be re-used to build a language processor that supports:
