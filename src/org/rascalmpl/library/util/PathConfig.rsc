@@ -317,8 +317,8 @@ test bool inverseSrcsFileModule() {
         bin=testLibraryLoc + "target/classes",
         srcs=[testLibraryLoc + "src/main/rascal"]
     );
-
-    writeFile(pcfg.srcs[0] + "src/main/rascal/util/Monitor.rsc", "module util::Monitor");
+    
+    writeFile(pcfg.srcs[0] + "util/Monitor.rsc", "module util::Monitor");
     fcfg = fileConfig();
 
     src = srcsFile("util::Monitor", pcfg, fcfg);
