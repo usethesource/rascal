@@ -36,7 +36,9 @@ import lang::rascalcore::check::ModuleLocations;
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|
+    loc generatedTestSources=|unknown:///|,
+    loc generatedResources=|unknown:///|,
+    loc generatedTestResources = |unknown:///|
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
