@@ -92,6 +92,7 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
 @synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
   META-INF/RASCAL.MF files.}
+@deprecated{Not in use anymore.}
 PathConfig applyManifests(PathConfig cfg) {
    mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
