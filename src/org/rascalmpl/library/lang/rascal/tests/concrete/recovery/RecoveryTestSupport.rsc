@@ -30,9 +30,12 @@ import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
+int pruneCount = 10;
+
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
     str topSort = "",
+    int maxAmbDepth = 2,
     loc dir = |unknown:///|,
     str ext = "",
     int maxFiles = 1000000,
@@ -82,6 +85,15 @@ java int countTreeNodes(&T<:Tree tree);
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 java int countUniqueTreeNodes(&T<:Tree tree);
 
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countUniqueTreeNodes(Tree tree);
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countTreeNodes(Tree tree);
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
+
+
 private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
@@ -93,6 +105,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int nodeCountUnique = 0;
     int disambNodeCount = 0;
     int disambNodeCountUnique = 0;
+    str prunedStats = "";
 
     TestMeasurement measurement = successfulParse();
     try {
@@ -115,7 +128,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
             tree = t;
             parseEndTime = realTime();
             duration = parseEndTime - startTime;
-
+                        
             if (tree == char(0)) {
                 result = "skipped";
                 measurement = skipped(source=source);
@@ -140,6 +153,14 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                     measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
                 }
                 result = "recovery";
+
+                // amb filtering stats
+                for (int i <- [0..pruneCount]) {
+                    Tree pruned = pruneAmbiguities(tree, maxDepth=i);
+                    int unique = countUniqueTreeNodes(pruned);
+                    int total= countTreeNodes(pruned);
+                    prunedStats += ",<total>,<unique>";
+                }
             }
         } catch ParseError(_): {
             result = "error"; 
@@ -150,7 +171,13 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
 
     if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
+        if (prunedStats == "") {
+            for (_ <- [0..pruneCount]) {
+                prunedStats += ",<nodeCount>,<nodeCountUnique>";
+            }
+        }
+
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique><prunedStats>\n");
     }
 
     return measurement;
@@ -487,7 +514,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input)
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        recoveryParser = parser(begin, allowAmbiguity=true, maxAmbDepth=config.maxAmbDepth, allowRecovery=true);
 
         // Initialization run
         standardParser(input, testInput);
@@ -529,7 +556,11 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+        str pruneHeader = "";
+        for (int i <- [0..pruneCount]) {
+            pruneHeader += ",prune<i>,uprune<i>";
+        }
+        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes<pruneHeader>\n");
     }
 
     return runBatchRecoveryTest(config, testStats());

@@ -145,14 +145,14 @@
                     <funding>${project.basedir}/FUNDING</funding>
                     <citation>${project.basedir}/CITATION.md</citation>
                     <issues>|https://github.com/usethesource/rascal/issues|</issues>
-                    <srcIgnores>
+                    <ignores>
                         <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
-                    </srcIgnores>
+                    </ignores>
                     <enableStandardLibrary>false</enableStandardLibrary>
                     <parallel>true</parallel>
                     <parallelPreChecks>

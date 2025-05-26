@@ -5,6 +5,7 @@ import java.io.StringReader;
 
 import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
@@ -250,7 +251,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
 
   @Override
   public ITree executeParser() {
-    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   }
 
   @Override
