@@ -99,7 +99,7 @@ PathConfig createPathConfig(str pname){
         srcs=[src(pname)],
         bin=bin(pname),
         generatedSources=generatedSources(pname),
-        resources=resources(pname),
+        generatedResources=resources(pname),
         libs=[]
     );
 }
