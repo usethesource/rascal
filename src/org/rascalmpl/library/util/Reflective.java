@@ -23,11 +23,7 @@ import java.net.URISyntaxException;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -44,9 +40,9 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
@@ -111,12 +107,7 @@ public class Reflective {
     }
 	
 	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
-		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, Reader.nullReader(), stderr, stdout, root, heap, monitor);
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		return evaluator;
+		return ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), stdout, stderr, monitor);
 	}
     
     
