@@ -170,7 +170,7 @@ ModuleSummary example1() {
             srcs=[|std:///|], 
             bin = |project://rascal-core/target/test-classes|,
             generatedSources = |project://rascal-core/target/generated-test-sources|,
-            resources = |project://rascal-core/target/generated-test-resources|,
+            generatedResources = |project://rascal-core/target/generated-test-resources|,
             libs = []);
     return makeSummary("Boolean", pcfg);
 }

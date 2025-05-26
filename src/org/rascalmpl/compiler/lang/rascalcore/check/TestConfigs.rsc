@@ -77,7 +77,7 @@ public PathConfig getDefaultTestingPathConfig() {
         srcs = [ |memory:///test-modules/|, |std:///|  ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ ]
     );
 }
@@ -95,7 +95,7 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
         srcs = [ |memory:///test-modules/| ],
         bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ |lib://rascal| ]
     );
 }
@@ -206,7 +206,7 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
         srcs = [  ],
         bin = RASCAL + "rascal",
         generatedSources = RASCAL,
-        resources = RASCAL + "rascal",
+        generatedResources = RASCAL + "rascal",
         libs = [ RASCAL]
     );
 }
@@ -325,8 +325,8 @@ public PathConfig getVSCodePathConfig() {
         // bin = REPO + "compiled-rascal/target/classes",
         // generatedSources = REPO + "compiled-rascal/src/main/java",
         // generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        // resources = REPO + "compiled-rascal/src/main/java",
-        // testResources = REPO + "compiled-rascal/src/test/java",
+        // generatedResources = REPO + "compiled-rascal/src/main/java",
+        // generatedTestResources = REPO + "compiled-rascal/src/test/java",
         // libs=[VS_RASCAL_JAR, VS_TYPEPAL_JAR, VS_RASCAL_CORE_JAR],
         // srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal|]);
 }
