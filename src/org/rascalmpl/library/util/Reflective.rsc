@@ -43,6 +43,39 @@ public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseMo
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
+data RascalConfigMode
+    = compiler()
+    | interpreter()
+    ;
+
+@deprecated{not in use anymore}
+data RascalManifest
+  = rascalManifest(
+      str \Project-Name = "Project",
+      str \Main-Module = "Plugin",
+      str \Main-Function = "main", 
+      list[str] Source = ["src"],
+      str Bin = "bin",
+      list[str] \Required-Libraries = [],
+      list[str] \Required-Dependencies = []
+    ); 
+
+@deprecated{not in use anymore}
+data JavaBundleManifest
+  = javaManifest(
+      str \Manifest-Version = "",
+      str \Bundle-SymbolicName = "",
+      str \Bundle-RequiredExecutionEnvironment = "JavaSE-1.8",
+      list[str] \Require-Bundle = [],
+      str \Bundle-Version = "0.0.0.qualifier",
+      list[str] \Export-Package = [],
+      str \Bundle-Vendor = "",
+      str \Bundle-Name = "",
+      list[str] \Bundle-ClassPath = [],
+      list[str] \Import-Package = [] 
+    );
+
+>>>>>>> main
 @synopsis{Makes the location of a jar file explicit, based on the project name}
 @description{
 The classpath of the current JVM is searched and jar files are searched that contain
@@ -58,11 +91,34 @@ in making configuration issues tractable.
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
-// @synopsis{Makes the location of the currently running rascal jar explicit.}
+@synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
+@synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
+  by the folders which are nested under these roots as configured in their respective
+  META-INF/RASCAL.MF files.}
+@deprecated{Not in use anymore.}
+PathConfig applyManifests(PathConfig cfg) {
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
+
+   list[loc] expandSrcs(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
+   default list[loc] expandSrcs(loc p, str _) = [p];
+   
+   list[loc] expandlibs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandlibs(loc p, str _) = [p];
+    
+   loc expandBin(loc p) = p + mf[p].Bin when mf[p]?;
+   default loc expandBin(loc p) = p;
+   
+   cfg.srcs = [*expandSrcs(p) | p <- cfg.srcs];
+   cfg.libs = [*expandlibs(p) | p <- cfg.libs];
+   cfg.bin  = expandBin(cfg.bin);
+   
+   return cfg;
+}
+
 @deprecated{Function will be moved to Rascal compiler}
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");

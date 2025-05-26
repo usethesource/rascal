@@ -179,7 +179,8 @@ void main(
     bool warningsAsErrors         = false
     ) {
 
-    pcfg.resources = pcfg.bin;
+    pcfg.generatedResources = pcfg.bin;
+    pcfg.generatedTestResources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
