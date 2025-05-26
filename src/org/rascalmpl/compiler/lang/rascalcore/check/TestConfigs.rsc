@@ -36,9 +36,7 @@ import lang::rascalcore::check::ModuleLocations;
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedTestSources=|unknown:///|
 );
 
 // ----  Various PathConfigs  ---------------------------------------------
@@ -126,14 +124,14 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         bin                  = COMPILED + (keep ? "/target/classes" : "rascal"),
         generatedSources     = COMPILED + "/src/main/java",
         generatedTestSources = COMPILED + "/src/test/java/",
-        resources            = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        testResources        = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedResources    = COMPILED + (keep ? "/src/main/java" : "rascal"),
+        generatedRestResources= COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
         libs                 = libraries
         // srcs                 = sources,
         // bin                  = keep ? COMPILED_RASCAL + "/target/classes" : repo,
         // generatedSources     = keep ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
         // generatedTestSources = keep ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
-        // resources            = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
+        // generatedResources   = keep ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
         // testResources        = keep ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
         // libs                 = libraries
     ); 
@@ -313,7 +311,7 @@ public PathConfig getVSCodePathConfig() {
     return 
     pathConfig(
   ignores=[],
-  resources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
+  generatedResources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   bin=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
   generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
   libs=[

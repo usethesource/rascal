@@ -47,8 +47,8 @@ import ValueIO;
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedSources = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 @doc{
