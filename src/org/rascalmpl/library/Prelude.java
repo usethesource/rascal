@@ -78,9 +78,8 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
-import org.rascalmpl.types.RascalType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -135,6 +134,7 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
@@ -164,7 +164,15 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
+        return t.randomValue(
+			random, 
+			RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), 
+			values, 
+			new TypeStore(), 
+			Collections.emptyMap(), 
+			depth, 
+			width
+		);
     }
 
 	
@@ -2394,24 +2402,28 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+	private IInteger firstAmbiguityMaxAmbDepth(IBool allowRecovery) {
+		return values.integer(allowRecovery.getValue() ? INodeFlattener.DEFAULT_RECOVERY_AMB_DEPTH : INodeFlattener.UNLIMITED_AMB_DEPTH);
 	}
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, values.bool(false), hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), hasSideEffects, values.bool(false), filters);
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
+	    return rascalValues.parser(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
     }
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
+        return rascalValues.parsers(start, values.bool(true), firstAmbiguityMaxAmbDepth(allowRecovery), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
@@ -2426,18 +2438,18 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IInteger maxAmbDepth, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
@@ -3902,7 +3914,10 @@ public class Prelude {
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
 	    Random random = new Random(seed.intValue());
-	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
+		// don't change the set of types dynamically. the test functions that use this function
+		// have already been type-checked in their static source context.
+		RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
+	    return start.randomValue(random, typesConfig, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph
