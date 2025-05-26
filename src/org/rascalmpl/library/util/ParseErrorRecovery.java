@@ -206,10 +206,6 @@ public class ParseErrorRecovery {
         return errors.done();
     }
 
-    public boolean hasErrors(IConstructor tree) {
-        return !findAllParseErrors(tree).isEmpty();
-    }
-
     private void collectErrors(ITree tree, IListWriter errors, Set<IConstructor> processedTrees) {
         Type type = tree.getConstructorType();
 
@@ -608,4 +604,55 @@ public class ParseErrorRecovery {
         return amb;
     }
 
+    public IBool hasParseErrors(IConstructor tree) {
+        return rascalValues.bool(hasParseErrors((ITree) tree, new IdentityHashMap<>()));
+    }
+
+    private boolean hasParseErrors(ITree tree, Map<ITree, Boolean> processedTrees) {
+        Boolean result = processedTrees.get(tree);
+        if (result != null) {
+            return result;
+        }
+
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl) {
+            result = hasApplParseErrors(tree, processedTrees);
+        } else if (type == RascalValueFactory.Tree_Amb) {
+            result = hasAmbParseErrors(tree, processedTrees);
+        } else {
+            result = false;
+        }
+
+        processedTrees.put(tree, result);
+
+        return result;
+    }
+
+    private boolean hasApplParseErrors(ITree appl, Map<ITree, Boolean> processedTrees) {
+        if (ProductionAdapter.isError(appl.getProduction())) {
+            return true;
+        }
+
+        IList args = TreeAdapter.getArgs(appl);
+        for (int i=0; i<args.size(); i++) {
+            IValue arg = args.get(i);
+            if (hasParseErrors((ITree) arg, processedTrees)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasAmbParseErrors(ITree amb, Map<ITree, Boolean> processedTrees) {
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        for (IValue alt : alts) {
+            if (hasParseErrors((ITree) alt, processedTrees)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
+
