@@ -100,7 +100,7 @@ void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();
 	name = cleanName(mname);
 	remove(|memory:///test-modules/<name>.rsc|);
-	remove(pcfg.bin + "<name>.tpl");
+	remove(pcfg.generatedResources + "<name>.tpl");
 }
 
 set[Message] getErrorMessages(ModuleStatus r)
