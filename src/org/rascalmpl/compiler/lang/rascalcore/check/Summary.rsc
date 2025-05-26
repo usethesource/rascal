@@ -46,7 +46,9 @@ import ValueIO;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedTestSources=|unknown:///|
+    loc generatedSources=|unknown:///|,
+    loc generatedResources = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 @doc{
@@ -168,6 +170,7 @@ ModuleSummary example1() {
             srcs=[|std:///|], 
             bin = |project://rascal-core/target/test-classes|,
             generatedSources = |project://rascal-core/target/generated-test-sources|,
+            generatedResources = |project://rascal-core/target/generated-test-resources|,
             libs = []);
     return makeSummary("Boolean", pcfg);
 }
