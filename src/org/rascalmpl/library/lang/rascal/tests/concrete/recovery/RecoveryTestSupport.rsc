@@ -382,7 +382,7 @@ int statFieldWidth = 10;
 
 void printFileStats(RecoveryTestConfig config, FileStats fileStats) {
     void printStat(str label, int stat, int total, bool prints=true) {
-        int pct = total == 0 ? 0 : stat*100/total;
+        int pct = percentage(stat, total);
         print(left(label + ":", statLabelWidth));
         str pctStr = prints ? " (<pct>%)" : "";
         println(left("<stat><pctStr>", statFieldWidth));
@@ -471,8 +471,8 @@ void printStats(RecoveryTestConfig config, TestStats stats) {
     printFrequencyTableStats("Failed recoveries", stats.failedRecoveries);
     printFrequencyTableStats("Parse errors", stats.parseErrors);
     printFrequencyTableStats("Slow parses", stats.slowParses);
+    printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
     if (config.countNodes) {
-        printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
         printFrequencyTableStats("Parse error counts", stats.errorCounts, unit = "errors", ignoreZero=true);
         printFrequencyTableStats("Parse error sizes", stats.errorSizes, unit = "chars", ignoreZero=true);
     }
