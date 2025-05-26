@@ -124,11 +124,13 @@ str vtypeisatype(str e, str etype, a:aadt(str adtName, list[AType] parameters, k
 }
 
 default str vtypeisatype(str e, str etype, AType t, JGenie jg) {
-    if(isFunctionAType(t)){
-        return "$intersectsType(<etype>,<jg.accessType(t)>)";
-    } else {
-        return "$isSubtypeOf(<etype>,<jg.accessType(t)>)";
-    }
+    // In theory we should generate here:
+    // if(isFunctionAType(t)){
+    //     return "$intersectsType(<etype>,<jg.accessType(t)>)";
+    // }
+    // However, this fails for rguments that have signatures like &T (value input, loc origin)
+    // as happens for parse functions as arguments.
+    return "$isSubtypeOf(<etype>,<jg.accessType(t)>)";
 }
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
