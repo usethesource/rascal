@@ -18,6 +18,7 @@ data PathConfig(
   loc  citation=|cwd:///CITATION.md|,
   loc  funding=|cwd:///FUNDING.md|,
   loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
+  loc  authors=|cwd:///AUTHORS.md|,
   bool isPackageCourse=false
 );
 
