@@ -31,10 +31,10 @@ import List;
 import util::Reflective;
 
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc generatedResources = bin,
-    loc generatedTestResources = bin
+    loc generatedSources       = |unknown:///|,
+    loc generatedTestSources   = |unknown:///|,
+    loc generatedResources     = |unknown:///|,
+    loc generatedTestResources = |unknown:///|
 );
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
