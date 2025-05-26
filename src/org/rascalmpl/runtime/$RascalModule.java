@@ -2757,7 +2757,7 @@ public abstract class $RascalModule {
 	// ---- parse -------------------------------------------------------------
 	
 	public final IValue $parse(final IValue reified, IString inputText, ISourceLocation inputLocation) {
-		IFunction parser = $RVF.parser(reified, $RVF.bool(true), $RVF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $RVF.bool(false), $RVF.bool(false), $RVF.bool(false), $RVF.set());
+		IFunction parser = $RVF.parser(reified, $RVF.bool(true), $RVF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $RVF.bool(false), $RVF.integer(0), $VF.integer(0), $RVF.bool(false), $RVF.bool(false), $VF.set());
 		return parser.call(inputText, inputLocation);
 	}
 

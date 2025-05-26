@@ -179,6 +179,9 @@ void main(
     bool warningsAsErrors         = false
     ) {
 
+    pcfg.generatedResources = pcfg.bin;
+    pcfg.generatedTestResources = pcfg.bin;
+
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
         verbose                  = verbose,
