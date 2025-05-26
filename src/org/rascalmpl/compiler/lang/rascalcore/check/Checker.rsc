@@ -92,11 +92,12 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    if(!exists(pcfg.resources)) {
+    
+    if(!exists(pcfg.generatedResources)) {
         try {
-            mkDirectory(pcfg.resources);
+            mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
+            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
         }
     }
 
@@ -598,8 +599,6 @@ int main(
         println("Dirty modules:");
         iprintln(modules);
     }
-
-    pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
