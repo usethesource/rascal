@@ -39,12 +39,10 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 
 * `projectRoot` is the root directory of the source project tree that is being configured.
 * `srcs` list of root directories to search for source files; to interpret or to compile.
-* `generatedSources` is the place where intermediate code is written; this code is not to be committed to version control.
 * `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, and/or skipped when the compiler arrives there.)
 * `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or some other executable archive later.
 * `libs` is a list of binary dependencies (typically jar files or bin folders) on other projects, for checking and linking purposes. Each entry is expected to return `true` for ((isDirectory)).
 * `resources` is a list of files or folders that will be copied *by the compiler* to the bin folder, synchronized with its other (binary) output files..
-* `generatedResources` is the place where intermediate resources are being written before they are copied to the `bin` folder. These files are not to be committed to version control.
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
 }
 @benefits{
@@ -356,7 +354,7 @@ test bool longestModuleReflectiveOnlyTpl() {
     return libsFile("util::Reflective", pcfg, fcfg) == testLibraryLoc + "2/libs/rascal/util/$Reflective.tpl";
 }
 
-test bool moduleOnlyInSecondSrc(){
+test bool moduleOnlyInSecondSrc() {
     testLibrarySrc = testLibraryLoc + "src/org/rascalmpl/library/";
     ESrc = testLibrarySrc + "E.rsc";
     writeFile(ESrc,  "module E");

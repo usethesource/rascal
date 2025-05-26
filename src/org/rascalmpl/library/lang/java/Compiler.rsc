@@ -42,23 +42,33 @@ import IO;
 import Location;
 import String;
 import util::FileSystem;
+import util::PathConfig;
 import util::Reflective;
 import util::UUID;
 
 @synopsis{Compile all the .java files in source folders in PathConfig}
+@description{
+See ((compileJavaSourceFolders)) for more information.
+}
 list[Message] compileJava(PathConfig pcfg) 
     = compileJavaSourceFolders(pcfg.srcs, pcfg.bin, libs=pcfg.libs);
 
 @synopsis{Compile a single Java source file}
 @pitfalls{
-* `file` has to be reachable from `srcs`
+* `file` has to be reachable from `srcs`, because a fully qualified class name is computing by relativizing the source file `loc` against the `srcs` folders.
+* The source files is read using ((readFile)).
+* All classfiles, which could be many in the case of anonymous or nested classes, are written directly to the `bin` folder.
+* `libs` is typically a list of `jar+file:///` or `mvn:///` locations, one for each (transitive) compile-time dependency.
+Without these the compiler will complain about missing symbols and return error messages.
 }
 list[Message] compileJavaSourceFile(loc file, loc bin, list[loc] srcs, list[loc] libs=[]) 
     = compileJava({<file, qualifiedName(file, srcs), readFile(file)>}, bin, libs=libs);
 
 @synopsis{Compile all java source files from a list of source folders.}
 @description{
-Qualified names are obtained by relativizing against the source folders.
+* Qualified class names are obtained by relativizing against the source folders.
+* Source code is read in using ((readFile)).
+* Bytecode files are written directly into the `bin` folder
 }
 list[Message] compileJavaSourceFolders(list[loc] srcFolders, loc bin, list[loc] libs=[])
     = compileJava({<f, qualifiedName(f, srcFolders), readFile(f)> | src <- srcFolders, f <- find(src, "java")}, bin, libs=libs);
@@ -100,7 +110,7 @@ test bool compilerInputOutputFileTest() {
     errors = compileJavaSourceFolders([root], target);
     assert errors == [] : "unexpected errors: <errors>";
 
-    return find(target,"class") 
+    return find(target, "class") 
         ==  {
                 target + "pack/C.class",
                 target + "pack/pack/D.class",
