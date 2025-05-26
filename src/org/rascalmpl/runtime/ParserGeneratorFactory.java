@@ -26,8 +26,6 @@
  */
 package org.rascalmpl.runtime;
 
-import java.util.Collections;
-
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.parser.ParserGenerator;

@@ -26,10 +26,7 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
