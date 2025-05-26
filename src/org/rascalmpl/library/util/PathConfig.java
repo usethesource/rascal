@@ -50,7 +50,7 @@ public class PathConfig {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final TypeStore store = new TypeStore();
     
-    // WARNING: these definitions must reflect the definitions in `util::Reflective`
+    // WARNING: these definitions must reflect the definitions in `util::PathConfig`
     public static final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
     public static final Map<String, Type> PathConfigFields = Map.of(
         "projectRoot", tf.sourceLocationType(),
