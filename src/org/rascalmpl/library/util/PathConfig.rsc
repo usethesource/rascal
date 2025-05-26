@@ -20,8 +20,6 @@ module names to their corresponding file locations on disk:
 | ((srcsFile))    | ((srcsModule))   | `srcs`                |
 | ((binFile))    | ((binModule))   | `bin`                 |
 | ((libsFile))   | ((libsModule))  | `libs`                | 
-| ((generatedSourcesFile)) | ((generatedSourcesModule)) | `generatedSources`   | 
-| ((generatedResourcesFile)) | ((generatedResourcesModule)) | `generatedResources`   | 
 }
 module util::PathConfig
 
@@ -60,11 +58,9 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 data PathConfig = pathConfig(
     loc projectRoot        = |unknown:///|,
     list[loc] srcs         = [],  
-    loc generatedSources   = |unknown:///|,
     list[loc] ignores      = [],  
     loc bin                = |unknown:///|,
     list[loc] resources    = [],
-    loc generatedResources = |unknown:///|,
     list[loc] libs         = [],          
     list[Message] messages = []
 );
@@ -78,17 +74,17 @@ For most languages a single `fileConfig()` instance is enough to define:
 * the mapping from generated resource files to fully qualified module names and back: ((generatedResourcesModule)) and ((generatedResourcesFile))
 * the mapping from source files to target files in the bin folder, and back: ((binFile)) and ((binModule))
 
-Together with a ((PathConfig)) instance, the above ten functions can be re-used to build a language processor that supports:
+Together with a ((PathConfig)) instance, the above six functions can be re-used to build a language processor that supports:
 * execution (testing) of generated files from the `bin` folder, using `libs` as run-time dependencies
 * using binary compile-time libraries, using `libs` to find binary interfaces to previously generated targets
 * packaging binary (generated) files as `jar` files to be re-used later as `libs` dependencies
 * modular language processors that work incrementally per changed source file or changed dependency
 }
 @benefits{
-* one ((fileConfig)) constant can be reused for configure all ten different mapping functions.  
+* one ((fileConfig)) constant can be reused for configure all six different mapping functions.  
 * a simple `fileConfig()` constant is configured for the Rascal compiler by default (.tpl files as binary extension).
 * the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance for one project.
-* more complex mappings can be made by combing the ten functions. For example first retrieving the module name using `srcsModule` and then 
+* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `srcsModule` and then 
 seeing if it exists also in one of the libraries using `libsFile`.
 }
 @pitfalls{
@@ -100,12 +96,10 @@ versions of ((srcsModule)), ((srcsFile)), ((libsModule)), ((libsFile)), ((binFil
 }
 data LanguageFileConfig = fileConfig(
     str packageSep = "::",
-    str binExt     = "class",
+    str binExt     = "tpl",
     str targetRoot = "rascal", 
     str targetEsc  = "$",
-    str srcsExt    = "rsc",
-    str generatedSourcesExt   = "java",
-    str generatedResourcesExt = "tpl"
+    str srcsExt    = "rsc"
 );
 
 @synopsis{Produces the latest up-to-date file to load for a given module name, searching in the bin folder, the srcs folder and the libraries.}
@@ -223,66 +217,33 @@ loc srcsFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, b
 * the returned target location does not have to exist yet.
 }
 loc binFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = generatedXFile(srcsModule, pcfg.bin, fcfg.binExt, fcfg);
+    = binFile(srcsModule, pcfg.bin, fcfg);
+
+@synopsis{Compute a target file name for a generated folder with a given extension}
+loc binFile(str srcsModule, loc generated, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
+    relative.file      = "<fcfg.targetEsc><relative.file>";
+    relative.extension = fcfg.binExt;
+
+    return generated + fcfg.targetRoot + relative.path;
+}
 
 @synopsis{Computing a fully qualified module name back from a file in the bin folder}
 @description{
 * ((binModule)) is the inverse of ((binFile))
 }
 str binModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = generatedXModule(binFile, pcfg.bin, fcfg);
-
-@synopsis{Compute the generated file location for a fully qualified source module name}
-@description{
-* ((generatedSourcesFile)) is the inverse of ((generatedSourcesModule)).
-* the returned target location does not have to exist yet.
-}
-loc generatedSourcesFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = generatedXFile(srcsModule, pcfg.generatedSources, fcfg.generatedSourcesExt, fcfg);
-
-@synopsis{Computing a fully qualified module name back from a file in the generatedSources folder}
-@description{
-* ((binModule)) is the inverse of ((binFile))
-}
-str generatedSourcesModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = generatedXModule(binFile, pcfg.generatedSources, fcfg);
-
-@synopsis{Compute the generated resources location for a fully qualified source module name}
-@description{
-* ((generatedResourcesFile)) is the inverse of ((generatedResourcesModule)).
-* the returned target location does not have to exist yet.
-}
-loc generatedResourcesFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = generatedXFile(srcsModule, pcfg.generatedResources, fcfg.generatedResourcesExt, fcfg);
-
-// reusable private functions below here
+  = binModule(binFile, pcfg.bin, fcfg);
 
 @synopsis{Recovers the original module name back from a file that was generated.}
-private str generatedXModule(loc targetFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
-    relative           = relativize(generated, targetFile);
+str binModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(bin, targetFile);
     relative.extension = "";
     relative.file      = relative.file[size(fcfg.targetEsc)..];
     relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
 
     return replaceAll(relative.path[1..], "/", fcfg.packageSep);
 } 
-
-@synopsis{Compute a target file name for a generated folder with a given extension}
-private loc generatedXFile(str srcsModule, loc generated, str ext, LanguageFileConfig fcfg) {
-    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
-    relative.file      = "<fcfg.targetEsc><relative.file>";
-    relative.extension = ext;
-
-    return generated + fcfg.targetRoot + relative.path;
-}
-
-@synopsis{Computing a fully qualified module name back from a file in the generatedSources folder}
-@description{
-* ((binModule)) is the inverse of ((binFile))
-}
-str generatedResourcesModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = generatedXModule(binFile, pcfg.generatedResources, fcfg);
-
 
 // below we have some core tests of the above features  
 
@@ -299,19 +260,6 @@ test bool inverseBinFileModule() {
     writeFile(tgt, "blabla");
 
     return binModule(tgt, pcfg, fcfg) == "util::Monitor";
-}
-
-test bool inverseGeneratedSourcesFileModule() {
-    pcfg = pathConfig(
-        generatedSources=testLibraryLoc + "target/generated-sources",
-        srcs=[|project://rascal/src/org/rascalmpl/library/|]
-    );
-    fcfg = fileConfig();
-
-    tgt = generatedSourcesFile("util::Monitor", pcfg, fcfg);
-    writeFile(tgt, "blabla");
-
-    return generatedSourcesModule(tgt, pcfg, fcfg) == "util::Monitor";
 }
 
 test bool inverseSrcsFileModule() {
