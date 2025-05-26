@@ -59,7 +59,8 @@ public class PathConfig {
         "bin", tf.sourceLocationType(),
         "resources", tf.listType(tf.sourceLocationType()),
         "libs", tf.listType(tf.sourceLocationType()),
-        "messages", tf.listType(Messages.Message)
+        "messages", tf.listType(Messages.Message),
+        "generatedSources", tf.sourceLocationType() // deprecated!
     );
     private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
     
