@@ -11,7 +11,7 @@ SKIP_WINDOW=2048
 SAMPLE_WINDOW=1
 RANDOM_SEED=0
 SHOW_LOG=false
-COUNT_NODES=false
+COUNT_NODES=true
 
 
 if [[ $1 == "-h" || $1 == "--help" ]]
