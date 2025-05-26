@@ -26,7 +26,8 @@ As such, this code should be considered experimental and used with care.
 }
 
 @synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
-bool hasParseErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java bool hasParseErrors(Tree tree);
 
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Find all error productions in a parse tree.
@@ -73,3 +74,7 @@ list[Tree] findBestParseErrors(Tree tree) = findAllParseErrors(disambiguateParse
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
 Tree(Tree) createParseErrorFilter(bool allowAmbiguity) =
     Tree(Tree t)  { return disambiguateParseErrors(t, allowAmbiguity=allowAmbiguity); };
+
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
