@@ -33,6 +33,7 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class TestEvaluator {
 
@@ -110,6 +111,11 @@ public class TestEvaluator {
                     int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
                     int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
                     int tries = readIntTag(test, QuickCheck.TRIES, 500);
+                    
+                    // we can not generate new type definitions while running a test function, because the test function
+                    // has already been statically checked in its current module. Hence: `.withoutRandomAbstractDatatypes()`
+                    RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(new Random()).withoutRandomAbstractDatatypes();
+                    
                     String expected = null;
                     if(test.hasTag(QuickCheck.EXPECT_TAG)){
                         expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
@@ -128,7 +134,7 @@ public class TestEvaluator {
                             // TODO: add bound type parameters
                             return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
                         }
-                    }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
+                    }, env.getRoot().getStore(), tries, maxDepth, maxWidth, typesConfig);
                     
                     eval.getOutPrinter().flush();
                     eval.getErrorPrinter().flush();
