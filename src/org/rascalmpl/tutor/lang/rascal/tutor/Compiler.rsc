@@ -126,10 +126,8 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     return;
   }
 
-  if (pcfg.authors? && pcfg.authors != []) {
-    writeFile(pcfg.bin + "AUTHORS_<pcfg.packageName>.txt",
-        "<for (str author <- authors) {><author>
-        '<}>");
+  if (pcfg.authors?) {
+    copy(pcfg.authors, pcfg.bin + "AUTHORS_<pcfg.packageName>.txt");
   }
 
   if (pcfg.license? && exists(pcfg.license)) {
@@ -171,14 +169,13 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
-  if (pcfg.authors? && pcfg.authors != []) {
+  if (pcfg.authors?) {
     writeFile(targetFile.parent + "Authors.md",
       "---
       'title: Authors of <pcfg.groupId>.<pcfg.artifactId>
       '---
       '
-      '<for (str author <- pcfg.authors) {>* <author>
-      '<}>");
+      '<readFile(pcfg.authors)>");
   }
 
   if (pcfg.funding?) {
