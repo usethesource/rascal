@@ -33,8 +33,8 @@ import util::Reflective;
 data PathConfig(
     loc generatedSources=|unknown:///|,
     loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedResources = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
@@ -116,7 +116,7 @@ loc getGeneratedTestSrcsDir(str qualifiedModuleName, PathConfig pcfg){
 }
 
 loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.resources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
+    return pcfg.generatedResources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
     parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
