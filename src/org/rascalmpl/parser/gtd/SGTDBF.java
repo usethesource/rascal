@@ -1525,83 +1525,89 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	/**
 	 * Parses with post parse filtering.
 	 */
-	private T parse(String nonterminal, URI inputURI, int[] input, IActionExecutor<T> actionExecutor,
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
+		return buildResult(result, converter, nodeConstructorFactory, actionExecutor, maxAmbDepth);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, nodeConstructorFactory,
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, actionExecutor, converter, nodeConstructorFactory,
 			recoverer, debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
-		return parse(nonterminal, inputURI, input, actionExecutor, converter, nodeConstructorFactory, recoverer, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, recoverer, null);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, input, actionExecutor, converter, nodeConstructorFactory, null,
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, null,
 			debugListener);
 	}
 
-	public T parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
 		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(nonterminal, inputURI, input, actionExecutor, converter, nodeConstructorFactory, null, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, actionExecutor, converter, nodeConstructorFactory, null, null);
 	}
 
 	/**
 	 * Parses without post parse filtering.
 	 */
-	private T parse(String nonterminal, URI inputURI, int[] input, INodeFlattener<T, S> converter,
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, charsToInts(input), converter, nodeConstructorFactory, recoverer,
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, converter, nodeConstructorFactory, recoverer,
 			debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
-		return parse(nonterminal, inputURI, input, converter, nodeConstructorFactory, recoverer, null);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, recoverer, null);
 	}
 
-	public T parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugListener) {
-		return parse(nonterminal, inputURI, input, converter, nodeConstructorFactory, null, debugListener);
+		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, null, debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, S> converter,
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
-		return parse(nonterminal, inputURI, charsToInts(input), converter, nodeConstructorFactory, null, null);
+		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, converter, nodeConstructorFactory, null, null);
 	}
-	
-	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, INodeFlattener<T, S> converter,
+
+	// Only used in tests
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, 
+		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+		return parse(startNode, inputURI, input, INodeFlattener.UNLIMITED_AMB_DEPTH, converter, nodeConstructorFactory);
+	}
+
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
 	/**
 	 * Constructed the final parse result using the given converter.
 	 */
 	protected T buildResult(AbstractNode result, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor) {
+		INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor, int maxAmbDepth) {
 	  initTime();
 	  try {
 	    FilteringTracker filteringTracker = new FilteringTracker();
@@ -1610,7 +1616,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    T parseResult = null;
 	    try {
 			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker,
-					actionExecutor, rootEnvironment);
+					actionExecutor, rootEnvironment, maxAmbDepth);
 		}
 		finally {
 		      actionExecutor.completed(rootEnvironment, (parseResult == null));
@@ -1704,7 +1710,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			IConstructor newChild = null;
 
 			// Last child could be a skipped child
-			if (i == childCount - 1 
+			if (i == childCount - 1
 					&& child.getConstructorType() == RascalValueFactory.Tree_Appl
 					&& TreeAdapter.getProduction((ITree)child).getConstructorType() == RascalValueFactory.Production_Skipped) {
 				errorTree = true;
