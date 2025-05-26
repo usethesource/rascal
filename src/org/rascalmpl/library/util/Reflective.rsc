@@ -75,7 +75,6 @@ data JavaBundleManifest
       list[str] \Import-Package = [] 
     );
 
->>>>>>> main
 @synopsis{Makes the location of a jar file explicit, based on the project name}
 @description{
 The classpath of the current JVM is searched and jar files are searched that contain
