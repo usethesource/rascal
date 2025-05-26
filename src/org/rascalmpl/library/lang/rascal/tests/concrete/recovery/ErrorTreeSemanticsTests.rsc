@@ -13,7 +13,7 @@
  **/
  @description{
     This module contains tests for error tree semantics in Rascal. As most of this functionality is not implemented yet (in the interprter),
-    most tests are currently ignored. All working tests are enabled.
+    most tests currently fail.
  }
 module lang::rascal::tests::concrete::recovery::ErrorTreeSemanticsTests
 
@@ -175,25 +175,18 @@ test bool testVisit() {
     return true;
 }
 
-@ignore
 test bool testIs() = !(getTestStatement() is assign);
 
-@ignore
 test bool testHasBeforeDot() = getTestStatement() has var;
 
-@ignore
 test bool testHasAfterDot() = !(getTestStatement() has val);
 
-@ignore
 test bool testIsDefinedBeforeDot() = getTestStatement().var?;
 
-@ignore
 test bool testIsDefineAfterDot() = !getTestStatement().val?;
 
-@ignore
 test bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
 
-@ignore
 bool testFieldAccessAfterDot() {
     try {
         getTestStatement().val;
@@ -203,14 +196,12 @@ bool testFieldAccessAfterDot() {
     }
 }
 
-@ignore
 test bool testFieldAssignmentBeforeDot() {
     Statement stat = getTestStatement();
     stat.var = (Id)`hello`;
     return "<stat>" == "hello x= 14";
 }
 
-@ignore
 test bool testFieldAssignmentAfterDot() {
     try {
         stat = getTestStatement();
@@ -221,13 +212,11 @@ test bool testFieldAssignmentAfterDot() {
     }
 }
 
-@ignore
 test bool testBracketFieldAssignmentBeforeDot() {
     stat = getTestStatement();
     return "<stat[var=(Id)`hello`]>" == "hello x= 14";
 }
 
-@ignore
 test bool testBracketFieldAssignmentAfterDot() {
     stat = getTestStatement();
     try {
@@ -240,7 +229,6 @@ test bool testBracketFieldAssignmentAfterDot() {
 
 test bool testIndexedFieldBeforeDot() = equals(getTestStatement()[0], (Id)`input`);
 
-@ignore
 test bool testIndexedFieldAtOrAfterDot() {
     try {
         getTestStatement()[1];
@@ -250,7 +238,6 @@ test bool testIndexedFieldAtOrAfterDot() {
     }
 }
 
-@ignore
 test bool testIndexedFieldAssignmentBeforeDot() {
     // Note that this currently does also not work on regular trees (in the interpreter)!
     Statement stat = getTestStatement();
@@ -258,7 +245,6 @@ test bool testIndexedFieldAssignmentBeforeDot() {
     return "<stat>" == "hello x= 14";
 }
 
-@ignore
 test bool testIndexedFieldAssignmentAtOrAfterDot() {
     Statement stat = getTestStatement();
     try {
@@ -331,7 +317,6 @@ This function a test tree that has plenty of oppoertunities to memo amb children
 }
 private Amb ambTestTree() = parse(#Amb, "^X$", allowRecovery=true, allowAmbiguity=true);
 
-@ignore
 test bool testDeepMatchAmbMemo() {
     Amb ambTree = ambTestTree();
 
@@ -342,7 +327,6 @@ test bool testDeepMatchAmbMemo() {
     return count == 3;
 }
 
-@ignore
 test bool testVisitAmbMemo() {
     Amb ambTree = ambTestTree();
 
@@ -355,7 +339,6 @@ test bool testVisitAmbMemo() {
     return count == 3;
 }
 
-@ignore
 test bool testVisitReplacementAmbMemo() {
     Amb ambTree = ambTestTree();
 
