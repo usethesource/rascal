@@ -69,10 +69,10 @@ import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedSources       =|unknown:///|,
+    loc generatedTestSources   =|unknown:///|,
+    loc generatedResources     = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
