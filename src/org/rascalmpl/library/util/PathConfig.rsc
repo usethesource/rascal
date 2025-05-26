@@ -17,10 +17,11 @@ module names to their corresponding file locations on disk:
 
 | module-str to loc | loc to module-str  | ((PathConfig)) field used |
 | ----------------- |------------------- | -------------         | 
-| ((sourceFile))    | ((sourceModule))   | `srcs`                |
-| ((targetFile))    | ((targetModule))   | `bin`                 |
-| ((libraryFile))   | ((libraryModule))  | `libs`                | 
-| ((generatedFile)) | ((generatedModule)) | `generatedSources`   | 
+| ((srcsFile))    | ((srcsModule))   | `srcs`                |
+| ((binFile))    | ((binModule))   | `bin`                 |
+| ((libsFile))   | ((libsModule))  | `libs`                | 
+| ((generatedSourcesFile)) | ((generatedSourcesModule)) | `generatedSources`   | 
+| ((generatedResourcesFile)) | ((generatedResourcesModule)) | `generatedResources`   | 
 }
 module util::PathConfig
 
@@ -71,9 +72,9 @@ data PathConfig = pathConfig(
 @synopsis{Defines the parameters of mappings between qualified module names and source, target, and library files.}
 @description{
 For most languages a single `fileConfig()` instance is enough to define:
-* the mapping from source files and source folders to fully qualified module names, and back: ((sourceModule)) and ((sourceFile))
-* the mapping from binary library files to fully qualified module names and back: ((libraryModule)) and ((libraryFile))
-* the mapping from source files to target folder in the bin folder, and back: ((targetFile)) and ((targetModule))
+* the mapping from source files and source folders to fully qualified module names, and back: ((srcsModule)) and ((srcsFile))
+* the mapping from binary library files to fully qualified module names and back: ((libsModule)) and ((libsFile))
+* the mapping from source files to target folder in the bin folder, and back: ((binFile)) and ((binModule))
 
 Together with a ((PathConfig)) instance, the above six functions can be re-used to build a language processor that supports:
 * execution (testing) of generated files from the `bin` folder, using `libs` as run-time dependencies
@@ -85,22 +86,24 @@ Together with a ((PathConfig)) instance, the above six functions can be re-used 
 * one ((fileConfig)) constant can be reused for configure all six different mapping functions.  
 * a simple `fileConfig()` constant is configured for the Rascal compiler by default (.tpl files as binary extension).
 * the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance for one project.
-* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `sourceModule` and then 
-seeing if it exists also in one of the libraries using `libraryFile`.
+* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `srcsModule` and then 
+seeing if it exists also in one of the libraries using `libsFile`.
 }
 @pitfalls{
 * If a compiler produces multiple target files from a single source file, then you might have to configure
-different instances of ((fileConfig)) for every target `binaryExt`.
+different instances of ((fileConfig)) for every target `binExt`.
 * if the mapping between qualified module names and source files or binary files is different ---it has more parameters than defined by ((LanguageFileConfig))--- then you have to write your own
-versions of ((sourceModule)), ((sourceFile)), ((libraryModule)), ((libraryFile)), ((targetFile)) and ((targetModule)).
+versions of ((srcsModule)), ((srcsFile)), ((libsModule)), ((libsFile)), ((binFile)) and ((binModule)).
+* `targetRoot` and `targetEsc` are used for all output folders: `bin`, `generatedSources` and `generatedResources`
 }
 data LanguageFileConfig = fileConfig(
     str packageSep = "::",
-    str binaryExt  = "tpl",
-    str targetRoot = "rascal",
+    str binExt     = "class",
+    str targetRoot = "rascal", 
     str targetEsc  = "$",
-    str sourceExt  = "rsc",
-    str generatedExt = "java"
+    str srcsExt    = "rsc",
+    str generatedSourcesExt   = "java",
+    str generatedResourcesExt = "tpl"
 );
 
 @synopsis{Produces the latest up-to-date file to load for a given module name, searching in the bin folder, the srcs folder and the libraries.}
@@ -116,7 +119,7 @@ if the only place we found the module in was a target folder.
 In other words, ((latestModuleFile)) prefers newer binaries over older source files, and source files over library modules.
 If a module is present in both libraries and the current project, then the current project's sources shadow the libraries.
 
-This function is based on the core features of ((sourceFile)), ((targetFile)), and ((libraryFile)).
+This function is based on the core features of ((srcsFile)), ((binFile)), and ((libsFile)).
 
 It throws ((PathNotFound)) if a module can not be found in source, target or library locations, and also if a target
 location exists but not a corresponding source location or a library location.
@@ -124,22 +127,22 @@ location exists but not a corresponding source location or a library location.
 @benefits{
 * Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)).
 * Provides the basic setup for creating a programming language or DSL with independent libraries/components to depend on.
-* Use `returnValue.extension == fcfg.binaryExt` to detect if you need to read a binary or parse the source code.
+* Use `returnValue.extension == fcfg.binExt` to detect if you need to read a binary or parse the source code.
 * The `PathNotFound` exception should be caught by the code that processes `import` statements in your language.
 }
 loc latestModuleFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound {
     loc source(str name) {
-        try { return sourceFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
+        try { return srcsFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
     }
     loc target(str name) {
-        try { return targetFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
+        try { return binFile(name, pcfg, fcfg); } catch PathNotFound(_): return |notFound:///|;
     }
 
     switch (<source(qualifiedModuleName), target(qualifiedModuleName)>) {
         case <|notFound:///|, |notFound:///|>: 
-            return libraryFile(qualifiedModuleName, pcfg, fcfg);
+            return libsFile(qualifiedModuleName, pcfg, fcfg);
         case <|notFound:///|, loc _tgt      >: 
-            return libraryFile(qualifiedModuleName, pcfg, fcfg);
+            return libsFile(qualifiedModuleName, pcfg, fcfg);
         case <loc src       , |notFound:///|>: 
             return src;
         case <loc src       , loc tgt       >: 
@@ -164,12 +167,12 @@ void copyGeneratedResources(PathConfig pcfg) {
 
 @synopsis{Compute a fully qualified module name for a module file, relative to the source roots of a project}
 @description{
-* ((sourceModule)) is the inverse of ((sourceFile))
+* ((srcsModule)) is the inverse of ((srcsFile))
 }
-str sourceModule(loc moduleFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound 
-    = sourceModule(moduleFile, pcfg.srcs, fcfg);
+str srcsModule(loc moduleFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound 
+    = srcsModule(moduleFile, pcfg.srcs, fcfg);
 
-str sourceModule(loc moduleFile, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound {
+str srcsModule(loc moduleFile, list[loc] srcs, LanguageFileConfig fcfg) throws PathNotFound {
     loc relative = relativize(srcs, moduleFile);
     relative.extension = "";
 
@@ -178,13 +181,13 @@ str sourceModule(loc moduleFile, list[loc] srcs, LanguageFileConfig fcfg) throws
 
 @synopsis{Compute a fully qualified module name for a library file, relative to the library roots of a project}
 @description{
-* ((libraryModule)) is the inverse of ((libraryFile))
+* ((libsModule)) is the inverse of ((libsFile))
 }
-str libraryModule(loc libraryFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound 
-    = libraryModule(libraryFile, pcfg.libs, fcfg);
+str libsModule(loc libsFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound 
+    = libsModule(libsFile, pcfg.libs, fcfg);
 
-str libraryModule(loc libraryFile, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
-  loc relative       = relativize(libs, libraryFile);
+str libsModule(loc libsFile, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
+  loc relative       = relativize(libs, libsFile);
 
   relative.file      = relative.file[size(fcfg.targetEsc)..];
   relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
@@ -195,15 +198,15 @@ str libraryModule(loc libraryFile, list[loc] libs, LanguageFileConfig fcfg) thro
 
 @synopsis{Find out in which library file a module was implemented.}
 @description{
-* ((libraryFile)) is the inverse of ((libraryModule))
+* ((libsFile)) is the inverse of ((libsModule))
 * the computed file has to exist in at least one of the library modules. Otherwise ((PathNotFound)) is thrown.
 }
-loc libraryFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-    = libraryFile(qualifiedModuleName, pcfg.libs, fcfg);
+loc libsFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
+    = libsFile(qualifiedModuleName, pcfg.libs, fcfg);
 
-loc libraryFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
+loc libsFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg) throws PathNotFound {
     loc relativeFile       = |relative:///| + fcfg.targetRoot + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
-    relativeFile.extension = fcfg.binaryExt;
+    relativeFile.extension = fcfg.binExt;
     relativeFile.file      = "<fcfg.targetEsc><relativeFile.file>";
 
     return resolve(libs, relativeFile);
@@ -211,44 +214,44 @@ loc libraryFile(str qualifiedModuleName, list[loc] libs, LanguageFileConfig fcfg
 
 @synopsis{Find out in which source file a module was implemented.}
 @description{
-* ((sourceFile)) is the inverse of ((sourceModule))
+* ((srcsFile)) is the inverse of ((srcsModule))
 * throws ((PathNotFound)) if the designated source file does not exist, unless `force == true`.
 * if `force` then the first element of the `srcs` path is used as parent to the new module file.
 }
-loc sourceFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg, bool force = false) throws PathNotFound
-    = sourceFile(qualifiedModuleName, pcfg.srcs, fcfg, force = force);
+loc srcsFile(str qualifiedModuleName, PathConfig pcfg, LanguageFileConfig fcfg, bool force = false) throws PathNotFound
+    = srcsFile(qualifiedModuleName, pcfg.srcs, fcfg, force = force);
 
-loc sourceFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, bool force = false) throws PathNotFound {
+loc srcsFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, bool force = false) throws PathNotFound {
     loc relative = |relative:///| + replaceAll(qualifiedModuleName, fcfg.packageSep, "/");
-    relative.extension = fcfg.sourceExt;
+    relative.extension = fcfg.srcsExt;
     return resolve(srcs, relative, force = force);
 }
 
 @synopsis{Compute the binary file location for a fully qualified source module name}
 @description{
-* ((targetFile)) is the inverse of ((targetModule)).
+* ((binFile)) is the inverse of ((binModule)).
 * the returned target location does not have to exist yet.
 }
-loc targetFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = targetFile(sourceModule, pcfg.bin, fcfg);
+loc binFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
+    = binFile(srcsModule, pcfg.bin, fcfg);
 
-loc targetFile(str sourceModule, loc bin, LanguageFileConfig fcfg) {
-    relative           = |relative:///| + replaceAll(sourceModule, fcfg.packageSep, "/");
+loc binFile(str srcsModule, loc bin, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
     relative.file      = "<fcfg.targetEsc><relative.file>";
-    relative.extension = fcfg.binaryExt;
+    relative.extension = fcfg.binExt;
 
     return bin + fcfg.targetRoot + relative.path;
 }
 
 @synopsis{Computing a fully qualified module name back from a file in the target folder}
 @description{
-* ((targetModule)) is the inverse of ((targetFile))
+* ((binModule)) is the inverse of ((binFile))
 }
-str targetModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = targetModule(targetFile, pcfg.bin, fcfg);
+str binModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
+  = binModule(binFile, pcfg.bin, fcfg);
 
-str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
-    relative           = relativize(bin, targetFile);
+str binModule(loc binFile, loc bin, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(bin, binFile);
     relative.extension = "";
     relative.file      = relative.file[size(fcfg.targetEsc)..];
     relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
@@ -258,29 +261,29 @@ str targetModule(loc targetFile, loc bin, LanguageFileConfig fcfg) throws PathNo
 
 @synopsis{Compute the binary file location for a fully qualified source module name}
 @description{
-* ((generatedFile)) is the inverse of ((generatedModule)).
+* ((generatedSourcesFile)) is the inverse of ((generatedSourcesModule)).
 * the returned target location does not have to exist yet.
 }
-loc generatedFile(str sourceModule, PathConfig pcfg, LanguageFileConfig fcfg)
-    = generatedFile(sourceModule, pcfg.generatedSources, fcfg);
+loc generatedSourcesFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
+    = generatedSourcesFile(srcsModule, pcfg.generatedSources, fcfg);
 
-loc generatedFile(str sourceModule, loc generated, LanguageFileConfig fcfg) {
-    relative           = |relative:///| + replaceAll(sourceModule, fcfg.packageSep, "/");
+loc generatedSourcesFile(str srcsModule, loc generated, LanguageFileConfig fcfg) {
+    relative           = |relative:///| + replaceAll(srcsModule, fcfg.packageSep, "/");
     relative.file      = "<fcfg.targetEsc><relative.file>";
-    relative.extension = fcfg.generatedExt;
+    relative.extension = fcfg.generatedSourcesExt;
 
     return generated + fcfg.targetRoot + relative.path;
 }
 
 @synopsis{Computing a fully qualified module name back from a file in the target folder}
 @description{
-* ((targetModule)) is the inverse of ((targetFile))
+* ((binModule)) is the inverse of ((binFile))
 }
-str generatedModule(loc targetFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
-  = generatedModule(targetFile, pcfg.generatedSources, fcfg);
+str generatedSourcesModule(loc binFile, PathConfig pcfg, LanguageFileConfig fcfg) throws PathNotFound
+  = generatedSourcesModule(binFile, pcfg.generatedSources, fcfg);
 
-str generatedModule(loc targetFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
-    relative           = relativize(generated, targetFile);
+str generatedSourcesModule(loc binFile, loc generated, LanguageFileConfig fcfg) throws PathNotFound {
+    relative           = relativize(generated, binFile);
     relative.extension = "";
     relative.file      = relative.file[size(fcfg.targetEsc)..];
     relative.path      = relative.path[1 + size(fcfg.targetRoot)..];
@@ -292,46 +295,45 @@ str generatedModule(loc targetFile, loc generated, LanguageFileConfig fcfg) thro
 
 private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
 
-test bool inverseTargetFileModule() {
+test bool inverseBinFileModule() {
     pcfg = pathConfig(
         bin=testLibraryLoc + "target/classes",
         srcs=[|project://rascal/src/org/rascalmpl/library/|]
     );
     fcfg = fileConfig();
 
-    tgt = targetFile("util::Monitor", pcfg, fcfg);
+    tgt = binFile("util::Monitor", pcfg, fcfg);
     writeFile(tgt, "blabla");
 
-    return targetModule(tgt, pcfg, fcfg) == "util::Monitor";
+    return binModule(tgt, pcfg, fcfg) == "util::Monitor";
 }
 
-test bool inverseGeneratedFileModule() {
+test bool inverseGeneratedSourcesFileModule() {
     pcfg = pathConfig(
-        bin=testLibraryLoc + "target/classes",
         generatedSources=testLibraryLoc + "target/generated-sources",
         srcs=[|project://rascal/src/org/rascalmpl/library/|]
     );
     fcfg = fileConfig();
 
-    tgt = generatedFile("util::Monitor", pcfg, fcfg);
+    tgt = generatedSourcesFile("util::Monitor", pcfg, fcfg);
     writeFile(tgt, "blabla");
 
-    return generatedModule(tgt, pcfg, fcfg) == "util::Monitor";
+    return generatedSourcesModule(tgt, pcfg, fcfg) == "util::Monitor";
 }
 
-test bool inverseSourceFileModule() {
+test bool inverseSrcsFileModule() {
     pcfg = pathConfig(
         bin=testLibraryLoc + "target/classes",
         srcs=[|project://rascal/src/org/rascalmpl/library/|]
     );
     fcfg = fileConfig();
 
-    src = sourceFile("util::Monitor", pcfg, fcfg);
+    src = srcsFile("util::Monitor", pcfg, fcfg);
 
-    return sourceModule(src, pcfg, fcfg) == "util::Monitor";
+    return srcsModule(src, pcfg, fcfg) == "util::Monitor";
 }
 
-test bool inverseLibraryFileModule() {
+test bool inverseLibsFileModule() {
     pcfg = pathConfig(
         bin=testLibraryLoc + "target/classes",
         libs=[testLibraryLoc + "libs"]
@@ -339,15 +341,15 @@ test bool inverseLibraryFileModule() {
     fcfg = fileConfig();
 
     writeFile(testLibraryLoc + "libs" + "rascal/util/$Monitor.tpl", "blabla");
-    lib = libraryFile("util::Monitor", pcfg, fcfg);
+    lib = libsFile("util::Monitor", pcfg, fcfg);
 
-    return libraryModule(lib, pcfg, fcfg) == "util::Monitor";
+    return libsModule(lib, pcfg, fcfg) == "util::Monitor";
 }
 
 test bool moduleExceptionWithSrc() {
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
     fcfg = fileConfig();
-    return sourceModule(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg, fcfg) 
+    return srcsModule(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg, fcfg) 
         == "Exception";
 }
 
@@ -355,7 +357,7 @@ test bool moduleReflectiveWithSrc() {
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
     fcfg = fileConfig();
 
-    return sourceModule(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg, fcfg) 
+    return srcsModule(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg, fcfg) 
         == "util::Reflective";
 }
 
@@ -365,7 +367,7 @@ test bool moduleExceptionOnlyTplModule() {
     pcfg = pathConfig(libs=[testLibraryLoc + "/lib/"]);
     fcfg = fileConfig();
 
-    return libraryModule(tplFile, pcfg, fcfg) == "Exception";
+    return libsModule(tplFile, pcfg, fcfg) == "Exception";
 }
 
 test bool moduleExceptionOnlyTplFile() {
@@ -374,7 +376,7 @@ test bool moduleExceptionOnlyTplFile() {
     pcfg = pathConfig(libs=[testLibraryLoc + "/lib/"]);
     fcfg = fileConfig();
 
-    return libraryFile("Exception", pcfg, fcfg) == tplFile;
+    return libsFile("Exception", pcfg, fcfg) == tplFile;
 }
 
 test bool moduleReflectiveOnlyTplModule() {
@@ -385,7 +387,7 @@ test bool moduleReflectiveOnlyTplModule() {
                      );
     fcfg = fileConfig();
 
-    return libraryModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) 
+    return libsModule(testLibraryLoc + "libs/rascal/util/$Reflective.tpl", pcfg, fcfg) 
             == "util::Reflective";
 }
 
@@ -397,7 +399,7 @@ test bool moduleReflectiveOnlyTplFile() {
                      );
     fcfg = fileConfig();
 
-    return libraryFile("util::Reflective", pcfg, fcfg) == libFile;
+    return libsFile("util::Reflective", pcfg, fcfg) == libFile;
 }
 
 test bool longestModuleReflectiveOnlyTpl() {
@@ -407,8 +409,8 @@ test bool longestModuleReflectiveOnlyTpl() {
     pcfg = pathConfig(srcs= [], 
                       libs=[testLibraryLoc + "1/libs", testLibraryLoc + "2/libs"]
                      );
-    fcfg = fileConfig();
-    return libraryFile("util::Reflective", pcfg, fcfg) == testLibraryLoc + "2/libs/rascal/util/$Reflective.tpl";
+    fcfg = fileConfig(binExt="tpl");
+    return libsFile("util::Reflective", pcfg, fcfg) == testLibraryLoc + "2/libs/rascal/util/$Reflective.tpl";
 }
 
 test bool moduleOnlyInSecondSrc(){
@@ -418,5 +420,5 @@ test bool moduleOnlyInSecondSrc(){
 
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|, testLibrarySrc]);
     fcfg = fileConfig();
-    return sourceModule(ESrc, pcfg, fcfg) == "E";
+    return srcsModule(ESrc, pcfg, fcfg) == "E";
 }
