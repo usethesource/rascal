@@ -74,19 +74,21 @@ data PathConfig = pathConfig(
 For most languages a single `fileConfig()` instance is enough to define:
 * the mapping from source files and source folders to fully qualified module names, and back: ((srcsModule)) and ((srcsFile))
 * the mapping from binary library files to fully qualified module names and back: ((libsModule)) and ((libsFile))
+* the mapping from generated source files to fully qualified module names and back: ((generatedSourcesModule)) and ((generatedSourcesFile))
+* the mapping from generated resource files to fully qualified module names and back: ((generatedResourcesModule)) and ((generatedResourcesFile))
 * the mapping from source files to target folder in the bin folder, and back: ((binFile)) and ((binModule))
 
-Together with a ((PathConfig)) instance, the above six functions can be re-used to build a language processor that supports:
+Together with a ((PathConfig)) instance, the above ten functions can be re-used to build a language processor that supports:
 * execution (testing) of generated files from the `bin` folder, using `libs` as run-time dependencies
 * using binary compile-time libraries, using `libs` to find binary interfaces to previously generated targets
 * packaging binary (generated) files as `jar` files to be re-used later as `libs` dependencies
 * modular language processors that work incrementally per changed source file or changed dependency
 }
 @benefits{
-* one ((fileConfig)) constant can be reused for configure all six different mapping functions.  
+* one ((fileConfig)) constant can be reused for configure all ten different mapping functions.  
 * a simple `fileConfig()` constant is configured for the Rascal compiler by default (.tpl files as binary extension).
 * the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance for one project.
-* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `srcsModule` and then 
+* more complex mappings can be made by combing the ten functions. For example first retrieving the module name using `srcsModule` and then 
 seeing if it exists also in one of the libraries using `libsFile`.
 }
 @pitfalls{
@@ -317,7 +319,7 @@ test bool inverseSrcsFileModule() {
         bin=testLibraryLoc + "target/classes",
         srcs=[testLibraryLoc + "src/main/rascal"]
     );
-    
+
     writeFile(pcfg.srcs[0] + "util/Monitor.rsc", "module util::Monitor");
     fcfg = fileConfig();
 
