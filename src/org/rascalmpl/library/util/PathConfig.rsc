@@ -44,7 +44,7 @@ transparantly. A PathConfig is also a log of the configuration process. Typicall
 * `generatedSources` is the place where intermediate code is written; this code is not to be committed to version control.
 * `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, and/or skipped when the compiler arrives there.)
 * `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or some other executable archive later.
-* `libs` is a list of binary dependencies (typically jar files or target folders) on other projects, for checking and linking purposes. Each entry is expected to return `true` for ((isDirectory)).
+* `libs` is a list of binary dependencies (typically jar files or bin folders) on other projects, for checking and linking purposes. Each entry is expected to return `true` for ((isDirectory)).
 * `resources` is a list of files or folders that will be copied *by the compiler* to the bin folder, synchronized with its other (binary) output files..
 * `generatedResources` is the place where intermediate resources are being written before they are copied to the `bin` folder. These files are not to be committed to version control.
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
@@ -76,7 +76,7 @@ For most languages a single `fileConfig()` instance is enough to define:
 * the mapping from binary library files to fully qualified module names and back: ((libsModule)) and ((libsFile))
 * the mapping from generated source files to fully qualified module names and back: ((generatedSourcesModule)) and ((generatedSourcesFile))
 * the mapping from generated resource files to fully qualified module names and back: ((generatedResourcesModule)) and ((generatedResourcesFile))
-* the mapping from source files to target folder in the bin folder, and back: ((binFile)) and ((binModule))
+* the mapping from source files to target files in the bin folder, and back: ((binFile)) and ((binModule))
 
 Together with a ((PathConfig)) instance, the above ten functions can be re-used to build a language processor that supports:
 * execution (testing) of generated files from the `bin` folder, using `libs` as run-time dependencies
@@ -116,7 +116,7 @@ We find the right file to source for the given `moduleName`:
 3. If a source file is found, without a binary target, this source file is returned.
 4. Otherwise we search in the libraries for a binary file and return it.
 5. We throw ((PathNotFound)) if a module can not be resolved using either the bin, srcs, or libs, and also
-if the only place we found the module in was a target folder. 
+if the only place we found the module in was a bin folder. 
 
 In other words, ((latestModuleFile)) prefers newer binaries over older source files, and source files over library modules.
 If a module is present in both libraries and the current project, then the current project's sources shadow the libraries.
@@ -225,7 +225,7 @@ loc srcsFile(str qualifiedModuleName, list[loc] srcs, LanguageFileConfig fcfg, b
 loc binFile(str srcsModule, PathConfig pcfg, LanguageFileConfig fcfg)
     = generatedXFile(srcsModule, pcfg.bin, fcfg.binExt, fcfg);
 
-@synopsis{Computing a fully qualified module name back from a file in the target folder}
+@synopsis{Computing a fully qualified module name back from a file in the bin folder}
 @description{
 * ((binModule)) is the inverse of ((binFile))
 }
