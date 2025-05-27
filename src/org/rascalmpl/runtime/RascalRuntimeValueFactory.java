@@ -277,8 +277,9 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
         getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
     }  
+   
     @Override
-    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -297,12 +298,12 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             new ParametrizedParseFunction( 
                 this, 
                 caller, 
-                allowAmbiguity, maxAmbDepth, allowRecovery, hasSideEffects, firstAmbiguity, filters)
+                allowAmbiguity, maxAmbDepth, allowRecovery, maxAmbDepth, maxAmbDepth, hasSideEffects, firstAmbiguity, filters)
         );
     }
 
     @Override
-    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,  IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         TypeFactory tf = TypeFactory.getInstance();
         
         Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
@@ -317,7 +318,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             
         String name = getParserMethodName(startSort);
 
-        return function(functionType, new ParseFunction(this, caller, allowAmbiguity, null, allowRecovery, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(this, caller, allowAmbiguity, null, allowRecovery, maxRecoveryTokens, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
 
      
