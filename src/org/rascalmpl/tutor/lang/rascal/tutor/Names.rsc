@@ -7,18 +7,18 @@ import IO;
 import util::Reflective;
 
 data PathConfig(
+  str  packageName="",
   str  packageArtifactId="",
   str  packageGroupId="",
-  str  packageVersion=getRascalVersion(),
-  str  packageName = "<packageGroupId>.<packageArtifactId>",
   loc  packageRoot=|unknown:///|,
   loc  sources=|http://github.com/usethesource/rascal|,
   loc  issues=|http://github.com/usethesource/rascal/issues|,
   loc  license=|cwd:///LICENSE.md|,
   loc  citation=|cwd:///CITATION.md|,
   loc  funding=|cwd:///FUNDING.md|,
-  loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
   loc  authors=|cwd:///AUTHORS.md|,
+  loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
+  str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
 );
 
@@ -37,8 +37,8 @@ str modulePath(/^<prefix:.*>::Index$/) = modulePath("<prefix>::module_Index");
 default str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
 default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
  
-@synopsis{keep the groupId.artifactId style and also the capitalization as-is}
-str package(str input) = input;
+@synopsis{keeps it as close to the original as possible}
+default str package(str input) = input;
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
