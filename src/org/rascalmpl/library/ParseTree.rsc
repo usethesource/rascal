@@ -294,6 +294,7 @@ data Symbol
     | \lexical(Symbol modified)
     | \keyword(Symbol modified)
     | \layout(Symbol modified)
+    | \data(Symbol modified)
     ;
 
 Symbol \data(\syntax(Symbol s))  = \data(s);

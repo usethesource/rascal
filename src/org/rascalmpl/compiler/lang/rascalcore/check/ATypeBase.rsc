@@ -337,6 +337,51 @@ data AType
      | \start(AType atype)
      ;
 
+@synopsis{These are the syntax role modifier constructors}
+data AType
+    = \asyntax(AType modified)
+    | \alexical(AType modified)
+    | \akeyword(AType modified)
+    | \alayout(AType modified)
+    | \adata(AType modified)
+    ;
+
+@synopsis{this is the core modifier feature: force the "role", keep the rest}
+AType \adata(a:aadt(n, ps, role)) = aadt(n, ps, dataRole());
+AType \alexical(adt(n, ps, role)) = aadt(n, ps, lexicalRole());
+AType \akeyword(adt(n, ps, role)) = aadt(n, ps, keywordRole());
+AType \alayout(adt(n, ps, role)) = aadt(n, ps, layoutRole());
+
+// below are the canonical forms for nested modifer application
+AType \adata(\asyntax(AType s))  = \adata(s);
+AType \adata(\alexical(AType s)) = \adata(s);
+AType \adata(\akeyword(AType s)) = \adata(s);
+AType \adata(\alayout(AType s))  = \adata(s);
+
+AType \asyntax(\adata(AType s))    = \asyntax(s);
+AType \asyntax(\asyntax(AType s))  = \asyntax(s);
+AType \asyntax(\alexical(AType s)) = \asyntax(s);
+AType \asyntax(\akeyword(AType s)) = \asyntax(s);
+AType \asyntax(\alayout(AType s))  = \asyntax(s);
+
+AType \alexical(\adata(AType s))    = \alexical(s);
+AType \alexical(\asyntax(AType s))  = \alexical(s);
+AType \alexical(\alexical(AType s)) = \alexical(s);
+AType \alexical(\akeyword(AType s)) = \alexical(s);
+AType \alexical(\alayout(AType s))  = \alexical(s);
+
+AType \akeyword(\adata(AType s))    = \akeyword(s);
+AType \akeyword(\asyntax(AType s))  = \akeyword(s);
+AType \akeyword(\alexical(AType s)) = \akeyword(s);
+AType \akeyword(\akeyword(AType s)) = \akeyword(s);
+AType \akeyword(\alayout(AType s))  = \akeyword(s);
+
+AType \alayout(\adata(AType s))    = \alayout(s);
+AType \alayout(\asyntax(AType s))  = \alayout(s);
+AType \alayout(\alexical(AType s)) = \alayout(s);
+AType \alayout(\akeyword(AType s)) = \alayout(s);
+AType \alayout(\alayout(AType s))  = \alayout(s);
+
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
 
