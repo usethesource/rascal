@@ -41,7 +41,7 @@ private default bool isParseError(Tree tree) = false;
 
 @synopsis{Check if a tree is a skipped tree.}
 private bool isSkipped(appl(skipped(_),_)) = true;
-private default bool isSkkipped(Tree tree) = false;
+private default bool isSkipped(Tree tree) = false;
 
 @synopsis{Check if a tree is an amb cluster}
 private bool isAmbCluster(amb(_)) = true;
@@ -402,13 +402,13 @@ Expected with memoization:
     └─ ❖
        ├─ AmbWord = "^"  ()  [a-z]  "$"
        │  ├─ ()
-       │  └─ d
+       │  └─ b
        ├─ AmbWord = "^"  ()  [a-z]  "$"
        │  ├─ ()
-       │  └─ b
+       │  └─ c
        └─ AmbWord = "^"  ()  [a-z]  "$"
           ├─ ()
-          └─ c
+          └─ d
     */
 
     // There will only be 3 matches if deep matches are memoized, 6 if they are not.
