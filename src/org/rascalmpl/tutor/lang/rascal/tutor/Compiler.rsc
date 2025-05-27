@@ -126,7 +126,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     return;
   }
 
-  if (pcfg.authors?) {
+  if (pcfg.authors? && exists(pcfg.authors)) {
     copy(pcfg.authors, pcfg.bin + "AUTHORS_<pcfg.packageName>.txt");
   }
 
@@ -169,7 +169,7 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
-  if (pcfg.authors?) {
+  if (pcfg.authors? && exists(pcfg.authors)) {
     writeFile(targetFile.parent + "Authors.md",
       "---
       'title: Authors of <pcfg.groupId>.<pcfg.artifactId>
