@@ -10,7 +10,7 @@ The main function of this module, ((parseWindowsPath)):
 * throws a ParseError if the path does not comply. Typically file names ending in spaces do not comply.
 * ensures that if the file exists on system A, then the `loc` representation
 resolves to the same file on system A via any ((Library:module:IO)) function. 
-* and nothing more. No normalization, no interpretatioon of `.` and `..`, no changing of cases. 
+* and nothing more. No normalization, no interpretation of `.` and `..`, no changing of cases. 
 This is left to downstream processors of `loc` values, if necessary. The current transformation
 is purely syntactical, and tries to preserve the semantics of the path as much as possible.
 }

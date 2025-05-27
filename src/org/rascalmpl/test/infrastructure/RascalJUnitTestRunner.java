@@ -172,13 +172,13 @@ public class RascalJUnitTestRunner extends Runner {
 
                         // the order of the tests aren't decided by this list so no need to randomly order them.
                         for (AbstractFunction f : tests) {
-                            modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
+                            modDesc.addChild(Description.createTestDescription(name, computeTestName(f.getName(), f.getAst().getLocation())));
                         }
                     }
                     catch (Throwable e) {
                         desc.addChild(modDesc);
 
-                        Description testDesc = Description.createTestDescription(clazz, name + " compilation failed", new CompilationFailed() {
+                        Description testDesc = Description.createTestDescription(name, name + " compilation failed", new CompilationFailed() {
                             @Override
                             public Class<? extends Annotation> annotationType() {
                                 return getClass();
@@ -191,7 +191,7 @@ public class RascalJUnitTestRunner extends Runner {
 
                 return true;
             } catch (IOException e) {
-                Description testDesc = Description.createTestDescription(clazz, prefix + " compilation failed: " + e.getMessage(), new CompilationFailed() {
+                Description testDesc = Description.createTestDescription(prefix, prefix + " compilation failed: " + e.getMessage(), new CompilationFailed() {
                             @Override
                             public Class<? extends Annotation> annotationType() {
                                 return getClass();
