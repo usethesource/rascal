@@ -78,8 +78,9 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   str groupId           = "org.rascalmpl",
   str artifactId        = "rascal",
   str version           = getRascalVersion(),
-  str packageName       = "rascal") {
+  str packageName       = "<groupId>.<artifactId>") {
 
+  if (authors?)         pcfg.authors         = authors;
   if (license?)         pcfg.license         = license;
   if (citation?)        pcfg.citation        = citation;
   if (funding?)         pcfg.funding         = funding;
@@ -252,7 +253,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '<if (pcfg.authors?, exists(pcfg.authors)) {>* [Authors](../../Packages/<package(pcfg.packageName)>/Authors.md)<}>
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
-    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
+    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageArtifactId>)
     '<if (pcfg.releaseNotes?)  {>* [Release notes](../../Packages/<package(pcfg.packageName)>/RELEASE-NOTES.md)<}>
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<package(pcfg.packageName)>/License.md)<}>
     '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<package(pcfg.packageName)>/Citation.md)<}>
