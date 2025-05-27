@@ -196,11 +196,8 @@
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
-<<<<<<< HEAD
                             <release-notes>${project.basedir}/RELEASE-NOTES.md</release-notes>
-=======
                             <authors>${project.basedir}/AUTHORS.md</authors>
->>>>>>> main
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
                             <version>${project.version}</version>
@@ -217,8 +214,6 @@
                             </ignores>
                         </configuration>
                     </execution>
-<<<<<<< HEAD
-=======
                     <execution>
                         <id>default-package</id>
                         <phase>prepare-package</phase>
@@ -232,7 +227,6 @@
                             <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
                     </execution> 
->>>>>>> main
                 </executions>
             </plugin>
             <plugin>
