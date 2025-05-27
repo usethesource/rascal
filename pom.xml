@@ -178,8 +178,10 @@
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
+                            <authors>${project.basedir}/AUTHORS.md</authors>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
+                            <version>${project.version}</version>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
