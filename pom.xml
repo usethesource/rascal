@@ -131,30 +131,8 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
-                    <bin>${project.build.outputDirectory}</bin>
-                    <srcs>
-                        <src>${project.basedir}/src/org/rascalmpl/library</src>
-                    </srcs>
-                    <sourceLookup>|std:///|</sourceLookup>
-                    <funding>${project.basedir}/FUNDING</funding>
-                    <citation>${project.basedir}/CITATION.md</citation>
-                    <issues>|https://github.com/usethesource/rascal/issues|</issues>
-                    <srcIgnores>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/util/Explode.rsc</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
-                    </srcIgnores>
-                    <enableStandardLibrary>false</enableStandardLibrary>
                     <bootstrapRascalVersion>0.41.0-RC46</bootstrapRascalVersion>
-                    <parallel>true</parallel>
-                    <parallelPreChecks>
-                        <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
-                    </parallelPreChecks>
-                    </configuration> 
+                </configuration> 
                 <executions>
                     <execution>
                         <id>default-compile</id>
