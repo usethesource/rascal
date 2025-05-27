@@ -459,6 +459,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				try {
 					IList list = (IList) rec.getValue();
 					int index = ((IInteger) subscript.getValue()).intValue();
+					if (index < 0) {
+						index += list.length();
+					}
 					__eval.__setValue(__eval.newResult(list.get(index), __eval
 							.__getValue()));
 					list = list.put(index, __eval.__getValue().getValue());

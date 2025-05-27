@@ -32,6 +32,7 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -86,6 +87,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -542,12 +544,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				catch (Failure | MatchFailed e) {
 				    throw RuntimeExceptionFactory.callFailed(eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
+				catch (StackOverflowError e) {
+					// this should not use so much stack as to trigger another StackOverflowError
+					throw new RascalStackOverflowError(this, eval.getCurrentEnvt());
+				}
 				return res;
 			}
-			catch (StackOverflowError e) {
-				e.printStackTrace();
-				throw RuntimeExceptionFactory.stackOverflow(this, eval.getStackTrace());
-			}
+			finally {}
+			
 		}
 
 		@Override
@@ -1070,27 +1074,27 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return false;
 		}
 
-    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
 			IString str = vf.string(new String(input));
-		
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, str, location);
 			}
 			else {
-        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.integer(maxAmbDepth), vf.bool(allowRecovery), vf.integer(maxRecoveryAttempts), vf.integer(maxRecoveryTokens), vf.bool(hasSideEffects), vf.bool(false), filters);
 				return (ITree) parser.call(vf.string(new String(input)), location);
 			}
     	}
 
-		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects) {
+		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-			
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, location, location);
 			}
 			else {
-				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.integer(maxAmbDepth), vf.bool(allowRecovery), vf.integer(maxRecoveryAttempts), vf.integer(maxRecoveryTokens), vf.bool(hasSideEffects), vf.bool(false), filters);
         		return (ITree) parser.call(location, location);
 			}
     	}
@@ -1126,10 +1130,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
             
 				if (result.getStaticType().isString()) {
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, 
+						INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false);
 				}
 				
 				assert tree != null; // because we checked earlier
@@ -1833,10 +1838,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName(), bindTypeParameters);
 			}
+
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
 			}
-			throw new ImplementationError(null);
+
+			throw new UnsupportedOperation("splice operator outside of list or set", this);
 		}
 
 		@Override
@@ -1872,7 +1879,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if(arg.hasQualifiedName()){
 				return arg.getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 			}
-			throw new ImplementationError(null);
+
+			return arg.typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -2766,8 +2774,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			java.util.List<org.rascalmpl.ast.Expression> elements = this
-					.getElements();
+			var elements = this.getElements();
 
 			IValue[] values = new IValue[elements.size()];
 			Type[] types = new Type[elements.size()];

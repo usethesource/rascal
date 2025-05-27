@@ -12,6 +12,8 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,95 +29,45 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.project.ProjectURIResolver;
-import org.rascalmpl.uri.project.TargetURIResolver;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
-    private static Evaluator evaluator;
-    private static GlobalEnvironment heap;
-    private static ModuleEnvironment root;
+    private final Evaluator evaluator;
     private Description desc;
 
     private final String prefix;
     private final ISourceLocation projectRoot;
     private final Class<?> clazz;
 
-    static {
-        try {
-            heap = new GlobalEnvironment();
-            root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, TestFramework.getCommonMonitor());
-        
-            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-            evaluator.getConfiguration().setErrors(true);
-        } 
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }  
+    private final static String JUNIT_TEST = "___junit_test___";
+
 
     public RascalJUnitTestRunner(Class<?> clazz) {
-        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
-        this.projectRoot = inferProjectRoot(clazz);
+        prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
+        projectRoot = inferProjectRootFromClass(clazz);
         this.clazz = clazz;
         
         System.err.println("Rascal JUnit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
         System.err.println("Rascal JUnit project root: " + projectRoot);
-        
 
         if (projectRoot != null) {
-            configureProjectEvaluator(evaluator, projectRoot);
-        }
-        else {
+            evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            ShellEvaluatorFactory.registerProjectAndTargetResolver(projectRoot);
+            evaluator.getConfiguration().setErrors(true);
+        } else {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
         }
     }
     
-    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        String projectName = new RascalManifest().getProjectName(projectRoot);
-        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+    public static ISourceLocation inferProjectRootFromClass(Class<?> clazz) {
         
-        try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
-            
-            for (IValue path : pcfg.getSrcs()) {
-
-                evaluator.addRascalSearchPath((ISourceLocation) path); 
-            }
-            
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-            evaluator.addClassLoader(cl);
-        }
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-        catch (IOException e) {
-            System.err.println(e);
-        }
-    }
-
-    public static ISourceLocation inferProjectRoot(Class<?> clazz) {
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
             if (file.endsWith(".jar")) {
@@ -194,25 +146,23 @@ public class RascalJUnitTestRunner extends Runner {
         Description desc = Description.createSuiteDescription(prefix);
         this.desc = desc;
 
-        evaluator.job("Loading test modules", 1, (jobName) -> {	
+        evaluator.job(Evaluator.LOADING_JOB_CONSTANT, 1, (jobName) -> {	
             try {
-                evaluator.jobTodo(jobName, 1);
                 List<String> modules = new ArrayList<>(10);
+                evaluator.jobTodo(jobName, modules.size());
                 for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
                     getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), modules);
                 }
                 
                 Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
-                evaluator.jobStep(jobName, "detected " + modules.size() + " modules");
-                evaluator.jobTodo(jobName, modules.size());
+                
                 for (String module : modules) {
                     String name = prefix + "::" + module;
                     Description modDesc = Description.createSuiteDescription(name);
-                    evaluator.jobStep(jobName, "Preparing " + name);
 
                     try {
-                        evaluator.doImport(new NullRascalMonitor(), name);
-                        List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
+                        evaluator.doNextImport(jobName, name);
+                        List<AbstractFunction> tests = evaluator.getHeap().getModule(name.replaceAll("\\\\","")).getTests();
                     
                         if (tests.isEmpty()) {
                             continue;

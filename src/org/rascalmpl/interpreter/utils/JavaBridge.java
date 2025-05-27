@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,13 +47,14 @@ import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
@@ -94,15 +97,11 @@ public class JavaBridge {
 	private final IValueFactory vf;
 	
 	private final Map<Class<?>, Object> instanceCache;
-	
-
-	private final Configuration config;
 
 	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
-		this.config = config;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -110,37 +109,37 @@ public class JavaBridge {
 	}
 
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
-		return compileJava(loc, className, getClass(), source);
+		return compileJava(loc, className, Evaluator.class, source);
 	}
 
 	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
-		compileJava(loc, className, getClass(), source, classBytes);
+		compileJava(loc, className, Evaluator.class, source, classBytes);
 	}
 	
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "--release", "11", "-cp", config.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "--release", "11" });
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			return result;
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
+			throw new JavaCompilation(e.getMessage(), 1, 0, source, e);
 		} 
 		catch (JavaCompilerException e) {
-		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
-		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
-		    }
-		    else {
-		        throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
-		    }
+			if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
+				Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+				throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, e);
+			}
+			else {
+				throw new JavaCompilation(e.getMessage(), 1, 0, source, e);
+			}
 		}
 	}
 
-	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException {
-		List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
+		List<String> commandline = Arrays.asList(new String[] {"-proc:none"} );
 		JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), null, commandline);
 		return javaCompiler.load(in);
 	}
@@ -148,7 +147,7 @@ public class JavaBridge {
 	public <T> void compileJava(ISourceLocation loc, String className, Class<?> parent, String source, OutputStream classBytes) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none" });
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			javaCompiler.compile(classBytes, className, source, null);
 		} 
@@ -156,8 +155,7 @@ public class JavaBridge {
 			throw new JavaCompilation(
 				e.getMessage(), 
 				1, 0,
-				source, 
-				config.getRascalJavaClassPathProperty(),
+				source,
 				e
 			);
 		} 
@@ -166,8 +164,7 @@ public class JavaBridge {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
 		        throw new JavaCompilation(
 					msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), 
-					source, 
-					config.getRascalJavaClassPathProperty(),
+					source,
 					e
 				);
 		    }
@@ -175,8 +172,7 @@ public class JavaBridge {
 		        throw new JavaCompilation(
 					e.getMessage(), 
 					1,  0,
-					source, 
-					config.getRascalJavaClassPathProperty(),
+					source,
 					e
 				);
 		    }
@@ -375,14 +371,11 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in, IEvaluatorContext ctx) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, Reader in, IEvaluatorContext ctx) {
 		String className = getClassName(func);
 		
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
 		int writers = 0;
-        
-		OutputStream[] rawOutputs = new OutputStream[] { rawOut, rawErr };
-		int rawWriters = 0;
 
 		try {
 			for(ClassLoader loader : loaders){
@@ -425,10 +418,7 @@ public class JavaBridge {
 					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
 					        args[i] = outputs[writers++ % 2];
 					    }
-					    else if (formals[i].isAssignableFrom(OutputStream.class)) {
-					        args[i] = rawOutputs[rawWriters++ %2];
-					    }
-					    else if (formals[i].isAssignableFrom(InputStream.class)) {
+					    else if (formals[i].isAssignableFrom(Reader.class)) {
 					        args[i] = in;
 					    }
 					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
@@ -445,7 +435,7 @@ public class JavaBridge {
 								args[i] = (IDEServices) monitor;
 							}
 							else {
-								throw new IllegalArgumentException("no IDE services are available in this environment");
+								args[i] = new BasicIDEServices(err, monitor, null);
 							}
 						}
 						else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {
@@ -510,11 +500,6 @@ public class JavaBridge {
 		String className = getClassName(func);
 		String name = Names.name(func.getSignature().getName());
 		
-		if(className.length() == 0){	// TODO: Can this ever be thrown since the Class instance has 
-										// already been identified via the javaClass tag.
-			throw new MissingTag(JAVA_CLASS_TAG, func);
-		}
-		
 		for (ClassLoader loader : loaders) {
 			try {
 				Class<?> clazz = loader.loadClass(className);
@@ -524,9 +509,9 @@ public class JavaBridge {
 				try { 
 					Method m;
 					
-					if(javaTypes.length > 0){ // non-void
+					if (javaTypes.length > 0) { // non-void
 						m = clazz.getMethod(name, javaTypes);
-					}else{
+					} else{
 						m = clazz.getMethod(name);
 					}
 

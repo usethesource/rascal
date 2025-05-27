@@ -47,13 +47,14 @@ public Grammar fuse(GrammarDefinition def) {
   result = grammar({},());
   todo = {def.main};
   done = {};
+  deps = dependencies(def);
   
   while (todo != {}) {
     <nm,todo> = takeOneFrom(todo);
     done += nm; 
     if(def.modules[nm]?){
         \mod = def.modules[nm];
-        result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends, def.modules[i]?);
+        result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
         todo += (\mod.extends - done);
     }
   }

@@ -563,24 +563,43 @@ Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
+@synopsis{Read the content of a file and return it as a base-64 encoded string.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase64(loc file)
+public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
-Use readBase64 instead. Uuencode was a misnomer.
+Use readBase64 instead.
 }
 public str uuencode(loc file) = readBase64(file);
 
+@synopsis{Decode a base-64 encoded string and write the resulting bytes to a file.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase65 instead. Uudecode was a misnomer.
+Use writeBase64 instead.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
+@synopsis{Read the content of a file and return it as a base-32 encoded string.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase32(loc file, bool includePadding=true)
+throws PathNotFound, IO;
+
+@synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase32(loc file, str content)
+throws PathNotFound, IO;
 
 @synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
@@ -692,21 +711,24 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(loc file)
+@deprecated{
+Use `readBase64` instead.
+}
+public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);
@@ -735,3 +757,42 @@ java void watch(loc src, bool recursive, void (LocationChangeEvent event) watche
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+
+@synopsis{Categories of IO capabilities for loc schemes}
+@description{
+* `read` includes at least these functions:
+   * ((readFile))
+   * ((lastModified)) and ((created))
+   * ((exists))
+   * ((isFile)) and ((isDirectory))
+   * `loc.ls`, and ((listEntries)) 
+* `write` includes at least these functions:
+   * ((writeFile))
+   * ((mkDirectory))
+   * ((remove))
+   * ((rename))
+* `classloader` means that for this scheme a specialized/optimized ClassLoader can be produced at run-time. By
+default an abstract (slower) ClassLoader can be built using `read` capabilities on `.class` files.
+* `watch` means that for this scheme a native file watcher can be instantiated. By default 
+a slower more generic file watcher is created based on capturing `write` actions.
+   * ((resolving)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
+rewritten to a more concrete URI on-demand. Logical URIs can be nested arbitrarily.
+
+These capabilities extend naturally to other IO functions that use the internal versions of the above functionality, 
+such as used in ((ValueIO)) and ((lang::json::IO)), etc.
+}
+@pitfalls{
+* IO capabilities are not to be confused with file _permissions_. It is still possible that a file
+has write capabilities, but writing is denied by the OS due to a lack of permissions.
+}
+data IOCapability
+  = reading()
+  | writing()
+  | classloading()
+  | resolving()
+  | watching()
+  ;
+
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{List the IO capabilities of a loc (URI) scheme}
+java set[IOCapability] capabilities(loc location);

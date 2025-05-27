@@ -108,3 +108,16 @@ test bool tst_rangeX(rel[int, int] X) {
    XR = rangeX(X, s);
    return isEmpty(XR) || all(<_, b> <- XR, b notin s);
 }
+
+@expected{UndeclaredField}
+@ignoreCompiler{The checker would detect this}
+test bool fieldSelectionNoFields() {
+   x = {};
+   x<name>; // throws UndeclaredField
+   return false;
+}
+
+test bool fieldSelectionEmpty() {
+   rel[int a, int b] x = {};
+   return x<b,a> == {};
+}

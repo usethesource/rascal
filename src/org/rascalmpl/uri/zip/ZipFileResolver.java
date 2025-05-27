@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,23 +21,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import io.usethesource.vallang.ISourceLocation;
+
 public class ZipFileResolver  {
 
-    protected final Cache<ISourceLocation, FileTree> fsCache = Caffeine.newBuilder()
-            .weigher((ISourceLocation e, FileTree v) -> (int) (v.totalSize() / 1024))
+    protected final Cache<ISourceLocation, CompressedFSTree> fsCache = Caffeine.newBuilder()
+            .weigher((ISourceLocation e, CompressedFSTree v) -> (int) (v.getTotalSize() / 1024))
             .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more
             // than 1% of the memory
             .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
             .softValues().build();
 
-    protected FileTree getFileHierchyCache(ISourceLocation zip) {
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation zip) {
         try {
             final File zipFile = new File(zip.getPath());
             return fsCache.get(URIUtil.changeQuery(zip, "mod=" + zipFile.lastModified()), j -> new ZipFileTree(zipFile));
@@ -77,8 +77,13 @@ public class ZipFileResolver  {
     }
 
     public long lastModified(ISourceLocation zip, String path) throws IOException {
-        return getFileHierchyCache(zip).getLastModified(path);
+        return getFileHierchyCache(zip).lastModified(path);
     }
+
+    public long created(ISourceLocation zip, String path) throws IOException {
+        return getFileHierchyCache(zip).created(path);
+    }
+
 
     public String[] list(ISourceLocation zip, String path) throws IOException {
         if (!path.endsWith("/") && !path.isEmpty()) {

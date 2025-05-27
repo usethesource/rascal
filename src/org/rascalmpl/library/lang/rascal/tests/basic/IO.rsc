@@ -4,6 +4,7 @@ import String;
 
 import IO;
 import util::UUID;
+import Exception;
 
 private loc aFile = |memory://test-tmp/basic-io-<"<uuidi()>">.txt|;
 

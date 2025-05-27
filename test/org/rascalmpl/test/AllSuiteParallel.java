@@ -7,6 +7,6 @@ import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
 
 @RunWith(RecursiveTestSuite.class)
 @RecursiveTest({"parallel"})
-@RecursiveJavaOnlyTest({"basic", "concrete", "functionality", "library", "parser",  "demo", "benchmark"})
+@RecursiveJavaOnlyTest({"basic", "concrete", "functionality", "library", "parser",  "recovery", "demo", "benchmark"})
 public class AllSuiteParallel {
 }

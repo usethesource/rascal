@@ -36,408 +36,227 @@ test bool tstLiterals3() = literals(GEXP) == GEXP;
 test bool tstLiterals4() = literals(GEXPPRIO) == GEXPPRIO;
 
 test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
-  {sort("S")[
-      id=2
-    ]},
+  {sort("S")},
   ());
   
  test bool tstUnique1() = makeUnique(G0) == grammar(
-  {sort("S")[
-      id=2
-    ]},
+  {sort("S")},
   (
-    sort("S")[
-      id=3
-    ]:choice(
-      sort("S")[
-        id=4
-      ],
+    sort("S"):choice(
+      sort("S",id=2),
       {prod(
-          sort("S")[
-            id=5
-          ],
-          [lit("0")[
-              id=6
-            ]],
+          sort("S",id=3),
+          [lit("0",id=4)],
           {})}),
-    lit("0")[
-      id=7
-    ]:choice(
-      lit("0")[
-        id=8
-      ],
+    lit("0"):choice(
+      lit("0",id=5),
       {prod(
-          lit("0")[
-            id=9
-          ],
-          [\char-class([range(48,48)])[
-              id=10
-            ]],
+          lit("0",id=6),
+          [\char-class(
+              [range(48,48)],
+              id=7)],
           {})})
   ));
   
 test bool tstUnique2() = makeUnique(GEXP)== grammar(
-  {sort("E")[
-      id=2
-    ]},
+  {sort("E")},
   (
-    lit("+")[
-      id=3
-    ]:choice(
-      lit("+")[
-        id=4
-      ],
+    lit("+"):choice(
+      lit("+",id=2),
       {prod(
-          lit("+")[
-            id=5
-          ],
-          [\char-class([range(43,43)])[
-              id=6
-            ]],
+          lit("+",id=3),
+          [\char-class(
+              [range(43,43)],
+              id=4)],
           {})}),
-    lit("*")[
-      id=7
-    ]:choice(
-      lit("*")[
-        id=8
-      ],
+    lit("*"):choice(
+      lit("*",id=5),
       {prod(
-          lit("*")[
-            id=9
-          ],
-          [\char-class([range(42,42)])[
-              id=10
-            ]],
+          lit("*",id=6),
+          [\char-class(
+              [range(42,42)],
+              id=7)],
           {})}),
-    sort("B")[
-      id=11
-    ]:choice(
-      sort("B")[
-        id=12
-      ],
+    sort("B"):choice(
+      sort("B",id=8),
       {
         prod(
-          sort("B")[
-            id=13
-          ],
-          [lit("0")[
-              id=14
-            ]],
+          sort("B",id=11),
+          [lit("1",id=12)],
           {}),
         prod(
-          sort("B")[
-            id=15
-          ],
-          [lit("1")[
-              id=16
-            ]],
+          sort("B",id=9),
+          [lit("0",id=10)],
           {})
       }),
-    lit("0")[
-      id=17
-    ]:choice(
-      lit("0")[
-        id=18
-      ],
+    lit("0"):choice(
+      lit("0",id=13),
       {prod(
-          lit("0")[
-            id=19
-          ],
-          [\char-class([range(48,48)])[
-              id=20
-            ]],
+          lit("0",id=14),
+          [\char-class(
+              [range(48,48)],
+              id=15)],
           {})}),
-    sort("E")[
-      id=21
-    ]:choice(
-      sort("E")[
-        id=22
-      ],
+    sort("E"):choice(
+      sort("E",id=16),
       {
         prod(
-          sort("E")[
-            id=23
-          ],
-          [sort("B")[
-              id=24
-            ]],
-          {}),
-        prod(
-          sort("E")[
-            id=25
-          ],
+          sort("E",id=23),
           [
-            sort("E")[
-              id=26
-            ],
-            lit("+")[
-              id=27
-            ],
-            sort("B")[
-              id=28
-            ]
+            sort("E",id=24),
+            lit("*",id=25),
+            sort("B",id=26)
           ],
           {}),
         prod(
-          sort("E")[
-            id=29
-          ],
+          sort("E",id=17),
+          [sort("B",id=18)],
+          {}),
+        prod(
+          sort("E",id=19),
           [
-            sort("E")[
-              id=30
-            ],
-            lit("*")[
-              id=31
-            ],
-            sort("B")[
-              id=32
-            ]
+            sort("E",id=20),
+            lit("+",id=21),
+            sort("B",id=22)
           ],
           {})
       }),
-    lit("1")[
-      id=33
-    ]:choice(
-      lit("1")[
-        id=34
-      ],
+    lit("1"):choice(
+      lit("1",id=27),
       {prod(
-          lit("1")[
-            id=35
-          ],
-          [\char-class([range(49,49)])[
-              id=36
-            ]],
+          lit("1",id=28),
+          [\char-class(
+              [range(49,49)],
+              id=29)],
           {})})
   ));
-
 
 test bool tstGenerateNewItems1() = generateNewItems(makeUnique(GEMPTY)) == ();
 
 test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) == 
 (
-  sort("S")[
-    id=5
-  ]:(item(
+  sort("S"):(item(
       prod(
-        sort("S")[
-          id=5
-        ],
-        [lit("0")[
-            id=6
-          ]],
+        sort("S"),
+        [lit("0")],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(6, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",6>),
-  lit("0")[
-    id=9
-  ]:(item(
+      0):<"new LiteralStackNode\<IConstructor\>(4, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",4>),
+  lit("0"):(item(
       prod(
-        lit("0")[
-          id=9
-        ],
-        [\char-class([range(48,48)])[
-            id=10
-          ]],
+        lit("0"),
+        [\char-class([range(48,48)])],
         {}),
-      0):<"new CharStackNode\<IConstructor\>(10, 0, new int[][]{{48,48}}, null, null)",10>)
+      0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{48,48}}, null, null)",7>)
 );
 
 test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) == 
 (
-  lit("+")[
-    id=5
-  ]:(item(
+  lit("+"):(item(
       prod(
-        lit("+")[
-          id=5
-        ],
-        [\char-class([range(43,43)])[
-            id=6
-          ]],
+        lit("+"),
+        [\char-class([range(43,43)])],
         {}),
-      0):<"new CharStackNode\<IConstructor\>(6, 0, new int[][]{{43,43}}, null, null)",6>),
-  lit("*")[
-    id=9
-  ]:(item(
+      0):<"new CharStackNode\<IConstructor\>(4, 0, new int[][]{{43,43}}, null, null)",4>),
+  lit("*"):(item(
       prod(
-        lit("*")[
-          id=9
-        ],
-        [\char-class([range(42,42)])[
-            id=10
-          ]],
+        lit("*"),
+        [\char-class([range(42,42)])],
         {}),
-      0):<"new CharStackNode\<IConstructor\>(10, 0, new int[][]{{42,42}}, null, null)",10>),
-  sort("B")[
-    id=13
-  ]:(
+      0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{42,42}}, null, null)",7>),
+  sort("B"):(
     item(
       prod(
-        sort("B")[
-          id=13
-        ],
-        [lit("0")[
-            id=14
-          ]],
+        sort("B"),
+        [lit("0")],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(14, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",14>,
+      0):<"new LiteralStackNode\<IConstructor\>(10, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSx7fSk00, new int[] {48}, null, null)",10>,
     item(
       prod(
-        sort("B")[
-          id=15
-        ],
-        [lit("1")[
-            id=16
-          ]],
+        sort("B"),
+        [lit("1")],
         {}),
-      0):<"new LiteralStackNode\<IConstructor\>(16, 0, cHJvZChsaXQoIjEiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ5LDQ5KV0pXSx7fSk00, new int[] {49}, null, null)",16>
+      0):<"new LiteralStackNode\<IConstructor\>(12, 0, cHJvZChsaXQoIjEiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ5LDQ5KV0pXSx7fSk00, new int[] {49}, null, null)",12>
   ),
-  lit("0")[
-    id=19
-  ]:(item(
+  lit("0"):(item(
       prod(
-        lit("0")[
-          id=19
-        ],
-        [\char-class([range(48,48)])[
-            id=20
-          ]],
+        lit("0"),
+        [\char-class([range(48,48)])],
         {}),
-      0):<"new CharStackNode\<IConstructor\>(20, 0, new int[][]{{48,48}}, null, null)",20>),
-  sort("E")[
-    id=23
-  ]:(
+      0):<"new CharStackNode\<IConstructor\>(15, 0, new int[][]{{48,48}}, null, null)",15>),
+  sort("E"):(
     item(
       prod(
-        sort("E")[
-          id=23
-        ],
-        [sort("B")[
-            id=24
-          ]],
+        sort("E"),
+        [sort("B")],
         {}),
-      0):<"new NonTerminalStackNode\<IConstructor\>(24, 0, \"B\", null, null)",24>,
+      0):<"new NonTerminalStackNode\<IConstructor\>(18, 0, \"B\", null, null)",18>,
     item(
       prod(
-        sort("E")[
-          id=29
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=30
-          ],
-          lit("*")[
-            id=31
-          ],
-          sort("B")[
-            id=32
-          ]
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
-      1):<"new LiteralStackNode\<IConstructor\>(31, 1, cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00, new int[] {42}, null, null)",31>,
+      1):<"new LiteralStackNode\<IConstructor\>(25, 1, cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00, new int[] {42}, null, null)",25>,
     item(
       prod(
-        sort("E")[
-          id=25
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=26
-          ],
-          lit("+")[
-            id=27
-          ],
-          sort("B")[
-            id=28
-          ]
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
-      1):<"new LiteralStackNode\<IConstructor\>(27, 1, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null)",27>,
+      1):<"new LiteralStackNode\<IConstructor\>(21, 1, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null)",21>,
     item(
       prod(
-        sort("E")[
-          id=25
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=26
-          ],
-          lit("+")[
-            id=27
-          ],
-          sort("B")[
-            id=28
-          ]
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
-      0):<"new NonTerminalStackNode\<IConstructor\>(26, 0, \"E\", null, null)",26>,
+      0):<"new NonTerminalStackNode\<IConstructor\>(20, 0, \"E\", null, null)",20>,
     item(
       prod(
-        sort("E")[
-          id=29
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=30
-          ],
-          lit("*")[
-            id=31
-          ],
-          sort("B")[
-            id=32
-          ]
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
-      0):<"new NonTerminalStackNode\<IConstructor\>(30, 0, \"E\", null, null)",30>,
+      0):<"new NonTerminalStackNode\<IConstructor\>(24, 0, \"E\", null, null)",24>,
     item(
       prod(
-        sort("E")[
-          id=29
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=30
-          ],
-          lit("*")[
-            id=31
-          ],
-          sort("B")[
-            id=32
-          ]
+          sort("E"),
+          lit("*"),
+          sort("B")
         ],
         {}),
-      2):<"new NonTerminalStackNode\<IConstructor\>(32, 2, \"B\", null, null)",32>,
+      2):<"new NonTerminalStackNode\<IConstructor\>(26, 2, \"B\", null, null)",26>,
     item(
       prod(
-        sort("E")[
-          id=25
-        ],
+        sort("E"),
         [
-          sort("E")[
-            id=26
-          ],
-          lit("+")[
-            id=27
-          ],
-          sort("B")[
-            id=28
-          ]
+          sort("E"),
+          lit("+"),
+          sort("B")
         ],
         {}),
-      2):<"new NonTerminalStackNode\<IConstructor\>(28, 2, \"B\", null, null)",28>
+      2):<"new NonTerminalStackNode\<IConstructor\>(22, 2, \"B\", null, null)",22>
   ),
-  lit("1")[
-    id=35
-  ]:(item(
+  lit("1"):(item(
       prod(
-        lit("1")[
-          id=35
-        ],
-        [\char-class([range(49,49)])[
-            id=36
-          ]],
+        lit("1"),
+        [\char-class([range(49,49)])],
         {}),
-      0):<"new CharStackNode\<IConstructor\>(36, 0, new int[][]{{49,49}}, null, null)",36>)
+      0):<"new CharStackNode\<IConstructor\>(29, 0, new int[][]{{49,49}}, null, null)",29>)
 );
 
 test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY, makeUnique(GEMPTY)) == {};
@@ -463,7 +282,7 @@ grammar(
           {})})
   ));
   
-loc ParserBaseLoc = |compressed+project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/|;
+loc ParserBaseLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/|;
 
 void generateParsers() {
     writeFile(ParserBaseLoc + "GEMPTYParser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY));
@@ -479,16 +298,16 @@ bool sameLines(str s1, str s2) = size(removeEmptyLines(s1) - removeEmptyLines(s2
  
 test bool tstNewGenerateGEMPTY() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY), 
-		      readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
+		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
 		      
 test bool tstNewGenerateG0() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "G0Parser", G0), 
-	          readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
+	          readFile(|std:///lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
 	          
 test bool tstNewGenerateGEXP() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP), 
-	readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
+	readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
 	
 test bool tstNewGenerateGEXPPRIO() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPPRIOParser", GEXPPRIO), 
-		      readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));
+		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));

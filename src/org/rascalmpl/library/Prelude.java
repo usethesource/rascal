@@ -51,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -69,20 +70,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.CharSetUtils;
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
-import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -129,11 +134,12 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	
+
     protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
@@ -141,16 +147,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
@@ -160,7 +164,15 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
+        return t.randomValue(
+			random, 
+			RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), 
+			values, 
+			new TypeStore(), 
+			Collections.emptyMap(), 
+			depth, 
+			width
+		);
     }
 
 	
@@ -261,7 +273,7 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private String getTZString(int hourOffset, int minuteOffset) {
+	public static String getTZString(int hourOffset, int minuteOffset) {
 		String tzString = "GMT" + 
 			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
 			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
@@ -627,7 +639,7 @@ public class Prelude {
 		}
 	}
 
-	private Calendar getCalendarForDateTime(IDateTime inputDateTime) {
+	public static Calendar getCalendarForDateTime(IDateTime inputDateTime) {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
@@ -1432,12 +1444,11 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
-		
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = REGISTRY.getInputStream(sloc)) {
-			byte bytes[] = new byte[FILE_BUFFER_SIZE];
+			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
 
 			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
@@ -1456,9 +1467,12 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString readBase64(ISourceLocation sloc) {
-        int BUFFER_SIZE = 3 * 512;
+    public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
+		if (!includePadding.getValue()) {
+			encoder = encoder.withoutPadding();
+		}
         
         try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
@@ -1467,13 +1481,13 @@ public class Prelude {
             
             // read multiples of 3 until not possible anymore
             while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
+				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             // read final chunk which is not a multiple of 3
             if ( len > 0 ) {
                  chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
+				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             return values.string(result.toString());
@@ -1483,18 +1497,42 @@ public class Prelude {
         }
     }
 
-	public void writeBase64(ISourceLocation sloc, IString contents) {
-        int BUFFER_SIZE = 3 * 512;
+	public void writeBase64(ISourceLocation sloc, IString base64content) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
-        try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			out.write(decoder.decode(contents.getValue()));
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			output.write(decoder.decode(base64content.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
+	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			if (!includePadding.getValue()) {
+				encoded = encoded.replace("=", "");
+			}
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+    }
+
+	public void writeBase32(ISourceLocation sloc, IString base32Content) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			// The only relevant field we want to change set is the policy
+			Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(base32Content.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -1550,7 +1588,7 @@ public class Prelude {
 			}
 			if (less.less(array[0], array[0])) {
 				throw RuntimeExceptionFactory.illegalArgument(less.less,
-					"Bad comparator: Did you use less-or-equals instead of less-than?");
+					"A reflexive comparator can not be used for sorting. At least one element is less than itself: " + less);
 			}
 			sort(0, size - 1);
 
@@ -1569,15 +1607,32 @@ public class Prelude {
 			int oldLow = low;
 			int oldHigh = high;
 
-			while (low < high) {
-				for (; less.less(array[low], pivot); low++);
-				for (; less.less(pivot, array[high]); high--);
+			try {
+				while (low < high) {
+					for (; less.less(array[low], pivot); low++);
+					for (; less.less(pivot, array[high]); high--);
 
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
+					if (low <= high) {
+						swap(low, high);
+						low++;
+						high--;
+					}
 				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				// now that we are crashing anyway, we can do some diagnostics.
+				// the hypothesis is that at least one element was not irreflexive, making
+				// one of the bounds pointers (low or high) shift beyond the edge of the array
+
+				for (IValue elem : array) {
+					if (less.less(elem, elem)) {
+					throw RuntimeExceptionFactory.illegalArgument(less.less,
+						"A reflexive comparator can not be used for sorting. At least one element is less than itself with the given comparator: " + elem);
+					}
+				}
+
+				// another cause for the same exception? 
+				throw e;
 			}
 
 			if (oldLow < high)
@@ -1637,9 +1692,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		
 		return writer.done();
 	}
@@ -1720,7 +1773,7 @@ public class Prelude {
 	}
 
 	public IValue last(IList lst)
-	// @doc{head -- get the last element of a list}
+	// @doc{last -- get the last element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(lst.length() - 1);
@@ -2349,21 +2402,25 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(false), filters);
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+		return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
-    }
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parsers(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+	}
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
-    }
+		return rascalValues.parsers(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
+	}
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
 		try {
@@ -2377,18 +2434,19 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+		IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
@@ -3042,9 +3100,31 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
-		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
-		return values.string(s);
+		if (charSet.getValue().isEmpty()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString capitalize(IString src) {
@@ -3339,48 +3419,63 @@ public class Prelude {
 		}
 	}
 
-
-	private String toBase64(InputStream src, int estimatedSize) throws IOException {
+	private String toBase64(InputStream src, int estimatedSize, boolean includePadding) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  copy(src, encoder);
-	  encoder.close();
+	  Encoder encoder = Base64.getEncoder();
+	  if (!includePadding) {
+	  	encoder = encoder.withoutPadding();
+	  }
+	  OutputStream dest = encoder.wrap(result);
+	  copy(src, dest);
+	  dest.close();
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in) {
+	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
 	  try {
-	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	      return values.string(toBase64(bytes, in.length() * 2));
+		Charset charset = Charset.forName(charsetName.getValue());
+	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
+	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
 	  } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
-	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = REGISTRY.getInputStream(file)) {
-	        return values.string(toBase64(in, 1024));
-	    }
-	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+	public IString toBase64(ISourceLocation file, IBool includePadding) {
+		return readBase64(file, includePadding);
 	}
-	
-	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
 	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
-	public IString fromBase64(IString in) {
+	public IString fromBase64(IString in, IString charset) {
 	    try {
 	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
 	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	        return values.string(result.toString(charset.getValue()));
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
+	}
+
+	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
+		Base32 encoder = new Base32();
+		Charset charset = Charset.forName(charsetName.getValue());
+		String encoded = encoder.encodeToString(in.getValue().getBytes(charset));
+		if (!includePadding.getValue()) {
+			encoded = encoded.replace("=", "");
+		}
+		return values.string(encoded);
+	}
+
+	public IString fromBase32(IString in, IString charsetName) {
+		// The only relevant field we want to change is the policy
+		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		Charset charset = Charset.forName(charsetName.getValue());
+		return values.string(new String(data, charset));
 	}
 
 	public IValue toLowerCase(IString s)
@@ -3608,6 +3703,14 @@ public class Prelude {
 		}
 	}
 
+	public ISourceLocation mavenize(ISourceLocation jar) {
+		return MavenRepositoryURIResolver.mavenize(jar);
+	}
+
+	public ISourceLocation jarify(ISourceLocation jar) {
+		return JarURIResolver.jarify(jar);
+	}
+
 	public ISet findResources(IString fileName) {
 		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
@@ -3615,7 +3718,11 @@ public class Prelude {
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		return URIUtil.relativize(outside, inside);
 	}
-	
+
+	public ISet capabilities(ISourceLocation loc) {
+		return URIResolverRegistry.getInstance().capabilities(loc);
+	}
+
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
@@ -3804,7 +3911,10 @@ public class Prelude {
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
 	    Random random = new Random(seed.intValue());
-	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
+		// don't change the set of types dynamically. the test functions that use this function
+		// have already been type-checked in their static source context.
+		RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
+	    return start.randomValue(random, typesConfig, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph
@@ -3850,15 +3960,36 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final TypeStore store;
 
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+		private final Type file;
+		private final Type directory;
+		private final Type changeEvent;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.store = store;
+
+			var store = new TypeStore();
+			var tf = TypeFactory.getInstance();
+
+			var locationChangeType = tf.abstractDataType(store, "LocationChangeType");
+			created = tf.constructor(store, locationChangeType, "created");
+			modified = tf.constructor(store, locationChangeType, "modified");
+			deleted = tf.constructor(store, locationChangeType, "deleted");
+
+			var locationType = tf.abstractDataType(store, "LocationType");
+			file = tf.constructor(store, locationType, "file");
+			directory = tf.constructor(store, locationType, "directory");
+
+			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
+			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
+				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
 		}
 
 		@Override
@@ -3879,9 +4010,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-			
-			
 			return values.constructor(changeEvent, 
 				e.getLocation(),
 				convertChangeType(e.getChangeType()),
@@ -3890,23 +4018,16 @@ public class Prelude {
 		}
 
 		private IValue convertFileType(ISourceLocationType type) {
-			Type file = store.lookupConstructors("file").iterator().next();
-			Type directory = store.lookupConstructors("directory").iterator().next();
-			
 			switch (type) {
 				case FILE:
 					return values.constructor(file);
 				case DIRECTORY:
 					return values.constructor(directory);
 			}
-
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 
 		private IValue convertChangeType(ISourceLocationChangeType changeType) {
-			Type deleted = store.lookupConstructors("deleted").iterator().next();
-			Type created = store.lookupConstructors("created").iterator().next();
-			Type modified = store.lookupConstructors("modified").iterator().next();
 
 			switch (changeType) {
 				case DELETED:
@@ -3941,7 +4062,7 @@ public class Prelude {
 
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values);
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
@@ -3969,6 +4090,95 @@ public class Prelude {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
+	}
+
+
+	// this fact that this is just a java function helps the jitter with inline it
+	private static boolean isSameFilePure(ISourceLocation a, ISourceLocation b) {
+		a = a.top();
+		b = b.top();
+		if (!a.hasFragment() && !b.hasFragment()) {
+			// fast path: use equals of ISourceLocations
+			return a.equals(b);
+		} 
+		// fallback, just compare everything except the fragment
+		return a.getScheme().equals(b.getScheme())
+			&& a.getAuthority().equals(b.getAuthority())
+			&& a.getPath().equals(b.getPath())
+			&& a.getQuery().equals(b.getQuery())
+			;
+	}
+
+	public IBool isSameFile(ISourceLocation a, ISourceLocation b) {
+		return values.bool(isSameFilePure(a, b));
+	}
+
+	public IBool isStrictlyContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		// original code would also do full equality, but we don't need that due to the logic in the outer &
+		// inner offset compares
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					(innerStart == outerStart && innerEnd < outerEnd)
+					|| (innerStart > outerStart && innerEnd <= outerEnd)
+				);
+			}
+			else {
+				return values.bool(inner.getLength() > 0);
+			}
+		}
+		return values.bool(false);
+	}
+
+	public IBool isContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					outerStart <= innerStart && innerEnd <= outerEnd
+				);
+			}
+			return values.bool(true);
+		}
+
+		return values.bool(!outer.hasOffsetLength());
+	}
+
+	public IBool isOverlapping(ISourceLocation first, ISourceLocation second) {
+		if (!isSameFilePure(first, second)) {
+			return values.bool(false);
+		}
+		if (first.hasOffsetLength()) {
+			if (second.hasOffsetLength()) {
+				int firstStart = first.getOffset();
+				int firstEnd = firstStart + first.getLength() - 1; // Inclusive
+				int secondStart = second.getOffset();
+				int secondEnd = secondStart + second.getLength() - 1; // Inclusive
+
+				return values.bool(
+					   (firstStart <= secondStart && secondStart <= firstEnd)
+					|| (secondStart <= firstStart && firstStart <= secondEnd)
+				);
+
+			}
+		}
+		return values.bool(true);
+
 	}
 
 

@@ -91,7 +91,7 @@ public class JavaMethod extends NamedFunction {
 		super(func, eval, staticType, dynamicType, getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getStdOut(), eval.getStdErr(), eval.getInput(), eval);
+		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getInput(), eval);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
 

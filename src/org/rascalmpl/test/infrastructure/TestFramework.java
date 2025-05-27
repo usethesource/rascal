@@ -22,19 +22,19 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -46,33 +46,29 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private static class InstanceHolder {
-		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
-    }
-   
-   	public static IRascalMonitor getCommonMonitor() {
-	   return InstanceHolder.monitor;
-   	}
-
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
 	
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
+
+	private final static String ROOT_TEST_ENVIRONMENT = "___test___";
 	
 	static{
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___test___", heap));
-		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, getCommonMonitor(), root, heap);
+		var projectLoc = RascalJUnitTestRunner.inferProjectRootFromClass(TestFramework.class);
+		if (projectLoc == null) {
+			projectLoc = URIUtil.rootLocation("cwd");
+		}
+		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_ENVIRONMENT);
+
+		ShellEvaluatorFactory.registerProjectAndTargetResolver(projectLoc);
+		heap = evaluator.getHeap();
+		root = heap.getModule(ROOT_TEST_ENVIRONMENT);
 	
 		stdout = evaluator.getOutPrinter();
 		stderr = evaluator.getErrorPrinter();
 
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
-		
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");

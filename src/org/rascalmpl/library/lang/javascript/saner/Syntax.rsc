@@ -312,8 +312,8 @@ lexical Whitespace
   ;
 
 lexical Comment
-  = @category="Comment" "/*" CommentChar* "*/"
-  | @category="Comment" "//" ![\n]*  $
+  = @category="comment" "/*" CommentChar* "*/"
+  | @category="comment" "//" ![\n]*  $
   ;
 
 lexical CommentChar
