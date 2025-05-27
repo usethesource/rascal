@@ -23,6 +23,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 /**
  * A ModifySyntaxRole is a lazy modification operation on a Type that
@@ -924,9 +925,9 @@ public abstract class ModifySyntaxRole extends RascalType {
     abstract public String toString();
 
     @Override
-    public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+    public IValue randomValue(Random random, RandomTypesConfig cfg, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
         int maxDepth, int maxBreadth) {
-        return arg.randomValue(random, vf, store, typeParameters, maxDepth, maxBreadth);
+        return arg.randomValue(random, cfg, vf, store, typeParameters, maxDepth, maxBreadth);
     }
 
     @Override
