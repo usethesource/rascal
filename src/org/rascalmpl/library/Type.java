@@ -35,12 +35,9 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class Type {
 	private final IRascalValueFactory vf;
-	// private final IMap emptyMap;
-	private final TypeFactory tf;
 
 	public Type(IRascalValueFactory vf, TypeFactory tf) {
 		this.vf = vf;
-		this.tf = tf;
 	}
 	  
 	public IValue typeOf(IValue v) {
