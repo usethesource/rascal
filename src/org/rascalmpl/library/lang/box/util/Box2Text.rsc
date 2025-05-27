@@ -11,8 +11,8 @@
 @description{
 The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
-there is the global soft constraints of the width of the screen (or the paper). Box2Text can also
-add markup for syntax highlighting in either ANSI plaintext encoding, HTML font tags or LaTex macros.
+there is the global soft constraints of the width of the screen (or the paper). 
+
 
 This implementation is a port from ASF+SDF to Rascal. The ASF+SDF implementation was published as 
 "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand 
@@ -31,7 +31,7 @@ This demonstrates the semantics of the main hard constraints:
 
 ```rascal-shell
 import lang::box::util::Box2Text;
-import lang::box::util::Box;
+import lang::box::\syntax::Box;
 format(H([L("A"), L("B"), L("C")], hs=2))
 format(H([L("A"), L("B"), L("C")], hs=1))
 format(H([L("A"), L("B"), L("C")], hs=0))
@@ -62,6 +62,9 @@ format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("W<i>") | i <- [
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0..30]])]))
 ```
 }
+@pitfalls{
+* Box2text does not have highlighting features anymore; you can use ((util::Highlight)) for this instead.
+}
 module lang::box::util::Box2Text
 
 import util::Math;
@@ -73,7 +76,7 @@ import lang::box::\syntax::Box;
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
 syntactical correctness is maintained
-* This algorithm tries not never over-run the maxWidth parameter, but if it must to maintain 
+* This algorithm tries to never over-run the `maxWidth` parameter, but if it must to maintain 
 text order, and the specified nesting of boxes, it will anyway. For example, if a table column doesn't
 fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 * Separator options like `i`, `h` and `v` options are _hard_ constraints, they may lead to overriding `maxWidth`.
@@ -134,8 +137,8 @@ private Text vv(Text a, Text b) = [*a, *b];
 private str blank(str a) = right("", width(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
- Text wd([])             = [];
- Text wd([*_, str x])    = [blank(x)];
+Text wd([])             = [];
+Text wd([*_, str x])    = [blank(x)];
 
 @synopsis{Computes the length of unescaped string s}
 private int width(str s) = size(s); 

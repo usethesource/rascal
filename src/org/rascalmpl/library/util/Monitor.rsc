@@ -13,6 +13,7 @@ module util::Monitor
 
 import util::Math;
 import IO;
+import Exception;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -74,7 +75,7 @@ with a parameterized workload and the same label as the job name.
 &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block((str message, int worked) { 
+    return block(void (str message, int worked) { 
       jobStep(label, message, work=worked);
     });
   }
@@ -99,9 +100,13 @@ with a parameterized workload and the same label as the job name.
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
 &T job(str label, &T (void (int worked) step) block, int totalWork=1) {
+  if (void (void (int _) _) _ := block) {
+    throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
+  }
+
   try {
     jobStart(label, totalWork=totalWork);
-    return block((int worked) { 
+    return block(void (int worked) { 
       jobStep(label, label, work=worked);
     });
   }
@@ -128,7 +133,7 @@ with workload `1` and the same label as the job name.
 &T job(str label, &T (void () step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block(() {
+    return block(void () {
       jobStep(label, label, work=1);
     });
   }
@@ -197,6 +202,43 @@ test bool simpleAsyncPrintTest() {
   println("c");
   jobStep("job", "step 3", work=1);
   println("d");
+  jobEnd("job");
+  return true;
+}
+
+test bool unfinishedInputTest() {
+  jobStart("job", totalWork=26);
+  for (/<l:[a-z]>/ := "abcdefghijklmnopqrstuwvxyz") {
+    print(l); // no newline!
+    jobStep("job", "letter <l>", work=1);
+    if (arbInt(10) == 0) {
+      println(); // break it
+    }
+  }
+  // println(); // flush it
+  jobEnd("job");
+  return true;
+}
+
+test bool unfinishedLinesAtTheEndTest() {
+  jobStart("job", totalWork=3);
+  print("ab\nc");
+  jobStep("job", "1.5", work=1);
+  print("d\ne");
+  jobStep("job", "2.5", work=1);
+  print("f\ngh\n");
+  jobStep("job", "3", work=1);
+  jobEnd("job");
+  return true;
+}
+
+// repo of issue #2138
+test bool printLongUnfinishedLine() {
+  jobStart("job", totalWork=1);
+  singleString = iprintToString(("" | it + "ab" | i <- [0..1000000])); // avoid concat tree printing in chunks
+  println(singleString);
+  jobStep("job", "prog", work=1);
+  println("Done");
   jobEnd("job");
   return true;
 }

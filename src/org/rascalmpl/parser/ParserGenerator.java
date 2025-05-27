@@ -17,22 +17,21 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.util.Collections;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
@@ -52,27 +51,25 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
-	public ParserGenerator(IRascalMonitor monitor, OutputStream out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
-		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
-		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope, heap, monitor);
-		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
+		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
 		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
 		this.evaluator.setBootstrapperProperty(true);
-		this.bridge = new JavaBridge(loaders, factory, config);
+		this.bridge = new JavaBridge(Collections.singletonList(Evaluator.class.getClassLoader()), factory, config);
 		this.vf = factory;
 		
-		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
-		evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-		evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
+		evaluator.doImport(monitor, 
+	"lang::rascal::grammar::ParserGenerator",
+			"lang::rascal::grammar::ConcreteSyntax",
+			"lang::rascal::grammar::definition::Modules",
+			"lang::rascal::grammar::definition::Priorities", 
+			"lang::rascal::grammar::definition::Regular", 
+			"lang::rascal::grammar::definition::Keywords",
+			"lang::rascal::grammar::definition::Literals",
+			"lang::rascal::grammar::definition::Parameters",
+			"lang::rascal::grammar::definition::Symbols",
+			"analysis::grammars::Ambiguity"
+		);
 	}
 	
 	public void setGeneratorProfiling(boolean f) {

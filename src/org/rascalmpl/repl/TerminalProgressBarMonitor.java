@@ -1,21 +1,49 @@
+/*
+ * Copyright (c) 2023-2025, NWO-I CWI and Swat.engineering
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.rascalmpl.repl;
 
-import java.io.FilterOutputStream;
-import java.io.FilterWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Color;
+import org.jline.jansi.Ansi.Erase;
+import org.jline.terminal.Terminal;
+import org.jline.utils.Curses;
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.debug.IRascalMonitor;
+
 import io.usethesource.vallang.ISourceLocation;
-import jline.Terminal;
-import jline.internal.Configuration;
 
 /**
  * The terminal progress bar monitor wraps the standard output stream to be able to monitor
@@ -26,10 +54,10 @@ import jline.internal.Configuration;
  * This gives the console the ability to show progress almost as clearly as an IDE can with a
  * UI experience. 
  * 
- * This class only works correctly if the actual _raw_ output stream of the terminal is wrapped
- * with an object of this class.
+ * This class only works correctly if the actual writer of the terminal is wrapped
+ * with an object of this class. And all the writes to the terminal, go via this class.
  */
-public class TerminalProgressBarMonitor extends FilterOutputStream implements IRascalMonitor  {
+public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMonitor  {
     /**
      * We administrate an ordered list of named bars, which will be printed from
      * top to bottom just above the next prompt.
@@ -37,10 +65,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     private List<ProgressBar> bars = new LinkedList<>();
     
     /**
-     * This writer is there to help with the encoding to what the terminal needs. It writes directly to the
-     * underlying stream.
+     * We also keep a list of currently unfinished lines (one for each thread).
+     * Since there are generally very few threads a simple list beats a hash-map in terms
+     * of memory allocation and possibly also lookup efficiency.
      */
-    private final PrintWriter writer;
+    private List<UnfinishedLine> unfinishedLines = new ArrayList<>(3);
 
     /**
      * The entire width in character columns of the current terminal. Resizes everytime when we start
@@ -48,65 +77,219 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private int lineWidth;
 
+    /**
+     * If true this will enable the use of unicode tickboxes and clock tickers instead of creative use of ASCII characters.
+     */
     private final boolean unicodeEnabled;
 
+    /**
+     * Keep track if the regular writes have ended on a new line or not
+     */
+    private volatile boolean onNewLine = true;
     /**x    
      * Will make everything slow, but easier to spot mistakes
      */
-    private final boolean debug = false;
+    private static final boolean DEBUG = false;
 
     /**
      * Used to get updates to the width of the terminal
      */
     private final Terminal tm;
 
-    private final String encoding;
+    /**
+     * ANSI command for this terminal to hide the cursor
+     */
+    private final String hideCursor;
+    /**
+     * ANSI command for this terminal to show the cursor
+     */
+    private final String showCursor;
 
-    @SuppressWarnings("resource")
-    public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
-        super(out);
+    public static boolean shouldWorkIn(Terminal tm) {
+        Integer cols = tm.getNumericCapability(Capability.max_colors);
+        if (cols == null || cols < 8) {
+            return false;
+        }
+
+        return "\r".equals(interpretCapability(tm.getStringCapability(Capability.carriage_return)))
+            && tm.getNumericCapability(Capability.columns) != null
+            && tm.getNumericCapability(Capability.lines) != null
+            && tm.getStringCapability(Capability.clear_screen) != null 
+            && tm.getStringCapability(Capability.cursor_up) != null
+            && tm.getStringCapability(Capability.cursor_down) != null
+            ;
+    }
+
+    public TerminalProgressBarMonitor(Terminal tm) {
+        super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer(), tm) : tm.writer());
        
-        this.encoding = Configuration.getEncoding();
         this.tm = tm;
         
-        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
-        this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
-        this.unicodeEnabled = ANSI.isUTF8enabled(theWriter, in);
-        
-        assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a working ANSI terminal";
-        assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
+        this.unicodeEnabled = tm.encoding().newEncoder().canEncode(new ProgressBar("", 1).clocks[0]);
+
+        this.hideCursor = interpretCapability(tm.getStringCapability(Capability.cursor_invisible));
+        this.showCursor = interpretCapability(tm.getStringCapability(Capability.cursor_visible));
+    }
+
+    private static String interpretCapability(@Nullable String arg) {
+        if (arg == null) {
+            return "";
+        }
+        return Curses.tputs(arg);
     }
 
     /**
      * Use this for debugging terminal cursor movements, step by step.
      */
-    private static class AlwaysFlushAlwaysShowCursor extends FilterWriter {
+    private static class AlwaysFlushAlwaysShowCursor extends PrintWriter {
+        private final String showCursor;
 
-        public AlwaysFlushAlwaysShowCursor(PrintWriter out) {
+        public AlwaysFlushAlwaysShowCursor(PrintWriter out, Terminal tm) {
             super(out);
+            this.showCursor = interpretCapability(tm.getStringCapability(Capability.cursor_visible));
         }
 
         @Override
-        public void write(int c) throws IOException {
-            out.write(c);
-            out.write(ANSI.showCursor());
-            out.flush();
+        public void write(int c) {
+            super.write(c);
+            super.write(showCursor);
+            super.flush();
         }
 
         @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-            out.write(cbuf, off, len);
-            out.write(ANSI.showCursor());
-            out.flush();
+        public void write(char[] cbuf, int off, int len) {
+            super.write(cbuf, off, len);
+            super.write(showCursor);
+            super.flush();
         }
 
         @Override
-        public void write(String str, int off, int len) throws IOException {
-            out.write(str, off, len);
-            out.write(ANSI.showCursor());
-            out.flush();
+        public void write(String str, int off, int len) {
+            super.write(str, off, len);
+            super.write(showCursor);
+            super.flush();
         }  
+    }
+
+    private class UnfinishedLine {
+        final long threadId;
+        private int curCapacity = 512;
+        private char[] buffer = new char[curCapacity];
+        private int curEnd = 0;
+
+        public UnfinishedLine() {
+            this.threadId = Thread.currentThread().getId();
+        }
+
+        /**
+         * Adding input combines previously unfinished sentences with possible
+         * new (unfinished) sentences. 
+         * 
+         * The resulting buffer nevers contain any newline character.
+         */
+        private void store(char[] newInput, int offset, int len) {
+            if (len == 0) {
+                return; // fast exit
+            }
+
+            // first ensure capacity of the array
+            if (curEnd + len >= curCapacity) {
+                do {
+                    curCapacity *= 2; 
+                    // increase size until it fits
+                } while (curEnd + len >= curCapacity);
+                buffer = Arrays.copyOf(buffer, curCapacity);
+            }
+
+            System.arraycopy(newInput, offset, buffer, curEnd, len);
+            curEnd += len;
+        }
+
+        /**
+         * Main workhorse looks for newline characters in the new input.
+         *  - if there are newlines, than whatever is in the buffer can be flushed.
+         *  - all the characters up to the last new new line are flushed immediately.
+         *  - all the new characters after the last newline are buffered.
+         */
+        public void write(char[] n, int offset, int len) {
+            if (len == 0) {
+                return;
+            }
+            int lastNL = startOfLastLine(n, offset, len);
+
+            if (lastNL == -1) {
+                store(n, offset, len);
+            }
+            else {
+                eraseBars(); // since we have some output to write, we now hide the bars
+                flush();
+                directWrite(n, offset, lastNL + 1);
+                directFlush();
+                printBars(); // and print the bars back again
+                
+                store(n, lastNL + 1, len - (lastNL + 1));
+            }
+        }
+
+        public void write(String s, int offset, int len) {
+            write(s.toCharArray(), offset, len);
+        }
+
+        /**
+         * This empties the current buffer onto the stream,
+         * and resets the cursor.
+         */
+        private void flush() {
+            if (curEnd != 0) {
+                directWrite(buffer, 0, curEnd);
+                curEnd = 0;
+            }
+        }
+
+        /**
+         * Prints whatever is the last line in the buffer,
+         * and adds a newline.
+         */
+        public void flushLastLine() {
+            if (curEnd != 0) {
+                flush();
+                directWrite('\n');
+            }
+        }
+    
+        private int startOfLastLine(char[] buffer, int offset, int len) {
+            for (int i = offset + len - 1; i >= offset; i--) {
+                if (buffer[i] == '\n') {
+                    return i;
+                }
+            }
+    
+            return -1;
+        }
+    }
+
+    private void directPrintln(String s) {
+        directWrite(s + System.lineSeparator());
+    }
+    private void directWrite(String s) {
+        directWrite(s, 0, s.length());
+    }
+
+    private void directWrite(int c) {
+        super.write(c);
+    }
+
+    private void directWrite(char[] buf, int offset, int length) {
+        super.write(buf, offset, length);
+    }
+
+    private void directWrite(String buf, int offset, int length) {
+        super.write(buf, offset, length);
+    }
+
+    private void directFlush() {
+        super.flush();
     }
 
     /**
@@ -114,14 +297,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private class ProgressBar {
         private final long threadId;
-        private final String threadName;
         private final String name;
         private int max;
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidthUnicode = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
-        private final int barWidthAscii   = lineWidth - "? ".length() - " - 00:00:00.000 ".length();
+        private final int barWidth = unicodeEnabled
+            ? lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length()
+            : lineWidth - "? ".length() - " - 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -137,12 +320,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         ProgressBar(String name, int max) {
             this.threadId = Thread.currentThread().getId();
-            this.threadName = Thread.currentThread().getName();
             this.name = name;
             this.max = Math.max(1, max);
             this.startTime = Instant.now();
             this.duration = Duration.ZERO;
-            this.message = name;
+            this.message = "";
         }
 
         void worked(int amount, String message) {
@@ -165,14 +347,24 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             // to avoid flicker we only print if there is a new bar character to draw
             if (newWidth() != previousWidth) {
                 stepper++;
-                writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
+                directWrite(
+                    Ansi.ansi()
+                        .a(hideCursor)
+                        .cursorUpLine(bars.size() - bars.indexOf(this))
+                        .toString()
+                );
                 write(); // this moves the cursor already one line down due to `println`
                 int distance = bars.size() - bars.indexOf(this) - 1;
+                Ansi ansi = Ansi.ansi();
                 if (distance > 0) {
                     // ANSI will move 1 line even if the parameter is 0
-                    writer.write(ANSI.moveDown(distance));
+                    ansi = ansi.cursorDownLine(distance);
                 }
-                writer.flush();
+                directWrite(ansi
+                        .a(showCursor)
+                        .toString()
+                );
+                directFlush();
             }
         }
 
@@ -180,12 +372,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             if (max != 0) {
                 current = Math.min(max, current); // for robustness sake
                 var partDone = (current * 1.0) / (max * 1.0);
-                return (int) Math.floor(barWidthUnicode * partDone);
+                return (int) Math.floor(barWidth * partDone);
             }
             else {
-                return barWidthUnicode % stepper;
+                return barWidth % stepper;
             }
         }
+
+        private static final int BAR_COLOR_BG = 240; // 232-255:  grayscale from dark to light in 24 steps
 
         /**
          * Print the current state of the progress bar
@@ -201,14 +395,21 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 ;
 
             // capitalize
-            var msg = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
+            var msg = message.length() > 0 
+                ? message.substring(0, 1).toUpperCase() + message.substring(1, message.length())
+                : "";
+
+            var capName = name.length() > 0 
+                ? name.substring(0, 1).toUpperCase() + name.substring(1, name.length())
+                : "";
             
-            // fill up and cut off:
-            msg = threadLabel() + msg;
-            msg = (msg + " ".repeat(Math.max(0, barWidthUnicode - msg.length()))).substring(0, barWidthUnicode);
+            capName = message.length() > 0 ? (capName + ": ") : capName;
+
+                // fill up and cut off:
+            msg = capName + msg;
+            msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
 
             // split
-            var barWidth = unicodeEnabled ? barWidthUnicode : barWidthAscii;
             var frontPart = msg.substring(0, doneWidth);
             var backPart = msg.substring(doneWidth, msg.length());
             var clock = unicodeEnabled ? clocks[stepper % clocks.length] : twister[stepper % twister.length];
@@ -217,35 +418,22 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 return; // robustness against very small screens. At least don't throw bounds exceptions
             }
             else if (barWidth <= 3) { // we can print the clock for good measure 
-                writer.println(clock);
+                directPrintln(clock);
                 return;
             }
 
-            var line 
-                = done 
-                + ANSI.darkBackground() 
-                + frontPart
-                + ANSI.noBackground()
-                + ANSI.lightBackground()
-                + backPart
-                + ANSI.noBackground()
-                + " " + clock + " "
-                + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
-                + " "
-                ;
-
-            writer.println("\r" + line); // note this puts us one line down
-        }
-
-        private String threadLabel() {
-            if (threadName.isEmpty()) {
-                return "";
-            }
-            else if ("main".equals(threadName)) {
-                return "";
-            }
-            
-            return threadName + ": ";
+            directWrite(
+                Ansi.ansi()
+                    .a(done)
+                    .bg(BAR_COLOR_BG).fgBright(Color.WHITE)
+                    .a(frontPart)
+                    .reset()
+                    .a(backPart)
+                    .a(" " + clock)
+                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart(), duration.toMillisPart())
+                    .a(System.lineSeparator())
+                    .toString()
+            );
         }
 
         @Override
@@ -264,7 +452,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         public void done() {
             this.current = Math.min(current, max);
             this.duration = Duration.between(startTime, Instant.now());
-            this.message = name;
+            this.message = "";
         }
     }
 
@@ -275,114 +463,25 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private void eraseBars() {
         if (!bars.isEmpty()) {
-            writer.write(ANSI.moveUp(bars.size())); 
-            writer.write(ANSI.clearToEndOfScreen()); 
+            directWrite(Ansi.ansi()
+                .cursorUpLine(bars.size())
+                .eraseScreen(Erase.FORWARD)
+                .toString()
+            );
         }
-        writer.flush();
-    }
-
-    /**
-     * ANSI escape codes convenience functions
-     */
-    private static class ANSI {
-        static boolean isUTF8enabled(PrintWriter writer, InputStream in) {
-            try {
-                int pos = getCursorPosition(writer, in);
-                // Japanese A (あ) is typically 3 bytes in most encodings, but should be less than 3 ANSI columns
-                // on screen if-and-only-if unicode is supported.
-                writer.write("あ"); 
-                writer.flush();
-                int newPos = getCursorPosition(writer, in);
-                int diff = newPos - pos;
-
-                try {
-                    return diff < 3;
-                }
-                finally {
-                    while (--diff >= 0) {
-                        writer.write(ANSI.delete());
-                    }
-                    writer.flush();
-                }
-            }
-            catch (IOException e) {
-               return false;
-            }
-        }
-
-        static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
-            writer.write(ANSI.printCursorPosition());
-            writer.flush();
-
-            byte[] col = new byte[32];
-            int len = in.read(col);
-            String echo = new String(col, 0, len, Configuration.getEncoding());
-    
-            if (!echo.startsWith("\u001B[") || !echo.contains(";")) {
-                return -1;
-            }
-
-            // terminal responds with ESC[n;mR, where n is the row and m is the column.
-            echo = echo.split(";")[1]; // take the column part
-            echo = echo.substring(0, echo.length() - 1); // remove the last R
-            return Integer.parseInt(echo);
-        }
-
-        public static String delete() {
-            return "\u001B[D\u001B[K";
-        }
-
-        static String moveUp(int n) {
-            return "\u001B[" + n + "F";
-        }
-
-        public static String printCursorPosition() {
-            return "\u001B[6n";
-        }
-
-        public static String darkBackground() {
-            return "\u001B[48;5;242m";
-        }
-
-        public static String noBackground() {
-            return "\u001B[49m";
-        }
-
-        public static String lightBackground() {
-            return "\u001B[48;5;249m";
-        }
-
-        static String moveDown(int n) {
-            return "\u001B[" + n + "E";
-        }
-
-        static String clearToEndOfScreen() {
-            return "\u001B[0J";
-        }
-
-        static String hideCursor() {
-            return "\u001B[?25l";
-        }
-
-        static String showCursor() {
-            return "\u001B[?25h";
-        }
+        directFlush();
     }
 
     /**
      * Simply print the bars. No cursor movement here. Hiding the cursor prevents flickering.
      */
     private void printBars() {
-        if (bars.isEmpty()) {
-            // no more bars to show, so cursor goes back.
-            writer.write(ANSI.showCursor());
-        }
-
         for (var pb : bars) {
             pb.write();
         }
         
-        writer.flush();
+        directFlush();
+        
     }
 
     /**
@@ -395,22 +494,47 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             .filter(b -> b.threadId == Thread.currentThread().getId())
             .filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
     }
+
+    private UnfinishedLine findUnfinishedLine() {
+        return unfinishedLines.stream()
+            .filter(l -> l.threadId == Thread.currentThread().getId())
+            .findAny()
+            .orElseGet(() -> {
+                UnfinishedLine l = new UnfinishedLine();
+                unfinishedLines.add(l);
+                return l;    
+            });
+    }
     
     @Override
     public synchronized void jobStart(String name, int workShare, int totalWork) {
-        if (bars.size() == 0) {
+        if (totalWork == 0) {
+            // makes it easy to use `size` for totalWork and not do anything
+            // if there is nothing to do.
+            return;
+        }
+
+        if (bars.isEmpty()) {
+            // we might not be on a new line, so before we start rendering
+            // do a println, if the last output was not a newline
+            if (!onNewLine) {
+                directWrite(System.lineSeparator());
+                directFlush();
+            }
+
             // first new job, we take time to react to window resizing
             lineWidth = tm.getWidth();
-            // remove the cursor
-            writer.write(ANSI.hideCursor());
         }
+
 
         var pb = findBarByName(name);
         
-        if (pb == null) {
+        directWrite(hideCursor);
+
+        if (pb == null) {    
             eraseBars(); // to make room for the new bars
             bars.add(new ProgressBar(name, totalWork));
-            printBars(); // probably one line longer than before!
+            printBars(); // probably one line longer than before!   
         }
         else {
             // Zeno-bar: we add the new work to the already existing work
@@ -418,6 +542,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             pb.nesting++;
             pb.update();
         }
+
+        directWrite(showCursor);
+        directFlush();
     }
 
     @Override
@@ -434,27 +561,36 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
-        if (pb != null && --pb.nesting == -1) {
-            eraseBars();
-            // write it one last time into the scrollback buffer (on top)
-            pb.done();
-            pb.write();
-            bars.remove(pb);
-            // print the left over bars under this one.
-            printBars();
-            return pb.current;
+        directWrite(hideCursor);
+        try {
+            if (pb != null && --pb.nesting == -1) {
+                eraseBars();
+                pb.done();
+                bars.remove(pb);
+                // print the left over bars under this one.
+                printBars();
+                if (bars.isEmpty()) {
+                    // cleanup
+                    endAllJobs();
+                }
+                return pb.current;
+            }
+            else if (pb != null) {
+                pb.done();
+                pb.update();
+            }
         }
-        else if (pb != null) {
-            pb.done();
-            pb.update();
+        finally {
+            directWrite(showCursor);
         }
+
 
         return -1;
     }
 
     @Override
     public synchronized boolean jobIsCanceled(String name) {
-       // ? don't know what this should do
+       // This is in UI environments where there is a cancel button.
        return false;
     }
 
@@ -470,12 +606,66 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void warning(String message, ISourceLocation src) {
-        if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             eraseBars();
         }
-        writer.println(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
-        if (bars.size() > 0) {
+
+        directPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
+        onNewLine = true;
+
+        if (!bars.isEmpty()) {
             printBars();
+        }
+    }
+
+    private static void boundsCheck(int full, int off, int len) {
+        if (len < 0 || off < 0 || off > full || (off + len) > full) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     * 
+     * Special cases handle when there are unfinished lines in play.
+     * This code guarantees that printBars is only called when the cursor
+     * is before the first character of a line.
+     */
+    @Override
+    public synchronized void write(String s, int off, int len) {
+        boundsCheck(s.length(), off, len);
+        if (len == 0) {
+            return;
+        }
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(s, off, len);
+        }
+        else {
+            directWrite(s, off, len);
+            onNewLine = s.charAt(off + len - 1) == '\n';
+        }
+    }
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     */
+    @Override
+    public synchronized void write(char[] buf, int off, int len)  {
+        boundsCheck(buf.length, off, len);
+        if (len == 0) {
+            return;
+        }
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(buf, off, len);
+        }
+        else {
+            // this must be the raw output stream
+            // otherwise rascal prompts (which do not end in newlines) will be buffered
+            directWrite(buf, off, len);
+            onNewLine = buf[off + len - 1] == '\n';
         }
     }
 
@@ -485,48 +675,24 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public synchronized void write(byte[] b) throws IOException {
-        if (bars.size() > 0) {
-            eraseBars();
-            out.write(b);
-            printBars();
+    public synchronized void write(int c) {
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
         }
         else {
-            out.write(b);
+            directWrite(c);
+            onNewLine = c == '\n';
         }
     }
 
-    /**
-     * Here we make sure the progress bars are gone just before
-     * someone wants to print in the console. When the printing
-     * is ready, we simply add our own progress bars again.
-     */
     @Override
-    public synchronized void write(byte[] b, int off, int len) throws IOException {
-    if (bars.size() > 0) {
-            eraseBars();
-            out.write(b, off, len);
-            printBars();
+    public synchronized void println() {
+        if (!bars.isEmpty()) {
+            write(System.lineSeparator());
         }
         else {
-            out.write(b, off, len);
-        }
-    }
-
-    /**
-     * Here we make sure the progress bars are gone just before
-     * someone wants to print in the console. When the printing
-     * is ready, we simply add our own progress bars again.
-     */
-    @Override
-    public synchronized void write(int b) throws IOException {
-        if (bars.size() > 0) {
-            eraseBars();
-            out.write(b);
-            printBars();
-        }
-        else {
-            out.write(b);
+            super.println();
+            onNewLine = true;
         }
     }
 
@@ -534,14 +700,26 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void endAllJobs() {
-        for (var pb : bars) {
-            if (pb.nesting >= 0) {
-                writer.println("[INFO] " + pb.name + " is still at nesting level " + pb.nesting);
-            }
+        if (!bars.isEmpty()) {
+            eraseBars();
+            bars.clear();
         }
 
-        bars.clear();
-        writer.write(ANSI.showCursor());
-        writer.flush();
+        for (UnfinishedLine l : unfinishedLines) {
+            l.flushLastLine();
+        }
+
+        directWrite(showCursor);
+        directFlush();
+    }
+
+    @Override
+    public synchronized void close() {
+        try {
+            endAllJobs();
+        }
+        finally {
+            super.close();
+        }
     }
 }

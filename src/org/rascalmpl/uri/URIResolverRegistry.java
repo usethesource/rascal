@@ -39,16 +39,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class URIResolverRegistry {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -402,9 +409,10 @@ public class URIResolverRegistry {
 			ILogicalSourceLocationResolver resolver = map.get(auth);
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
-		var fallBack = fallbackLogicalResolver;
-		if (fallBack != null) {
-			return resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
+		
+		if (fallbackLogicalResolver != null) {
+			var fallbackResult = resolveAndFixOffsets(loc == null ? original : loc, fallbackLogicalResolver, Collections.emptyList());
+			return fallbackResult == null ? loc : fallbackResult;
 		}
 		return loc;
 	}
@@ -636,6 +644,9 @@ public class URIResolverRegistry {
 	 * exists and overwrite was `false`.
 	 */
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		from = safeResolve(from);
+		to = safeResolve(to);
+
 		if (from.getScheme().equals(to.getScheme())) {
 			ISourceLocationOutput out = getOutputResolver(from.getScheme());
 
@@ -704,8 +715,7 @@ public class URIResolverRegistry {
 			&& logicalResolvers.containsKey(uri.getScheme());
 	}
 
-	public String[] listEntries(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+	public String[] listEntries(ISourceLocation uri) throws IOException {		uri = safeResolve(uri);
 		if (isRootLogical(uri)) {
 			// if it's a location without any path and authority
 			// we want to list possible authorities if it's a logical one
@@ -854,12 +864,56 @@ public class URIResolverRegistry {
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
 		IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
 
-		if (resolver == null) {
-			throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
+		if (resolver != null) {
+			// we always try the most specific implementation for efficiency's sake
+			return resolver.getClassLoader(uri, parent);
+		}
+		else {
+			// the generic class loader can always produces the byte[] of any class file
+			return new GenericSourceLocationClassLoader(uri, parent);
+		}
+	}
+
+
+	/**
+	 * Generic implementation of a ClassLoader that uses the registry's ability
+	 * to open an InputStream for any existing location. It is much fast if a {@see IClassloaderLocationResolver}
+	 * exists for any scheme, since that could produce an index a URLClassLoader instance.
+	 */
+	private class GenericSourceLocationClassLoader extends ClassLoader {
+		private final ISourceLocation root;
+
+		public GenericSourceLocationClassLoader(ISourceLocation root, ClassLoader parent) {
+			super(parent);
+			this.root = root;
 		}
 
-		return resolver.getClassLoader(uri, parent);
+		@Override
+		protected Class<?> findClass(final String qualifiedClassName) throws ClassNotFoundException {
+			var file = URIUtil.getChildLocation(root, qualifiedClassName.replaceAll("\\.", "/") + ".class");
+
+			if (exists(file)) {
+				try {
+					byte[] bytes = Prelude.consumeInputStream(getInputStream(file));
+					return defineClass(qualifiedClassName, bytes, 0, bytes.length);
+				}
+				catch (IOException e) {
+					// fall through
+				}
+			}
+			// Workaround for "feature" in Java 6
+			// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6434149
+			try {
+				Class<?> c = Class.forName(qualifiedClassName);
+				return c;
+			} catch (ClassNotFoundException nf) {
+				// Ignore and fall through
+			}
+
+			return super.findClass(qualifiedClassName);
+		}
 	}
+
 
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
@@ -1038,6 +1092,69 @@ public class URIResolverRegistry {
 			}
 		}
 
+	}
+
+	// these types must align with their correspondig types in IO.rsc
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private final TypeStore capabilitiesStore = new TypeStore();
+	private final Type IOcapability = tf.abstractDataType(capabilitiesStore, "IOCapability");
+	private final Type readCap = tf.constructor(capabilitiesStore, IOcapability, "reading");
+	private final Type writeCap = tf.constructor(capabilitiesStore, IOcapability, "writing");
+	private final Type loadCap = tf.constructor(capabilitiesStore, IOcapability, "classloading");
+	private final Type logicalCap = tf.constructor(capabilitiesStore, IOcapability, "resolving");
+	private final Type watchCap = tf.constructor(capabilitiesStore, IOcapability, "watching");
+
+	public ISet capabilities(ISourceLocation loc) {
+		var vf = IRascalValueFactory.getInstance();
+		var scheme = loc.getScheme();
+		ISetWriter result = vf.setWriter();
+
+		if (logicalResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(logicalCap));
+			var resolved = safeResolve(loc);
+
+			if (resolved != loc) {
+				result.insertAll(capabilities(resolved));
+			}
+		}
+
+		if (inputResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(readCap));
+		}
+
+		if (outputResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(writeCap));
+		}
+
+		if (classloaderResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(loadCap));
+		}
+
+		if (watchers.containsKey(scheme)) {
+			result.insert(vf.constructor(watchCap));
+		}
+	
+		return result.done();
+	}
+
+	public boolean hasReadableResolver(ISourceLocation loc) {
+		return inputResolvers.containsKey(loc.getScheme()) || inputResolvers.containsKey(safeResolve(loc).getScheme());
+	}
+
+	public boolean hasWritableResolver(ISourceLocation loc) {
+		return outputResolvers.containsKey(loc.getScheme()) || outputResolvers.containsKey(safeResolve(loc).getScheme());
+	}
+
+	public boolean hasEfficientlyClassloadableResolver(ISourceLocation loc) {
+		return classloaderResolvers.containsKey(loc.getScheme()) || classloaderResolvers.containsKey(safeResolve(loc).getScheme());
+	}
+
+	public boolean hasLogicalResolver(ISourceLocation loc) {
+		return logicalResolvers.containsKey(loc.getScheme());
+	}
+
+	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
+		return watchers.containsKey(loc.getScheme()) || watchers.containsKey(safeResolve(loc).getScheme());
 	}
 
 }

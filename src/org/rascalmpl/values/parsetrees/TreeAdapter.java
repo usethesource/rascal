@@ -19,9 +19,10 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
+
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.values.RascalValueFactory;
@@ -43,9 +44,10 @@ public class TreeAdapter {
 	public static final String NORMAL = "Normal";
 	public static final String TYPE = "Type";
 	public static final String IDENTIFIER = "Identifier";
-	public static final String VARIABLE = "Variable";
-	public static final String CONSTANT = "Constant";
-	public static final String COMMENT = "Comment";
+	public static final String VARIABLE = "variable";
+	public static final String CONSTANT = "constant";
+	public static final String COMMENT = "comment";
+	public static final String COMMENT_LEGACY = "Comment";
 	public static final String TODO = "Todo";
 	public static final String QUOTE = "Quote";
 	public static final String META_AMBIGUITY = "MetaAmbiguity";
@@ -126,7 +128,8 @@ public class TreeAdapter {
 		IConstructor treeProd = getProduction(tree);
 		if (treeProd != null) {
 			String treeProdCategory = ProductionAdapter.getCategory(treeProd);
-			if (treeProdCategory != null && treeProdCategory.equals(COMMENT))
+			if (treeProdCategory != null &&
+				(treeProdCategory.equals(COMMENT) || treeProdCategory.equals(COMMENT_LEGACY)))
 				return true;
 		}
 		return false;
@@ -454,6 +457,9 @@ public class TreeAdapter {
 			ansiOpen.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
 			ansiClose.put(META_KEYWORD, Ansi.ansi().fg(Color.DEFAULT));
 
+			ansiOpen.put(VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
+			ansiClose.put(VARIABLE, Ansi.ansi().a(Attribute.ITALIC_OFF).fgBright(Color.DEFAULT));
+
 			ansiOpen.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
 			ansiClose.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC_OFF).fgBright(Color.DEFAULT));
 
@@ -465,6 +471,9 @@ public class TreeAdapter {
 
 			ansiOpen.put(COMMENT, Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
 			ansiClose.put(COMMENT, Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
+
+			ansiOpen.put(COMMENT_LEGACY, Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
+			ansiClose.put(COMMENT_LEGACY, Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
 		}
 
 		/**
@@ -941,9 +950,9 @@ public class TreeAdapter {
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
-			if (s == category)
+			if (s.equals(category)) {
 				writer.append(tree);
-			else {
+			} else {
 				IList z = getArgs(tree);
 				for (IValue q : z) {
 					if (!(q instanceof IConstructor))

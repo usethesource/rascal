@@ -35,7 +35,7 @@ module lang::rascal::tests::functionality::Scoping
 		int n = 5; L = [n | int n <- [1 .. 10]]; return n==5;
 	}
 	
-	test bool  localRedeclarationError10(){
+	test bool  localReunexpectedDeclaration10(){
 		int n; L = [n | int n <- [1 .. 10]]; return L == [1 .. 10];
 	}
 	*/

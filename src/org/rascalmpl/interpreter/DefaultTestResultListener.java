@@ -15,7 +15,7 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.repl.ReplTextWriter;
+import org.rascalmpl.repl.streams.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -28,14 +28,16 @@ public class DefaultTestResultListener implements ITestResultListener {
     private String context;
     private final boolean verbose;
 	private PrintWriter out;
+	private PrintWriter err;
 	
-	public DefaultTestResultListener(PrintWriter out) {
-	    this(out, true);
+	public DefaultTestResultListener(PrintWriter out, PrintWriter err) {
+	    this(out, err, true);
 	}
 
-	public DefaultTestResultListener(PrintWriter out, boolean verbose){
+	public DefaultTestResultListener(PrintWriter out, PrintWriter err, boolean verbose){
 		super();
 
+		this.err = err;
 		this.out = out;
 		this.verbose = verbose;
 		reset();
@@ -49,7 +51,7 @@ public class DefaultTestResultListener implements ITestResultListener {
     }
 	
 	public void setErrorStream(PrintWriter errorStream) {
-		this.out = errorStream;
+		this.err = errorStream;
 	}
 	
 	@Override
@@ -71,14 +73,14 @@ public class DefaultTestResultListener implements ITestResultListener {
 	            // make sure results are reported on a newline
 	            out.println();
 	        }
-	        out.println("\rTest report for " + context);
+	        out.println("Test report for " + context);
 	        if (errors + failures == 0) {
 	            out.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
 	        }
 	        else {
 	            out.println("\t" + successes + "/" + count + " tests succeeded");
-	            out.println("\t" + failures + "/" + count + " tests failed");
-	            out.println("\t" + errors + "/" + count + " tests threw exceptions");
+	            err.println("\t" + failures + "/" + count + " tests failed");
+	            err.println("\t" + errors + "/" + count + " tests threw exceptions");
 	        }
 
 	        if (ignored != 0) {
@@ -86,6 +88,7 @@ public class DefaultTestResultListener implements ITestResultListener {
 	        }
 			
 			out.flush();
+			err.flush();
 	    }
 	}
 	
@@ -99,9 +102,10 @@ public class DefaultTestResultListener implements ITestResultListener {
 		    errors++;
 		    if (!verbose) {
 		        out.println();
+		        out.flush();
 		    }
-		    out.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    out.println(message);
+		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
+		    err.println(message);
 		}
 		else {
 		    failures++;

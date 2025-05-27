@@ -22,7 +22,7 @@ import io.usethesource.vallang.ISourceLocation;
 public abstract class AliasedFileResolver implements ILogicalSourceLocationResolver {
 
     private final String scheme;
-    private final ISourceLocation root;
+    protected final ISourceLocation root;
 
     AliasedFileResolver(String scheme, String rootPath) {
         this.scheme = scheme;

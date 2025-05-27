@@ -701,9 +701,7 @@ public class TraversalEvaluator {
 		    return traverseTop(subject, casesOrRules, tr);
 		}
 		
-		while (subjectCursor < len){
-			//System.err.println("cursor = " + cursor);
-			
+		while (subjectCursor < len) {			
 			try {
 				IString substring = eval.getValueFactory().string(subjectString.substring(subjectCursor, len));
 				IValue subresult  = substring;

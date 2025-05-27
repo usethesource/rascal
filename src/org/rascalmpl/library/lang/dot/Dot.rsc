@@ -117,7 +117,7 @@ private str oCompassPt(E())  = "e";
 private str oCompassPt(SE())  = "se";
 private str oCompassPt(S())  = "s";
 private str oCompassPt(SW())  = "sw";
-private str oCompassPt(E())  = "w";
+private str oCompassPt(W())  = "w";
 private str oCompassPt(NW())  = "nw";
 private default str oCompassPt(CompassPt _) = "_";
     

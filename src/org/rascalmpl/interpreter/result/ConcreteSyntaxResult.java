@@ -247,6 +247,15 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			return bool(true, ctx);
 		}
 
+		if (TreeAdapter.isCycle(left) && TreeAdapter.isCycle(right)) {
+			IConstructor type1 = TreeAdapter.getCycleType(left);
+			IConstructor type2 = TreeAdapter.getCycleType(right);
+			int length1 = TreeAdapter.getCycleLength(left);
+			int length2 = TreeAdapter.getCycleLength(right);
+
+			return bool(type1.equals(type2) && length1 == length2, ctx);
+		}
+
 		return bool(false, ctx);
 	}
 

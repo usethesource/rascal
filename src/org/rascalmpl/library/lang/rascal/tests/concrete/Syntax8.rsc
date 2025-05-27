@@ -37,14 +37,14 @@ test bool sizeABStar0() = size(([ABStar]"").abs) == 0;
 @ignoreInterpreter{Not implemented}
 test bool sizeABStar1() = size(([ABStar]"a").abs) == 1;
 @ignoreInterpreter{Not implemented}
-test bool sizeABStar2() = size(([ABStar]"a").abs) == 2;
+test bool sizeABStar2() = size(([ABStar]"a a").abs) == 2;
 
 @ignoreInterpreter{Not implemented}
 test bool sizeABPlus1() = size(([ABPlus]"a").abs) == 1;
 @ignoreInterpreter{Not implemented}
-test bool sizeABPlus2() = size(([ABPlus]"a, b").abs) == 2;
+test bool sizeABPlus2() = size(([ABPlus]"a b").abs) == 2;
 @ignoreInterpreter{Not implemented}
-test bool sizeABPlus3() = size(([ABPlus]"a, b, a").abs) == 3;
+test bool sizeABPlus3() = size(([ABPlus]"a b a").abs) == 3;
 
 int size({&E &S}* l) = (0 | it + 1 | _ <- l);
 

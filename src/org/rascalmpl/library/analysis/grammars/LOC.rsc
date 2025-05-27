@@ -129,6 +129,7 @@ bool isLayout(amb({*_, appl(prod(\layouts(_), _, _), _)})) = true;
 default bool isLayout(Tree t) = false;
 
 bool isComment(appl(p:prod(_, _, {*_, \tag("category"("Comment"))}), _)) = true;
+bool isComment(appl(p:prod(_, _, {*_, \tag("category"("comment"))}), _)) = true;
 default bool isComment(Tree _) = false;
 
 

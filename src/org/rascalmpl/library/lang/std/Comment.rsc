@@ -8,4 +8,4 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::std::Comment
 
-lexical Comment = @lineComment @category="Comment" "//" ![\n]* $;
+lexical Comment = @lineComment @category="comment" "//" ![\n]* $;
