@@ -338,49 +338,14 @@ data AType
      ;
 
 @synopsis{These are the syntax role modifier constructors}
-data AType
-    = \asyntax(AType modified)
-    | \alexical(AType modified)
-    | \akeyword(AType modified)
-    | \alayout(AType modified)
-    | \adata(AType modified)
-    ;
+data AType = \asyntaxRoleModifier(SyntaxRole role, AType modified);
 
 @synopsis{this is the core modifier feature: force the "role", keep the rest}
-AType \adata   (aadt(n, ps, role)) = aadt(n, ps, dataRole());
-AType \alexical(aadt(n, ps, role)) = aadt(n, ps, lexicalRole());
-AType \akeyword(aadt(n, ps, role)) = aadt(n, ps, keywordRole());
-AType \alayout (aadt(n, ps, role)) = aadt(n, ps, layoutRole());
+AType asyntaxRoleModifier(SyntaxRole newRole, aadt(n, ps, SyntaxRole _oldRole)) = aadt(n, ps, newRole);
 
-// below are the canonical forms for nested modifer application, for when `s` is an open parameter
-AType \adata(\asyntax(AType s))  = \adata(s);
-AType \adata(\alexical(AType s)) = \adata(s);
-AType \adata(\akeyword(AType s)) = \adata(s);
-AType \adata(\alayout(AType s))  = \adata(s);
-
-AType \asyntax(\adata(AType s))    = \asyntax(s);
-AType \asyntax(\asyntax(AType s))  = \asyntax(s);
-AType \asyntax(\alexical(AType s)) = \asyntax(s);
-AType \asyntax(\akeyword(AType s)) = \asyntax(s);
-AType \asyntax(\alayout(AType s))  = \asyntax(s);
-
-AType \alexical(\adata(AType s))    = \alexical(s);
-AType \alexical(\asyntax(AType s))  = \alexical(s);
-AType \alexical(\alexical(AType s)) = \alexical(s);
-AType \alexical(\akeyword(AType s)) = \alexical(s);
-AType \alexical(\alayout(AType s))  = \alexical(s);
-
-AType \akeyword(\adata(AType s))    = \akeyword(s);
-AType \akeyword(\asyntax(AType s))  = \akeyword(s);
-AType \akeyword(\alexical(AType s)) = \akeyword(s);
-AType \akeyword(\akeyword(AType s)) = \akeyword(s);
-AType \akeyword(\alayout(AType s))  = \akeyword(s);
-
-AType \alayout(\adata(AType s))    = \alayout(s);
-AType \alayout(\asyntax(AType s))  = \alayout(s);
-AType \alayout(\alexical(AType s)) = \alayout(s);
-AType \alayout(\akeyword(AType s)) = \alayout(s);
-AType \alayout(\alayout(AType s))  = \alayout(s);
+@synopsis{The outermost modifier eventually always wins, even on open modified types.}
+AType asyntaxRoleModifier(SyntaxRole role, asyntaxRoleModifier(_, AType s))
+  = asyntaxRoleModifier(role, s);
 
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);

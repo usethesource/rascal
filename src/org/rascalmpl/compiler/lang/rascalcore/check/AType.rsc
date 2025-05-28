@@ -206,11 +206,11 @@ bool asubtype(\akeyword(\aparameter(_, _)), aadt(_, _, keywordSyntax()))     = t
 bool asubtype(\alayout (\aparameter(_, _)), aadt(_, _, layoutSyntax()))      = true;
 
 // All open syntax role modifiers are sub-types of `node`
-bool asubtype(\adata   (\aparameter(_, _)), anode()) = true;
-bool asubtype(\asyntax (\aparameter(_, _)), anode()) = true;
-bool asubtype(\alexical(\aparameter(_, _)), anode()) = true;
-bool asubtype(\akeyword(\aparameter(_, _)), anode()) = true;
-bool asubtype(\alayout (\aparameter(_, _)), anode()) = true;
+bool asubtype(\adata   (\aparameter(_, _)), anode(_)) = true;
+bool asubtype(\asyntax (\aparameter(_, _)), anode(_)) = true;
+bool asubtype(\alexical(\aparameter(_, _)), anode(_)) = true;
+bool asubtype(\akeyword(\aparameter(_, _)), anode(_)) = true;
+bool asubtype(\alayout (\aparameter(_, _)), anode(_)) = true;
 
 // All context-free grammar-related syntax roles are sub-types of `Tree`
 bool asubtype(\asyntax (\aparameter(_, _)), aadt("Tree", [], dataSyntax())) = true;
@@ -662,6 +662,7 @@ AType addADTLabel(AType a1, AType a2, AType adt){
   return adt;
 }
 
+
 //AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
     if(size(lp) == size(rp)){
@@ -707,6 +708,29 @@ AType alub(AType l, p:aparameter(n, b, closed=true))  = lb == b ? p : lb when !(
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
+
+AType alub(\asyntaxRoleModifier(_, \aparameter(_, _)), anode(l))  = \anode(l);
+AType alub(\anode(l), \asyntaxRoleModifier(\aparameter(_, _)))    = \anode(l);
+
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _)), aadt("Tree",[], dataSyntax())) 
+    = aadt("Tree",[], dataSyntax())
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+AType alub(aadt("Tree",[], dataSyntax()), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _))) 
+    = aadt("Tree",[], dataSyntax())
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+// ---
+
+AType alub(\asyntaxRoleModifier(dataSyntax(), \aparameter(x, _)),
+           \asyntaxRoleModifier(SyntaxRole _, \aparameter(y, _))) = anode([]) when x != y;
+
+AType alub(\asyntaxRoleModifier(SyntaxRole _, \aparameter(x, _)),
+           \asyntaxRoleModifier(dataSyntax(), \aparameter(y, _))) = anode([]) when x != y;
+
+AType alub(\asyntaxRoleModifier(SyntaxRole a, \aparameter(x, _)),
+           \asyntaxRoleModifier(SyntaxRole b, \aparameter(y, _))) = aadt("Tree",[], dataSyntax()) 
+    when x != y, {a,b} < {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
 
