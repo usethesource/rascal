@@ -525,6 +525,11 @@ bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname
 
 bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
 
+// syntax role with incomparable roles are not outer comparable, but otherwise they act like aadt's:
+// JV: commented out until I understand the use of outerComparable1 better.
+// bool outerComparable1(asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), asyntaxRoleModifier(role, aparameter(_,_))) = true;
+// bool outerComparable1(asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), aadt(_,_,role)) = true;
+// bool outerComparable1(aadt(_,_,role), asyntaxRoleModifier(SyntaxRole role, aparameter(_,_))) = true;
 
 default bool outerComparable1(AType l, AType r) {
     return comparable(l, r);
