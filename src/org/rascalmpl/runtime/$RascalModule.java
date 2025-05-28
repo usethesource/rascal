@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.rascalmpl.ast.SyntaxRoleModifier;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -357,6 +358,26 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		//$TS.declareAbstractDataType(adtType);
 		return adtType;
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToData(Type arg) {
+		return $RTF.modifyToData(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToSyntax(Type arg) {
+		return $RTF.modifyToSyntax(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToLexical(Type arg) {
+		return $RTF.modifyToLexical(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToKeyword(Type arg) {
+		return $RTF.modifyToKeyword(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToLayout(Type arg) {
+		return $RTF.modifyToLayout(arg);
 	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
