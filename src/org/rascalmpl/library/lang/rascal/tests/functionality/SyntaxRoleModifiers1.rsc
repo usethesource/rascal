@@ -88,3 +88,12 @@ test bool dataMatchesSyntaxTreesToo2() {
     // we are never supposed to end up here
     return false;
 }
+
+data X = x();
+
+test bool dataIsANodeToo() {
+    data[&T] washGeneric(data[&T] x) = x;
+
+    // this would fail the type-checker if `data[&T] `is not sub-type of `node`
+    return washGeneric(x()) == x();
+}
