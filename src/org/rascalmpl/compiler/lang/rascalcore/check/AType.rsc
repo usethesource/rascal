@@ -710,7 +710,7 @@ AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(\asyntaxRoleModifier(_, \aparameter(_, _)), anode(l))  = \anode(l);
-AType alub(\anode(l), \asyntaxRoleModifier(\aparameter(_, _)))    = \anode(l);
+AType alub(\anode(l), \asyntaxRoleModifier(_, \aparameter(_, _))) = \anode(l);
 
 AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _)), aadt("Tree",[], dataSyntax())) 
     = aadt("Tree",[], dataSyntax())
