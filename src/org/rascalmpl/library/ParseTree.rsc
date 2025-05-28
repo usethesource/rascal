@@ -294,7 +294,6 @@ data Symbol
     | \lexical(Symbol modified)
     | \keyword(Symbol modified)
     | \layout(Symbol modified)
-    | \data(Symbol modified)
     ;
 
 Symbol \data(\syntax(Symbol s))  = \data(s);
@@ -371,7 +370,6 @@ bool subtype(Symbol::\lex(_), Symbol::\adt("Tree", [])) = true;
 bool subtype(Symbol::\parameterized-lex(_,_), Symbol::\adt("Tree", [])) = true;
 bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", [])) = true;
 bool subtype(Symbol::\keywords(_), Symbol::\adt("Tree", [])) = true;
-bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", [])) = true;
 
 bool subtype(\syntax(_), Symbol::\adt("Tree", [])) = true;
 bool subtype(\lexical(_), Symbol::\adt("Tree", [])) = true;
