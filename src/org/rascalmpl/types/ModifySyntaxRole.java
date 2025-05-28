@@ -51,6 +51,7 @@ public abstract class ModifySyntaxRole extends RascalType {
     protected final Type arg;
     
     public ModifySyntaxRole(Type param) {
+        assert param != null : "syntax role modifier must have non-null parameter";
         this.arg = param;
     }
 
@@ -937,6 +938,11 @@ public abstract class ModifySyntaxRole extends RascalType {
 
     @Override
     public boolean equals(@Nullable Object o) {
+        if (o == null) {
+            return false;
+        }
+
+        // implementing this for several sub-classes at the same time.
         return o.getClass() == getClass() && ((ModifySyntaxRole) o).arg == arg;
     }
 
