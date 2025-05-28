@@ -347,12 +347,12 @@ data AType
     ;
 
 @synopsis{this is the core modifier feature: force the "role", keep the rest}
-AType \adata(a:aadt(n, ps, role)) = aadt(n, ps, dataRole());
-AType \alexical(adt(n, ps, role)) = aadt(n, ps, lexicalRole());
-AType \akeyword(adt(n, ps, role)) = aadt(n, ps, keywordRole());
-AType \alayout(adt(n, ps, role)) = aadt(n, ps, layoutRole());
+AType \adata   (aadt(n, ps, role)) = aadt(n, ps, dataRole());
+AType \alexical(aadt(n, ps, role)) = aadt(n, ps, lexicalRole());
+AType \akeyword(aadt(n, ps, role)) = aadt(n, ps, keywordRole());
+AType \alayout (aadt(n, ps, role)) = aadt(n, ps, layoutRole());
 
-// below are the canonical forms for nested modifer application
+// below are the canonical forms for nested modifer application, for when `s` is an open parameter
 AType \adata(\asyntax(AType s))  = \adata(s);
 AType \adata(\alexical(AType s)) = \adata(s);
 AType \adata(\akeyword(AType s)) = \adata(s);
