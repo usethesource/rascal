@@ -655,6 +655,8 @@ JGenie makeJGenie(MuModule m,
                             }
                         }  
                         else if (asyntaxRoleModifier(SyntaxRole role, p:aparameter(_,_)) := s) {
+                            // all other cases of this constructor have been rewritten to aadt(...) instances,
+                            // or caused a fatal error in the type-checker.
                             isLocal = isEmpty(_getATypeAccessor(s));
                             if (isLocal) {
                                 switch (role) {
