@@ -894,5 +894,18 @@ public AType aglb(afunc(AType lr, list[AType] lp, list[Keyword] kwl), afunc(ATyp
         return avalue();
 }
 
+AType aglb(asyntaxRoleModifier(SyntaxRole role, p1:aparameter(_,_)),
+           asyntaxRoleModifier(           role, p2:aparameter(_,_)))
+    = asyntaxRoleModifier(r, glb(p1, p2)) when p1 != p2;
+
+AType aglb(a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_)), \anode(_)) = a;
+AType aglb(\anode(_), a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_))) = a;
+
+AType aglb(a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), aadt("Tree", [], dataSyntax())) = a
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+AType aglb(aadt("Tree", [], dataSyntax()), a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_))) = a
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
 public list[AType] aglbList(list[AType] l, list[AType] r) = [aglb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r);
 public default list[AType] aglbList(list[AType] l, list[AType] r) = [avalue()];
