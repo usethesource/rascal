@@ -202,7 +202,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt(_, _, role)) = true;
 
 // All open syntax role modifiers are sub-types of `node`
-bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)) anode(_)) = true;
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), anode(_)) = true;
 
 // All context-free grammar-related syntax roles are sub-types of `Tree`
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
@@ -697,6 +697,9 @@ AType alub(AType l, p:aparameter(n, b, closed=true))  = lb == b ? p : lb when !(
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
+
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), a:aadt(_, _, role)) = a;
+AType alub(a:aadt(_, _, role), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_))) = a;
 
 AType alub(\asyntaxRoleModifier(_, \aparameter(_, _)), anode(l))  = \anode(l);
 AType alub(\anode(l), \asyntaxRoleModifier(_, \aparameter(_, _))) = \anode(l);
