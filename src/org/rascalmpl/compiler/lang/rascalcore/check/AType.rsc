@@ -199,25 +199,14 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
 // Open modifiers are sub-types of the kinds that they modify _to_.
 // It's good to remember that _closed_ syntax role modifiers are already rewritten
 // to the type they modify to in ATypeBase
-bool asubtype(\adata   (\aparameter(_, _)), aadt(_, _, dataSyntax()))        = true;
-bool asubtype(\asyntax (\aparameter(_, _)), aadt(_, _, contextFreeSyntax())) = true;
-bool asubtype(\alexical(\aparameter(_, _)), aadt(_, _, lexicalSyntax()))     = true;
-bool asubtype(\akeyword(\aparameter(_, _)), aadt(_, _, keywordSyntax()))     = true;
-bool asubtype(\alayout (\aparameter(_, _)), aadt(_, _, layoutSyntax()))      = true;
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt(_, _, role)) = true;
 
 // All open syntax role modifiers are sub-types of `node`
-bool asubtype(\adata   (\aparameter(_, _)), anode(_)) = true;
-bool asubtype(\asyntax (\aparameter(_, _)), anode(_)) = true;
-bool asubtype(\alexical(\aparameter(_, _)), anode(_)) = true;
-bool asubtype(\akeyword(\aparameter(_, _)), anode(_)) = true;
-bool asubtype(\alayout (\aparameter(_, _)), anode(_)) = true;
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)) anode(_)) = true;
 
 // All context-free grammar-related syntax roles are sub-types of `Tree`
-bool asubtype(\asyntax (\aparameter(_, _)), aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\alexical(\aparameter(_, _)), aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\akeyword(\aparameter(_, _)), aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\alayout (\aparameter(_, _)), aadt("Tree", [], dataSyntax())) = true;
-
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
