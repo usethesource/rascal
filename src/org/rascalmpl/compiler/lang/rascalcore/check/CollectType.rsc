@@ -942,6 +942,33 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     collect(tp, c);
 }
 
+// syntax type modifiers
+
+void collect(current: (Type) `data[<Type tp>]`, Collector c){
+    collect(tp, c);
+    c.fact(current, asyntaxRoleModifier(dataSyntax(), c.getType(tp)));
+}
+
+void collect(current: (Type) `syntax[<Type tp>]`, Collector c){
+    collect(tp, c);
+    c.fact(current, asyntaxRoleModifier(contextFreeSyntax(), c.getType(tp)));
+}
+
+void collect(current: (Type) `lexical[<Type tp>]`, Collector c){
+    collect(tp, c);
+    c.fact(current, asyntaxRoleModifier(lexicalSyntax(), c.getType(tp)));
+}
+
+void collect(current: (Type) `keyword[<Type tp>]`, Collector c){
+    collect(tp, c);
+    c.fact(current, asyntaxRoleModifier(keywordSyntax(), c.getType(tp)));
+}
+
+void collect(current: (Type) `layout[<Type tp>]`, Collector c){
+    collect(tp, c);
+    c.fact(current, asyntaxRoleModifier(layoutSyntax(), c.getType(tp)));
+}
+
 @doc{A parsing function, useful for generating test cases.}
 public Type parseType(str s) {
     return parse(#Type, s);
