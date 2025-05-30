@@ -417,14 +417,24 @@ public class PathConfig {
                 typepal = resolveProjectOnClasspath("typepal");
                 typepal = MavenRepositoryURIResolver.mavenize(typepal);
                 typepal = JarURIResolver.jarify(typepal);
-            } catch (FileNotFoundException e) {
-                messages.append(Messages.error("Could not find typepal in local project, rascal compiler will not work", workspaceRascal));
+            } 
+            catch (FileNotFoundException e) {
+                Artifact typePalArtifact = getPomXmlTypePalArtifact(workspaceRascal, messages);
+
+                if (typePalArtifact != null) {
+                    typepal = MavenRepositoryURIResolver.make("org.rascalmpl", "typepal", typePalArtifact.getCoordinate().getVersion(), "");
+                }   
+                else {
+                    messages.append(Messages.error("Could not find typepal in local project, or on the classpath or amongst the dependencies. Loading the compiler will fail.", workspaceRascal));
+                }      
             }
         }
 
         // the interpreter should pick up the typepal sources
         // and so should the typechecker, otherwise it might get type-checked against the wrong `std:///` jar (namely from it's pom.xml)
-        srcs.append(typepal);
+        if (typepal !=  null) {
+            srcs.append(typepal);
+        }
     }
 
     /**
@@ -860,6 +870,39 @@ public class PathConfig {
         }
         catch (RuntimeException | IOException | ModelResolutionError e) {
             return Collections.emptyList();
+        }
+    }
+
+    private static Artifact getPomXmlTypePalArtifact(ISourceLocation manifestRoot, IListWriter messages) {
+        try {
+            var reg = URIResolverRegistry.getInstance();
+            if (!manifestRoot.getScheme().equals("file")) {
+                var resolved = reg.logicalToPhysical(manifestRoot);
+                if (resolved != null) {
+                    if (!resolved.getScheme().equals("file")) {
+                        return null;
+                    }
+                    manifestRoot = resolved;
+                }
+            }
+            if (!manifestRoot.getPath().endsWith("pom.xml")) {
+                manifestRoot = URIUtil.getChildLocation(manifestRoot, "pom.xml");
+            }
+            var mavenParser = new MavenParser(Path.of(manifestRoot.getURI()));
+            var rootProject = mavenParser.parseProject();
+            messages.appendAll(rootProject.getMessages());
+            
+            var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
+            for (Artifact a : result) {
+                if ("typepal".equals(a.getCoordinate().getArtifactId())
+                    && "org.rascalmpl".equals(a.getCoordinate().getGroupId())) {
+                    return a;
+                }
+            }   
+            return null;
+        }
+        catch (RuntimeException | IOException | ModelResolutionError e) {
+            return null;
         }
     }
 
