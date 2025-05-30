@@ -139,9 +139,10 @@ run-time already uses `.src` while the source code still uses `@\loc`.
 
 module ParseTree
 
-extend Type;
-extend Message;
 extend List;
+extend Message;
+extend Type;
+
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
