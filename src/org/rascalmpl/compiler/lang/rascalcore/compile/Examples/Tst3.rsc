@@ -25,7 +25,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-void main(){ 
-    node f = "foo"();
-    str hey = /"foo"() := f ? "kk" : "ll";          
-}
+
+import ParseTree;
+
+layout Layout = [\ \t\n]* !>> [\ \t\n];
+
+start syntax Stmt
+    = "if" "(" "x" ")" Stmt "else" Stmt
+    | "if" "(" "x" ")" Stmt () !>> "else"
+    | "{" "}"
+    ;
+
+value main()
+    = parse(#Stmt, "if (x) {}");

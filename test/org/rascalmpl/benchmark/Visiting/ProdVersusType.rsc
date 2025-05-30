@@ -24,30 +24,53 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst1
-layout Layout = " "*;
-   
-syntax AB = "a" | "b";
-//syntax ABPlus = AB+ abs;
-syntax ABStar = AB* abs;
-// syntax ABPlusSep = {AB ","}+ abs;
-// syntax ABStarSep = {AB ","}* abs;
+module Visiting::ProdVersusType
 
-int size(&E* l) = (0 | it + 1 | _ <- l);
-    
+import util::Benchmark;
+import IO;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import util::Reflective;
 
-value main() // test bool sizeABStar2() 
-  = size(([ABStar]"a a").abs) == 2;
+int NUM_RUNS = 100;
 
-// test bool sizeABPlus2() = size(([ABPlus]"a b").abs) == 2;
+int TypeMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case TypeVar _: i = i + 1;
+        }
+    }
+    println("TypeMatch elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
 
-// test bool sizeABPlus3() = size(([ABPlus]"a b a").abs) == 3;
-
-int size({&E &S}* l) = (0 | it + 1 | _ <- l);
-
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep0() = size(([ABStarSep]"").abs) == 0;
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep1() = size(([ABStarSep]"a").abs) == 1;
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep2() = size(([ABStarSep]"a, b").abs) == 2;
+int ProdMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case (TypeVar) `&<Name _>`: i = i + 1;
+            case (TypeVar) `&<Name _> \<: <Type _>`: i = i + 1;
+        }
+    }
+    println("ProdMatch elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
+ 
+ void warmup(start[Module] m){
+    for(_ <- [0..5]){
+        ProdMatch(m);
+        TypeMatch(m);
+    }
+ }
+value main(){
+    m = parseModuleWithSpaces(|std:///List.rsc|);
+    warmup(m);
+    println("ProdMatch:");
+    a = ProdMatch(m);
+    println("TypeMatch:");
+    b = TypeMatch(m);
+    return <a,b>;
+}

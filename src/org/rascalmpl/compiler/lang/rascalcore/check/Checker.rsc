@@ -92,7 +92,6 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    
     if(!exists(pcfg.generatedResources)) {
         try {
             mkDirectory(pcfg.generatedResources);
@@ -100,7 +99,6 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
             msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
         }
     }
-
     return msgs;
 }
 
@@ -484,9 +482,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
@@ -610,6 +608,7 @@ int main(
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
+        logImports               = logImports,
         verbose                  = verbose,
         logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
@@ -619,10 +618,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
 
-    messages = [];
+    list[ModuleMessages] messages = [];
     
     if (modules == []) {
-        messages = [info("No modules to check.", |unknown:///|)];
+        //messages = [info("No modules to check.", |unknown:///|)];
         return 0;
     }
     else {
