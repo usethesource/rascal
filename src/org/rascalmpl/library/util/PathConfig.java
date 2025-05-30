@@ -26,6 +26,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
+import org.rascalmpl.util.maven.ArtifactCoordinate;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
@@ -417,14 +418,20 @@ public class PathConfig {
                 typepal = resolveProjectOnClasspath("typepal");
                 typepal = MavenRepositoryURIResolver.mavenize(typepal);
                 typepal = JarURIResolver.jarify(typepal);
-            } catch (FileNotFoundException e) {
-                messages.append(Messages.error("Could not find typepal in local project, rascal compiler will not work", workspaceRascal));
+            } 
+            catch (FileNotFoundException e) {
+                // last try: the dependencies. This should typically succeed while we have a pom dependency on typepal in the rascal project.
+                typepal = getPomXmlTypePalDependency(workspaceRascal, messages);
             }
         }
 
         // the interpreter should pick up the typepal sources
         // and so should the typechecker, otherwise it might get type-checked against the wrong `std:///` jar (namely from it's pom.xml)
-        srcs.append(typepal);
+        if (typepal !=  null) {
+            srcs.append(typepal);
+        } else {
+            messages.append(Messages.error("Could not find typepal in local project, or on the classpath, or amongst the dependencies. Loading the compiler will fail.", workspaceRascal));
+        }
     }
 
     /**
@@ -861,6 +868,24 @@ public class PathConfig {
         catch (RuntimeException | IOException | ModelResolutionError e) {
             return Collections.emptyList();
         }
+    }
+
+    private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
+        return "org.rascalmpl".equals(artifact.getGroupId())
+            && "typepal".equals(artifact.getArtifactId());
+    }
+
+    private static ISourceLocation getPomXmlTypePalDependency(ISourceLocation manifestRoot, IListWriter messages) {
+        
+        for (Artifact artifact : getPomXmlCompilerClasspath(manifestRoot, messages)) {
+            var coordinate = artifact.getCoordinate();
+
+            if (isTypePalArtifact(coordinate)) {
+                return MavenRepositoryURIResolver.make(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion(), "");
+            }
+        }
+
+        return null;
     }
 
     public ISourceLocation getProjectRoot() {
