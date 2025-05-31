@@ -383,7 +383,7 @@ public class PathConfig {
     /**
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
-    private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, List<Artifact> mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+    private static void buildRascalSelfApplicationConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, List<Artifact> mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
         if (mode == RascalConfigMode.INTERPRETER) {
             // if you want to test rascal changes, use RascalShell class and run it as a java process
             srcs.append(URIUtil.rootLocation("std"));
@@ -421,7 +421,7 @@ public class PathConfig {
             } 
             catch (FileNotFoundException e) {
                 // last try: the dependencies. This should typically succeed while we have a pom dependency on typepal in the rascal project.
-                typepal = getPomXmlTypePalDependency(workspaceRascal, messages);
+                typepal = getPomXmlTypePalDependency(mavenClassPath);
             }
         }
 
@@ -678,7 +678,7 @@ public class PathConfig {
 
             if (projectName.equals("rascal")) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
-                buildRascalConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
+                buildRascalSelfApplicationConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
             else if (projectName.equals("rascal-lsp")) {
                 buildRascalLSPConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
@@ -837,6 +837,9 @@ public class PathConfig {
     /**
      * See if there is a pom.xml and extract the compile-time classpath from a mvn run
      * if there is such a file.
+     * 
+     * Note that this method should not filter or enhance the path beyond what is written in the pom.xml
+     * and the semantics of compile-time dependencies of Maven.
      * @param manifestRoot
      * @return
      */
@@ -875,9 +878,9 @@ public class PathConfig {
             && "typepal".equals(artifact.getArtifactId());
     }
 
-    private static ISourceLocation getPomXmlTypePalDependency(ISourceLocation manifestRoot, IListWriter messages) {
+    private static ISourceLocation getPomXmlTypePalDependency(List<Artifact> pomDependencies) {
         
-        for (Artifact artifact : getPomXmlCompilerClasspath(manifestRoot, messages)) {
+        for (Artifact artifact : pomDependencies) {
             var coordinate = artifact.getCoordinate();
 
             if (isTypePalArtifact(coordinate)) {
