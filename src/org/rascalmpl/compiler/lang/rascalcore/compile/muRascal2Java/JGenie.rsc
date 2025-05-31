@@ -653,7 +653,24 @@ JGenie makeJGenie(MuModule m,
                                     kwpTypeDecls += "$TS.declareKeywordParameter(<cname>,\"<kwpField.fieldType.alabel>\", <_getATypeAccessor(kwpField.fieldType)><atype2vtype(kwpField.fieldType, thisJGenie)>);\n";
                                 }
                             }
-                        } else {
+                        }  
+                        else if (asyntaxRoleModifier(SyntaxRole role, p:aparameter(_,_)) := s) {
+                            // all other cases of this constructor have been rewritten to aadt(...) instances,
+                            // or caused a fatal error in the type-checker.
+                            isLocal = isEmpty(_getATypeAccessor(s));
+                            if (isLocal) {
+                                switch (role) {
+                                    case contextFreeSyntax() : r = "Syntax";
+                                    case lexicalSyntax()     : r = "Lexical";
+                                    case keywordSyntax()     : r = "Keyword";
+                                    case layoutSyntax()      : r = "Layout";
+                                    case dataSyntax()        : r = "Data";
+                                }
+
+                                return "$modifyTo<r>(<type2id(p)>)";
+                            }
+                        }
+                        else {
                             tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
                             tinits += "<type2id[s]> = <atype2vtype(s, thisJGenie)>;\n";
                         }
