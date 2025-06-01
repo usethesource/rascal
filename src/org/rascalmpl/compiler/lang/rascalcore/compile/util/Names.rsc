@@ -29,6 +29,7 @@ module lang::rascalcore::compile::util::Names
 import String;
 import List;
 import util::Reflective;
+// import lang::rascalcore::CompilerPathConfig;
 
 data PathConfig(
     loc generatedSources       = |unknown:///|,

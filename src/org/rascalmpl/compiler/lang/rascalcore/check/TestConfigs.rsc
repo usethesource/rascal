@@ -32,6 +32,7 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::ModuleLocations;
+// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
@@ -123,13 +124,13 @@ public PathConfig getRascalProjectTestingPathConfig() {
 public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool keep = false) {
    COMPILED = keep ? COMPILED_RASCAL : TMP_COMPILED_RASCAL;
    return pathConfig(
-        srcs                 = sources,
-        bin                  = COMPILED + (keep ? "/target/classes" : "rascal"),
-        generatedSources     = COMPILED + "/src/main/java",
-        generatedTestSources = COMPILED + "/src/test/java/",
-        generatedResources    = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        generatedRestResources= COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
-        libs                 = libraries
+        srcs                   = sources,
+        bin                    = COMPILED + (keep ? "/target/classes" : "rascal"),
+        generatedSources       = COMPILED + "/src/main/java",
+        generatedTestSources   = COMPILED + "/src/test/java/",
+        generatedResources     = COMPILED + (keep ? "/src/main/java" : "rascal"),
+        generatedTestResources = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        libs                   = libraries
     ); 
 }
 
