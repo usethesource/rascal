@@ -561,7 +561,7 @@ JGenie makeJGenie(MuModule m,
         str tinits = "";
         str consinits = "";
         str adtinits_instantiate = "";
-        str adtinits = "";
+        str adtinits_noparam = "";
         str adtinits_param = "";
         str kwpTypeDecls = "";
         done = {};
@@ -581,14 +581,13 @@ JGenie makeJGenie(MuModule m,
         //println("-----------------------------------------");
         
         bool simpler(AType a, AType b) {
-            if(a == b) return false;
+            if(a == b || /b := a) return false;
             if(/a := b) return true;
             return isAtomicAType(a) && !isAtomicAType(b);
         }
         
         sorted_types = sort(domain(type2id), simpler);
-        //assert isSorted(sorted_types, simpler) : "Not properly sorted: <sorted_types>";
-        
+        //assert isSorted(sorted_types, less=simpler) : "Not properly sorted: <sorted_types>";
         //println("sorted_types:"); for(t <- sorted_types) println(t);
         smap = (dataSyntax()       : "$adt",
                 contextFreeSyntax(): "$sort",
@@ -611,9 +610,9 @@ JGenie makeJGenie(MuModule m,
                                 adtdef = "";
                                 if(isEmpty(parameters)){
                                     adtdef = "<asr>(\"<adtName>\")";
-                                    adtinits += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                    adtinits_noparam += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
                                     if(asr in {"$sort", "$lex"}){
-                                        adtinits += "<type2id[s]> = $adt(\"<adtName>\");\n";
+                                        adtinits_noparam += "<type2id[s]> = $adt(\"<adtName>\");\n";
                                     }
                                 } else {
                                     if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
@@ -624,7 +623,7 @@ JGenie makeJGenie(MuModule m,
                                              case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <tparams>, <vparams>)";
                                              case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <tparams>, <vparams>)";
                                          }
-                                        adtinits_param += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                        tinits += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
                                         if(asr in {"$sort", "$lex"}){
                                             adtinits_param += "<type2id[s]> = $TF.abstractDataType($TS, \"<adtName>\", <tparams>);\n";
                                          }
@@ -670,7 +669,7 @@ JGenie makeJGenie(MuModule m,
             }
         }
         
-        tinits = adtinits + tinits + adtinits_param + adtinits_instantiate + consinits;
+        tinits = adtinits_noparam + tinits + adtinits_param + adtinits_instantiate + consinits;
         rdecls = "";
         rinits = "";
         for(t <- reified_constants){
