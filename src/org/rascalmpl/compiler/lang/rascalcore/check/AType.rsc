@@ -481,47 +481,6 @@ bool comparableList(list[AType] l, list[AType] r) {
     return size(l) == size(r) && all(i <- index(l), comparable(l[i], r[i]));
 }
 
-bool outerComparable(AType l, AType r){
-    return outerComparable1(l, r);
-}
-
-bool outerComparable1(AType l, l) = true;
-bool outerComparable1(alist(_), alist(_)) = true;
-bool outerComparable1(aset(_), aset(_)) = true;
-bool outerComparable1(abag(_), abag(_)) = true;
-bool outerComparable1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(arel(_), aset(_)) = true;
-bool outerComparable1(aset(_), arel(_)) = true;
-bool outerComparable1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(alrel(_), alist(_)) = true;
-bool outerComparable1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(amap(_,_), amap(_,_)) = true;
-
-bool outerComparable1(f1:afunc(AType r1, list[AType] p1, list[Keyword] _), f2:afunc(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && (f1.varArgs ? (f2.varArgs ? outerComparable(p1, p2)
-                                                           : outerComparable(p1[0..-1], p2))
-                                             : (f2.varArgs ? outerComparable(p1, p2[0..-1])
-                                                           : outerComparable(p1, p2)));
-
-bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), acons(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && outerComparable(p1, p2);
-bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && outerComparable(p1, p2);
-
-bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2))
-    = outerComparable(bound1, bound2);
-
-bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
-
-
-default bool outerComparable1(AType l, AType r) {
-    return comparable(l, r);
-}
-
-bool outerComparable(list[AType] l, list[AType] r) = all(i <- index(l), outerComparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-default bool outerComparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
-
-
 @doc{
 .Synopsis
 Check if two types are equivalent.
@@ -687,17 +646,17 @@ AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
 
-AType alub(\iter(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter-star(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-seps(_, _), \iter-seps(_,_)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-seps(_,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-seps(l, _), \iter-seps(r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-seps(l,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
 
-AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 
 AType alub(l:aadt("Tree", _, _), AType r) = l
     when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
