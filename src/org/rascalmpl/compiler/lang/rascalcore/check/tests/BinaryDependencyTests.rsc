@@ -41,7 +41,7 @@ import Map;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
-import lang::rascalcore::CompilerPathConfig;
+//import lang::rascalcore::CompilerPathConfig;
 
 
 // ---- Utilities for test setup ----------------------------------------------
@@ -66,6 +66,9 @@ loc bin(str pname)
 
 loc generatedSources(str pname)
     = projectDir(pname) + "generated/";
+
+loc resources(str pname)
+    = projectDir(pname) + "bin/";
 
 Project createProject(str pname, map[str mname, str mtext] modules, PathConfig pcfg){
     remove(projectDir(pname), recursive=true);
