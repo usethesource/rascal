@@ -66,6 +66,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 import analysis::graphs::Graph;
+// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
