@@ -94,41 +94,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$TRAVERSE = new Traverse($RVF);
 		mstore = new ModuleStore();
 		$TS = new TypeStore();
-		rascalSearchPath = new RascalSearchPath();
+		rascalSearchPath = null ; // JV: unused new RascalSearchPath();
 		
+		// TODO: this code is for the test environment (which should offer `project://thisProject`)
 		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
-	    String projectName = new RascalManifest().getProjectName(projectRoot);
-	    if(!projectName.isEmpty()) {
-	    	reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-	    }
-	    
-	    String projectPath =  projectRoot.getPath();
-	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
-	    
-		try {
-			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
-			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
-			if (entries != null) {
-				//System.err.print("INFO adding projects: ");
-				for(String entryName : entries) {
-					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
-						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
-						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
-							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
-							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $VF.list(entryRoot)));
-							//System.err.print(entryName + " ");
-						}
-					}
-				}
-				//System.err.println("");
+		if (projectRoot != null) {
+			String projectName = new RascalManifest().getProjectName(projectRoot);
+			if(!projectName.isEmpty()) {
+				reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+				reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 			}
-		} catch (IOException e) {
-			return;
-		} catch (URISyntaxException e) {
-			return;
 		}
 	}
 	
@@ -211,9 +187,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	 public static ISourceLocation inferProjectRoot(Class<?> clazz) {
 	        try {
 	            String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
-	            if (file.endsWith(".jar")) {
-	                throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
-	            }
+
+				// This has to run from a jar file too!
+	            // if (file.endsWith(".jar")) {
+	            //     throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
+	            // }
 
 	            File current = new File(file);
 	            
