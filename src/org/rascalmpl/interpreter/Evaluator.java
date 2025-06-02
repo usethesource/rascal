@@ -661,8 +661,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
         IRascalMonitor old = setMonitor(monitor);
         try {
-            ParserGenerator pgen = getParserGenerator();
-            return pgen.diagnoseAmbiguity(parseTree);
+            throw new NotYetImplemented("diagnoseAmbiguity");
         }
         finally {
             setMonitor(old);
