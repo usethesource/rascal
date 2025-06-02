@@ -116,7 +116,7 @@ public class ParserGenerator {
 		g = keywords.expandKeywords(g);
 		g = (IConstructor) regular.makeRegularStubs(g); // why is the return type IValue here?
 		g = regular.expandRegularSymbols(g);
-		g = regular.expandParameterizedSymbols(g);
+		g = parameters.expandParameterizedSymbols(g);
 		g = literals.literals(g);
 
 		return g;
