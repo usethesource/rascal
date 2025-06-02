@@ -1,0 +1,50 @@
+package rascal.util;
+import io.usethesource.vallang.*;
+import org.rascalmpl.runtime.function.*;
+
+@SuppressWarnings("unused")
+public interface $Math_$I  {
+    IValue E();
+    IValue PI();
+    IValue abs(IValue $0);
+    IValue arbInt();
+    IValue arbInt(IValue $0);
+    IValue arbPrime(IValue $0);
+    IValue arbRat();
+    IValue arbRat(IValue $0, IValue $1);
+    IValue arbReal();
+    void arbSeed(IValue $0);
+    IValue ceil(IValue $0);
+    IValue cos(IValue $0);
+    IValue denominator(IValue $0);
+    IValue exp(IValue $0);
+    IValue fitDouble(IValue $0);
+    IValue fitFloat(IValue $0);
+    IValue floor(IValue $0);
+    IValue ln(IValue $0);
+    IValue log(IValue $0, IValue $1);
+    IValue log10(IValue $0);
+    IValue log2(IValue $0);
+    IValue max(IValue $0, IValue $1);
+    IValue min(IValue $0, IValue $1);
+    IValue nroot(IValue $0, IValue $1);
+    IValue numerator(IValue $0);
+    IValue percent(IValue $0, IValue $1);
+    IValue pow(IValue $0, IValue $1);
+    IValue precision(IValue $0);
+    IValue precision(IValue $0, IValue $1);
+    IValue primes(IValue $0);
+    IValue remainder(IValue $0);
+    IValue round(IValue $0);
+    IValue round(IValue $0, IValue $1);
+    IValue scale(IValue $0);
+    IValue setPrecision(IValue $0);
+    IValue sin(IValue $0);
+    IValue sqrt(IValue $0);
+    IValue tan(IValue $0);
+    IValue toInt(IValue $0);
+    IValue toRat(IValue $0, IValue $1);
+    IValue toReal(IValue $0);
+    IValue toString(IValue $0);
+    IValue unscaled(IValue $0);
+}
