@@ -74,7 +74,7 @@ public class ParserGenerator {
 	private static final boolean debug = false;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		var rex = new RascalExecutionContext(null, out, out, null, (IDEServices) monitor, $ParserGenerator.class);
+		var rex = new RascalExecutionContext(null, out, out, null, null, $ParserGenerator.class);
 		ModuleStore ms = rex.getModuleStore();
 		pgen = ms.getModule($ParserGenerator.class);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);
@@ -221,7 +221,7 @@ public class ParserGenerator {
 	}
 }
 
-	public IString createHole(IConstructor part, IInteger size) {\
+	public IString createHole(IConstructor part, IInteger size) {
 		return concreteSyntax.createHole(part, size);
 	}
 }
