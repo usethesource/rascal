@@ -66,7 +66,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${project.build.directory}/generated-resources</directory>
+                <directory>${project.build.directory}/src/rascal</directory>
             </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
