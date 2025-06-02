@@ -76,7 +76,7 @@ public class ParserGenerator {
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
 		var rex = new RascalExecutionContext(null, out, out, null, null, $ParserGenerator.class);
 		ModuleStore ms = rex.getModuleStore();
-		pgen = ms.getModule($ParserGenerator.class);
+		pgen = new $ParserGenerator(rex);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);
 		modules =  rex.getModuleStore().getModule($Modules.class);
 		priorities = rex.getModuleStore().getModule($Priorities.class);
