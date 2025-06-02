@@ -358,6 +358,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//$TS.declareAbstractDataType(adtType);
 		return adtType;
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] params){
+		return $TF.abstractDataType($TS, adtName, params);
+	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
@@ -365,6 +369,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(adtName)));
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), bindings));
+	}
+
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), bindings));
+	}
+
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
