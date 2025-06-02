@@ -1,12 +1,9 @@
 eclipse.preferences.version=1
-encoding//src/org/rascalmpl/library=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/MarkdownConverter.js=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/nv.d3.css=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/nv.d3.js=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/reset.css=UTF-8
-encoding//src/org/rascalmpl/library/lang/rascal/tests/functionality/DataType.rsc=UTF-8
 encoding//test/org/rascalmpl/test/data=UTF-8
 encoding/<project>=UTF-8
-encoding/src=UTF-8
 encoding/test=UTF-8
 org.eclipse.jdt.core.compiler.processAnnotations=enabled

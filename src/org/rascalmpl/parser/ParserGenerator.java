@@ -29,11 +29,23 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.runtime.ModuleStore;
+import org.rascalmpl.runtime.RascalExecutionContext;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+
+import rascal.lang.rascal.grammar.$ParserGenerator;
+import rascal.lang.rascal.grammar.$ConcreteSyntax;
+import rascal.lang.rascal.grammar.definition.$Modules;
+import rascal.lang.rascal.grammar.definition.$Priorities;
+import rascal.lang.rascal.grammar.definition.$Regular;
+import rascal.lang.rascal.grammar.definition.$Keywords;
+import rascal.lang.rascal.grammar.definition.$Literals;
+import rascal.lang.rascal.grammar.definition.$Symbols;
+import rascal.lang.rascal.grammar.definition.$Parameters;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -45,41 +57,35 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class ParserGenerator {
-	private final Evaluator evaluator;
+	private final $ParserGenerator pgen;
+	private final $ConcreteSyntax concreteSyntax;
+	private final $Modules modules;
+	private final $Priorities priorities;
+	private final $Regular regular;
+	private final $Keywords keywords;
+	private final $Literals literals;
+	private final $Parameters parameters;
+	private final $Symbols symbols;
+	
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
-		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
-		this.evaluator.setBootstrapperProperty(true);
+		var rex = new RascalExecutionContext(null, out, out, null, null, $ParserGenerator.class);
+		ModuleStore ms = rex.getModuleStore();
+		pgen = ms.getModule($ParserGenerator.class);
+		concreteSyntax = ms.getModule($ConcreteSyntax.class);
+		modules =  rex.getModuleStore().getModule($Modules.class);
+		priorities = rex.getModuleStore().getModule($Priorities.class);
+		symbols =  rex.getModuleStore().getModule($Symbols.class);
+		regular =  rex.getModuleStore().getModule($Regular.class);
+		literals =  rex.getModuleStore().getModule($Literals.class);
+		parameters = rex.getModuleStore().getModule($Parameters.class);
+		keywords =  rex.getModuleStore().getModule($Keywords.class);
 		this.bridge = new JavaBridge(Collections.singletonList(Evaluator.class.getClassLoader()), factory, config);
 		this.vf = factory;
-		
-		evaluator.doImport(monitor, 
-	"lang::rascal::grammar::ParserGenerator",
-			"lang::rascal::grammar::ConcreteSyntax",
-			"lang::rascal::grammar::definition::Modules",
-			"lang::rascal::grammar::definition::Priorities", 
-			"lang::rascal::grammar::definition::Regular", 
-			"lang::rascal::grammar::definition::Keywords",
-			"lang::rascal::grammar::definition::Literals",
-			"lang::rascal::grammar::definition::Parameters",
-			"lang::rascal::grammar::definition::Symbols",
-			"analysis::grammars::Ambiguity"
-		);
-	}
-	
-	public void setGeneratorProfiling(boolean f) {
-		evaluator.getConfiguration().setGeneratorProfiling(f);
-	}
-	
-	public IValue diagnoseAmbiguity(IConstructor parseForest) {
-		synchronized(evaluator) {
-			return evaluator.call("diagnose", parseForest);
-		}
 	}
 	
 	private void debugOutput(Object thing, String file) {
@@ -108,6 +114,7 @@ public class ParserGenerator {
 	}
 	
 	public IConstructor getGrammarFromModules(IRascalMonitor monitor, String main, IMap modules) {
+		
 		synchronized(evaluator) {
 			return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), modules);
 		}
