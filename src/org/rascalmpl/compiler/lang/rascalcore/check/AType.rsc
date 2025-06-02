@@ -652,8 +652,8 @@ AType alub(\iter(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax())
 AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter-star(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-seps(l, _), \iter-seps(r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
-AType alub(\iter-seps(l,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-seps(AType l, _), \iter-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-seps(AType l,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
 
 AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
