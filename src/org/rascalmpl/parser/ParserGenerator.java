@@ -71,13 +71,13 @@ public class ParserGenerator {
 		ModuleStore ms = rex.getModuleStore();
 		pgen = new $ParserGenerator(rex);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);
-		modules =  rex.getModuleStore().getModule($Modules.class);
-		priorities = rex.getModuleStore().getModule($Priorities.class);
-		symbols =  rex.getModuleStore().getModule($Symbols.class);
-		regular =  rex.getModuleStore().getModule($Regular.class);
-		literals =  rex.getModuleStore().getModule($Literals.class);
-		parameters = rex.getModuleStore().getModule($Parameters.class);
-		keywords =  rex.getModuleStore().getModule($Keywords.class);
+		modules =  ms.getModule($Modules.class);
+		priorities = ms.getModule($Priorities.class);
+		symbols =  ms.getModule($Symbols.class);
+		regular =  ms.getModule($Regular.class);
+		literals =  ms.getModule($Literals.class);
+		parameters = ms.getModule($Parameters.class);
+		keywords =  ms.getModule($Keywords.class);
 		this.bridge = new JavaBridge(Collections.singletonList(Evaluator.class.getClassLoader()), factory, config);
 		this.vf = factory;
 	}
