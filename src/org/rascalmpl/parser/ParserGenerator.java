@@ -18,26 +18,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.util.Collections;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.Throw;
-import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.runtime.ModuleStore;
 import org.rascalmpl.runtime.RascalExecutionContext;
-import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
-
 import rascal.lang.rascal.grammar.$ParserGenerator;
 import rascal.lang.rascal.grammar.$ConcreteSyntax;
 import rascal.lang.rascal.grammar.definition.$Modules;
@@ -54,7 +48,6 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class ParserGenerator {
@@ -186,7 +179,7 @@ public class ParserGenerator {
 			IString classString = pgen.newGenerate(vf.string(packageName), vf.string(normName), grammar);
 			debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
 			
-			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());g
+			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
