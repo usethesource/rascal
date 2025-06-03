@@ -428,7 +428,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
 			}
 
-			try (IValueInputStream in = constructValueReader(url)) {
+			try (IValueInputStream in = new IValueInputStream(url.openStream(), $VF, TYPE_STORE_SUPPLIER)) {
 				IValue constantsFile = in.read();
 				if(constantsFile.getType().isSubtypeOf(constantsFileType)){
 					ITuple tup = (ITuple)constantsFile;
@@ -457,10 +457,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		} 
 		finally {}
 	}
-
-    private IValueInputStream constructValueReader(URL loc) throws IOException, URISyntaxException {
-        return new IValueInputStream(loc.openStream(), $VF, TYPE_STORE_SUPPLIER);
-    }
 	
 	/*************************************************************************/
 	/*		Rascal primitives called by generated code						 */
