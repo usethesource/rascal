@@ -37,6 +37,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -425,48 +426,45 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			if(url == null) {
 				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
 			}
-			loc = $VF.sourceLocation(url.toURI());
-		} catch (URISyntaxException e) {
-			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
-		}
 
-    	try (IValueInputStream in = constructValueReader(loc)) {
-    		IValue constantsFile = in.read();;
-    		if(constantsFile.getType().isSubtypeOf(constantsFileType)){
-    			ITuple tup = (ITuple)constantsFile;
-    			int found_length = ((IInteger)tup.get(0)).intValue();
-    			if(found_length != expected_length) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
-    			}
-    			String found_hash = ((IString)tup.get(1)).getValue();
-    			if(!found_hash.equals(expected_md5Hash)) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
-    			}
-    			
-    			return (IList) tup.get(2);
-    		} else {
-    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
-    		}
-    	}
-		catch (IOException e) {
-			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
-		}
-		catch (Exception e) {
-			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
-		}
+			try (IValueInputStream in = constructValueReader(url)) {
+				IValue constantsFile = in.read();;
+				if(constantsFile.getType().isSubtypeOf(constantsFileType)){
+					ITuple tup = (ITuple)constantsFile;
+					int found_length = ((IInteger)tup.get(0)).intValue();
+					if(found_length != expected_length) {
+						throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
+					}
+					String found_hash = ((IString)tup.get(1)).getValue();
+					if(!found_hash.equals(expected_md5Hash)) {
+						throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
+					}
+					
+					return (IList) tup.get(2);
+				} else {
+					throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
+				}
+			}
+			catch (IOException e) {
+				System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+				throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			}
+			catch (Exception e) {
+				System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+				throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			}
+		} 
+		finally {}
 	}
 
-    private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsReadableFileChannel(loc)) {
-            FileChannel channel = registry.getReadableFileChannel(loc);
-            if (channel != null) {
-                return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
-            }
-        }
-        return new IValueInputStream(registry.getInputStream(loc), $VF, TYPE_STORE_SUPPLIER);
+    private IValueInputStream constructValueReader(URL loc) throws IOException {
+		// try (FileChannel channel = FileChannel.open(Path.of(loc.getPath()))) {
+		// 	if (channel != null) {
+        //         return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
+        //     }
+		// }
+        
+        return new IValueInputStream(loc.openStream(), $VF, TYPE_STORE_SUPPLIER);
     }
 	
 	/*************************************************************************/
