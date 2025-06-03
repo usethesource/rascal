@@ -123,7 +123,7 @@ public class $Type
        
        $Type = $initLibrary("org.rascalmpl.library.Type"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Type.constants", 11, "657c830a85ece57cf5a3525f7fd4d29d");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Type.constants", 11, "657c830a85ece57cf5a3525f7fd4d29d");
        ADT_Symbol = $adt("Symbol");
        ADT_RuntimeException = $adt("RuntimeException");
        ADT_Attr = $adt("Attr");

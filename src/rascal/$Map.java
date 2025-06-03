@@ -88,7 +88,7 @@ public class $Map
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Map.constants", 1, "f9e544f77b7eac7add281ef28ca5559f");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Map.constants", 1, "f9e544f77b7eac7add281ef28ca5559f");
        $T1 = $TF.valueType();
        $T3 = $TF.parameterType("V", $T1);
        $T12 = $TF.parameterType("W", $T1);

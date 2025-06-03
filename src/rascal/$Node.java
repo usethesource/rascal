@@ -71,7 +71,7 @@ public class $Node
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Node.constants", 1, "2f8cfc21de2cecb8efada9d0a44f68a8");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Node.constants", 1, "2f8cfc21de2cecb8efada9d0a44f68a8");
        $T3 = $TF.stringType();
        $T4 = $TF.valueType();
        $T9 = $TF.parameterType("T", $T4);

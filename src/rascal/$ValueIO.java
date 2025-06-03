@@ -78,7 +78,7 @@ public class $ValueIO
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$ValueIO.constants", 92, "63764b732e7b657e1f23fc5b01a5a6b0");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$ValueIO.constants", 92, "63764b732e7b657e1f23fc5b01a5a6b0");
        ADT_Production = $adt("Production");
        ADT_Exception = $adt("Exception");
        ADT_Symbol = $adt("Symbol");

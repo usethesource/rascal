@@ -119,7 +119,7 @@ public class $Grammar
        $TS.importStore(M_Type.$TS);
        $TS.importStore(M_List.$TS);
        
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Grammar.constants", 3, "b8f08e6a04df5bb64c3002b55ef54ea0");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Grammar.constants", 3, "b8f08e6a04df5bb64c3002b55ef54ea0");
        ADT_Item = $adt("Item");
        ADT_GrammarModule = $adt("GrammarModule");
        ADT_LocationType = $adt("LocationType");

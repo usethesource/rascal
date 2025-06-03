@@ -113,7 +113,7 @@ public class $String
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$String.constants", 17, "806c95ef22aa243d4485be9aa38ae20f");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$String.constants", 17, "806c95ef22aa243d4485be9aa38ae20f");
        ADT_LocationType = $adt("LocationType");
        ADT_IOCapability = $adt("IOCapability");
        ADT_Tree = $adt("Tree");
