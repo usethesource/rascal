@@ -38,6 +38,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -428,7 +429,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 
 			try (IValueInputStream in = constructValueReader(url)) {
-				IValue constantsFile = in.read();;
+				IValue constantsFile = in.read();
 				if(constantsFile.getType().isSubtypeOf(constantsFileType)){
 					ITuple tup = (ITuple)constantsFile;
 					int found_length = ((IInteger)tup.get(0)).intValue();
@@ -457,13 +458,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		finally {}
 	}
 
-    private IValueInputStream constructValueReader(URL loc) throws IOException {
-		// try (FileChannel channel = FileChannel.open(Path.of(loc.getPath()))) {
-		// 	if (channel != null) {
-        //         return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
-        //     }
-		// }
-        
+    private IValueInputStream constructValueReader(URL loc) throws IOException, URISyntaxException {
         return new IValueInputStream(loc.openStream(), $VF, TYPE_STORE_SUPPLIER);
     }
 	
