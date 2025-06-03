@@ -124,7 +124,7 @@ public class $Set
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Set.constants", 8, "d2a3ee989602c1579cddb092162c57bf");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Set.constants", 8, "d2a3ee989602c1579cddb092162c57bf");
        ADT_RuntimeException = $adt("RuntimeException");
        $T1 = $TF.valueType();
        $T31 = $TF.parameterType("K", $T1);

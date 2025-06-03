@@ -110,7 +110,7 @@ public class $IO
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$IO.constants", 6, "f4ee18b8e7f7c5632a4110e0b791c5aa");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$IO.constants", 6, "f4ee18b8e7f7c5632a4110e0b791c5aa");
        ADT_LocationChangeType = $adt("LocationChangeType");
        ADT_IOCapability = $adt("IOCapability");
        ADT_LocationChangeEvent = $adt("LocationChangeEvent");

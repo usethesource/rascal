@@ -84,7 +84,7 @@ public class $Message
        
        $Messages = $initLibrary("org.rascalmpl.library.Messages"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Message.constants", 8, "884ffd182f062aeb1ae973ac30987e46");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Message.constants", 8, "884ffd182f062aeb1ae973ac30987e46");
        ADT_LocationChangeType = $adt("LocationChangeType");
        ADT_Message = $adt("Message");
        ADT_IOCapability = $adt("IOCapability");

@@ -126,7 +126,7 @@ public class $Exception
                           
        
        
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Exception.constants", 0, "d751713988987e9331980363e24189ce");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Exception.constants", 0, "d751713988987e9331980363e24189ce");
        ADT_RuntimeException = $adt("RuntimeException");
        $T6 = $TF.valueType();
        $T1 = $TF.stringType();

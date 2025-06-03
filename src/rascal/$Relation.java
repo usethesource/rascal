@@ -121,7 +121,7 @@ public class $Relation
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$Relation.constants", 5, "d62345a0b802833ae0f26ba12f6b3af4");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$Relation.constants", 5, "d62345a0b802833ae0f26ba12f6b3af4");
        $T1 = $TF.valueType();
        $T14 = $TF.parameterType("T3", $T1);
        $T41 = $TF.parameterType("T4", $T1);

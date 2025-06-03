@@ -190,7 +190,7 @@ public class $ParseTree
        
        $Prelude = $initLibrary("org.rascalmpl.library.Prelude"); 
     
-       $constants = readBinaryConstantsFile(this.getClass(), "rascal//$ParseTree.constants", 8, "40d90c4f6e73240a2157ffdc5e5da56b");
+       $constants = readBinaryConstantsFile(this.getClass(), "rascal/$ParseTree.constants", 8, "40d90c4f6e73240a2157ffdc5e5da56b");
        ADT_Symbol = $adt("Symbol");
        ADT_Tree = $adt("Tree");
        ADT_LocationChangeType = $adt("LocationChangeType");
