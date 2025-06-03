@@ -658,17 +658,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return getParserGenerator().getGrammarFromModules(monitor, root.getName(), root.getSyntaxDefinition());
     }
 
-    public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
-        IRascalMonitor old = setMonitor(monitor);
-        try {
-            ParserGenerator pgen = getParserGenerator();
-            return pgen.diagnoseAmbiguity(parseTree);
-        }
-        finally {
-            setMonitor(old);
-        }
-    }
-
     public IConstructor getExpandedGrammar(IRascalMonitor monitor, ISourceLocation uri) {
         IRascalMonitor old = setMonitor(monitor);
         try {

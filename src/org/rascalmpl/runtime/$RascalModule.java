@@ -37,6 +37,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -358,6 +360,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//$TS.declareAbstractDataType(adtType);
 		return adtType;
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] params){
+		return $TF.abstractDataType($TS, adtName, params);
+	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
@@ -365,6 +371,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(adtName)));
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), bindings));
+	}
+
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), bindings));
+	}
+
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
@@ -412,49 +427,36 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			if(url == null) {
 				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
 			}
-			loc = $VF.sourceLocation(url.toURI());
-		} catch (URISyntaxException e) {
-			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
-		}
 
-    	try (IValueInputStream in = constructValueReader(loc)) {
-    		IValue constantsFile = in.read();;
-    		if(constantsFile.getType().isSubtypeOf(constantsFileType)){
-    			ITuple tup = (ITuple)constantsFile;
-    			int found_length = ((IInteger)tup.get(0)).intValue();
-    			if(found_length != expected_length) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
-    			}
-    			String found_hash = ((IString)tup.get(1)).getValue();
-    			if(!found_hash.equals(expected_md5Hash)) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
-    			}
-    			
-    			return (IList) tup.get(2);
-    		} else {
-    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
-    		}
-    	}
-		catch (IOException e) {
-			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
-		}
-		catch (Exception e) {
-			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
-		}
+			try (IValueInputStream in = new IValueInputStream(url.openStream(), $VF, TYPE_STORE_SUPPLIER)) {
+				IValue constantsFile = in.read();
+				if(constantsFile.getType().isSubtypeOf(constantsFileType)){
+					ITuple tup = (ITuple)constantsFile;
+					int found_length = ((IInteger)tup.get(0)).intValue();
+					if(found_length != expected_length) {
+						throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
+					}
+					String found_hash = ((IString)tup.get(1)).getValue();
+					if(!found_hash.equals(expected_md5Hash)) {
+						throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
+					}
+					
+					return (IList) tup.get(2);
+				} else {
+					throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
+				}
+			}
+			catch (IOException e) {
+				System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+				throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			}
+			catch (Exception e) {
+				System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+				throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			}
+		} 
+		finally {}
 	}
-
-    private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsReadableFileChannel(loc)) {
-            FileChannel channel = registry.getReadableFileChannel(loc);
-            if (channel != null) {
-                return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
-            }
-        }
-        return new IValueInputStream(registry.getInputStream(loc), $VF, TYPE_STORE_SUPPLIER);
-    }
 	
 	/*************************************************************************/
 	/*		Rascal primitives called by generated code						 */
