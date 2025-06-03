@@ -52,6 +52,7 @@ import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
@@ -171,11 +172,19 @@ public abstract class $RascalModule {
 		try {
 			var reg = URIResolverRegistry.getInstance();
 			var root = PathConfig.inferProjectRoot(classUnderTest);
-			var name = URIUtil.getLocationName(root);
-			var prj = URIUtil.correctLocation("project", name, "");
+			var dirName = URIUtil.getLocationName(root);
+			var projectName = new RascalManifest().getProjectName(root);
+
+			if (!dirName.equals(projectName)) {
+				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
+				$ERRWRITER.println(msg);
+				throw new IllegalArgumentException(msg);
+			}
+
+			var prj = URIUtil.correctLocation("project", projectName, "");
 			if (!reg.exists(prj)) {
-				reg.registerLogical(new ProjectURIResolver(root, name));
-				reg.registerLogical(new TargetURIResolver(root, name));
+				reg.registerLogical(new ProjectURIResolver(root, projectName));
+				reg.registerLogical(new TargetURIResolver(root, projectName));
 			}
 		}
 		catch (IOException e) {
