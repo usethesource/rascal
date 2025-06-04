@@ -114,7 +114,7 @@ public class ShellEvaluatorFactory {
         }
     }
 
-    public static void registerProjectAndTargetResolver(Function<ISourceLocation,ISourceLocation> resolver) {
+    private static void registerProjectAndTargetResolver(Function<ISourceLocation,ISourceLocation> resolver) {
         var reg = URIResolverRegistry.getInstance();
         reg.registerLogical(new IDEProjectURIResolver(resolver));
         reg.registerLogical(new IDETargetURIResolver(resolver));
