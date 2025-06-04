@@ -51,19 +51,21 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.result.DateTimeResult;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
-import org.rascalmpl.types.RascalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -72,8 +74,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
-
-import com.ibm.icu.util.Calendar;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -154,6 +154,43 @@ public abstract class $RascalModule {
         return $RVF.reifiedType(t, definitions);
     }
     
+	/**
+	 * $testSetup(getClass()) is called by the constructors of all generated test classes.
+	 * The method provides the context for the test to succeed:
+	 * 
+	 * 1. project:// scheme for the current project under test
+	 * 2. target:// scheme for the current project under test
+	 * 
+	 * Test functions can then use `|project://project-name/path/to/test.csv|`,
+	 * for example, to retrieve data or source code as input values.
+	 * 
+	 * @param classUnderTest is used to find the root of the project, starting
+	 * typically from target/classes/ClassUnderTest.class and looking for
+	 * the META-INF/RASCAL.MF file or the pom.xml file of the project.
+	 */
+	protected void $testSetup(Class<?> classUnderTest) {
+		try {
+			var reg = URIResolverRegistry.getInstance();
+			var root = PathConfig.inferProjectRoot(classUnderTest);
+			var dirName = URIUtil.getLocationName(root);
+			var projectName = new RascalManifest().getProjectName(root);
+
+			if (!dirName.equals(projectName)) {
+				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
+				$ERRWRITER.println(msg);
+				throw new IllegalArgumentException(msg);
+			}
+
+			var prj = URIUtil.correctLocation("project", projectName, "");
+			if (!reg.exists(prj)) {
+				reg.registerLogical(new ProjectURIResolver(root, projectName));
+				reg.registerLogical(new TargetURIResolver(root, projectName));
+			}
+		}
+		catch (IOException e) {
+			$ERRWRITER.println("Test setup failed: " + e.getMessage());
+		}
+	}
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
