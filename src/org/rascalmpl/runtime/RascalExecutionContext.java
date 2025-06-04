@@ -86,7 +86,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = errwriter;
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null) : ideServices;
+		ISourceLocation projectRoot = inferProjectRoot(clazz);
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$VF = ValueFactoryFactory.getValueFactory();
 		$TF = TypeFactory.getInstance();
@@ -96,7 +97,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$TS = new TypeStore();
 		rascalSearchPath = new RascalSearchPath();
 		
-		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	    String projectName = new RascalManifest().getProjectName(projectRoot);
 	    if(!projectName.isEmpty()) {
