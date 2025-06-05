@@ -51,6 +51,21 @@ str generateInterface(str moduleName, str packageName, list[MuFunction] function
            '
            '@SuppressWarnings(\"unused\")
            'public interface <asBaseInterfaceName(moduleName)>  {
+           '    /**
+           '     * Load a <moduleName> module into the shared execution context `rex`,
+           '     * and return a reference to the module\'s implementation.
+           '     * Imported and extended modules will be loaded transitively, and shared.
+           '     *
+           '     * Repeated calls to $load with the same `rex`, will only return modules that have been 
+           '     * previously loaded. Calls to $load with a fresh `rex` will allocated and initialize 
+           '     * a module from scratch, including imported and extended modules.
+           '     */
+           '    public static <asBaseInterfaceName(moduleName)> $load(RascalExecutionContext rex) {
+           '        ModuleStore mstore = rex.getModuleStore();
+           '        mstore.importModule(<asClassRef(moduleName, pcfg)>.class, rex, <asClassRef(moduleName, pcfg)>::new);
+           '        return mstore.getModule(<asBaseClassName(moduleName)>.class);<}>
+           '    }
+           '
            '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels)>
            '}";
 }

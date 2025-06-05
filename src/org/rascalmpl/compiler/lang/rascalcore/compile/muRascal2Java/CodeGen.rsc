@@ -176,10 +176,33 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     packagePath = replaceAll(asPackagePath(moduleName),".","/");
     constantsFile = "<getCompiledPackage(moduleName, pcfg)>/<packagePath>/<baseClassName>.constants";
   
-    class_constructor = "public <baseClassName>(RascalExecutionContext rex){
+    class_constructor = "/**
+                        ' * Load a <baseClassName> module into the shared execution context `rex`,
+                        ' * and return a reference to the module\'s implementation.
+                        ' * Imported and extended modules will be loaded transitively, and shared.
+                        ' *
+                        ' * Repeated calls to $load with the same `rex`, will only return modules that have been 
+                        ' * previously loaded. Calls to $load with a fresh `rex` will allocated and initialize 
+                        ' * a module from scratch, including imported and extended modules.
+                        ' */
+                        'public static <baseInterfaceName> $load(RascalExecutionContext rex) {
+                        '  ModuleStore mstore = rex.getModuleStore();
+                        '  mstore.importModule(<asClassRef(moduleName, pcfg)>.class, rex, <asClassRef(moduleName, pcfg)>::new);
+                        '  return mstore.getModule(<baseInterfaceName>.class);
+                        '}
+                        '
+                        '/**
+                        ' * @deprecated for internal use only
+                        ' */
+                        '@Deprecated
+                        'public <baseClassName>(RascalExecutionContext rex){
                         '    this(rex, null);
                         '}
                         '
+                        '/**
+                        ' * @deprecated for internal use only
+                        ' */
+                        '@Deprecated
                         'public <baseClassName>(RascalExecutionContext rex, Object extended){
                         '   super(rex);
                         '   this.$me = extended == null ? this : (<baseInterfaceName>)extended;
