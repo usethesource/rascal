@@ -191,6 +191,7 @@ public abstract class $RascalModule {
 			$ERRWRITER.println("Test setup failed: " + e.getMessage());
 		}
 	}
+
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
