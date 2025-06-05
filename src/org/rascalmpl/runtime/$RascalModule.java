@@ -253,41 +253,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
         }
     }
     
-    private static void $usage(String module, String error, Type kwargs) {
-        PrintWriter $ERR = new PrintWriter(System.err);
-        
-        if (!error.isEmpty() && !error.equals("help")) {
-            $ERR.println(error);
-        }
-        
-        $ERR.println("Usage: ");
-        $ERR.println("java -cp ... " + module + " <options>");
-
-        if (kwargs.getArity() > 0) {
-            $ERR.println(" [options]\n\nOptions:\n");
-
-            for (String param : kwargs.getFieldNames()) {
-                $ERR.print("\t-");
-                $ERR.print(param);
-                if (kwargs.getFieldType(param).isSubtypeOf(TypeFactory.getInstance().boolType())) {
-                    $ERR.println("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';");
-                }
-                else {
-                    $ERR.println("\t[arg]: " + kwargs.getFieldType(param) + " argument;");
-                }
-            }
-        }
-        else {
-            $ERR.println('\n');
-        }
-        
-        $ERR.flush();
-        
-        if (!error.equals("help")) {
-            throw new IllegalArgumentException();
-        }
-    }
-
     protected static Map<String, IValue> $parseCommandlineParameters(String module, String[] commandline, Type kwTypes) {
 		// reusing the same commandline parameter parser that the interpreter uses, based on the keyword parameter types
 		// of the function type of the `main` function.
@@ -357,6 +322,26 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		//$TS.declareAbstractDataType(adtType);
 		return adtType;
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToData(Type arg) {
+		return $RTF.modifyToData(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToSyntax(Type arg) {
+		return $RTF.modifyToSyntax(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToLexical(Type arg) {
+		return $RTF.modifyToLexical(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToKeyword(Type arg) {
+		return $RTF.modifyToKeyword(arg);
+	}
+
+	public io.usethesource.vallang.type.Type $modifyToLayout(Type arg) {
+		return $RTF.modifyToLayout(arg);
 	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
