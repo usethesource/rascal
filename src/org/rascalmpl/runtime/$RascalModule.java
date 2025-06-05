@@ -154,7 +154,7 @@ public abstract class $RascalModule {
         return $RVF.reifiedType(t, definitions);
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") 
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
         int writers = 0;
