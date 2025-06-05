@@ -51,19 +51,21 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.result.DateTimeResult;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
-import org.rascalmpl.types.RascalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -72,8 +74,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
-
-import com.ibm.icu.util.Calendar;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -119,7 +119,7 @@ public abstract class $RascalModule {
     
     /*package*/  final IRascalMonitor $MONITOR;
 
-    protected final RascalExecutionContext rex;
+    protected final RascalExecutionContext $rex;
 	
     //protected final IValueFactory $RVF;
     public final TypeFactory $TF;
@@ -127,13 +127,13 @@ public abstract class $RascalModule {
     public final TypeStore $TS;
 	protected final Traverse $TRAVERSE;
 	
-	public final IBool Rascal_TRUE;
-	public final IBool Rascal_FALSE;
+	private final IBool Rascal_TRUE;
+	private final IBool Rascal_FALSE;
 
 	protected final FailReturnFromVoidException $failReturnFromVoidException;
     
     public $RascalModule(RascalExecutionContext rex){
-    	this.rex = rex;
+    	this.$rex = rex;
     	$IN = rex.getInReader();
     	$OUTWRITER = rex.getOutWriter();
     	$ERRWRITER = rex.getErrWriter();
@@ -154,7 +154,45 @@ public abstract class $RascalModule {
         return $RVF.reifiedType(t, definitions);
     }
     
-    @SuppressWarnings("unchecked") 
+	/**
+	 * $testSetup(getClass()) is called by the constructors of all generated test classes.
+	 * The method provides the context for the test to succeed:
+	 * 
+	 * 1. project:// scheme for the current project under test
+	 * 2. target:// scheme for the current project under test
+	 * 
+	 * Test functions can then use `|project://project-name/path/to/test.csv|`,
+	 * for example, to retrieve data or source code as input values.
+	 * 
+	 * @param classUnderTest is used to find the root of the project, starting
+	 * typically from target/classes/ClassUnderTest.class and looking for
+	 * the META-INF/RASCAL.MF file or the pom.xml file of the project.
+	 */
+	protected void $testSetup(Class<?> classUnderTest) {
+		try {
+			var reg = URIResolverRegistry.getInstance();
+			var root = PathConfig.inferProjectRoot(classUnderTest);
+			var dirName = URIUtil.getLocationName(root);
+			var projectName = new RascalManifest().getProjectName(root);
+
+			if (!dirName.equals(projectName)) {
+				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
+				$ERRWRITER.println(msg);
+				throw new IllegalArgumentException(msg);
+			}
+
+			var prj = URIUtil.correctLocation("project", projectName, "");
+			if (!reg.exists(prj)) {
+				reg.registerLogical(new ProjectURIResolver(root, projectName));
+				reg.registerLogical(new TargetURIResolver(root, projectName));
+			}
+		}
+		catch (IOException e) {
+			$ERRWRITER.println("Test setup failed: " + e.getMessage());
+		}
+	}
+
+    @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
         int writers = 0;
@@ -388,41 +426,30 @@ public abstract class $RascalModule {
 	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $layouts(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(adtName)));
 	}
 	public io.usethesource.vallang.type.Type $keywords(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $RVF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] tparams){
-		Type adtType = $TF.abstractDataType($TS, adtName, tparams);
-		return adtType;
+		return $TF.abstractDataType($TS, adtName, tparams);
 	}
 
 	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] tparams, IList vparams){
-		$TF.abstractDataType($TS, adtName, tparams);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(adtName), vparams));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(adtName), vparams));
 	}
 	
 	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] tparams, IList vparams){
-		$TF.abstractDataType($TS, adtName, tparams);
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(adtName), vparams));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(adtName), vparams));
 	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
@@ -3818,7 +3845,7 @@ public abstract class $RascalModule {
 	// Private methods for Slice Operator
 	
 	// ---- add ---------------------------------------------------------------
-	// The following package private functions $add, $product, $multiply, $divide, $intersect are never
+	// The following package private functions $add, $product, $product, $divide, $intersect are never
 	// called from generated code, but are used by the SliceOperator that needs these generic versions.
 
 	final IValue $add(final IValue lhs, final IValue rhs) {
@@ -4188,8 +4215,6 @@ public abstract class $RascalModule {
 				return $RVF.string(v.toString());
 			}
 		}
-		
-		
 }
 
 enum SliceOperator {
