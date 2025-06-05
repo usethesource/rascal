@@ -117,7 +117,7 @@ loc getGeneratedTestSrcsDir(str qualifiedModuleName, PathConfig pcfg){
 }
 
 loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.generatedResources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
+    return (pcfg.generatedResources ? pcfg.bin) + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
     parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
