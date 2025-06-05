@@ -563,7 +563,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
         IRascalMonitor old = setMonitor(monitor);
         Environment oldEnv = getCurrentEnvt();
-        CommandlineParser parser = new CommandlineParser(curOutWriter);
+        CommandlineParser parser = new CommandlineParser(getOutPrinter());
 
         try {
             ModuleEnvironment modEnv = getHeap().getModule(module);
