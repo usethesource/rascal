@@ -174,7 +174,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     <constant_decls, constant_inits, constants> = jg.getConstants();
     
     packagePath = replaceAll(asPackagePath(moduleName),".","/");
-    constantsFile = "<getCompiledPackage(moduleName, pcfg)>/<packagePath>/<baseClassName>.constants";
+    constantsFile = "<getCompiledPackage(moduleName, pcfg)>/<isEmpty(packagePath) ? "" : "<packagePath>/"><baseClassName>.constants";
   
     class_constructor = "/**
                         ' * Load a <baseClassName> module into the shared execution context `rex`,

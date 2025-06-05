@@ -26,8 +26,13 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
-  
+import ParseTree;
 import IO;
 
-value main() //test bool findResourcesWorks() 
-  = findResources("lang/pico/examples/fac.pico") != {};
+layout Whitespace = "x"*; //[\ \t\n]*;
+
+start syntax D = "d";
+start syntax DS = D+ ds;
+
+value main() //test bool parseDS() 
+  = /*(DS)`d` := */parse(#DS, "dxd") ;  

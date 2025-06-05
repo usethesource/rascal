@@ -81,9 +81,10 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '
            '    public <className>Tests(){
            '        super(new RascalExecutionContext(new InputStreamReader(System.in), new PrintWriter(System.out), new PrintWriter(System.err), null, null, <packageName>.<className>.class));
-           '        ModuleStore store = rex.getModuleStore();
-           '        store.importModule(<className>.class, this.rex, <className>::new);   
-           '        $me = store.getModule(<className>.class);                     
+           '        ModuleStore store = $rex.getModuleStore();
+           '        store.importModule(<className>.class, this.$rex, <className>::new);   
+           '        $me = store.getModule(<className>.class); 
+           '        $testSetup(<className>.class);                    
            '    }
            '    <testMethods>
            '}\n";
