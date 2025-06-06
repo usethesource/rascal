@@ -26,15 +26,13 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
 
-import ParseTree;
+// import ParseTree;
+extend lang::rascalcore::check::CheckerCommon;
+//import lang::rascal::\syntax::Rascal;
 
-layout Layout = [\ \t\n]* !>> [\ \t\n];
-
-start syntax Stmt
-    = "if" "(" "x" ")" Stmt "else" Stmt
-    | "if" "(" "x" ")" Stmt () !>> "else"
-    | "{" "}"
-    ;
-
-value main()
-    = parse(#Stmt, "if (x) {}");
+bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname)
+    = true;
+value main(){
+    return (Statement) `<Label label> { <Statement+ statements> }` := 
+            parse(#Statement, "x: { a = 1; }");
+}
