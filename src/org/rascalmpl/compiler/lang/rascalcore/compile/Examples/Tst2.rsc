@@ -26,13 +26,13 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
-import ParseTree;
-import IO;
 
-layout Whitespace = "x"*; //[\ \t\n]*;
+layout Layout = [\ \r\n]+ !>> [\ \r\n];
+start syntax Expression = (Identifier i| BuiltIn b) function;
+lexical Identifier = [a-z A-Z 0-9]+ !>> [a-z A-Z 0-9] \ Keywords;
+lexical BuiltIn = "hoi";
+keyword Keywords = "hoi";
 
-start syntax D = "d";
-start syntax DS = D+ ds;
-
-value main() //test bool parseDS() 
-  = /*(DS)`d` := */parse(#DS, "dxd") ;  
+void main() { // based on: test bool prodFieldProjectionOnAnAlternative()
+    T = (Expression) `hoi`.function;  //<=== Undeclared field: function for Tree?????
+}
