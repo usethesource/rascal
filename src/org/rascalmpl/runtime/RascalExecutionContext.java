@@ -76,13 +76,49 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = errwriter;
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null) : ideServices;
+		ISourceLocation projectRoot = inferProjectRoot(clazz);
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$TF = TypeFactory.getInstance();
 		$RTF = RascalTypeFactory.getInstance();
 		$TRAVERSE = new Traverse($RVF);
 		mstore = new ModuleStore();
 		$TS = new TypeStore();
+		rascalSearchPath = new RascalSearchPath();
+		
+	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	    String projectName = new RascalManifest().getProjectName(projectRoot);
+	    if(!projectName.isEmpty()) {
+	    	reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    }
+	    
+	    String projectPath =  projectRoot.getPath();
+	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
+	    
+		try {
+			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
+			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
+			if (entries != null) {
+				//System.err.print("INFO adding projects: ");
+				for(String entryName : entries) {
+					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
+						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
+						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
+							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
+							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
+							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $VF.list(entryRoot)));
+							//System.err.print(entryName + " ");
+						}
+					}
+				}
+				//System.err.println("");
+			}
+		} catch (IOException e) {
+			return;
+		} catch (URISyntaxException e) {
+			return;
+		}
 	}
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
