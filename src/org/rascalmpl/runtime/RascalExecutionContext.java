@@ -31,14 +31,20 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
 
+import java.io.IOException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.SourceLocationListContributor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.type.TypeFactory;
@@ -107,7 +113,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
 							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
 							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $VF.list(entryRoot)));
+							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
 							//System.err.print(entryName + " ");
 						}
 					}
