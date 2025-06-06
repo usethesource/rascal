@@ -2885,22 +2885,11 @@ public abstract class $RascalModule {
 	}
 	
 	public final IString $str_escape_for_regexp(IString insert) {
-		StringBuilder sw = new StringBuilder();
-		for(int i : insert) {
-			char c = (char) i;
-			switch(c){
-				case '.': sw.append("\\."); break;
-				case '(': sw.append("\\("); break;
-				case ')': sw.append("\\)"); break;
-				case '*': sw.append("\\*"); break;
-				default: sw.append(c);
-			}
-		}
-		return $RVF.string(sw.toString());
+		return $RVF.string(Pattern.quote(insert.getValue()));
 	}
 	
 	public final IString $str_escape_for_regexp(String insert) {
-		return $str_escape_for_regexp($RVF.string(insert));
+		return $RVF.string(Pattern.quote(insert));
 	}
 
 	// ---- slice -------------------------------------------------------------
