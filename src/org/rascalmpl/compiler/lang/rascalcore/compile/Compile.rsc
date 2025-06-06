@@ -35,8 +35,6 @@ import IO;
 import Set;
 import ValueIO;
 import util::Monitor; 
-
-import lang::rascal::\syntax::Rascal;
  
 extend lang::rascalcore::check::Checker;
 import lang::rascalcore::check::RascalConfig;

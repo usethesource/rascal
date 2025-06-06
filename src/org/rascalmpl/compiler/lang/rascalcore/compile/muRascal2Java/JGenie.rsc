@@ -27,8 +27,6 @@ POSSIBILITY OF SUCH DAMAGE.
 @bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::JGenie
 
-import lang::rascal::\syntax::Rascal;
-
 import IO;
 import List;
 import Location;

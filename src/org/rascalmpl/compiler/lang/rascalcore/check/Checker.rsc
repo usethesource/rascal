@@ -32,8 +32,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-import lang::rascal::\syntax::Rascal;
-
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::CollectDeclaration;
 extend lang::rascalcore::check::CollectExpression;
