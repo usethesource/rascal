@@ -34,8 +34,6 @@ module lang::rascalcore::check::CollectPattern
 extend lang::rascalcore::check::CheckerCommon;
 
 extend lang::rascalcore::check::CollectLiteral;
-
-import lang::rascal::\syntax::Rascal;
 import String;
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){

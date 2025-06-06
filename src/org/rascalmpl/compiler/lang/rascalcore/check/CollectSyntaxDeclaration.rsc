@@ -40,8 +40,6 @@ import util::Maybe;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 
-import lang::rascal::\syntax::Rascal;
-
 // ---- syntax definition -----------------------------------------------------
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, Collector c){

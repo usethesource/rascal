@@ -34,8 +34,6 @@ module lang::rascalcore::check::RascalConfig
 //import lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::ADTandGrammar;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::CheckerCommon;

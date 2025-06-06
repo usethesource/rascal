@@ -34,8 +34,6 @@ module lang::rascalcore::check::PathAnalysis
 
 extend lang::rascalcore::check::CheckerCommon;
 
-import lang::rascal::\syntax::Rascal;
-
 import String;
 
 /********************************************************************/

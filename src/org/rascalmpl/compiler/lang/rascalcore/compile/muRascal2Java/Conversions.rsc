@@ -35,8 +35,6 @@ import ParseTree;
 import Grammar;
 
 extend lang::rascalcore::check::CheckerCommon;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
