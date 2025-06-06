@@ -37,8 +37,6 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::agrammar::definition::Layout;
 import lang::rascalcore::agrammar::definition::Keywords;
 
-import lang::rascal::\syntax::Rascal;
-
 import IO;
 import Node;
 import Set;

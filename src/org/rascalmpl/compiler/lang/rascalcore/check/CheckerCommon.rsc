@@ -42,7 +42,7 @@ extend lang::rascalcore::check::ModuleLocations;
 
 extend analysis::typepal::Collector;
 
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 import DateTime;
 import Exception;
 import IO;

@@ -42,8 +42,6 @@ import lang::rascalcore::check::PathAnalysis;
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;

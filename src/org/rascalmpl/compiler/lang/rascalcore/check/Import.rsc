@@ -34,8 +34,6 @@ module lang::rascalcore::check::Import
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::RascalConfig;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
 import lang::rascalcore::compile::CompileTimeError;
 
