@@ -113,6 +113,10 @@ set[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
      return msgs;
 }
 
+bool errorsPresent(TModel tmodel) = errorsPresent(tmodel.messages);
+bool errorsPresent(set[Message] msgs) = errorsPresent(toList(msgs));
+bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
+
 // ----  Various check functions  ---------------------------------------------
 
 // Dummy compile function (used when running only the checker)
@@ -330,7 +334,7 @@ ModuleStatus rascalTModelForLocs(
                     ms.messages[m] ? {} += toSet(tm.messages);
 
                     ms.status[m] += {tpl_uptodate(), checked()};
-                    if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
+                    if(errorsPresent(ms.messages[m])){
                         ms.status[m]  += {check_error()};
                     }
                 }

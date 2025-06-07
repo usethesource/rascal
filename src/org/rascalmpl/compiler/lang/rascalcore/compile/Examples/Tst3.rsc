@@ -25,14 +25,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
+import IO;
 
-// import ParseTree;
-extend lang::rascalcore::check::CheckerCommon;
-//import lang::rascal::\syntax::Rascal;
-
-bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname)
-    = true;
-value main(){
-    return (Statement) `<Label label> { <Statement+ statements> }` := 
-            parse(#Statement, "x: { a = 1; }");
-}
+layout Whitespace = [\ \t\n]*;
+       
+start syntax D = "d";
+start syntax DS = D+ ds;
+  
+value main() // est bool DvarsTypedInsert2() 
+    = (DS)`<D+ _>` := (DS)`d`;
