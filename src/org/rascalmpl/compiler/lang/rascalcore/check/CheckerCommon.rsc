@@ -76,6 +76,7 @@ data MStatus =
     | checked()
     | check_error()
     | code_generated()
+    | code_generation_error()
     | tpl_uptodate()
     | tpl_saved()
     | ignored()
