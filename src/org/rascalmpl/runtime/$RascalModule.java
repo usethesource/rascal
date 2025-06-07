@@ -175,7 +175,7 @@ public abstract class $RascalModule {
 			var dirName = URIUtil.getLocationName(root);
 			var projectName = new RascalManifest().getProjectName(root);
 
-			if (!dirName.equals(projectName)) {
+			if (!projectName.isEmpty() && !dirName.equals(projectName)) {
 				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
 				$ERRWRITER.println(msg);
 				throw new IllegalArgumentException(msg);
