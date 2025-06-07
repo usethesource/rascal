@@ -32,8 +32,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-import lang::rascal::\syntax::Rascal;
-
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::CollectDeclaration;
 extend lang::rascalcore::check::CollectExpression;
@@ -66,6 +64,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 import analysis::graphs::Graph;
+// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
@@ -92,7 +91,6 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    
     if(!exists(pcfg.generatedResources)) {
         try {
             mkDirectory(pcfg.generatedResources);
@@ -100,7 +98,6 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
             msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
         }
     }
-
     return msgs;
 }
 
@@ -348,7 +345,7 @@ ModuleStatus rascalTModelForLocs(
                     if(success){
                         lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
                         ms.messages[m] += toSet(lmsgs);
-                        ms.status[m] += {code_generated()};
+                        ms.status[m] += errorsPresent(lmsgs) ? {code_generation_error()} : {code_generated()};
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, transient_tms, compilerConfig);
@@ -484,9 +481,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
@@ -610,6 +607,7 @@ int main(
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
+        logImports               = logImports,
         verbose                  = verbose,
         logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
@@ -619,10 +617,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
 
-    messages = [];
+    list[ModuleMessages] messages = [];
     
     if (modules == []) {
-        messages = [info("No modules to check.", |unknown:///|)];
+        //messages = [info("No modules to check.", |unknown:///|)];
         return 0;
     }
     else {

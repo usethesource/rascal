@@ -38,8 +38,6 @@ extend lang::rascalcore::check::CollectLiteral;
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectStatement;
 
-import lang::rascal::\syntax::Rascal;
-
 import Map;
 import Node;
 import Set;
@@ -575,7 +573,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  checkNonVoid(x, s, "Argument");
             }
 
-            texp = s.getType(expression);
+            AType texp = s.getType(expression);
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -926,7 +924,7 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, Collec
     elms = [ e | Expression e <- elements1 ];
     c.calculate("tuple expression", current, elms,
         AType(Solver s) {
-                for(elm <- elms) checkNonVoid(elm, s, "Element of tuple");
+                for(Expression elm <- elms) checkNonVoid(elm, s, "Element of tuple");
                 return atuple(atypeList([ s.getType(elm) | elm <- elms ]));
         });
     collect(elements1, c);
@@ -1170,7 +1168,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     list[str] fieldNames = [ ];
     bool maintainFieldNames = tupleHasFieldNames(rt);
 
-    for (f <- fields) {
+    for (Field f <- fields) {
         if ((Field)`<IntegerLiteral il>` := f) {
             int offset = toInt("<il>");
             if (!tupleHasField(rt, offset))

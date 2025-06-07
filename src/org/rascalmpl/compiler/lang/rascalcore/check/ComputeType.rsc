@@ -36,9 +36,6 @@ extend lang::rascalcore::check::BuiltinFields;
 extend lang::rascalcore::check::ScopeInfo;
 
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascal::\syntax::Rascal;
-
-//import IO;
 import Map;
 import Set;
 import List;

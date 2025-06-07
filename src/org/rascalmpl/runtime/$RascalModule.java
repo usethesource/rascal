@@ -52,6 +52,8 @@ import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.runtime.traverse.Traverse;
@@ -62,6 +64,8 @@ import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -98,7 +102,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 
-public abstract class $RascalModule /*extends ATypeFactory*/ {
+public abstract class $RascalModule {
 
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
@@ -115,26 +119,25 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     
     /*package*/  final IRascalMonitor $MONITOR;
 
-    protected final RascalExecutionContext rex;
+    protected final RascalExecutionContext $rex;
 	
-    protected final IValueFactory $VF;
+    //protected final IValueFactory $RVF;
     public final TypeFactory $TF;
     protected final RascalTypeFactory $RTF;
     public final TypeStore $TS;
 	protected final Traverse $TRAVERSE;
 	
-	public final IBool Rascal_TRUE;
-	public final IBool Rascal_FALSE;
+	private final IBool Rascal_TRUE;
+	private final IBool Rascal_FALSE;
 
 	protected final FailReturnFromVoidException $failReturnFromVoidException;
     
     public $RascalModule(RascalExecutionContext rex){
-    	this.rex = rex;
+    	this.$rex = rex;
     	$IN = rex.getInReader();
     	$OUTWRITER = rex.getOutWriter();
     	$ERRWRITER = rex.getErrWriter();
     	$MONITOR = rex;
-    	$VF = rex.getIValueFactory();
     	$RVF = rex.getRascalRuntimeValueFactory();
     	$TF = rex.getTypeFactory();
     	$TS = rex.getTypeStore();
@@ -142,8 +145,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     	rex.setModule(this);
     	$TRAVERSE = rex.getTraverse();
     	
-    	Rascal_TRUE =  $VF.bool(true);
-    	Rascal_FALSE =  $VF.bool(false);
+    	Rascal_TRUE =  $RVF.bool(true);
+    	Rascal_FALSE =  $RVF.bool(false);
     	$failReturnFromVoidException = new FailReturnFromVoidException();
     }
     
@@ -151,6 +154,43 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
         return $RVF.reifiedType(t, definitions);
     }
     
+	/**
+	 * $testSetup(getClass()) is called by the constructors of all generated test classes.
+	 * The method provides the context for the test to succeed:
+	 * 
+	 * 1. project:// scheme for the current project under test
+	 * 2. target:// scheme for the current project under test
+	 * 
+	 * Test functions can then use `|project://project-name/path/to/test.csv|`,
+	 * for example, to retrieve data or source code as input values.
+	 * 
+	 * @param classUnderTest is used to find the root of the project, starting
+	 * typically from target/classes/ClassUnderTest.class and looking for
+	 * the META-INF/RASCAL.MF file or the pom.xml file of the project.
+	 */
+	protected void $testSetup(Class<?> classUnderTest) {
+		try {
+			var reg = URIResolverRegistry.getInstance();
+			var root = PathConfig.inferProjectRoot(classUnderTest);
+			var dirName = URIUtil.getLocationName(root);
+			var projectName = new RascalManifest().getProjectName(root);
+
+			if (!projectName.isEmpty() && !dirName.equals(projectName)) {
+				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
+				$ERRWRITER.println(msg);
+				throw new IllegalArgumentException(msg);
+			}
+
+			var prj = URIUtil.correctLocation("project", projectName, "");
+			if (!reg.exists(prj)) {
+				reg.registerLogical(new ProjectURIResolver(root, projectName));
+				reg.registerLogical(new TargetURIResolver(root, projectName));
+			}
+		}
+		catch (IOException e) {
+			$ERRWRITER.println("Test setup failed: " + e.getMessage());
+		}
+	}
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
@@ -178,8 +218,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
             Class<?>[] formals = constructor.getParameterTypes();
 
             for (int i = 0; i < constructor.getParameterCount(); i++) {
-                if (formals[i].isAssignableFrom(IValueFactory.class)) {
-                    args[i] = $VF;
+                if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+                    args[i] = $RVF;
+                }
+				else if (formals[i].isAssignableFrom(IValueFactory.class)) {
+                    args[i] = $RVF;
                 }
                 else if (formals[i].isAssignableFrom(TypeStore.class)) {
                     args[i] = $TS;
@@ -201,7 +244,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
                     args[i] = getClass().getClassLoader();
                 }
                 else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
-                    args[i] = new RascalRuntimeValueFactory(rex);
+                    args[i] = $RVF;
                 }
                 else if (formals[i].isAssignableFrom($RascalModule.class)) {
                     args[i] = this;
@@ -226,7 +269,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 							try {
 								for (URL found : Collections.list(getClass().getClassLoader().getResources(fileName))) {
 									try {
-										result.add($VF.sourceLocation(found.toURI()));
+										result.add($RVF.sourceLocation(found.toURI()));
 									} catch (URISyntaxException e) {
 										$MONITOR.warning("WARNING: skipping " + found + " due to URI syntax exception", URIUtil.rootLocation("module-init"));
 									}
@@ -300,7 +343,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	// ---- utility methods ---------------------------------------------------
 
 	public final IMap $buildMap(final IValue...values){
-		IMapWriter w = $VF.mapWriter();
+		IMapWriter w = $RVF.mapWriter();
 		if(values.length % 2 != 0) throw new InternalCompilerError("$RascalModule: buildMap should have even number of arguments");
 		for(int i = 0; i < values.length; i += 2) {
 			w.put(values[i], values[i+1]);
@@ -329,11 +372,29 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	//TODO: consider caching this method
 	
 	public final boolean $isSubtypeOf(Type left, Type right) {
+		// TODO the following should be handled in ordinary isSubTypeOf in NonTerminalType
+		if(left instanceof NonTerminalType && (right instanceof NonTerminalType)){
+			NonTerminalType leftNT = (NonTerminalType) left;
+			IConstructor leftSym = leftNT.getSymbol();
+			NonTerminalType rightNT = (NonTerminalType) right;
+			IConstructor rightSym = rightNT.getSymbol();
+			if(SymbolAdapter.isStartSort(leftSym)){
+				leftSym = SymbolAdapter.getStart(leftSym);
+				return leftSym.equals(rightSym);
+			}
+			
+			if(SymbolAdapter.isStartSort(rightSym)){
+				rightSym = SymbolAdapter.getStart(rightSym);
+				return leftSym.equals(rightSym);
+			}
+		}
 		return left.isSubtypeOf(right);
 	}
 	
-	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {
-	    return (tree instanceof ITree) && ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
+	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {	    
+		if(!(tree instanceof ITree)) return false;
+		ITree itree = (ITree) tree;
+		return itree.isAppl() ? production.equals(itree.getProduction()) : false;
 	}
 	
 	public boolean $isNonTerminal(Type treeType, IConstructor expected) {
@@ -345,62 +406,50 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(treeType == expected) return true;
 		if(treeType instanceof NonTerminalType) {
 			NonTerminalType givenNT = (NonTerminalType) treeType;
-			NonTerminalType expectedNT = (NonTerminalType)  expected;
-		    return givenNT.getSymbol().equals(expectedNT.getSymbol()); // && givenNT.getArity() == expectedNT.getArity();
+			if(expected instanceof NonTerminalType){
+				NonTerminalType expectedNT = (NonTerminalType)  expected;
+		    	return givenNT.getSymbol().equals(expectedNT.getSymbol());
+			} else {
+				String lname = ((IConstructor) givenNT.getSymbol().getChildren()).get(0).toString();
+				lname = lname.substring(1,lname.length()-1); // remove quotes
+				String rname = expected.getName();
+				return  lname.equals(rname);
+			}
 		}
 		return false;
-
-		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
 	public io.usethesource.vallang.type.Type $adt(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
-		//$TS.declareAbstractDataType(adtType);
 		return adtType;
 	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		//return adtType;
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		//return adtType;
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $layouts(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-//		return adtType;
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(adtName)));
 	}
 	public io.usethesource.vallang.type.Type $keywords(String adtName){
-		Type adtType = $TF.abstractDataType($TS, adtName);
-		$TS.declareAbstractDataType(adtType);
-		//return adtType;
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $VF.string(adtName)));
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $RVF.string(adtName)));
 	}
 	
-//	private Type[] paramsAsArray(IList params) {
-//		Type[] paramsAsArray = new Type[params.length()];
-//		for(int i = 0; i < params.length(); i++) paramsAsArray[i] = (Type) params.get(i);
-//		return paramsAsArray;
-//	}
-//	
-//	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, IList params){
-//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
-//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), params));
-//	}
-//	
-//	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, IList params){
-//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
-//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), params));
-//	}
+	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] tparams){
+		return $TF.abstractDataType($TS, adtName, tparams);
+	}
+
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] tparams, IList vparams){
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(adtName), vparams));
+	}
+	
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] tparams, IList vparams){
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(adtName), vparams));
+	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
 		// The constants file has the structure: <int nconstants, str md5Hash, list[value] constants>
@@ -410,9 +459,9 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			URL url = c.getClassLoader().getResource(path);
 			if(url == null) {
-				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
+				throw RuntimeExceptionFactory.io($RVF.string("Cannot find resource " + path));
 			}
-			loc = $VF.sourceLocation(url.toURI());
+			loc = $RVF.sourceLocation(url.toURI());
 		} catch (URISyntaxException e) {
 			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
 		}
@@ -423,25 +472,32 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     			ITuple tup = (ITuple)constantsFile;
     			int found_length = ((IInteger)tup.get(0)).intValue();
     			if(found_length != expected_length) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
+    				throw RuntimeExceptionFactory.io($RVF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
     			}
     			String found_hash = ((IString)tup.get(1)).getValue();
     			if(!found_hash.equals(expected_md5Hash)) {
-    				throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
+    				throw RuntimeExceptionFactory.io($RVF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
     			}
-    			
+				IList lst = (IList) tup.get(2);
+				for(int i = 0; i < found_length; i++){
+					IValue cnst = lst.get(i);
+					if(cnst.getType().isConstructor()){
+						IConstructor cons = (IConstructor) cnst;
+						System.err.println(i + ": " + cons + ", " + cons.getConstructorType());
+					}
+				}
     			return (IList) tup.get(2);
     		} else {
-    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
+    			throw RuntimeExceptionFactory.io($RVF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
     		}
     	}
 		catch (IOException e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io($RVF.string(e.getMessage()));
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io($RVF.string(e.getMessage()));
 		}
 	}
 
@@ -450,10 +506,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
         if (registry.supportsReadableFileChannel(loc)) {
             FileChannel channel = registry.getReadableFileChannel(loc);
             if (channel != null) {
-                return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
+                return new IValueInputStream(channel, $RVF, TYPE_STORE_SUPPLIER);
             }
         }
-        return new IValueInputStream(registry.getInputStream(loc), $VF, TYPE_STORE_SUPPLIER);
+        return new IValueInputStream(registry.getInputStream(loc), $RVF, TYPE_STORE_SUPPLIER);
     }
 	
 	/*************************************************************************/
@@ -536,7 +592,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			path = path + URIUtil.URI_PATH_SEPARATOR;
 		}
 		path = path.concat(s.getValue());
-		return $aloc_field_update("path", $VF.string(path), sloc);
+		return $aloc_field_update("path", $RVF.string(path), sloc);
 	}
 	
 	public final ITuple $atuple_add_atuple(final ITuple t1, final ITuple t2) {
@@ -547,7 +603,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			elems[i] = t1.get(i);
 		for(int i = 0; i < len2; i++)
 			elems[len1 + i] = t2.get(i);
-		return $VF.tuple(elems);
+		return $RVF.tuple(elems);
 	}
 	
 	public final IList $alist_add_alist(final IList lhs, final IList rhs) {
@@ -649,7 +705,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	 * Create a loc with given offsets and length
 	 */
 	public final ISourceLocation $create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length) {
-		return $VF.sourceLocation(loc, offset.intValue(), length.intValue());
+		return $RVF.sourceLocation(loc, offset.intValue(), length.intValue());
 	}
 	
 	public final ISourceLocation $create_aloc_with_offset_and_begin_end(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
@@ -658,7 +714,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		int endLine = ((IInteger) end.get(0)).intValue();
 		int endCol = ((IInteger)  end.get(1)).intValue();
-		return $VF.sourceLocation(loc, offset.intValue(), length.intValue(), beginLine, endLine, beginCol, endCol);
+		return $RVF.sourceLocation(loc, offset.intValue(), length.intValue(), beginLine, endLine, beginCol, endCol);
 	}
 
 	
@@ -673,7 +729,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $aint_divide_areal(final IInteger a, final IReal b) {
 		try {
-			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
+			return a.multiply($RVF.real(1.0)).divide(b,  $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -689,7 +745,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $aint_divide_anum(final IInteger a, final INumber b) {
 		try {
-			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
+			return a.multiply($RVF.real(1.0)).divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -697,7 +753,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final IReal $areal_divide_aint(final IReal a, final IInteger b) {
 		try {
-			return (IReal) a.divide(b, $VF.getPrecision());
+			return (IReal) a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -705,7 +761,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final IReal $areal_divide_areal(final IReal a, final IReal b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -713,7 +769,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final IReal $areal_divide_arat(IReal a, IRational b) {
 		try {
-			return (IReal) a.divide(b, $VF.getPrecision());
+			return (IReal) a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -721,7 +777,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $areal_divide_anum(final IReal a, final INumber b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -737,7 +793,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final IReal $arat_divide_areal(final IRational a, final IReal b) {
 		try {
-			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
+			return a.multiply($RVF.real(1.0)).divide(b,  $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -753,7 +809,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $arat_divide_anum(final IRational a, final INumber b) {
 		try {
-			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
+			return a.multiply($RVF.real(1.0)).divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -761,7 +817,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $anum_divide_aint(final INumber a, final IInteger b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -769,14 +825,14 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $anum_divide_areal(final INumber a, final IReal b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
 	}
 	public final INumber $anum_divide_arat(final INumber a, final IRational b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -784,7 +840,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	public final INumber $anum_divide_anum(final INumber a, final INumber b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return a.divide(b, $RVF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RuntimeExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -800,16 +856,16 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		} else if(leftType.isNode() && rightType.isNode()){
 			return ((INode) left).equals((INode) right) ? Rascal_TRUE : Rascal_FALSE;
 		} else if(left instanceof ITree && right instanceof ITree) {
-			return $VF.bool(left.equals(right)); // use match to ignore "src" keyword parameters in trees
+			return $RVF.bool(left.equals(right)); // use match to ignore "src" keyword parameters in trees
 		} else {
-			return $VF.bool(left.equals(right));
+			return $RVF.bool(left.equals(right));
 		}
 	}
 	
 	// ---- get name ----------------------------------------------------------
 	
 	public final IString $anode_get_name(final INode nd) {
-		return $VF.string(nd.getName());
+		return $RVF.string(nd.getName());
 	}
 
 	// ---- get_field ---------------------------------------------------------
@@ -885,11 +941,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		case "scheme":
 			String s = sloc.getScheme();
-			v = $VF.string(s == null ? "" : s);
+			v = $RVF.string(s == null ? "" : s);
 			break;
 
 		case "authority":
-			v = $VF.string(sloc.hasAuthority() ? sloc.getAuthority() : "");
+			v = $RVF.string(sloc.hasAuthority() ? sloc.getAuthority() : "");
 			break;
 
 		case "host":
@@ -897,11 +953,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.");
 			}
 			s = sloc.getURI().getHost();
-			v = $VF.string(s == null ? "" : s);
+			v = $RVF.string(s == null ? "" : s);
 			break;
 
 		case "path":
-			v = $VF.string(sloc.hasPath() ? sloc.getPath() : URIUtil.URI_PATH_SEPARATOR);
+			v = $RVF.string(sloc.hasPath() ? sloc.getPath() : URIUtil.URI_PATH_SEPARATOR);
 			break;
 
 		case "parent":
@@ -924,7 +980,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 						path += URIUtil.URI_PATH_SEPARATOR;
 					}
 				}
-				v = $aloc_field_update("path", $VF.string(path), sloc);
+				v = $aloc_field_update("path", $RVF.string(path), sloc);
 			} else {
 				throw RuntimeExceptionFactory.noParent(sloc);
 			}
@@ -942,13 +998,13 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			if (i != -1) {
 				path = path.substring(i+URIUtil.URI_PATH_SEPARATOR.length());
 			}
-			v = $VF.string(path);	
+			v = $RVF.string(path);	
 			break;
 
 		case "ls":
 			ISourceLocation resolved = sloc;
 			if(URIResolverRegistry.getInstance().exists(resolved) && URIResolverRegistry.getInstance().isDirectory(resolved)){
-				IListWriter w = $VF.listWriter();
+				IListWriter w = $RVF.listWriter();
 
 				try {
 					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
@@ -956,13 +1012,13 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					}
 				}
 				catch (FactTypeUseException | IOException e) {
-					throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+					throw RuntimeExceptionFactory.io($RVF.string(e.getMessage()));
 				}
 
 				v = w.done();
 				break;
 			} else {
-				throw RuntimeExceptionFactory.io($VF.string("You can only access ls on a directory, or a container."));
+				throw RuntimeExceptionFactory.io($RVF.string("You can only access ls on a directory, or a container."));
 			}
 
 		case "extension":
@@ -974,38 +1030,38 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			
 			if (slashIndex == -1) {
 				// empty path
-				v = $VF.string("");
+				v = $RVF.string("");
 			}
 			else {
 				int j = path.substring(slashIndex).lastIndexOf((int)'.');
 
 				if (j != -1) {
-					v = $VF.string(path.substring(slashIndex + j + 1));
+					v = $RVF.string(path.substring(slashIndex + j + 1));
 				}
 				else {
-					v = $VF.string("");
+					v = $RVF.string("");
 				}
 			}
 			
 			break;
 
 		case "fragment":
-			v = $VF.string(sloc.hasFragment() ? sloc.getFragment() : "");
+			v = $RVF.string(sloc.hasFragment() ? sloc.getFragment() : "");
 			break;
 
 		case "query":
-			v = $VF.string(sloc.hasQuery() ? sloc.getQuery() : "");
+			v = $RVF.string(sloc.hasQuery() ? sloc.getQuery() : "");
 			break;
 
 		case "params":
 			String query = sloc.hasQuery() ? sloc.getQuery() : "";
-			IMapWriter res = $VF.mapWriter();
+			IMapWriter res = $RVF.mapWriter();
 
 			if (query.length() > 0) {
 				String[] params = query.split("&");
 				for (String param : params) {
 					String[] keyValue = param.split("=");
-					res.put($VF.string(keyValue[0]), $VF.string(keyValue[1]));
+					res.put($RVF.string(keyValue[0]), $RVF.string(keyValue[1]));
 				}
 			}
 			v = res.done();
@@ -1016,7 +1072,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.");
 			}
 			s = sloc.getURI().getUserInfo();
-			v = $VF.string(s == null ? "" : s);
+			v = $RVF.string(s == null ? "" : s);
 			break;
 
 		case "port":
@@ -1024,12 +1080,12 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.");
 			}
 			int n = sloc.getURI().getPort();
-			v = $VF.integer(n);
+			v = $RVF.integer(n);
 			break;	
 
 		case "length":
 			if(sloc.hasOffsetLength()){
-				v = $VF.integer(sloc.getLength());
+				v = $RVF.integer(sloc.getLength());
 				break;
 			} else {
 				throw RuntimeExceptionFactory.unavailableInformation(/*"length",*/ null, null);
@@ -1037,7 +1093,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		case "offset":
 			if(sloc.hasOffsetLength()){
-				v = $VF.integer(sloc.getOffset());
+				v = $RVF.integer(sloc.getOffset());
 				break;
 			} else {
 				throw RuntimeExceptionFactory.unavailableInformation(/*"offset",*/ null, null);
@@ -1045,21 +1101,21 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		case "begin":
 			if(sloc.hasLineColumn()){
-				v = $VF.tuple($VF.integer(sloc.getBeginLine()), $VF.integer(sloc.getBeginColumn()));
+				v = $RVF.tuple($RVF.integer(sloc.getBeginLine()), $RVF.integer(sloc.getBeginColumn()));
 				break;
 			} else {
 				throw RuntimeExceptionFactory.unavailableInformation(/*"begin",*/ null, null);
 			}
 		case "end":
 			if(sloc.hasLineColumn()){
-				v = $VF.tuple($VF.integer(sloc.getEndLine()), $VF.integer(sloc.getEndColumn()));
+				v = $RVF.tuple($RVF.integer(sloc.getEndLine()), $RVF.integer(sloc.getEndColumn()));
 				break;
 			} else {
 				throw RuntimeExceptionFactory.unavailableInformation(/*"end",*/ null, null);
 			}
 
 		case "uri":
-			v = $VF.string(sloc.getURI().toString());
+			v = $RVF.string(sloc.getURI().toString());
 			break;
 
 		case "top":
@@ -1087,85 +1143,85 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			switch (field) {
 			case "isDate":
-				v = $VF.bool(dt.isDate());
+				v = $RVF.bool(dt.isDate());
 				break;
 			case "isTime":
-				v = $VF.bool(dt.isTime());
+				v = $RVF.bool(dt.isTime());
 				break;
 			case "isDateTime":
-				v = $VF.bool(dt.isDateTime());
+				v = $RVF.bool(dt.isDateTime());
 				break;
 			case "century":
 				if (!dt.isTime()) {
-					v = $VF.integer(dt.getCentury());
+					v = $RVF.integer(dt.getCentury());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the century on a time value",*/ null, null);
 			case "year":
 				if (!dt.isTime()) {
-					v = $VF.integer(dt.getYear());
+					v = $RVF.integer(dt.getYear());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the year on a time value",*/ null, null);
 
 			case "month":
 				if (!dt.isTime()) {
-					v = $VF.integer(dt.getMonthOfYear());
+					v = $RVF.integer(dt.getMonthOfYear());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the month on a time value",*/ null, null);
 			case "day":
 				if (!dt.isTime()) {
-					v = $VF.integer(dt.getDayOfMonth());
+					v = $RVF.integer(dt.getDayOfMonth());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the day on a time value",*/ null, null);
 			case "hour":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getHourOfDay());
+					v = $RVF.integer(dt.getHourOfDay());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the hour on a date value",*/ null, null);
 			case "minute":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getMinuteOfHour());
+					v = $RVF.integer(dt.getMinuteOfHour());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the minute on a date value",*/ null, null);
 			case "second":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getSecondOfMinute());
+					v = $RVF.integer(dt.getSecondOfMinute());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the second on a date value",*/ null, null);
 			case "millisecond":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getMillisecondsOfSecond());
+					v = $RVF.integer(dt.getMillisecondsOfSecond());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the millisecond on a date value",*/ null, null);
 			case "timezoneOffsetHours":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getTimezoneOffsetHours());
+					v = $RVF.integer(dt.getTimezoneOffsetHours());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the timezone offset hours on a date value",*/ null, null);
 			case "timezoneOffsetMinutes":
 				if (!dt.isDate()) {
-					v = $VF.integer(dt.getTimezoneOffsetMinutes());
+					v = $RVF.integer(dt.getTimezoneOffsetMinutes());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the timezone offset minutes on a date value",*/ null, null);
 
 			case "justDate":
 				if (!dt.isTime()) {
-					v = $VF.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
+					v = $RVF.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 					break;
 				}
 				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the date component of a time value",*/ null, null);
 			case "justTime":
 				if (!dt.isDate()) {
-					v = $VF.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
+					v = $RVF.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
 							dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(),
 							dt.getTimezoneOffsetMinutes());
 					break;
@@ -1230,7 +1286,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
 					: tup.get(((IString) field).getValue());
 		}
-		return (n - 1 > 1) ? $VF.tuple(newFields) : newFields[0];
+		return (n - 1 > 1) ? $RVF.tuple(newFields) : newFields[0];
 	}
 	
 	public final GuardedIValue $guarded_atuple_field_project(final ITuple tup, final IValue... fields) {
@@ -1242,7 +1298,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 
 	public final ISet $amap_field_project (final IMap map, final IValue... fields) {
-		ISetWriter w = $VF.setWriter();
+		ISetWriter w = $RVF.setWriter();
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
 		for(int i = 0; i < indexArity; i++){
@@ -1255,7 +1311,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = intFields[j] == 0 ? entry.getKey() : entry.getValue();
 			}
-			w.insert((indexArity > 1) ? $VF.tuple(elems) : elems[0]);
+			w.insert((indexArity > 1) ? $RVF.tuple(elems) : elems[0]);
 		}
 		return w.done();
 	}
@@ -1291,14 +1347,14 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		for(int i = 0; i < indexArity; i++){
 			intFields[i]  = ((IInteger) fields[i]).intValue();
 		}
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		IValue[] elems = new IValue[indexArity];
 		for(IValue vtup : lrel){
 			ITuple tup = (ITuple) vtup;
 			for(int j = 0; j < fields.length; j++){
 				elems[j] = tup.get(intFields[j]);
 			}
-			w.append((indexArity > 1) ? $VF.tuple(elems) : elems[0]);
+			w.append((indexArity > 1) ? $RVF.tuple(elems) : elems[0]);
 		}
 		return w.done();
 	}
@@ -1531,12 +1587,12 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 			ISourceLocation newLoc = sloc;
 			if (uriPartChanged) {
-				newLoc = $VF.sourceLocation(scheme, authority, path, query, fragment);
+				newLoc = $RVF.sourceLocation(scheme, authority, path, query, fragment);
 			}
 
 			if (sloc.hasLineColumn()) {
 				// was a complete loc, and thus will be now
-				return $VF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+				return $RVF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 			}
 
 			if (sloc.hasOffsetLength()) {
@@ -1546,17 +1602,17 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					//will be complete now.
 					iEndLine = iBeginLine;
 					iEndColumn = iBeginColumn;
-					return $VF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+					return $RVF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 				}
 				else if (iEndLine != -1 || iEndColumn != -1) {
 					// will be complete now.
 					iBeginLine = iEndLine;
 					iBeginColumn = iEndColumn;
-					return $VF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+					return $RVF.sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
 				}
 				else {
 					// remains a partial loc
-					return $VF.sourceLocation(newLoc, iOffset, iLength);
+					return $RVF.sourceLocation(newLoc, iOffset, iLength);
 				}
 			}
 
@@ -1583,7 +1639,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 			if (iOffset != -1 || iLength != -1) {
 				// used not to no offset/length, but do now
-				return $VF.sourceLocation(newLoc, iOffset, iLength);
+				return $RVF.sourceLocation(newLoc, iOffset, iLength);
 			}
 
 			// no updates to offset/length or line/column, and did not used to have any either:
@@ -1679,11 +1735,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 			IDateTime newdt = null;
 			if (dt.isDate()) {
-				newdt = $VF.date(year, month, day);
+				newdt = $RVF.date(year, month, day);
 			} else if (dt.isTime()) {
-				newdt = $VF.time(hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+				newdt = $RVF.time(hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
 			} else {
-				newdt = $VF.datetime(year, month, day, hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
+				newdt = $RVF.datetime(year, month, day, hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
 			}
 			return newdt;
 		}
@@ -1788,8 +1844,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	public final boolean $nonterminal_has_name_and_arity(final IValue v, final String name, final int arity) {
 		if(v instanceof IConstructor &&TreeAdapter.isTree((IConstructor)v)) {
 			ITree tree = (ITree) v;
+			if(TreeAdapter.isTop(tree)){
+				tree = (ITree) org.rascalmpl.values.parsetrees.TreeAdapter.getArg(tree, "top");
+			}
+			if(TreeAdapter.isAmb(tree)){
+				return name == "amb" && arity == 1;
+			}
 			// Count the non-literal symbols in the argument list
 			IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+			
 			int prod_arity = 0;
 			for(IValue varg : args) {
 				if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
@@ -1833,16 +1896,17 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					if(!TreeAdapter.isAppl(tree)) return false;
 					return arity == 2;
 				}
-//				if(consType.getArity() == arity) {
-//					System.err.println(true + " 3");
-					return true;
-//				}
+
+				return true;
 			}
 		}
 		return false;
 	}
 	
-	public final IValue $nonterminal_get_arg(final ITree tree, final int idx) {
+	public final IValue $nonterminal_get_arg(ITree tree, final int idx) {
+		if(TreeAdapter.isTop(tree)){
+			tree = TreeAdapter.getArg(tree, "top");
+		}
 		// Find idx-th nonterminal symbol in the argument list
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
 		int i = 0;
@@ -1920,7 +1984,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		int rarity = rightType.getArity();
 		IValue fieldValues[] = new IValue[1 + rarity];
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 
 		for (IValue lval : left){
 			fieldValues[0] = lval;
@@ -1928,7 +1992,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = 0; i < rarity; i++) {
 					fieldValues[i + 1] = ((ITuple)rtuple).get(i);
 				}
-				w.append($VF.tuple(fieldValues));
+				w.append($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -1949,7 +2013,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int larity = leftType.getArity();
 		int rarity = rightType.getArity();
 		IValue fieldValues[] = new IValue[larity + rarity];
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 
 		for (IValue ltuple : left){
 			for (IValue rtuple: right) {
@@ -1959,7 +2023,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = larity; i < larity + rarity; i++) {
 					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
 				}
-				w.append($VF.tuple(fieldValues));
+				w.append($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -1977,7 +2041,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		int larity = leftType.getArity();
 		IValue fieldValues[] = new IValue[larity + 1];
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 
 		for (IValue ltuple : left){
 			for (IValue rval: right) {
@@ -1985,7 +2049,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					fieldValues[i] = ((ITuple)ltuple).get(i);
 				}
 				fieldValues[larity] = rval;
-				w.append($VF.tuple(fieldValues));
+				w.append($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -2003,7 +2067,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		int rarity = rightType.getArity();
 		IValue fieldValues[] = new IValue[1 + rarity];
-		ISetWriter w = $VF.setWriter();
+		ISetWriter w = $RVF.setWriter();
 
 		for (IValue lval : left){
 			for (IValue rtuple: right) {
@@ -2011,7 +2075,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = 0; i <  rarity; i++) {
 					fieldValues[i + 1] = ((ITuple)rtuple).get(i);
 				}
-				w.insert($VF.tuple(fieldValues));
+				w.insert($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -2032,7 +2096,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int larity = leftType.getArity();
 		int rarity = rightType.getArity();
 		IValue fieldValues[] = new IValue[larity + rarity];
-		ISetWriter w = $VF.setWriter();
+		ISetWriter w = $RVF.setWriter();
 
 		for (IValue ltuple : left){
 			for (IValue rtuple: right) {
@@ -2042,7 +2106,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = larity; i < larity + rarity; i++) {
 					fieldValues[i] = ((ITuple)rtuple).get(i - larity);
 				}
-				w.insert($VF.tuple(fieldValues));
+				w.insert($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -2061,7 +2125,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 		int larity = leftType.getArity();
 		IValue fieldValues[] = new IValue[larity + 1];
-		ISetWriter w = $VF.setWriter();
+		ISetWriter w = $RVF.setWriter();
 
 		for (IValue ltuple : left){
 			for (IValue rval: right) {
@@ -2069,7 +2133,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					fieldValues[i] = ((ITuple)ltuple).get(i);
 				}
 				fieldValues[larity] = rval;
-				w.insert($VF.tuple(fieldValues));
+				w.insert($RVF.tuple(fieldValues));
 			}
 		}
 		return w.done();
@@ -2240,15 +2304,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 
 	public final IBool $abool_less_abool(final IBool left, final IBool right) {
-		return  $VF.bool(!left.getValue() && right.getValue());
+		return  $RVF.bool(!left.getValue() && right.getValue());
 	}
 
 	public final IBool $astr_less_astr(final IString left, final IString right) {
-		return $VF.bool(left.compare(right) == -1);
+		return $RVF.bool(left.compare(right) == -1);
 	}
 
 	public final IBool $adatetime_less_adatetime(final IDateTime left, final IDateTime right) {
-		return $VF.bool(left.compareTo(right) == -1);
+		return $RVF.bool(left.compareTo(right) == -1);
 	}
 
 	public final IBool $aloc_less_aloc(final ISourceLocation left, final ISourceLocation right) {
@@ -2274,9 +2338,9 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			int llen = left.getLength();
 
 			if (loffset == roffset) {
-				return $VF.bool(llen < rlen);
+				return $RVF.bool(llen < rlen);
 			}
-			return $VF.bool(roffset < loffset && roffset + rlen >= loffset + llen);
+			return $RVF.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 		}
 		else if (compare == 0) {
 			return Rascal_FALSE;
@@ -2304,7 +2368,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 		}
 
-		return $VF.bool(leftArity <= rightArity);
+		return $RVF.bool(leftArity <= rightArity);
 	}
 
 	public final IBool $anode_less_anode(final INode left, final INode right) {
@@ -2376,7 +2440,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 		}
 
-		return $VF.bool((leftArity < rightArity) || ((IBool)result).getValue());
+		return $RVF.bool((leftArity < rightArity) || ((IBool)result).getValue());
 	}
 
 	public final IBool $alist_less_alist(final IList left, final IList right) {
@@ -2392,15 +2456,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 			return Rascal_FALSE;
 		}
-		return $VF.bool(left.length() != right.length());
+		return $RVF.bool(left.length() != right.length());
 	}
 
 	public final IBool $aset_less_aset(final ISet left, final ISet right) {
-		return $VF.bool(!left.equals(right) && left.isSubsetOf(right));
+		return $RVF.bool(!left.equals(right) && left.isSubsetOf(right));
 	}
 
 	public final IBool $amap_less_amap(final IMap left, final IMap right) {
-		return $VF.bool(left.isSubMap(right) && !right.isSubMap(left));
+		return $RVF.bool(left.isSubMap(right) && !right.isSubMap(left));
 	}
 
 	// ---- lessequal ---------------------------------------------------------
@@ -2601,17 +2665,17 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	public final IBool $abool_lessequal_abool(final IBool left, final IBool right) {
 		boolean l = left.getValue();
 		boolean r = right.getValue();
-		return $VF.bool((!l && r) || (l == r));
+		return $RVF.bool((!l && r) || (l == r));
 	}
 
 	public final IBool $astr_lessequal_astr(final IString left, final IString right) {
 		int c = left.compare(right);
-		return $VF.bool(c == -1 || c == 0);
+		return $RVF.bool(c == -1 || c == 0);
 	}
 
 	public final IBool $adatetime_lessequal_adatetime(final IDateTime left, final IDateTime right) {
 		int c = left.compareTo(right);
-		return $VF.bool(c== -1 || c == 0);
+		return $RVF.bool(c== -1 || c == 0);
 	}
 
 	public final IBool $aloc_lessequal_aloc(final ISourceLocation left, final ISourceLocation right) {
@@ -2637,9 +2701,9 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			int llen = left.getLength();
 
 			if (loffset == roffset) {
-				return $VF.bool(llen <= rlen);
+				return $RVF.bool(llen <= rlen);
 			}
-			return $VF.bool(roffset < loffset && roffset + rlen >= loffset + llen);
+			return $RVF.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 		}
 		else if (compare == 0) {
 			return Rascal_TRUE;
@@ -2672,7 +2736,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				return Rascal_FALSE;
 			}
 		}
-		return $VF.bool(leftArity <= rightArity);
+		return $RVF.bool(leftArity <= rightArity);
 	}
 
 	public final IBool $atuple_lessequal_atuple(final ITuple left, final ITuple right) {
@@ -2685,7 +2749,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 		}
 
-		return $VF.bool(leftArity <= rightArity);
+		return $RVF.bool(leftArity <= rightArity);
 	}
 
 	public final IBool $alist_lessequal_alist(final IList left, final IList right) {
@@ -2705,21 +2769,21 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			return Rascal_FALSE;
 		}
 
-		return $VF.bool(left.length() <= right.length());
+		return $RVF.bool(left.length() <= right.length());
 	}
 
 	public final IBool $aset_lessequal_aset(final ISet left, final ISet right) {
-		return $VF.bool(left.size() == 0 || left.equals(right) || left.isSubsetOf(right));
+		return $RVF.bool(left.size() == 0 || left.equals(right) || left.isSubsetOf(right));
 	}
 
 	public final IBool $amap_lessequal_amap(final IMap left, final IMap right) {
-		return $VF.bool(left.isSubMap(right));
+		return $RVF.bool(left.isSubMap(right));
 	}
 	
 	// ---- parse -------------------------------------------------------------
 	
 	public final IValue $parse(final IValue reified, IString inputText, ISourceLocation inputLocation) {
-		IFunction parser = $RVF.parser(reified, $VF.bool(true), $VF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $VF.bool(false), $VF.integer(0), $VF.integer(0), $VF.bool(false), $VF.bool(false), $VF.set());
+		IFunction parser = $RVF.parser(reified, $RVF.bool(true), $RVF.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), $RVF.bool(false), $RVF.integer(0), $RVF.integer(0), $RVF.bool(false), $RVF.bool(false), $RVF.set());
 		return parser.call(inputText, inputLocation);
 	}
 
@@ -2789,20 +2853,20 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 
 	public final IList $alist_product_alist(final IList left, final IList right) {
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		for(IValue l : left){
 			for(IValue r : right){
-				w.append($VF.tuple(l,r));
+				w.append($RVF.tuple(l,r));
 			}
 		}
 		return w.done();
 	}
 
 	public final ISet $aset_product_aset(final ISet left, final ISet right) {
-		ISetWriter w = $VF.setWriter();
+		ISetWriter w = $RVF.setWriter();
 		for(IValue l : left){
 			for(IValue r : right){
-				w.insert($VF.tuple(l,r));
+				w.insert($RVF.tuple(l,r));
 			}
 		}
 		return w.done();
@@ -2832,11 +2896,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				default: sw.append(c);
 			}
 		}
-		return $VF.string(sw.toString());
+		return $RVF.string(sw.toString());
 	}
 	
 	public final IString $str_escape_for_regexp(String insert) {
-		return $str_escape_for_regexp($VF.string(insert));
+		return $str_escape_for_regexp($RVF.string(insert));
 	}
 
 	// ---- slice -------------------------------------------------------------
@@ -2857,12 +2921,12 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					buffer.appendCodePoint(str.charAt(j));
 				}
 			}
-		return $VF.string(buffer.toString());
+		return $RVF.string(buffer.toString());
 	}
 
 	public final IList $anode_slice(final INode node,  final Integer first, final Integer second, final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
 			// nothing to be done
@@ -2882,7 +2946,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public final IList $alist_slice(IList lst, Integer first, Integer second, Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
 			// nothing to be done
@@ -2926,7 +2990,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int sd_first = sd.first * delta;
 		int sd_second = sd.second * delta;
 		int sd_end = Math.min(sd.end * delta, nargs);
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		int increment = (sd_second - sd_first);
 		if(sd_first == sd_end || increment == 0){
 			// nothing to be done
@@ -2964,7 +3028,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public final IList $makeSlice(final INode node, final Integer first, final Integer second,final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		int increment = sd.second - sd.first;
 		if(sd.first == sd.end || increment == 0){
 			// nothing to be done
@@ -3061,7 +3125,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 
 	public final IList $updateListSlice(final IList lst, final SliceDescriptor sd, final SliceOperator op, final IList repl){
-		IListWriter w = $VF.listWriter();
+		IListWriter w = $RVF.listWriter();
 		int increment = sd.second - sd.first;
 		int replIndex = 0;
 		int rlen = repl.length();
@@ -3180,7 +3244,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			return (idx >= 0) ? str.substring(idx, idx+1)
 					: str.substring(str.length() + idx, str.length() + idx + 1);
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 
@@ -3198,7 +3262,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return lst.get((idx >= 0) ? idx : (lst.length() + idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 
@@ -3235,7 +3299,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 
@@ -3255,7 +3319,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 			return node.get(idx);  
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 
@@ -3275,7 +3339,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 
@@ -3316,7 +3380,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(rel.isEmpty()){
 			return rel;
 		}
-		ISetWriter wset = $VF.setWriter();
+		ISetWriter wset = $RVF.setWriter();
 
 		for (IValue v : rel) {
 			ITuple tup = (ITuple)v;
@@ -3346,7 +3410,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		}
 		int relArity = rel.getElementType().getArity();		
 
-		ISetWriter wset = $VF.setWriter();
+		ISetWriter wset = $RVF.setWriter();
 		IValue args[] = new IValue[relArity - 1];
 
 		for (IValue v : rel) {
@@ -3356,7 +3420,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = 1; i < relArity; i++) {
 					args[i - 1] = tup.get(i);
 				}
-				wset.insert($VF.tuple(args));
+				wset.insert($RVF.tuple(args));
 			} 
 		}
 		return wset.done();
@@ -3382,7 +3446,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int indexArity = idx.length;
 		int relArity = rel.getElementType().getArity();
 
-		ISetWriter wset = $VF.setWriter();
+		ISetWriter wset = $RVF.setWriter();
 
 		if(relArity - indexArity == 1){	// Return a set
 			allValues:
@@ -3423,7 +3487,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					for (int i = indexArity; i < relArity; i++) {
 						args[i - indexArity] = tup.get(i);
 					}
-					wset.insert($VF.tuple(args));
+					wset.insert($RVF.tuple(args));
 				}
 		}
 
@@ -3469,7 +3533,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(lrel.isEmpty()){
 			return lrel;
 		}
-		IListWriter wlist = $VF.listWriter();
+		IListWriter wlist = $RVF.listWriter();
 
 		for (IValue v : lrel) {
 			ITuple tup = (ITuple)v;
@@ -3498,7 +3562,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		}
 		int lrelArity = lrel.getElementType().getArity();		
 
-		IListWriter wlist = $VF.listWriter();
+		IListWriter wlist = $RVF.listWriter();
 		IValue args[] = new IValue[lrelArity - 1];
 
 		for (IValue v : lrel) {
@@ -3508,7 +3572,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				for (int i = 1; i < lrelArity; i++) {
 					args[i - 1] = tup.get(i);
 				}
-				wlist.append($VF.tuple(args));
+				wlist.append($RVF.tuple(args));
 			} 
 		}
 		return wlist.done();
@@ -3534,7 +3598,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int indexArity = idx.length;
 		int lrelArity = lrel.getElementType().getArity();
 
-		IListWriter wlist = $VF.listWriter();
+		IListWriter wlist = $RVF.listWriter();
 
 		if(lrelArity - indexArity == 1){	// Return a set
 			allValues:
@@ -3569,7 +3633,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					for (int i = indexArity; i < lrelArity; i++) {
 						args[i - indexArity] = tup.get(i);
 					}
-					wlist.append($VF.tuple(args));
+					wlist.append($RVF.tuple(args));
 				}
 		}
 
@@ -3615,7 +3679,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(subjectType.isAbstractData()) {
 //			if(subject instanceof ITree){
 //				if(org.rascalmpl.values.parsetrees.TreeAdapter.isChar((ITree)subject)) {
-//					return $VF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
+//					return $RVF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
 //				}
 //				if(org.rascalmpl.values.parsetrees.TreeAdapter.isAppl((ITree)subject)) {
 //					IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction((ITree)subject);
@@ -3647,7 +3711,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return args.get((idx >= 0) ? idx : (args.length() + idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 	
@@ -3656,7 +3720,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 	
@@ -3668,7 +3732,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 	
@@ -3678,7 +3742,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return args.get(idx);
 		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 		}
 	}
 	
@@ -3691,7 +3755,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(n >= 0 && n < args.length()) {
 			return args.get(n);
 		}
-		throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(idx));
 	}
 	
 	// ---- concreteSubList ---------------------------------------------------
@@ -3704,7 +3768,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 			int actual_len = tree.getArgs().length();
 			if(from >= actual_len) {
-				return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, $VF.list());
+				return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, $RVF.list());
 			}
 			return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree).sublist(from, adjusted_len));
 		}
@@ -3733,7 +3797,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return lst.put(n, v);
 		} catch (IndexOutOfBoundsException e){
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(n));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(n));
 
 		}
 	}
@@ -3757,7 +3821,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		try {
 			return tup.set(n, v);
 		} catch (IndexOutOfBoundsException e){
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(n));
+			throw RuntimeExceptionFactory.indexOutOfBounds($RVF.integer(n));
 
 		}
 	}
@@ -3780,7 +3844,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	// Private methods for Slice Operator
 	
 	// ---- add ---------------------------------------------------------------
-	// The following package private functions $add, $product, $multiply, $divide, $intersect are never
+	// The following package private functions $add, $product, $product, $divide, $intersect are never
 	// called from generated code, but are used by the SliceOperator that needs these generic versions.
 
 	final IValue $add(final IValue lhs, final IValue rhs) {
@@ -3979,6 +4043,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		}
+
+	public final IValue $adatetime_subtract_adatetime(final IValue lhs, final IValue rhs){
+		throw new InternalCompilerError("Subtraction on datetime not implemented");
+	}
 	 
 	// ---- product -----------------------------------------------------------
 
@@ -4141,13 +4209,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			if(v instanceof IString) {
 					return (IString) v;
 			} else if(v instanceof ITree) {
-				return $VF.string(TreeAdapter.yield((ITree)v));
+				return $RVF.string(TreeAdapter.yield((ITree)v));
 			} else  {
-				return $VF.string(v.toString());
+				return $RVF.string(v.toString());
 			}
 		}
-		
-		
 }
 
 enum SliceOperator {

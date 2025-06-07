@@ -40,8 +40,6 @@ import util::Maybe;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 
-import lang::rascal::\syntax::Rascal;
-
 // ---- syntax definition -----------------------------------------------------
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, Collector c){
@@ -121,7 +119,7 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
-    args = [s.getType(sym) | sym <- symbols];
+    args = [s.getType(sym) | sym <- symbols, !(sym is empty)];
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args/*, src=src*/) : prod(adtType, args, attributes=m2a/*, src=src*/);
@@ -148,7 +146,7 @@ private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when 
 private default AType removeChainRule(AType t) = t;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
-    symbols = [sym | sym <- syms];
+    symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, loc adtParentScope> := c.top(currentAdt)){
         // Compute the production type
@@ -203,7 +201,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 }
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
-    symbols = [sym | sym <- syms];
+    symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
