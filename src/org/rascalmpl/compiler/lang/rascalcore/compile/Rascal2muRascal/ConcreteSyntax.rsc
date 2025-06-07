@@ -90,7 +90,9 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
       
       // here we weave in a unique and indexed sub-string for which a special rule
       // was added by the parser generator: 
-      holeType = atype2symbol(getType(hole.args[2]@\loc));
+      holeAType = getType(hole.args[2]@\loc);
+      holeAType = visit(holeAType){ case \start(AType t) => t };
+      holeType = atype2symbol(holeAType);
       return "\u0000<denormalize(holeType)>:<index>\u0000";
    }
    
