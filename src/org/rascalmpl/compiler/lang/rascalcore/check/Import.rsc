@@ -378,7 +378,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
 
-    if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), MStatus::ignored()} & ms.status[c]))){
+    if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), code_generation_error(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
 
