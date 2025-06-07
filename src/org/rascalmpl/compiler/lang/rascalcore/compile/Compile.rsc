@@ -46,10 +46,6 @@ import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
 
-
-bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messages ]);
-bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
-
 data ModuleStatus;
 
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
