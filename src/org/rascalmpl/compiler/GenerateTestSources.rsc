@@ -103,14 +103,17 @@ void generateTestSources(list[str] cmdLineArgs) {
 }
 
 str safeCompile(str \module, RascalCompilerConfig compilerConfig, void (int duration) measure) {
+  result = "";
    try {
      measure(cpuTimeOf(() {    
        msgs = compile(\module, compilerConfig);
        if(!isEmpty(msgs)){
             iprintln(msgs);
        }
+       errors = [ msg | msg <- msgs, msg is error ];
+       result = isEmpty(errors) ? "" : "<errors>";
      }));
-     return "";
+     return result;
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
