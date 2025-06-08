@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
@@ -28,16 +29,9 @@ public abstract class AbstractCommandlineTool {
      * @param sourceFolders  where to find Rascal source modules to load into the interpreter
      * @param args           the String[] args of the calling static main method
      */
-    public static void main(String mainModule, String[] sourceFolders, String[] args) {
+    public static void main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
         try {
-            RascalShell.setupJavaProcessForREPL();
-            
-            var term = RascalShell.connectToTerminal();
-            var monitor = IRascalMonitor.buildConsoleMonitor(term);
-            var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
-            var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
-        
-            try {   
+             try {   
                 var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
                 var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
 
