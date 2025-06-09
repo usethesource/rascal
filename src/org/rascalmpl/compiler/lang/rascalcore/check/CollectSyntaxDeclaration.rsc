@@ -75,7 +75,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType,closed=true)| tp <- typeParameters ]];
         }
 
-        dt = defType(current is language && current.\start is present ? \start(nonterminalType) : nonterminalType);
+        dt = defType(/*current is language && current.\start is present ? \start(nonterminalType) : */nonterminalType);
         dt.vis = vis;
         dt.md5 = md5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
         syndefCounter += 1;
