@@ -63,10 +63,10 @@ void generateTestSources(list[str] cmdLineArgs) {
    
    map[str,int] durations = ();
 
-   modulesToCompile = [];
+   list[str] modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-      modulesToCompile = getRascalModules(|std:///|);     
+      modulesToCompile = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);     
    } else {              
        testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
                        , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
@@ -95,7 +95,7 @@ void generateTestSources(list[str] cmdLineArgs) {
       }
    }
    println("Compiled <n> modules");
-   println("<size(exceptions)> failed to compile: <exceptions>");
+   println("<size(exceptions)> failed to compile:"); iprintln(exceptions);
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
