@@ -95,7 +95,7 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         try {
             mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
+            msgs += error("PathConfig `generatedResources`: <e>", pcfg.generatedResources);
         }
     }
     return msgs;
