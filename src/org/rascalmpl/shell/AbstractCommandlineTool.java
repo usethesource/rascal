@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -25,61 +26,106 @@ public abstract class AbstractCommandlineTool {
 
     /**
      * This method should be called by a `public static void main(String[] args)` method directly.
+     * It parses the commandline parametres according to the signature of the provided main function name (and module).
+     * 
      * @param mainModule     which main module must be imported to begin
      * @param sourceFolders  where to find Rascal source modules to load into the interpreter
      * @param args           the String[] args of the calling static main method
      */
-    public static void main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
-        try {
-             try {   
-                var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
-                var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
+    public static int main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+        try {   
+            var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
+            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
 
-                for (String folder : sourceFolders) {
-                    var src = URIUtil.getChildLocation(rascalJar, folder);
-                    if (URIResolverRegistry.getInstance().exists(src)) {
-                        eval.addRascalSearchPath(src);
-                    }
-                    else {
-                        throw new FileNotFoundException(src.toString());
-                    }
-                }
-
-                eval.doImport(monitor, mainModule);
-                
-                IValue result = eval.main(monitor, mainModule, "main", args);
-                
-                if (result == null) {
-                    // void main
-                    System.exit(0);
-                }
-                else if (result.getType().isInteger()) {
-                    System.exit(((IInteger) result).intValue());
+            for (String folder : sourceFolders) {
+                var src = URIUtil.getChildLocation(rascalJar, folder);
+                if (URIResolverRegistry.getInstance().exists(src)) {
+                    eval.addRascalSearchPath(src);
                 }
                 else {
-                    System.exit(0);
+                    throw new FileNotFoundException(src.toString());
                 }
             }
-            catch (Throw e) {
-                try {
-                    err.println(e.getException());
-                    e.getTrace().prettyPrintedString(err, new StandardTextWriter());
-                }
-                catch (IOException ioe) {
-                    err.println(ioe.getMessage());
-                }
 
-                System.exit(1);
+            eval.doImport(monitor, mainModule);
+            
+            IValue result = eval.main(monitor, mainModule, "main", args);
+            
+            if (result == null) {
+                // void main
+                return 0;
             }
-            catch (Throwable e) {
-                e.printStackTrace();
-                System.exit(1);
+            else if (result.getType().isInteger()) {
+                return ((IInteger) result).intValue();
+            }
+            else {
+                return 0;
             }
         }
-        catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+        catch (Throw e) {
+            try {
+                err.println(e.getException());
+                e.getTrace().prettyPrintedString(err, new StandardTextWriter());
+            }
+            catch (IOException ioe) {
+                err.println(ioe.getMessage());
+            }
+
+            return 1;
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+            return 1;
         }
     }
 
+    /**
+     * A main for which the commandine parameters have already been parsed.
+     */
+    public static int main(String mainModule, String[] sourceFolders, Map<String, IValue> args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+        try {   
+            var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
+            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
+
+            for (String folder : sourceFolders) {
+                var src = URIUtil.getChildLocation(rascalJar, folder);
+                if (URIResolverRegistry.getInstance().exists(src)) {
+                    eval.addRascalSearchPath(src);
+                }
+                else {
+                    throw new FileNotFoundException(src.toString());
+                }
+            }
+
+            eval.doImport(monitor, mainModule);
+            
+            IValue result = eval.main(monitor, mainModule, "main", args);
+            
+            if (result == null) {
+                // void main
+                return 0;
+            }
+            else if (result.getType().isInteger()) {
+                return ((IInteger) result).intValue();
+            }
+            else {
+                return 0;
+            }
+        }
+        catch (Throw e) {
+            try {
+                err.println(e.getException());
+                e.getTrace().prettyPrintedString(err, new StandardTextWriter());
+            }
+            catch (IOException ioe) {
+                err.println(ioe.getMessage());
+            }
+
+            return 1;
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+            return 1;
+        }
+    }
 }
