@@ -143,7 +143,7 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, |unknown:///|);
     if(!isEmpty(msgs)){
-        return msgs;
+        return toList(msgs);
     }
 
     if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleName>"); }
