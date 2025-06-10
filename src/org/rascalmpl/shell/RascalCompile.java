@@ -1,42 +1,36 @@
 package org.rascalmpl.shell;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.jline.terminal.Terminal;
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
-import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -45,6 +39,11 @@ import io.usethesource.vallang.type.TypeFactory;
  * Commandline tool for Rascal checking and compilation
  */
 public class RascalCompile extends AbstractCommandlineTool {
+	private static final String mainModule ="lang::rascalcore::check::Checker";
+	private static final String[] imports = {"org/rascalmpl/compiler", "org/rascalmpl/typepal"};
+	private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
+
     public static void main(String[] args) throws URISyntaxException, Exception {    
         RascalShell.setupJavaProcessForREPL();
         
@@ -57,36 +56,117 @@ public class RascalCompile extends AbstractCommandlineTool {
 		var kwParams = reproduceCheckerMainParameterTypes();
         
         Map<String,IValue> parsedArgs = parser.parseKeywordCommandLineArgs("RascalCompile", args, kwParams);
-        
-		RascalCompile m = new RascalCompile(parsedArgs, monitor, err, out, term);
 
-		if (((IBool) parsedArgs.get("parallel")).getValue()) {
+		int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
+		IList modules = listParameter(parsedArgs, "modules");
 		
+		try {
+			if (isTrueParameter(parsedArgs, "parallel") || modules.size() <= 10 || parAmount <= 1) {
+				System.exit(main(mainModule, imports , args, term, monitor, err, out));
+			}
+			else {
+				System.exit(parallelMain(parsedArgs, parAmount, mainModule, imports , args, term, monitor, err, out));
+			}
 		}
-		else {
-
+		catch (Throwable e) {
+			// this should have been handled inside main or parallelMain, but to be sure we log any exception here
+			// and exit with status code 1, such that no errors can be lost to the calling process (typically `mvn compile`).
+			err.println(e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
     }
 
-    private final Terminal term;
-    private final PrintWriter err;
-    private final PrintWriter out;
-    private final IRascalMonitor monitor;
-    
-    private RascalCompile(IRascalMonitor monitor, PrintWriter err, PrintWriter out, Terminal term) {
-        this.monitor = monitor;
-        this.err = err;
-        this.out = out;
-        this.term = term;
-    }
+	private static int parallelMain(Map<String, IValue> parsedArgs, int parAmount, String mainModule, String[] imports, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+		var preChecks = listParameter(parsedArgs, "parallelPreChecks");
+		IList modules = (IList) parsedArgs.get("modules");
 
+		if (modules.isEmpty()) {
+			return 0;
+		}
+
+		// first run the pre-checks
+		parsedArgs.put("modules", preChecks);
+		out.println("Prechecking " + preChecks.size() + " modules ");
+		if (main(mainModule, imports, parsedArgs, term, monitor, err, out) != 0) {
+			System.exit(1);
+		}
+		out.println("Precheck is done.");
+
+		// split the remaining work
+		modules = modules.subtract(preChecks);
+		final var chunks = splitTodoList(parAmount, modules.stream().map(ISourceLocation.class::cast).collect(Collectors.toList()));
+		final var bins = chunks.stream()
+			.map(handleExceptions(l -> Files.createTempDirectory("rascal-checker")))
+			.map(handleExceptions(p -> URIUtil.createFileLocation(p)))
+			.collect(vf.listWriter());
+		final var bin = locParameter(parsedArgs, "bin");
+
+		// add the bin files of the pre-checks to the libs of each parallel build
+		parsedArgs.put("libs", listParameter(parsedArgs, "libs").append(bin));
+
+		// clears the thread and its memory when the work is done, might help left-over workers to run faster.
+		final ExecutorService exec = Executors.newCachedThreadPool();
+		
+		// spawn `parAmount` workers, one for each chunk
+		Stream<Future<Integer>> workers = IntStream.range(0, parAmount)
+			.mapToObj(i -> exec.submit(() -> {
+				var chunk = chunks.get(i);
+				// assign the chunk to the 'modules' parameter
+				parsedArgs.put("modules", chunk);				
+				// assign a private bin folder
+				parsedArgs.put("bin", bins.get(i));
+
+				err.println("Starting worker " + i + " on " + chunk.size() + " modules.");
+				// run the compiler
+				return main(mainModule, imports, parsedArgs, term, monitor, err, out);
+			}));
+		
+			// wait for all the workers and reduce their integer return values to a sum
+			var sum = workers
+				.map(handleExceptions(f -> f.get()))
+				.reduce(0, Integer::sum);
+
+			// copy the resulting binary files to the main bin folder
+			bins.stream()
+				.map(ISourceLocation.class::cast)
+				.forEach(handleConsumerExceptions(b -> reg.copy(b, bin, true, true)));
+
+			return sum;
+
+	}
+
+	private static boolean isTrueParameter(Map<String, IValue> args, String arg) {
+		return isTrue(args.get(arg));
+	}
+
+	private static IList listParameter(Map<String, IValue> args, String arg) {
+		return args.get(arg) == null ? vf.list() : (IList) args.get(arg);
+	}
+
+	private static IInteger intParameter(Map<String, IValue> args, String arg) {
+		return args.get(arg) == null ? vf.integer(0) : (IInteger) args.get(arg);
+	}
+
+	private static ISourceLocation locParameter(Map<String, IValue> args, String arg) {
+		return args.get(arg) == null ? URIUtil.unknownLocation() : (ISourceLocation) args.get(arg);
+	}
+
+	private static boolean isTrue(IValue x) {
+		return x != null ? ((IBool) x).getValue() : false;
+	}
+	
 	/**
-	 * @return the keyword parameters and their types of Checker::main
+	 * Warning: this method has to be kept up-to-date with the commandline parameters of Checkes::main.
+	 * @return all the keyword parameters and their types of Checker::main, 
+	 * plus these additional ones:
+	 * * `int parallelMax = 5`, 
+	 * * `bool parallel = false` and 
+	 * * `list[loc] parallelPreChecks = []`.
 	 */
 	private static Type reproduceCheckerMainParameterTypes() {
 		var tf = TypeFactory.getInstance();
 		var ll = tf.listType(tf.sourceLocationType());
-		var l = tf.sourceLocationType();
 		var b = tf.boolType();
 		var i = tf.integerType();
 
@@ -98,7 +178,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 			b, "verbose",
 			b, "logWrittenFiles",
 			b, "warnUnused",
-			b, "warnUnusedFormals"
+			b, "warnUnusedFormals",
 			b, "warnUnusedVariables",
 			b, "warnUnusedPatternFormals",
 			b, "infoModuleChecked",
@@ -109,7 +189,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 			ll, "parallelPreChecks");
 	}
 
-    private int parallelAmount() {
+    private static int parallelAmount(int parallelMax) {
 	    // check available CPUs
 		long result = Runtime.getRuntime().availableProcessors();
 		if (result < 2) {
@@ -123,158 +203,28 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return (int) Math.min(parallelMax, result);
 	}
 
-	private int runChecker(boolean verbose, Map<String, IValue> params)
-			throws IOException, URISyntaxException, Exception {
-	    if (!parallel || todoList.size() <= 10 || parallelAmount() <= 1) {
-	    	return runCheckerSingleThreaded(verbose, todoList, srcLocs, libLocs, binLoc, generatedSourcesLoc);
-		}
-		else {
-			return runCheckerMultithreaded(verbose, todoList, prechecks, srcLocs, libLocs, binLoc, generatedSourcesLoc);
-		}
-	}
-
-    private void runMain(boolean verbose, List<Path> todoList, List<Path> srcLocs, List<Path> libLocs, Path binLoc, Path generatedSources) {
-
-    }
-
-	private int runCheckerMultithreaded(boolean verbose, List<Path> todoList, List<Path> prechecks, List<Path> srcs, List<Path> libs, Path bin, Path generatedSourcesLoc) throws Exception {
-		todoList.removeAll(prechecks);
-		List<List<Path>> chunks = splitTodoList(todoList);
-		chunks.add(0, prechecks);
-		List<Path> tmpBins = chunks.stream().map(handleExceptions(l -> Files.createTempDirectory("rascal-checker"))).collect(Collectors.toList());
-		List<Path> tmpGeneratedSources = chunks.stream().map(handleExceptions(l -> Files.createTempDirectory("rascal-sources"))).collect(Collectors.toList());
-		int result = 0;
-
-		Map<String,String> extraParameters = Map.of("modules", todoList.stream().map(Object::toString).collect(Collectors.joining(File.pathSeparator)));
-
-		try {
-			List<Process> processes = new LinkedList<>();
-			Process prechecker = runMain(verbose, chunks.get(0), srcs, libs, tmpGeneratedSources.get(0), tmpBins.get(0), extraParameters, true);
-
-			result += prechecker.waitFor(); // block until the process is finished
-
-			// add the result of this pre-build to the libs of the parallel processors to reuse .tpl files
-			libs.add(tmpBins.get(0));
-
-			// starts the processes asynchronously
-			for (int i = 1; i < chunks.size(); i++) {
-				processes.add(runMain(verbose, chunks.get(i), srcs, libs, tmpGeneratedSources.get(i), tmpBins.get(i), extraParameters, i <= 1));
-			}
-
-			// wait until _all_ processes have exited and print their output in big chunks in order of process creation
-			for (int i = 0; i < processes.size(); i++) {
-				if (i <= 1) {
-					// the first process has inherited our IO
-					result += processes.get(i).waitFor();
-				} else {
-					// the other IO we read in asynchronously
-					result += readStandardOutputAndWait(processes.get(i));
-				}
-			}
-
-			// merge the output tpl folders, no matter how many errors have been detected
-			mergeOutputFolders(bin, tmpBins);
-
-			// we also merge the generated sources (not used at the moment)
-			mergeOutputFolders(generatedSourcesLoc, tmpGeneratedSources);
-
-			if (result > 0) {
-				throw new RuntimeException("Checker found errors");
-			}
-
-			return result;
-		}
-		catch (IOException e) {
-			throw new RuntimeException("Unable to prepare temporary directories for the checker.");
-		}
-		catch (InterruptedException e) {
-		    throw new RuntimeException("Checker was interrupted");
-		}
-	}
-
-	private int readStandardOutputAndWait(Process p) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-    		String line;
-    		while ((line = reader.readLine()) != null) {
-      			System.out.println(line);
-    		}
-
-			return p.waitFor();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private int runCheckerSingleThreaded(boolean verbose, List<Path> todoList, List<Path> srcLocs, List<Path> libLocs, Path binLoc, Path generated) throws URISyntaxException, IOException {
-		out.println("Running single checker process");
-		try {
-            main("lang::rascalcore::check::Checker", new String[] {"org/rascalmpl/compiler", "org/rascalmpl/typepal"}, args);
-			return runMain(verbose, todoList, srcLocs, libLocs, generated, binLoc, extraParameters, true).waitFor();
-		} catch (InterruptedException e) {
-			out.println("Checker was interrupted!");
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void mergeOutputFolders(Path bin, List<Path> binFolders) throws IOException {
-        String job = "Copying files from to "+ bin;           
-
-        try {
-            monitor.jobStart(job);
-
-	    	for (Path tmp : binFolders) {        
-			    mergeOutputFolders(bin, tmp);
-            }
-        }
-        finally {
-            monitor.jobEnd(job, true);
-        }
-	}
-
-	private static void mergeOutputFolders(Path dst, Path src) throws IOException {
-		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.createDirectories(dst.resolve(src.relativize(dir).toString()));
-                return FileVisitResult.CONTINUE;
-            }
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Files.delete(dir);
-				return FileVisitResult.CONTINUE;
-			}
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.move(file, dst.resolve(src.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-    }
-
 	/**
 	 * Divide number of modules evenly over available cores.
 	 * TodoList is sorted to keep modules close that are in the same folder.
 	 */
-	private List<List<Path>> splitTodoList(List<Path> todoList) {
-		todoList.sort(Path::compareTo); // improves cohesion of a chunk
-		int chunkSize = todoList.size() / parallelAmount();
-		List<List<Path>> result = new ArrayList<>();
+	private static List<IList> splitTodoList(int parAmount, List<ISourceLocation> todoList) {
+		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
+		int chunkSize = todoList.size() / parAmount;
+		List<IList> result = new ArrayList<>();
 
 		for (int from = 0; from <= todoList.size(); from += chunkSize) {
-			result.add(Collections.unmodifiableList(todoList.subList(from, Math.min(from + chunkSize, todoList.size()))));
+			result.add(toIList(todoList.subList(from, Math.min(from + chunkSize, todoList.size()))));
 		}
 
 		return result;
+	}
+
+	private static <T extends IValue> IList toIList(Collection<T> coll) {
+		return toList(coll.stream());
+	}
+
+	private static <T extends IValue> IList toList(Stream<T> stream) {
+		return stream.collect(vf.listWriter());
 	}
 
     /**
@@ -285,14 +235,36 @@ public class RascalCompile extends AbstractCommandlineTool {
     	R apply(T t) throws E;
 	}
 
+	/**
+     * See handleExceptions method
+     */
+    @FunctionalInterface
+	private interface ConsumerWithException<T, E extends Exception> {
+    	void apply(T t) throws E;
+	}
+
     /**
      * Utility function for handling exceptions while streaming. Any checked exception is caught
      * and rethrown as a RuntimeException with the original exception as the cause.
      */
-    private <T, R, E extends Exception> Function<T, R> handleExceptions(FunctionWithException<T, R, E> fe) {
+    private static <T, R, E extends Exception> Function<T, R> handleExceptions(FunctionWithException<T, R, E> fe) {
         return arg -> {
             try {
                 return fe.apply(arg);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+		};
+	}
+
+	/**
+     * Utility function for handling exceptions while streaming. Any checked exception is caught
+     * and rethrown as a RuntimeException with the original exception as the cause.
+     */
+    private static <T, E extends Exception> Consumer<T> handleConsumerExceptions(ConsumerWithException<T, E> fe) {
+        return arg -> {
+            try {
+                fe.apply(arg);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
