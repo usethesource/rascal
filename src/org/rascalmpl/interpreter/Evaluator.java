@@ -613,6 +613,57 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
+    /**
+     * This function processes commandline parameters as if already parsed to a Map<String,IValue>. 
+     */
+    public IValue main(IRascalMonitor monitor, String module, String function, Map<String,IValue> args) {
+        IRascalMonitor old = setMonitor(monitor);
+        Environment oldEnv = getCurrentEnvt();
+
+        try {
+            ModuleEnvironment modEnv = getHeap().getModule(module);
+            setCurrentEnvt(modEnv);
+
+            Name name = Names.toName(function, modEnv.getLocation());
+
+            Result<IValue> func = getCurrentEnvt().getVariable(name);
+
+            if (func instanceof OverloadedFunction) {
+                OverloadedFunction overloaded = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+                func = overloaded.getFunctions().get(0); 
+            }
+
+            if (func == null) {
+                throw new UndeclaredVariable(function, name);
+            }
+
+            if (!(func instanceof AbstractFunction)) {
+                throw new UnsupportedOperationException("main should be function");
+            }
+
+            AbstractFunction main = (AbstractFunction) func;
+
+            if (main.hasKeywordArguments() && main.getArity() == 0) {
+                if (main.getType().getFieldTypes().getArity() > 0) {
+                    throw new CommandlineError("main function should only have keyword parameters.", main.getType().getKeywordParameterTypes(), module);
+                }
+
+                return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+            }
+            else {
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
+            }
+        }
+        catch (MatchFailed e) {
+            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            return null;
+        }
+        finally {
+            setMonitor(old);
+            setCurrentEnvt(oldEnv);
+        }
+    }
+
     @Override
     public IValue call(String name, String module, Map<String, IValue> kwArgs, IValue... args) {
         IRascalMonitor old = setMonitor(monitor);
