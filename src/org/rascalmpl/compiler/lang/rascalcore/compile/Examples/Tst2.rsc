@@ -27,12 +27,9 @@ POSSIBILITY OF SUCH DAMAGE.
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
 
-layout Layout = [\ \r\n]+ !>> [\ \r\n];
-start syntax Expression = (Identifier i| BuiltIn b) function;
-lexical Identifier = [a-z A-Z 0-9]+ !>> [a-z A-Z 0-9] \ Keywords;
-lexical BuiltIn = "hoi";
-keyword Keywords = "hoi";
+import lang::rascalcore::check::TestConfigs;
+import lang::rascalcore::check::Checker;
 
-void main() { // based on: test bool prodFieldProjectionOnAnAlternative()
-    T = (Expression) `hoi`.function;  //<=== Undeclared field: function for Tree?????
+value main(){
+    return checkModules(["lang::rascalcore::compile::Examples::Tst6"], getAllSrcREPOCompilerConfig());
 }
