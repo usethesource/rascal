@@ -1,11 +1,13 @@
 package org.rascalmpl.shell;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,17 +213,17 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return (int) Math.min(parallelMax, result);
 	}
 
-	/**
-	 * Divide number of modules evenly over available cores.
-	 * TodoList is sorted to keep modules close that are in the same folder.
-	 */
-	private static List<IList> splitTodoList(int parAmount, List<ISourceLocation> todoList) {
+	private List<IList> splitTodoList(int procs, List<ISourceLocation> todoList) {
 		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
-		int chunkSize = todoList.size() / parAmount;
-		List<IList> result = new ArrayList<>();
+		int chunkSize = todoList.size() / procs;
+		int remainder = todoList.size() % procs;
+		List<IList> result = new ArrayList<>((todoList.size() / chunkSize) + 1);
 
-		for (int from = 0; from <= todoList.size(); from += chunkSize) {
-			result.add(toIList(todoList.subList(from, Math.min(from + chunkSize, todoList.size()))));
+		// Divide the work evenly. The remainder elements are distributed
+		// one-by-one over the prefix of the result list.
+		for (int from = 0; from < todoList.size(); from += chunkSize + ((remainder-- > 0 ? 1 : 0))) {
+			int to = from + chunkSize + ((remainder > 0) ? 1 : 0);
+			result.add(toIList(todoList.subList(from, to)));
 		}
 
 		return result;
