@@ -3,14 +3,12 @@ package org.rascalmpl.shell;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.Map;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;

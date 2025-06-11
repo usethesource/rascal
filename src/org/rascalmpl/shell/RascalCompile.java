@@ -3,11 +3,10 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +15,6 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jline.terminal.Terminal;
@@ -44,28 +42,31 @@ public class RascalCompile extends AbstractCommandlineTool {
 	private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
 
-    public static void main(String[] args) throws URISyntaxException, Exception {    
+    public static void main(String[] args) throws IOException {    
         RascalShell.setupJavaProcessForREPL();
-        
         var term = RascalShell.connectToTerminal();
-        var monitor = IRascalMonitor.buildConsoleMonitor(term);
-        var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
-        var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
-           
-        var parser = new CommandlineParser(out);
-		var kwParams = reproduceCheckerMainParameterTypes();
-        
-        Map<String,IValue> parsedArgs = parser.parseKeywordCommandLineArgs("RascalCompile", args, kwParams);
-
-		int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
-		IList modules = listParameter(parsedArgs, "modules");
-		
+		var monitor = IRascalMonitor.buildConsoleMonitor(term);
+		var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
+		var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
+			
 		try {
-			if (isTrueParameter(parsedArgs, "parallel") || modules.size() <= 10 || parAmount <= 1) {
-				System.exit(main(mainModule, imports , args, term, monitor, err, out));
+			var parser = new CommandlineParser(out);
+			var kwParams = reproduceCheckerMainParameterTypes();
+			
+			Map<String,IValue> parsedArgs = parser.parseKeywordCommandLineArgs("RascalCompile", args, kwParams);
+
+			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
+			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
+			IList modules = listParameter(parsedArgs, "modules");
+			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
+			removeParallelismArguments(parsedArgs);
+
+		
+			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
+				System.exit(main(mainModule, imports, parsedArgs, term, monitor, err, out));
 			}
 			else {
-				System.exit(parallelMain(parsedArgs, parAmount, mainModule, imports , args, term, monitor, err, out));
+				System.exit(parallelMain(parsedArgs, preChecks, parAmount, mainModule, imports , args, term, monitor, err, out));
 			}
 		}
 		catch (Throwable e) {
@@ -77,8 +78,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
     }
 
-	private static int parallelMain(Map<String, IValue> parsedArgs, int parAmount, String mainModule, String[] imports, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
-		var preChecks = listParameter(parsedArgs, "parallelPreChecks");
+	private static void removeParallelismArguments(Map<String, IValue> parsedArgs) {
+		parsedArgs.remove("parallel");
+		parsedArgs.remove("parallelMax");
+		parsedArgs.remove("parallelPreChecks");
+	}
+
+	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
 		IList modules = (IList) parsedArgs.get("modules");
 
 		if (modules.isEmpty()) {
@@ -100,7 +106,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 			.map(handleExceptions(l -> Files.createTempDirectory("rascal-checker")))
 			.map(handleExceptions(p -> URIUtil.createFileLocation(p)))
 			.collect(vf.listWriter());
-		final var bin = locParameter(parsedArgs, "bin");
+		final var bin = (ISourceLocation) parsedArgs.get("pcfg").asWithKeywordParameters().getParameter("bin");
 
 		// add the bin files of the pre-checks to the libs of each parallel build
 		parsedArgs.put("libs", listParameter(parsedArgs, "libs").append(bin));
@@ -108,31 +114,33 @@ public class RascalCompile extends AbstractCommandlineTool {
 		// clears the thread and its memory when the work is done, might help left-over workers to run faster.
 		final ExecutorService exec = Executors.newCachedThreadPool();
 		
-		// spawn `parAmount` workers, one for each chunk
-		Stream<Future<Integer>> workers = IntStream.range(0, parAmount)
-			.mapToObj(i -> exec.submit(() -> {
-				var chunk = chunks.get(i);
-				// assign the chunk to the 'modules' parameter
-				parsedArgs.put("modules", chunk);				
-				// assign a private bin folder
-				parsedArgs.put("bin", bins.get(i));
+		// eagerly spawn `parAmount` workers, one for each chunk
+		List<Future<Integer>> workers = new ArrayList<>(parAmount);
+		for (int i = 0; i < parAmount; i++) {
+			final int index = i;
+			final var chunk = chunks.get(index);
+			final var chunkBin = bins.get(index);
+			final Map<String,IValue> chunkArgs = new HashMap<>(parsedArgs);
+			chunkArgs.put("modules", chunk);				
+			chunkArgs.put("bin", chunkBin);
 
-				err.println("Starting worker " + i + " on " + chunk.size() + " modules.");
-				// run the compiler
-				return main(mainModule, imports, parsedArgs, term, monitor, err, out);
+			workers.add(exec.submit(() -> {
+				out.println("Starting worker " + index + " on " + chunk.size() + " modules.");
+				return main(mainModule, imports, chunkArgs, term, monitor, err, out);
 			}));
+		}
 		
-			// wait for all the workers and reduce their integer return values to a sum
-			var sum = workers
-				.map(handleExceptions(f -> f.get()))
-				.reduce(0, Integer::sum);
+		// wait for all the workers and reduce their integer return values to a sum
+		var sum = workers.stream()
+			.map(handleExceptions(f -> f.get()))
+			.reduce(0, Integer::sum);
 
-			// copy the resulting binary files to the main bin folder
-			bins.stream()
-				.map(ISourceLocation.class::cast)
-				.forEach(handleConsumerExceptions(b -> reg.copy(b, bin, true, true)));
+		// copy the resulting binary files to the main bin folder
+		bins.stream()
+			.map(ISourceLocation.class::cast)
+			.forEach(handleConsumerExceptions(b -> reg.copy(b, bin, true, true)));
 
-			return sum;
+		return sum;
 
 	}
 
