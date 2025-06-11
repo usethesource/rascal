@@ -70,7 +70,7 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
        c.fact(current, aset(avoid()));
     }
     c.push(patternContainer, "set");
-    collect(elements0, c);
+        collect(elements0, c);
     c.pop(patternContainer);
 }
 
