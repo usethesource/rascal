@@ -213,7 +213,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return (int) Math.min(parallelMax, result);
 	}
 
-	private List<IList> splitTodoList(int procs, List<ISourceLocation> todoList) {
+	private static List<IList> splitTodoList(int procs, List<ISourceLocation> todoList) {
 		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
 		int chunkSize = todoList.size() / procs;
 		int remainder = todoList.size() % procs;
