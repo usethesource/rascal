@@ -520,6 +520,27 @@ public class PathConfig {
                 libs.append(URIUtil.getChildLocation(manifestRoot, "target/classes"));
             }
         }
+
+        // We add rascal-lsp to the PathConfig if it is present on the classpath
+        // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
+        try {
+            var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
+
+            var reg = URIResolverRegistry.getInstance();
+            // the interpreter must find the Rascal sources of util::LanguageServer etc.
+            if (URIUtil.getLocationName(lsp).equals("classes")
+                && URIUtil.getLocationName(URIUtil.getParentLocation(lsp)).equals("target")) {
+                    var lspLocation = JarURIResolver.jarify(URIUtil.getParentLocation(URIUtil.getParentLocation(lsp)));
+                    addLibraryToSourcePath(reg, srcs, messages, lspLocation);
+            } else {
+                addLibraryToSourcePath(reg, srcs, messages, JarURIResolver.jarify(lsp));
+            }
+            // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
+            addLibraryToLibPath(libs, mode, lsp);
+        }
+        catch (IOException e) {
+            // This is expected when rascal-lsp is not on the classpath
+        }
     }
 
     private static void addArtifactToPathConfig(Artifact art, ISourceLocation manifestRoot, RascalConfigMode mode, IListWriter srcs,
@@ -566,16 +587,8 @@ public class PathConfig {
             }
             else {
                 // just a pre-installed dependency in the local maven repository
-                libs.append(dep); // for classloading purposes
-                if (mode == RascalConfigMode.COMPILER) {
-                    // find tpls inside of the jar
-                    var jarifiedDep = JarURIResolver.jarify(dep);
-                    if (jarifiedDep != dep) {
-                        libs.append(jarifiedDep);
-                    }
-                }
-                else {
-                    assert mode == RascalConfigMode.INTERPRETER: "there should be only 2 modes";
+                addLibraryToLibPath(libs, mode, dep);
+                if (mode == RascalConfigMode.INTERPRETER) {
                     addLibraryToSourcePath(reg, srcs, messages, dep);
                 }
             }
@@ -816,6 +829,19 @@ public class PathConfig {
         if (!foundSrc) {
             // if we could not find source roots, we default to the jar root
             srcsWriter.append(jar);
+        }
+    }
+
+    private static void addLibraryToLibPath(IListWriter libsWriter, RascalConfigMode mode, ISourceLocation jar) {
+        libsWriter.append(jar); // for classloading purposes
+        if (mode == RascalConfigMode.COMPILER) {
+            // find tpls inside of the jar
+            var jarifiedDep = JarURIResolver.jarify(jar);
+            if (jarifiedDep != jar) {
+                libsWriter.append(jarifiedDep);
+            }
+        } else {
+            assert mode == RascalConfigMode.INTERPRETER: "there should be only 2 modes";
         }
     }
 
