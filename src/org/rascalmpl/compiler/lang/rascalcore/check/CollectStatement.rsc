@@ -1034,6 +1034,11 @@ private AType computeDefaultAssignableType(Statement current, AType receiverType
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
+private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
+    c.report(error(current, "Constructor assignable is not supported by the compiler"));
+    collect(name, arguments, c);    
+}
+
 private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 
     // Note we will use a list `taus` of type variables that is accessible in `makeDef` and `checkTupleElemAssignment` in order to make
