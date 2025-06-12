@@ -650,7 +650,7 @@ public class PathConfig {
      */
     public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
         manifestRoot = safeResolve(manifestRoot);
-        // once we have proper support for poject locs we should do this instead:
+        // once we have proper support for project locs we should do this instead:
         //manifestRoot = upgradeToProjectScheme(manifestRoot, projectName);
         RascalManifest manifest = new RascalManifest();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
