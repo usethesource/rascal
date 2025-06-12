@@ -661,7 +661,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
+            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, RascalManifest.META_INF_RASCAL_MF)));
         }
 
         ISourceLocation target;
