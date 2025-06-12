@@ -13,7 +13,6 @@
  **/
 package org.rascalmpl.library.util;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -205,10 +204,6 @@ public class ParseErrorRecovery {
         IListWriter errors = rascalValues.listWriter();
         collectErrors((ITree) tree, errors, new HashSet<>());
         return errors.done();
-    }
-
-    public boolean hasErrors(IConstructor tree) {
-        return !findAllParseErrors(tree).isEmpty();
     }
 
     private void collectErrors(ITree tree, IListWriter errors, Set<IConstructor> processedTrees) {
@@ -527,4 +522,137 @@ public class ParseErrorRecovery {
     public void checkForRegularAmbiguities(IConstructor parseForest) {
         disambiguate(parseForest, false, false, new HashMap<>());
     }
+
+    public IConstructor pruneAmbiguities(IConstructor tree, IInteger maxDepth) {
+        return pruneAmbiguities((ITree) tree, maxDepth.intValue(), new IdentityHashMap<>());
+    }
+
+    private ITree pruneAmbiguities(ITree tree, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        ITree result = processedNodes.get(tree);
+        if (result != null) {
+            return result;
+        }
+
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl) {
+            result = pruneApplAmbiguities(tree, pruneDepth, processedNodes);
+        }
+        else if (type == RascalValueFactory.Tree_Amb) {
+            result = pruneAmbAmbiguities(tree, pruneDepth, processedNodes);
+        }
+        else {
+            result = tree;
+        }
+
+        processedNodes.put(tree, result);
+
+        return result;
+    }
+
+    private ITree pruneApplAmbiguities(ITree appl, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        IList args = TreeAdapter.getArgs(appl);
+        IListWriter newArgs = null;
+        int argCount = args.size();
+        for (int i = 0; i < argCount; i++) {
+            ITree arg = (ITree) args.get(i);
+            ITree newArg = pruneAmbiguities(arg, pruneDepth, processedNodes);
+            if (arg != newArg && newArgs == null) {
+                newArgs = rascalValues.listWriter();
+                for (int j = 0; j < i; j++) {
+                    newArgs.append(args.get(j));
+                }
+            }
+
+            if (newArgs != null) {
+                newArgs.append(newArg);
+            }
+        }
+
+        if (newArgs == null) {
+            return appl;
+        }
+
+        return TreeAdapter.setArgs(appl, newArgs.done());
+    }
+
+    private ITree pruneAmbAmbiguities(ITree amb, int pruneDepth, Map<ITree, ITree> processedNodes) {
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        if (pruneDepth == 0) {
+            return pruneAmbiguities((ITree) alts.iterator().next(), 0, processedNodes);
+        }
+
+        ISetWriter newAlts = rascalValues.setWriter();
+
+        boolean anyChanges = false;
+        for (IValue alt : alts) {
+            ITree newAlt = pruneAmbiguities((ITree) alt, pruneDepth-1, processedNodes);
+            if (newAlt != alt) {
+                anyChanges = true;
+            }
+            newAlts.append(newAlt);
+        }
+
+        if (anyChanges) {
+            ITree newAmb = rascalValues.amb(newAlts.done());
+            if (amb.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
+                IValue loc = amb.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+                newAmb = (ITree) newAmb.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+            }
+            return newAmb;
+        }
+
+        return amb;
+    }
+
+    public IBool hasParseErrors(IConstructor tree) {
+        return rascalValues.bool(hasParseErrors((ITree) tree, new IdentityHashMap<>()));
+    }
+
+    private boolean hasParseErrors(ITree tree, Map<ITree, Boolean> processedTrees) {
+        Boolean result = processedTrees.get(tree);
+        if (result != null) {
+            return result;
+        }
+
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl) {
+            result = hasApplParseErrors(tree, processedTrees);
+        } else if (type == RascalValueFactory.Tree_Amb) {
+            result = hasAmbParseErrors(tree, processedTrees);
+        } else {
+            result = false;
+        }
+
+        processedTrees.put(tree, result);
+
+        return result;
+    }
+
+    private boolean hasApplParseErrors(ITree appl, Map<ITree, Boolean> processedTrees) {
+        if (ProductionAdapter.isError(appl.getProduction())) {
+            return true;
+        }
+
+        IList args = TreeAdapter.getArgs(appl);
+        for (int i=0; i<args.size(); i++) {
+            IValue arg = args.get(i);
+            if (hasParseErrors((ITree) arg, processedTrees)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasAmbParseErrors(ITree amb, Map<ITree, Boolean> processedTrees) {
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        for (IValue alt : alts) {
+            if (hasParseErrors((ITree) alt, processedTrees)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
+

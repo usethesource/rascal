@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
