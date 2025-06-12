@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC8-SNAPSHOT</version>
+    <version>0.41.0-RC50-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -28,12 +28,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lucence-version>7.5.0</lucence-version>
         <maven-version>3.9.9</maven-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC25</rascal-maven.version>
+        <jline.version>3.27.0</jline.version>
     </properties>
 
     <licenses>
@@ -61,7 +61,6 @@
                 <directory>.</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>plugin.xml</include>
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
@@ -132,66 +131,83 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
-                    <bin>${project.build.outputDirectory}</bin>
-                    <srcs>
-                        <src>${project.basedir}/src/org/rascalmpl/library</src>
-                    </srcs>
-                    <sourceLookup>|std:///|</sourceLookup>
-                    <funding>${project.basedir}/FUNDING</funding>
-                    <citation>${project.basedir}/CITATION.md</citation>
-                    <issues>|https://github.com/usethesource/rascal/issues|</issues>
-                    <srcIgnores>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
-                    </srcIgnores>
-                    <enableStandardLibrary>false</enableStandardLibrary>
+                    <bootstrapRascalVersion>0.41.0-RC41</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
-                </configuration>
+                    </configuration> 
                 <executions>
                     <execution>
-                        <id>it-compile</id>
+                        <id>default-compile</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <parallel>true</parallel>
+                            <parallelPreChecks>
+                               <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
+                            </parallelPreChecks>
+                            <errorsAsWarnings>false</errorsAsWarnings> 
+                            <bin>${project.build.outputDirectory}</bin>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <libs>
+                            </libs>
+                            <ignores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                              <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                            </ignores>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>it-package</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution>
-                        <!-- commented out for bootstrapping purposes; 
-                            <execution>
-                        <id>default-cli</id>
+                        <id>default-resources</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>tutor</goal>
                         </goals>
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
-                            <enableStandardLibrary>false</enableStandardLibrary>
                             <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
+                            <funding>${project.basedir}/FUNDING</funding>
+                            <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
+                            <authors>${project.basedir}/AUTHORS.md</authors>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
+                            <version>${project.version}</version>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
                             <ignores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
                             </ignores>
                         </configuration>
-                        </execution> -->
+                    </execution>
+                    <execution>
+                        <id>default-package</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <sourceLookup>|std:///|</sourceLookup>
+                        </configuration>
+                    </execution> 
                 </executions>
             </plugin>
             <plugin>
@@ -216,7 +232,7 @@
                 <version>3.5.2</version>
                 <executions>
                     <execution>
-                        <id>test</id>
+                        <id>default-test</id>
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
@@ -225,16 +241,18 @@
                 </executions>
                 <configuration>
                     <argLine>
-                                -ea
-                                -Xmx${rascal.test.memory}G
-                                -Xss128m
-                                -Dfile.encoding=UTF-8
-                                ${argLine}
-                        </argLine>
+                        -ea
+                        -Xmx${rascal.test.memory}G
+                        -Dfile.encoding=UTF-8
+                        ${argLine}
+                    </argLine>
                     <includes>
                         <include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
+                        <include>**/org/rascalmpl/test/repl/*Test.java</include>
+                        <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
+                        <include>**/org/rascalmpl/uri/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
@@ -307,6 +325,36 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>plugin.xml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.rascalmpl:typepal</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*</exclude>
+                                        <exclude>examples/**</exclude>
+                                        <exclude>src/examples/**</exclude>
+                                        <exclude>src/analysis/typepal/**</exclude>
+                                        <exclude>docs/Packages/Typepal/**</exclude>
+                                        <exclude>docs/**</exclude>
+                                        <exclude>rascal/analysis/typepal/**</exclude>
+                                        <exclude>**/*.tpl</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>   
+                                    <pattern>analysis/typepal</pattern>
+                                    <shadedPattern>org/rascalmpl/typepal/analysis/typepal</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
@@ -331,29 +379,6 @@
                                     <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.fusesource.jansi</pattern>
-                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                    <excludes>
-                                        <exclude>org.fusesource.jansi.internal.*</exclude>
-                                    </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>jline</pattern>
-                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -418,11 +443,13 @@
     </build>
 
     <dependencies>
-        <!-- Repackaged Eclipse Dependencies -->
+        <!-- Bootstrap dependency on typepal -->
         <dependency>
             <groupId>org.rascalmpl</groupId>
-            <artifactId>rascal-p2-dependencies-repackaged</artifactId>
-            <version>0.6.0</version>
+            <artifactId>typepal</artifactId>
+            <version>0.15.1</version>
+           <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
+           <scope>compile</scope>
         </dependency>
 
         <!-- Regular POM Dependencies -->
@@ -434,17 +461,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.0-RC15</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-            <version>9.6</version>
+            <version>1.0.0-RC19</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -461,6 +478,11 @@
             <artifactId>zstd-jni</artifactId>
             <version>1.5.6-8</version>
         </dependency>
+        <dependency> <!-- needed by commons-compress for compressed+...://...xz -->
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
+            <version>1.10</version>
+        </dependency>
         <dependency> <!-- used for base32 encoding in IO and String, needed anyway for commons-compress -->
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -471,10 +493,35 @@
             <artifactId>gson</artifactId>
             <version>2.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.14.6</version>
+        <dependency> <!-- line reader/completion/history support -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- terminal API -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- interaction with native APIs for console features, after jdk22 we can switch to FFM -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-terminal-jni</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- styling api -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-style</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- command registyr and extra features -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-console</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>  <!-- raw ansi commands -->
+            <groupId>org.jline</groupId>
+            <artifactId>jansi-core</artifactId>
+            <version>${jline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -492,26 +539,6 @@
             <version>2.0.6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.nanohttpd</groupId>
             <artifactId>nanohttpd</artifactId>
             <version>2.3.1</version>
@@ -523,31 +550,28 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-embedder</artifactId>
+            <artifactId>maven-model</artifactId>
             <version>${maven-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.8.1</version>
-        </dependency>
-        <dependency> <!-- needed for maven-embedder-->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency> <!-- needed for maven-embedder-->
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-compat</artifactId>
+            <artifactId>maven-model-builder</artifactId>
             <version>${maven-version}</version>
+            <exclusions>
+                <exclusion> <!-- we won't be needing this, so let's keep the jar small -->
+                    <groupId>org.eclipse.sisu</groupId>
+                    <artifactId>org.eclipse.sisu.inject</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency> <!-- needed for maven-embedder-->
+        <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
+            <artifactId>maven-settings</artifactId>
             <version>${maven-version}</version>
         </dependency>
     </dependencies>
     <profiles>
+        <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
         <profile>
             <id>unshaded</id>
             <build>
@@ -563,44 +587,7 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <manifestEntries>
-                                                <Name>rascal</Name>
-                                                <Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
-                                                <Specification-Version>${project.version}</Specification-Version>
-                                                <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
-                                            </manifestEntries>
-                                        </transformer>
-                                    </transformers>
-                                    <relocations>
-                                        <relocation>
-                                            <pattern>org.fusesource.jansi</pattern>
-                                            <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                            <excludes>
-                                                <exclude>org.fusesource.jansi.internal.*</exclude>
-                                            </excludes>
-                                        </relocation>
-                                        <relocation>
-                                            <pattern>jline</pattern>
-                                            <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                        </relocation>
-                                    </relocations>
-                                    <filters>
-                                        <filter>
-                                            <artifact>*:*</artifact>
-                                            <excludes>
-                                                <exclude>META-INF/*.SF</exclude>
-                                                <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
-                                            </excludes>
-                                        </filter>
-                                    </filters>
-                                    <artifactSet>
-                                        <includes>
-                                            <include>jline:*</include>
-                                        </includes>
-                                    </artifactSet>
+                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>
@@ -614,8 +601,34 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+            </profile>
+        -->
         <profile>
+            <id>compiler-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution><id>default-test</id><phase>none</phase></execution> <!-- disable regular test run -->
+                            <execution>
+                                <id>test-compiler-tests</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includes>
+                                <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
+                                <include>**/org/rascalmpl/compiler/**/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

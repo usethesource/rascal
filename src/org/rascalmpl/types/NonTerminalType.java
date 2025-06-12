@@ -18,8 +18,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.exceptions.ImplementationError;
@@ -199,10 +199,9 @@ public class NonTerminalType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            // TODO: the interpreter breaks on random non-terminals still, so we return a string instead
+        public Type randomInstance(BiFunction<TypeStore, RandomTypesConfig, Type> next, TypeStore store, RandomTypesConfig rnd) {
+            // because we don't have random generator yet for ITree instances, we should avoid generating random non-terminal instances
             return TypeFactory.getInstance().stringType();
-//            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
         }
     }
     
@@ -526,7 +525,7 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	    int maxDepth, int maxBreadth) {
 	    // TODO this should be made more carefully (use the grammar to generate a true random instance of the 
 	    // given non-terminal

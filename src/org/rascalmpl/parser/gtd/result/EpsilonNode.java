@@ -43,4 +43,9 @@ public class EpsilonNode extends AbstractNode{
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "EpsilonNode[]";
+	}
+
 }

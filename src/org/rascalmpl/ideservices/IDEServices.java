@@ -15,6 +15,7 @@ package org.rascalmpl.ideservices;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -71,6 +72,16 @@ public interface IDEServices extends IRascalMonitor {
    */
   default void unregisterLanguage(IConstructor language) {
     throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
+  }
+
+  /**
+   * Get access to the current terminal.  <br>
+   * used for features such as clearing the terminal, and starting a nested REPL. <br>
+   * Can return null if there is no active terminal.
+   * @return a terminal if there is one, null otherwise.
+   */
+  default Terminal activeTerminal() {
+    return null;
   }
 
   /**
