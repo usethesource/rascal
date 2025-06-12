@@ -285,9 +285,9 @@ ModuleStatus rascalTModelForLocs(
                 map[str,set[str]] m_imports = ();
                 map[str,set[str]] m_extends = ();
                 for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
-                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
+                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m, MStatus::ignored() notin ms.status[imp]};
                     m_imports[m] =  imports;
-                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
+                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m, MStatus::ignored() notin ms.status[ext] };
                     m_extends[m] = extends;
                     invertedExtends = ms.strPaths<2,0>;
                     if(compilerConfig.warnUnused){
@@ -449,9 +449,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             if(ignoreCompiler(tagsMap)) {
                     ms.messages[nm] ? {} += { Message::info("Ignoring module <nm>", pt@\loc) };
                     ms.status[nm] += MStatus::ignored();
-            } else {
-                namedTrees[nm] = pt;
             }
+            namedTrees[nm] = pt;
         }
         //else {
         //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
