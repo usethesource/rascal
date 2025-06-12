@@ -38,7 +38,7 @@ lexical Concrete
 lexical ConcretePart
   = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="string" hole : ConcreteHole hole
+  | @category="variable" hole : ConcreteHole hole
   | @category="string" lt: "\\\<"
   | @category="string" gt: "\\\>"
   | @category="string" bq: "\\`"
@@ -210,7 +210,7 @@ syntax Expression
 	| \list           : "[" {Expression ","}* elements0 "]"
 	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
-	| \tuple          : "\<" {Expression ","}* elements0 "\>" 
+	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
@@ -866,7 +866,7 @@ syntax Pattern
 	| splicePlus          : "+" Pattern argument 
 	| negative            : "-" Pattern argument
 	| literal             : Literal literal 
-	| \tuple               : "\<" {Pattern ","}* elements0 "\>" 
+	| \tuple               : "\<" {Pattern ","}+ elements "\>" 
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 

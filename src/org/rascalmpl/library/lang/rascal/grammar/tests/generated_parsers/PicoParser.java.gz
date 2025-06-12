@@ -187,8 +187,8 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   private static final IConstructor cHJvZChsaXQoIiUiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDM3LDM3KV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"%\"),[\\char-class([range(37,37)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsYWJlbCgic3RyQ29uIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgic3RyaW5nIixsZXgoIlN0cmluZyIpKV0se30p = (IConstructor) _read("prod(label(\"strCon\",sort(\"Expression\")),[label(\"string\",lex(\"String\"))],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpLHJhbmdlKDk3LDEyMildKSksW1xjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSksbGl0KCJcXGl0ZXItc3RhcihcXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KSxyYW5nZSg5NywxMjIpXSkpIiksbGl0KCI6IiksaXRlcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpXSkpLFxjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSldLHt0YWcoImhvbGVUeXBlIihcaXRlci1zdGFyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NykscmFuZ2UoOTcsMTIyKV0pKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",\\char-class([range(48,57),range(97,122)])),[\\char-class([range(0,0)]),lit(\"\\\\iter-star(\\\\char-class([range(48,57),range(97,122)]))\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(\\iter-star(\\char-class([range(48,57),range(97,122)]))))})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00 = (IConstructor) _read("prod(label(\"add\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"+\"),layouts(\"Layout\"),label(\"rhs\",sort(\"Expression\"))],{assoc(left())})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoImlmIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMDUsMTA1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDIsMTAyKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"if\"),[\\char-class([range(105,105)]),\\char-class([range(102,102)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHt9KQ0000 = (IConstructor) _read("prod(label(\"add\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"Layout\"),lit(\"+\"),layouts(\"Layout\"),label(\"rhs\",sort(\"Expression\"))],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoIm9kIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDAsMTAwKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"od\"),[\\char-class([range(111,111)]),\\char-class([range(100,100)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUeXBlIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlR5cGVcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlR5cGUiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"Type\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"Type\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"Type\")))})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsZXgoIklkIiksW1xjaGFyLWNsYXNzKFtyYW5nZSg5NywxMjIpXSksY29uZGl0aW9uYWwoXGl0ZXItc3RhcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpLHJhbmdlKDk3LDEyMildKSkse1xub3QtZm9sbG93KFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NykscmFuZ2UoOTcsMTIyKV0pKX0pXSx7fSk00 = (IConstructor) _read("prod(lex(\"Id\"),[\\char-class([range(97,122)]),conditional(\\iter-star(\\char-class([range(48,57),range(97,122)])),{\\not-follow(\\char-class([range(48,57),range(97,122)]))})],{})", RascalValueFactory.Production);
@@ -222,7 +222,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class start__Program {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -245,7 +245,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Declarations {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -282,7 +282,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class String {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -317,7 +317,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Expression {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -348,7 +348,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
       tmp[0] = new NonTerminalStackNode<IConstructor>(151, 0, "String", null, null);
       builder.addAlternative(PicoParser.cHJvZChsYWJlbCgic3RyQ29uIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgic3RyaW5nIixsZXgoIlN0cmluZyIpKV0se30p, tmp);
 	}
-    protected static final void _init_cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00(ExpectBuilder<IConstructor> builder) {
+    protected static final void _init_cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHt9KQ0000(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
       tmp[3] = new NonTerminalStackNode<IConstructor>(184, 3, "layouts_Layout", null, null);
@@ -356,7 +356,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
       tmp[4] = new NonTerminalStackNode<IConstructor>(185, 4, "Expression", null, null);
       tmp[2] = new LiteralStackNode<IConstructor>(183, 2, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null);
       tmp[0] = new NonTerminalStackNode<IConstructor>(180, 0, "Expression", null, null);
-      builder.addAlternative(PicoParser.cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00, tmp);
+      builder.addAlternative(PicoParser.cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHt9KQ0000, tmp);
 	}
     protected static final void _init_cHJvZChsYWJlbCgic3ViIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiLSIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
@@ -398,7 +398,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
       
         _init_cHJvZChsYWJlbCgic3RyQ29uIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgic3RyaW5nIixsZXgoIlN0cmluZyIpKV0se30p(builder);
       
-        _init_cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00(builder);
+        _init_cHJvZChsYWJlbCgiYWRkIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiKyIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHt9KQ0000(builder);
       
         _init_cHJvZChsYWJlbCgic3ViIixzb3J0KCJFeHByZXNzaW9uIikpLFtsYWJlbCgibGhzIixzb3J0KCJFeHByZXNzaW9uIikpLGxheW91dHMoIkxheW91dCIpLGxpdCgiLSIpLGxheW91dHMoIkxheW91dCIpLGxhYmVsKCJyaHMiLHNvcnQoIkV4cHJlc3Npb24iKSldLHthc3NvYyhsZWZ0KCkpfSk00(builder);
       
@@ -414,7 +414,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class layouts_$default$ {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -435,7 +435,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Type {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -476,7 +476,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Declaration {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -525,7 +525,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Id {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -559,7 +559,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class layouts_Layout {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -580,7 +580,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class WhitespaceAndComment {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -644,7 +644,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Statement {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -729,7 +729,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Natural {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -762,7 +762,7 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
   protected static class Program {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -797,7 +797,12 @@ public class PicoParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, IT
       
     }
   }
-	
+
+  private int nextFreeStackNodeId = 1123;
+  protected int getFreeStackNodeId() {
+    return nextFreeStackNodeId++;
+  }
+
   // Parse methods    
   
   public AbstractStackNode<IConstructor>[] start__Program() {

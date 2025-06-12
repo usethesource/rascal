@@ -20,6 +20,7 @@ import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -83,6 +84,16 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *                    the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
 	 *                    if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
 	 * 
+	 * `maxAmbDepth`: the maximum depth of ambiguities when the parse forest that is constructed. If the depth is exceeded, ambiguity alternatives are pruned randomly.
+	 * 
+	 * 'allowRecovery': if true then the parser will try to recover from parse errors and produce a parse tree. if false, the parser will throw an exception
+	 * 				     when it encounters a parse error. The parser will try to recover from parse errors by skipping tokens and trying to continue parsing.	
+	 * 
+	 * 'maxRecoveryAttempts': the maximum number of attempts to recover from a parse error. If the number of attempts is exceeded, the parser will produce a parse error.
+	 * 
+	 * 'maxRecoveryTokens': the maximum number of continuation tokens the error recovery will collect on each error recovery attempt. for some languages it might improve
+	 *                      error recovery when more tokens are collected but recovery performance will degrade.
+	 * 
 	 *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
 	 *                    interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 	 *  
@@ -94,7 +105,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *             to the removal of the current tree under an ambiguity cluster that is higher up the tree. The filter function
 	 *             is called on every parse tree node while it is being constructed after a succesful parse forest is produced.
 	 */
-	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, 
+		IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
 	    throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
 	}
 	
@@ -104,7 +116,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *  * &U parse(type[&U <: Tree], str input, loc origin);
 	 *  * &U parse(type[&U <: Tree], loc input, loc origin);
 	 */
-	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+		IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
     }
 
@@ -124,7 +137,7 @@ public interface IRascalValueFactory extends IValueFactory {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
 		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
 	}
 
@@ -133,7 +146,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	default IFunction loadParser(IValue reifiedType, ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+	default IFunction loadParser(IValue reifiedType, ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+			IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
 		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
 	}
 }

@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,13 +32,11 @@ import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TestEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -66,10 +65,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     
     private final ISourceLocation projectRoot;
 
+    private final static String JUNIT_TEST = "___junit_test___";
+
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
         System.err.println("Rascal JUnit uses Rascal version " + RascalManifest.getRascalVersionNumber());
         
-        this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
+        this.projectRoot = RascalJUnitTestRunner.inferProjectRootFromClass(clazz);
         System.err.println("Rascal JUnit Project root: " + projectRoot);
         
         int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
@@ -173,15 +174,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             assert results.isEmpty();
         }
         finally {
-            RascalJUnitTestRunner.getCommonMonitor().endAllJobs();
+            RascalJunitConsoleMonitor.getInstance().endAllJobs();
         }
     }
 
 
     public class ModuleTester extends Thread {
-        private GlobalEnvironment heap;
-        private ModuleEnvironment root;
-        
         private PrintWriter stderr;
         private PrintWriter stdout;
         private Evaluator evaluator;
@@ -275,7 +273,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             continue;
                         }
 
-                        ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
+                        ModuleEnvironment moduleEnv = evaluator.getHeap().getModule(module.replaceAll("\\\\",""));
                         if (!moduleEnv.getTests().isEmpty()) {
                             Description modDesc = Description.createSuiteDescription(module);
                             for (AbstractFunction f : moduleEnv.getTests()) {
@@ -297,17 +295,14 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void initializeEvaluator() {
-            heap = new GlobalEnvironment();
-            root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, RascalJUnitTestRunner.getCommonMonitor());
-            stdout = new PrintWriter(evaluator.getStdOut());
-            stderr = new PrintWriter(evaluator.getStdErr());
-
-            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+            if (projectRoot != null) {
+                evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            } else {
+                evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, true), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            }
+            stdout = evaluator.getOutPrinter();
+            stderr = evaluator.getErrorPrinter();
             evaluator.getConfiguration().setErrors(true);
-
-            RascalJUnitTestRunner.configureProjectEvaluator(evaluator, projectRoot);
         }
 
     }

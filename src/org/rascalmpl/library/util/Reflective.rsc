@@ -12,12 +12,13 @@
 @bootstrapParser
 module util::Reflective
 
-
+extend util::PathConfig;
 import IO;
 import List;
 import ParseTree;
 import String;
 import util::FileSystem;
+import Message;
 
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
@@ -41,16 +42,7 @@ data RascalConfigMode
     | interpreter()
     ;
 
-data PathConfig 
-    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
-  = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] ignores = [],              // List of locations to ignore from the source files
-               loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
-               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
-               list[loc] classloaders = [|system:///|]      // TODO: must generate the same defaults as in PathConfig
-              );
-
+@deprecated{not in use anymore}
 data RascalManifest
   = rascalManifest(
       str \Project-Name = "Project",
@@ -62,6 +54,7 @@ data RascalManifest
       list[str] \Required-Dependencies = []
     ); 
 
+@deprecated{not in use anymore}
 data JavaBundleManifest
   = javaManifest(
       str \Manifest-Version = "",
@@ -75,12 +68,31 @@ data JavaBundleManifest
       list[str] \Bundle-ClassPath = [],
       list[str] \Import-Package = [] 
     );
-          
+
+@synopsis{Makes the location of a jar file explicit, based on the project name}
+@description{
+The classpath of the current JVM is searched and jar files are searched that contain
+META-INF/MANIFEST.MF file that match the given `projectName`.
+}
+@benefits{
+* This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
+into testing ((PathConfig))s.
+* The classpath is not used implicitly in this way, but rather explicitly. This helps
+in making configuration issues tractable.
+* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+}
+@javaClass{org.rascalmpl.library.util.Reflective}
+java loc resolveProjectOnClasspath(str projectName);
+
+@synopsis{Makes the location of the currently running rascal jar explicit.}
+loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
+
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
 @synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
   META-INF/RASCAL.MF files.}
+@deprecated{Not in use anymore.}
 PathConfig applyManifests(PathConfig cfg) {
    mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
@@ -96,9 +108,6 @@ PathConfig applyManifests(PathConfig cfg) {
    cfg.srcs = [*expandSrcs(p) | p <- cfg.srcs];
    cfg.libs = [*expandlibs(p) | p <- cfg.libs];
    cfg.bin  = expandBin(cfg.bin);
-   
-   // TODO: here we add features for Require-Libs by searching in a repository of installed
-   // jars. This has to be resolved recursively.
    
    return cfg;
 }
@@ -182,20 +191,22 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     tplFile = endsWith(modulePath, "tpl");
     
     if(!( rscFile || tplFile )){
-        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories
     if(rscFile){
         for(loc dir <- pcfg.srcs){
-            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
+            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)){
                 moduleName = replaceFirst(modulePath, dir.path, "");
-                <moduleName, ext> = splitFileExtension(moduleName);
-                if(moduleName[0] == "/"){
-                    moduleName = moduleName[1..];
+                if(exists(dir + moduleName)){
+                    <moduleName, ext> = splitFileExtension(moduleName);
+                    if(moduleName[0] == "/"){
+                        moduleName = moduleName[1..];
+                    }
+                    moduleName = replaceAll(moduleName, "/", "::");
+                    return moduleName;
                 }
-                moduleName = replaceAll(moduleName, "/", "::");
-                return moduleName;
             }
         }
     }
@@ -410,10 +421,10 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
         throw "Folder <name> should have only lowercase characters, digits and dashes from [a-z0-9\\-]";
     }
     
-    mkDirectory(pomFile(folder).parent);
-    writeFile(pomFile(folder), pomXml(name, group, version));
-    mkDirectory(metafile(folder).parent);
-    writeFile(metafile(folder), rascalMF(name));
+    
+    newRascalPomFile(folder, name=name, group=group, version=version);
+    newRascalMfFile(folder, name=name);
+    
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
 }
@@ -434,8 +445,34 @@ private str rascalMF(str name)
   = "Manifest-Version: 0.0.1
     'Project-Name: <name>
     'Source: src/main/rascal
-    'Require-Libraries: 
+    '
     '";
+
+@synopsis{Create a new META-INF/RASCAL.MF file.}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a META-INF/RASCAL.MF file will be generated and written.
+
+The folder is created if it does not exist already.
+}
+void newRascalMfFile(loc folder, str name=folder.file) {
+    mkDirectory(metafile(folder).parent);
+    writeFile(metafile(folder), rascalMF(name));
+}
+
+@synopsis{Create a new pom.xml for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a pom.xml file will be generated and written.  
+
+The folder is created if it does not exist already.
+}
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    mkDirectory(folder);
+    writeFile(pomFile(folder), pomXml(name, group, version));
+} 
 
 private str pomXml(str name, str group, str version)  
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
