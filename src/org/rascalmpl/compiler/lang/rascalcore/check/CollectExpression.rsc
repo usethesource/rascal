@@ -619,13 +619,12 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
+                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
                             if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-
-                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                             continue next_fun;
                          catch NoBinding():
@@ -664,11 +663,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
-               // TODO; texp can get type value and then texp.deprecationMessage does not exist
-               if(texp.deprecationMessage?){
-                   s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+                res = checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               if(ft.deprecationMessage?){
+                   s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "": ": " + ft.deprecationMessage));
                }
-                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               return res;
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
                res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
