@@ -802,14 +802,12 @@ public class PathConfig {
 
         boolean foundSrc = false;
 
+        // For backward compatibility, first check the source roots in the manifest relative to the jar root
         for (String src : manifest.getSourceRoots(jar)) {
             ISourceLocation srcLib = URIUtil.getChildLocation(unpacked, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
                 foundSrc = true;
-            }
-            else {
-                messages.append(Messages.error(srcLib + " source folder does not exist.", URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF)));
             }
         }
 
