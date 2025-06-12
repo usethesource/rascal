@@ -37,6 +37,7 @@ import lang::rascalcore::check::ADTandGrammar;
 import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::BasicRascalConfig;
 
 import Location;
 import util::FileSystem;
@@ -55,45 +56,13 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 // Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    bool seenVAR = false;
-    bool seenNT  = false;
-    bool seenLEX = false;
-    bool seenLAY = false;
-    bool seenKEY = false;
-    bool seenALIAS = false;
-    bool seenFUNCTION = false;
-
-    for(def <- defs){
-        // Forbid:
-        // - overloading of variables/formals/pattern variables
-        // - overloading of incompatible syntax definitions
-        switch(defines[def].idRole){
-        case functionId():
-            { if(seenVAR) return false; seenFUNCTION = true; }
-        case variableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case moduleVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case formalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case keywordFormalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case patternVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case nonterminalId():
-            { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
-        case lexicalId():
-            { if(seenNT || seenLAY || seenKEY) {  return false; } seenLEX= true; }
-        case layoutId():
-            { if(seenNT || seenLEX || seenKEY) {  return false; } seenLAY = true; }
-        case keywordId():
-            { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
-        case aliasId():
-            { if(seenALIAS) return false; seenALIAS = true; }
-
-        }
+    <fstDef, restDefs> = takeFirstFrom(defs);
+    fstRole = defines[fstDef].idRole;
+    if(fstRole in idRoleOverloading){
+        fstMayOverload = idRoleOverloading[fstRole];
+        return all(rdef <- restDefs, defines[rdef].idRole in fstMayOverload);
     }
-    return true;
+    return false;
 }
 
 // Name resolution filters
