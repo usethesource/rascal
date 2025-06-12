@@ -67,22 +67,30 @@ public void defaultCompile(bool clean=false) {
 }
 
 int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-  loc license=|unknown:///|, 
-  loc citation = |unknown:///|, 
-  loc funding=|unknown:///|, 
-  loc releaseNotes=|unknown:///|,
-  bool errorsAsWarnings=false, 
-  bool warningsAsErrors=false, 
-  bool isPackageCourse=true, 
-  str packageName="noPackageName") {
+  loc license           =|unknown:///|, 
+  loc citation          = |unknown:///|, 
+  loc funding           = |unknown:///|, 
+  loc releaseNotes      = |unknown:///|,
+  loc authors           = |unknown:///|,
+  bool errorsAsWarnings = false, 
+  bool warningsAsErrors = false, 
+  bool isPackageCourse  = false, 
+  str groupId           = "org.rascalmpl",
+  str artifactId        = "rascal",
+  str version           = getRascalVersion(),
+  str packageName       = "<groupId>.<artifactId>") {
 
-  if (license?) pcfg.license = license;
-  if (citation?) pcfg.citation = citation;
-  if (funding?) pcfg.funding = funding;
-  if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
+  if (authors?)         pcfg.authors         = authors;
+  if (license?)         pcfg.license         = license;
+  if (citation?)        pcfg.citation        = citation;
+  if (funding?)         pcfg.funding         = funding;
+  if (releaseNotes?)    pcfg.releaseNotes    = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
+  if (isPackageCourse?) pcfg.packageName     = "<groupId>.<artifactId>";
 
-  if (packageName?) pcfg.packageName = packageName;
+  pcfg.packageArtifactId = artifactId;
+  pcfg.packageGroupId    = groupId;
+  pcfg.packageVersion    = version;
 
   messages = compile(pcfg);
   
@@ -115,8 +123,12 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   // this information, however, is not easy to obtain outside of the build
   // environment of the current project. Therefore we store it here and now.
 
-  if (!pcfg.packageName?) {
+  if (!pcfg.isPackageCourse) {
     return;
+  }
+
+  if (pcfg.authors? && exists(pcfg.authors)) {
+    copy(pcfg.authors, pcfg.bin + "AUTHORS_<pcfg.packageName>.txt");
   }
 
   if (pcfg.license? && exists(pcfg.license)) {
@@ -124,15 +136,15 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   }
 
   if (pcfg.citation? && exists(pcfg.citation)) {
-    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.md");
+    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.txt");
   }
 
   if (pcfg.funding? && exists(pcfg.funding)) {
-    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.md");
+    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.txt");
   }
 
   if (pcfg.releaseNotes? && exists(pcfg.releaseNotes)) {
-    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
+    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.txt");
   }
 
   dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
@@ -158,16 +170,25 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
+  if (pcfg.authors? && exists(pcfg.authors)) {
+    writeFile(targetFile.parent + "Authors.md",
+      "---
+      'title: Authors of <pcfg.packageGroupId>.<pcfg.packageArtifactId>
+      '---
+      '
+      '<readFile(pcfg.authors)>");
+  }
+
   if (pcfg.funding?) {
     writeFile(targetFile.parent + "Funding.md", 
       "---
-      'title: Funding 
+      'title: Funding for <pcfg.packageArtifactId>
       '---
       '
       ':::info
       'Open-source software is free for use, yet it does not come for free.
       'The following sources of funding have been instrumental in the creation 
-      'and maintenance of <pcfg.packageName>. You may consider also to become
+      'and maintenance of <pcfg.packageArtifactId>. You may consider also to become
       'a [sponsor](https://github.com/sponsors/usethesource?o=esb)
       ':::
       '
@@ -182,9 +203,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '
       ':::info
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
-      'Citing software **recognizes** the associated investment and the quality of the result.
-      'If you use open-source software, it is becoming standard practise to recognize the work as
-      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'Citing software recognizes the associated investment and the quality of the result.
+      'If you use open-source software, it is becoming standard practise to recognize the work by citing it (as shown below). 
+      'In turn their effort might be awarded with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
       'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
@@ -214,9 +235,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '<}>
       '
       ':::info
-      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageName> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
+      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageArtifactId> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
       '
-      'The authors contributing to <pcfg.packageName> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
+      'The authors contributing to <pcfg.packageArtifactId> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
       ':::
       "
     );
@@ -229,9 +250,10 @@ void generatePackageIndex(PathConfig pcfg) {
     '
     'This is the documentation for version <pcfg.packageVersion> of <pcfg.packageName>.
     '
+    '<if (pcfg.authors?, exists(pcfg.authors)) {>* [Authors](../../Packages/<package(pcfg.packageName)>/Authors.md)<}>
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
-    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
+    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageArtifactId>)
     '<if (pcfg.releaseNotes?)  {>* [Release notes](../../Packages/<package(pcfg.packageName)>/RELEASE-NOTES.md)<}>
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<package(pcfg.packageName)>/License.md)<}>
     '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<package(pcfg.packageName)>/Citation.md)<}>
@@ -247,8 +269,8 @@ void generatePackageIndex(PathConfig pcfg) {
     '```xml
     '\<dependencies\>
     '    \<dependency\>  
-    '        \<groupId\><pcfg.packageGroup>\</groupId\>
-    '        \<artifactId\><pcfg.packageName>\</artifactId\>
+    '        \<groupId\><pcfg.packageGroupId>\</groupId\>
+    '        \<artifactId\><pcfg.packageArtifactId>\</artifactId\>
     '        \<version\><pcfg.packageVersion>\</version\>
     '    \</dependency\>
     '\</dependencies\> 

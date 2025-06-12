@@ -1,8 +1,5 @@
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.values.functions.IFunction;
-
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
