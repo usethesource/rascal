@@ -25,12 +25,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
+                     
+start syntax SDF = Definition: "definition" Definition def;
 
-import IO;
-    
-data X = xcon(int a);
-void main () {
-    X x = xcon(42);
-    xcon(v) = x;
-    println("v: <v>");
-}
+syntax Definition = Module* modules
+                    ;
+syntax Module = "module";
