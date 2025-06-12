@@ -146,7 +146,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isWildCard(base)){
        if(inPatternNames(base, c)){
-          c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
+          c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), constructorId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -156,7 +156,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
        } else {
           if(c.isAlreadyDefined(base, name)){
-            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
+            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), constructorId()});
             c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
           } else {
             tau = c.newTypeVar(name);
