@@ -196,6 +196,18 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     fail;
 }
 
+// Open modifiers are sub-types of the kinds that they modify _to_.
+// It's good to remember that _closed_ syntax role modifiers are already rewritten
+// to the type they modify to in ATypeBase
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt(_, _, role)) = true;
+
+// All open syntax role modifiers are sub-types of `node`
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), anode(_)) = true;
+
+// All context-free grammar-related syntax roles are sub-types of `Tree`
+bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
 bool asubtype(i:\iter(AType s), AType b){
@@ -513,6 +525,11 @@ bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname
 
 bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
 
+// syntax role with incomparable roles are not outer comparable, but otherwise they act like aadt's:
+// JV: commented out until I understand the use of outerComparable1 better.
+// bool outerComparable1(asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), asyntaxRoleModifier(role, aparameter(_,_))) = true;
+// bool outerComparable1(asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), aadt(_,_,role)) = true;
+// bool outerComparable1(aadt(_,_,role), asyntaxRoleModifier(SyntaxRole role, aparameter(_,_))) = true;
 
 default bool outerComparable1(AType l, AType r) {
     return comparable(l, r);
@@ -639,6 +656,7 @@ AType addADTLabel(AType a1, AType a2, AType adt){
   return adt;
 }
 
+
 //AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
     if(size(lp) == size(rp)){
@@ -684,6 +702,32 @@ AType alub(AType l, p:aparameter(n, b, closed=true))  = lb == b ? p : lb when !(
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
+
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), a:aadt(_, _, role)) = a;
+AType alub(a:aadt(_, _, role), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_))) = a;
+
+AType alub(\asyntaxRoleModifier(_, \aparameter(_, _)), anode(l))  = \anode(l);
+AType alub(\anode(l), \asyntaxRoleModifier(_, \aparameter(_, _))) = \anode(l);
+
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _)), aadt("Tree",[], dataSyntax())) 
+    = aadt("Tree",[], dataSyntax())
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+AType alub(aadt("Tree",[], dataSyntax()), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _))) 
+    = aadt("Tree",[], dataSyntax())
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+// ---
+
+AType alub(\asyntaxRoleModifier(dataSyntax(), \aparameter(x, _)),
+           \asyntaxRoleModifier(SyntaxRole _, \aparameter(y, _))) = anode([]) when x != y;
+
+AType alub(\asyntaxRoleModifier(SyntaxRole _, \aparameter(x, _)),
+           \asyntaxRoleModifier(dataSyntax(), \aparameter(y, _))) = anode([]) when x != y;
+
+AType alub(\asyntaxRoleModifier(SyntaxRole a, \aparameter(x, _)),
+           \asyntaxRoleModifier(SyntaxRole b, \aparameter(y, _))) = aadt("Tree",[], dataSyntax()) 
+    when x != y, {a,b} < {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
 
@@ -849,6 +893,19 @@ public AType aglb(afunc(AType lr, list[AType] lp, list[Keyword] kwl), afunc(ATyp
     else
         return avalue();
 }
+
+AType aglb(asyntaxRoleModifier(SyntaxRole role, p1:aparameter(_,_)),
+           asyntaxRoleModifier(           role, p2:aparameter(_,_)))
+    = asyntaxRoleModifier(r, glb(p1, p2)) when p1 != p2;
+
+AType aglb(a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_)), \anode(_)) = a;
+AType aglb(\anode(_), a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_))) = a;
+
+AType aglb(a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), aadt("Tree", [], dataSyntax())) = a
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
+
+AType aglb(aadt("Tree", [], dataSyntax()), a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_))) = a
+    when role in {contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax()};
 
 public list[AType] aglbList(list[AType] l, list[AType] r) = [aglb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r);
 public default list[AType] aglbList(list[AType] l, list[AType] r) = [avalue()];
