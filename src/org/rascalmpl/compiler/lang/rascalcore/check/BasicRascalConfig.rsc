@@ -66,11 +66,11 @@ public map[IdRole, set[IdRole]] idRoleOverloading =
      productionId(): {functionId(), constructorId(), productionId()},
      fieldId() : {fieldId(), keywordFieldId()},
      keywordFieldId(): {fieldId(), keywordFieldId()},
-     dataId(): { dataId(), constructorId(), nonterminalId(), lexicalId(), layoutId(), keywordId()},
-     nonterminalId(): {dataId(), constructorId(), nonterminalId()},
-     lexicalId(): {dataId(), constructorId(), lexicalId()},
-     layoutId(): {dataId(), constructorId(), layoutId()},
-     keywordId(): {dataId(), constructorId(), keywordId()},
+     dataId(): { dataId(), constructorId(), nonterminalId(), lexicalId(), layoutId(), keywordId(), fieldId()},
+     nonterminalId(): {dataId(), constructorId(), nonterminalId(), fieldId()},
+     lexicalId(): {dataId(), constructorId(), lexicalId(), fieldId()},
+     layoutId(): {dataId(), constructorId(), layoutId(), fieldId()},
+     keywordId(): {dataId(), constructorId(), keywordId(), fieldId()},
      typeVarId(): {typeVarId()},
      annoId(): {annoId()}
     );
