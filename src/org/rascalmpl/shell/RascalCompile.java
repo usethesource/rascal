@@ -99,22 +99,26 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
 		out.println("Precheck is done.");
 
-		// split the remaining work
+		// Split the remaining work as evenly as possible
 		modules = modules.subtract(preChecks);
-		final var chunks = splitTodoList(parAmount, modules.stream().map(ISourceLocation.class::cast).collect(Collectors.toList()));
+		final var chunks = splitTodoList(parAmount, modules);
 		final var bins = chunks.stream()
 			.map(handleExceptions(l -> Files.createTempDirectory("rascal-checker")))
 			.map(handleExceptions(p -> URIUtil.createFileLocation(p)))
 			.collect(vf.listWriter());
 		final var bin = (ISourceLocation) parsedArgs.get("pcfg").asWithKeywordParameters().getParameter("bin");
 
-		// add the bin files of the pre-checks to the libs of each parallel build
-		parsedArgs.put("libs", listParameter(parsedArgs, "libs").append(bin));
+		// Copy the pre-checked bin files to the temp bins for incremental reuse.
+		// Note there may be more output modules than listed in the preChecks list.
+		bins.stream()
+			.map(ISourceLocation.class::cast)
+			.forEach(handleConsumerExceptions(b -> reg.copy(bin, b, true, true)));
 
-		// clears the thread and its memory when the work is done, might help left-over workers to run faster.
+		// a cachedThreadPool lazily spins-up threads, but eagerly cleans them up
+		// this might help with left-over threads to get more memory and finish sooner.
 		final ExecutorService exec = Executors.newCachedThreadPool();
 		
-		// eagerly spawn `parAmount` workers, one for each chunk
+		// the for loop eagerly spawns `parAmount` workers, one for each chunk
 		List<Future<Integer>> workers = new ArrayList<>(parAmount);
 		for (int i = 0; i < parAmount; i++) {
 			final int index = i;
@@ -211,7 +215,8 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return (int) Math.min(parallelMax, result);
 	}
 
-	private static List<IList> splitTodoList(int procs, List<ISourceLocation> todoList) {
+	private static List<IList> splitTodoList(int procs, IList modules) {
+		List<ISourceLocation> todoList = modules.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
 		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
 		int chunkSize = todoList.size() / procs;
 		int remainder = todoList.size() % procs;
