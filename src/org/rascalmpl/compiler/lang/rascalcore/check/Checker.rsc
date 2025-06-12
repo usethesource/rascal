@@ -32,8 +32,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-import lang::rascal::\syntax::Rascal;
-
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::CollectDeclaration;
 extend lang::rascalcore::check::CollectExpression;
@@ -97,7 +95,7 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         try {
             mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
+            msgs += error("PathConfig `generatedResources`: <e>", pcfg.generatedResources);
         }
     }
     return msgs;
@@ -114,6 +112,10 @@ set[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
      }
      return msgs;
 }
+
+bool errorsPresent(TModel tmodel) = errorsPresent(tmodel.messages);
+bool errorsPresent(set[Message] msgs) = errorsPresent(toList(msgs));
+bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 // ----  Various check functions  ---------------------------------------------
 
@@ -332,7 +334,7 @@ ModuleStatus rascalTModelForLocs(
                     ms.messages[m] ? {} += toSet(tm.messages);
 
                     ms.status[m] += {tpl_uptodate(), checked()};
-                    if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
+                    if(errorsPresent(ms.messages[m])){
                         ms.status[m]  += {check_error()};
                     }
                 }
@@ -347,7 +349,7 @@ ModuleStatus rascalTModelForLocs(
                     if(success){
                         lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
                         ms.messages[m] += toSet(lmsgs);
-                        ms.status[m] += {code_generated()};
+                        ms.status[m] += errorsPresent(lmsgs) ? {code_generation_error()} : {code_generated()};
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, transient_tms, compilerConfig);

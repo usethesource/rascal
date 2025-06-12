@@ -27,8 +27,6 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::check::CollectLiteral
 
 extend lang::rascalcore::check::CheckerCommon;
-//extend lang::rascalcore::check::PathAnalysis;
-import lang::rascal::\syntax::Rascal;
 import Exception;
 
 import ValueIO;

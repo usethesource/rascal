@@ -35,7 +35,6 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::agrammar::definition::Attributes;
-import lang::rascal::\syntax::Rascal;
 import IO;
 import Map;
 

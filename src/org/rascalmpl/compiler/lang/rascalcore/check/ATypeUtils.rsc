@@ -50,7 +50,7 @@ extend lang::rascalcore::check::BasicRascalConfig;
 extend ParseTree;
 
 import analysis::typepal::Messenger;
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::util::Names; // TODO: undesired forward reference
 

@@ -26,13 +26,10 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
-import ParseTree;
-import IO;
 
-layout Whitespace = "x"*; //[\ \t\n]*;
+import lang::rascalcore::check::TestConfigs;
+import lang::rascalcore::check::Checker;
 
-start syntax D = "d";
-start syntax DS = D+ ds;
-
-value main() //test bool parseDS() 
-  = /*(DS)`d` := */parse(#DS, "dxd") ;  
+value main(){
+    return checkModules(["lang::rascalcore::compile::Examples::Tst6"], getAllSrcREPOCompilerConfig());
+}
