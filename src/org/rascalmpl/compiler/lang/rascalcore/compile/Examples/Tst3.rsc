@@ -25,16 +25,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
+                     
+start syntax SDF = Definition: "definition" Definition def;
 
-import ParseTree;
-
-layout Layout = [\ \t\n]* !>> [\ \t\n];
-
-start syntax Stmt
-    = "if" "(" "x" ")" Stmt "else" Stmt
-    | "if" "(" "x" ")" Stmt () !>> "else"
-    | "{" "}"
-    ;
-
-value main()
-    = parse(#Stmt, "if (x) {}");
+syntax Definition = Module* modules
+                    ;
+syntax Module = "module";

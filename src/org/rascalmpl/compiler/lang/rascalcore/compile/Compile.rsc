@@ -35,8 +35,6 @@ import IO;
 import Set;
 import ValueIO;
 import util::Monitor; 
-
-import lang::rascal::\syntax::Rascal;
  
 extend lang::rascalcore::check::Checker;
 import lang::rascalcore::check::RascalConfig;
@@ -47,10 +45,6 @@ import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
-
-
-bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messages ]);
-bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
 
@@ -149,7 +143,7 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, |unknown:///|);
     if(!isEmpty(msgs)){
-        return msgs;
+        return toList(msgs);
     }
 
     if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleName>"); }

@@ -39,8 +39,6 @@ import util::Reflective;
 import Exception;
 import lang::rascalcore::compile::CompileTimeError;
 
-import lang::rascal::\syntax::Rascal;
-
 import analysis::typepal::AType;
 import lang::rascalcore::compile::muRascal::AST;
 

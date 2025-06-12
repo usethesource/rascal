@@ -37,8 +37,6 @@ import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
 import lang::rascalcore::check::PathAnalysis;
 
-import lang::rascal::\syntax::Rascal;
-
 import List;
 import Set;
 import String;
@@ -1035,6 +1033,11 @@ private AType computeDefaultAssignableType(Statement current, AType receiverType
 }
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
+
+private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
+    c.report(error(current, "Constructor assignable is not supported by the compiler"));
+    collect(name, arguments, c);    
+}
 
 private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 

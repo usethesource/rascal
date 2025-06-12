@@ -63,10 +63,10 @@ void generateTestSources(list[str] cmdLineArgs) {
    
    map[str,int] durations = ();
 
-   modulesToCompile = [];
+   list[str] modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-      modulesToCompile = getRascalModules(|std:///|);     
+      modulesToCompile = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);     
    } else {              
        testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
                        , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
@@ -95,7 +95,7 @@ void generateTestSources(list[str] cmdLineArgs) {
       }
    }
    println("Compiled <n> modules");
-   println("<size(exceptions)> failed to compile: <exceptions>");
+   println("<size(exceptions)> failed to compile:"); iprintln(exceptions);
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
@@ -103,14 +103,17 @@ void generateTestSources(list[str] cmdLineArgs) {
 }
 
 str safeCompile(str \module, RascalCompilerConfig compilerConfig, void (int duration) measure) {
+  result = "";
    try {
      measure(cpuTimeOf(() {    
        msgs = compile(\module, compilerConfig);
        if(!isEmpty(msgs)){
             iprintln(msgs);
        }
+       errors = [ msg | msg <- msgs, msg is error ];
+       result = isEmpty(errors) ? "" : "<errors>";
      }));
-     return "";
+     return result;
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
