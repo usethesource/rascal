@@ -101,6 +101,8 @@ str deescape(str s)  {
         case /^\\<c: [\" \' \< \> \\]>/ => c
         case /^\\t/ => "\t"
         case /^\\n/ => "\n"
+        case /^\\f/ => "\f"
+        case /^\\b/ => "\b"
         case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
@@ -641,7 +643,7 @@ toLocation("http://grammarware.net");
 toLocation("document.xml");
 ```
 }
-@deprecated{Use ((Location::locFromWindowsPath)) for example; toLocation does not handle all intricasies of path notation.}
+@deprecated{Use ((lang::paths::Windows::parseWindowsPath)) for example; toLocation does not handle all intricasies of path notation.}
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 

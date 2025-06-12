@@ -138,6 +138,12 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
         ISourceLocation jarUri = getResolvedJarPath(uri);
         return getTargetResolver(jarUri).lastModified(jarUri, getInsideJarPath(uri));
     }
+
+    @Override
+    public long created(ISourceLocation uri) throws IOException {
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).created(jarUri, getInsideJarPath(uri));
+    }
     
     @Override
     public String[] list(ISourceLocation uri) throws IOException {

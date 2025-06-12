@@ -79,15 +79,12 @@ public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
 @synopsis{Parse an XML document and return a DOM instance.}
-@description{
-
-}
 @examples{
 Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-N = readFile(|lib://rascal/org/rascalmpl/library/lang/xml/examples/note.xml|);
+N = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 parseXMLDOM(N);
 ```
 
@@ -105,7 +102,7 @@ Read the sample note file, parse it, and construct a DOM instance (using `parseX
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-N = readFile(|lib://rascal/org/rascalmpl/library/lang/xml/examples/note.xml|);
+N = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 parseXMLDOMTrim(N);
 ```
 All whitespace characters have been removed and do not occur in the trimmed DOM instance.
@@ -121,7 +118,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|lib://rascal/org/rascalmpl/library/lang/xml/examples/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlRaw(parseXMLDOM(F));
 println(S);
@@ -138,7 +135,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|lib://rascal/org/rascalmpl/library/lang/xml/examples/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlCompact(parseXMLDOM(F));
 println(S);
@@ -156,7 +153,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|lib://rascal/org/rascalmpl/library/lang/xml/examples/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlPretty(parseXMLDOM(F));
 println(S);

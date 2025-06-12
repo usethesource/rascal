@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2024 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,22 +8,26 @@
  * Contributors:
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Pieter Olivier - Pieter.Olivier@swat.engineering
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
+
+import java.net.URI;
 
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
 public class SkippedNode extends AbstractNode {
-	public final static int ID = 9;
+	public static final int ID = 9;
 	
+	private final URI inputUri;
 	private final int[] skippedChars;
-	
 	private final int offset;
 
-	public SkippedNode(int[] skippedChars, int offset){
+	public SkippedNode(URI inputUri, int[] skippedChars, int offset) {
 		super();
 		
+		this.inputUri = inputUri;
 		this.skippedChars = skippedChars;
 		this.offset = offset;
 	}
@@ -31,7 +35,11 @@ public class SkippedNode extends AbstractNode {
 	public int getTypeIdentifier(){
 		return ID;
 	}
-	
+
+	public URI getInputUri() {
+		return inputUri;
+	}
+
 	public int[] getSkippedChars(){
 		return skippedChars;
 	}
@@ -53,5 +61,10 @@ public class SkippedNode extends AbstractNode {
 
 	public int getLength() {
 		return skippedChars.length;
+	}
+
+	@Override
+	public String toString() {
+		return "SkippedNode[skippedChars=" + new String(skippedChars, 0, skippedChars.length) + ",offset=" + offset + "]";
 	}
 }

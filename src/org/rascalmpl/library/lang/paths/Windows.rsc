@@ -68,6 +68,15 @@ import ParseTree;
 hostname, share name and path segment names. Also all superfluous path separators are skipped.
 3. uses `loc + str` path concatenation with its builtin character encoding to construct the URI. Also
 the right path separators are introduced. 
+
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\system07\C$\`
+
+Windows paths, against popular believe, support both `/` and `\` as path separators.
 }
 loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#WindowsPath, input, src));
 

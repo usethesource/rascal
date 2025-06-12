@@ -139,6 +139,14 @@ public class ProductionAdapter {
 	public static boolean isRegular(IConstructor tree) {
 		return tree.getConstructorType() == RascalValueFactory.Production_Regular;
 	}
+	
+	public static boolean isSkipped(IConstructor tree) {
+        return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
+    }
+
+	public static boolean isError(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Production_Error;
+	}
 
 	public static boolean isSeparatedList(IConstructor tree) {
 		IConstructor rhs = getType(tree);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2015 CWI
+ * Copyright (c) 2015-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,31 +13,40 @@ package org.rascalmpl.uri.jar;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
-import org.rascalmpl.uri.FileTree;
+import org.rascalmpl.uri.zip.CompressedFSTree;
+import org.rascalmpl.uri.zip.EntryEnumerator;
+import org.rascalmpl.uri.zip.IndexedFSEntry;
 
-public class JarFileTree extends FileTree {
+public class JarFileTree extends CompressedFSTree {
 
   public JarFileTree(File jar) {
-    super();
-    totalSize = 0;
-    try (JarFile jarFile = new JarFile(jar)) {
-      for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
-        JarEntry je = e.nextElement();
-        if (je.isDirectory()) {
-          continue;
-        }
-        String name = je.getName();
-        totalSize += 8 + (name.length() * 2);
-        fs.put(name, new FSEntry(je.getTime()));
-      }
+        super(IndexedFSEntry.forFile(jar), openJar(jar));
     }
-    catch (IOException e1) {
-      throwMe = e1;
+
+    private static EntryEnumerator openJar(File jar) {
+        return () -> {
+            var jarFile = new JarFile(jar);
+            var actual = jarFile.entries();
+            return new EntryEnumerator.CloseableIterator() {
+                @Override
+                public void close() throws IOException {
+                    jarFile.close();
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return actual.hasMoreElements();
+                }
+
+                @Override
+                public ZipEntry next() {
+                    return actual.nextElement();
+                }
+            };
+        };
     }
-  }
 
 }

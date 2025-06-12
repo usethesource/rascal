@@ -25,8 +25,13 @@ loc constructExampleProject() {
 }
 
 // fix for target scheme not working for "non-existing" projects
-PathConfig getTestPathConfig(loc root) 
-    = getProjectPathConfig(root)[bin = root + "target/classes"];
+PathConfig getTestPathConfig(loc root) {
+    pcfg = getProjectPathConfig(root);
+    pcfg.bin = root + "target/classes";
+    // remove std to avoid generating parsers for all modules in the library that contain syntax definitions
+    pcfg.srcs -= [|std:///|];
+    return pcfg;
+}
 
 test bool storeModuleParsersWorkedSimpleGrammar() {
     root = constructExampleProject();

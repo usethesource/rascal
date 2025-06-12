@@ -14,12 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,32 +28,20 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.project.ProjectURIResolver;
-import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -80,12 +66,12 @@ public class Eval {
 	private final Type execConstructor;
 
 	/* the following four fields are inherited by the configuration of nested evaluators */
-	private final OutputStream stderr;
-	private final OutputStream stdout;
-	private final InputStream input;
+	private final PrintWriter stderr;
+	private final PrintWriter stdout;
+	private final Reader input;
 	private final IDEServices services;
 			
-	public Eval(IRascalValueFactory values, OutputStream out, OutputStream err, InputStream in, ClassLoader loader, IDEServices services, TypeStore ts) {
+	public Eval(IRascalValueFactory values, PrintWriter out, PrintWriter err, Reader in, ClassLoader loader, IDEServices services, TypeStore ts) {
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);
@@ -219,35 +205,8 @@ public class Eval {
 		private final Evaluator eval;
 		private int duration = -1;
 		
-		public RascalRuntime(PathConfig pcfg, InputStream input, OutputStream stderr, OutputStream stdout, IDEServices services) throws IOException, URISyntaxException{
-			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-			IValueFactory vf = ValueFactoryFactory.getValueFactory();
-			this.eval = new Evaluator(vf, input, stderr, stdout, root, heap, services);
-
-			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-			eval.setMonitor(services);        
-			eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
-			eval.setMonitor(services);
-
-			if (!pcfg.getSrcs().isEmpty()) {
-				ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
-				String projectName = new RascalManifest().getProjectName(projectRoot);
-				URIResolverRegistry reg = URIResolverRegistry.getInstance();
-				reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-				reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-			}
-
-			for (IValue path : pcfg.getSrcs()) {
-				eval.addRascalSearchPath((ISourceLocation) path); 
-			}
-
-			for (IValue path : pcfg.getLibs()) {
-				eval.addRascalSearchPath((ISourceLocation) path);
-			}
-
-			ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-			eval.addClassLoader(cl);
+		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
+			eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, input, stdout, stderr, services);
 		}
 
 		public IValue staticTypeOf(String line) {
@@ -262,47 +221,6 @@ public class Eval {
 		
 		public int getTimeoutDuration() {
 			return duration;
-		}
-
-		private static ISourceLocation inferProjectRoot(ISourceLocation member) {
-			ISourceLocation current = member;
-			URIResolverRegistry reg = URIResolverRegistry.getInstance();
-			while (current != null && reg.exists(current) && reg.isDirectory(current)) {
-				if (reg.exists(URIUtil.getChildLocation(current, "META-INF/RASCAL.MF"))) {
-					return current;
-				}
-
-				if (URIUtil.getParentLocation(current).equals(current)) {
-					// we went all the way up to the root
-					return reg.isDirectory(member) ? member : URIUtil.getParentLocation(member);
-				}
-				
-				current = URIUtil.getParentLocation(current);
-			}
-
-			return current;
-		}
-		
-		private String javaCompilerPathAsString(IList javaCompilerPath) {
-			StringBuilder b = new StringBuilder();
-
-			for (IValue elem : javaCompilerPath) {
-				ISourceLocation loc = (ISourceLocation) elem;
-
-				if (b.length() != 0) {
-					b.append(File.pathSeparatorChar);
-				}
-
-				// this is the precondition
-				assert loc.getScheme().equals("file");
-
-				// this is robustness in case of experimentation in pom.xml
-				if ("file".equals(loc.getScheme())) {
-					b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-				}
-			}
-
-			return b.toString();
 		}
 	
 		public void reset() {

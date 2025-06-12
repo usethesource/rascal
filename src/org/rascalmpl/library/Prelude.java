@@ -78,13 +78,16 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
-import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -131,6 +134,7 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
@@ -143,16 +147,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
@@ -162,7 +164,15 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
+        return t.randomValue(
+			random, 
+			RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), 
+			values, 
+			new TypeStore(), 
+			Collections.emptyMap(), 
+			depth, 
+			width
+		);
     }
 
 	
@@ -1578,7 +1588,7 @@ public class Prelude {
 			}
 			if (less.less(array[0], array[0])) {
 				throw RuntimeExceptionFactory.illegalArgument(less.less,
-					"Bad comparator: Did you use less-or-equals instead of less-than?");
+					"A reflexive comparator can not be used for sorting. At least one element is less than itself: " + less);
 			}
 			sort(0, size - 1);
 
@@ -1597,15 +1607,32 @@ public class Prelude {
 			int oldLow = low;
 			int oldHigh = high;
 
-			while (low < high) {
-				for (; less.less(array[low], pivot); low++);
-				for (; less.less(pivot, array[high]); high--);
+			try {
+				while (low < high) {
+					for (; less.less(array[low], pivot); low++);
+					for (; less.less(pivot, array[high]); high--);
 
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
+					if (low <= high) {
+						swap(low, high);
+						low++;
+						high--;
+					}
 				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				// now that we are crashing anyway, we can do some diagnostics.
+				// the hypothesis is that at least one element was not irreflexive, making
+				// one of the bounds pointers (low or high) shift beyond the edge of the array
+
+				for (IValue elem : array) {
+					if (less.less(elem, elem)) {
+					throw RuntimeExceptionFactory.illegalArgument(less.less,
+						"A reflexive comparator can not be used for sorting. At least one element is less than itself with the given comparator: " + elem);
+					}
+				}
+
+				// another cause for the same exception? 
+				throw e;
 			}
 
 			if (oldLow < high)
@@ -1665,9 +1692,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		
 		return writer.done();
 	}
@@ -2377,21 +2402,25 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(false), filters);
 	}
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+		return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
-    }
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parsers(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+	}
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
-    }
+		return rascalValues.parsers(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
+	}
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
 		try {
@@ -2405,18 +2434,19 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+		IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
@@ -3677,12 +3707,24 @@ public class Prelude {
 		}
 	}
 
+	public ISourceLocation mavenize(ISourceLocation jar) {
+		return MavenRepositoryURIResolver.mavenize(jar);
+	}
+
+	public ISourceLocation jarify(ISourceLocation jar) {
+		return JarURIResolver.jarify(jar);
+	}
+
 	public ISet findResources(IString fileName) {
 		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
 
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		return URIUtil.relativize(outside, inside);
+	}
+
+	public ISet capabilities(ISourceLocation loc) {
+		return URIResolverRegistry.getInstance().capabilities(loc);
 	}
 
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
@@ -3873,7 +3915,10 @@ public class Prelude {
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
 	    Random random = new Random(seed.intValue());
-	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
+		// don't change the set of types dynamically. the test functions that use this function
+		// have already been type-checked in their static source context.
+		RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
+	    return start.randomValue(random, typesConfig, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph
@@ -3919,15 +3964,36 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final TypeStore store;
 
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+		private final Type file;
+		private final Type directory;
+		private final Type changeEvent;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.store = store;
+
+			var store = new TypeStore();
+			var tf = TypeFactory.getInstance();
+
+			var locationChangeType = tf.abstractDataType(store, "LocationChangeType");
+			created = tf.constructor(store, locationChangeType, "created");
+			modified = tf.constructor(store, locationChangeType, "modified");
+			deleted = tf.constructor(store, locationChangeType, "deleted");
+
+			var locationType = tf.abstractDataType(store, "LocationType");
+			file = tf.constructor(store, locationType, "file");
+			directory = tf.constructor(store, locationType, "directory");
+
+			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
+			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
+				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
 		}
 
 		@Override
@@ -3948,9 +4014,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-			
-			
 			return values.constructor(changeEvent, 
 				e.getLocation(),
 				convertChangeType(e.getChangeType()),
@@ -3959,23 +4022,16 @@ public class Prelude {
 		}
 
 		private IValue convertFileType(ISourceLocationType type) {
-			Type file = store.lookupConstructors("file").iterator().next();
-			Type directory = store.lookupConstructors("directory").iterator().next();
-			
 			switch (type) {
 				case FILE:
 					return values.constructor(file);
 				case DIRECTORY:
 					return values.constructor(directory);
 			}
-
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 
 		private IValue convertChangeType(ISourceLocationChangeType changeType) {
-			Type deleted = store.lookupConstructors("deleted").iterator().next();
-			Type created = store.lookupConstructors("created").iterator().next();
-			Type modified = store.lookupConstructors("modified").iterator().next();
 
 			switch (changeType) {
 				case DELETED:
@@ -4010,7 +4066,7 @@ public class Prelude {
 
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values);
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it

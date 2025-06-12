@@ -100,7 +100,7 @@ styles += [
     )
 ];
 // and draw again (while adding the grandparent edges too)
-graph(g + (g o g), cytoGraphConfig(nodeClassifier=nodeClassifier, edgeClassifier=edgeClassifier, styles=styles, \layout=lyt))
+graph(g + (g o g), cfg=cytoGraphConfig(nodeClassifier=nodeClassifier, edgeClassifier=edgeClassifier, styles=styles, \layout=lyt))
 ```    
 }
 data CytoGraphConfig = cytoGraphConfig(

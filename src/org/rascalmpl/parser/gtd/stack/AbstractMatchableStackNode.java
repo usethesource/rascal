@@ -25,7 +25,11 @@ public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>
 	protected AbstractMatchableStackNode(int id, int dot){
 		super(id, dot);
 	}
-	
+
+	protected AbstractMatchableStackNode(int id, int dot, int startLocation){
+		super(id, dot, startLocation);
+	}
+
 	protected AbstractMatchableStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 	}
@@ -62,8 +66,9 @@ public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
 	public final boolean isMatchable(){
 		return true;
 	}
-	
+
 }

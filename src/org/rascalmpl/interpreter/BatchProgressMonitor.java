@@ -24,16 +24,19 @@ public class BatchProgressMonitor implements IRascalMonitor {
 	PrintWriter out;
 
 	public BatchProgressMonitor() {
-		this.out = new PrintWriter(System.err);
+		this(new PrintWriter(System.err, true));
 	}
 
 	public BatchProgressMonitor(PrintStream out) {
-		this.out = new PrintWriter(out);
+		this(new PrintWriter(out, true));
+	}
+
+	public BatchProgressMonitor(PrintWriter out) {
+		this.out = out;
 	}
 
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
-		out.println("\tJob done: "  + name);
 		return 0;
 	}
 
@@ -44,7 +47,7 @@ public class BatchProgressMonitor implements IRascalMonitor {
 
 	@Override
 	public void jobStart(String name, int workShare, int totalWork) {
-		out.println("Job started: " + name);
+		out.println("Job: " + name);
 		out.flush();
 	}
 

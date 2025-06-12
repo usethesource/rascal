@@ -388,11 +388,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> Result<U> multiplyList(ListResult that) {
-		return that.undefinedError(MULTIPLICATION_STRING, that);
+		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 	
 	protected <U extends IValue> Result<U> intersectList(ListResult that) {
-		return that.undefinedError(INTERSECTION_STRING, that);
+		return that.undefinedError(INTERSECTION_STRING, this);
 	}
 
 	protected <U extends IValue> Result<U> addSet(SetResult that) {

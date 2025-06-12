@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.result.error;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -52,5 +53,10 @@ public class ErrorSortContainerNode<P> extends AbstractContainerNode<P>{
 	 */
 	public CharNode[] getUnmatchedInput(){
 		return unmatchedInput;
+	}
+
+	@Override
+	public String toString() {
+		return "ErrorSortContainerNode [unmatchedInput=" + Arrays.toString(unmatchedInput) + ", " + super.toString() + "]";
 	}
 }

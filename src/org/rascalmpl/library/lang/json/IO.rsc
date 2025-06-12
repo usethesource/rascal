@@ -53,8 +53,7 @@ This example demonstrates serializing:
 ```rascal-shell
 import lang::json::IO;
 data Size = xxs() | xs() | s() | m() | l() | xl() | xxl();
-data Person
-  = person(str firstName, str lastName, datetime birth, int height=0, Size size = m());
+data Person = person(str firstName, str lastName, datetime birth=$1977-05-17T06:00:00.000+00:00$;, int height=0, Size size = m());
 example = person("Santa", "Class", height=175, size=xxl());
 asJSON(example, dateTimeFormat="YYYY-MM-DD");
 ```
