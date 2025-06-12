@@ -285,7 +285,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(signature, "Modifier `test` is missing"));
         }
         c.use(expectedName, {dataId(), constructorId()});
-        c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+        //c.requireSubType(expectedName, anode([]), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+
+        //c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
     }
 
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
