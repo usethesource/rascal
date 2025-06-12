@@ -160,10 +160,6 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return args.get(arg) == null ? vf.integer(0) : (IInteger) args.get(arg);
 	}
 
-	private static ISourceLocation locParameter(Map<String, IValue> args, String arg) {
-		return args.get(arg) == null ? URIUtil.unknownLocation() : (ISourceLocation) args.get(arg);
-	}
-
 	private static boolean isTrue(IValue x) {
 		return x != null ? ((IBool) x).getValue() : false;
 	}
