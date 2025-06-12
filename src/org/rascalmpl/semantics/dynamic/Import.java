@@ -488,7 +488,7 @@ private static boolean isDeprecated(Module preModule){
             }
             else if (reg.exists(parserCacheFile)) {
               // if we cached a ModuleFile.parsers file, we will use the parser from that (typically after deployment time)
-              parsers = vf.loadParsers(parserCacheFile, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set());
+              parsers = vf.loadParsers(parserCacheFile, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), vf.set());
             }
             else {
               // otherwise we have to generate a fresh parser for this module now
@@ -496,7 +496,7 @@ private static boolean isDeprecated(Module preModule){
               IMap syntaxDefinition = env.getSyntaxDefinition();
               IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
               IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-              parsers = vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+              parsers = vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), vf.set());
             }
         
             try {

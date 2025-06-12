@@ -30,7 +30,7 @@ Index createConceptIndex(PathConfig pcfg) {
     ind = exists(targetFile) ? readConceptIndex(pcfg) : {};
 
     // now we add the new index items on top of the old ones    
-    ind += createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$, pcfg.isPackageCourse, pcfg.packageName);
+    ind += createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$, pcfg.isPackageCourse, pcfg.packageName, pcfg.packageArtifactId);
 
     // store index for later usage by depending documentation projects,
     // and for future runs of the compiler on the current project
@@ -42,11 +42,11 @@ Index createConceptIndex(PathConfig pcfg) {
     return ind;
 }
 
-rel[str, str] createConceptIndex(list[loc] srcs, datetime lastModified, bool isPackageCourse, str packageName) 
-  = {*createConceptIndex(src, lastModified, isPackageCourse, packageName) | src <- srcs, bprintln("Indexing <src>")};
+rel[str, str] createConceptIndex(list[loc] srcs, datetime lastModified, bool isPackageCourse, str packageName, str packageId) 
+  = {*createConceptIndex(src, lastModified, isPackageCourse, packageName, packageId) | src <- srcs, bprintln("Indexing <src>")};
 
 @synopsis{creates a lookup table for concepts nested in a folder}
-rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageCourse, str packageName) {
+rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageCourse, str packageName, str packageId) {
   bool step(str label, loc file) {
     jobStep(label, "<file.file>");
     return true;
@@ -72,11 +72,14 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
   rascalFiles = find(src, isFreshRascalFile(lastModified));
   \start("Indexing modules", size(rascalFiles));
 
+  str rootName(loc src) = isPackageCourse && src.file in {"src", "Src", "SRC", "Rascal", "rascal", "API", "api"} ? "API" : capitalize(src.file);
+
     // First we handle the root concept
   result = {
-      <RootName, "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<RootName>/index.md">,
-      <"course:<RootName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<RootName>/index.md">
-      | str RootName := ((isPackageCourse && src.file in {"src","rascal","api"}) ? "API" : package(src.file))
+      <package(packageName),     "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/index.md">,
+      <packageId,                "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/index.md">,
+      <rootName(src),            "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<rootName(src)>/index.md">,
+      <"course:<rootName(src)>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<rootName(src)>/index.md">
     }
     +
     // Then we handle the cases where the concept name is the same as the folder it is nested in:
@@ -91,13 +94,13 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       <replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-"), fr>,
 
       // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
+      <"<rootName(src)>:<capitalize(cf.file)>", fr>,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<f.parent.parent.file>-<cf.file>", fr>,
+      <"<rootName(src)>:<f.parent.parent.file>-<cf.file>", fr>,
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-")>", fr>
+      <"<rootName(src)>:<replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-")>", fr>
 
     | loc f <- conceptFiles
       , step("Indexing concepts", f)
@@ -121,13 +124,13 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       <replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-"), fr>,
 
       // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
+      <"<rootName(src)>:<capitalize(cf.file)>", fr>,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<f.parent.file>-<cf.file>", fr>,
+      <"<rootName(src)>:<f.parent.file>-<cf.file>", fr>,
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-")>", fr>
+      <"<rootName(src)>:<replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-")>", fr>
 
     | loc f <- conceptFiles
       , step("Indexing concepts", f)
@@ -152,13 +155,13 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       <replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-"), fr>,
 
       // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<capitalize(f.file)>", fr>,
+      <"<rootName(src)>:<capitalize(f.file)>", fr>,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<f.parent.file>-<f.file>", fr>,
+      <"<rootName(src)>:<f.parent.file>-<f.file>", fr>,
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
-      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
+      <"<rootName(src)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
     | loc f <- directoryIndexes
     , step("Indexing directories", f)
     , fr := "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<fragment(src, f)>"
@@ -174,11 +177,11 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
     }
   + { // these are links to packages/folders/directories via module path prefixes, like `analysis::m3`
      <"<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
-     <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
-     <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "-")>", fr>,
-     <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
-     <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
-     <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
+     <"<rootName(src)>:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
+     <"<rootName(src)>:<replaceAll(relativize(src, f).path[1..], "/", "-")>", fr>,
+     <"<rootName(src)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
+     <"<rootName(src)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
+     <"<rootName(src)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
     | loc f <- directoryIndexes
       , step("Indexing directories", f)
       , /\/internal\// !:= f.path
@@ -191,16 +194,16 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
         <item.name, fr > | item.name?},
      
       // `((Library:getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.name>", fr >,
-        <"<capitalize(src.file)>:<item.kind>:<item.name>", fr > | item.name?, !(item is moduleInfo)},
+      *{<"<rootName(src)>:<item.name>", fr >,
+        <"<rootName(src)>:<item.kind>:<item.name>", fr > | item.name?, !(item is moduleInfo)},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<item.moduleName><sep><item.name>", fr >,
         <"<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "/", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", fr >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "/", "-"}},
+      *{<"<rootName(src)>:<item.moduleName><sep><item.name>", fr >,
+         <"<rootName(src)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `/Library/Set`
       *{<item.moduleName, "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >, 
@@ -209,8 +212,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       },
 
       // `((Library:Set))` -> `/Library/Set`
-      *{<"<capitalize(src.file)>:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >,
-         <"<capitalize(src.file)>:module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
+      *{<"<rootName(src)>:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >,
+         <"<rootName(src)>:module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
 
       | loc f <- rascalFiles, step("Indexing modules", f), list[DeclarationInfo] inf := safeExtract(f), item <- inf,
         fr := "/<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>"
