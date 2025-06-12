@@ -59,7 +59,6 @@ public class RascalReplServices implements IREPLService {
     private final @Nullable Path historyFile;
 
     private boolean unicodeSupported = false;
-    private boolean ansiSupported = false;
     private Terminal term;
     private PrintWriter out;
     private PrintWriter err;
@@ -83,7 +82,6 @@ public class RascalReplServices implements IREPLService {
         }
         this.term = term;
         this.unicodeSupported = unicodeSupported;
-        this.ansiSupported = ansiColorsSupported;
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = StreamUtil.generateErrorStream(term, monitor);
