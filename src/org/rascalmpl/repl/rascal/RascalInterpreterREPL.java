@@ -114,7 +114,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        return new BasicIDEServices(err, monitor, term);
+        return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
