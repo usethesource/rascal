@@ -124,7 +124,8 @@ public class TermREPL {
         private final AbstractFunction handler;
         private final AbstractFunction completor;
         private final IValueFactory vf;
-        private final AbstractFunction stacktrace;
+        @SuppressWarnings("unused")
+        private final AbstractFunction stacktrace; // TODO: this is a requirement to make proper domain-level stack-traces, but we have to use it still
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace) {

@@ -31,12 +31,16 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.static
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jline.terminal.Terminal;
@@ -50,21 +54,19 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 
 /**
  * Implementation of an interpreter based Rascal REPL Service. 
@@ -73,6 +75,9 @@ import io.usethesource.vallang.IValueFactory;
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
     protected Evaluator eval;
+    protected final Set<String> dirtyModules = ConcurrentHashMap.newKeySet();
+
+    private final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
     private final RascalValuePrinter printer;
 
@@ -109,19 +114,14 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        return new BasicIDEServices(err, monitor, term);
+        return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
      * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
-        GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, services);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-        return evaluator;
+        return ShellEvaluatorFactory.getBasicEvaluator(input, stdout, stderr, services);
     }
 
     @Override
@@ -132,15 +132,33 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             throw new IllegalStateException("Already initialized");
         }
         eval = buildEvaluator(input, stdout, stderr, services);
+
+        // Register watches for all watchable locations on the search path for automatic reloading
+        eval.getRascalResolver().collect().stream().filter(this::isWatchable).forEach(p -> {
+            try {
+                reg.watch(p, true, d -> sourceLocationChanged(p, d));
+            }
+            catch (IOException e) {
+                stderr.println("Failed to register watch for " + p);
+                e.printStackTrace(stderr);
+            }
+        });
         return services;
     }
 
+    private boolean isWatchable(ISourceLocation loc) {
+        return reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc);
+    }
 
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
+                Set<String> changes = new HashSet<>();
+                changes.addAll(dirtyModules);
+                dirtyModules.removeAll(changes);
+                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
@@ -222,6 +240,21 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public void flush() {
         eval.getErrorPrinter().flush();
         eval.getOutPrinter().flush();
+    }
+
+    protected void sourceLocationChanged(ISourceLocation srcPath, ISourceLocationChanged d) {
+        if (URIUtil.isParentOf(srcPath, d.getLocation()) && d.getLocation().getPath().endsWith(".rsc")) {
+            ISourceLocation relative = URIUtil.relativize(srcPath, d.getLocation());
+            relative = URIUtil.removeExtension(relative);
+
+            String modName = relative.getPath();
+            if (modName.startsWith("/")) {
+                modName = modName.substring(1);
+            }
+            modName = modName.replace("/", "::");
+            modName = modName.replace("\\", "::");
+            dirtyModules.add(modName);
+        }
     }
 
 }

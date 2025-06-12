@@ -13,11 +13,7 @@
 module lang::rascal::tests::concrete::recovery::ErrorRecoveryBenchmark
 
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
-
 import IO;
-import ValueIO;
-import util::Benchmark;
-import String;
 
 void runTestC() { testRecoveryC(); }
 void runTestDiff() { testRecoveryDiff(); }
@@ -47,59 +43,12 @@ void runLanguageTests() {
     testRecoveryRascal();
 }
 
-void runRascalBatchTest(RecoveryTestConfig config) {
-    int startTime = realTime();
-    
-    TestStats stats = batchRecoveryTest(config);
-    int duration = realTime() - startTime;
-    println();
-    println("================================================================");
-    println("Rascal batch test done in <duration/1000> seconds, total result:");
-    printStats(stats);
-}
-
 // Usage: ErrorRecoveryBenchmark <base-loc> [<max-files> [<min-file-size> [<max-file-size> [<from-file>]]]]
 int main(list[str] args) {
-    loc baseLoc  = readTextValueString(#loc, args[0]);
-    int maxFiles = 1000;
-    int maxFileSize = 1000000;
-    int minFileSize = 0;
-    int fromFile = 0;
-    loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
-    int memoVerificationTimeout = 0;
-    bool abortOnNoMemoTimeout = false;
-
-    for (str arg <- args) {
-        if (/<name:[^=]*>=<val:.*>/ := arg) {
-            switch (toLowerCase(name)) {
-                case "max-files": maxFiles = toInt(val);
-                case "max-file-size": maxFileSize = toInt(val);
-                case "min-file-size": minFileSize = toInt(val);
-                case "from-file": fromFile = toInt(val);
-                case "stat-file": statFile = readTextValueString(#loc, val);
-                case "memo-verification-timeout": memoVerificationTimeout = toInt(val);
-            }
-            println("arg: <arg>");
-        } else switch (toLowerCase(arg)) {
-            case "abort-on-no-memo-timeout": abortOnNoMemoTimeout = true;
-        }
-    }
-
-    RecoveryTestConfig config = recoveryTestConfig(
-        syntaxFile=|std:///lang/rascal/syntax/Rascal.rsc|,
-        topSort="Module",
-        dir=baseLoc,
-        ext=".rsc",
-        maxFiles=maxFiles,
-        minFileSize=minFileSize,
-        maxFileSize=maxFileSize,
-        fromFile=fromFile,
-        statFile=statFile
-    );
-    runRascalBatchTest(config);
-
+    RecoveryTestConfig config = createRecoveryTestConfig(args);
+    batchRecoveryTest(config);
     return 0;
 }
 
-int rascalSmokeTest() = main(["|std:///|", "max-files=3", "max-file-size=500"]);
-int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);
+int rascalSmokeTest() = main(["source-loc=|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1"]);
+int rascalStandardTest() = main(["source-loc=|std:///|", "max-files=1000", "max-file-size=5120"]);

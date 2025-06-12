@@ -21,15 +21,11 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,7 +39,6 @@ import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -90,37 +85,30 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
-import static org.rascalmpl.uri.jar.JarURIResolver.jarify;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -575,7 +563,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
         IRascalMonitor old = setMonitor(monitor);
         Environment oldEnv = getCurrentEnvt();
-        CommandlineParser parser = new CommandlineParser(curOutWriter);
+        CommandlineParser parser = new CommandlineParser(getOutPrinter());
 
         try {
             ModuleEnvironment modEnv = getHeap().getModule(module);
@@ -609,6 +597,57 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
 
                 Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, func.getStaticType().getKeywordParameterTypes());
+                return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+            }
+            else {
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
+            }
+        }
+        catch (MatchFailed e) {
+            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            return null;
+        }
+        finally {
+            setMonitor(old);
+            setCurrentEnvt(oldEnv);
+        }
+    }
+
+    /**
+     * This function processes commandline parameters as if already parsed to a Map<String,IValue>. 
+     */
+    public IValue main(IRascalMonitor monitor, String module, String function, Map<String,IValue> args) {
+        IRascalMonitor old = setMonitor(monitor);
+        Environment oldEnv = getCurrentEnvt();
+
+        try {
+            ModuleEnvironment modEnv = getHeap().getModule(module);
+            setCurrentEnvt(modEnv);
+
+            Name name = Names.toName(function, modEnv.getLocation());
+
+            Result<IValue> func = getCurrentEnvt().getVariable(name);
+
+            if (func instanceof OverloadedFunction) {
+                OverloadedFunction overloaded = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+                func = overloaded.getFunctions().get(0); 
+            }
+
+            if (func == null) {
+                throw new UndeclaredVariable(function, name);
+            }
+
+            if (!(func instanceof AbstractFunction)) {
+                throw new UnsupportedOperationException("main should be function");
+            }
+
+            AbstractFunction main = (AbstractFunction) func;
+
+            if (main.hasKeywordArguments() && main.getArity() == 0) {
+                if (main.getType().getFieldTypes().getArity() > 0) {
+                    throw new CommandlineError("main function should only have keyword parameters.", main.getType().getKeywordParameterTypes(), module);
+                }
+
                 return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
             }
             else {
@@ -855,7 +894,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(String command, ISourceLocation location) throws ImplementationError {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             ModuleEnvironment curMod = getCurrentModuleEnvironment();
@@ -877,7 +916,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IMap syntaxDefinition = curMod.getSyntaxDefinition();
         IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
         IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+        return vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), vf.set());
     }
 
     private Result<IValue> evalMore(String command, ISourceLocation location)
@@ -886,7 +925,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         ITree tree;
 
         IActionExecutor<ITree> actionExecutor = new NoActionExecutor();
-        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
@@ -937,7 +976,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private ITree parseCommand(String command, ISourceLocation location) {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
             tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
@@ -951,7 +990,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         try {
             __setInterrupt(false);
             IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
                 tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
