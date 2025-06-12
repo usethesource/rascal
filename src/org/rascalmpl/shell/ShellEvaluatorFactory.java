@@ -87,6 +87,9 @@ public class ShellEvaluatorFactory {
         if (!pcfg.getMessages().isEmpty()) {
             stdout.println("PathConfig messages:");
             Messages.write(pcfg.getMessages(), pcfg.getSrcs(), stdout);
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages());
+            }
         }
 
         return evaluator;

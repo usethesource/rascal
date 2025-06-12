@@ -663,7 +663,7 @@ public class PathConfig {
      */
     public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
         manifestRoot = safeResolve(manifestRoot);
-        // once we have proper support for poject locs we should do this instead:
+        // once we have proper support for project locs we should do this instead:
         //manifestRoot = upgradeToProjectScheme(manifestRoot, projectName);
         RascalManifest manifest = new RascalManifest();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
@@ -674,7 +674,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
+            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, RascalManifest.META_INF_RASCAL_MF)));
         }
 
         ISourceLocation target;
@@ -815,14 +815,12 @@ public class PathConfig {
 
         boolean foundSrc = false;
 
+        // For backward compatibility, first check the source roots in the manifest relative to the jar root
         for (String src : manifest.getSourceRoots(jar)) {
             ISourceLocation srcLib = URIUtil.getChildLocation(unpacked, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
                 foundSrc = true;
-            }
-            else {
-                messages.append(Messages.error(srcLib + " source folder does not exist.", URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF)));
             }
         }
 
