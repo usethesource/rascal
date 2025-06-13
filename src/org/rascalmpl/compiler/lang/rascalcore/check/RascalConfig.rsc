@@ -66,7 +66,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     }
     oldResult = rascalMayOverloadOld(defs, defines);
     if(result != oldResult){
-        throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>";
+        throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>, <[defines[def] | def <- defs]>";
     }
     return result;
 }
