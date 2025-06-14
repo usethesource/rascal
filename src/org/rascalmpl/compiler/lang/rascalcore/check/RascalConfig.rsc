@@ -55,24 +55,24 @@ import String;
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
 // Define the name overloading that is allowed
-bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    <fstDef, restDefs> = takeFirstFrom(defs);
+// bool rascalMayOverloadNew(set[loc] defs, map[loc, Define] defines){
+//     <fstDef, restDefs> = takeFirstFrom(defs);
 
-    fstRole = defines[fstDef].idRole;
-    result = false;
-    if(fstRole in idRoleOverloading){
-        fstMayOverload = idRoleOverloading[fstRole];
-        result = all(rdef <- restDefs, defines[rdef].idRole in fstMayOverload);
-    }
-    oldResult = rascalMayOverloadOld(defs, defines);
-    if(result != oldResult){
-        throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>, <[defines[def] | def <- defs]>";
-    }
-    return result;
-}
+//     fstRole = defines[fstDef].idRole;
+//     result = false;
+//     if(fstRole in idRoleOverloading){
+//         fstMayOverload = idRoleOverloading[fstRole];
+//         result = all(rdef <- restDefs, defines[rdef].idRole in fstMayOverload);
+//     }
+//     oldResult = rascalMayOverloadOld(defs, defines);
+//     if(result != oldResult){
+//         throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>, <[defines[def] | def <- defs]>";
+//     }
+//     return result;
+// }
 
 // Define the name overloading that is allowed
-bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
+bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     bool seenVAR = false;
     bool seenNT  = false;
     bool seenLEX = false;
@@ -108,7 +108,7 @@ bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
         case keywordId():
             { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
         case aliasId():
-            { if(seenALIAS || seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY || seenFUNCTION) return false; seenALIAS = true; }
+            { if(seenALIAS || seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
         }
     }
     return true;
