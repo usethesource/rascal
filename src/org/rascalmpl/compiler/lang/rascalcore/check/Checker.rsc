@@ -32,8 +32,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-import lang::rascal::\syntax::Rascal;
-
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::CollectDeclaration;
 extend lang::rascalcore::check::CollectExpression;
@@ -66,6 +64,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 import analysis::graphs::Graph;
+// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
@@ -92,15 +91,13 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    
     if(!exists(pcfg.generatedResources)) {
         try {
             mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
+            msgs += error("PathConfig `generatedResources`: <e>", pcfg.generatedResources);
         }
     }
-
     return msgs;
 }
 
@@ -115,6 +112,10 @@ set[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
      }
      return msgs;
 }
+
+bool errorsPresent(TModel tmodel) = errorsPresent(tmodel.messages);
+bool errorsPresent(set[Message] msgs) = errorsPresent(toList(msgs));
+bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 // ----  Various check functions  ---------------------------------------------
 
@@ -284,9 +285,9 @@ ModuleStatus rascalTModelForLocs(
                 map[str,set[str]] m_imports = ();
                 map[str,set[str]] m_extends = ();
                 for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
-                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
+                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m, MStatus::ignored() notin ms.status[imp]};
                     m_imports[m] =  imports;
-                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
+                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m, MStatus::ignored() notin ms.status[ext] };
                     m_extends[m] = extends;
                     invertedExtends = ms.strPaths<2,0>;
                     if(compilerConfig.warnUnused){
@@ -333,7 +334,7 @@ ModuleStatus rascalTModelForLocs(
                     ms.messages[m] ? {} += toSet(tm.messages);
 
                     ms.status[m] += {tpl_uptodate(), checked()};
-                    if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
+                    if(errorsPresent(ms.messages[m])){
                         ms.status[m]  += {check_error()};
                     }
                 }
@@ -348,7 +349,7 @@ ModuleStatus rascalTModelForLocs(
                     if(success){
                         lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
                         ms.messages[m] += toSet(lmsgs);
-                        ms.status[m] += {code_generated()};
+                        ms.status[m] += errorsPresent(lmsgs) ? {code_generation_error()} : {code_generated()};
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, transient_tms, compilerConfig);
@@ -448,9 +449,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             if(ignoreCompiler(tagsMap)) {
                     ms.messages[nm] ? {} += { Message::info("Ignoring module <nm>", pt@\loc) };
                     ms.status[nm] += MStatus::ignored();
-            } else {
-                namedTrees[nm] = pt;
             }
+            namedTrees[nm] = pt;
         }
         //else {
         //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
@@ -484,9 +484,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
@@ -610,6 +610,7 @@ int main(
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
+        logImports               = logImports,
         verbose                  = verbose,
         logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
@@ -619,10 +620,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
 
-    messages = [];
+    list[ModuleMessages] messages = [];
     
     if (modules == []) {
-        messages = [info("No modules to check.", |unknown:///|)];
+        //messages = [info("No modules to check.", |unknown:///|)];
         return 0;
     }
     else {

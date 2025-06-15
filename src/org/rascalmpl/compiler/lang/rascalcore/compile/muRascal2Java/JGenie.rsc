@@ -27,8 +27,6 @@ POSSIBILITY OF SUCH DAMAGE.
 @bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::JGenie
 
-import lang::rascal::\syntax::Rascal;
-
 import IO;
 import List;
 import Location;
@@ -561,7 +559,7 @@ JGenie makeJGenie(MuModule m,
         str tinits = "";
         str consinits = "";
         str adtinits_instantiate = "";
-        str adtinits = "";
+        str adtinits_noparam = "";
         str adtinits_param = "";
         str kwpTypeDecls = "";
         done = {};
@@ -581,16 +579,19 @@ JGenie makeJGenie(MuModule m,
         //println("-----------------------------------------");
         
         bool simpler(AType a, AType b) {
-            if(a == b) return false;
+            if(a == b || /b := a) return false;
             if(/a := b) return true;
             return isAtomicAType(a) && !isAtomicAType(b);
         }
         
         sorted_types = sort(domain(type2id), simpler);
-        //assert isSorted(sorted_types, simpler) : "Not properly sorted: <sorted_types>";
-        
+        //assert isSorted(sorted_types, less=simpler) : "Not properly sorted: <sorted_types>";
         //println("sorted_types:"); for(t <- sorted_types) println(t);
-        
+        smap = (dataSyntax()       : "$adt",
+                contextFreeSyntax(): "$sort",
+                lexicalSyntax()    : "$lex",
+                layoutSyntax()     : "$layouts",
+                keywordSyntax()    : "$keywords");
         for(t <- sorted_types){
             bottom-up visit(t) {
               case AType s:
@@ -599,27 +600,31 @@ JGenie makeJGenie(MuModule m,
                             aname = getUniqueADTName(a);
                             if(aname notin declared_ADT_names){
                                 declared_ADT_names += {aname};
+                                asr = smap[sr];
                                 tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
+                                if(asr in {"$sort", "$lex"}){
+                                    tdecls += "public final io.usethesource.vallang.type.Type <asNTName(type2id[s])>;\t/*<s>*/\n";
+                                }
                                 adtdef = "";
                                 if(isEmpty(parameters)){
-                                     switch(sr){
-                                          case dataSyntax():        adtdef = "$adt(\"<adtName>\")"; //"$TF.abstractDataType($TS, \"<adtName>\")";
-                                          case contextFreeSyntax(): adtdef = "$sort(\"<adtName>\")";
-                                          case lexicalSyntax():     adtdef = "$lex(\"<adtName>\")";
-                                          case layoutSyntax():      adtdef = "$layouts(\"<adtName>\")";
-                                          case keywordSyntax():     adtdef = "$keywords(\"<adtName>\")";
-                                      };
-                                     adtinits += "<type2id[s]> = <adtdef>;\n";
+                                    adtdef = "<asr>(\"<adtName>\")";
+                                    adtinits_noparam += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                    if(asr in {"$sort", "$lex"}){
+                                        adtinits_noparam += "<type2id[s]> = $adt(\"<adtName>\");\n";
+                                    }
                                 } else {
                                     if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
-                                        params = intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters]);
-                                        paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
+                                        tparams = "new Type[] { <intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters])> }";
+                                        vparams = "$RVF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
-                                             case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
-                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             case dataSyntax():        adtdef = "$parameterizedAdt(\"<adtName>\", <tparams>)";
+                                             case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <tparams>, <vparams>)";
+                                             case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <tparams>, <vparams>)";
                                          }
-                                        adtinits_param += "<type2id[s]> = <adtdef>;\n";
+                                        tinits += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                        if(asr in {"$sort", "$lex"}){
+                                            adtinits_param += "<type2id[s]> = $TF.abstractDataType($TS, \"<adtName>\", <tparams>);\n";
+                                         }
                                     } else {
                                         bindings = [];
                                         padt = a;
@@ -662,7 +667,7 @@ JGenie makeJGenie(MuModule m,
             }
         }
         
-        tinits = adtinits + tinits + adtinits_param + adtinits_instantiate + consinits;
+        tinits = adtinits_noparam + tinits + adtinits_param + adtinits_instantiate + consinits;
         rdecls = "";
         rinits = "";
         for(t <- reified_constants){
@@ -676,7 +681,8 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _accessType(AType tp){
-        return "<_getATypeAccessor(tp)><_shareType(tp)>";
+        nm = isNonTerminalAType(tp) ? asNTName(_shareType(tp)) : _shareType(tp);
+        return "<_getATypeAccessor(tp)><nm>";
     }
     
     bool _isWildCard(str con){

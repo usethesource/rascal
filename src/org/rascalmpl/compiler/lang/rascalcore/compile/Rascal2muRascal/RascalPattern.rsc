@@ -2281,7 +2281,7 @@ default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subje
             minus_two_delta = -2 * 1;
             trueCont = top-down-break visit(trueCont) { 
                 case muForAll( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
-                case muForAny( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
+                // case muForAny( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
                 case muBlock([muIncNativeInt(_, muCon(minus_two_delta)), muFail(_)]): {;}    // prevent cascading insertion of decrement ??TOD -2 => -2*delta
                 case mf: muFail(_) => muBlock([muIncNativeInt(cursor, muCon(minus_two_delta)), mf]) 
             };

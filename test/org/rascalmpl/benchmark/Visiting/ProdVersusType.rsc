@@ -24,10 +24,53 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst3
-                     
-start syntax SDF = Definition: "definition" Definition def;
+module Visiting::ProdVersusType
 
-syntax Definition = Module* modules
-                    ;
-syntax Module = "module";
+import util::Benchmark;
+import IO;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import util::Reflective;
+
+int NUM_RUNS = 100;
+
+int TypeMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case TypeVar _: i = i + 1;
+        }
+    }
+    println("TypeMatch elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
+
+int ProdMatch(Tree tr) {
+    int i = 0;
+    s = cpuTime();
+    for (_ <- [0..NUM_RUNS]) {
+        top-down-break visit (tr) {
+            case (TypeVar) `&<Name _>`: i = i + 1;
+            case (TypeVar) `&<Name _> \<: <Type _>`: i = i + 1;
+        }
+    }
+    println("ProdMatch elapsed: <(cpuTime() - s)/1000000> ms");
+    return i;
+}
+ 
+ void warmup(start[Module] m){
+    for(_ <- [0..5]){
+        ProdMatch(m);
+        TypeMatch(m);
+    }
+ }
+value main(){
+    m = parseModuleWithSpaces(|std:///List.rsc|);
+    warmup(m);
+    println("ProdMatch:");
+    a = ProdMatch(m);
+    println("TypeMatch:");
+    b = TypeMatch(m);
+    return <a,b>;
+}

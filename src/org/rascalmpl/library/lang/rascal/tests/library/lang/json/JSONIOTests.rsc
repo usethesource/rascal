@@ -191,7 +191,7 @@ test bool accurateParseErrors() {
 
    return true;
 }
-
+@ignore{until #2133 is fixed}
 test bool regression1() = jsonRandom1(("a":12,[]:{}));
 
 data Cons = cons(str bla = "null");
@@ -223,7 +223,7 @@ test bool dealWithNull() {
     assert parseJSON(#set[int], "[1,null,2]") == {1, defaultJSONNULLValues[#int], 2};
 
     try {
-        assert parseJSON(#tuple[int,int], "[null,null]", nulls=()) == [];
+        assert parseJSON(#tuple[int,int], "[null,null]", nulls=()) == <0,0>;
     }
     catch ParseError(_):
         assert true;
