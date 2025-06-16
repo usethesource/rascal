@@ -934,8 +934,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 }
 
 str href(loc link) = href(link, link.file);
-str href(loc link, str text) = "\u001b]8;;<link>\u009c<text>\u001b]8;;\u001b\u009c";
-                           //  \a1b]8;;<URL>\a1b\\<text>\a1b]8;;\a1b\\
+str href(loc link, str text) = "\a1b]8;;<link.uri>\a1b\\<text>\a1b]8;;\a1b\\";
+                            
 
 @synopsis{Prepare blocks run the REPL but show no input or output}
 list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
