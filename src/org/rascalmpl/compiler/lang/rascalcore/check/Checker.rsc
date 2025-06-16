@@ -600,6 +600,14 @@ int main(
         iprintln(modules);
     }
 
+    // resources should end up in the target binary folder
+    // if we want something intermediary instead, we'll have to copy
+    // them there at some point.
+    pcfg.generatedResources     = pcfg.bin;
+    pcfg.generatedTestResources = pcfg.bin;
+    pcfg.generatedSources       = pcfg.projectRoot + "gen/java";
+    pcfg.generatedTestSources   = pcfg.projectRoot + "gen/java";
+
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
         verbose                  = verbose,
