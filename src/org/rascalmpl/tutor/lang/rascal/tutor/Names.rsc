@@ -1,9 +1,9 @@
 module lang::rascal::tutor::Names
 
-import String;
-import Location;
-import List;
 import IO;
+import List;
+import Location;
+import String;
 import util::Reflective;
 
 data PathConfig(
