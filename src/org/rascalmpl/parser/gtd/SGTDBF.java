@@ -1503,9 +1503,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		if (recoveryNodesInQueue == 0) {
 			return false;
 		}
-		if (recoveryNodesInQueue > 51) {
-			return false;
-		}
 
 		return recoveryNodesInQueue == totalNodesInQueue;
 	}
