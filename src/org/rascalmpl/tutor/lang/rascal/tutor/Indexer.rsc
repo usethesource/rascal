@@ -43,7 +43,7 @@ Index createConceptIndex(PathConfig pcfg) {
 }
 
 rel[str, str] createConceptIndex(list[loc] srcs, datetime lastModified, bool isPackageCourse, str packageName, str packageId) 
-  = {*createConceptIndex(src, lastModified, isPackageCourse, packageName, packageId) | src <- srcs, bprintln("Indexing <src>")};
+  = {*createConceptIndex(src, lastModified, isPackageCourse, packageName, packageId) | src <- srcs};
 
 @synopsis{creates a lookup table for concepts nested in a folder}
 rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageCourse, str packageName, str packageId) {
@@ -191,7 +191,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
   + // Finally, the index entries for Rascal modules and declarations, as extracted from the source code:
     {  // `((getDefaultPathConfig))` -> `Libary/util/Reflective#getDefaultPathConfig`
       *{<"<item.kind>:<item.name>", fr>, 
-        <item.name, fr > | item.name?},
+        <item.name, fr > | item.name?, !(item is moduleInfo)},
      
       // `((Library:getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<rootName(src)>:<item.name>", fr >,
@@ -227,19 +227,21 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
   return result;
 }
 
-private bool isConceptFile(loc f) = f.extension in {"md"};
+public bool isConceptFile(loc f) = f.extension == "md";
 
-private bool(loc) isFreshConceptFile(datetime lM) 
+public bool isRascalFile(loc f) = f.extension == "rsc";
+
+public bool(loc) isFreshConceptFile(datetime lM) 
   = bool (loc f) { 
       return isConceptFile(f) && lastModified(f) > lM;
     };
 
-private bool(loc) isFreshRascalFile(datetime lM)
+public bool(loc) isFreshRascalFile(datetime lM)
   = bool (loc f) {
       return f.extension in {"rsc"} && lastModified(f) > lM;
     };
 
-private bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
+public bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
 @synopsis{ignores extracting errors because they will be found later}
 private list[DeclarationInfo] safeExtract(loc f) {
