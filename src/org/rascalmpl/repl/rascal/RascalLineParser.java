@@ -251,7 +251,7 @@ public class RascalLineParser implements Parser {
             return translateTree(commandParser.apply(line), line, cursor);
         } 
         catch (ParseError pe) {
-            if (!completeStatementMode || lastLineIsBlank(line)) {
+            if (!completeStatementMode) {
                 return splitWordsOnly(line, cursor);
             }
 
@@ -265,10 +265,6 @@ public class RascalLineParser implements Parser {
         catch (Throwable e) {
             throw new EOFError(-1, -1, "Unexpected failure during parsing of the command: " + e.getMessage());
         }
-    }
-
-    private boolean lastLineIsBlank(String line) {
-        return line.endsWith("\n");
     }
 
     private ParsedLine translateTree(ITree command, String line, int cursor) {
