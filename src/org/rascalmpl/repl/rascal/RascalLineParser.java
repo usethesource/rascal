@@ -69,6 +69,7 @@ public class RascalLineParser implements Parser {
                 // in the future we might be able to use the parser with error recovery
                 // but we would still have to think about grouping things together that aren't in the 
                 // parse tree, such as `:` and the `set`
+                // TODO: we have syntax definitions for `:set` so that should not be an issue. See Rascal.rsc::Command
                 try {
                     // lets see, maybe it parses as a rascal expression
                     return parseFullRascalCommand(line, cursor, false);
@@ -253,7 +254,13 @@ public class RascalLineParser implements Parser {
             if (!completeStatementMode || lastLineIsBlank(line)) {
                 return splitWordsOnly(line, cursor);
             }
-            throw new EOFError(pe.getBeginLine(), pe.getBeginColumn(), "Parse error");
+
+            if (pe.getOffset() == line.length()) {
+                throw new EOFError(pe.getBeginLine(), pe.getBeginColumn(), "Incomplete command");
+            }
+            else {
+                throw new SyntaxError(pe.getBeginLine(), cursor, "Command not recognized");
+            }
         } 
         catch (Throwable e) {
             throw new EOFError(-1, -1, "Unexpected failure during parsing of the command: " + e.getMessage());
