@@ -1,7 +1,6 @@
 module lang::rascal::tutor::repl::TutorCommandExecutor
 
 import util::Reflective;
-import IO;
 
 @synopsis{A closure-based object wrapper for Rascal REPL}
 @description{
