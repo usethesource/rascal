@@ -278,7 +278,9 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	@Override
 	public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) throws IOException {
 		var activeWatch = watchers.remove(new WatchId(root, callback, recursive));
-		activeWatch.close();
+		if (activeWatch != null) {
+			activeWatch.close();
+		}
 	}
 
 	private ISourceLocationChanged calculateChange(WatchEvent event, ISourceLocation root) {

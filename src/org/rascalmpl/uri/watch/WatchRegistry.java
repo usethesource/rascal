@@ -80,7 +80,9 @@ public class WatchRegistry {
         if (watcher != null) {
             startNormalWatch(loc, recursive, callback, resolvedLoc, watcher);
         }
-        startSimulatedWatch(loc, recursive, callback, resolvedLoc);
+        else {
+            startSimulatedWatch(loc, recursive, callback, resolvedLoc);
+        }
     }
 
     private void startSimulatedWatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback,
@@ -170,25 +172,45 @@ public class WatchRegistry {
         return t;
     });
 
-    public void notifySimulatedWatchers(ISourceLocation key, ISourceLocationChanged event) {
-        if (watchers.containsKey(key.getScheme())) {
+    public void notifySimulatedWatchers(ISourceLocation loc, ISourceLocationChanged event) {
+        if (watchers.containsKey(loc.getScheme())) {
             // the registered watcher will do the callback itself
             return;
         }
-        var callbacks = internalWatchers.floorEntry(key);
-        if (callbacks != null) {
-            var exactMatch = callbacks.getKey().equals(key);
-            if (exactMatch || URIUtil.isParentOf(callbacks.getKey(), key)) {
-                var onlyRecursive = !exactMatch && !URIUtil.getParentLocation(key).equals(callbacks.getKey());
-                for (var c : callbacks.getValue()) {
+        // there might be multiple watches active that would hit this location, so we have to go down the tree to find them
+        // and stop as soon as we've moved past them
+        var possibleMatches = internalWatchers.headMap(loc, true)
+            .descendingMap()
+            .entrySet()
+            .iterator();
+        while (possibleMatches.hasNext()) {
+            var watchedEntry = possibleMatches.next();
+            var watchedPath = watchedEntry.getKey();
+            var exactMatch = watchedPath.equals(loc);
+            var childMatch = URIUtil.isParentOf(watchedPath, loc);
+            if (exactMatch || childMatch) {
+                var onlyRecursive = !exactMatch && !isDirectParentOf(watchedPath, loc);
+                for (var c : watchedEntry.getValue()) {
                     if (!onlyRecursive || c.isRecursive()) {
                         // we schedule the call in the background
                         exec.submit(() -> c.getHandler().accept(event));
                     }
                 }
             }
+            // now we might continue for other higher up entries
+            // but only as long as we share some path prefix
+            var watchedParent = URIUtil.getParentLocation(watchedPath);
+            if (!watchedParent.equals(loc) && !URIUtil.isParentOf(watchedParent, loc)) {
+                break;
+            }
+            
         }
     }
+
+    private boolean isDirectParentOf(ISourceLocation parent, ISourceLocation child) {
+        return URIUtil.relativize(parent, URIUtil.getParentLocation(child)).getPath().equals("/");
+    }
+
 
     private void cleanup() {
         try {
