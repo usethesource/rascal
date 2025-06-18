@@ -48,7 +48,6 @@ import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 /**

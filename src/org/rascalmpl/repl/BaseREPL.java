@@ -36,6 +36,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
+import org.jline.reader.LineReader.RegionType;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;
@@ -87,6 +88,7 @@ public class BaseREPL {
         } else {
             this.history = null;
         }
+        reader.option(Option.BRACKETED_PASTE, true);
         reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
         reader.option(Option.DISABLE_EVENT_EXPANSION, true); // stop jline expending escaped characters in the input
         reader.variable(LineReader.LINE_OFFSET, 1);
@@ -100,7 +102,6 @@ public class BaseREPL {
         this.normalPrompt = replService.prompt(ansiColorsSupported, unicodeSupported);
         reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiColorsSupported, unicodeSupported));
         this.reader = reader.build();
-
 
         // FUTURE features:
         // - CTRL+\ to print the stacktrace while running
