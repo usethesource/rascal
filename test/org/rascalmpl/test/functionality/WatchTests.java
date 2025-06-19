@@ -63,7 +63,7 @@ public class WatchTests {
     }
 
     private IEvaluator<Result<IValue>> setupWatchEvaluator() {
-        return setupWatchEvaluator(false);
+        return setupWatchEvaluator(true);
     }
     private final IEvaluator<Result<IValue>> setupWatchEvaluator(boolean debug) {
         var evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance());
