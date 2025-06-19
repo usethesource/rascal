@@ -103,6 +103,7 @@ public class BaseREPL {
         reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiColorsSupported, unicodeSupported));
         this.reader = reader.build();
 
+        
         // FUTURE features:
         // - CTRL+\ to print the stacktrace while running
         // - highlighting in the prompt? (future work, as it also hurts other parts)
