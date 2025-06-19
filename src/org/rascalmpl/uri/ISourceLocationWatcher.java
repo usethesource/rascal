@@ -25,17 +25,25 @@ public interface ISourceLocationWatcher {
 	 * Register a watcher callback for the current scheme at the given root
 	 * @param root        the resource to watch
 	 * @param watcher     the callback to call when something happens to the registred resource
+	 * @param recursive   also watch all nested directories for changes (use {@link #supportsRecursiveWatch()} to verify it's supported)
 	 * @throws IOException
 	 */
-	void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
+	void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException;
 
 	/**
 	 * Unregister a watcher callback for a specific uri (note, there can be multiple watchers per resource, this only clears this specific watcher)
 	 * @param root the resource to unwatch
 	 * @param watcher the specific callback to unregister
+	 * @param recursive  was the watch registered with a recursive flag (use {@link #supportsRecursiveWatch()} to verify it's supported)
 	 * @throws IOException
 	 */
-	void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
+	void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException;
+
+	/**
+	 * Does this watcher support a recursive watch request.
+	 */
+	boolean supportsRecursiveWatch();
+
 
 	public interface ISourceLocationChanged {
 		ISourceLocation getLocation();
