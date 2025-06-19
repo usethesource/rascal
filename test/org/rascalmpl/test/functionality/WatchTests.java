@@ -168,10 +168,11 @@ public class WatchTests {
     @Test
     public void combinedFileAndDirectoryWatchesAreFine() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
-        executeCommand(evalTest, "writeFile(" + locationPrefix + "test-watch-a5.txt|, \"making it exist\");"); 
-        executeCommand(evalTest, "watch(" + locationPrefix + "test-watch-a5.txt|, false, triggerWatch);");
-        executeCommand(evalTest, "watch(" + locationPrefix + "|, false, triggerWatch2);");
-        executeCommand(evalTest, "writeFile(" + locationPrefix + "test-watch.txt|, \"bye\");");
+        var ourDirectory = locationPrefix + "/combined" + rand.nextInt(100);
+        executeCommand(evalTest, "writeFile(" + ourDirectory + "/test-watch-a5.txt|, \"making it exist\");"); 
+        executeCommand(evalTest, "watch(" + ourDirectory + "/test-watch-a5.txt|, false, triggerWatch);");
+        executeCommand(evalTest, "watch(" + ourDirectory + "|, false, triggerWatch2);");
+        executeCommand(evalTest, "writeFile(" + ourDirectory + "/test-watch.txt|, \"bye\");");
         holdTrue("Watch should not have been triggered for file watch", evalTest, "trig == 0");
         waitForTrue("Watch should have been triggered due to directory watch", evalTest, "trig2 > 0");
     }
