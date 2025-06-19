@@ -702,7 +702,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
         // ambiguous resolution, first try and resolve within the current course:
         if (str sep <- {":","-"}, 
            {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
-          unique = /^\/assets/ := uunique ? unique : "<p2r><unique>";
+          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
           return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
