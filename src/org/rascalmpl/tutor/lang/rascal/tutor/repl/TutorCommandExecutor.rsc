@@ -42,7 +42,7 @@ java CommandExecutor createExecutor(PathConfig pcfg);
 test bool executorSmokeTest() {
   exec = createExecutor(pathConfig());
 
-  assert exec.prompt() == "rascal\>" : "prompt should rascal"; 
+  assert exec.prompt() == "rascal\>" : "prompt should be rascal"; 
 
   assert /ok[\r\n]+/ := exec.eval("import IO;")["text/plain"] : "result of import should be ok";
 
@@ -52,7 +52,16 @@ test bool executorSmokeTest() {
 
   output = exec.eval(")");
 
-  assert /haai[\r\n]+/ := exec.eval(")")["application/rascal+stdout"] : "result of println should be printed";
+  assert /haai/ := exec.eval(")")["application/rascal+stdout"] : "result of println should be printed on stdout";
+
+  exec.reset();
+  output = exec.eval(")");
+  assert /Parse error/ := output["application/rascal+stderr"] : "parse errors should be printed on stderr";
+
+  exec.reset();
+  output = exec.eval("int x = \"five\";");
+
+  assert /Expected int, but got str/ := output["application/rascal+stderr"] : "static errors should be printed on stderr";
 
   return true;
 }
