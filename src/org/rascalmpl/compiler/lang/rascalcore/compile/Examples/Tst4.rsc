@@ -26,35 +26,27 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
 
-start syntax A = "a";
 
-// test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
+import ParseTree;
+import IO;
+  
+data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
+data D[&T] = d1(&T fld);
+data P(int size = 0);
 
-// value main()  { n = 1; n = true; return n; }
+//@ignore{Does not work after changed TypeReifier in compiler}
+value main(){ //test bool allConstructorsHaveTheCommonKwParam(){
+    iprintln( #P.definitions[adt("P",[])].alternatives);
+    return  all (cons(_,_,kws,_) <- #P.definitions[adt("P",[])].alternatives, bprintln(kws), label("size", \int()) in kws);    
+  //=  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
+}  
+@ignoreCompiler{Does not work after changed TypeReifier in compiler}  
+test bool axiomHasItsKwParam()
+  =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
 
-// void main()
-//    { n = 1; n = 1.5; n + 2;}
-
-// void main(){
-//     n = 1;
-//     n = 1.5;
-//     //return n;
-// }
-
-// Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
-
-// void main() {
-//     n = 1;
-//     m = n;
-//     n + 2;
-// }
-
-// Stat 4
-
-    // value zz = { l = []; l = l + 1.5; };
-
-// value main()
-//  { n = 1;
-//    n = "a";
-//    return n;
-// }
+@ignore{Does not work after changed TypeReifier in compiler}  
+test bool axiomsKwParamIsExclusive()
+  =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
+  
+  
+  

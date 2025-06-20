@@ -34,8 +34,6 @@ module lang::rascalcore::check::Import
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::RascalConfig;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
 import lang::rascalcore::compile::CompileTimeError;
 
@@ -380,7 +378,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
 
-    if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), MStatus::ignored()} & ms.status[c]))){
+    if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), code_generation_error(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
 
@@ -422,7 +420,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
 
-        m1.messages = sort( { msg | msg <- tm.messages, msg.at.path == mscope.path}, bool(Message a, Message b){ return a.at.begin.line < b.at.begin.line; });
+        m1.messages = sort( { msg | msg <- tm.messages, msg.at.path == mscope.path || msg is error}, bool(Message a, Message b){ return a.at.begin.line < b.at.begin.line; });
         ms.messages[qualifiedModuleName] = toSet(m1.messages);
 
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
