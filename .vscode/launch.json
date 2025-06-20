@@ -71,7 +71,7 @@
             "request": "attach",
             "projectName": "rascal-lsp",
             "hostName": "localhost",
-            "port": 9001
+            "port": 9871
         },
         {
             "type": "java",
