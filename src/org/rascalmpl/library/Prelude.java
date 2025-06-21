@@ -1098,6 +1098,15 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
+
+	public void rename(ISourceLocation from, ISourceLocation to, IBool overwrite) {
+		try {
+			REGISTRY.rename(from, to, overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
 	
 	public void mkDirectory(ISourceLocation sloc) {
 	  try {
