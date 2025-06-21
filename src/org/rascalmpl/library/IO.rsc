@@ -652,8 +652,12 @@ throws PathNotFound, IO
 
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Remove files or directories}
 public java void remove(loc file, bool recursive=true) throws IO;
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Remove files or directories}
+public java void rename(loc from, loc to, bool overwrite=false) throws IO;
 
 @synopsis{Write values to a file.}
 @description{
