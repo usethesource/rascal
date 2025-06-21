@@ -52,9 +52,9 @@ int getErrorDot(appl(error(_, _, int dot), _)) = dot;
 Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) = skip;
 
 @synopsis{Get the text that failed to parse. This is only the text of the part that has been skipped to be able to continue parsing.
-If you want the text of the whole error tree, you can just use string interpolation: "<error>".
+If you want the text of the whole error tree, you can just use string interpolation: `"<error>"`.
 }
-str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
+str getErrorText(appl(error(_, _, _), [*_, sk:appl(skipped(_), _)])) = "<sk>";
 
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
