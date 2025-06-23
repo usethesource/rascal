@@ -25,9 +25,63 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-                     
-start syntax SDF = Definition: "definition" Definition def;
+import IO;
+import util::Reflective;
+import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::RascalConfig;
 
-syntax Definition = Module* modules
-                    ;
-syntax Module = "module";
+void testRascalLSP(loc rascalLocation = |project://rascal|, loc lspLocation = |project://rascal-lsp|, bool cleanRascal = false) {
+    rascalSource = rascalLocation + "src/org/rascalmpl/library";
+    rascalTpls = |tmp:///rascal-tpls|;
+    println(rascalTpls);
+    pcfgRascal = pathConfig(
+        projectRoot = rascalLocation,
+        srcs = [rascalSource],
+        bin = rascalTpls
+    );
+
+    lspSource = lspLocation + "src/main/rascal";
+    lspTpls = |tmp:///lsp-tpls|;
+    println(lspTpls);
+
+    pcfgLsp = pathConfig(
+        projectRoot = lspLocation,
+        srcs = [lspSource],
+        bin = lspTpls,
+        libs=[rascalTpls]
+    );
+
+    rascalModules = {
+        "util/Reflective.rsc",
+        "analysis/diff/edits/TextEdits.rsc",
+        "IO.rsc",
+        "ParseTree.rsc",
+        "Message.rsc",
+        "util/IDEServices.rsc",
+        "lang/pico/syntax/Main.rsc",
+        "util/ParseErrorRecovery.rsc"
+    };
+
+    if (cleanRascal) {
+        remove(rascalTpls, recursive=true);
+    }
+    println("Checking rascal modules needed for LSP");
+    rascalCheckResult = check([rascalSource + m | m <- rascalModules],rascalCompilerConfig(pcfgRascal)[verbose=true]);
+    println("Rascal messages:");
+    for (/e:error(_,_) := rascalCheckResult) {
+        println(e);
+    }
+    // make sure the tpls are fresh for lsp
+    // it's fine to not recalculate those of 
+    remove(lspTpls, recursive=true);
+    println("Checking rascal-lsp");
+    lspCheckResult = check([lspSource + "demo/lang/pico/OldStyleLanguageServer.rsc"], rascalCompilerConfig(pcfgLsp)[verbose=true]);
+    println("Rascal-LSP messages:");
+    for (/e:error(_,_) := lspCheckResult) {
+        println(e);
+    }
+}
+void main(){
+    testRascalLSP();
+}
