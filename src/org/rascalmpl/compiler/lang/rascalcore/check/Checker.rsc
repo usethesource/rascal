@@ -64,15 +64,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 import analysis::graphs::Graph;
-// import lang::rascalcore::CompilerPathConfig;
-
-// Duplicate in lang::rascalcore::compile::util::Names, factor out
-data PathConfig(
-    loc generatedSources       =|unknown:///|,
-    loc generatedTestSources   =|unknown:///|,
-    loc generatedResources     = |unknown:///|,
-    loc generatedTestResources =|unknown:///|
-);
+import lang::rascalcore::CompilerPathConfig;
 
 void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
 
@@ -91,7 +83,7 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    if(!exists(pcfg.generatedResources)) {
+    if(pcfg.generatedResources != |unknown:///| && !exists(pcfg.generatedResources)) {
         try {
             mkDirectory(pcfg.generatedResources);
         } catch e: {
@@ -137,9 +129,16 @@ ModuleStatus rascalTModelForLocs(
     
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
+    ModuleStatus ms = newModuleStatus(compilerConfig);
+
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
-    ModuleStatus ms = newModuleStatus(compilerConfig);
+    if(errorsPresent(msgs)){
+        pcfg.messages += toList(msgs);
+        ms.pathConfig = pcfg;
+        ms.compilerConfig.typepalPathConfig.messages += pcfg.messages;
+        return ms;
+    }
     
     mnames = 
         for(mloc <- mlocs){
@@ -559,11 +558,15 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
     pcfg1 = compilerConfig.typepalPathConfig;
     compilerConfig.typepalPathConfig = pcfg1;
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
-    messagesNoModule = {};
+    messagesNoModule = toSet(ms.pathConfig.messages);
     for(mname <- ms.messages, !ms.moduleLocs[mname]?){
         messagesNoModule += ms.messages[mname];
     }   
-    return [ program(ms.moduleLocs[mname], ms.messages[mname] + messagesNoModule) | mname <- ms.messages, ms.moduleLocs[mname] ?  ];
+    msgs = [ program(ms.moduleLocs[mname], ms.messages[mname] + messagesNoModule) | mname <- ms.messages, ms.moduleLocs[mname] ?  ];
+    if(isEmpty(msgs)){
+        msgs = [ program(m.at, {m}) | Message m <- messagesNoModule ];
+    }
+    return msgs;
 }
 
 list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
