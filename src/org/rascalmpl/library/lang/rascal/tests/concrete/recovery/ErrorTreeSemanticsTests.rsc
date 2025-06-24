@@ -346,7 +346,7 @@ test bool testVisitReplacementAmbMemo() {
     // Return a different tree for each index
     AmbWord replacement(int index) {
         list[str] letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" ];
-        return parse(#AmbWord, "^" + letters[count] + "$", allowAmbiguity=true, maxAmbDepth=0);
+        return parse(#AmbWord, "^" + letters[index] + "$", allowAmbiguity=true, maxAmbDepth=0);
     }
 
     int count = 0;
