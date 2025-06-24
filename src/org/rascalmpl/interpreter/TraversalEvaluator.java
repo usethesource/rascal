@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.IdentityHashMap;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -74,6 +75,7 @@ public class TraversalEvaluator {
 	private final IEvaluator<Result<IValue>> eval;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final List<IValue> traversalContext;
+	private Map<IValue, IValue> memoizedResults;
 	
 	public TraversalEvaluator(IEvaluator<Result<IValue>> eval) {
 		this.eval = eval;
@@ -119,10 +121,29 @@ public class TraversalEvaluator {
 	}
 
 	public IValue traverse(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
-		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult());
+		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult(), false);
 	}
 
-	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr){
+
+	private IValue traverseOnceMemoized(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+		IValue result = null;
+		// Look for a memoized result
+		if (memoizedResults == null) {
+			memoizedResults = new HashMap<>();
+		}
+		else {
+			result = memoizedResults.get(subject);
+		}
+
+		if (result == null) {
+			result = traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, false);
+			memoizedResults.put(subject, result);
+		}
+
+		return result;
+	}
+
+	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, boolean isAmbChild){
 		Type subjectType = subject.getType();
 		IValue result = subject;
 		this.traversalContext.add(subject);
@@ -166,7 +187,7 @@ public class TraversalEvaluator {
 		} else if(subjectType.isList()){
 			result = traverseListOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
 		} else if(subjectType.isSet()){
-			result = traverseSetOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseSetOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, isAmbChild);
 		} else if (subjectType.isMap()) {
 			result = traverseMapOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
 		} else if(subjectType.isTuple()){
@@ -235,7 +256,7 @@ public class TraversalEvaluator {
 		for (int i = 0; i < arity; i++){
 			tr.changed = false;
 			tr.matched = false;
-			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr);
+			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr, false);
 			hasMatched |= tr.matched;
 			hasChanged |= tr.changed;
 		}
@@ -249,7 +270,7 @@ public class TraversalEvaluator {
 	private IValue traverseADTOnce(IValue subject, CaseBlockList casesOrRules,
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IConstructor cons = (IConstructor)subject;
-		
+
 		Map<String, IValue> kwParams = null;
 		if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters()) {
 			kwParams = new HashMap<>();
@@ -293,7 +314,7 @@ public class TraversalEvaluator {
 					w.append(list.get(0)); // copy layout before
 					tr.changed = false;
 					tr.matched = false;
-					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr));
+					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr, false));
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
 					w.append(list.get(2)); // copy layout after
@@ -304,7 +325,7 @@ public class TraversalEvaluator {
 						if (i % 2 == 0) { // Recursion to all non-layout elements
 							tr.changed = false;
 							tr.matched = false;
-							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, false);
 							
 							if (hasChanged) {
 							    assert w != null;
@@ -345,13 +366,14 @@ public class TraversalEvaluator {
 			// Constructor is not "appl", or at least one of the patterns is not a concrete pattern
 			boolean hasChanged = false;
 			boolean hasMatched = false;
-			
+
 			for (int i = 0; i < cons.arity(); i++){
 				IValue child = cons.get(i);
 				tr.matched = false;
 				tr.changed = false;
-				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
-				
+
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, cons.getConstructorType() == RascalValueFactory.Tree_Amb);
+
 				if (hasChanged) {
 				    assert args != null;
                     args[i] = newChild;
@@ -384,7 +406,7 @@ public class TraversalEvaluator {
 					IValue val = consKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, false);
 					kwParams.put(kwName, newVal);
 					
 					if (!hasChanged && tr.changed) {
@@ -452,12 +474,12 @@ public class TraversalEvaluator {
 				Entry<IValue,IValue> entry = iter.next();
 				tr.changed = false;
 				tr.matched = false;
-				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr, false);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				tr.changed = false;
 				tr.matched = false;
-				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr, false);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				w.put(newKey, newValue);
@@ -471,7 +493,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseSetOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, boolean isAmbChild) {
 		ISet set = (ISet) subject;
 		if(!set.isEmpty()){
 			ISetWriter w = eval.getValueFactory().setWriter();
@@ -481,7 +503,13 @@ public class TraversalEvaluator {
 			for (IValue v : set) {
 				tr.changed = false;
 				tr.matched = false;
-				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr));
+				IValue result;
+				if (isAmbChild) {
+					result = traverseOnceMemoized(v, casesOrRules, direction, progress, fixedpoint, tr);
+				} else {
+					result = traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr, false);
+				}
+				w.insert(result);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
@@ -507,7 +535,7 @@ public class TraversalEvaluator {
 				IValue elem = list.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, false);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the new list
@@ -562,7 +590,7 @@ public class TraversalEvaluator {
 				IValue child = node.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, false);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the array
@@ -596,7 +624,7 @@ public class TraversalEvaluator {
 					IValue val = nodeKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, false);
 					kwParams.put(kwName, newVal);
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
