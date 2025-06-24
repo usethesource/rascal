@@ -13,7 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.values.iterators;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 
 import io.usethesource.vallang.IConstructor;
@@ -35,6 +37,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 public class DescendantReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
+	private Set<IValue> visitedAmbChildren = new HashSet<IValue>();
 
 	private boolean debug = false;
 
@@ -79,10 +82,19 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
-				pushConcreteSyntaxNode((ITree) v);
-				return;
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
+				ITree tree = (ITree) v;
+				if (TreeAdapter.isAmb(tree)) {
+					pushAmb(tree);
+					return;
+				}
+
+				if (interpretTree) {
+					pushConcreteSyntaxNode((ITree) v);
+					return;
+				}
 			}
+			
 			INode node = (INode) v;
 			push(v, node.getChildren().iterator());
 			if (node.mayHaveKeywordParameters()) {
@@ -105,6 +117,19 @@ public class DescendantReader implements Iterator<IValue> {
 			spine.push(v);
 		}
 	}
+
+	private void pushAmb(ITree amb) {
+		if (debug) System.err.println("pushAmb: " + amb);
+		spine.push(amb);
+		for (IValue alt : TreeAdapter.getAlternatives(amb)) {
+			if (!visitedAmbChildren.contains(alt)) {
+				visitedAmbChildren.add(alt);
+				push(alt);
+			} else {
+				if (debug) System.err.println("skipping already visited amb child: " + alt);
+			}
+		}
+	}
 	
 	private void pushKeywordParameters(IWithKeywordParameters<? extends INode> node) {
 		for (String name : node.getParameterNames()) {
@@ -123,7 +148,12 @@ public class DescendantReader implements Iterator<IValue> {
 		if (TreeAdapter.isAmb(tree)) {
 			// only recurse
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				pushConcreteSyntaxNode((ITree) alt);
+				if (!visitedAmbChildren.contains(alt)) {
+					visitedAmbChildren.add(alt);
+					pushConcreteSyntaxNode((ITree) alt);
+				} else {
+					if (debug) System.err.println("skipping already visited amb child: " + alt);
+				}
 			}
 			return;
 		}
