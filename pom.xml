@@ -188,7 +188,6 @@
                             <ignores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
