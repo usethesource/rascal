@@ -32,16 +32,9 @@ import Exception;
 syntax Amb = AmbWord () | () AmbWord;
 syntax AmbWord = "^" [a-z] "$" () | "^" () [a-z] "$";
 
-// Will be defined in ParseTree module:
-data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
-
 @synopsis{Check if a tree is an error tree.}
 private bool isParseError(appl(error(_, _, _), _)) = true;
 private default bool isParseError(Tree tree) = false;
-
-@synopsis{Check if a tree is a skipped tree.}
-private bool isSkipped(appl(skipped(_),_)) = true;
-private default bool isSkipped(Tree tree) = false;
 
 @synopsis{Check if a tree is an amb cluster}
 private bool isAmbCluster(amb(_)) = true;
@@ -109,7 +102,6 @@ end");
 private Statement getTestStatement() {
     Program prg = getTestProgram();
     for (/(Statement)stat := prg, isParseError(stat), "<stat>" == "input x= 14") {
-        println(prettyTree(stat));
         return stat;
     }
 
@@ -183,7 +175,7 @@ test bool testHasAfterDot() = !(getTestStatement() has val);
 
 test bool testIsDefinedBeforeDot() = getTestStatement().var?;
 
-test bool testIsDefineAfterDot() = !getTestStatement().val?;
+test bool testIsDefinedAfterDot() = !getTestStatement().val?;
 
 test bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
 
@@ -229,11 +221,20 @@ test bool testBracketFieldAssignmentAfterDot() {
 
 test bool testIndexedFieldBeforeDot() = equals(getTestStatement()[0], (Id)`input`);
 
-test bool testIndexedFieldAtOrAfterDot() {
+test bool testIndexedFieldAfterDot() {
     try {
         getTestStatement()[1];
         return false;
-    } catch ParseErrorRecovery(IndexOutOfBounds(1), _): {
+    } catch ParseErrorRecovery(IndexOutOfBounds(1), l): {
+        return l == |unknown:///|(36,11,<3,4>,<3,15>);
+    }
+}
+
+test bool testIndexedFieldTrueOutOfBounds() {
+    try {
+        getTestStatement()[100];
+        return false;
+    } catch IndexOutOfBounds(100): {
         return true;
     }
 }
