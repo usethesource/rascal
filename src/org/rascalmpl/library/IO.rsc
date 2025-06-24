@@ -748,6 +748,7 @@ void copyDirectory(loc source, loc target) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Is an alias for ((rename))}
 java void move(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
