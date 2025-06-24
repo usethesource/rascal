@@ -133,13 +133,6 @@ ModuleStatus rascalTModelForLocs(
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
-    if(errorsPresent(msgs)){
-        pcfg.messages += toList(msgs);
-        ms.pathConfig = pcfg;
-        ms.compilerConfig.typepalPathConfig.messages += pcfg.messages;
-        return ms;
-    }
-    
     mnames = 
         for(mloc <- mlocs){
             if(exists(mloc)){
@@ -156,6 +149,11 @@ ModuleStatus rascalTModelForLocs(
     if(size(mlocs) != size(mnames)){ // not all mlocs could be mapped to a module
         for(mn <- mnames){
              ms.messages[mn] = msgs;
+        }
+        if(errorsPresent(msgs)){
+            pcfg.messages += toList(msgs);
+            ms.pathConfig = pcfg;
+            ms.compilerConfig.typepalPathConfig.messages += pcfg.messages;
         }
         return ms;
     }
