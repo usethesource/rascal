@@ -1437,13 +1437,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public boolean runTests(IRascalMonitor monitor) {
+    public boolean runTests(IRascalMonitor monitor, String optionalModuleName) {
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
             final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), getErrorPrinter());
 
-            new TestEvaluator(this, new ITestResultListener() {
+            var teval = new TestEvaluator(this, new ITestResultListener() {
 
                 @Override
                 public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
@@ -1466,7 +1466,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 public void start(String context, int count) {
                     l.start(context, count);
                 }
-            }).test();
+            });
+
+            if (optionalModuleName != null) {
+                teval.test(optionalModuleName);
+            }
+            else {
+                teval.test();
+            }
+            
             return allOk[0];
         }
         finally {

@@ -100,7 +100,7 @@ public class RunTests {
                 public void done() { }
             });
 
-            eval.runTests(eval.getMonitor());
+            eval.runTests(eval.getMonitor(), null);
 
             return results.done();
         }
