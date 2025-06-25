@@ -203,6 +203,13 @@ data Production
   Normally  a `NoSuchField("someField")` exception would be thrown but because this problem is caused by a parse error,
   the original exception is wrapped like this: `ParseErrorRecovery(NoSuchField("someField"), t.src)`.
 }
+@Benefits{
+using ((TryCatch)) you can make a language processor robust against (deeply nested) recovered parse errors without scattering or tangling error handling code everywhere.
+}
+@pitfalls{
+it is advised to ((TryCatch)) these exception high up in the call graph of your language processor, otherwise you'll have to write ((TryCatch)) in many different places
+}
+
 data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
 
 @synopsis{Attributes in productions.}
