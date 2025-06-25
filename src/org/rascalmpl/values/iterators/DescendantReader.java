@@ -94,7 +94,7 @@ public class DescendantReader implements Iterator<IValue> {
 					return;
 				}
 			}
-			
+
 			INode node = (INode) v;
 			push(v, node.getChildren().iterator());
 			if (node.mayHaveKeywordParameters()) {
