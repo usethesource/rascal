@@ -13,11 +13,10 @@
 *******************************************************************************/
 package org.rascalmpl.values.iterators;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Stack;
 
+import io.usethesource.capsule.Set;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -37,7 +36,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 public class DescendantReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
-	private Set<IValue> visitedAmbChildren = new HashSet<IValue>();
+	private Set.Transient<IValue> visitedAmbChildren = Set.Transient.of();
 
 	private boolean debug = false;
 
@@ -123,7 +122,7 @@ public class DescendantReader implements Iterator<IValue> {
 		spine.push(amb);
 		for (IValue alt : TreeAdapter.getAlternatives(amb)) {
 			if (!visitedAmbChildren.contains(alt)) {
-				visitedAmbChildren.add(alt);
+				visitedAmbChildren.__insert(alt);
 				push(alt);
 			} else {
 				if (debug) System.err.println("skipping already visited amb child: " + alt);
@@ -149,7 +148,7 @@ public class DescendantReader implements Iterator<IValue> {
 			// only recurse
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				if (!visitedAmbChildren.contains(alt)) {
-					visitedAmbChildren.add(alt);
+					visitedAmbChildren.__insert(alt);
 					pushConcreteSyntaxNode((ITree) alt);
 				} else {
 					if (debug) System.err.println("skipping already visited amb child: " + alt);
