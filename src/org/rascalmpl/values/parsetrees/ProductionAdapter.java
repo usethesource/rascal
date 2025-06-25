@@ -21,7 +21,10 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
+
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Lit;
 
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.values.RascalValueFactory;
@@ -81,6 +84,40 @@ public class ProductionAdapter {
 		}
 		
 		return writer.done();
+	}
+
+	public static int getErrorDot(IConstructor prod) {
+		if (!isError(prod)) {
+			throw new ImplementationError("This is not an error production: " + prod);
+		}
+
+		return ((IInteger)prod.get(2)).intValue();
+	}
+
+	public static IConstructor getErrorProduction(IConstructor prod) {
+		if (!isError(prod)) {
+			throw new ImplementationError("This is not an error production: " + prod);
+		}
+
+		return ((IConstructor) prod.get(1));
+	}
+
+	public static int getAstArgCount(IConstructor prod) {
+		int count = 0;
+		boolean isLayout = false;
+		for (IValue child : ProductionAdapter.getSymbols(prod)) {
+			if (isLayout) {
+				isLayout = false;
+			} else {
+				IConstructor symbol = SymbolAdapter.delabel((IConstructor) child);
+				if (!SymbolAdapter.isLiteral(symbol) && !SymbolAdapter.isCILiteral(symbol)) {
+					count++;
+				}
+				isLayout = true; // Next symbol will be layout
+			}
+		}
+
+		return count;
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
