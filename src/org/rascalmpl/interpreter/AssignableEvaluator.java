@@ -195,7 +195,7 @@ public class AssignableEvaluator {
 	}
 
 	public void runTests(IRascalMonitor monitor) {
-		this.__getEval().runTests(monitor);
+		this.__getEval().runTests(monitor, null);
 	}
 
 	public void setCurrentEnvt(Environment environment) {
