@@ -568,13 +568,15 @@ public class PathConfig {
             if (libProjectName.equals("rascal")) {
                 return; 
             }
-            boolean dependsOnRascalLSP = libProjectName.equals("rascal-lsp");
-            if (dependsOnRascalLSP) {
+            if (libProjectName.equals("rascal-lsp")) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep);
+                // we'll be adding the rascal-lsp by hand later
+                // so we ignore the rascal-lsp dependency
+                return;
             }
             ISourceLocation projectLoc = URIUtil.correctLocation("project", libProjectName, "");
 
-            if (reg.exists(projectLoc) && !dependsOnRascalLSP) {
+            if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
@@ -611,7 +613,7 @@ public class PathConfig {
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
+                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", getPomXmlLocation(manifestRoot)));
                 }
             }
         }
