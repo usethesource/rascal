@@ -529,16 +529,7 @@ public class PathConfig {
         // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
         try {
             var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
-
-            var reg = URIResolverRegistry.getInstance();
-            // the interpreter must find the Rascal sources of util::LanguageServer etc.
-            if (URIUtil.getLocationName(lsp).equals("classes")
-                && URIUtil.getLocationName(URIUtil.getParentLocation(lsp)).equals("target")) {
-                    var lspLocation = JarURIResolver.jarify(URIUtil.getParentLocation(URIUtil.getParentLocation(lsp)));
-                    addLibraryToSourcePath(reg, srcs, messages, lspLocation);
-            } else {
-                addLibraryToSourcePath(reg, srcs, messages, JarURIResolver.jarify(lsp));
-            }
+            srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
             // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
             addLibraryToLibPath(libs, mode, lsp);
         }
