@@ -47,8 +47,8 @@ test bool whichConstructor(bool choice) {
     }
 
     // here we declare which one to use by module
-    assert Exp2 _ := lang::rascal::tests::diamondImports::Left::or(\true(), \true());  // \true() is unique because the context is provided
-    assert Exp  _ := lang::rascal::tests::diamondImports::Right::or(\true(), \true()); // \true() is unique because the context is provided
+    assert Exp _ := lang::rascal::tests::diamondImports::Left::or(\true(), \true());  // \true() is unique because the context is provided
+    assert Exp2  _ := lang::rascal::tests::diamondImports::Right::or(\true(), \true()); // \true() is unique because the context is provided
 
     // it would be better if we could write shorter prefixes like: `Left::and(Left::\true())``
     

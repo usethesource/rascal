@@ -9,6 +9,4 @@ data Exp
     | \false()
     ;
 
-data Exp2 = or(Exp lhs, Exp rhs);
-
 public str global = "World";
