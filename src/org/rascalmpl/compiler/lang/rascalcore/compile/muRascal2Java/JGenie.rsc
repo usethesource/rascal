@@ -644,7 +644,8 @@ JGenie makeJGenie(MuModule m,
                                     }
                                 }
                             }
-                        } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := s){
+                        } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := s,
+                                !isSyntaxType(adtType)){
                             isLocal = isEmpty(_getATypeAccessor(s));
                             if(isLocal){
                                 cname = atype2idpart(c);                                 
