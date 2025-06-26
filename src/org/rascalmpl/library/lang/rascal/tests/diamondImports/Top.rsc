@@ -8,7 +8,7 @@ import lang::rascal::tests::diamondImports::Right;
 
 @expected{UnexpectedType}
 test bool fieldNameClashTest(bool leftOrRight) {
-    Exp example = leftOrRight 
+    example = leftOrRight 
         ? and(\true(), \true()) 
         : or(maybe(), maybe())
         ;
@@ -46,9 +46,15 @@ test bool whichConstructor(bool choice) {
         assert Exp _ := and(\true(), \false());
     }
 
-    // here we know which one to use
-    assert Exp2 _ := lang::rascal::tests::diamondImports::Left::and(\true(), \true());
-    assert Exp  _ := lang::rascal::tests::diamondImports::Right::and(\true(), \true());
+    // here we declare which one to use by module
+    assert Exp2 _ := lang::rascal::tests::diamondImports::Left::and(\true(), \true());  // \true() is unique because the context is provided
+    assert Exp  _ := lang::rascal::tests::diamondImports::Right::and(\true(), \true()); // \true() is unique because the context is provided
 
+    // it would be better if we could write shorter prefixes like: `Left::and(Left::\true())``
+    
+    // here we declare which one to use my ADT
+    assert Exp2 _ := Exp2::and(\true(), \true());  // \true() is unique because the context is provided
+    assert Exp  _ :=  Exp::and(\true(), \true());  // \true() is unique because the context is provided
+   
     return true;
 }
