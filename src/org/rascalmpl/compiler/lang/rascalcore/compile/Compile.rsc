@@ -140,21 +140,25 @@ list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConfig){
+    return compile([qualifiedModuleName], compilerConfig);
+}
+
+@doc{Compile a list of Rascal source modules to Java}
+list[Message] compile(list[str] qualifiedModuleNames, RascalCompilerConfig compilerConfig){
     pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, |unknown:///|);
     if(!isEmpty(msgs)){
         return toList(msgs);
     }
 
-    if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleName>"); }
+    if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleNames>"); }
     
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], compilerConfig, compile1);
+    ms = rascalTModelForNames(qualifiedModuleNames, compilerConfig, compile1);
       
     comp_time = (cpuTime() - start_comp)/1000000;
-    if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms [total]"); }
-	
-    return toList(ms.messages[qualifiedModuleName] ? {});
+    if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleNames> in <comp_time> ms [total]"); }
+	return [*(ms.messages[m] ? {}) |  m <- qualifiedModuleNames];
 }
 
 void main(
