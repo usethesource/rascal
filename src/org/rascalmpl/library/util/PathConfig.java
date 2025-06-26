@@ -88,7 +88,11 @@ public class PathConfig {
     }
     
     public PathConfig() {
-        projectRoot = defaultProjectRoot;
+        this(defaultProjectRoot);
+    }
+
+    public PathConfig(ISourceLocation projectRoot) { 
+        this.projectRoot = projectRoot;
         srcs = Collections.emptyList();
         ignores = defaultIgnores;
         bin = defaultBin;
