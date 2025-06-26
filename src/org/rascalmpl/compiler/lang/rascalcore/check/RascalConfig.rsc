@@ -449,21 +449,23 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
             msgs = [];
-            if(t1.adt == t2.adt){
-                msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            }
+            // if(t1.adt == t2.adt){
+            //     msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
+            // }
+            // begin of debatable errors
             // NOTE: After discussion about the relevance of the following checks they have been commented out
             //       and will be removed later
             // else if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
             //     msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            // } else {
+            // } //else {
             //     msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
             // }
+            // end of debatable errors
             s.addMessages(msgs);
         }
     }
     try {
-        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, /*d.scope in moduleScopes,*/ t := s.getType(d)];
+        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
         for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
             for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
                 msgs = [ error("Incompatible field `<fld1.alabel>` in `<t1.adt.adtName>`: `<prettyAType(fld1)> <fld1.alabel>` in constructor `<d1.id>` clashes with `<prettyAType(fld2)> <fld2.alabel>` in constructor `<d2.id>`", d1.defined)
@@ -479,7 +481,6 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-
     if(!s.reportedErrors()){
        checkOverloading(namedTrees, s);
 
