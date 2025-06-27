@@ -59,7 +59,6 @@ public class RascalJUnitTestRunner extends Runner {
 
         if (projectRoot != null) {
             evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
-            ShellEvaluatorFactory.registerProjectAndTargetResolver(projectRoot);
             evaluator.getConfiguration().setErrors(true);
         } else {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
