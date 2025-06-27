@@ -16,28 +16,28 @@ void executeDocumentEdits(list[FileChange] edits) {
 @synopsis{Execute file changes, including in-file edits if present.}
 void executeFileChanges(list[FileChange] edits) {
     for (e <- edits) {
-        executeDocumentEdit(e);
+        executeFileChange(e);
     }
 }
 
-void executeDocumentEdit(removed(loc f)) {
+void executeFileChange(removed(loc f)) {
     remove(f.top);
 }
 
-void executeDocumentEdit(created(loc f)) {
+void executeFileChange(created(loc f)) {
     writeFile(f, "");
 }
 
-void executeDocumentEdit(renamed(loc from, loc to)) {
+void executeFileChange(renamed(loc from, loc to)) {
     move(from.top, to.top, overwrite=true);
 }
 
-void executeDocumentEdit(changed(loc file)) {
+void executeFileChange(changed(loc file)) {
     setLastModified(file, now());
 }
 
 @synopsis{Edit a file according to the given ((TextEdit)) instructions}
-void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
+void executeFileChange(changed(loc file, list[TextEdit] edits)) {
     assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
         return e1.range.offset < e2.range.offset; 
     });
