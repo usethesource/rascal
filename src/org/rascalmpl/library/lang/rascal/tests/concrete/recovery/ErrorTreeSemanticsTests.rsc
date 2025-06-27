@@ -281,7 +281,7 @@ test bool testConcreteMatchWithErrors() {
 }
 
 @description{
-This function a test tree that has plenty of oppoertunities to memo amb children:
+This function creates a test tree that has plenty of oppoertunities to memo amb children:
  ❖
  ├─ Amb = AmbWord  () 
  │  ├─ ❖
@@ -335,6 +335,21 @@ test bool testConcreteDeepMatchAmbMemo() {
     int count = (0 | it + 1 | /(AmbWord)`<AmbWord w>` := ambTree, isParseError(w));
 
     // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
+}
+
+private bool printTree(Tree tree) {
+    println("tree:\n<prettyTree(tree)>");
+    return true;
+}
+
+
+test bool testAmbMatchAmbMemo() {
+    Amb ambTree = ambTestTree();
+    println("ambTree:\n<prettyTree(ambTree)>");
+
+    int count = (0 | it + 1 | /a:amb(alts) := ambTree, printTree(a));
+
     return count == 3;
 }
 
