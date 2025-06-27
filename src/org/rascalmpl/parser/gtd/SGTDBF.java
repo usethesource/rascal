@@ -79,6 +79,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	// So at queueIndex+3, all terminals of length 3 that need reducing are stored.
 	private DoubleStack<AbstractStackNode<P>, AbstractNode>[] todoLists;
 	private int queueIndex;
+	private int recoveryNodesInQueue;
+	private int totalNodesInQueue;
 	
 	// Stack of non-terminal nodes to expand
 	// - Nodes are removed in expand, which pops and expands all stack nodes on this stack
@@ -909,7 +911,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			visualize("Reducing terminals", ParseStateVisualizer.TERMINALS_TO_REDUCE_ID);
 		}
 		while(!stacksWithTerminalsToReduce.isEmpty()){
-			move(stacksWithTerminalsToReduce.peekFirst(), stacksWithTerminalsToReduce.popSecond());
+			AbstractStackNode<P> node = stacksWithTerminalsToReduce.peekFirst();
+			totalNodesInQueue--;
+			if (node instanceof SkippingStackNode) {
+				recoveryNodesInQueue--;
+			}
+			move(node, stacksWithTerminalsToReduce.popSecond());
 		}
 	}
 
@@ -970,8 +977,19 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return true;
 			}
 		}
-		
+
+		// Queue is empty, reset to original size
+		if (todoLists.length > DEFAULT_TODOLIST_CAPACITY*4) {
+			resetTodoLists();
+		}
+
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void resetTodoLists() {
+		todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
+		queueIndex = 0;
 	}
 
 	@SuppressWarnings("unused")
@@ -1043,6 +1061,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			todoLists[insertLocation] = terminalsTodo;
 		}
 		terminalsTodo.push(node, result);
+		totalNodesInQueue++;
 	}
 	
 	/**
@@ -1081,6 +1100,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
             }
             
             terminalsTodo.push(node, result);
+			totalNodesInQueue++;
         }
         else if (startPosition == location) {
             // this is the normal case where new matchable nodes are discovered
@@ -1093,6 +1113,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
             // not have been a parse error and we wouldn't need recovery...
             throw new RuntimeException("discovered a future recovery? " + node);
         }
+
+		recoveryNodesInQueue++;
     }
 	
 	/**
@@ -1478,25 +1500,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	}
 	
 	private boolean onlyRecoveredStacksLeft() {
-		int recoveredStacksFound = 0;
-
-		for (int i=0; i<todoLists.length; i++) {
-			DoubleStack<AbstractStackNode<P>, AbstractNode> todoList = todoLists[i];
-			if (todoList != null) {
-				int size = todoList.getSize();
-				for (int j=0; j<size; j++) {
-					if (!(todoList.getFirst(j) instanceof SkippingStackNode)) {
-						return false;
-					}
-
-					if (recoveredStacksFound++ > 50) {
-						return false;
-					}
-				}
-			}
+		if (recoveryNodesInQueue == 0) {
+			return false;
 		}
 
-		return recoveredStacksFound > 0;
+		return recoveryNodesInQueue == totalNodesInQueue;
 	}
 
   private void checkTime(String msg) {
