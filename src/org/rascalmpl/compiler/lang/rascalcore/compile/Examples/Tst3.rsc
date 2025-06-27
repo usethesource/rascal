@@ -41,7 +41,7 @@ void testRascalLSP(loc rascalLocation = |project://rascal|, loc lspLocation = |p
         bin = rascalTpls
     );
 
-    lspSource = lspLocation + "src/main/rascal";
+    lspSource = lspLocation + "src/main/rascal/library";
     lspTpls = |tmp:///lsp-tpls|;
     println(lspTpls);
 
