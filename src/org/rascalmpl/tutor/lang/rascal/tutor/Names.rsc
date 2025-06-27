@@ -1,20 +1,22 @@
 module lang::rascal::tutor::Names
 
-import String;
-import Location;
-import List;
 import IO;
+import List;
+import Location;
+import String;
 import util::Reflective;
 
 data PathConfig(
   str  packageName="",
-  str  packageGroup="",
+  str  packageArtifactId="",
+  str  packageGroupId="",
   loc  packageRoot=|unknown:///|,
   loc  sources=|http://github.com/usethesource/rascal|,
   loc  issues=|http://github.com/usethesource/rascal/issues|,
   loc  license=|cwd:///LICENSE.md|,
   loc  citation=|cwd:///CITATION.md|,
   loc  funding=|cwd:///FUNDING.md|,
+  loc  authors=|cwd:///AUTHORS.md|,
   loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
   str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
@@ -35,10 +37,8 @@ str modulePath(/^<prefix:.*>::Index$/) = modulePath("<prefix>::module_Index");
 default str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
 default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
  
-@synopsis{capitalizes and removes hyphens}
+@synopsis{keeps it as close to the original as possible}
 default str package(str input) = input;
-str package(str input:/^[a-z].*$/) = package(capitalize(input));
-str package(/^<prefix:[a-zA-Z\_0-9]*>\-<rest:.*>$/) = package("<prefix><capitalize(rest)>");
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
@@ -67,3 +67,5 @@ str pathToRoot(loc root, loc src, bool isPackageCourse)
 str pathToRoot(loc root, loc src, bool isPackageCourse) 
   = pathToRoot(root, src.parent, isPackageCourse)
   when isFile(src);  
+
+str rootName(loc src, bool isPackageCourse) = isPackageCourse && src.file in {"src", "Src", "SRC", "Rascal", "rascal", "API", "api"} ? "API" : capitalize(src.file);

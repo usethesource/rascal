@@ -45,7 +45,7 @@ loc REPO = |file:///Users/paulklint/git/|;
 
 PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/classes",
                                         generatedSources = REPO + "generated-sources/target/generated-sources",
-                                        resources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
+                                        generatedResources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
                                        );
 void main() = compileTestSources(manualTestConfig);
 
