@@ -435,7 +435,7 @@ public class JavaBridge {
 								args[i] = (IDEServices) monitor;
 							}
 							else {
-								args[i] = new BasicIDEServices(err, monitor, null);
+								args[i] = new BasicIDEServices(err, monitor, null, URIUtil.rootLocation("cwd"));
 							}
 						}
 						else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {

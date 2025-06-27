@@ -47,12 +47,12 @@ import String;
 
 bool verbose = false;
 
-data PathConfig(loc resources=|unknown:///|, loc generatedSources=|unknown:///|);
+data PathConfig(loc generatedResources=|unknown:///|, loc generatedSources=|unknown:///|);
 
 data Project
     = project(str name, map[str moduleName, str moduleText] modules, PathConfig pcfg);
 
-void clearMemory() { remove(|memory:///| recursive = true); }
+void clearMemory() { remove(|memory:///|, recursive = true); }
 
 loc projectDir(str pname)
     = |memory://<pname>/|;
@@ -99,7 +99,7 @@ PathConfig createPathConfig(str pname){
         srcs=[src(pname)],
         bin=bin(pname),
         generatedSources=generatedSources(pname),
-        resources=resources(pname),
+        generatedResources=resources(pname),
         libs=[]
     );
 }
