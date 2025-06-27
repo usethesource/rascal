@@ -589,7 +589,11 @@ void batchRecoveryTest(RecoveryTestConfig config) {
 
     if (config.statFile != |unknown:///|) {
         if (config.countNodes) {
-            writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+            if (config.countTreeMatches) {
+                writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes,matchTreeCount,matchTreeCountRatio\n");
+            } else {
+                writeFile(config.statFile, "source,size,result,duration,durationRatio,nodeRatio,unodeRatio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+            }
         } else {
             writeFile(config.statFile, "source,size,result,duration,durationRatio\n");
         }
