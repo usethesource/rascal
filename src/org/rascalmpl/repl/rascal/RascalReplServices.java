@@ -48,7 +48,6 @@ import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 /**
@@ -59,7 +58,6 @@ public class RascalReplServices implements IREPLService {
     private final @Nullable Path historyFile;
 
     private boolean unicodeSupported = false;
-    private boolean ansiSupported = false;
     private Terminal term;
     private PrintWriter out;
     private PrintWriter err;
@@ -83,7 +81,6 @@ public class RascalReplServices implements IREPLService {
         }
         this.term = term;
         this.unicodeSupported = unicodeSupported;
-        this.ansiSupported = ansiColorsSupported;
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = StreamUtil.generateErrorStream(term, monitor);
@@ -106,9 +103,6 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException {
-        if (input.equals("\n")) {
-            return new PrinterErrorCommandOutput("Cancelled");
-        }
         try {
             return lang.handleInput(input);
         }
