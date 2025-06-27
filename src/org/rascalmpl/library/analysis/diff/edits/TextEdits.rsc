@@ -27,12 +27,15 @@ to avoid racing for the state of the source file.
 }
 module analysis::diff::edits::TextEdits
 
-@synopsis{File changing operations}
-data DocumentEdit
-    = removed(loc file)
-    | created(loc file)
-    | renamed(loc from, loc to)
-    | changed(loc file, list[TextEdit] edits)
+extend analysis::diff::edits::FileChanges;
+
+@synopsis{For compatibility we rename FileChange to DocumentEdit}
+@deprecated{It's better to use ((FileChange)) for future compatibility.}
+alias DocumentEdit = FileChange;
+
+@synopsis{For some FileChanges we know exactly what happened.}
+data FileChange 
+    = changed(loc file, list[TextEdit] edits)
     ;
 
 @synopsis{Shorthand for file changes.}
