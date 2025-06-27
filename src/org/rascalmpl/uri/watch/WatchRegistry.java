@@ -27,6 +27,10 @@
 package org.rascalmpl.uri.watch;
 
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -47,9 +51,6 @@ import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -65,12 +66,11 @@ public class WatchRegistry {
     /** simulated locations that are watched */
     private final NavigableMap<ISourceLocation, Set<SimulatedWatchEntry>> internalWatchers = new ConcurrentSkipListMap<>(makeISourceLocationComparator());
 
-    /** keep track of original wrappers vs translating wrappers to provide the correct instance to unwatch (not an actual cache!) */
-    private final Cache<WatchKey, Consumer<ISourceLocationChanged>> wrappedHandlers = Caffeine.newBuilder()
-        .weakKeys()
-        .weakValues()
-        .build();
+    /** keep track of original wrappers vs translating wrappers to provide the correct instance to unwatch */
+    private final Map<WatchKey, KeyedWeakReference> wrappedHandlers = new ConcurrentHashMap<>();
+
     private final URIResolverRegistry reg;
+    public final ReferenceQueue<? super Consumer<ISourceLocationChanged>> clearedReferences = new ReferenceQueue<>();
     private final UnaryOperator<ISourceLocation> resolver;
     private volatile @Nullable ISourceLocationWatcher fallback;
 
@@ -149,24 +149,41 @@ public class WatchRegistry {
         }
         // for the unwatch we have to keep track of all the handlers we've passed along
         // and we don't want to overwrite existing handlers for the same pair of arguments
-        return wrappedHandlers.get(new WatchKey(originalLoc, recursive, original), k -> changes -> {
+        // but we also don't want duplicate entries, or cleared entries
+
+        Consumer<ISourceLocationChanged> newHandler = changes -> {
             // we resolved logical resolvers in order to use native watchers as much as possible
             // for efficiency sake, but this breaks the logical URI abstraction. We have to undo
             // this renaming before we trigger the callback.
             ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
             ISourceLocation unresolved = URIUtil.getChildLocation(originalLoc, relative.getPath());
             original.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
-        });
+        };
+        var key = new WatchKey(originalLoc, recursive, original, clearedReferences);
+        while (true) {
+            var stored = wrappedHandlers.compute(key, (k, v) -> {
+                if (v == null || v.get() == null) {
+                    return new KeyedWeakReference(k, newHandler, clearedReferences);
+                }
+                return v;
+            });
+            var actualResult = stored.get();
+            if (actualResult != null) {
+                // we didn't loose the race to the GC
+                // so we have an new handler that is bound to this key
+                return actualResult;
+            }
+        }
     }
 
     public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
         throws IOException {
-        // we might have wrapped it, so let's first lookup that wrapped callback
-        var callbackKey = new WatchKey(loc, recursive, callback);
-        var actualCallback = wrappedHandlers.getIfPresent(callbackKey);
+        var actualCallback = wrappedHandlers.remove(new WatchKey(loc, recursive, callback, clearedReferences));
         if (actualCallback != null) {
-            wrappedHandlers.invalidate(callbackKey);
-            callback = actualCallback;
+            var notClearedYet = actualCallback.get();
+            if (notClearedYet != null) {
+                callback = notClearedYet;
+            }
         }
 
         loc = safeResolve(loc);
@@ -243,6 +260,7 @@ public class WatchRegistry {
         try {
             cleanupInternalWatchers();
             cleanupSimulatedWatchers();
+            cleanupWrappedHandlers();
         }
         finally {
             CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES, exec)
@@ -282,6 +300,22 @@ public class WatchRegistry {
         }
     }
 
+    private void cleanupWrappedHandlers() {
+        var toClear = new ArrayList<WatchKey>();
+        synchronized(clearedReferences) {
+            Reference<?> entry;
+            while ((entry = clearedReferences.poll()) != null) {
+                if (entry instanceof WatchKey) {
+                    toClear.add((WatchKey)entry);
+                }
+                else {
+                    toClear.add(((KeyedWeakReference)entry).key);
+                }
+            }
+        }
+        toClear.forEach(wrappedHandlers::remove);
+    }
+
     public boolean hasNativeSupport(String scheme) {
         return watchers.containsKey(scheme);
     }
@@ -304,20 +338,31 @@ public class WatchRegistry {
         }
     }
 
-    private static class WatchKey {
+    private static class KeyedWeakReference extends WeakReference<Consumer<ISourceLocationChanged>> {
+        private final WatchKey key;
+
+        public KeyedWeakReference(WatchKey key, Consumer<ISourceLocationChanged> handler, ReferenceQueue<? super Consumer<ISourceLocationChanged>> queue) {
+            super(handler, queue);
+            this.key = key;
+        }
+        
+    }
+
+    private static class WatchKey extends WeakReference<Consumer<ISourceLocationChanged>> {
         private final ISourceLocation loc;
         private final boolean recursive;
-        private final Consumer<ISourceLocationChanged> handler;
+        private final int hash;
 
-        public WatchKey(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> handler) {
+        public WatchKey(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> handler, ReferenceQueue<? super Consumer<ISourceLocationChanged>> queue) {
+            super(handler, queue);
+            this.hash = Objects.hash(loc, recursive, handler);
             this.loc = loc;
             this.recursive = recursive;
-            this.handler = handler;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(loc, recursive, handler);
+            return hash;
         }
 
         @Override
@@ -329,9 +374,11 @@ public class WatchRegistry {
                 return false;
             }
             WatchKey other = (WatchKey) obj;
-            return recursive == other.recursive
+            return hash == other.hash
+                && recursive == other.recursive
                 && Objects.equals(loc, other.loc) 
-                && Objects.equals(handler, other.handler);
+                && get() != null
+                && Objects.equals(get(), other.get());
         }
 
     
