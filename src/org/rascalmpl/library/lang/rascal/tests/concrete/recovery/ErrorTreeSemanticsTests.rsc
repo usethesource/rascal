@@ -318,11 +318,21 @@ This function a test tree that has plenty of oppoertunities to memo amb children
 }
 private Amb ambTestTree() = parse(#Amb, "^X$", allowRecovery=true, allowAmbiguity=true);
 
-test bool testDeepMatchAmbMemo() {
+test bool testNodeDeepMatchAmbMemo() {
     Amb ambTree = ambTestTree();
 
     // Count the number of errors that is actually found by a deep match
     int count = (0 | it + 1 | /appl(error(_,_,_),_) := ambTree);
+
+    // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
+}
+
+test bool testConcreteDeepMatchAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    // Count the number of errors that is actually found by a deep match
+    int count = (0 | it + 1 | /(AmbWord)`<AmbWord w>` := ambTree, isParseError(w));
 
     // There will only be 3 matches if deep matches are memoized, 6 if they are not.
     return count == 3;
