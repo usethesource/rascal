@@ -69,10 +69,10 @@ import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
-    loc generatedSources=|unknown:///|,
-    loc generatedTestSources=|unknown:///|,
-    loc resources = |unknown:///|,
-    loc testResources =|unknown:///|
+    loc generatedSources       =|unknown:///|,
+    loc generatedTestSources   =|unknown:///|,
+    loc generatedResources     = |unknown:///|,
+    loc generatedTestResources =|unknown:///|
 );
 
 void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
@@ -92,11 +92,12 @@ set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
 
-    if(!exists(pcfg.resources)) {
+    
+    if(!exists(pcfg.generatedResources)) {
         try {
-            mkDirectory(pcfg.resources);
+            mkDirectory(pcfg.generatedResources);
         } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
+            msgs += error("PathConfig `resources`: <e>", pcfg.generatedResources);
         }
     }
 
@@ -599,7 +600,13 @@ int main(
         iprintln(modules);
     }
 
-    pcfg.resources = pcfg.bin;
+    // resources should end up in the target binary folder
+    // if we want something intermediary instead, we'll have to copy
+    // them there at some point.
+    pcfg.generatedResources     = pcfg.bin;
+    pcfg.generatedTestResources = pcfg.bin;
+    pcfg.generatedSources       = pcfg.projectRoot + "gen/java";
+    pcfg.generatedTestSources   = pcfg.projectRoot + "gen/java";
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,

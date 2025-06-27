@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -36,11 +37,15 @@ public class BasicIDEServices implements IDEServices {
   private final IRascalMonitor monitor;
   private final PrintWriter stderr;
   private final Terminal terminal;
+  private final ISourceLocation projectRoot;
+  private final String projectName;
 
-  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Terminal terminal){
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot){
     this.stderr = stderr;
     this.monitor = monitor;
     this.terminal = terminal;
+    this.projectRoot = projectRoot;
+    this.projectName = new RascalManifest().getProjectName(projectRoot);
   }
 
   @Override
@@ -145,5 +150,14 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
+  }
+
+  @Override
+  public ISourceLocation resolveProjectLocation(ISourceLocation input) {
+    if (projectName != "" && input.getScheme().equals("project") && input.getAuthority().equals(projectName)) {
+      return URIUtil.getChildLocation(projectRoot, input.getPath());
+    }
+    
+    return input;
   }
 }

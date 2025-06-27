@@ -394,10 +394,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 : (current >= max ? "X " : "O ")
                 ;
 
-            // capitalize
-            var msg = message.length() > 0 
-                ? message.substring(0, 1).toUpperCase() + message.substring(1, message.length())
-                : "";
+            // do not capitalize anymore
+            var msg = message;
 
             var capName = name.length() > 0 
                 ? name.substring(0, 1).toUpperCase() + name.substring(1, name.length())
