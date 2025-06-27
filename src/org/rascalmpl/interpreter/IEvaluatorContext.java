@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.Stack;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.StackTrace;
@@ -64,7 +65,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public GlobalEnvironment getHeap();
 	public Configuration getConfiguration();
 	
-	public boolean runTests(IRascalMonitor monitor);
+	public boolean runTests(IRascalMonitor monitor, @Nullable String optionalModuleName);
 	
 	public IValueFactory getValueFactory();
 	public RascalFunctionValueFactory getFunctionValueFactory();
