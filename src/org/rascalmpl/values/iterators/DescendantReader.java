@@ -36,7 +36,10 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 public class DescendantReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
-	private Set.Transient<IValue> visitedAmbChildren = Set.Transient.of();
+	IValue nextValue;
+
+
+	private Set.Transient<ITree> visitedAmbs = Set.Transient.of();
 
 	private boolean debug = false;
 
@@ -51,26 +54,56 @@ public class DescendantReader implements Iterator<IValue> {
 		push(val);
 	}
 
+	private boolean isAmb(IValue v) {
+		Type type = nextValue.getType();
+		if ((type.isNode() || type.isConstructor() || type.isAbstractData())) {
+			return type.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAmb((ITree) nextValue);
+		}
+
+		return false;
+	}
+
+	private void findNext() {
+		do {
+			nextValue = null;
+
+			if (spine.size() == 0) {
+				return;
+			}
+
+			Object next = spine.peek();
+			if (next instanceof Iterator) {
+				Iterator<IValue> iter = (Iterator<IValue>) next;
+				if (!iter.hasNext()) {
+					spine.pop();
+					continue;
+				}
+				nextValue = iter.next();
+			} else {
+				nextValue = (IValue) spine.pop();
+			}
+
+			if (isAmb(nextValue)) {
+				if (visitedAmbs.contains(nextValue)) {
+					nextValue = null; // Skip already visited amb
+				} else {
+					visitedAmbs.__insert((ITree) nextValue);
+				}
+			}
+		} while (nextValue == null);
+	}
+
 	public boolean hasNext() {
-		while((spine.size() > 0) 
-				&& (spine.peek() instanceof Iterator && !((Iterator<?>) spine.peek()).hasNext())){
-			spine.pop();
-		}		
-		return spine.size() > 0;
+		if (nextValue == null) {
+			findNext();
+		}
+		return nextValue != null;
 	}
 	
 	public IValue next() {
-		if (spine.peek() instanceof Iterator) {
-			Iterator<?> iter = (Iterator<?>) spine.peek();
-			
-			if (!iter.hasNext()) {
-				spine.pop();
-				return next();
-			}
-			push((IValue) iter.next());
-			return next();
-		}
-		return (IValue) spine.pop();
+		IValue next = nextValue;
+		findNext();
+		return next;
 	}
 	
 	private void push(IValue v, Iterator<IValue> children){
@@ -81,17 +114,9 @@ public class DescendantReader implements Iterator<IValue> {
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
-				ITree tree = (ITree) v;
-				if (TreeAdapter.isAmb(tree)) {
-					pushAmb(tree);
-					return;
-				}
-
-				if (interpretTree) {
-					pushConcreteSyntaxNode((ITree) v);
-					return;
-				}
+			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
+				pushConcreteSyntaxNode((ITree) v);
+				return;
 			}
 
 			INode node = (INode) v;
@@ -117,19 +142,6 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 	}
 
-	private void pushAmb(ITree amb) {
-		if (debug) System.err.println("pushAmb: " + amb);
-		spine.push(amb);
-		for (IValue alt : TreeAdapter.getAlternatives(amb)) {
-			if (!visitedAmbChildren.contains(alt)) {
-				visitedAmbChildren.__insert(alt);
-				push(alt);
-			} else {
-				if (debug) System.err.println("skipping already visited amb child: " + alt);
-			}
-		}
-	}
-	
 	private void pushKeywordParameters(IWithKeywordParameters<? extends INode> node) {
 		for (String name : node.getParameterNames()) {
 			push(node.getParameter(name));
@@ -147,12 +159,7 @@ public class DescendantReader implements Iterator<IValue> {
 		if (TreeAdapter.isAmb(tree)) {
 			// only recurse
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				if (!visitedAmbChildren.contains(alt)) {
-					visitedAmbChildren.__insert(alt);
-					pushConcreteSyntaxNode((ITree) alt);
-				} else {
-					if (debug) System.err.println("skipping already visited amb child: " + alt);
-				}
+				pushConcreteSyntaxNode((ITree) alt);
 			}
 			return;
 		}
