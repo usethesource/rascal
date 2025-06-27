@@ -48,6 +48,7 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int fromFile = 0,
     int sampleWindow = 1,
     bool countNodes = false,
+    bool countTreeMatches = true,
     bool verifyResult = false,
     loc statFile = |unknown:///|
 );
@@ -112,6 +113,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int nodeCountUnique = -1;
     int disambNodeCount = -1;
     int disambNodeCountUnique = -1;
+    int matchTreeCount = -1;
 
     TestMeasurement measurement = successfulParse();
     startTime = realTime();
@@ -135,6 +137,15 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                 list[Tree] errors = findAllParseErrors(disambTree);
                 errorCount = size(errors);
                 errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
+
+                if (config.countTreeMatches) {
+                    int matchStartTime = realTime();
+                    matchTreeCount = (0 | it + 1 | /Tree t <- tree);
+                    int matchDuration = realTime() - matchStartTime;
+                    if (matchDuration > 1000) {
+                        println("Tree match count calculation took too long: <matchDuration> ms, <matchTreeCount> nodes matched");
+                    }
+                }
             }
 
             measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
@@ -158,8 +169,9 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
         if (config.countNodes) {
             int nodeRatio = percent(nodeCount, referenceNodeCount);
             int unodeRatio = percent(nodeCountUnique, referenceNodeCountUnique);
+            int matchTreeCountRatio = matchTreeCount / nodeCountUnique;
 
-            appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>,<nodeRatio>,<unodeRatio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
+            appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>,<nodeRatio>,<unodeRatio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>,<matchTreeCount>,<matchTreeCountRatio>\n");
         } else {
             appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<durationRatio>\n");
         }
