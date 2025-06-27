@@ -12,7 +12,7 @@
 @bootstrapParser
 module util::Reflective
 
-
+extend util::PathConfig;
 import IO;
 import List;
 import ParseTree;
@@ -42,29 +42,7 @@ data RascalConfigMode
     | interpreter()
     ;
 
-@synopsis{General configuration (via path references) of a compiler or interpreter.}
-@description{
-A PathConfig is the result of dependency resolution and other configuration steps. Typically,
-IDEs produce the information to fill a PathConfig, such that language tools can consume it
-transparantly. A PathConfig is also a log of the configuration process. 
-
-* `srcs` list of root directories to search for source files; to interpret or to compile.
-* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
-* `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
-* `libs` is a list of binary dependency files (typically jar files or target folders) on other projects, for checking and linking purposes.
-* `generatedSources` is where generated (intermediate) source code that has to be compiled further is located.
-* `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
-}
-data PathConfig 
-  = pathConfig(
-        list[loc] srcs = [],  
-        list[loc] ignores = [],  
-        loc bin = |unknown:///|,
-        loc generatedSources = |unknown:///|,
-        list[loc] libs = [],          
-        list[Message] messages = []
-    );
-
+@deprecated{not in use anymore}
 data RascalManifest
   = rascalManifest(
       str \Project-Name = "Project",
@@ -76,6 +54,7 @@ data RascalManifest
       list[str] \Required-Dependencies = []
     ); 
 
+@deprecated{not in use anymore}
 data JavaBundleManifest
   = javaManifest(
       str \Manifest-Version = "",
@@ -90,22 +69,22 @@ data JavaBundleManifest
       list[str] \Import-Package = [] 
     );
 
-// @synopsis{Makes the location of a jar file explicit, based on the project name}
-// @description{
-// The classpath of the current JVM is searched and jar files are searched that contain
-// META-INF/MANIFEST.MF file that match the given `projectName`.
-// }
-// @benefits{
-// * This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
-// into testing ((PathConfig))s.
-// * The classpath is not used implicitly in this way, but rather explicitly. This helps
-// in making configuration issues tractable.
-// * The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
-// }
+@synopsis{Makes the location of a jar file explicit, based on the project name}
+@description{
+The classpath of the current JVM is searched and jar files are searched that contain
+META-INF/MANIFEST.MF file that match the given `projectName`.
+}
+@benefits{
+* This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
+into testing ((PathConfig))s.
+* The classpath is not used implicitly in this way, but rather explicitly. This helps
+in making configuration issues tractable.
+* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
-// @synopsis{Makes the location of the currently running rascal jar explicit.}
+@synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
@@ -113,6 +92,7 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
 @synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
   META-INF/RASCAL.MF files.}
+@deprecated{Not in use anymore.}
 PathConfig applyManifests(PathConfig cfg) {
    mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
