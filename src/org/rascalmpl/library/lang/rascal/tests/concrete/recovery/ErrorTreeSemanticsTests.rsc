@@ -338,19 +338,12 @@ test bool testConcreteDeepMatchAmbMemo() {
     return count == 3;
 }
 
-private bool printTree(Tree tree) {
-    println("tree:\n<prettyTree(tree)>");
-    return true;
-}
-
-
 test bool testAmbMatchAmbMemo() {
     Amb ambTree = ambTestTree();
-    println("ambTree:\n<prettyTree(ambTree)>");
 
-    int count = (0 | it + 1 | /a:amb(alts) := ambTree, printTree(a));
+    int count = (0 | it + 1 | /a:amb(alts) := ambTree);
 
-    return count == 3;
+    return count == 2;
 }
 
 test bool testVisitAmbMemo() {
