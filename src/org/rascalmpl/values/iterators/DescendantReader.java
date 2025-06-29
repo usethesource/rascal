@@ -54,15 +54,6 @@ public class DescendantReader implements Iterator<IValue> {
 		push(val);
 	}
 
-	private boolean isAmb(IValue v) {
-		Type type = nextValue.getType();
-		if ((type.isNode() || type.isConstructor() || type.isAbstractData())) {
-			return type.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAmb((ITree) nextValue);
-		}
-
-		return false;
-	}
-
 	private void findNext() {
 		do {
 			nextValue = null;
@@ -73,23 +64,18 @@ public class DescendantReader implements Iterator<IValue> {
 
 			Object next = spine.peek();
 			if (next instanceof Iterator) {
-				Iterator<IValue> iter = (Iterator<IValue>) next;
+				Iterator<?> iter = (Iterator<?>) next;
 				if (!iter.hasNext()) {
 					spine.pop();
 					continue;
 				}
-				nextValue = iter.next();
-			} else {
-				nextValue = (IValue) spine.pop();
+
+				push((IValue) iter.next());
+				continue;
 			}
 
-			if (isAmb(nextValue)) {
-				if (visitedAmbs.contains(nextValue)) {
-					nextValue = null; // Skip already visited amb
-				} else {
-					visitedAmbs.__insert((ITree) nextValue);
-				}
-			}
+			nextValue = (IValue) spine.pop();
+
 		} while (nextValue == null);
 	}
 
@@ -110,13 +96,32 @@ public class DescendantReader implements Iterator<IValue> {
 		spine.push(v);
 		spine.push(children);
 	}
-	
+
+	private void pushAmb(ITree amb) {
+		if (!visitedAmbs.contains(amb)) {
+			visitedAmbs.__insert(amb);
+			spine.push(amb);
+			for (IValue alt : TreeAdapter.getAlternatives(amb)) {
+				push(alt);
+			}
+		}
+	}
+
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
-				pushConcreteSyntaxNode((ITree) v);
-				return;
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
+				ITree tree = (ITree) v;
+
+				if (TreeAdapter.isAmb(tree)) {
+					pushAmb(tree);
+					return;
+				}
+
+				if (interpretTree) {
+					pushConcreteSyntaxNode((ITree) tree);
+					return;
+				}
 			}
 
 			INode node = (INode) v;
@@ -157,10 +162,7 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
-			// only recurse
-			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				pushConcreteSyntaxNode((ITree) alt);
-			}
+			pushAmb(tree);
 			return;
 		}
 		
