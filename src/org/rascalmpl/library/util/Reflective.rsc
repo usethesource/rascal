@@ -189,6 +189,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
+    inJar = contains(moduleLoc.scheme, "jar");
     
     if(!( rscFile || tplFile )){
         throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
@@ -213,6 +214,10 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     
     // Find longest matching .tpl file in library directories
   
+    if (inJar && /^[^!]+!<pathInJar:[^!]+$>/ := modulePath) {
+        modulePath = pathInJar;
+    }
+
     <modulePathNoExt, ext> = splitFileExtension(modulePath);
     while(modulePathNoExt[0] == "/"){
         modulePathNoExt = modulePathNoExt[1..];
@@ -228,6 +233,11 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     if(modulePathAsList[0] == "rascal"){
          modulePathAsList = modulePathAsList[1..];
     }
+
+    if (inJar) {
+        return intercalate("::", modulePathAsList);
+    }
+
     modulePathReversed = reverse(modulePathAsList);
     
     int longestSuffix = 0;
@@ -261,10 +271,6 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     
     if(longestSuffix > 0){
-        lastName = modulePathAsList[-1];
-        if(lastName[0] == "$"){
-            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
-        }
         return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
