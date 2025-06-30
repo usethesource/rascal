@@ -103,7 +103,16 @@ public class TreeAdapter {
 	}
 
 	public static ITree getArg(ITree tree, String label) {
-		return (ITree) getArgs(tree).get(findLabelPosition(tree, label));
+		int labelPos = findLabelPosition(tree, label);
+		IConstructor prod = getProduction(tree);
+		if (ProductionAdapter.isError(prod)) {
+			// We do not want to return the "skipped" part by mistake!
+			if (labelPos >= ProductionAdapter.getErrorDot(prod)) {
+				throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(label, TreeAdapter.getLocation(tree));
+			}
+		}
+
+		return (ITree) getArgs(tree).get(labelPos);
 	}
 
 	public static ITree setArg(ITree tree, String label, IConstructor newArg) {
