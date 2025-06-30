@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.time.Duration;
 import java.util.Random;
 
 import org.junit.Test;
@@ -49,6 +50,19 @@ import io.usethesource.vallang.IValue;
 
 @RunWith(Parameterized.class)
 public class WatchTests {
+
+    private static final Duration FILE_CREATION_DELAY;
+    
+    static {
+        var os = System.getProperty("os.name", "?").toLowerCase();
+        if (os.contains("mac")) {
+            // macOS tends to be a bit slower with dispatching events
+            FILE_CREATION_DELAY = Duration.ofMillis(100);
+        } else {
+            FILE_CREATION_DELAY = Duration.ofMillis(0);
+        }
+    }
+
     @Parameters(name="{0}")
     public static Object[] locations() { 
         return new Object[] {"|tmp:///watch-tests/", "|memory:///watch-tests/"};
@@ -121,15 +135,20 @@ public class WatchTests {
             sleep = Math.min(100, sleep);
         }
     }
-    
+
+    private final void createFile(IEvaluator<Result<IValue>> eval, String loc, String content) throws InterruptedException {
+        executeCommand(eval, "writeFile(" + loc + ", \"" + content + "\");");
+        // Wait a bit until the file creation is done and events are dispatched
+        Thread.sleep(FILE_CREATION_DELAY.toMillis());
+    }
 
     @Test
     public void recursiveWatch() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
         var ourDir = locationPrefix + "rec-" + rand.nextInt(1000);
-        executeCommand(evalTest, "writeFile(" + ourDir + "/make-dir.txt|, \"hi\");");
+        createFile(evalTest, ourDir + "/make-dir.txt|", "hi"); 
         executeCommand(evalTest, "watch(" + ourDir + "|, true, triggerWatch);");
-        executeCommand(evalTest, "writeFile(" + ourDir + "/a/b/c/test-watch.txt|, \"hi\");");
+        createFile(evalTest, ourDir + "/a/b/c/test-watch.txt|", "hi");
         waitForTrue("Watch should have been triggered", evalTest, "trig > 0");
     }
 
@@ -137,7 +156,7 @@ public class WatchTests {
     public void nonRecursive() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
         var ourFile = locationPrefix + "test-non-recursive.txt|";
-        executeCommand(evalTest, "writeFile(" + ourFile + ", \"hi\");");
+        createFile(evalTest, ourFile, "hi");
         executeCommand(evalTest, "watch(" + ourFile + ", false, triggerWatch);");
         executeCommand(evalTest, "writeFile(" + ourFile + ", \"hi\");");
         waitForTrue("Watch should have been triggered", evalTest, "trig > 0");
@@ -146,7 +165,7 @@ public class WatchTests {
     @Test
     public void delete() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
-        executeCommand(evalTest, "writeFile(" + locationPrefix + "test-delete.txt|, \"hi\");");
+        createFile(evalTest, locationPrefix + "test-delete.txt|", "hi");
         executeCommand(evalTest, "watch(" + locationPrefix + "|, true, triggerWatch);");
         executeCommand(evalTest, "remove(" + locationPrefix + "test-delete.txt|);");
         waitForTrue("Watch should have been triggered for delete", evalTest, "trig > 0");
@@ -158,9 +177,9 @@ public class WatchTests {
         var evalTest = setupWatchEvaluator();
         var file1 = locationPrefix + "test-watch-a-" + rand.nextInt(100) +  ".txt|";
         var file2 = locationPrefix + "test-watch-" + rand.nextInt(100) +  ".txt|";
-        executeCommand(evalTest, "writeFile(" + file1 + ", \"making it exist\");"); 
+        createFile(evalTest, file1, "making it exist");
         executeCommand(evalTest, "watch(" + file1 + ", false, triggerWatch);");
-        executeCommand(evalTest, "writeFile(" + file2 + ", \"bye\");");
+        createFile(evalTest, file2, "bye");
         executeCommand(evalTest, "remove(" + file2 + ");");
         holdTrue("Watch should not have been triggered", evalTest, "trig == 0");
     }
@@ -169,10 +188,10 @@ public class WatchTests {
     public void combinedFileAndDirectoryWatchesAreFine() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
         var ourDirectory = locationPrefix + "/combined" + rand.nextInt(100);
-        executeCommand(evalTest, "writeFile(" + ourDirectory + "/test-watch-a5.txt|, \"making it exist\");"); 
+        createFile(evalTest, ourDirectory + "/test-watch-a5.txt|", "making it exist");
         executeCommand(evalTest, "watch(" + ourDirectory + "/test-watch-a5.txt|, false, triggerWatch);");
         executeCommand(evalTest, "watch(" + ourDirectory + "|, false, triggerWatch2);");
-        executeCommand(evalTest, "writeFile(" + ourDirectory + "/test-watch.txt|, \"bye\");");
+        createFile(evalTest, ourDirectory + "/test-watch.txt|", "bye");
         holdTrue("Watch should not have been triggered for file watch", evalTest, "trig == 0");
         waitForTrue("Watch should have been triggered due to directory watch", evalTest, "trig2 > 0");
     }
@@ -181,12 +200,12 @@ public class WatchTests {
     public void unwatchStopsEvents() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
         var ourDirectory = locationPrefix + "abc" + rand.nextInt(100);
-        executeCommand(evalTest, "writeFile(" + ourDirectory + "/testing123.txt|);");
+        createFile(evalTest, ourDirectory + "/testing123.txt|", "");
         executeCommand(evalTest, "watch(" + ourDirectory + "|, true, triggerWatch);");
         Thread.sleep(10); 
         executeCommand(evalTest, "unwatch(" + ourDirectory + "|, true, triggerWatch);");
         Thread.sleep(10); // give it some time to trigger the watch callback
-        executeCommand(evalTest, "writeFile(" + ourDirectory + "/test-watch.txt|, \"hi\");");
+        createFile(evalTest, ourDirectory + "/test-watch.txt|", "hi");
         executeCommand(evalTest, "remove(" + ourDirectory + "/test-watch.txt|);");
         holdTrue("Watch should not have been triggered", evalTest, "trig == 0");
     }
@@ -195,7 +214,7 @@ public class WatchTests {
     public void unwatchStopsEventsUnrecursive() throws InterruptedException {
         var evalTest = setupWatchEvaluator();
         var ourFile = locationPrefix + "test-watch-" + rand.nextInt(2000) + ".txt|"; // make sure other watches might not be still active for this file
-        executeCommand(evalTest, "writeFile(" + ourFile + ", \"hi\");");
+        createFile(evalTest, ourFile, "hi");
         executeCommand(evalTest, "watch(" + ourFile + ", false, triggerWatch);");
         executeCommand(evalTest, "watch(" + ourFile + ", false, triggerWatch2);");
         Thread.sleep(10); // it can take a while before a watch is activated
