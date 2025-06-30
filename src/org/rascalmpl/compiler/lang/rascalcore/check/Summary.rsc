@@ -73,7 +73,14 @@ data ModuleSummary =
 private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
     
-ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
+ModuleSummary makeSummary(loc tplLoc, str qualifiedModuleName) {
+    tm = tmodel();
+    try {
+        tm = readBinaryValueFile(#TModel, tplLoc);
+    } catch IO(_): {
+        return moduleSummary();
+    }
+
     tm = convertTModel2PhysicalLocs(tm);
     // Extract @doc and @synopsis tags
     map[loc def, str synopsis] synopses = ();
@@ -106,17 +113,14 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
 .Synopsis
 Make a ModuleSummary.
 }
-ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
-    if(<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)){
-        try {
-            return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
-        } catch IO(_): {
-            return moduleSummary();
-        }
+ModuleSummary makeSummary(loc qualifiedModule, PathConfig pcfg) {
+    str qualifiedModuleName = getModuleName(qualifiedModule, pcfg);
+    if (contains(qualifiedModule.scheme, "jar") && /^<jarPath:[^!]+>!\/<sourcePath:[^!]+>\.rsc/ := qualifiedModule.path) {
+        return makeSummary(|<qualifiedModule.scheme>://<jarPath>!/rascal/<sourcePath>.tpl|, qualifiedModuleName);
+    } else if (<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)) {
+        return makeSummary(tplLoc, qualifiedModuleName);
     }
-    else {
-        return moduleSummary();
-    }
+    return moduleSummary();
 }
 
 @doc{
