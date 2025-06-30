@@ -39,6 +39,7 @@ extend analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::BasicRascalConfig;
 extend lang::rascalcore::check::ModuleLocations;
+extend lang::rascalcore::CompilerPathConfig;
 
 extend analysis::typepal::Collector;
 
