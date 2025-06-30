@@ -348,6 +348,7 @@ public class TraversalEvaluator {
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 
+
 			if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
 				TraverseResult result = memoizedResults.get(cons);
 				if (result != null) {
@@ -504,8 +505,7 @@ public class TraversalEvaluator {
 			for (IValue v : set) {
 				tr.changed = false;
 				tr.matched = false;
-				IValue result = traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr);
-				w.insert(result);
+				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr));
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
@@ -666,11 +666,7 @@ public class TraversalEvaluator {
 			try {
 				eval.pushEnv();
 				
-				try {
 				tr.matched = cs.matchAndEval(eval, makeResult(subject.getType(), subject, eval));
-				} catch (NullPointerException e) {
-					System.err.println("null!");
-				}
 				
 				if (tr.matched) {
 					return subject;
