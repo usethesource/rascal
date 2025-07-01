@@ -447,9 +447,6 @@ public class TraversalEvaluator {
 		  }
 
 		  if (memoize) {
-			if (rcons == null) {
-				throw new RuntimeException("null rcons?");
-			}
 			memoizedResults.__put(cons, new TraverseResult(tr.matched, rcons, true));
 		  }
 		  return rcons;
