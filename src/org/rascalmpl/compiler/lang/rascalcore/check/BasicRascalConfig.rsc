@@ -60,6 +60,21 @@ data IdRole
     | typeVarId()
     ;
 
+public map[IdRole, set[IdRole]] idRoleOverloading =
+    (functionId(): {functionId(), constructorId(), productionId()},
+     constructorId(): {functionId(), constructorId(), productionId()},
+     productionId(): {functionId(), constructorId(), productionId()},
+     fieldId() : {fieldId(), keywordFieldId()},
+     keywordFieldId(): {fieldId(), keywordFieldId()},
+     dataId(): { dataId(), constructorId(), nonterminalId(), lexicalId(), layoutId(), keywordId(), fieldId()},
+     nonterminalId(): {dataId(), constructorId(), nonterminalId(), fieldId()},
+     lexicalId(): {dataId(), constructorId(), lexicalId(), fieldId()},
+     layoutId(): {dataId(), constructorId(), layoutId(), fieldId()},
+     keywordId(): {dataId(), constructorId(), keywordId(), fieldId()},
+     typeVarId(): {typeVarId()},
+     annoId(): {annoId()}
+    );
+
 public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()};

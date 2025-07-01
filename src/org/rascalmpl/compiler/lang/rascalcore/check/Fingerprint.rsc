@@ -34,8 +34,6 @@ module lang::rascalcore::check::Fingerprint
 
 extend lang::rascalcore::check::CheckerCommon;
 
-import lang::rascal::\syntax::Rascal;
-
 import util::Reflective;
 import ValueIO;
 

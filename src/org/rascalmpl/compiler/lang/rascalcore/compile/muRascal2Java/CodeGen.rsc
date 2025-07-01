@@ -31,8 +31,6 @@ module lang::rascalcore::compile::muRascal2Java::CodeGen
  * Translate a muRascal module to Java
  */
 
-import lang::rascal::\syntax::Rascal;
-
 import lang::rascalcore::compile::muRascal::AST;
 
 extend lang::rascalcore::check::CheckerCommon;
