@@ -281,7 +281,7 @@ test bool testConcreteMatchWithErrors() {
 }
 
 @description{
-This function a test tree that has plenty of oppoertunities to memo amb children:
+This function creates a test tree that has plenty of opportunities to memo amb children:
  ❖
  ├─ Amb = AmbWord  () 
  │  ├─ ❖
@@ -318,7 +318,7 @@ This function a test tree that has plenty of oppoertunities to memo amb children
 }
 private Amb ambTestTree() = parse(#Amb, "^X$", allowRecovery=true, allowAmbiguity=true);
 
-test bool testDeepMatchAmbMemo() {
+test bool testNodeDeepMatchAmbMemo() {
     Amb ambTree = ambTestTree();
 
     // Count the number of errors that is actually found by a deep match
@@ -326,6 +326,24 @@ test bool testDeepMatchAmbMemo() {
 
     // There will only be 3 matches if deep matches are memoized, 6 if they are not.
     return count == 3;
+}
+
+test bool testConcreteDeepMatchAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    // Count the number of errors that is actually found by a deep match
+    int count = (0 | it + 1 | /(AmbWord)`<AmbWord w>` := ambTree, isParseError(w));
+
+    // There will only be 3 matches if deep matches are memoized, 6 if they are not.
+    return count == 3;
+}
+
+test bool testAmbMatchAmbMemo() {
+    Amb ambTree = ambTestTree();
+
+    int count = (0 | it + 1 | /a:amb(alts) := ambTree);
+
+    return count == 2;
 }
 
 test bool testVisitAmbMemo() {
