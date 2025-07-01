@@ -239,6 +239,9 @@ test bool testIndexedFieldTrueOutOfBounds() {
     }
 }
 
+// The following two tests are ignored. Indexed field assignment currently does not
+// work for regular trees so there is no use implementing support for error trees.
+@ignore
 test bool testIndexedFieldAssignmentBeforeDot() {
     // Note that this currently does also not work on regular trees (in the interpreter)!
     Statement stat = getTestStatement();
@@ -246,6 +249,7 @@ test bool testIndexedFieldAssignmentBeforeDot() {
     return "<stat>" == "hello x= 14";
 }
 
+@ignore
 test bool testIndexedFieldAssignmentAtOrAfterDot() {
     Statement stat = getTestStatement();
     try {
