@@ -42,8 +42,6 @@ import lang::rascalcore::check::PathAnalysis;
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;
@@ -287,7 +285,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(signature, "Modifier `test` is missing"));
         }
         c.use(expectedName, {dataId(), constructorId()});
-        c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+        //c.requireSubType(expectedName, anode([]), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+
+        //c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
     }
 
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
@@ -652,9 +652,9 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     returnExprType = s.getType(returnExpr);
-    msg = p:/aparameter(_,_) := declaredReturnType
-          ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
-          : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
+    FailMessage msg = p:/aparameter(_,_) := declaredReturnType
+                      ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
+                      : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
 
     bindings = ();
     rsuffix = "r";
@@ -669,7 +669,7 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     try {
         returnExprTypeU = instantiateRascalTypeParameters(returnExpr, returnExprTypeU, bindings, s);
     } catch invalidInstantiation(str msg): {
-        s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: " + msg));
+        s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: <msg>"));
     }
 
     s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);

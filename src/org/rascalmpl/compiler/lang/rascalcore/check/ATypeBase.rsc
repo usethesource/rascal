@@ -33,7 +33,7 @@ module lang::rascalcore::check::ATypeBase
 
 extend analysis::typepal::TypePal;
 
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 
 //import IO;
 import List;

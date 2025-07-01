@@ -34,11 +34,10 @@ module lang::rascalcore::check::RascalConfig
 //import lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::ADTandGrammar;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::BasicRascalConfig;
 
 import Location;
 import util::FileSystem;
@@ -56,6 +55,23 @@ import String;
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
 // Define the name overloading that is allowed
+// bool rascalMayOverloadNew(set[loc] defs, map[loc, Define] defines){
+//     <fstDef, restDefs> = takeFirstFrom(defs);
+
+//     fstRole = defines[fstDef].idRole;
+//     result = false;
+//     if(fstRole in idRoleOverloading){
+//         fstMayOverload = idRoleOverloading[fstRole];
+//         result = all(rdef <- restDefs, defines[rdef].idRole in fstMayOverload);
+//     }
+//     oldResult = rascalMayOverloadOld(defs, defines);
+//     if(result != oldResult){
+//         throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>, <[defines[def] | def <- defs]>";
+//     }
+//     return result;
+// }
+
+// Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     bool seenVAR = false;
     bool seenNT  = false;
@@ -69,34 +85,35 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         // Forbid:
         // - overloading of variables/formals/pattern variables
         // - overloading of incompatible syntax definitions
+        // - alias and most other names
         switch(defines[def].idRole){
         case functionId():
-            { if(seenVAR) return false; seenFUNCTION = true; }
+            { if(seenVAR || seenALIAS) return false; seenFUNCTION = true; }
         case variableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
         case moduleVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
         case formalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
         case keywordFormalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
         case patternVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
         case nonterminalId():
-            { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
+            { if(seenLEX || seenLAY || seenKEY || seenALIAS){  return false; } seenNT = true; }
         case lexicalId():
-            { if(seenNT || seenLAY || seenKEY) {  return false; } seenLEX= true; }
+            { if(seenNT || seenLAY || seenKEY || seenALIAS) {  return false; } seenLEX= true; }
         case layoutId():
-            { if(seenNT || seenLEX || seenKEY) {  return false; } seenLAY = true; }
+            { if(seenNT || seenLEX || seenKEY || seenALIAS) {  return false; } seenLAY = true; }
         case keywordId():
-            { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
+            { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
         case aliasId():
-            { if(seenALIAS) return false; seenALIAS = true; }
-
+            { if(seenALIAS || seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
         }
     }
     return true;
 }
+
 
 // Name resolution filters
 
@@ -435,19 +452,22 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             if(t1.adt == t2.adt){
                 msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
             }
+            // begin of debatable errors
             // NOTE: After discussion about the relevance of the following checks they have been commented out
             //       and will be removed later
             // else if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
             //     msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            // } else {
+            // } //else {
             //     msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
             // }
+            // end of debatable errors
             s.addMessages(msgs);
         }
     }
     try {
         matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, /*d.scope in moduleScopes,*/ t := s.getType(d)];
-        for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
+        for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, 
+             d1.defined != d2.defined, !isSyntaxType(t1), !isSyntaxType(t2)){
             for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
                 msgs = [ error("Incompatible field `<fld1.alabel>` in `<t1.adt.adtName>`: `<prettyAType(fld1)> <fld1.alabel>` in constructor `<d1.id>` clashes with `<prettyAType(fld2)> <fld2.alabel>` in constructor `<d2.id>`", d1.defined)
                        , error("Incompatible field `<fld2.alabel>` in `<t2.adt.adtName>`: `<prettyAType(fld2)> <fld2.alabel>` in constructor `<d2.id>` clashes with `<prettyAType(fld1)> <fld1.alabel>` in constructor `<d1.id>`", d2.defined)
@@ -462,7 +482,6 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-
     if(!s.reportedErrors()){
        checkOverloading(namedTrees, s);
 

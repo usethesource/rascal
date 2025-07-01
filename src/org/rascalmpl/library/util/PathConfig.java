@@ -88,7 +88,11 @@ public class PathConfig {
     }
     
     public PathConfig() {
-        projectRoot = defaultProjectRoot;
+        this(defaultProjectRoot);
+    }
+
+    public PathConfig(ISourceLocation projectRoot) { 
+        this.projectRoot = projectRoot;
         srcs = Collections.emptyList();
         ignores = defaultIgnores;
         bin = defaultBin;
@@ -536,6 +540,18 @@ public class PathConfig {
                 libs.append(URIUtil.getChildLocation(manifestRoot, "target/classes"));
             }
         }
+
+        // We add rascal-lsp to the PathConfig if it is present on the classpath
+        // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
+        try {
+            var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
+            srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
+            // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
+            addLibraryToLibPath(libs, mode, lsp);
+        }
+        catch (IOException e) {
+            // This is expected when rascal-lsp is not on the classpath
+        }
     }
 
     private static void addArtifactToPathConfig(Artifact art, ISourceLocation manifestRoot, RascalConfigMode mode, IListWriter srcs,
@@ -568,13 +584,15 @@ public class PathConfig {
             if (libProjectName.equals("rascal")) {
                 return; 
             }
-            boolean dependsOnRascalLSP = libProjectName.equals("rascal-lsp");
-            if (dependsOnRascalLSP) {
+            if (libProjectName.equals("rascal-lsp")) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep);
+                // we'll be adding the rascal-lsp by hand later
+                // so we ignore the rascal-lsp dependency
+                return;
             }
             ISourceLocation projectLoc = URIUtil.correctLocation("project", libProjectName, "");
 
-            if (reg.exists(projectLoc) && !dependsOnRascalLSP) {
+            if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
@@ -582,16 +600,8 @@ public class PathConfig {
             }
             else {
                 // just a pre-installed dependency in the local maven repository
-                libs.append(dep); // for classloading purposes
-                if (mode == RascalConfigMode.COMPILER) {
-                    // find tpls inside of the jar
-                    var jarifiedDep = JarURIResolver.jarify(dep);
-                    if (jarifiedDep != dep) {
-                        libs.append(jarifiedDep);
-                    }
-                }
-                else {
-                    assert mode == RascalConfigMode.INTERPRETER: "there should be only 2 modes";
+                addLibraryToLibPath(libs, mode, dep);
+                if (mode == RascalConfigMode.INTERPRETER) {
                     addLibraryToSourcePath(reg, srcs, messages, dep);
                 }
             }
@@ -619,7 +629,7 @@ public class PathConfig {
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
+                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", getPomXmlLocation(manifestRoot)));
                 }
             }
         }
@@ -666,7 +676,7 @@ public class PathConfig {
      */
     public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
         manifestRoot = safeResolve(manifestRoot);
-        // once we have proper support for poject locs we should do this instead:
+        // once we have proper support for project locs we should do this instead:
         //manifestRoot = upgradeToProjectScheme(manifestRoot, projectName);
         RascalManifest manifest = new RascalManifest();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
@@ -677,7 +687,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
+            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, RascalManifest.META_INF_RASCAL_MF)));
         }
 
         ISourceLocation target;
@@ -818,20 +828,31 @@ public class PathConfig {
 
         boolean foundSrc = false;
 
+        // For backward compatibility, first check the source roots in the manifest relative to the jar root
         for (String src : manifest.getSourceRoots(jar)) {
             ISourceLocation srcLib = URIUtil.getChildLocation(unpacked, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
                 foundSrc = true;
             }
-            else {
-                messages.append(Messages.error(srcLib + " source folder does not exist.", URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF)));
-            }
         }
 
         if (!foundSrc) {
             // if we could not find source roots, we default to the jar root
             srcsWriter.append(jar);
+        }
+    }
+
+    private static void addLibraryToLibPath(IListWriter libsWriter, RascalConfigMode mode, ISourceLocation jar) {
+        libsWriter.append(jar); // for classloading purposes
+        if (mode == RascalConfigMode.COMPILER) {
+            // find tpls inside of the jar
+            var jarifiedDep = JarURIResolver.jarify(jar);
+            if (jarifiedDep != jar) {
+                libsWriter.append(jarifiedDep);
+            }
+        } else {
+            assert mode == RascalConfigMode.INTERPRETER: "there should be only 2 modes";
         }
     }
 

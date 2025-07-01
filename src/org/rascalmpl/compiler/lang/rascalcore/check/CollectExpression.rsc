@@ -38,8 +38,6 @@ extend lang::rascalcore::check::CollectLiteral;
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectStatement;
 
-import lang::rascal::\syntax::Rascal;
-
 import Map;
 import Node;
 import Set;
@@ -575,7 +573,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  checkNonVoid(x, s, "Argument");
             }
 
-            texp = s.getType(expression);
+            AType texp = s.getType(expression);
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -621,13 +619,12 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
+                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
                             if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-
-                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                             continue next_fun;
                          catch NoBinding():
@@ -666,11 +663,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
-               // TODO; texp can get type value and then texp.deprecationMessage does not exist
-               if(texp.deprecationMessage?){
-                   s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+                res = checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               if(ft.deprecationMessage?){
+                   s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "": ": " + ft.deprecationMessage));
                }
-                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               return res;
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
                res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
@@ -926,7 +923,7 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, Collec
     elms = [ e | Expression e <- elements1 ];
     c.calculate("tuple expression", current, elms,
         AType(Solver s) {
-                for(elm <- elms) checkNonVoid(elm, s, "Element of tuple");
+                for(Expression elm <- elms) checkNonVoid(elm, s, "Element of tuple");
                 return atuple(atypeList([ s.getType(elm) | elm <- elms ]));
         });
     collect(elements1, c);
@@ -1170,7 +1167,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     list[str] fieldNames = [ ];
     bool maintainFieldNames = tupleHasFieldNames(rt);
 
-    for (f <- fields) {
+    for (Field f <- fields) {
         if ((Field)`<IntegerLiteral il>` := f) {
             int offset = toInt("<il>");
             if (!tupleHasField(rt, offset))

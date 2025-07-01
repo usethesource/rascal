@@ -24,8 +24,12 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module  lang::rascalcore::compile::Examples::B
-    
-syntax A = "a";
-syntax E = e: "e" | plus: E lft "+" E rgt;
-
+module  lang::rascalcore::compile::Examples::C
+import lang::rascalcore::compile::Examples::B;
+           
+syntax E = a: A lft; 
+   
+value main() {
+    E x = [E] "e";
+    return x.lft;
+}
