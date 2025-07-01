@@ -54,16 +54,11 @@ public class ShellEvaluatorFactory {
     }
 
     public static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        setupProjectResolver(projectRoot, monitor);
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
     
-    public static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
-        if (monitor instanceof IDEServices) {
-            registerProjectAndTargetResolver(((IDEServices) monitor)::resolveProjectLocation);
-        } else {
-            registerProjectAndTargetResolver(projectRoot);
-        }
-        
+    private static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
         stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
@@ -95,12 +90,21 @@ public class ShellEvaluatorFactory {
         return evaluator;
     }
 
+    private static void setupProjectResolver(ISourceLocation projectRoot, IRascalMonitor monitor) {
+        if (monitor instanceof IDEServices) {
+            registerProjectAndTargetResolver(((IDEServices) monitor)::resolveProjectLocation);
+        } else {
+            registerProjectAndTargetResolver(projectRoot);
+        }
+    }
+
     public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
         return getDefaultEvaluatorForLocation(projectFile, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
 
     public static Evaluator getDefaultEvaluatorForLocation(ISourceLocation projectFile, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var projectRoot = PathConfig.inferProjectRoot(projectFile);
+        setupProjectResolver(projectRoot, monitor);
         var pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
     }
