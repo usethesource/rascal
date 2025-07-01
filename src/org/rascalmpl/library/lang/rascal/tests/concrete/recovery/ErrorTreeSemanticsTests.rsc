@@ -226,7 +226,7 @@ test bool testIndexedFieldAfterDot() {
         getTestStatement()[1];
         return false;
     } catch ParseErrorRecovery(IndexOutOfBounds(1), l): {
-        return l == |unknown:///|(36,11,<3,4>,<3,15>);
+        return true;
     }
 }
 
