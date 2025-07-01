@@ -257,7 +257,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		}
 
 		var watch = Watch.build(rootFile.toPath(), scope)
-			.onOverflow(Approximation.ALL)
+			.onOverflow(Approximation.ALL) // on an overflow, generate events for all files
 			.withExecutor(watcherPool)
 			.on(e -> {
 				var change = calculateChange(e, root);
@@ -285,26 +285,13 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 
 	private ISourceLocationChanged calculateChange(WatchEvent event, ISourceLocation root) {
 		var subject = URIUtil.getChildLocation(root, event.getRelativePath().toString());
-		// note in case of delete we don't know anymore if the deleted entry was a file or a directory
-		boolean isDirectory = event.getRelativePath().toString().isEmpty() || Files.isDirectory(event.calculateFullPath()); 
 		switch (event.getKind()) {
 			case CREATED:
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.CREATED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
+				return ISourceLocationWatcher.created(subject);
 			case DELETED:
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.DELETED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
-
+				return ISourceLocationWatcher.deleted(subject);
 			case MODIFIED:
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.MODIFIED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-				;
+				return ISourceLocationWatcher.modified(subject);
 			case OVERFLOW:
 			default:
 				return null;
