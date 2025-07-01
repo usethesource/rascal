@@ -85,8 +85,8 @@ public class WatchTests {
         executeCommand(evaluator, "import IO;");
         executeCommand(evaluator, "int trig = 0;");
         executeCommand(evaluator, "int trig2 = 0;");
-        executeCommand(evaluator, "void triggerWatch(LocationChangeEvent tp) { trig = trig + 1; " + (debug? "println(tp);": "") + " }");
-        executeCommand(evaluator, "void triggerWatch2(LocationChangeEvent tp) { trig2 = trig2 + 1; " + (debug? "println(tp);": "") + " }");
+        executeCommand(evaluator, "void triggerWatch(FileSystemChange tp) { trig = trig + 1; " + (debug? "println(tp);": "") + " }");
+        executeCommand(evaluator, "void triggerWatch2(FileSystemChange tp) { trig2 = trig2 + 1; " + (debug? "println(tp);": "") + " }");
         return evaluator;
     }
 

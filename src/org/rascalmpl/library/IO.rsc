@@ -18,7 +18,8 @@ The following input/output functions are defined:
 module IO
 
 import Exception;
-extend analysis::diff::edits::Fi
+extend analysis::diff::edits::FileSystemChanges;
+
 @synopsis{All functions in this module that have a charset parameter use this as default.}
 private str DEFAULT_CHARSET = "UTF-8";
 

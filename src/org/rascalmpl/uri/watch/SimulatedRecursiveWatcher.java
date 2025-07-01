@@ -76,7 +76,7 @@ public class SimulatedRecursiveWatcher implements Closeable {
         }
 
         var loc = event.getLocation();
-        if (event.isCreated() && event.isDirectory()) {
+        if (event.isCreated() && URIResolverRegistry.getInstance().isDirectory(loc)) {
             registerChildWatches(loc);
         }
         else if (event.isDeleted() && activeWatches.contains(loc)) {
