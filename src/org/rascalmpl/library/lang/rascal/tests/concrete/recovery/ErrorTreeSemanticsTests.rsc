@@ -281,7 +281,7 @@ test bool testConcreteMatchWithErrors() {
 }
 
 @description{
-This function creates a test tree that has plenty of oppoertunities to memo amb children:
+This function creates a test tree that has plenty of opportunities to memo amb children:
  ❖
  ├─ Amb = AmbWord  () 
  │  ├─ ❖
