@@ -16,6 +16,7 @@ package org.rascalmpl.values.iterators;
 import java.util.Iterator;
 import java.util.Stack;
 
+import io.usethesource.capsule.Set;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -35,6 +36,10 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 public class DescendantReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
+	IValue nextValue;
+
+
+	private Set.Transient<ITree> visitedAmbs = Set.Transient.of();
 
 	private boolean debug = false;
 
@@ -49,40 +54,76 @@ public class DescendantReader implements Iterator<IValue> {
 		push(val);
 	}
 
+	private void findNext() {
+		do {
+			nextValue = null;
+
+			if (spine.size() == 0) {
+				return;
+			}
+
+			Object next = spine.peek();
+			if (next instanceof Iterator) {
+				Iterator<?> iter = (Iterator<?>) next;
+				if (!iter.hasNext()) {
+					spine.pop();
+					continue;
+				}
+
+				push((IValue) iter.next());
+				continue;
+			}
+
+			nextValue = (IValue) spine.pop();
+
+		} while (nextValue == null);
+	}
+
 	public boolean hasNext() {
-		while((spine.size() > 0) 
-				&& (spine.peek() instanceof Iterator && !((Iterator<?>) spine.peek()).hasNext())){
-			spine.pop();
-		}		
-		return spine.size() > 0;
+		if (nextValue == null) {
+			findNext();
+		}
+		return nextValue != null;
 	}
 	
 	public IValue next() {
-		if (spine.peek() instanceof Iterator) {
-			Iterator<?> iter = (Iterator<?>) spine.peek();
-			
-			if (!iter.hasNext()) {
-				spine.pop();
-				return next();
-			}
-			push((IValue) iter.next());
-			return next();
-		}
-		return (IValue) spine.pop();
+		IValue next = nextValue;
+		findNext();
+		return next;
 	}
 	
 	private void push(IValue v, Iterator<IValue> children){
 		spine.push(v);
 		spine.push(children);
 	}
-	
+
+	private void pushAmb(ITree amb) {
+		if (!visitedAmbs.contains(amb)) {
+			visitedAmbs.__insert(amb);
+			spine.push(amb);
+			for (IValue alt : TreeAdapter.getAlternatives(amb)) {
+				push(alt);
+			}
+		}
+	}
+
 	private void push(IValue v){
 		Type type = v.getType();
 		if (type.isNode() || type.isConstructor() || type.isAbstractData()) {
-			if (interpretTree && type.isSubtypeOf(RascalValueFactory.Tree)) {
-				pushConcreteSyntaxNode((ITree) v);
-				return;
+			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
+				ITree tree = (ITree) v;
+
+				if (TreeAdapter.isAmb(tree)) {
+					pushAmb(tree);
+					return;
+				}
+
+				if (interpretTree) {
+					pushConcreteSyntaxNode((ITree) tree);
+					return;
+				}
 			}
+
 			INode node = (INode) v;
 			push(v, node.getChildren().iterator());
 			if (node.mayHaveKeywordParameters()) {
@@ -105,7 +146,7 @@ public class DescendantReader implements Iterator<IValue> {
 			spine.push(v);
 		}
 	}
-	
+
 	private void pushKeywordParameters(IWithKeywordParameters<? extends INode> node) {
 		for (String name : node.getParameterNames()) {
 			push(node.getParameter(name));
@@ -121,10 +162,7 @@ public class DescendantReader implements Iterator<IValue> {
 		}
 		
 		if (TreeAdapter.isAmb(tree)) {
-			// only recurse
-			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				pushConcreteSyntaxNode((ITree) alt);
-			}
+			pushAmb(tree);
 			return;
 		}
 		
