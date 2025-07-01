@@ -35,6 +35,9 @@ import java.io.IOException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.SourceLocationListContributor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -54,12 +57,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final Reader inReader;
 	private final PrintWriter outwriter;
 	private final PrintWriter errwriter;
+	private final PathConfig pcfg;
 	private final IDEServices ideServices;
 	private final Traverse $TRAVERSE;
 	private final ModuleStore mstore;
 	private final TypeStore $TS;
 	private final TypeFactory $TF;
 	private final RascalTypeFactory $RTF;
+	private RascalSearchPath rascalSearchPath;
 
 	public RascalExecutionContext(
 			Reader inReader,
@@ -75,8 +80,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.inReader = inReader;
 		this.outwriter = outwriter;
 		this.errwriter = errwriter;
-	
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null) : ideServices;
+		
+		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
+		ISourceLocation projectRoot = inferProjectRoot(clazz);
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$TF = TypeFactory.getInstance();
 		$RTF = RascalTypeFactory.getInstance();
@@ -122,10 +129,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
 	
-	/**
-	 * @deprecated Only for internal use
-	 */
-	@Deprecated
 	public Traverse getTraverse() { return $TRAVERSE; }
 	
 	public Reader getInReader() { return inReader; }
@@ -133,6 +136,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public PrintWriter getOutWriter() { return outwriter; }
 	
 	public PrintWriter getErrWriter() { return errwriter; }
+	
+	public PathConfig getPathConfig() { return pcfg; }
 	
 	public void setModule($RascalModule module) { this.module = module; }
 	
@@ -144,29 +149,19 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
-	/**
-	 * @deprecated Only for internal use
-	 */
-	@Deprecated
 	public ModuleStore getModuleStore() { return mstore; }
 	
-	/**
-	 * @deprecated Only for internal use
-	 */
-	@Deprecated
 	public TypeStore getTypeStore() { return $TS; }
 	
-	/**
-	 * @deprecated Only for internal use
-	 */
-	@Deprecated
 	public TypeFactory getTypeFactory() { return $TF; }
 	
-	/**
-	 * @deprecated Only for internal use
-	 */
-	@Deprecated
 	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
+	
+	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
+
+
+
+	
 	
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
