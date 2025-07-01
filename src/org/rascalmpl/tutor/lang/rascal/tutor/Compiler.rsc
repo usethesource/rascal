@@ -683,9 +683,9 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
   }
   
   switch (resolution) {
-      case {str u}: {
-        u = /^\/assets/ := u ? u : "<p2r><u>";
-        return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+      case {str unique}: {
+        unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+        return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
@@ -700,24 +700,26 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        if (str sep <- {":","-"}, 
+           {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
+          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+          return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        else if (str sep <- {":","-"}, 
+                {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile)><sep><removeSpaces(link)>"]) {
+          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+          return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
+        exactLinks  = {<k, v> | <str v, str k> <- sort(rangeR(ind, ind[removeSpaces(link)])<1,0>), /*is exact: */ {_} := ind[k]};
+
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>.
-                            'Choose from the following options to disambiguate: <for (<str k, str v> <- sort(rangeR(ind, ind[removeSpaces(link)])), {_} := ind[k]) {>
-                                    '    <k> resolves to <v><}>",
+                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {>
+                            '* <r><}>.
+                            '
+                            'Please choose from the following exact links: <for (<str k, str v> <- exactLinks) {>
+                            '* ((<k>)) resolves to <v><}>",
                             pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
               ];
@@ -733,9 +735,9 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   switch (resolution) {
-      case {u}: {
-        u = /^\/assets/ := u ? u : "<p2r><u>";
-        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+      case {unique}: {
+        unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+        return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
@@ -758,26 +760,26 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        if (str sep <- {"-", ":"}, {unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
+          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        else if ({unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
+          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
+        exactLinks  = {<k, v> | <str v, str k> <- sort(rangeR(ind, ind[removeSpaces(link)])<1,0>), /*is exact: */ {_} := ind[k]};
+
         return [
-            err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>.
-                      'Choose from the following options to disambiguate: <for (<str k, str v> <- sort(rangeR(ind, ind[removeSpaces(link)])), {_} := ind[k]) {>
-                      '    <k> resolves to <v><}>",
-                      pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
+                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {>
+                            '* <r><}>.
+                            '
+                            'Please choose from the following exact links: <for (<str k, str v> <- exactLinks) {>
+                            '* ((<k>)) resolves to <v><}>",
+                            pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
   }

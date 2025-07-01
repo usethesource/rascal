@@ -41,3 +41,31 @@ test bool testReadBase32() {
     str encoded = readBase32(|memory:///base32Test/readTest.txt|);
     return original == fromBase32(encoded);
 }
+
+test bool testRenameWithinFileScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|tmp:///hello.txt|, "Hello World!");
+    rename(|tmp:///hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameWithinMemoryScheme() {
+    remove(|memory:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |memory:///bye.txt|);
+    return readFile(|memory:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameCrossScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool renameDirectory() {
+    remove(|tmp:///RenamedFolder|, recursive=true);
+    writeFile(|tmp:///Folder/hello.txt|, "Hello World!");
+    rename(|tmp:///Folder|, |tmp:///RenamedFolder|);
+    return readFile(|tmp:///RenamedFolder/hello.txt|) == "Hello World!";
+}

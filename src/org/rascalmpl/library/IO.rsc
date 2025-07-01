@@ -653,8 +653,21 @@ throws PathNotFound, IO
 
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Remove files or directories}
 public java void remove(loc file, bool recursive=true) throws IO;
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Rename files or directories}
+@benefits{
+* will rename between schemes and within schemes, seemlessly.
+* within schemes renaming is implemented as close to the operating system rename functionality as possible. This can be very fast.
+}
+@pitfalls{
+* Between-scheme renaming can cause large recursive copy operations:
+   - that can take a lot more time
+   - if interrupted on the OS level will leave semi-copied target files and not-yet-removed origins
+}
+public java void rename(loc from, loc to, bool overwrite=false) throws IO;
 
 @synopsis{Write values to a file.}
 @description{
@@ -736,6 +749,7 @@ void copyDirectory(loc source, loc target) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Is an alias for ((rename))}
 java void move(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}

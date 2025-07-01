@@ -67,3 +67,5 @@ str pathToRoot(loc root, loc src, bool isPackageCourse)
 str pathToRoot(loc root, loc src, bool isPackageCourse) 
   = pathToRoot(root, src.parent, isPackageCourse)
   when isFile(src);  
+
+str rootName(loc src, bool isPackageCourse) = isPackageCourse && src.file in {"src", "Src", "SRC", "Rascal", "rascal", "API", "api"} ? "API" : capitalize(src.file);

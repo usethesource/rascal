@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC51-SNAPSHOT</version>
+    <version>0.41.0-RC54-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC50</tag>
+        <tag>v0.41.0-RC52</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -188,7 +188,6 @@
                             <ignores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
