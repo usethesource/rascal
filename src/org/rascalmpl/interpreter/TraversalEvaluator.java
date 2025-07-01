@@ -70,10 +70,11 @@ public class TraversalEvaluator {
 	public enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees
 	public enum FIXEDPOINT {Yes, No}
 	public enum PROGRESS   {Continuing, Breaking}
-	
+
 	private final IEvaluator<Result<IValue>> eval;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final List<IValue> traversalContext;
+	private io.usethesource.capsule.Map.Transient<IValue, TraverseResult> memoizedResults = io.usethesource.capsule.Map.Transient.of();
 	
 	public TraversalEvaluator(IEvaluator<Result<IValue>> eval) {
 		this.eval = eval;
@@ -249,7 +250,8 @@ public class TraversalEvaluator {
 	private IValue traverseADTOnce(IValue subject, CaseBlockList casesOrRules,
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IConstructor cons = (IConstructor)subject;
-		
+		boolean memoize = false; // Should we memoize the end result? (only true for Amb constructors)
+
 		Map<String, IValue> kwParams = null;
 		if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters()) {
 			kwParams = new HashMap<>();
@@ -345,13 +347,25 @@ public class TraversalEvaluator {
 			// Constructor is not "appl", or at least one of the patterns is not a concrete pattern
 			boolean hasChanged = false;
 			boolean hasMatched = false;
-			
+
+
+			if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
+				TraverseResult result = memoizedResults.get(cons);
+				if (result != null) {
+					tr.changed = result.changed;
+					tr.matched = result.matched;
+					return result.value;
+				}
+				memoize = true;
+			}
+
 			for (int i = 0; i < cons.arity(); i++){
 				IValue child = cons.get(i);
 				tr.matched = false;
 				tr.changed = false;
+
 				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
-				
+
 				if (hasChanged) {
 				    assert args != null;
                     args[i] = newChild;
@@ -431,10 +445,17 @@ public class TraversalEvaluator {
 			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
 			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
 		  }
-		  
+
+		  if (memoize) {
+			memoizedResults.__put(cons, new TraverseResult(tr.matched, rcons, true));
+		  }
 		  return rcons;
 		}
 		else {
+			if (memoize) {
+				// memoize the result for Amb constructors
+				memoizedResults.__put(subject, new TraverseResult(tr.matched, subject, false));
+			}
 			return subject;
 		}
 	}
