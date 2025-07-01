@@ -25,5 +25,23 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
-     
-public int X = 42;
+        
+syntax A = "a";
+syntax E = e: "e" | plus: E lft "+" E rgt;
+syntax E = a: A lft; 
+
+
+data F = f(int n);
+data F = f(real n);
+
+value main(){
+    x = f(10);
+    return x.n;
+}
+
+
+// value main() {
+//     E x = [E] "e";
+//     return x.lft;
+// }
+

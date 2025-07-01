@@ -62,7 +62,6 @@ public class TestFramework {
 		}
 		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_ENVIRONMENT);
 
-		ShellEvaluatorFactory.registerProjectAndTargetResolver(projectLoc);
 		heap = evaluator.getHeap();
 		root = heap.getModule(ROOT_TEST_ENVIRONMENT);
 	

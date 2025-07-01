@@ -29,14 +29,7 @@ module lang::rascalcore::compile::util::Names
 import String;
 import List;
 import util::Reflective;
-// import lang::rascalcore::CompilerPathConfig;
-
-data PathConfig(
-    loc generatedSources       = |unknown:///|,
-    loc generatedTestSources   = |unknown:///|,
-    loc generatedResources     = |unknown:///|,
-    loc generatedTestResources = |unknown:///|
-);
+import lang::rascalcore::CompilerPathConfig;
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
 public /*const*/ str compiled_rascal_package_as_path = "org/rascalmpl"; //"rascal";

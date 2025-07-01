@@ -36,7 +36,6 @@ import util::Reflective;
 import ParseTree;
 import lang::rascalcore::compile::CompileTimeError;
 
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
 //extend lang::rascalcore::check::Checker;
