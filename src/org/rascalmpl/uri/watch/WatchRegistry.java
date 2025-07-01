@@ -157,7 +157,7 @@ public class WatchRegistry {
             // this renaming before we trigger the callback.
             ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
             ISourceLocation unresolved = URIUtil.getChildLocation(originalLoc, relative.getPath());
-            original.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
+            original.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType()));
         };
         var key = new WatchKey(originalLoc, recursive, original, clearedReferences);
         while (true) {

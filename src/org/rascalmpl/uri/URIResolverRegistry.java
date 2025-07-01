@@ -277,13 +277,13 @@ public class URIResolverRegistry {
 			return new NotifyingOutputStream(
 				original, 
 				loc, 
-				existed ? ISourceLocationWatcher.fileModified(loc) : ISourceLocationWatcher.fileCreated(loc)
+				existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 			);
 		}
 
 		return new NotifyingOutputStream(new BufferedOutputStream(original), 
 			loc, 
-			existed ? ISourceLocationWatcher.fileModified(loc) : ISourceLocationWatcher.fileCreated(loc)
+			existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 		);
 	}
 	private class NotifyingOutputStream extends FilterOutputStream {
@@ -574,7 +574,7 @@ public class URIResolverRegistry {
 		mkParentDir(uri);
 
 		resolver.mkDirectory(uri);
-		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.directoryCreated(uri));
+		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.created(uri));
 	}
 
 	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
@@ -603,8 +603,7 @@ public class URIResolverRegistry {
 		}
 
 		out.remove(uri);
-		notifyWatcher(uri,
-			isDir ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+		notifyWatcher(uri, ISourceLocationWatcher.deleted(uri));
 	}
 
 	/**
