@@ -760,7 +760,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else {
           fail;
         }
-     
+      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if (str sep <- {"-", "::"}, {unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
@@ -797,7 +797,7 @@ rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) 
     }
 
     // if of equal length, we use string compare (which prefers `-` over `:` and `/` accidentally correctly)
-    if (a < b) {
+    if (size(a) == size(b), a < b) {
       return true; 
     }
 
@@ -813,9 +813,6 @@ rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) 
   // here we rank each suggested link key by shorter length, and then alphabetically
   map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
   map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
-
-  println("prioritized reverse index");
-  iprintln(prioritizedReverseIndex);
 
   // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
   // and each unique key itself is the shortest possible:
