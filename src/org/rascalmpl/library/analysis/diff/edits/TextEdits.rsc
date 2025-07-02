@@ -29,11 +29,11 @@ module analysis::diff::edits::TextEdits
 
 extend analysis::diff::edits::FileSystemChanges;
 
-@synopsis{For compatibility we rename FileChange to DocumentEdit}
+@synopsis{For compatibility we rename FileSystemChange to DocumentEdit}
 @deprecated{It's better to use ((FileSystemChange)) for future compatibility.}
 alias DocumentEdit = FileSystemChange;
 
-@synopsis{For some FileChanges we know exactly what happened.}
+@synopsis{For some FileSystemChanges we know exactly what happened.}
 data FileSystemChange 
     = changed(loc file, list[TextEdit] edits)
     ;
