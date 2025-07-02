@@ -4,19 +4,19 @@ extend analysis::diff::edits::TextEdits;
 
 import DateTime;
 import IO;
-import List;
+import List; 
 import String;
 
 @synopsis{Execute file changes, including in-file edits if present.}
 @deprecated{Replaced by ((executeFileChanges)) due to a rename of the concept.}
-void executeDocumentEdits(list[FileChange] edits) {
+void executeDocumentEdits(list[FileSystemChange] edits) {
     executeFileChanges(edits);
 }
 
 @synopsis{Execute file changes, including in-file edits if present.}
-void executeFileChanges(list[FileChange] edits) {
+void executeFileChanges(list[FileSystemChange] edits) {
     for (e <- edits) {
-        executeFileChange(e);
+        executeFileChange(e); 
     }
 }
 
