@@ -6,7 +6,7 @@ lexical Token
 	= ControlCode            control
 	| SpecialControlSequence special
 	| OperatingSystemCommand command
-	| ![\a1b\a07-\a1B]+ !>> ![\a1b\a07-\a1B]   normal
+	| ![\a1b\a07-\a1B]+ !>> ![\a1b\a07-\a1B] normal
 	;
 
 lexical ControlCode 
