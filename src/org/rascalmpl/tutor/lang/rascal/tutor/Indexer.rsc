@@ -199,7 +199,9 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
 
       // `((util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<item.moduleName><sep><item.name>", fr >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", fr > ,
+        <"<modulePath(item.moduleName)><sep><item.name>", fr >,
+        <"<rootName(src, isPackageCourse)>:<modulePath(item.moduleName)><sep><item.name>", fr >,
+        <"<item.kind>:<item.moduleName><sep><item.name>", fr >,
         <"<f[extension=""].file><sep><item.name>", fr> | item.name?, !(item is moduleInfo), sep <- {"::", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
@@ -213,8 +215,11 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       },
 
       // `((Library:Set))` -> `/Library/Set`
-      *{<"<rootName(src, isPackageCourse)>:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >,
-         <"<rootName(src, isPackageCourse)>:module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
+      *{<"<rootName(src, isPackageCourse)>:<item.moduleName>", mfr >,
+        <"<rootName(src, isPackageCourse)>:<modulePath(item.moduleName)>", mfr >,
+        <"<rootName(src, isPackageCourse)>:module:<item.moduleName>",  mfr>
+       | item is moduleInfo, 
+         mfr := "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" }
 
       | loc f <- rascalFiles, step("Indexing modules", f), list[DeclarationInfo] inf := safeExtract(f), item <- inf,
         fr := "/<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>"
