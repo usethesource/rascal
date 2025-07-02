@@ -208,7 +208,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       *{<"<rootName(src, isPackageCourse)>:<item.moduleName><sep><item.name>", fr >,
          <"<rootName(src, isPackageCourse)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "-"}},
 
-      // ((Set)) -> `/Library/Set`
+      // ((Set)) -> `/Library/S
       *{<item.moduleName, "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >, 
         <"module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > 
         | item is moduleInfo
@@ -217,7 +217,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       // `((Library:Set))` -> `/Library/Set`
       *{<"<rootName(src, isPackageCourse)>:<item.moduleName>", mfr >,
         <"<rootName(src, isPackageCourse)>:<modulePath(item.moduleName)>", mfr >,
-        <"<rootName(src, isPackageCourse)>:module:<item.moduleName>",  mfr>
+        <"<rootName(src, isPackageCourse)>:module:<item.moduleName>",  mfr>,
+        <item.src[extension=""].file, mfr>
        | item is moduleInfo, 
          mfr := "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" }
 
