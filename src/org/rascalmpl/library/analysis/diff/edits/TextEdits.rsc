@@ -50,7 +50,7 @@ and a `str` as its replacement.
 }
 @benefits{
 * backends have to implement only one ((TextEdit)) operation to be complete.
-* use the ((TextEdit-delete)), ((insertBefore)) and ((insertAfter)) "macros" for convenience and brevity.
+* use the ((delete)), ((insertBefore)) and ((insertAfter)) "macros" for convenience and brevity.
 }
 data TextEdit
     = replace(loc range, str replacement);
