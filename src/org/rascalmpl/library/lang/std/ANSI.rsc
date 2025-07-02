@@ -1,6 +1,14 @@
 @synopsis{Documents a part of the ANSI standard for terminal control sequences}
 module lang::std::ANSI
 
+lexical ANSI = Token* tokens;
+lexical Token
+	= ControlCode            control
+	| SpecialControlSequence special
+	| OperatingSystemCommand command
+	| ![\a1b\a07-\a1B]+ !>> ![\a1b\a07-\a1B]   normal
+	;
+
 lexical ControlCode 
     = bell          : [\a07]
     | backspace     : [\a07]
@@ -37,20 +45,15 @@ lexical CSISequence
 	| selectGraphicsRendition    :  Rendition r [m]
 	| hideCursor                 :  "?25l"
 	| showCursor                 :  "?25h"
-	| href                       : "\a1b]8;;<link.uri>\a1b\\<text>\a1b]8;;\a1b\\"
-
     ;
 
 lexical OperatingSystemCommand = OperatingSystemCommandIntroducer osc OperatingSystemSequence code;
 
 lexical OperatingSystemCommandIntroducer = [\a1B] [\]];
-
-@synopsis{This is the OSC8 ANSI extension for links in terminals}
 lexical OperatingSystemSequence
 	= anchor : "8;" AnchorParameter* ";" ![\a1b]+ href ControlSequenceIntroducer csi ![\a1b]+  ControlSequenceIntroducer "8;;" ControlSequenceIntroducer [\\\a07]
 	;
 
-@synopsis{This can be used to scatter or break up the characters of a link and still let them point to the same href.}
 lexical AnchorParameter = "id" ":" ![;:]+ val;
 
 lexical Rendition
