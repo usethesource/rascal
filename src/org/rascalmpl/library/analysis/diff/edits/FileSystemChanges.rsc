@@ -17,7 +17,7 @@ features.
 
 The location scheme which is passed to the respective constructors of ((FileSystemChange))
 must have the ((IO-watching)) and ((IO-writing)) ((IOCapability)). Otherwise 
-((RuntimeException-IO)) errors can be expected.
+((Exception-IO)) errors can be expected.
 
 For detailed changes _within_ files, see ((TextEdits)).
 }
