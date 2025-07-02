@@ -92,7 +92,7 @@ to synchronize the contents of editors and parse trees, etc. This function is on
 }
 value testCodeAction(CodeAction action, value (Command _) evaluator = value (noop()) { return true; }) {
     if (action.edits?) {
-        executeFileChanges(action.edits);
+        executeFileSystemChanges(action.edits);
     }
 
     if (action.command?) {

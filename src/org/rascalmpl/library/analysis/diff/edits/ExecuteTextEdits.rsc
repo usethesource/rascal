@@ -8,36 +8,36 @@ import List;
 import String;
 
 @synopsis{Execute file changes, including in-file edits if present.}
-@deprecated{Replaced by ((executeFileChanges)) due to a rename of the concept.}
+@deprecated{Replaced by ((executeFileSystemChanges)) due to a rename of the concept.}
 void executeDocumentEdits(list[FileSystemChange] edits) {
-    executeFileChanges(edits);
+    executeFileSystemChanges(edits);
 }
 
 @synopsis{Execute file changes, including in-file edits if present.}
-void executeFileChanges(list[FileSystemChange] edits) {
+void executeFileSystemChanges(list[FileSystemChange] edits) {
     for (e <- edits) {
-        executeFileChange(e); 
+        executeFileSystemChange(e); 
     }
 }
 
-void executeFileChange(removed(loc f)) {
+void executeFileSystemChange(removed(loc f)) {
     remove(f.top);
 }
 
-void executeFileChange(created(loc f)) {
+void executeFileSystemChange(created(loc f)) {
     writeFile(f, "");
 }
 
-void executeFileChange(renamed(loc from, loc to)) {
+void executeFileSystemChange(renamed(loc from, loc to)) {
     move(from.top, to.top, overwrite=true);
 }
 
-void executeFileChange(changed(loc file)) {
+void executeFileSystemChange(changed(loc file)) {
     setLastModified(file, now());
 }
 
 @synopsis{Edit a file according to the given ((TextEdit)) instructions}
-void executeFileChange(changed(loc file, list[TextEdit] edits)) {
+void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
         return e1.range.offset < e2.range.offset; 
     });
