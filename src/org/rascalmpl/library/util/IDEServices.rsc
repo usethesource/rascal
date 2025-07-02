@@ -81,7 +81,7 @@ can test for changed file contents without waiting, in most cases (see pitfalls)
 }
 @pitfalls{
 * ((CodeAction))s may use the other features of ((util::IDEServices)), and thus start editors or browsers as side-effects.
-* ((CodeAction))s code actions with ((FileSystemChange))s will write to disk and change the original files.
+* ((CodeAction))s code actions with ((FileSystemChanges-FileSystemChange))s will write to disk and change the original files.
 * ((util::IDEServices::Command))s can only be executed by a parametrized command `evaluator``; if you do not provide it then 
 this test function will throw ((CallFailed)) exceptions for every unsupported (((util::IDEServices::Command)).
 * (((util::IDEServices::Command))s can start asynchronous effects by calling non-blocking functions that schedule other effects.
