@@ -27,6 +27,11 @@ of refactoring and quick-fix features of the language service protocol.
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 java void applyDocumentsEdits(list[FileSystemChange] edits);
 
+void applyFileSystemEdits(list[FileSystemChange] edits) {
+    applyDocumentsEdits(edits);
+}
+
+
 @synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 java void showInteractiveContent(Content content, str title=content.title, int viewColumn=content.viewColumn);
