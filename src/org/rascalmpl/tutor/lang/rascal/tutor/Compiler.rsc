@@ -19,30 +19,30 @@
 }
 module lang::rascal::tutor::Compiler
 
-import Message;
 import Exception;
 import IO;
-import String;
-import Node;
 import List;
-import Set;
-import Relation;
 import Location;
+import Message;
+import Node;
 import ParseTree;
-import util::Reflective;
-import util::FileSystem;
-import util::Monitor;
+import Relation;
+import Set;
+import String;
+import String;
 import ValueIO;
-
-import lang::yaml::Model;
-import lang::rascal::tutor::repl::TutorCommandExecutor;
-import lang::rascal::tutor::apidoc::GenerateMarkdown;
-import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::Includer;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
-import lang::rascal::tutor::Includer;
-import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::tutor::apidoc::GenerateMarkdown;
+import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::yaml::Model;
+import util::FileSystem;
+import util::Monitor;
+import util::Reflective;
 
 public PathConfig defaultConfig
   = pathConfig(
@@ -93,6 +93,11 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   pcfg.packageArtifactId = artifactId;
   pcfg.packageGroupId    = groupId;
   pcfg.packageVersion    = version;
+
+  if (!isPackageCourse && pcfg.packageGroupId == "org.rascalmpl" && pcfg.packageArtifactId == "rascal") {
+    // drop the libraries to avoid circular dependencies with typepal
+    pcfg.libs = [];
+  }
 
   messages = compile(pcfg);
   
@@ -700,7 +705,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if (str sep <- {":","-"}, 
+        if (str sep <- {"::", "-"}, 
            {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
           unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
           return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
@@ -758,7 +763,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if (str sep <- {"-", ":"}, {unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
+        if (str sep <- {"-", "::"}, {unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
           unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
@@ -788,10 +793,10 @@ rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) 
   bool linkSort(str a, str b) {
     // prefer shorter links first
     if (size(a) < size(b)) {
-      return true;
+      return true; 
     }
 
-    // if of equal length, we use string compare
+    // if of equal length, we use string compare (which prefers `-` over `:` and `/` accidentally correctly)
     if (a < b) {
       return true; 
     }
@@ -809,9 +814,12 @@ rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) 
   map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
   map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
 
+  println("prioritized reverse index");
+  iprintln(prioritizedReverseIndex);
+
   // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
   // and each unique key itself is the shortest possible:
-  return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex, bprintln("Options for <path>: <prioritizedReverseIndex[path]>")};
+  return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex};
 }
 
 @synopsis{extract what's needed from the header and print it back, also set sidebar_position}
