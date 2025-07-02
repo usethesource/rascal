@@ -199,7 +199,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
 
       // `((util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<item.moduleName><sep><item.name>", fr >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "-"}},
+        <"<item.kind>:<item.moduleName><sep><item.name>", fr > ,
+        <"<f[extension=""].file><sep><item.name>", fr> | item.name?, !(item is moduleInfo), sep <- {"::", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<rootName(src, isPackageCourse)>:<item.moduleName><sep><item.name>", fr >,
