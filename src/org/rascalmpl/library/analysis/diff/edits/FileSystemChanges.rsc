@@ -4,7 +4,7 @@ module analysis::diff::edits::FileSystemChanges
 @description{
 A ((FileSystemChange)) describes what happened, or what will happen, to a file or directory:
 * ((removed))
-* ((created))
+* ((Library:analysis::diff::edits::FileSystemChanges-created))
 * ((renamed))
 * or ((changed))
 
@@ -22,7 +22,7 @@ must have the ((IO-watching)) and ((IO-writing)) ((IOCapability)). Otherwise
 For detailed changes _within_ files, see ((TextEdits)).
 }
 @benefits{
-* Implementations of file watchers can use ((FileSystemChange)) to report what happened.
+* Implementations of file watchers can use ((FileSystemChanges-FileSystemChange)) to report what happened.
 * Implementations of file and directory diff tools can represent the differences
 using ((FileSystemChange))
 }
