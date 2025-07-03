@@ -656,7 +656,6 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
-                    //s.report(error(current, "Unresolved call to overloaded function defined as %t",  expression));
                     return overloadedAType(validReturnTypeOverloads);
                  }
                }
