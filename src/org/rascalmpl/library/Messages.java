@@ -156,7 +156,7 @@ public class Messages {
 
             // this shortens the location strings to the part that is different for every file,
             // leaving out a possibly very large common prefix
-            loc = URIUtil.relativize(root, loc);
+            loc = root != null ? URIUtil.relativize(root, loc) : loc;
 
             String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
                 ? ((IString) msg.get("msg")).getValue()
