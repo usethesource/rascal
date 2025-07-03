@@ -25,9 +25,11 @@ import org.jline.jansi.Ansi.Attribute;
 import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -193,6 +195,23 @@ public class TreeAdapter {
 						return null;
 				}
 			}
+			else if (ProductionAdapter.isError(prod)) {
+				var eprod = ProductionAdapter.getErrorProduction(prod);
+				int dot = ProductionAdapter.getErrorDot(prod);
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(eprod), field);
+				IList args = getArgs(tree);
+
+				if (index != -1) {
+					if (index < dot) {
+						// changing the normal part of the tree
+						return setArgs(tree, args.put(index, repl));
+					}
+					else {
+						// otherwise throw an exception to indicate the field does not exist due to a (recovered) parse error
+						throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(field, TreeAdapter.getLocation(tree));
+					}
+				}
+			}
 		}
 
 		return null;
@@ -267,6 +286,27 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				int dot = ProductionAdapter.getErrorDot(prod);
+				IConstructor eprod = ProductionAdapter.getErrorProduction(prod);
+				IList syms = ProductionAdapter.getSymbols(eprod);
+				int index = SymbolAdapter.indexOfLabel(syms, field);
+
+				if (index != -1) {
+					IConstructor sym = (IConstructor) syms.get(index);
+					sym = SymbolAdapter.stripLabelsAndConditions(sym);
+
+					if (index < dot) {
+						// we have parsed the field so we can just return it.
+						// this is a likely scenario
+						return new FieldResult(sym, (ITree) tree.getArgs().get(index));
+					}
+					else {
+						// otherwise throw an exception to indicate the field does not exist due to a (recovered) parse error
+						throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(field, TreeAdapter.getLocation(tree));
+					}
 				}
 			}
 		}
@@ -388,6 +428,10 @@ public class TreeAdapter {
 
 	public static boolean isSeparatedList(ITree tree) {
 		return isAppl(tree) && isList(tree) && ProductionAdapter.isSeparatedList(getProduction(tree));
+	}
+
+	public static boolean isError(ITree tree) {
+		return isAppl(tree) && ProductionAdapter.isError(getProduction(tree));
 	}
 
 	public static IList getASTArgs(ITree tree) {
