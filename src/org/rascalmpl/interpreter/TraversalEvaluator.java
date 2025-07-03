@@ -348,7 +348,6 @@ public class TraversalEvaluator {
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 
-
 			if (cons.getConstructorType() == RascalValueFactory.Tree_Amb) {
 				TraverseResult result = memoizedResults.get(cons);
 				if (result != null) {
@@ -390,7 +389,6 @@ public class TraversalEvaluator {
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
-			
 			
 			if (kwParams != null) {
 				IWithKeywordParameters<? extends INode> consKw = cons.asWithKeywordParameters();
