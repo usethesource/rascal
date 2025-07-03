@@ -38,7 +38,6 @@ public class DescendantReader implements Iterator<IValue> {
 	Stack<Object> spine = new Stack<Object>();
 	IValue nextValue;
 
-
 	private Set.Transient<ITree> visitedAmbs = Set.Transient.of();
 
 	private boolean debug = false;
