@@ -606,6 +606,14 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
+        for(Statement stat <- statements, !(stat is assignment)){
+            c.require("statement-not-overloaded", stat, [], 
+                void(Solver s){
+                    if(isOverloadedAType(s.getType(stat))){
+                        s.report(error(stat, "Unresolved call to overloaded function or constructor defined as %t",  stat));
+                    }
+            });
+        }
         c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
         collect(stats, c);
     c.leaveScope(current);
