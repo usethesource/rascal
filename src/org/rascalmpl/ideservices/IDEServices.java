@@ -27,7 +27,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 
 /**
  * IDEServices provides external services that can be called by the
@@ -129,9 +128,11 @@ public interface IDEServices extends IRascalMonitor {
    * This method would register the messages with a "problems view" in the IDE
    */
   default void registerDiagnostics(IList messages) {
-     for (IValue m : messages) {
-       logMessage((IConstructor) m);
-     }
+      Messages.write(messages, stderr());
+  }
+
+  default void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+      registerDiagnostics(messages);
   }
 
   /**
