@@ -107,6 +107,8 @@ public class RuntimeExceptionFactory {
     public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
     public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation");
 	
+	public static final Type ParseErrorRecovery = TF.constructor(TS, Exception, "ParseErrorRecovery", Exception, "trigger", TF.sourceLocationType(), "location");
+
 	// The "official" exceptions that a Rascal program can catch (alphabetical order)
 	
     // ambiguity
@@ -739,5 +741,14 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast != null ? ast.getLocation() : null, trace);
+	}
+
+	// ParseErrorRecovery -- not in Exception, defined in ParseTree.rsc
+	public static Throw parseErrorRecovery(IValue trigger, ISourceLocation loc) {
+		return new Throw(VF.constructor(ParseErrorRecovery, trigger, loc));
+	}
+
+	public static Throw parseErrorRecoveryNoSuchField(String name, ISourceLocation loc) {
+		return new Throw(VF.constructor(ParseErrorRecovery, VF.constructor(NoSuchField, VF.string(name)), loc));
 	}
 }
