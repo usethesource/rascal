@@ -83,7 +83,7 @@ public class ShellEvaluatorFactory {
             stdout.println("PathConfig messages:");
             
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), projectRoot);
+                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
             } 
             else {
                 Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
