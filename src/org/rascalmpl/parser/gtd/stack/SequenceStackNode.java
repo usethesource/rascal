@@ -20,6 +20,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 	private final String name;
 	
 	private final AbstractStackNode<P>[] children;
+	private final AbstractStackNode<P> emptyChild;
 	
 	public SequenceStackNode(int id, int dot, P production, AbstractStackNode<P>[] children){
 		super(id, dot);
@@ -28,6 +29,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		this.name = String.valueOf(id);
 		
 		this.children = generateChildren(children);
+		this.emptyChild = children.length == 0 ? generateEmptyChild() : null;
 	}
 	
 	public SequenceStackNode(int id, int dot, P production, AbstractStackNode<P>[] children, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
@@ -37,6 +39,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		this.name = String.valueOf(id);
 		
 		this.children = generateChildren(children);
+		this.emptyChild = children.length == 0 ? generateEmptyChild() : null;
 	}
 	
 	private SequenceStackNode(SequenceStackNode<P> original, int startLocation){
@@ -46,6 +49,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		name = original.name;
 
 		children = original.children;
+		this.emptyChild = original.emptyChild;
 	}
 	
 	/**
@@ -53,6 +57,10 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 	 */
 	@SuppressWarnings("unchecked")
 	private AbstractStackNode<P>[] generateChildren(AbstractStackNode<P>[] children){
+		if(children.length == 0){
+			return new AbstractStackNode[]{};
+		}
+
 		AbstractStackNode<P>[] prod = (AbstractStackNode<P>[]) new AbstractStackNode[children.length];
 		
 		for(int i = children.length - 1; i >= 0; --i){
@@ -64,6 +72,16 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		prod[prod.length - 1].setAlternativeProduction(production);
 		
 		return (AbstractStackNode<P>[]) new AbstractStackNode[]{prod[0]};
+	}
+
+	/**
+	 * Generates and initializes the empty child for usage in empty sequences.
+	 */
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+		empty.setAlternativeProduction(production);
+		return empty;
 	}
 	
 	public String getName(){
@@ -79,11 +97,14 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 	
 	public boolean canBeEmpty(){
-		return false;
+		return children.length == 0;
 	}
 	
 	public AbstractStackNode<P> getEmptyChild(){
-		throw new UnsupportedOperationException();
+		if(children.length > 0) {
+			throw new UnsupportedOperationException();
+		}
+		return emptyChild;
 	}
 
 	@Override
