@@ -27,9 +27,6 @@ jobs:
       - name: Run Tests
         run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
-      - name: Run Tests round 2
-        run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test -Dtest=WatchTests
-
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
