@@ -36,7 +36,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
-import org.jline.reader.LineReader.RegionType;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;

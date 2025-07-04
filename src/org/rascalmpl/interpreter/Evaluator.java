@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -1437,13 +1438,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public boolean runTests(IRascalMonitor monitor) {
+    public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName) {
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
             final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), getErrorPrinter());
 
-            new TestEvaluator(this, new ITestResultListener() {
+            var teval = new TestEvaluator(this, new ITestResultListener() {
 
                 @Override
                 public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
@@ -1466,7 +1467,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 public void start(String context, int count) {
                     l.start(context, count);
                 }
-            }).test();
+            });
+
+            if (optionalModuleName.isPresent()) {
+                teval.test(optionalModuleName.get());
+            }
+            else {
+                teval.test();
+            }
+            
             return allOk[0];
         }
         finally {
