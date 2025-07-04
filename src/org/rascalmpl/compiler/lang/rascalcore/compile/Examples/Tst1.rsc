@@ -25,22 +25,29 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
+layout Layout = " "*;
+   
+syntax AB = "a" | "b";
+//syntax ABPlus = AB+ abs;
+syntax ABStar = AB* abs;
+// syntax ABPlusSep = {AB ","}+ abs;
+// syntax ABStarSep = {AB ","}* abs;
 
-/*
-    Perform a path analysis on the Rascal source code of a function.
-    On the fly it will report dead code.
-*/
+int size(&E* l) = (0 | it + 1 | _ <- l);
+    
 
-extend lang::rascalcore::check::CheckerCommon;
- 
-import lang::rascal::\syntax::Rascal;
+value main() // test bool sizeABStar2() 
+  = size(([ABStar]"a a").abs) == 2;
 
-// import String;
+// test bool sizeABPlus2() = size(([ABPlus]"a b").abs) == 2;
 
-/********************************************************************/
-/*       Return path analysis                                       */
-/********************************************************************/
+// test bool sizeABPlus3() = size(([ABPlus]"a b a").abs) == 3;
 
+int size({&E &S}* l) = (0 | it + 1 | _ <- l);
 
-bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
-    = true;
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep0() = size(([ABStarSep]"").abs) == 0;
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep1() = size(([ABStarSep]"a").abs) == 1;
+// @ignoreInterpreter{Not implemented}
+// test bool sizeABStarSep2() = size(([ABStarSep]"a, b").abs) == 2;

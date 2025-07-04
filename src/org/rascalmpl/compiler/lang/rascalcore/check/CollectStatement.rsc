@@ -37,8 +37,6 @@ import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
 import lang::rascalcore::check::PathAnalysis;
 
-import lang::rascal::\syntax::Rascal;
-
 import List;
 import Set;
 import String;
@@ -608,6 +606,14 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
+        for(Statement stat <- statements, !(stat is assignment)){
+            c.require("statement-not-overloaded", stat, [], 
+                void(Solver s){
+                    if(isOverloadedAType(s.getType(stat))){
+                        s.report(error(stat, "Unresolved call to overloaded function or constructor defined as %t",  stat));
+                    }
+            });
+        }
         c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
         collect(stats, c);
     c.leaveScope(current);
@@ -1035,6 +1041,11 @@ private AType computeDefaultAssignableType(Statement current, AType receiverType
 }
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
+
+private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
+    c.report(error(current, "Constructor assignable is not supported by the compiler"));
+    collect(name, arguments, c);    
+}
 
 private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 
