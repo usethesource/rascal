@@ -160,7 +160,7 @@ public class Messages {
 
             String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
                 ? ((IString) msg.get("msg")).getValue()
-                : loc.getPath()
+                : loc.getPath().substring(1)
                 + ((line == 0 && col == 0) ? "" : 
                 (":"
                 + String.format("%0" + lineWidth + "d", line)
