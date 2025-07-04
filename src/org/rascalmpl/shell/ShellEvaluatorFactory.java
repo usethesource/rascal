@@ -61,27 +61,21 @@ public class ShellEvaluatorFactory {
     private static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
-        stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
-        stdout.println("Rascal search path:");
         for (var srcPath : pcfg.getSrcs()) {
-            var path = MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath);
-            stdout.println("- " + path);
-            evaluator.addRascalSearchPath(path);
+            // TODO: question why mavenize so late here and not while configuring the pathConfig?
+            evaluator.addRascalSearchPath(MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath));
         }
 
         var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
         var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
-        stdout.println("Rascal classloader path:");
         for (var lib : libs) {
-            var path = (ISourceLocation)lib;
-            stdout.println("- " + lib);
-            evaluator.addRascalSearchPath(path);
+            evaluator.addRascalSearchPath((ISourceLocation)lib);
         }
         evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
 
+        pcfg.reportConfigurationInfo();
+        
         if (!pcfg.getMessages().isEmpty()) {
-            stdout.println("PathConfig messages:");
-            
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
             } 
