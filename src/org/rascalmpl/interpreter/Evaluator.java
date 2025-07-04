@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -1437,7 +1438,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public boolean runTests(IRascalMonitor monitor, String optionalModuleName) {
+    public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName) {
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
@@ -1468,8 +1469,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
             });
 
-            if (optionalModuleName != null) {
-                teval.test(optionalModuleName);
+            if (optionalModuleName.isPresent()) {
+                teval.test(optionalModuleName.get());
             }
             else {
                 teval.test();
