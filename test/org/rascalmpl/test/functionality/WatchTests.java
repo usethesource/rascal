@@ -174,9 +174,9 @@ public class WatchTests {
 
     @Test
     public void singleFile() throws InterruptedException {
-        var evalTest = setupWatchEvaluator(true);
-        var file1 = locationPrefix + "test-watch-a-" + rand.nextInt(100) +  ".txt|";
-        var file2 = locationPrefix + "test-watch-" + rand.nextInt(100) +  ".txt|";
+        var evalTest = setupWatchEvaluator();
+        var file1 = locationPrefix + "/single-file/test-watch-a-" + rand.nextInt(100) +  ".txt|";
+        var file2 = locationPrefix + "/single-file/test-watch-" + rand.nextInt(100) +  ".txt|";
         createFile(evalTest, file1, "making it exist");
         executeCommand(evalTest, "watch(" + file1 + ", false, triggerWatch);");
         createFile(evalTest, file2, "bye");
