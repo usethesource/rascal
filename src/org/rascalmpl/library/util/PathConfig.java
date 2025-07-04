@@ -37,6 +37,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -1025,6 +1026,48 @@ public class PathConfig {
         config.put("messages", getMessages());
 
         return vf.constructor(pathConfigConstructor, new IValue[0], config);
+    }
+
+    public void reportConfigurationInfo() {
+        var pom = URIUtil.getChildLocation(projectRoot, "pom.xml");
+        var sep = "\n\t- ";
+
+        messages.add(Messages.info("Project root is " + projectRoot, pom));
+        messages.add(Messages.info("Bin folder   is " + bin, pom));
+
+        if (!srcs.isEmpty()) {
+            messages.add(Messages.info("Source module path is:" + sep
+            + srcs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Source path is empty", pom));
+        }
+
+        if (!ignores.isEmpty()) {
+            messages.add(Messages.info("Ignored source files or folders are:" + sep
+            + ignores.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+       
+        if (!libs.isEmpty()) {
+            messages.add(Messages.info("Library module (and classes) path is:" + sep
+            + libs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Library path is empty", pom));
+        }
+
+        if (!resources.isEmpty()) {
+            messages.add(Messages.info("Additional resources files or folders are:" + sep
+            + resources.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }        
     }
     
     /**
