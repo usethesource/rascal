@@ -26,45 +26,37 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.ISourceLocationWatcher;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
+import engineering.swat.watch.ActiveWatch;
+import engineering.swat.watch.Approximation;
+import engineering.swat.watch.Watch;
+import engineering.swat.watch.WatchEvent;
+import engineering.swat.watch.WatchScope;
 import io.usethesource.vallang.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver, ISourceLocationWatcher {
-	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watchers = new ConcurrentHashMap<>();
-	private final Map<WatchKey, ISourceLocation> watchKeys = new ConcurrentHashMap<>();
-	private final WatchService watcher;
+	private final Map<WatchId, ActiveWatch> watchers = new ConcurrentHashMap<>();
 	
 	public FileURIResolver() throws IOException {
 		super();
-		this.watcher = FileSystems.getDefault().newWatchService();
-		createFileWatchingThread();
 	}
 	
 	
@@ -240,138 +232,99 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		}
 		throw new IOException("uri has no path: " + uri);
 	}
+
+	private final ExecutorService watcherPool = Executors.newCachedThreadPool((Runnable r) -> {
+		SecurityManager s = System.getSecurityManager();
+		ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		Thread t = new Thread(group, r, "file:/// watcher thread-pool");
+		t.setDaemon(true);
+		return t;
+	});
 	
 	@Override
-	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
-		watchers.computeIfAbsent(root, k -> ConcurrentHashMap.newKeySet()).add(callback);
+	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) throws IOException {
+		var rootFile = resolveToFile(root);
 
-		WatchKey key = resolveToFile(root).toPath().register(watcher,
-			StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY
-		);
-
-		synchronized(watchKeys) {
-			// to avoid races with an unwatch, we lock here
-			watchKeys.put(key, root);
+		WatchScope scope;
+		if (rootFile.isFile()) {
+			scope = WatchScope.PATH_ONLY;
 		}
+		else if (recursive) {
+			scope = WatchScope.PATH_AND_ALL_DESCENDANTS;
+		}
+		else {
+			scope = WatchScope.PATH_AND_CHILDREN;
+		}
+
+		var watch = Watch.build(rootFile.toPath(), scope)
+			.onOverflow(Approximation.ALL) // on an overflow, generate events for all files
+			.withExecutor(watcherPool)
+			.on(e -> {
+				var change = calculateChange(e, root);
+				if (change != null) {
+					watcherPool.submit(() -> callback.accept(change));
+				}
+			})
+			.start();
+
+		watchers.put(new WatchId(root, callback, recursive), watch);
 	}
 
 	@Override
-	public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
-		Set<Consumer<ISourceLocationChanged>> registered = watchers.get(root);
-		if (registered == null || !registered.remove(callback)) {
-			return;
-		}
-		if (registered.isEmpty()) {
-			// we have to try and clear the relevant watchkey
-			// but sadly this is a full loop
-			for (Entry<WatchKey, ISourceLocation> e: watchKeys.entrySet()) {
-				if (e.getValue().equals(root)) {
-					synchronized(watchKeys) {
-						// avoiding races with watch, we lock on the map remove
-						if (registered.isEmpty()) {// check again if we truly aren't replacing a key that should still be active
-							WatchKey k = e.getKey();
-							k.cancel();
-							watchKeys.remove(k);
-						}
-					}
-					break;
-				}
-			}
+	public boolean supportsRecursiveWatch() {
+		return true;
+	}
+
+	@Override
+	public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) throws IOException {
+		var activeWatch = watchers.remove(new WatchId(root, callback, recursive));
+		if (activeWatch != null) {
+			activeWatch.close();
 		}
 	}
 
-	private void createFileWatchingThread() {
-		// make a threadpool of daemon threads, to avoid this pool keeping the process running
-		ExecutorService exec = Executors.newCachedThreadPool(new ThreadFactory() {
-			public Thread newThread(Runnable r) {
-            	SecurityManager s = System.getSecurityManager();
-            	ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-				Thread t = new Thread(group, r, "file:/// watcher thread-pool");
-				t.setDaemon(true);
-				return t;
-			}
-		});
-
-		exec.execute(() -> {
-			while (true) {
-				// wait for key to be signaled
-				try {
-					WatchKey key = watcher.take();
-					try {
-						ISourceLocation root = watchKeys.get(key);
-						if (root == null) {
-							continue; // key not in the map anymore/yet?
-						}
-						for (WatchEvent<?> event: key.pollEvents()) {
-							WatchEvent.Kind<?> kind = event.kind();
-							
-							if (kind == StandardWatchEventKinds.OVERFLOW) {
-								continue;
-							}
-							
-							Set<Consumer<ISourceLocationChanged>> callbacks = watchers.get(root);
-							if (callbacks != null) {
-								@SuppressWarnings("unchecked")
-								Path filename = ((WatchEvent<Path>)event).context();
-								ISourceLocation subject = URIUtil.getChildLocation(root, filename.toString());
-
-								ISourceLocationChanged change = calculateChange(key, root, kind, subject);
-								if (change != null) {
-									for (Consumer<ISourceLocationChanged> c: callbacks) {
-										exec.execute(() -> c.accept(change));
-									}
-								}
-							}
-						}
-
-					} finally {
-						if (!key.reset()) {
-							watchKeys.remove(key);
-						}
-					}
-
-				} catch (InterruptedException e ){
-					return;
-				} catch (Throwable x) {
-					System.err.println("Error handling callback in FileURIResolver: " + x.getMessage());
-					x.printStackTrace(System.err);
-					continue;
-				}
-			}
-		});
-	}
-
-
-	private ISourceLocationChanged calculateChange(WatchKey key, ISourceLocation root, WatchEvent.Kind<?> kind,
-		ISourceLocation subject) {
-		boolean isDirectory = URIResolverRegistry.getInstance().isDirectory(subject);
-		switch (kind.name()) {
-			case "ENTRY_CREATE":
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.CREATED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
-			case "ENTRY_DELETE":
-
-				watchers.remove(subject);
-				if (root.equals(subject)) {
-					watchKeys.remove(key);
-				}
-
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.DELETED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
-
-			case "ENTRY_MODIFY":
-				return ISourceLocationWatcher.makeChange(
-					subject, 
-					ISourceLocationChangeType.MODIFIED, 
-					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-				;
-			case "OVERFLOW": //ignored
+	private ISourceLocationChanged calculateChange(WatchEvent event, ISourceLocation root) {
+		var subject = URIUtil.getChildLocation(root, event.getRelativePath().toString());
+		switch (event.getKind()) {
+			case CREATED:
+				return ISourceLocationWatcher.created(subject);
+			case DELETED:
+				return ISourceLocationWatcher.deleted(subject);
+			case MODIFIED:
+				return ISourceLocationWatcher.modified(subject);
+			case OVERFLOW:
 			default:
 				return null;
 		}
+	}
+
+
+	private static class WatchId {
+		final ISourceLocation root;
+		final Consumer<ISourceLocationChanged> callback;
+		final boolean recursive;
+		public WatchId(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) {
+			this.root = root;
+			this.callback = callback;
+			this.recursive = recursive;
+		}
+		@Override
+		public int hashCode() {
+			return Objects.hash(root, callback, recursive);
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof WatchId)) {
+				return false;
+			}
+			WatchId other = (WatchId) obj;
+			return Objects.equals(root, other.root) 
+				&& Objects.equals(callback, other.callback)
+				&& recursive == other.recursive;
+		}
+		
 	}
 }
