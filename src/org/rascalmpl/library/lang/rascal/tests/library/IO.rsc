@@ -15,9 +15,9 @@ test bool testFileCopyCompletely() {
 
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
         // this should trigger the failing test finally
-        remove(event.src); 
+        remove(event.file); 
     });
     return true;
 }

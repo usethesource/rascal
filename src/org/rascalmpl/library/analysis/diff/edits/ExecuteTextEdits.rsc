@@ -1,29 +1,43 @@
 module analysis::diff::edits::ExecuteTextEdits
 
 extend analysis::diff::edits::TextEdits;
-import IO;
-import String;
-import List;
 
-void executeDocumentEdits(list[DocumentEdit] edits) {
+import DateTime;
+import IO;
+import List; 
+import String;
+
+@synopsis{Execute file changes, including in-file edits if present.}
+@deprecated{Replaced by ((executeFileSystemChanges)) due to a rename of the concept.}
+void executeDocumentEdits(list[FileSystemChange] edits) {
+    executeFileSystemChanges(edits);
+}
+
+@synopsis{Execute file changes, including in-file edits if present.}
+void executeFileSystemChanges(list[FileSystemChange] edits) {
     for (e <- edits) {
-        executeDocumentEdit(e);
+        executeFileSystemChange(e); 
     }
 }
 
-void executeDocumentEdit(removed(loc f)) {
+void executeFileSystemChange(removed(loc f)) {
     remove(f.top);
 }
 
-void executeDocumentEdit(created(loc f)) {
+void executeFileSystemChange(created(loc f)) {
     writeFile(f, "");
 }
 
-void executeDocumentEdit(renamed(loc from, loc to)) {
+void executeFileSystemChange(renamed(loc from, loc to)) {
     move(from.top, to.top, overwrite=true);
 }
 
-void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
+void executeFileSystemChange(changed(loc file)) {
+    setLastModified(file, now());
+}
+
+@synopsis{Edit a file according to the given ((TextEdit)) instructions}
+void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
         return e1.range.offset < e2.range.offset; 
     });
