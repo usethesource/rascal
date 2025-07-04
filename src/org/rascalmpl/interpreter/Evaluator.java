@@ -1827,12 +1827,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void applyDocumentsEdits(IList edits) {
+        public void applyFileSystemEdits(IList edits) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).applyDocumentsEdits(edits);
+                ((IDEServices) monitor).applyFileSystemEdits(edits);
             }
             else {
-                IDEServices.super.applyDocumentsEdits(edits);
+                IDEServices.super.applyFileSystemEdits(edits);
             }
         }
 
