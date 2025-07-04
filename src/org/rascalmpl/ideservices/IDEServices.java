@@ -86,6 +86,14 @@ public interface IDEServices extends IRascalMonitor {
   }
 
   /**
+   * @deprecated replaced by {@link #applyFileSystemEdits(IList)}
+   */
+  @Deprecated(forRemoval = true)
+  default void applyDocumentsEdits(IList edits) {
+    applyFileSystemEdits(edits);
+  }
+
+  /**
    * Asks the IDE to apply document edits as defined in the standard library module
    * analysis::diff::edits::TextEdits, according to the semantics defined in
    * analysis::diff::edits::ExecuteTextEdits. However, the IDE can take care of these
@@ -96,8 +104,8 @@ public interface IDEServices extends IRascalMonitor {
    * of refactoring and quick-fix features of the language service protocol. 
    * @param edits list of DocumentEdits
    */
-  default void applyDocumentsEdits(IList edits) {
-     throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
+  default void applyFileSystemEdits(IList edits) {
+     throw new UnsupportedOperationException("applyFileSystemEdits is not implemented in this environment.");
   }
 
   /**
