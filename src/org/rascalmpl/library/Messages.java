@@ -43,15 +43,15 @@ public class Messages {
     private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
 
-    public static IValue info(String message, ISourceLocation loc) {
+    public static IConstructor info(String message, ISourceLocation loc) {
         return vf.constructor(Message_info, vf.string(message), loc);
     }
 
-    public static IValue warning(String message, ISourceLocation loc) {
+    public static IConstructor warning(String message, ISourceLocation loc) {
         return vf.constructor(Message_warning, vf.string(message), loc);
     }
 
-    public static IValue error(String message, ISourceLocation loc) {
+    public static IConstructor error(String message, ISourceLocation loc) {
         return vf.constructor(Message_error, vf.string(message), loc);
     }
 
@@ -171,13 +171,13 @@ public class Messages {
             ;
 
             if (isError) {
-                out.println("[ERROR]   " + output);
+                out.println("[ERROR] " + output);
             }
             else if (isWarning) {
                 out.println("[WARNING] " + output);
             }
             else {
-                out.println("[INFO]    " + output);
+                out.println("[INFO] " + output);
             }
         }
 
