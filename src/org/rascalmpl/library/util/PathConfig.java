@@ -1030,7 +1030,7 @@ public class PathConfig {
 
     public void reportConfigurationInfo() {
         var pom = URIUtil.getChildLocation(projectRoot, "pom.xml");
-        var sep = "\n\t- ";
+        var sep = "\n  - ";
 
         messages.add(Messages.info("Project root is " + projectRoot, pom));
         messages.add(Messages.info("Bin folder   is " + bin, pom));
