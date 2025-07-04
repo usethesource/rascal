@@ -54,7 +54,10 @@ public class IDEServicesLibrary {
     }
 
     public void applyDocumentsEdits(IList edits) {
-        services.applyDocumentsEdits(edits);
+        applyFileSystemEdits(edits);
+    }
+    public void applyFileSystemEdits(IList edits) {
+        services.applyFileSystemEdits(edits);
     }
 
 	public void showInteractiveContent(IConstructor provider, IString title, IInteger viewColumn) {

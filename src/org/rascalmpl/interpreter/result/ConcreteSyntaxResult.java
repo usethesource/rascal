@@ -20,6 +20,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
@@ -34,6 +35,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
@@ -49,7 +51,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public Result<IBool> is(Name name) {
-		if (TreeAdapter.isAppl((ITree) getValue())) {
+		ITree tree = (ITree) getValue();
+		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isError(tree)) {
 			String consName = TreeAdapter.getConstructorName((ITree) getValue());
 			if (consName != null) {
 				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
@@ -65,9 +68,22 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	    if (TreeAdapter.isList(t)) {
 	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getListASTArgs(t), ctx).subscript(subscripts);
 	    }
-	    else {
-	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
-	    }
+
+		try {
+			return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
+		} catch (Throw e) {
+			// Might be because the index is after the dot
+			if (TreeAdapter.isError(t)) {
+				IConstructor prod = ProductionAdapter.getErrorProduction(TreeAdapter.getProduction(t));
+				int arity = ProductionAdapter.getAstArgCount(prod);
+				int index = ((IInteger) subscripts[0].getValue()).intValue();
+
+				if (index < arity) {
+					throw RuntimeExceptionFactory.parseErrorRecovery(e.getException(), TreeAdapter.getLocation(t));
+				}
+			}
+			throw e;
+		}
 	}
 	
 	@Override
@@ -76,12 +92,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		
 		FieldResult field = TreeAdapter.getLabeledField(tree, name); 
 		
-		if (field != null) {
-		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
-		    return makeResult(symbolType, field.tree, ctx);
+		if (field == null) {
+			return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
 		}
-		
-		return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
+
+		Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		return makeResult(symbolType, field.tree, ctx);
 	}
 	
 	@Override
@@ -127,28 +143,44 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		return super.fieldUpdate(name, repl, store);
 	}
 	
+	private static boolean errorHasFieldBeforeDot(IConstructor errorProd, Name field) {
+		int dot = ProductionAdapter.getErrorDot(errorProd);
+		IList syms = ProductionAdapter.getSymbols(ProductionAdapter.getErrorProduction(errorProd));
+		int index = SymbolAdapter.indexOfLabel(syms, Names.name(field));
+		return index >= 0 && index < dot;
+	}
+
 	@Override
 	public Result<IBool> has(Name name) {
 		if (TreeAdapter.isAppl((ITree) getValue())) {
 			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
-			if(ProductionAdapter.isDefault(prod)){
-				IList syms = ProductionAdapter.getSymbols(prod);
-				String tmp = Names.name(name);
-
-				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-
-				for (IValue sym : syms) {
-					if (SymbolAdapter.isLabel((IConstructor) sym)) {
-						if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
-							return ResultFactory.bool(true, ctx);
-						}
-					}
+			if (ProductionAdapter.isDefault(prod)) {
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(prod), Names.name(name));
+				if (index >= 0) {
+					return ResultFactory.bool(true, ctx);
+				}
+			} else if (ProductionAdapter.isError(prod)) {
+				if (errorHasFieldBeforeDot(prod, name)) {
+					return ResultFactory.bool(true, ctx);
 				}
 			}
 		}
+
 		return super.has(name);
 	}
-	
+
+	@Override
+	public Result<IBool> isDefined(Name name) {
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
+			if (ProductionAdapter.isError(prod) && errorHasFieldBeforeDot(prod, name)) {
+				return ResultFactory.bool(true, ctx);
+			}
+		}
+
+		return super.isDefined(name);
+	}
+
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToConcreteSyntax(this);

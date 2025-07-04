@@ -25,22 +25,29 @@ public interface ISourceLocationWatcher {
 	 * Register a watcher callback for the current scheme at the given root
 	 * @param root        the resource to watch
 	 * @param watcher     the callback to call when something happens to the registred resource
+	 * @param recursive   also watch all nested directories for changes (use {@link #supportsRecursiveWatch()} to verify it's supported)
 	 * @throws IOException
 	 */
-	void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
+	void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException;
 
 	/**
 	 * Unregister a watcher callback for a specific uri (note, there can be multiple watchers per resource, this only clears this specific watcher)
 	 * @param root the resource to unwatch
 	 * @param watcher the specific callback to unregister
+	 * @param recursive  was the watch registered with a recursive flag (use {@link #supportsRecursiveWatch()} to verify it's supported)
 	 * @throws IOException
 	 */
-	void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
+	void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException;
+
+	/**
+	 * Does this watcher support a recursive watch request.
+	 */
+	boolean supportsRecursiveWatch();
+
 
 	public interface ISourceLocationChanged {
 		ISourceLocation getLocation();
 		ISourceLocationChangeType getChangeType();
-		ISourceLocationType getType();
 
 		default boolean isCreated() {
 			return getChangeType() == ISourceLocationChangeType.CREATED;
@@ -53,14 +60,6 @@ public interface ISourceLocationWatcher {
 		default boolean isChanged() {
 			return getChangeType() == ISourceLocationChangeType.MODIFIED;
 		}
-
-		default boolean isFile() {
-			return getType() == ISourceLocationType.FILE;
-		}
-
-		default boolean isDirectory() {
-			return getType() == ISourceLocationType.DIRECTORY;
-		}
 	}
 
 	public enum ISourceLocationChangeType {
@@ -69,36 +68,19 @@ public interface ISourceLocationWatcher {
 		MODIFIED()
 	}
 
-	public enum ISourceLocationType {
-		FILE(),
-		DIRECTORY()
+	static ISourceLocationChanged created(ISourceLocation loc) {
+		return makeChange(loc, ISourceLocationChangeType.CREATED);
 	}
 
-	static ISourceLocationChanged fileCreated(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.CREATED, ISourceLocationType.FILE);
+	static ISourceLocationChanged deleted(ISourceLocation loc) {
+		return makeChange(loc, ISourceLocationChangeType.DELETED);
 	}
 
-	static ISourceLocationChanged directoryCreated(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.CREATED, ISourceLocationType.DIRECTORY);
+	static ISourceLocationChanged modified(ISourceLocation loc) {
+		return makeChange(loc, ISourceLocationChangeType.MODIFIED);
 	}
 
-	static ISourceLocationChanged fileDeleted(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.DELETED, ISourceLocationType.FILE);
-	}
-
-	static ISourceLocationChanged directoryDeleted(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.DELETED, ISourceLocationType.DIRECTORY);
-	}
-
-	static ISourceLocationChanged fileModified(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.MODIFIED, ISourceLocationType.FILE);
-	}
-
-	static ISourceLocationChanged directoryModified(ISourceLocation loc) {
-		return makeChange(loc, ISourceLocationChangeType.MODIFIED, ISourceLocationType.DIRECTORY);
-	}
-
-	static ISourceLocationChanged makeChange(final ISourceLocation loc, final ISourceLocationChangeType changeType, final ISourceLocationType fileType) {
+	static ISourceLocationChanged makeChange(final ISourceLocation loc, final ISourceLocationChangeType changeType) {
 		return new ISourceLocationChanged() {
 			@Override
 			public ISourceLocationChangeType getChangeType() {
@@ -108,11 +90,6 @@ public interface ISourceLocationWatcher {
 			@Override
 			public ISourceLocation getLocation() {
 				return loc;
-			}
-
-			@Override
-			public ISourceLocationType getType() {
-				return fileType;
 			}
 		};
 	}

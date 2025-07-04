@@ -568,6 +568,11 @@
             <artifactId>maven-settings</artifactId>
             <version>${maven-version}</version>
         </dependency>
+        <dependency> <!-- file watch support -->
+            <groupId>engineering.swat</groupId>
+            <artifactId>java-watch</artifactId>
+            <version>0.9.2</version>
+        </dependency>
     </dependencies>
     <profiles>
         <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
