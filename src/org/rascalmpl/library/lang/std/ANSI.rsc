@@ -1,6 +1,14 @@
 @synopsis{Documents a part of the ANSI standard for terminal control sequences}
 module lang::std::ANSI
 
+lexical ANSI = Token* tokens;
+lexical Token
+	= ControlCode            control
+	| SpecialControlSequence special
+	| OperatingSystemCommand command
+	| ![\a1b\a07-\a1B]+ !>> ![\a1b\a07-\a1B] normal
+	;
+
 lexical ControlCode 
     = bell          : [\a07]
     | backspace     : [\a07]
@@ -38,6 +46,15 @@ lexical CSISequence
 	| hideCursor                 :  "?25l"
 	| showCursor                 :  "?25h"
     ;
+
+lexical OperatingSystemCommand = OperatingSystemCommandIntroducer osc OperatingSystemSequence code;
+
+lexical OperatingSystemCommandIntroducer = [\a1B] [\]];
+lexical OperatingSystemSequence
+	= anchor : "8;" AnchorParameter* ";" ![\a1b]+ href ControlSequenceIntroducer csi ![\a1b]+  ControlSequenceIntroducer "8;;" ControlSequenceIntroducer [\\\a07]
+	;
+
+lexical AnchorParameter = "id" ":" ![;:]+ val;
 
 lexical Rendition
     = reset                         : "0"

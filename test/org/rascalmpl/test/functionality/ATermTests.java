@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,18 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - davy.landman@swat.engineering - Swat.engineering
 *******************************************************************************/
 
 package org.rascalmpl.test.functionality;
 
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
+import org.junit.Test;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -24,11 +30,9 @@ import io.usethesource.vallang.io.ATermReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
-import junit.framework.TestCase;
 
-public class IOTests extends TestCase {
+public class ATermTests {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static TypeStore ts = new TypeStore();
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -84,10 +88,9 @@ public class IOTests extends TestCase {
 		return vf.constructor(NameNode, vf.string(n));
 	}
 	
+	@Test
 	public void testATermReader() {
 		ATermReader testReader = new ATermReader();
-		
-		
 		
 		try {
 			for (int i = 0; i < testATerm.length; i++) {
@@ -105,5 +108,4 @@ public class IOTests extends TestCase {
 		}
 	}
 
-	
 }
