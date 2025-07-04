@@ -66,7 +66,6 @@ int localFunctionCounter = 0;
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
     dataCounter = 0;
-    variantCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
     localFunctionCounter = 0;
