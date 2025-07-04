@@ -989,8 +989,10 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
-		throws IOException {
+	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback) throws IOException {
+		if (getOutputResolver(safeResolve(loc).getScheme()) == null) {
+			throw new UnsupportedSchemeException("Watching not supported on schemes that do not support writing: " + loc.getScheme());
+		}
 		watchers.watch(loc, recursive, callback);
 	}
 
