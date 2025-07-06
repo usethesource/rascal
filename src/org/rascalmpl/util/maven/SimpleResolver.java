@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +36,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
@@ -44,6 +52,7 @@ import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
@@ -90,9 +99,82 @@ import org.apache.maven.settings.Mirror;
         return pomLocation.resolveSibling(fileName + ".jar");
     }
 
+    // Note: Because we download both the metadata and the pom from the first repo available,
+    // we could end up in a situation where the metadata file comes from a different repo
+    // the the pom file. This should not pose a big problem.
+    private Metadata downloadArtifactMetadata(String groupId, String artifactId, String versionSpec)
+        throws UnresolvableModelException {
+
+        // TODO: deal with repository filters etc in settings.xml
+        String metadataUrl = String.format("/%s/%s/maven-metadata.xml", groupId.replace('.', '/'), artifactId);
+
+        MetadataXpp3Reader reader = new MetadataXpp3Reader();
+        for (var repoDownloader : availableRepostories) {
+            if (repoDownloader.getRepo().getLayout().equals("legacy")) {
+                // TODO: support legacy repo
+                continue;
+            }
+
+            String metadataSource = repoDownloader.read(metadataUrl);
+            if (metadataSource != null) {
+                try {
+                    return reader.read(new StringReader(metadataSource));
+                }
+                catch (IOException e) {
+                    throw new UnresolvableModelException("IOException trying to parse metadata", groupId, artifactId, versionSpec, e);
+                }
+                catch (XmlPullParserException e) {
+                    throw new UnresolvableModelException("Xml exception trying to parse metadata", groupId, artifactId, versionSpec, e);
+                }
+            }
+        }
+        throw new UnresolvableModelException("Could not download artifact metadata from available repositories", groupId,
+            artifactId, versionSpec);
+    }
+
+    private String findLatestMatchingVersion(Metadata metadata, String groupId, String artifactId, String versionRange) throws UnresolvableModelException {
+        try {
+            VersionRange range = VersionRange.createFromVersionSpec(versionRange);
+            Versioning versioning = metadata.getVersioning();
+            String latest = null;
+            DefaultArtifactVersion latestVersion = null;
+
+            for (String currentVersion : versioning.getVersions()) {
+                DefaultArtifactVersion candidate = new DefaultArtifactVersion(currentVersion);
+                if (range.containsVersion(candidate)) {
+                    if (latestVersion == null || candidate.compareTo(latestVersion) > 0) {
+                        latestVersion = candidate;
+                        latest = currentVersion;
+                    }
+                }
+            }
+
+            if (latest != null) {
+                return latest;
+            } else {
+                throw new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange);
+            }
+        }
+        catch (InvalidVersionSpecificationException e) {
+            throw new UnresolvableModelException("Could not download artifact metadata from available repositories",
+                groupId, artifactId, versionRange);
+        }
+    }
+
+    private String resolveVersion(String groupId, String artifactId, String version) throws UnresolvableModelException {
+        // Resolve version ranges
+        if (version.startsWith("[") || version.startsWith("(")) {
+            var metadata = downloadArtifactMetadata(groupId, artifactId, version);
+            return findLatestMatchingVersion(metadata, groupId, artifactId, version);
+        }
+
+        return version;
+    }
+
     @Override
     public ModelSource resolveModel(String groupId, String artifactId, String version)
         throws UnresolvableModelException {
+        version = resolveVersion(groupId, artifactId, version);
         var local = calculatePomPath(groupId, artifactId, version);
         if (!Files.exists(local)) {
             downloadPom(local, groupId, artifactId, version);
@@ -161,6 +243,7 @@ import org.apache.maven.settings.Mirror;
                 // TODO: support legacy repo
                 continue;
             }
+
             if (repoDownloader.download(url, local, force)) {
                 return;
             }
