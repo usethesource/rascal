@@ -165,7 +165,9 @@ public class MavenResolverTest {
             Path mirrorHome = cwd.resolve(Path.of("test", "org", "rascalmpl", "util", "maven", "mirrorhomedir"));
             System.setProperty("user.home", mirrorHome.toString());
 
-            MavenParser parser = parse("local-reference/pom-mirror.xml");
+            MavenParser parser = new MavenParser(MavenSettings.readSettings(), getPomsPath(
+                "local-reference/pom-mirror.xml"), tempRepo);
+
             Artifact project = parser.parseProject();
             List<Artifact> resolved = project.resolveDependencies(Scope.COMPILE, parser);
             Assert.assertNotNull("Dependency hast not been resolved by mirror", resolved.get(0).getResolved());
@@ -206,6 +208,14 @@ public class MavenResolverTest {
         }
     }
 
-
+    @Test
+    public void testVersionRange() throws ModelResolutionError {
+        var parser = parse("remote-reference/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeGson = locate(resolved, "gson");
+        assertTrue("gson should be found", maybeGson.isPresent());
+        assertNotNull("gson should be resolved", maybeGson.get().getResolved());
+    }
 
 }
