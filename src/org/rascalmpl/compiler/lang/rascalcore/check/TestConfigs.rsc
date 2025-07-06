@@ -306,8 +306,8 @@ public RascalCompilerConfig getPHPCompilerConfig(bool keep = false){
 public PathConfig getVSCodePathConfig() {
     LSP_REPO = |file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/|;
     return  pathConfig(
-        srcs=[LSP_REPO + "src/main/rascal/library"],
-        libs=[ RASCAL_LSP, TYPEPAL, RASCAL ],
+        srcs=[LSP_REPO + "src/main/rascal/library", LSP_REPO + "src/main/rascal/lsp"],
+        libs=[ TYPEPAL, RASCAL ],
         ignores=[],
         generatedResources=LSP_REPO + "target/classes/",
         bin=LSP_REPO + "target/classes/",
