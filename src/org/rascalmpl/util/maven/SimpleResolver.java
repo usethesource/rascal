@@ -156,8 +156,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
             }
         }
         catch (InvalidVersionSpecificationException e) {
-            throw new UnresolvableModelException("Could not download artifact metadata from available repositories",
-                groupId, artifactId, versionRange);
+            throw new UnresolvableModelException("Invalid version specification",  groupId, artifactId, versionRange, e);
         }
     }
 
