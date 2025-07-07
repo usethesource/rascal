@@ -162,7 +162,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 
 	@Override
 	public boolean isWritable(ISourceLocation uri) throws IOException {
-		return resolveToFile(uri).canWrite();
+		return Files.isWritable(resolveToFile(uri).toPath());
 	}
 
 	@Override
