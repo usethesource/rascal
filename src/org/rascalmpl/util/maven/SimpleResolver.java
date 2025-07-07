@@ -99,9 +99,11 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
         return pomLocation.resolveSibling(fileName + ".jar");
     }
 
-    // Note: Because we download both the metadata and the pom from the first repo available,
-    // we could end up in a situation where the metadata file comes from a different repo
-    // the the pom file. This should not pose a big problem.
+    // Note: Because we download both the metadata and the pom files from the first repo that
+    // has the file available, we could end up in a situation where the metadata file comes from 
+    // a different repo than the pom file. This should not pose a problem as pom files with the
+    // same version should be identical. If they are not, there is something seriously wrong with
+    // the versioning in one of the repos and we are helpless to fix that anyway.
     private Metadata downloadArtifactMetadata(String groupId, String artifactId, String versionSpec)
         throws UnresolvableModelException {
 
