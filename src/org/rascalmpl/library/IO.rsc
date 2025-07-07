@@ -327,6 +327,13 @@ Check whether location `file` is actually a file.
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isFile(loc file);
 
+@synopsis{Check whether a given location is a writable file (and not readonly/non-existing).}
+@description{
+Check whether location `file` is writable. For a non-existing file, check `isWritable` of the parent directory.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isWritable(loc file);
+
 
 
 @synopsis{Last modification date of a location.}
@@ -361,6 +368,22 @@ created(|std:///IO.rsc|);
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime created(loc file);
+
+@synopsis{File size of a location.}
+@description{
+Returns the file size of the file at location `file`.
+}
+@examples{
+```rascal-shell
+import IO;
+```
+Determine the file size of the Rascal standard library:
+```rascal-shell,continue
+fileSize(|std:///IO.rsc|);
+```
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java int fileSize(loc file);
 
 
 
