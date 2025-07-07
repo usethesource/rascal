@@ -62,14 +62,13 @@ public class ShellEvaluatorFactory {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
         for (var srcPath : pcfg.getSrcs()) {
-            // TODO: question why mavenize so late here and not while configuring the pathConfig?
-            evaluator.addRascalSearchPath(MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath));
+            evaluator.addRascalSearchPath((ISourceLocation) srcPath);
         }
 
         var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
         var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
         for (var lib : libs) {
-            evaluator.addRascalSearchPath((ISourceLocation)lib);
+            evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
         evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
 
