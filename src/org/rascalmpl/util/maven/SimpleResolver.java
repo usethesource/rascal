@@ -27,6 +27,7 @@
 package org.rascalmpl.util.maven;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -110,24 +112,15 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
         // TODO: deal with repository filters etc in settings.xml
         String metadataUrl = String.format("/%s/%s/maven-metadata.xml", groupId.replace('.', '/'), artifactId);
 
-        MetadataXpp3Reader reader = new MetadataXpp3Reader();
         for (var repoDownloader : availableRepostories) {
             if (repoDownloader.getRepo().getLayout().equals("legacy")) {
                 // TODO: support legacy repo
                 continue;
             }
 
-            String metadataSource = repoDownloader.read(metadataUrl);
-            if (metadataSource != null) {
-                try {
-                    return reader.read(new StringReader(metadataSource));
-                }
-                catch (IOException e) {
-                    throw new UnresolvableModelException("IOException trying to parse metadata", groupId, artifactId, versionSpec, e);
-                }
-                catch (XmlPullParserException e) {
-                    throw new UnresolvableModelException("Xml exception trying to parse metadata", groupId, artifactId, versionSpec, e);
-                }
+            Metadata metadata = repoDownloader.readMetadata(metadataUrl);
+            if (metadata != null) {
+                return metadata;
             }
         }
         throw new UnresolvableModelException("Could not download artifact metadata from available repositories", groupId,
@@ -137,28 +130,16 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
     private String findLatestMatchingVersion(Metadata metadata, String groupId, String artifactId, String versionRange) throws UnresolvableModelException {
         try {
             VersionRange range = VersionRange.createFromVersionSpec(versionRange);
-            Versioning versioning = metadata.getVersioning();
-            String latest = null;
-            DefaultArtifactVersion latestVersion = null;
 
-            for (String currentVersion : versioning.getVersions()) {
-                DefaultArtifactVersion candidate = new DefaultArtifactVersion(currentVersion);
-                if (range.containsVersion(candidate)) {
-                    if (latestVersion == null || candidate.compareTo(latestVersion) > 0) {
-                        latestVersion = candidate;
-                        latest = currentVersion;
-                    }
-                }
-            }
-
-            if (latest != null) {
-                return latest;
-            } else {
-                throw new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange);
-            }
+            return metadata.getVersioning().getVersions().stream()
+                .map(version -> new DefaultArtifactVersion(version))
+                .filter(version -> range.containsVersion(version))
+                .max((v1, v2) -> v1.compareTo(v2))
+                .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange))
+                .toString();            
         }
         catch (InvalidVersionSpecificationException e) {
-            throw new UnresolvableModelException("Invalid version specification",  groupId, artifactId, versionRange, e);
+            throw new UnresolvableModelException("Invalid version range specification", groupId, artifactId, versionRange, e);
         }
     }
 

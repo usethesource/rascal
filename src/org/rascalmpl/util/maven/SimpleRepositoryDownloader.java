@@ -46,7 +46,10 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * A note about locking:
@@ -86,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             }
         }
 
-        Optional<Path> result = download(url, target, force,
+        Path result = download(url, target, force,
             (InputStream input) -> { 
                 Path tempTarget = getTempFile(target);
                 Files.copy(input, tempTarget);
@@ -94,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             },
             (Path tempArtifact) -> moveToTarget(tempArtifact, target, force)
         );
-        return result.isPresent();
+        return result != null;
     }
 
     private Path getTempFile(Path target) {
@@ -106,17 +109,25 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return download(url, target, force,
             (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
             (String content) -> writeToTarget(content, target, force)
-        ).orElse(null);
+        );
     }
 
-    public @Nullable String read(String url) {
+    public @Nullable Metadata readMetadata(String url) {
+        final MetadataXpp3Reader reader = new MetadataXpp3Reader();
         return download(url, null, false,
-            (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
-            (String content) -> true
-        ).orElse(null);
+            (InputStream input) -> { 
+                try {
+                    return reader.read(input);
+                }
+                catch (XmlPullParserException e) {
+                    throw new IOException(e);
+                } 
+            },
+            (Metadata metadata) -> true
+        );
     }
 
-    public <R> Optional<R> download(String url, Path target, boolean force,
+    private @Nullable <R> R download(String url, @Nullable Path target, boolean force,
         FailableFunction<InputStream, R, IOException> resultCreator,
         FailableFunction<R, Boolean, IOException> resultWriter) {
         try {
@@ -128,19 +139,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 try (var input = new ChecksumInputStream(response.body())) {
                     R result = resultCreator.apply(input);
 
-                    String sha1Checksum = input.getSha1Checksum();
-                    String md5Checksum = input.getMd5Checksum();
+                    if (target != null) {
+                        // No target, not checksums to compare against
+                        String sha1Checksum = input.getSha1Checksum();
+                        String md5Checksum = input.getMd5Checksum();
 
-                    if (!verifyChecksum(url, response.headers(), sha1Checksum, md5Checksum)) {
-                        return Optional.empty();
-                    }
+                        if (!verifyChecksum(url, response.headers(), sha1Checksum, md5Checksum)) {
+                            return null;
+                        }
 
-                    // Only write checksums if copying succeeds so the checksums will always match the current file
-                    if (resultWriter.apply(result) && target != null) {
-                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
-                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
+                        // Only write checksums if copying succeeds so the checksums will always match the current file
+                        if (resultWriter.apply(result) && target != null) {
+                            writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
+                            writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
+                        }
                     }
-                    return Optional.of(result);
+                    return result;
                 }
             }
             else {
@@ -150,12 +164,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                     body.close();
                 }
             }
-            return Optional.empty();
+            return null;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Optional.empty();
+            return null;
         } catch (URISyntaxException | IOException e) {
-            return Optional.empty();
+            return null;
         }
     }
 
