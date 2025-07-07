@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             }
         }
 
-        Optional<Path> result = download(url, target, force, true,
+        Optional<Path> result = download(url, target, force,
             (InputStream input) -> { 
                 Path tempTarget = getTempFile(target);
                 Files.copy(input, tempTarget);
@@ -103,20 +103,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     public @Nullable String downloadAndRead(String url, Path target, boolean force) {
-        return download(url, target, force, true,
+        return download(url, target, force,
             (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
             (String content) -> writeToTarget(content, target, force)
         ).orElse(null);
     }
 
     public @Nullable String read(String url) {
-        return download(url, null, false, false,
+        return download(url, null, false,
             (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
             (String content) -> true
         ).orElse(null);
     }
 
-    public <R> Optional<R> download(String url, Path target, boolean force, boolean writeChecksums,
+    public <R> Optional<R> download(String url, Path target, boolean force,
         FailableFunction<InputStream, R, IOException> resultCreator,
         FailableFunction<R, Boolean, IOException> resultWriter) {
         try {
@@ -136,7 +136,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                     }
 
                     // Only write checksums if copying succeeds so the checksums will always match the current file
-                    if (writeChecksums && resultWriter.apply(result)) {
+                    if (resultWriter.apply(result) && target != null) {
                         writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
                         writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
                     }
