@@ -24,51 +24,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri.fs;
+package org.rascalmpl.uri;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
+public class FileAttributes {
+	private final boolean exists;
+	private final boolean isFile;
+	private final long created;
+	private final long lastModified;
+	private final boolean isWritable;
+	private final long size;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+	public FileAttributes(boolean exists, boolean isFile, long created, long lastModified, boolean isWritable, long size) {
+		this.exists = exists;
+		this.isFile = isFile;
+		this.created = created;
+		this.lastModified = lastModified;
+		this.isWritable = isWritable;
+		this.size = size;
+	}
 
-public class FSEntry {
-    final long created;
-
-    volatile long lastModified;
-    volatile long size;
-
-
-    public FSEntry(long created, long lastModified, long size) {
-        this.created = created;
-        this.lastModified = lastModified;
-        this.size = size;
-    }
-
-    public FSEntry(@Nullable FileTime created, long lastModified, long size) {
-        this(created == null ? lastModified : created.toMillis(), lastModified, size);
-    }
-
-    public long getCreated() {
-        return created;
-    }
-    public long getLastModified() {
-        return lastModified;
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public static FSEntry forFile(Path file) {
-        try {
-            var attr = Files.readAttributes(file, BasicFileAttributes.class);
-            return new FSEntry(attr.creationTime().toMillis(), attr.lastModifiedTime().toMillis(), attr.size());
-        }
-        catch (IOException e) {
-            return new FSEntry(0, 0, 0);
-        }
-    }
+	public boolean exists() { return exists; }
+	public boolean isFile() { return isFile; }
+	public long created() { return created; }
+	public long lastModified() { return lastModified; }
+	public boolean isWritable() { return isWritable; }
+	public long size() { return size; }
 }
