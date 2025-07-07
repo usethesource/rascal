@@ -26,6 +26,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
@@ -682,6 +684,26 @@ public class URIResolverRegistry {
 		return result;
 	}
 
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getOutputResolver(uri.getScheme());
+		if (resolver != null) {
+			return resolver.isWritable(uri);
+		}
+		return false;
+	}
+
+	public long size(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+
+		return resolver.size(uri);
+	}
+
 	private boolean isRootLogical(ISourceLocation uri) {
 		return uri.getAuthority().isEmpty() && uri.getPath().equals("/")
 			&& logicalResolvers.containsKey(uri.getScheme());
@@ -1064,5 +1086,22 @@ public class URIResolverRegistry {
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
 		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme());
 	}
+
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		loc = safeResolve(loc);
+		var resolver = getInputResolver(loc.getScheme());
+		if (resolver == null) {
+			throw new IOException("Unsupported scheme: " + loc.getScheme());
+		}
+		try {
+			return resolver.stat(loc);
+		} catch (FileNotFoundException fe) {
+			return new FileAttributes(false, false, -1,-1, false, 0);
+		}
+	}
+
+
+
+
 
 }

@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
@@ -156,6 +157,30 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		BasicFileAttributeView basicfile = Files.getFileAttributeView(resolveToFile(uri).toPath(), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
         BasicFileAttributes attr = basicfile.readAttributes() ;
         return attr.creationTime().toMillis();
+	}
+
+
+	@Override
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		return resolveToFile(uri).canWrite();
+	}
+
+	@Override
+	public long size(ISourceLocation uri) throws IOException {
+		return resolveToFile(uri).length();
+	}
+
+	@Override
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		var file = resolveToFile(loc).toPath();
+		var attrs = Files.readAttributes(file, BasicFileAttributes.class);
+		return new FileAttributes(true, 
+			attrs.isRegularFile(),
+			attrs.creationTime().toMillis(),
+			attrs.lastModifiedTime().toMillis(),
+			Files.isWritable(file),
+			attrs.size()
+		);
 	}
 	
 	@Override
