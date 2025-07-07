@@ -39,6 +39,7 @@ import java.util.function.UnaryOperator;
 
 import org.apache.commons.io.FileExistsException;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.uri.FileAttributes;
 
 /**
  * Track a set of files (and directories) in memory. 
@@ -47,10 +48,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public class FileSystemTree<T extends FSEntry> {
     private final Directory<T> root;
+    private final boolean writable;
     protected volatile IOException delayedException;
 
-    public FileSystemTree(T root) {
+    public FileSystemTree(T root, boolean writable) {
         this.root = new Directory<>(root, "");
+        this.writable = writable;
     }
 
     void throwDelayed() throws IOException {
@@ -68,10 +71,12 @@ public class FileSystemTree<T extends FSEntry> {
     }
 
     public void replaceFile(String path, UnaryOperator<T> replacer) throws IOException {
+        verifyWritable();
         root.replaceFile(path, replacer);
     }
 
     public void remove(String path) throws IOException {
+        verifyWritable();
         try {
             root.remove(path);
         } catch (FileNotFoundException ignored) {
@@ -102,6 +107,12 @@ public class FileSystemTree<T extends FSEntry> {
         return getEntry(path).created;
     }
 
+    public long size(String path) throws IOException {
+        throwDelayed();
+        return getEntry(path).size;
+    }
+
+
 
     public boolean exists(String path) {
         try {
@@ -130,8 +141,25 @@ public class FileSystemTree<T extends FSEntry> {
         }
     }
 
+    public FileAttributes stat(String path) throws IOException {
+        throwDelayed();
+        var entry = root.getEntry(path);
+        if (entry == null) {
+            throw new FileNotFoundException(path + " could not be found");
+        }
+        var actual = entry.file == null ? entry.directory.self : entry.file;
+        return new FileAttributes(true, entry.file != null, actual.created, actual.lastModified, writable, actual.size);
+    }
+
     public void touch(String path, long newTimestamp) throws IOException {
+        verifyWritable();
         getEntry(path).lastModified = newTimestamp;
+    }
+
+    private void verifyWritable() throws IOException {
+        if (!writable) {
+            throw new IOException("This system was not marked writable");
+        }
     }
 
     public boolean isEmpty() {

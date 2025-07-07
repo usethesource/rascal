@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIUtil;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -95,5 +96,13 @@ public class ZipFileResolver  {
         catch (IOException e) {
             return new String[0];
         }
+    }
+
+    public FileAttributes stat(ISourceLocation zip, String path) throws IOException {
+        return getFileHierchyCache(zip).stat(path);
+    }
+
+    public long size(ISourceLocation zip, String path) throws IOException {
+        return getFileHierchyCache(zip).size(path);
     }
 }

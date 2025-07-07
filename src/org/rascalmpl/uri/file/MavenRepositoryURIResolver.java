@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -164,6 +165,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     @Override
+    public long size(ISourceLocation uri) throws IOException {
+        return reg.size(resolveInsideJar(uri));
+    }
+
+    @Override
     public boolean isDirectory(ISourceLocation uri) {
         try {
             return reg.isDirectory(resolveInsideJar(uri));
@@ -171,6 +177,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public FileAttributes stat(ISourceLocation loc) throws IOException {
+        return reg.stat(resolveInsideJar(loc));
     }
 
     @Override
