@@ -1041,6 +1041,20 @@ public class Prelude {
 		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
 		return result;
 	}
+
+
+	public IValue fileSize(ISourceLocation sloc) {
+		try {
+		    IValue result = values.integer(REGISTRY.size(sloc));
+		    if(trackIO) System.err.println("fileSize: " + sloc + " => " + result);
+			return result;
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
@@ -1088,6 +1102,16 @@ public class Prelude {
 	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(REGISTRY.isFile(sloc));
 	}
+
+	public IBool isWritable(ISourceLocation sloc){
+		try {
+			return values.bool(REGISTRY.isWritable(sloc));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
 	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
