@@ -78,7 +78,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			IRascalMonitor monitor = __eval.getMonitor();
 
-			// also clear the screen
+			// clear the screen, if we have that capability
 			if (monitor instanceof IDEServices) {
 				var services = (IDEServices) monitor;
 				var term = services.activeTerminal();
@@ -86,11 +86,11 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 					term.puts(Capability.clear_screen);
 				}
 				else {
-					__eval.getErrorPrinter().println("There is no terminal available to clear");
+					__eval.getErrorPrinter().println(":clear does not work for this context.");
 				}
 			}
 			else {
-				__eval.getErrorPrinter().println("The current Rascal execution environment does not know how to clear the REPL.");
+				__eval.getErrorPrinter().println(":clear is not implemented in this context.");
 			}
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
@@ -121,7 +121,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			eval.getOutPrinter().println(":history command is not implemented here yet.");
+			eval.getErrorPrinter().println(":history command is not implemented here yet.");
 			return nothing();
 		}
 	}
@@ -306,7 +306,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 				
 				env.unsetSimpleVariable(simpleName);
 				env.unsetAllFunctions(simpleName);
-				// TODO: remove ADT from store
+				// TODO: remove ADT from store when vallang TypeStore gets that capability.
 				env.unsetConcreteSyntaxType(simpleName);
 			}
 
