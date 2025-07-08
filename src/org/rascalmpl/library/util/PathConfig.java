@@ -557,6 +557,7 @@ public class PathConfig {
                 }
                 return;
             }
+        
             ISourceLocation dep = MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(resolvedLocation));
             String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
 
@@ -671,7 +672,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, "pom.xml")));
+            messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 
         ISourceLocation target;
@@ -884,7 +885,7 @@ public class PathConfig {
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
-                // errors of the artifacts downloaded should be propogated as well
+                // errors of the artifacts downloaded should be propagated as well
                 messages.appendAll(a.getMessages());
             }
             return result;
