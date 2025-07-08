@@ -56,7 +56,7 @@ Every new warnings will lead to a failing build, making sure that new issues can
 * stdout is used to print the messages; no further processing is possible.
 * have to remember to return the result of this function as the return value of `main`
 }
-int mainMessageHandler(list[Message] messages, list[loc] srcs=[], bool errorsAsWarnings = false, bool warningsAsErrors = false) {
+int mainMessageHandler(list[Message] messages, loc projectRoot = |unknown:///|, bool errorsAsWarnings = false, bool warningsAsErrors = false) {
   int FAILURE = 1;
   int SUCCESS = 0;
 
@@ -65,7 +65,7 @@ int mainMessageHandler(list[Message] messages, list[loc] srcs=[], bool errorsAsW
     return FAILURE;
   }
 
-  println(write(messages, roots=srcs));
+  println(write(messages, projectRoot=projectRoot));
 
   hasErrors   = error  (_, _) <- messages;
   hasWarnings = warning(_, _) <- messages;
