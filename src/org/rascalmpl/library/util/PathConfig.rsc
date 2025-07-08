@@ -80,15 +80,14 @@ Together with a ((PathConfig)) instance, the above six functions can be re-used 
 * one ((fileConfig)) constant can be reused for configure all six different mapping functions.  
 * a simple `fileConfig()` constant is configured for the Rascal compiler by default (.tpl files as binary extension).
 * the mapping functions that use ((LanguageFileConfig)) can always use the same ((PathConfig)) instance for one project.
-* more complex mappings can be made by combing the six functions. For example first retrieving the module name using `srcsModule` and then 
+* more complex mappings can be made by combining the six functions. For example first retrieving the module name using `srcsModule` and then 
 seeing if it exists also in one of the libraries using `libsFile`.
 }
 @pitfalls{
 * If a compiler produces multiple target files from a single source file, then you might have to configure
 different instances of ((fileConfig)) for every target `binExt`.
-* if the mapping between qualified module names and source files or binary files is different ---it has more parameters than defined by ((LanguageFileConfig))--- then you have to write your own
+* If the mapping between qualified module names and source files or binary files is different ---it has more parameters than defined by ((LanguageFileConfig))--- then you have to write your own
 versions of ((srcsModule)), ((srcsFile)), ((libsModule)), ((libsFile)), ((binFile)) and ((binModule)).
-* `targetRoot` and `targetEsc` are used for all output folders: `bin`, `generatedSources` and `generatedResources`
 }
 data LanguageFileConfig = fileConfig(
     str packageSep = "::",
@@ -106,18 +105,15 @@ We find the right file to source for the given `moduleName`:
 3. If a source file is found, without a binary target, this source file is returned.
 4. Otherwise we search in the libraries for a binary file and return it.
 5. We throw ((PathNotFound)) if a module can not be resolved using either the bin, srcs, or libs, and also
-if the only place we found the module in was a bin folder. 
+if the only place we found the module in was a bin folder (signifying a deleted source module). 
 
 In other words, ((latestModuleFile)) prefers newer binaries over older source files, and source files over library modules.
 If a module is present in both libraries and the current project, then the current project's sources shadow the libraries.
 
 This function is based on the core features of ((srcsFile)), ((binFile)), and ((libsFile)).
-
-It throws ((PathNotFound)) if a module can not be found in source, target or library locations, and also if a target
-location exists but not a corresponding source location or a library location.
 }
 @benefits{
-* Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)).
+* Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)) and ((IO-relativize)).
 * Provides the basic setup for creating a programming language or DSL with independent libraries/components to depend on.
 * Use `returnValue.extension == fcfg.binExt` to detect if you need to read a binary or parse the source code.
 * The `PathNotFound` exception should be caught by the code that processes `import` statements in your language.
