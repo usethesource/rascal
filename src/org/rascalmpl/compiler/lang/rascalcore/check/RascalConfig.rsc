@@ -362,10 +362,13 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-// Enhance TModel before running Solver by adding transitive edges for extend
+// Enhance TModel before running Solver by 
+// - adding transitive edges for extend
+// - adding imports via these extends
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+    m.paths += { <from, importPath(), to2> | <loc from, extendPath(), loc to1> <- m.paths, <loc to1, importPath(), loc to2> <- m.paths};
     return m;
 }
 
