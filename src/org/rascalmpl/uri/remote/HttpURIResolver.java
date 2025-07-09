@@ -142,11 +142,20 @@ public class HttpURIResolver implements ISourceLocationInput {
 	}
 
 	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		if (exists(uri)) {
+			return true;
+		}
+		throw new FileNotFoundException(uri.toString());
+	}
+
+	@Override
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
 		var headers = sendHeadRequest(loc);
 		return new FileAttributes(true, true
 			, extractLastModified(headers)
 			, extractLastModified(headers)
+			, true
 			, false
 			, extractSize(headers)
 		);

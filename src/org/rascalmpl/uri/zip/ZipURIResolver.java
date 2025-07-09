@@ -1,5 +1,6 @@
 package org.rascalmpl.uri.zip;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -170,5 +171,13 @@ public class ZipURIResolver implements ISourceLocationInput, IClassloaderLocatio
     public long size(ISourceLocation uri) throws IOException {
         ISourceLocation zipUri = getResolvedZipPath(uri);
         return getTargetResolver(zipUri).size(zipUri, getInsideZipPath(uri));
+    }
+
+    @Override
+    public boolean isReadable(ISourceLocation uri) throws IOException {
+        if (isFile(uri)) {
+            return true;
+        }
+        throw new FileNotFoundException(uri.toString());
     }
 }

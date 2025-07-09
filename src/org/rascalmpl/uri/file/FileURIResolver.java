@@ -166,6 +166,11 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	}
 
 	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return Files.isReadable(resolveToFile(uri).toPath());
+	}
+
+	@Override
 	public long size(ISourceLocation uri) throws IOException {
 		return resolveToFile(uri).length();
 	}
@@ -178,6 +183,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 			attrs.isRegularFile(),
 			attrs.creationTime().toMillis(),
 			attrs.lastModifiedTime().toMillis(),
+			Files.isReadable(file),
 			Files.isWritable(file),
 			attrs.size()
 		);
