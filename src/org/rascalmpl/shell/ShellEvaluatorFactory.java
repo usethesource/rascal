@@ -72,17 +72,6 @@ public class ShellEvaluatorFactory {
         }
         evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
 
-        pcfg.reportConfigurationInfo();
-        
-        if (!pcfg.getMessages().isEmpty()) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
-            } 
-            else {
-                Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
-            }
-        }
-
         return evaluator;
     }
 
@@ -102,6 +91,17 @@ public class ShellEvaluatorFactory {
         var projectRoot = PathConfig.inferProjectRoot(projectFile);
         setupProjectResolver(projectRoot, monitor);
         var pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
+        pcfg.reportConfigurationInfo();
+        
+        if (!pcfg.getMessages().isEmpty()) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
+            } 
+            else {
+                Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
+            }
+        }
+
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
     }
 
