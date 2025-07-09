@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -1327,15 +1328,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void printHelpMessage(PrintWriter out) {
         out.println("Welcome to the Rascal command shell.");
         out.println();
-        out.println("Shell commands:");
+        out.println("Shell commands (optionally terminated with `;`):");
         out.println(":help                      Prints this message");
         out.println(":quit or EOF               Quits the shell");
         out.println(":set <option> <expression> Sets an option");
         out.println("e.g. profiling    true/false");
         out.println("     tracing      true/false");
         out.println("     errors       true/false");
+        out.println("     debugging    true/false");
         out.println(":edit <modulename>         Opens an editor for that module");
-        out.println(":test                      Runs all unit tests currently loaded");
+        out.println(":test <optModuleName>      Runs all unit tests currently loaded, or only of a specific module");
+        out.println(":declarations              Prints variables, functions, data and syntax definitions in scope");
+        out.println(":undeclare <name>          Remove variable, function, data or syntax from this scope");
+        out.println(":unimport  <name>          Remove import from current scope");
         out.println();
         out.println("Example rascal statements and declarations:");
         out.println("1 + 1;                     Expressions simply print their output and (static) type");
@@ -1437,13 +1442,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public boolean runTests(IRascalMonitor monitor) {
+    public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName) {
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
             final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), getErrorPrinter());
 
-            new TestEvaluator(this, new ITestResultListener() {
+            var teval = new TestEvaluator(this, new ITestResultListener() {
 
                 @Override
                 public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
@@ -1466,7 +1471,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 public void start(String context, int count) {
                     l.start(context, count);
                 }
-            }).test();
+            });
+
+            if (optionalModuleName.isPresent()) {
+                teval.test(optionalModuleName.get());
+            }
+            else {
+                teval.test();
+            }
+            
             return allOk[0];
         }
         finally {
@@ -1818,12 +1831,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void applyDocumentsEdits(IList edits) {
+        public void applyFileSystemEdits(IList edits) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).applyDocumentsEdits(edits);
+                ((IDEServices) monitor).applyFileSystemEdits(edits);
             }
             else {
-                IDEServices.super.applyDocumentsEdits(edits);
+                IDEServices.super.applyFileSystemEdits(edits);
             }
         }
 

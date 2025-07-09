@@ -473,17 +473,25 @@ syntax LocationLiteral
 	= \default: ProtocolPart protocolPart PathPart pathPart ;
 
 syntax ShellCommand
-	= setOption: "set" QualifiedName name Expression expression 
-	| undeclare: "undeclare" QualifiedName name 
-	| help: "help" 
-	| edit: "edit" QualifiedName name 
-	| unimport: "unimport" QualifiedName name 
-	| listDeclarations: "declarations" 
-	| quit: "quit" 
-	| history: "history" 
-	| \test: "test" 
-	| listModules: "modules" 
-	| clear: "clear";
+	= setOption: "set" QualifiedName name "="? Expression expression OptionalTerminator terminator
+	| setOptionTrue: "set" QualifiedName OptionalTerminator terminator
+	| unsetOption: "unset" QualifiedName OptionalTerminator terminator
+	| undeclare: "undeclare" QualifiedName? optName OptionalTerminator terminator
+	| help: "help" OptionalTerminator terminator
+	| edit: "edit" QualifiedName name OptionalTerminator terminator
+	| unimport: "unimport" QualifiedName name  OptionalTerminator terminator
+	| unextend: "unextend" QualifiedName name  OptionalTerminator terminator
+	| listDeclarations: "declarations" OptionalTerminator terminator
+	| quit: "quit" OptionalTerminator terminator
+	| history: "history" OptionalTerminator terminator
+	| \test: "test" QualifiedName? optName OptionalTerminator terminator
+	| listModules: "modules" OptionalTerminator terminator
+	| clear: "clear" OptionalTerminator terminator
+	;
+lexical OptionalTerminator
+	= absent: ()
+	| present: ";"
+	;
 
 syntax StringMiddle
 	= mid: MidStringChars mid 

@@ -27,16 +27,19 @@ to avoid racing for the state of the source file.
 }
 module analysis::diff::edits::TextEdits
 
-@synopsis{File changing operations}
-data DocumentEdit
-    = removed(loc file)
-    | created(loc file)
-    | renamed(loc from, loc to)
-    | changed(loc file, list[TextEdit] edits)
+extend analysis::diff::edits::FileSystemChanges;
+
+@synopsis{For compatibility we rename FileSystemChange to DocumentEdit}
+@deprecated{It's better to use ((FileSystemChange)) for future compatibility.}
+alias DocumentEdit = FileSystemChange;
+
+@synopsis{For some FileSystemChanges we know exactly what happened.}
+data FileSystemChange 
+    = changed(loc file, list[TextEdit] edits)
     ;
 
 @synopsis{Shorthand for file changes.}
-DocumentEdit changed(list[TextEdit] edits:[replace(loc l, str _), *_])
+FileSystemChange changed(list[TextEdit] edits:[replace(loc l, str _), *_])
     = changed(l.top, edits);
 
 @synopsis{String rewriting operations}
@@ -44,6 +47,10 @@ DocumentEdit changed(list[TextEdit] edits:[replace(loc l, str _), *_])
 The core operation is to replace a substring with another.
 The replace operator uses a `loc` value to point to a range inside a string,
 and a `str` as its replacement.
+}
+@benefits{
+* backends have to implement only one ((TextEdit)) operation to be complete.
+* use the ((delete)), ((insertBefore)) and ((insertAfter)) "macros" for convenience and brevity.
 }
 data TextEdit
     = replace(loc range, str replacement);
@@ -53,12 +60,18 @@ TextEdit delete(loc range)
     = replace(range, "");
 
 @synopsis{Inserting before a given range.}
+@benefits{
+* Use `separator="\n"` to introduce a newline after the inserted text instead of a space.
+}
 TextEdit insertBefore(loc range, str insertion, str separator=" ")
     = (range.begin?)
         ? replace(range.top(range.offset, 0, range.begin, range.begin), "<insertion><separator>")
         : replace(range.top(range.offset, 0), "<insertion><separator>");
 
 @synopsis{Inserting after a given range.}
+@benefits{
+* Use `separator="\n"` to introduce a newline after the inserted text instead of a space.
+}
 TextEdit insertAfter(loc range, str insertion, str separator=" ")
     = (range.end?)
         ? replace(range.top(range.offset + range.length, 0, range.end, range.end), "<separator><insertion>")
