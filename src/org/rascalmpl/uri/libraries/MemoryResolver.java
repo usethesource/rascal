@@ -213,7 +213,15 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean isWritable(ISourceLocation uri) throws IOException {
-		return true;
+		if (isFile(uri)) {
+			return true;
+		}
+		throw new FileNotFoundException(uri.toString());
+	}
+
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return isWritable(uri);
 	}
 
 	@Override
@@ -225,6 +233,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
 		return getFS(loc).stat(loc.getPath());
 	}
+
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {

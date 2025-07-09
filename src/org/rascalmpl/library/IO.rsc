@@ -327,12 +327,22 @@ Check whether location `file` is actually a file.
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isFile(loc file);
 
-@synopsis{Check whether a given location is a writable file (and not readonly/non-existing).}
+@synopsis{Check whether a given location is a readable file}
 @description{
-Check whether location `file` is writable. For a non-existing file, check `isWritable` of the parent directory.
+Tries to predict whether a `file` is readable. There are cases where it will return `true`` and ((readFile)) will still throw an exception (and even less likely but possible for the inverse).
+If the file does not exist, this will throw an exception
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java bool isWritable(loc file);
+public java bool isReadable(loc file) throws PathNotFound;
+
+@synopsis{Check whether a given location is a writable file (and not readonly/non-existing).}
+@description{
+Tries to predict whether a file `file` is writable. There are cases where it will return `true`` and ((writeFile)) will still throw an exception (and even less likely but possible for the inverse).
+If the file does not exist, this will throw an exception
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isWritable(loc file) throws PathNotFound;
+
 
 
 
@@ -368,22 +378,6 @@ created(|std:///IO.rsc|);
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime created(loc file);
-
-@synopsis{File size of a location.}
-@description{
-Returns the file size of the file at location `file`.
-}
-@examples{
-```rascal-shell
-import IO;
-```
-Determine the file size of the Rascal standard library:
-```rascal-shell,continue
-fileSize(|std:///IO.rsc|);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java int fileSize(loc file);
 
 
 

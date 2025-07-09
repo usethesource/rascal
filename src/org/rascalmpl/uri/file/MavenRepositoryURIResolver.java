@@ -1,5 +1,6 @@
 package org.rascalmpl.uri.file;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -192,6 +193,14 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public boolean isReadable(ISourceLocation uri) throws IOException {
+        if (isFile(uri)) {
+            return true;
+        }
+        throw new FileNotFoundException(uri.toString());
     }
 
     @Override

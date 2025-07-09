@@ -148,7 +148,7 @@ public class FileSystemTree<T extends FSEntry> {
             throw new FileNotFoundException(path + " could not be found");
         }
         var actual = entry.file == null ? entry.directory.self : entry.file;
-        return new FileAttributes(true, entry.file != null, actual.created, actual.lastModified, writable, actual.size);
+        return new FileAttributes(true, entry.file != null, actual.created, actual.lastModified, true, writable, actual.size);
     }
 
     public void touch(String path, long newTimestamp) throws IOException {
