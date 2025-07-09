@@ -33,6 +33,8 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -140,18 +142,18 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			var pr = __eval.getOutPrinter();
 
 			if (!env.getVariables().isEmpty()) {
-				pr.println("variables:");
+				pr.println("Variables:");
 				var vars = env.getVariables();
 				for (Entry<String, Result<IValue>> var : vars.entrySet()) {
-					pr.println("* " + var.getValue().getStaticType() + " " + var.getKey());
+					pr.println(var.getValue().getStaticType() + " " + var.getKey());
 				}
 			}
 
 			if (!env.getFunctions().isEmpty()) {
 				var functions = env.getFunctions();
-				pr.println("functions:");
+				pr.println("Functions:");
 				for (Pair<String, List<AbstractFunction>> func : functions) {
-					pr.println("* " + func.getFirst() + ":");
+					pr.println(func.getFirst() + ":");
 					for (AbstractFunction alt : func.getSecond()) {
 						pr.println("   - " + alt.getHeader().replaceAll("\n", " "));
 					}
@@ -160,26 +162,21 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 			if (!env.getAbstractDatatypes().isEmpty()) {
 				var data = env.getAbstractDatatypes();
-				pr.println("data:");
+				pr.println("Data:");
 				for (io.usethesource.vallang.type.Type t : data) {
-					pr.println("* " + t + ":");
+					pr.println(t + ":");
 					env.getStore().getConstructors().stream().filter(c -> c.getAbstractDataType() == t).forEach(cons -> {
 						pr.println("   - " + cons);
 					});
 				}
 			}
 
-			if (env.getSyntaxDefinition().size() != 0) {
-				var syntax = env.getSyntaxDefinition();
-				var flatGrammar = __eval.getParserGenerator().getGrammarFromModules(__eval, "$shell$", syntax);
-				pr.println("effective local syntax definition:");
-				try (var sw = new StringWriter()) {
-					var stw = new StandardTextWriter(true); 
-					stw.write(flatGrammar, sw);
-					pr.println(sw.toString());
-				}
-				catch (IOException e) {
-					// eat it
+			if (!env.getProductions().isEmpty()) {
+				var syntax = env.getProductions();
+				
+				pr.println("Syntax definitions:");
+				for (IValue def : syntax) {
+					pr.println(TreeAdapter.yield((IConstructor) def));
 				}
 			}
 			

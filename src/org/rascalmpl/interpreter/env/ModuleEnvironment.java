@@ -1057,4 +1057,8 @@ public class ModuleEnvironment extends Environment {
 	public void resetProductions() {
 		this.productions = new HashSet<IValue>(productions.size());
 	}
+
+	public Set<IValue> getProductions() {
+		return productions;
+	}
 }

@@ -1328,15 +1328,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void printHelpMessage(PrintWriter out) {
         out.println("Welcome to the Rascal command shell.");
         out.println();
-        out.println("Shell commands:");
+        out.println("Shell commands (optionally terminated with `;`):");
         out.println(":help                      Prints this message");
         out.println(":quit or EOF               Quits the shell");
         out.println(":set <option> <expression> Sets an option");
         out.println("e.g. profiling    true/false");
         out.println("     tracing      true/false");
         out.println("     errors       true/false");
+        out.println("     debugging    true/false");
         out.println(":edit <modulename>         Opens an editor for that module");
-        out.println(":test                      Runs all unit tests currently loaded");
+        out.println(":test <optModuleName>      Runs all unit tests currently loaded, or only of a specific module");
+        out.println(":declarations              Prints variables, functions, data and syntax definitions in scope");
+        out.println(":undeclare <name>          Remove variable, function, data or syntax from this scope");
+        out.println(":unimport  <name>          Remove import from current scope");
+        out.println(":unextend  <name>          Remove extend from current scope");
         out.println();
         out.println("Example rascal statements and declarations:");
         out.println("1 + 1;                     Expressions simply print their output and (static) type");
