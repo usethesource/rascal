@@ -156,10 +156,13 @@ public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
 
 // ----
 public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
+    LSP_REPO = |file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/|;
     return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
                             REPO + "rascal/test/org/rascalmpl/benchmark/",
                             REPO + "rascal/src/org/rascalmpl/compiler",
-                            REPO + "typepal/src"
+                            REPO + "typepal/src",
+                            LSP_REPO + "src/main/rascal/library", 
+                            LSP_REPO + "src/main/rascal/lsp"
                         ],
                         [ ], 
                         keep=keep);
@@ -186,7 +189,7 @@ public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
                             TMP_TYPEPAL
                         ],
                         [ ], 
-                        keep=keep);
+                        keep=true);
 }
 
 public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool keep=true){
