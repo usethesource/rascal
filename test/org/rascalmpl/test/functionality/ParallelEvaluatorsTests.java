@@ -86,7 +86,7 @@ public class ParallelEvaluatorsTests {
                         var currentTarget = currentModule.get();
                         
                         evaluator.doImport(monitor, currentTarget);
-                        if (!evaluator.runTests(monitor, Optional<String>.empty())) {
+                        if (!evaluator.runTests(monitor, Optional.empty())) {
                             result.set(false);
                         }
                         allDone.await();
