@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.utils.InfoCmp.Capability;
@@ -278,7 +279,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(), VF.bool(__eval.runTests(__eval.getMonitor(), getOptName() != null ? Names.fullName(getOptName()) : null)), __eval);
+			Optional<String> name = getOptName() != null ? Optional.of(Names.fullName(getOptName())) : Optional.empty();
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(TF.boolType(), VF.bool(__eval.runTests(__eval.getMonitor(), name)), __eval);
 		}
 	}
 
