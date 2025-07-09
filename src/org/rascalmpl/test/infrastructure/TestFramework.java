@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
@@ -114,7 +115,7 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-			return evaluator.runTests(evaluator.getMonitor(), null);
+			return evaluator.runTests(evaluator.getMonitor(), Optional.empty());
 		}
 		finally {
 			stderr.flush();
