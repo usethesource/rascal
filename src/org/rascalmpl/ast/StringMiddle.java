@@ -132,7 +132,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 13 * mid.hashCode() + 787 * expression.hashCode() + 37 * tail.hashCode() ; 
+      return 283 + 757 * mid.hashCode() + 347 * expression.hashCode() + 73 * tail.hashCode() ; 
     } 
   
     
@@ -224,7 +224,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 331 * mid.hashCode() ; 
+      return 181 + 499 * mid.hashCode() ; 
     } 
   
     
@@ -318,7 +318,7 @@ public abstract class StringMiddle extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 839 * mid.hashCode() + 191 * template.hashCode() + 599 * tail.hashCode() ; 
+      return 227 + 389 * mid.hashCode() + 479 * template.hashCode() + 103 * tail.hashCode() ; 
     } 
   
     
