@@ -178,7 +178,6 @@
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
-                            <release-notes>${project.basedir}/RELEASE-NOTES.md</release-notes>
                             <authors>${project.basedir}/AUTHORS.md</authors>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
