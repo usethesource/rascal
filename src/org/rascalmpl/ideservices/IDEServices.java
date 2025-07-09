@@ -17,15 +17,16 @@ import java.net.URI;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 
 /**
  * IDEServices provides external services that can be called by the
@@ -85,6 +86,14 @@ public interface IDEServices extends IRascalMonitor {
   }
 
   /**
+   * @deprecated replaced by {@link #applyFileSystemEdits(IList)}
+   */
+  @Deprecated(forRemoval = true)
+  default void applyDocumentsEdits(IList edits) {
+    applyFileSystemEdits(edits);
+  }
+
+  /**
    * Asks the IDE to apply document edits as defined in the standard library module
    * analysis::diff::edits::TextEdits, according to the semantics defined in
    * analysis::diff::edits::ExecuteTextEdits. However, the IDE can take care of these
@@ -95,8 +104,8 @@ public interface IDEServices extends IRascalMonitor {
    * of refactoring and quick-fix features of the language service protocol. 
    * @param edits list of DocumentEdits
    */
-  default void applyDocumentsEdits(IList edits) {
-     throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
+  default void applyFileSystemEdits(IList edits) {
+     throw new UnsupportedOperationException("applyFileSystemEdits is not implemented in this environment.");
   }
 
   /**
@@ -116,45 +125,7 @@ public interface IDEServices extends IRascalMonitor {
    * This method would stream the message to a log view in the IDE
    */
   default void logMessage(IConstructor msg) {
-      stderr().println(messageToString(msg));
-  }
-
-  default String messageToString(IConstructor msg) {
-    String type = msg.getName();
-    boolean isError = type.equals("error");
-    boolean isWarning = type.equals("warning");
-
-    String locString = "unknown location";
-    int col = 0;
-    int line = 0;
-   
-    if (msg.has("at")) {
-      ISourceLocation loc = (ISourceLocation) msg.get("at");
-      locString = loc.top().toString().substring(1, loc.top().toString().length() - 1);
-      if (loc.hasLineColumn()) {
-        col = loc.getBeginColumn();
-        line = loc.getBeginLine();
-      }
-    }
-
-    String output
-    = locString
-    + ":"
-    + String.format("%04d", line)
-    + ":"
-    + String.format("%04d", col)
-    + ": "
-    + ((IString) msg.get("msg")).getValue();
-
-    if (isError) {
-      return "[ERROR]  " + output;
-    }
-    else if (isWarning) {
-      return "[WARNING]" + output;
-    }
-    else {
-      return "[INFO]   " + output;
-    }
+      Messages.write(IRascalValueFactory.getInstance().list(msg), stderr());
   }
 
   /**
@@ -165,9 +136,11 @@ public interface IDEServices extends IRascalMonitor {
    * This method would register the messages with a "problems view" in the IDE
    */
   default void registerDiagnostics(IList messages) {
-     for (IValue m : messages) {
-       logMessage((IConstructor) m);
-     }
+      Messages.write(messages, stderr());
+  }
+
+  default void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+      registerDiagnostics(messages);
   }
 
   /**
