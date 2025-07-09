@@ -26,9 +26,6 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,11 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -54,7 +48,6 @@ import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
