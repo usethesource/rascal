@@ -942,7 +942,37 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     collect(tp, c);
 }
 
-@doc{A parsing function, useful for generating test cases.}
+// syntax type modifiers
+
+void collect(current: (Type) `data[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(dataSyntax(), current, tp, c);
+
+void collect(current: (Type) `syntax[<Type tp>]`, Collector c) 
+    = collectSyntaxRoleModifiers(contextFreeSyntax(), current, tp, c);
+
+void collect(current: (Type) `lexical[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(lexicalSyntax(), current, tp, c);
+
+void collect(current: (Type) `keyword[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(keywordSyntax(), current, tp, c);
+
+void collect(current: (Type) `layout[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c);
+
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, Collector c) {
+    collect(tp, c);
+    par = c.getType(tp);
+
+    if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier) {
+        c.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, or data, syntax, lexical, layout or keyword names like `Stat` are understood."));
+    }
+    else {
+        c.fact(current, asyntaxRoleModifier(role, c.getType(tp)));
+    }
+}
+
+
+@synopsis{A parsing function, useful for generating test cases.}
 public Type parseType(str s) {
     return parse(#Type, s);
 }

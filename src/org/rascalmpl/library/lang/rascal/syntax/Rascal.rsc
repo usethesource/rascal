@@ -157,10 +157,10 @@ lexical Name
 	;
 
 syntax SyntaxDefinition
-	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
-	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
-	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
-	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
+	=  @Foldable \layout  : Visibility vis "layout"  Sym!characterClass defined "=" Prod production ";" 
+	|  @Foldable \lexical : "lexical" Sym!characterClass defined "=" Prod production ";" 
+	|  @Foldable \keyword : "keyword" Sym!characterClass defined "=" Prod production ";"
+	|  @Foldable language: Start start "syntax" Sym!characterClass defined "=" Prod production ";" ;
 
 syntax Kind
 	= function: "function" 
@@ -739,6 +739,15 @@ syntax Type
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
 	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
+	| modifier: SyntaxRoleModifier modifier
+	;
+
+syntax SyntaxRoleModifier // TODO @rodin zegt dat dit Type moet zijn en niet TypeArg
+	= \syntax: "syntax" "[" TypeArg arg "]"
+	| \lexical: "lexical" "[" TypeArg arg "]"
+	| \layout: "layout" "[" TypeArg arg "]"
+	| \keyword: "keyword" "[" TypeArg arg "]"
+	| \data: "data" "[" TypeArg arg "]"
 	;
 
 syntax Declaration
