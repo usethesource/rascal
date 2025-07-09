@@ -62,7 +62,7 @@ public class BatchProgressMonitor implements IRascalMonitor {
 
 	@Override
 	public void warning(String message, ISourceLocation src) {
-		out.println("Warning: " + message);
+		out.println("[WARNING] " + message);
 		out.flush();
 	}
 

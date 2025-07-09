@@ -12,6 +12,8 @@
  */ 
 package org.rascalmpl.library.util;
 
+import java.util.Optional;
+
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
@@ -100,7 +102,7 @@ public class RunTests {
                 public void done() { }
             });
 
-            eval.runTests(eval.getMonitor());
+            eval.runTests(eval.getMonitor(), Optional.empty());
 
             return results.done();
         }
