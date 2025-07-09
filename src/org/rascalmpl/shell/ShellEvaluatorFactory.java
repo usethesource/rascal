@@ -17,7 +17,6 @@ import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.project.IDEProjectURIResolver;
 import org.rascalmpl.uri.project.IDETargetURIResolver;
 import org.rascalmpl.uri.project.ProjectURIResolver;
