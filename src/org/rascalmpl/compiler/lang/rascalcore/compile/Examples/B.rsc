@@ -25,7 +25,5 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-    
-syntax A = "a";
-syntax E = e: "e" | plus: E lft "+" E rgt;
 
+import lang::rascalcore::compile::Examples::A;

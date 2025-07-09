@@ -25,11 +25,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::C
-import lang::rascalcore::compile::Examples::B;
-           
-syntax E = a: A lft; 
+extend lang::rascalcore::compile::Examples::B;
    
-value main() {
-    E x = [E] "e";
-    return x.lft;
-}
+void fff(DocumentEdit DE) { }
