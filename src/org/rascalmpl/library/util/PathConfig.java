@@ -88,7 +88,11 @@ public class PathConfig {
     }
     
     public PathConfig() {
-        projectRoot = defaultProjectRoot;
+        this(defaultProjectRoot);
+    }
+
+    public PathConfig(ISourceLocation projectRoot) { 
+        this.projectRoot = projectRoot;
         srcs = Collections.emptyList();
         ignores = defaultIgnores;
         bin = defaultBin;
@@ -525,16 +529,7 @@ public class PathConfig {
         // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
         try {
             var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
-
-            var reg = URIResolverRegistry.getInstance();
-            // the interpreter must find the Rascal sources of util::LanguageServer etc.
-            if (URIUtil.getLocationName(lsp).equals("classes")
-                && URIUtil.getLocationName(URIUtil.getParentLocation(lsp)).equals("target")) {
-                    var lspLocation = JarURIResolver.jarify(URIUtil.getParentLocation(URIUtil.getParentLocation(lsp)));
-                    addLibraryToSourcePath(reg, srcs, messages, lspLocation);
-            } else {
-                addLibraryToSourcePath(reg, srcs, messages, JarURIResolver.jarify(lsp));
-            }
+            srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
             // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
             addLibraryToLibPath(libs, mode, lsp);
         }
@@ -562,6 +557,7 @@ public class PathConfig {
                 }
                 return;
             }
+        
             ISourceLocation dep = MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(resolvedLocation));
             String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
 
@@ -573,13 +569,15 @@ public class PathConfig {
             if (libProjectName.equals("rascal")) {
                 return; 
             }
-            boolean dependsOnRascalLSP = libProjectName.equals("rascal-lsp");
-            if (dependsOnRascalLSP) {
+            if (libProjectName.equals("rascal-lsp")) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep);
+                // we'll be adding the rascal-lsp by hand later
+                // so we ignore the rascal-lsp dependency
+                return;
             }
             ISourceLocation projectLoc = URIUtil.correctLocation("project", libProjectName, "");
 
-            if (reg.exists(projectLoc) && !dependsOnRascalLSP) {
+            if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
@@ -616,7 +614,7 @@ public class PathConfig {
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
+                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", getPomXmlLocation(manifestRoot)));
                 }
             }
         }
@@ -674,7 +672,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, RascalManifest.META_INF_RASCAL_MF)));
+            messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 
         ISourceLocation target;
@@ -887,7 +885,7 @@ public class PathConfig {
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
-                // errors of the artifacts downloaded should be propogated as well
+                // errors of the artifacts downloaded should be propagated as well
                 messages.appendAll(a.getMessages());
             }
             return result;
@@ -1028,6 +1026,48 @@ public class PathConfig {
         config.put("messages", getMessages());
 
         return vf.constructor(pathConfigConstructor, new IValue[0], config);
+    }
+
+    public void reportConfigurationInfo() {
+        var pom = URIUtil.getChildLocation(projectRoot, "pom.xml");
+        var sep = "\n  - ";
+
+        messages.add(Messages.info("Project root is " + projectRoot, pom));
+        messages.add(Messages.info("Bin folder   is " + bin, pom));
+
+        if (!srcs.isEmpty()) {
+            messages.add(Messages.info("Source module path is:" + sep
+            + srcs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Source path is empty", pom));
+        }
+
+        if (!ignores.isEmpty()) {
+            messages.add(Messages.info("Ignored source files or folders are:" + sep
+            + ignores.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+       
+        if (!libs.isEmpty()) {
+            messages.add(Messages.info("Library module (and classes) path is:" + sep
+            + libs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Library path is empty", pom));
+        }
+
+        if (!resources.isEmpty()) {
+            messages.add(Messages.info("Additional resources files or folders are:" + sep
+            + resources.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }        
     }
     
     /**

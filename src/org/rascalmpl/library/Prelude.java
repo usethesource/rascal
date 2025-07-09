@@ -85,7 +85,6 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.uri.LogicalMapResolver;
@@ -1093,6 +1092,15 @@ public class Prelude {
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
 			REGISTRY.remove(sloc, recursive.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
+	public void rename(ISourceLocation from, ISourceLocation to, IBool overwrite) {
+		try {
+			REGISTRY.rename(from, to, overwrite.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -3964,9 +3972,6 @@ public class Prelude {
 		private final Type deleted;
 		private final Type created;
 		private final Type modified;
-		private final Type file;
-		private final Type directory;
-		private final Type changeEvent;
 
 		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
@@ -3978,18 +3983,10 @@ public class Prelude {
 			var store = new TypeStore();
 			var tf = TypeFactory.getInstance();
 
-			var locationChangeType = tf.abstractDataType(store, "LocationChangeType");
-			created = tf.constructor(store, locationChangeType, "created");
-			modified = tf.constructor(store, locationChangeType, "modified");
-			deleted = tf.constructor(store, locationChangeType, "deleted");
-
-			var locationType = tf.abstractDataType(store, "LocationType");
-			file = tf.constructor(store, locationType, "file");
-			directory = tf.constructor(store, locationType, "directory");
-
-			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
-			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
-				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
+			var locationChangeType = tf.abstractDataType(store, "FileSystemChange");
+			created = tf.constructor(store, locationChangeType, "created", tf.sourceLocationType(), "file");
+			modified = tf.constructor(store, locationChangeType, "modified", tf.sourceLocationType(), "file");
+			deleted = tf.constructor(store, locationChangeType, "removed", tf.sourceLocationType(), "file");
 		}
 
 		@Override
@@ -4010,32 +4007,20 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			return values.constructor(changeEvent, 
-				e.getLocation(),
-				convertChangeType(e.getChangeType()),
-				convertFileType(e.getType())
+			return values.constructor(convertChangeType(e.getChangeType()), 
+				e.getLocation()
 			);
 		}
 
-		private IValue convertFileType(ISourceLocationType type) {
-			switch (type) {
-				case FILE:
-					return values.constructor(file);
-				case DIRECTORY:
-					return values.constructor(directory);
-			}
-			throw RuntimeExceptionFactory.illegalArgument();
-		}
-
-		private IValue convertChangeType(ISourceLocationChangeType changeType) {
+		private Type convertChangeType(ISourceLocationChangeType changeType) {
 
 			switch (changeType) {
 				case DELETED:
-					return values.constructor(deleted);
+					return deleted;
 				case CREATED:
-					return values.constructor(created);
+					return created;
 				case MODIFIED:
-					return values.constructor(modified);
+					return modified;
 			}
 
 			throw RuntimeExceptionFactory.illegalArgument();

@@ -19,28 +19,30 @@
 }
 module lang::rascal::tutor::Compiler
 
-import Message;
 import Exception;
 import IO;
-import String;
-import Node;
 import List;
-import Relation;
 import Location;
+import Message;
+import Node;
 import ParseTree;
-import util::Reflective;
-import util::FileSystem;
+import Relation;
+import Set;
+import String;
+import String;
 import ValueIO;
-
-import lang::yaml::Model;
-import lang::rascal::tutor::repl::TutorCommandExecutor;
-import lang::rascal::tutor::apidoc::GenerateMarkdown;
-import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::Includer;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
-import lang::rascal::tutor::Includer;
-import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::tutor::apidoc::GenerateMarkdown;
+import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::yaml::Model;
+import util::FileSystem;
+import util::Monitor;
+import util::Reflective;
 
 public PathConfig defaultConfig
   = pathConfig(
@@ -92,6 +94,11 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   pcfg.packageGroupId    = groupId;
   pcfg.packageVersion    = version;
 
+  if (!isPackageCourse && pcfg.packageGroupId == "org.rascalmpl" && pcfg.packageArtifactId == "rascal") {
+    // drop the libraries to avoid circular dependencies with typepal
+    pcfg.libs = [];
+  }
+
   messages = compile(pcfg);
   
   return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
@@ -99,13 +106,34 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
+  bool bStep(str label, str message) {
+    jobStep(label, message);
+    return true;
+  }
+
   // all documentation ends up nested under the `docs` folder in the target
   pcfg.bin = pcfg.bin + "docs";
 
   ind = createConceptIndex(pcfg);
-  
+
+  jobStart("Compiling courses", totalWork=size(pcfg.srcs));
+
+  conceptFiles = [*find(src, isConceptFile) | src <- pcfg.srcs];
+  jobStart("Compiling concepts", totalWork=size(conceptFiles));
+
+  imageFiles = [*find(src, isImageFile) | src <- pcfg.srcs];
+  jobStart("Transferring images", totalWork=size(imageFiles));
+
+  directoryIndexes = [*find(src, isDirectory) | src <- pcfg.srcs];
+  jobStart("Compiling directories", totalWork=size(directoryIndexes));
+
+  rascalFiles = [*find(src, isRascalFile) | src <- pcfg.srcs];
+  jobStart("Compiling modules", totalWork=size(rascalFiles));
+
   if (pcfg.isPackageCourse) {
+    jobStart("Generating package structure");
     generatePackageIndex(pcfg);
+    jobEnd("Generating package structure");
   }
   else {
     storeImportantProjectMetaData(pcfg);
@@ -114,7 +142,15 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
   // remove trailing slashes
   pcfg.ignores = [i.parent + i.file | i <- pcfg.ignores];
 
-  return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+  result =  [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs, bStep("Compiling courses", "<src.file>")];
+
+  jobEnd("Compiling directories");
+  jobEnd("Transferring images");
+  jobEnd("Compiling modules");
+  jobEnd("Compiling concepts");
+  jobEnd("Compiling courses");
+
+  return result;
 }
 
 void storeImportantProjectMetaData(PathConfig pcfg) {
@@ -295,12 +331,12 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
     else if (src.extension == "rsc") {
         return compileRascalFile(src, pcfg[currentFile=src], exec, ind);
     }
-    else if (src.extension in {"md"}) {
+    else if (src.extension == "md") {
         return compileMarkdownFile(src, pcfg, exec, ind, sidebar_position=sidebar_position);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
+        jobStep("Transferring images", "<src.file>");
         try {  
-          println("copying   <src> [Asset]");
           copy(src, pcfg.bin + (pcfg.isPackageCourse ? "assets/Packages/<package(pcfg.packageName)>" : "assets") + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
@@ -315,11 +351,11 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
 }
 
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+    jobStep("Compiling directories", "<d.path>");
+
     if (d in pcfg.ignores) {
       return [info("skipped ignored location: <d>", d)];
     }
-
-    println("compiling <d> [Folder]");
 
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
@@ -341,8 +377,9 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, j)[extension="md"].path;
       
-      if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {
-        println("compiling <i> [Index Markdown]");
+      jobStep("Compiling concepts", "<i.file>");
+
+      if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {  
         output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
       
         writeFile(targetFile,
@@ -366,7 +403,6 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
         }
       }
       else {
-        println("reusing   <i>");
         if (exists(targetFile[extension="errors"])) {
           errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
         }
@@ -433,12 +469,13 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
  
   errors = [];
 
+  jobStep("Compiling modules", "<m.file>");
+
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
     str parentSlug = (|path:///| + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m).parent.path).path;
 
-    println("compiling <m> [Rascal Source File]");
     list[Output] output = generateAPIMarkdown(parentSlug, m, pcfg, exec, ind);
 
     writeFile(targetFile,
@@ -455,7 +492,6 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
     }
   }
   else {
-    println("reusing   <m>");
     if (exists(targetFile[extension="errors"])) {
       errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
     }
@@ -483,8 +519,9 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
 
   errors = [];
 
+   jobStep("Compiling concepts", "<m.file>");
+
   if (!exists(targetFile) || lastModified(m) > lastModified(targetFile)) {
-    println("compiling <m> [Normal Markdown]");
     list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, sidebar_position=sidebar_position) + [Output::empty()];
    
     writeFile(targetFile,
@@ -499,7 +536,6 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
     return errors;
   }
   else {
-    println("reusing   <m>");
     if (exists(targetFile[extension="errors"])) {
       // keep reporting the errors of the previous run, for clarity's sake
       return readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
@@ -669,24 +705,25 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
+        if (str sep <- {"::", "-"}, 
+           {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
+        else if (str sep <- {"::","-"}, 
+                {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
+
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
-                              cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
-                                    '    <k> resolves to <v><}>")),
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
+                            pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
               ];
       }
@@ -701,7 +738,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   switch (resolution) {
-      case {u}: {
+      case {str u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>";
         return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
@@ -723,33 +760,66 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else {
           fail;
         }
-     
+      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
+        if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
+        else if (str sep <- {"-", "::"}, {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
+
         return [
-            err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
-                      cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
-                            '    <k> resolves to <v><}>")),
-            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
+                            pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
   }
 
   return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
+}
+
+@synopsis{Turn an ambiguous link into several _shortest_ suggestions for exact (unique) references}
+rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) {
+  bool linkSort(str a, str b) {
+    // prefer shorter links first
+    if (size(a) < size(b)) {
+      return true; 
+    }
+
+    // if of equal length, we use string compare (which prefers `-` over `:` and `/` accidentally correctly)
+    if (size(a) == size(b), a < b) {
+      return true; 
+    }
+
+    return false; 
+  }
+
+  set[str] ambPaths = ind[link];
+  rel[str key, str path] relevantIndex = rangeR(ind, ambPaths);
+
+  // here we make sure that each suggested key will resolve exactly to a unique path in `ind`
+  rel[str key, str path] exactIndex = {<k,v> | <k, v> <- relevantIndex, {_} := ind[k]};
+
+  // here we rank each suggested link key by shorter length, and then alphabetically
+  map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
+  map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
+
+  // debug print
+  iprintln(prioritizedReverseIndex);
+
+  // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
+  // and each unique key itself is the shortest possible:
+  return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex};
 }
 
 @synopsis{extract what's needed from the header and print it back, also set sidebar_position}
@@ -873,7 +943,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("screenshot <targetFile>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
       append OUT: out("```");
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
@@ -898,7 +968,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
   }
 
   return result;
-}
+}                            
 
 @synopsis{Prepare blocks run the REPL but show no input or output}
 list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
@@ -936,7 +1006,7 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("screenshot <targetFile>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
     } 
