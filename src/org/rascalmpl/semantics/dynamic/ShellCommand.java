@@ -336,7 +336,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unExtend(Names.fullName(this.getName()));
+			// ((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unExtend(Names.fullName(this.getName()));
+			__eval.getOutPrinter().println(":unextend is not implemented.");
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 
