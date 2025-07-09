@@ -61,31 +61,16 @@ public class ShellEvaluatorFactory {
     private static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
-        stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
-        stdout.println("Rascal search path:");
         for (var srcPath : pcfg.getSrcs()) {
-            var path = MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath);
-            stdout.println("- " + path);
-            evaluator.addRascalSearchPath(path);
+            evaluator.addRascalSearchPath((ISourceLocation) srcPath);
         }
 
         var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
         var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
-        stdout.println("Rascal classloader path:");
         for (var lib : libs) {
-            var path = (ISourceLocation)lib;
-            stdout.println("- " + lib);
-            evaluator.addRascalSearchPath(path);
+            evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
         evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
-
-        if (!pcfg.getMessages().isEmpty()) {
-            stdout.println("PathConfig messages:");
-            Messages.write(pcfg.getMessages(), pcfg.getSrcs(), stdout);
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages());
-            }
-        }
 
         return evaluator;
     }
@@ -106,6 +91,17 @@ public class ShellEvaluatorFactory {
         var projectRoot = PathConfig.inferProjectRoot(projectFile);
         setupProjectResolver(projectRoot, monitor);
         var pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
+        pcfg.reportConfigurationInfo();
+        
+        if (!pcfg.getMessages().isEmpty()) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
+            } 
+            else {
+                Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
+            }
+        }
+
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
     }
 
