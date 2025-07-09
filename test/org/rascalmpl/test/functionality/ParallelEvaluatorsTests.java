@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.lang.StackWalker.Option;
+import java.util.Optional;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +86,7 @@ public class ParallelEvaluatorsTests {
                         var currentTarget = currentModule.get();
                         
                         evaluator.doImport(monitor, currentTarget);
-                        if (!evaluator.runTests(monitor, null)) {
+                        if (!evaluator.runTests(monitor, Optional<String>.empty())) {
                             result.set(false);
                         }
                         allDone.await();

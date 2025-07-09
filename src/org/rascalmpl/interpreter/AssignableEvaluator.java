@@ -16,6 +16,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Optional;
+
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Assignment;
@@ -195,7 +197,7 @@ public class AssignableEvaluator {
 	}
 
 	public void runTests(IRascalMonitor monitor) {
-		this.__getEval().runTests(monitor, null);
+		this.__getEval().runTests(monitor, Optional.empty());
 	}
 
 	public void setCurrentEnvt(Environment environment) {
