@@ -114,7 +114,7 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-			return evaluator.runTests(evaluator.getMonitor());
+			return evaluator.runTests(evaluator.getMonitor(), null);
 		}
 		finally {
 			stderr.flush();

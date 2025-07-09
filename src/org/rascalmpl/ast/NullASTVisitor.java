@@ -1033,6 +1033,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitShellCommandSetOptionTrue(ShellCommand.SetOptionTrue x) { 
+    return null; 
+  }
+
   public T visitShellCommandTest(ShellCommand.Test x) { 
     return null; 
   }
@@ -1041,7 +1045,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitShellCommandUnextend(ShellCommand.Unextend x) { 
+    return null; 
+  }
+
   public T visitShellCommandUnimport(ShellCommand.Unimport x) { 
+    return null; 
+  }
+
+  public T visitShellCommandUnsetOption(ShellCommand.UnsetOption x) { 
     return null; 
   }
 
@@ -1579,6 +1591,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitOptionalCommaLexical(OptionalComma.Lexical x) { 
+    return null; 
+  }
+
+  public T visitOptionalTerminatorLexical(OptionalTerminator.Lexical x) { 
     return null; 
   }
 
