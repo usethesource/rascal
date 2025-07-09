@@ -91,7 +91,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 947 * arg.hashCode() ; 
+      return 509 + 563 * arg.hashCode() ; 
     } 
   
     
@@ -165,7 +165,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 883 + 743 * arg.hashCode() ; 
+      return 149 + 431 * arg.hashCode() ; 
     } 
   
     
@@ -239,7 +239,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 607 * arg.hashCode() ; 
+      return 67 + 19 * arg.hashCode() ; 
     } 
   
     
@@ -313,7 +313,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 883 * arg.hashCode() ; 
+      return 181 + 599 * arg.hashCode() ; 
     } 
   
     
@@ -387,7 +387,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 233 * arg.hashCode() ; 
+      return 101 + 421 * arg.hashCode() ; 
     } 
   
     
