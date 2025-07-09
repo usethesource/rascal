@@ -1341,7 +1341,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         out.println(":declarations              Prints variables, functions, data and syntax definitions in scope");
         out.println(":undeclare <name>          Remove variable, function, data or syntax from this scope");
         out.println(":unimport  <name>          Remove import from current scope");
-        out.println(":unextend  <name>          Remove extend from current scope");
         out.println();
         out.println("Example rascal statements and declarations:");
         out.println("1 + 1;                     Expressions simply print their output and (static) type");
