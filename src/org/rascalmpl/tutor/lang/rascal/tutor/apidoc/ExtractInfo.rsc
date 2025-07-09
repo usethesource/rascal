@@ -13,7 +13,6 @@ import lang::rascal::tutor::apidoc::DeclarationInfo;
 list[DeclarationInfo] extractInfo(loc moduleLoc)
   = doExtractInfo(moduleLoc, lastModified(moduleLoc));
 
-@memo
 private list[DeclarationInfo] doExtractInfo(loc moduleLoc, datetime _/*lastModified*/){
     M = parseModuleWithSpaces(moduleLoc).top;
     return extractModule(M);

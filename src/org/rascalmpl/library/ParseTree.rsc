@@ -194,6 +194,24 @@ data Production
      = \error(Symbol def, Production prod, int dot)
      | \skipped(Symbol def);
 
+@synopsis{A special exception that wraps errors that are (almost) certainly caused by unexpected parse errors}
+@description{
+  Certain operations will always succeed on regular parse trees but will fail when the parse tree is an error Tree
+  resulting from error recovery.
+  A typical example is `t.someField` where `t` is an error node and `someField` is a field that would normally
+  be present in the tree but is after the dot so it is missing.
+  Normally  a `NoSuchField("someField")` exception would be thrown but because this problem is caused by a parse error,
+  the original exception is wrapped like this: `ParseErrorRecovery(NoSuchField("someField"), t.src)`.
+}
+@Benefits{
+using try/catch you can make a language processor robust against (deeply nested) recovered parse errors without scattering or tangling error handling code everywhere.
+}
+@pitfalls{
+it is advised to try/catch these exception high up in the call graph of your language processor, otherwise you'll have to write try/catch in many different places
+}
+
+data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
+
 @synopsis{Attributes in productions.}
 @description{
 An `Attr` (attribute) documents additional semantics of a production rule. Neither tags nor

@@ -19,30 +19,30 @@
 }
 module lang::rascal::tutor::Compiler
 
-import Message;
 import Exception;
 import IO;
-import String;
-import Node;
 import List;
-import Set;
-import Relation;
 import Location;
+import Message;
+import Node;
 import ParseTree;
-import util::Reflective;
-import util::FileSystem;
-import util::Monitor;
+import Relation;
+import Set;
+import String;
+import String;
 import ValueIO;
-
-import lang::yaml::Model;
-import lang::rascal::tutor::repl::TutorCommandExecutor;
-import lang::rascal::tutor::apidoc::GenerateMarkdown;
-import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::Includer;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
-import lang::rascal::tutor::Includer;
-import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::tutor::apidoc::GenerateMarkdown;
+import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::yaml::Model;
+import util::FileSystem;
+import util::Monitor;
+import util::Reflective;
 
 public PathConfig defaultConfig
   = pathConfig(
@@ -93,6 +93,11 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   pcfg.packageArtifactId = artifactId;
   pcfg.packageGroupId    = groupId;
   pcfg.packageVersion    = version;
+
+  if (!isPackageCourse && pcfg.packageGroupId == "org.rascalmpl" && pcfg.packageArtifactId == "rascal") {
+    // drop the libraries to avoid circular dependencies with typepal
+    pcfg.libs = [];
+  }
 
   messages = compile(pcfg);
   
@@ -683,9 +688,9 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
   }
   
   switch (resolution) {
-      case {str unique}: {
-        unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-        return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+      case {str u}: {
+        u = /^\/assets/ := u ? u : "<p2r><u>";
+        return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
@@ -700,26 +705,24 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if (str sep <- {":","-"}, 
-           {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
-          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-          return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        if (str sep <- {"::", "-"}, 
+           {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if (str sep <- {":","-"}, 
-                {str unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile)><sep><removeSpaces(link)>"]) {
-          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-          return compileMarkdown(["<prefix>[<title>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        else if (str sep <- {"::","-"}, 
+                {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
-        exactLinks  = {<k, v> | <str v, str k> <- sort(rangeR(ind, ind[removeSpaces(link)])<1,0>), /*is exact: */ {_} := ind[k]};
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
 
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {>
-                            '* <r><}>.
-                            '
-                            'Please choose from the following exact links: <for (<str k, str v> <- exactLinks) {>
-                            '* ((<k>)) resolves to <v><}>",
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
                             pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
               ];
@@ -735,9 +738,9 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   switch (resolution) {
-      case {unique}: {
-        unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-        return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+      case {str u}: {
+        u = /^\/assets/ := u ? u : "<p2r><u>";
+        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
@@ -757,27 +760,25 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else {
           fail;
         }
-     
+      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if (str sep <- {"-", ":"}, {unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
-          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({unique} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
-          unique = /^\/assets/ := unique ? unique : "<p2r><unique>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<unique>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        else if (str sep <- {"-", "::"}, {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
-        exactLinks  = {<k, v> | <str v, str k> <- sort(rangeR(ind, ind[removeSpaces(link)])<1,0>), /*is exact: */ {_} := ind[k]};
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
 
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {>
-                            '* <r><}>.
-                            '
-                            'Please choose from the following exact links: <for (<str k, str v> <- exactLinks) {>
-                            '* ((<k>)) resolves to <v><}>",
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
                             pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
@@ -785,6 +786,40 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   }
 
   return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
+}
+
+@synopsis{Turn an ambiguous link into several _shortest_ suggestions for exact (unique) references}
+rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) {
+  bool linkSort(str a, str b) {
+    // prefer shorter links first
+    if (size(a) < size(b)) {
+      return true; 
+    }
+
+    // if of equal length, we use string compare (which prefers `-` over `:` and `/` accidentally correctly)
+    if (size(a) == size(b), a < b) {
+      return true; 
+    }
+
+    return false; 
+  }
+
+  set[str] ambPaths = ind[link];
+  rel[str key, str path] relevantIndex = rangeR(ind, ambPaths);
+
+  // here we make sure that each suggested key will resolve exactly to a unique path in `ind`
+  rel[str key, str path] exactIndex = {<k,v> | <k, v> <- relevantIndex, {_} := ind[k]};
+
+  // here we rank each suggested link key by shorter length, and then alphabetically
+  map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
+  map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
+
+  // debug print
+  iprintln(prioritizedReverseIndex);
+
+  // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
+  // and each unique key itself is the shortest possible:
+  return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex};
 }
 
 @synopsis{extract what's needed from the header and print it back, also set sidebar_position}
@@ -908,7 +943,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("Produced screenshot <href(targetFile)> for <pcfg.currentFile.file>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
       append OUT: out("```");
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
@@ -933,11 +968,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
   }
 
   return result;
-}
-
-str href(loc link) = href(link, link.file);
-str href(loc link, str text) = "\a1b]8;;<link.uri>\a1b\\<text>\a1b]8;;\a1b\\";
-                            
+}                            
 
 @synopsis{Prepare blocks run the REPL but show no input or output}
 list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
@@ -975,7 +1006,7 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("Produced screenshot <href(targetFile)> for <pcfg.currentFile.file>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
     } 
