@@ -113,7 +113,7 @@ If a module is present in both libraries and the current project, then the curre
 This function is based on the core features of ((srcsFile)), ((binFile)), and ((libsFile)).
 }
 @benefits{
-* Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)) and ((IO-relativize)).
+* Finicky issues with file IO are dealt with here in a language parametric way, based on ((LanguageFileConfig)) and ((relativize)).
 * Provides the basic setup for creating a programming language or DSL with independent libraries/components to depend on.
 * Use `returnValue.extension == fcfg.binExt` to detect if you need to read a binary or parse the source code.
 * The `PathNotFound` exception should be caught by the code that processes `import` statements in your language.
