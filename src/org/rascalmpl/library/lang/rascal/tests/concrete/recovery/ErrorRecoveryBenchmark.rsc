@@ -50,5 +50,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["source-loc=|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1"]);
+int rascalSmokeTest() = main(["source-loc=|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1", "count-nodes=true"]);
 int rascalStandardTest() = main(["source-loc=|std:///|", "max-files=1000", "max-file-size=5120"]);

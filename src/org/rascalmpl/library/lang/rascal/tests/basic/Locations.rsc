@@ -567,10 +567,10 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
 
     jar = relativize(|home:///.m2/repository|, jar);
 
-    groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
-    artifactId = jar.parent.parent.file;
-    version    = jar.parent.file;
-    file       = jar.file;
+    str groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    str artifactId = jar.parent.parent.file;
+    str version    = jar.parent.file;
+    str file       = jar.file;
 
     if (file != "<artifactId>-<version>.jar") {
         return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
