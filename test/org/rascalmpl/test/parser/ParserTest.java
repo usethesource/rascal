@@ -110,11 +110,13 @@ public class ParserTest {
 	public void testSequence(){
 		executeParser(new Sequence1());
 		executeParser(new Sequence2());
+		executeParser(new Sequence4());
 	}
 	
 	@Test
 	public void testAlternative(){
 		executeParser(new Alternative1());
+		executeParser(new Alternative2());
 	}
 	
 	@Test

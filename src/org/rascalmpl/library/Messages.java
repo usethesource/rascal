@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -42,15 +43,15 @@ public class Messages {
     private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
 
-    public static IValue info(String message, ISourceLocation loc) {
+    public static IConstructor info(String message, ISourceLocation loc) {
         return vf.constructor(Message_info, vf.string(message), loc);
     }
 
-    public static IValue warning(String message, ISourceLocation loc) {
+    public static IConstructor warning(String message, ISourceLocation loc) {
         return vf.constructor(Message_warning, vf.string(message), loc);
     }
 
-    public static IValue error(String message, ISourceLocation loc) {
+    public static IConstructor error(String message, ISourceLocation loc) {
         return vf.constructor(Message_error, vf.string(message), loc);
     }
 
@@ -70,9 +71,9 @@ public class Messages {
     public Messages(IValueFactory ignored) {
     }
 
-    public IString write(IList messsages, IList srcs) {
+    public IString write(IList messsages, ISourceLocation root) {
         try (var str = new StringWriter(); var writer = new PrintWriter(str)) {
-            write(messsages, srcs, writer);
+            write(messsages, root, writer);
             writer.flush();
             return vf.string(str.toString());
         }
@@ -83,10 +84,10 @@ public class Messages {
     }
     
     public static void write(IList messages, PrintWriter out) {
-        write(messages, IRascalValueFactory.getInstance().list(), out);
+        write(messages, null, out);
     }
 
-    public static void write(IList messages, IList srcs, PrintWriter out) {
+    public static void write(IList messages, @Nullable ISourceLocation root, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;
 
@@ -153,41 +154,34 @@ public class Messages {
                 line = loc.getBeginLine();
             }
 
-            // this shortens the location strings
-            loc = relativize(srcs, loc);
+            // this shortens the location strings to the part that is different for every file,
+            // leaving out a possibly very large common prefix
+            loc = root != null ? URIUtil.relativize(root, loc) : loc;
 
             String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
                 ? ((IString) msg.get("msg")).getValue()
-                : loc.getPath()
-                + ":"
+                : loc.getPath().substring(1)
+                + ((line == 0 && col == 0) ? "" : 
+                (":"
                 + String.format("%0" + lineWidth + "d", line)
                 + ":"
-                + String.format("%0" + colWidth + "d", col)
+                + String.format("%0" + colWidth + "d", col)))
                 + ": "
                 + ((IString) msg.get("msg")).getValue()
             ;
 
             if (isError) {
-                out.println("[ERROR]   " + output);
+                out.println("[ERROR] " + output);
             }
             else if (isWarning) {
                 out.println("[WARNING] " + output);
             }
             else {
-                out.println("[INFO]    " + output);
+                out.println("[INFO] " + output);
             }
         }
 
         out.flush();
 		return;
-    }
-
-    private static ISourceLocation relativize(IList outside, ISourceLocation inside) {
-        return outside.stream()
-            .map(ISourceLocation.class::cast)
-            .filter(o -> URIUtil.isParentOf(o, inside))
-            .map(o -> URIUtil.relativize(o, inside))
-            .findAny()
-            .orElse(inside);
     }
 }

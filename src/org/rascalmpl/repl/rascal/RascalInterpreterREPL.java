@@ -45,6 +45,7 @@ import java.util.function.Function;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
@@ -165,6 +166,11 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 return printer.outputError((w, sw, u) -> {
                     w.println((u ? "»» " : ">> ") + "Interrupted");
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
+                });
+            }
+            catch (RascalStackOverflowError e) {
+                return printer.outputError((w, sw, _u) -> {
+                    throwMessage(w, e.makeThrow(), sw);
                 });
             }
             catch (StaticError e) {

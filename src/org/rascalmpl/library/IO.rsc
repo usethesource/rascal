@@ -18,6 +18,7 @@ The following input/output functions are defined:
 module IO
 
 import Exception;
+extend analysis::diff::edits::FileSystemChanges;
 
 @synopsis{All functions in this module that have a charset parameter use this as default.}
 private str DEFAULT_CHARSET = "UTF-8";
@@ -652,8 +653,21 @@ throws PathNotFound, IO
 
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Remove files or directories}
 public java void remove(loc file, bool recursive=true) throws IO;
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Rename files or directories}
+@benefits{
+* will rename between schemes and within schemes, seemlessly.
+* within schemes renaming is implemented as close to the operating system rename functionality as possible. This can be very fast.
+}
+@pitfalls{
+* Between-scheme renaming can cause large recursive copy operations:
+   - that can take a lot more time
+   - if interrupted on the OS level will leave semi-copied target files and not-yet-removed origins
+}
+public java void rename(loc from, loc to, bool overwrite=false) throws IO;
 
 @synopsis{Write values to a file.}
 @description{
@@ -735,45 +749,34 @@ void copyDirectory(loc source, loc target) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Is an alias for ((rename))}
 java void move(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java loc arbLoc();
 
-data LocationChangeEvent
-    = changeEvent(loc src, LocationChangeType changeType, LocationType \type);
-
-data LocationChangeType
-    = created() 
-    | deleted() 
-    | modified();
-
-data LocationType
-    = file() 
-    | directory();
+@javaClass{org.rascalmpl.library.Prelude}
+java void watch(loc src, bool recursive, void (FileSystemChange event) watcher);
 
 @javaClass{org.rascalmpl.library.Prelude}
-java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
-
-@javaClass{org.rascalmpl.library.Prelude}
-java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+java void unwatch(loc src, bool recursive, void (FileSystemChange event) watcher);
 
 @synopsis{Categories of IO capabilities for loc schemes}
 @description{
-* `read` includes at least these functions:
+* ((reading)) includes at least these functions:
    * ((readFile))
    * ((lastModified)) and ((created))
    * ((exists))
    * ((isFile)) and ((isDirectory))
    * `loc.ls`, and ((listEntries)) 
-* `write` includes at least these functions:
+* ((writing)) includes at least these functions:
    * ((writeFile))
    * ((mkDirectory))
    * ((remove))
-   * ((rename))
-* `classloader` means that for this scheme a specialized/optimized ClassLoader can be produced at run-time. By
+   * ((rename)) and ((move))
+* ((classloading)) means that for this scheme a specialized/optimized ClassLoader can be produced at run-time. By
 default an abstract (slower) ClassLoader can be built using `read` capabilities on `.class` files.
-* `watch` means that for this scheme a native file watcher can be instantiated. By default 
+* ((watching)) means that for this scheme a file watcher can be instantiated. By default 
 a slower more generic file watcher is created based on capturing `write` actions.
    * ((resolving)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
 rewritten to a more concrete URI on-demand. Logical URIs can be nested arbitrarily.

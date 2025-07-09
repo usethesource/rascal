@@ -525,11 +525,17 @@ public interface IASTVisitor<T> {
 
   public T visitShellCommandSetOption(ShellCommand.SetOption x);
 
+  public T visitShellCommandSetOptionTrue(ShellCommand.SetOptionTrue x);
+
   public T visitShellCommandTest(ShellCommand.Test x);
 
   public T visitShellCommandUndeclare(ShellCommand.Undeclare x);
 
+  public T visitShellCommandUnextend(ShellCommand.Unextend x);
+
   public T visitShellCommandUnimport(ShellCommand.Unimport x);
+
+  public T visitShellCommandUnsetOption(ShellCommand.UnsetOption x);
 
   public T visitSignatureNoThrows(Signature.NoThrows x);
 
@@ -811,6 +817,8 @@ public interface IASTVisitor<T> {
   public T visitOctalIntegerLiteralLexical(OctalIntegerLiteral.Lexical x);
 
   public T visitOptionalCommaLexical(OptionalComma.Lexical x);
+
+  public T visitOptionalTerminatorLexical(OptionalTerminator.Lexical x);
 
   public T visitOutputLexical(Output.Lexical x);
 
