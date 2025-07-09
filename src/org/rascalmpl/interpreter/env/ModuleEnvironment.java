@@ -379,7 +379,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		if(importedModules.remove(moduleName)) {
+		if (importedModules.remove(moduleName)) {
 			ModuleEnvironment old = heap.getModule(moduleName);
 			if (old != null) {
 				typeStore.unimportStores(new TypeStore[] { old.getStore() });
@@ -596,6 +596,11 @@ public class ModuleEnvironment extends Environment {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
 		return sort;
+	}
+
+	@Override
+	public void unsetConcreteSyntaxType(String name) {
+		concreteSyntaxTypes.remove(name);
 	}
 	
 	private Type makeTupleType(Type adt, String name, Type tupleType) {
@@ -1051,5 +1056,9 @@ public class ModuleEnvironment extends Environment {
 
 	public void resetProductions() {
 		this.productions = new HashSet<IValue>(productions.size());
+	}
+
+	public Set<IValue> getProductions() {
+		return productions;
 	}
 }
