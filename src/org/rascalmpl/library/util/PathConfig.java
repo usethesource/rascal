@@ -573,6 +573,7 @@ public class PathConfig {
                 }
                 return;
             }
+        
             ISourceLocation dep = MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(resolvedLocation));
             String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
 
@@ -687,7 +688,7 @@ public class PathConfig {
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
-            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), URIUtil.getChildLocation(manifestRoot, RascalManifest.META_INF_RASCAL_MF)));
+            messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 
         ISourceLocation target;
@@ -900,7 +901,7 @@ public class PathConfig {
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
-                // errors of the artifacts downloaded should be propogated as well
+                // errors of the artifacts downloaded should be propagated as well
                 messages.appendAll(a.getMessages());
             }
             return result;
@@ -1041,6 +1042,48 @@ public class PathConfig {
         config.put("messages", getMessages());
 
         return vf.constructor(pathConfigConstructor, new IValue[0], config);
+    }
+
+    public void reportConfigurationInfo() {
+        var pom = URIUtil.getChildLocation(projectRoot, "pom.xml");
+        var sep = "\n  - ";
+
+        messages.add(Messages.info("Project root is " + projectRoot, pom));
+        messages.add(Messages.info("Bin folder   is " + bin, pom));
+
+        if (!srcs.isEmpty()) {
+            messages.add(Messages.info("Source module path is:" + sep
+            + srcs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Source path is empty", pom));
+        }
+
+        if (!ignores.isEmpty()) {
+            messages.add(Messages.info("Ignored source files or folders are:" + sep
+            + ignores.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+       
+        if (!libs.isEmpty()) {
+            messages.add(Messages.info("Library module (and classes) path is:" + sep
+            + libs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }
+        else {
+            messages.add(Messages.info("Library path is empty", pom));
+        }
+
+        if (!resources.isEmpty()) {
+            messages.add(Messages.info("Additional resources files or folders are:" + sep
+            + resources.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(sep)), pom));
+        }        
     }
     
     /**

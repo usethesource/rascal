@@ -347,6 +347,16 @@ public class Environment implements IRascalFrame {
 		
 		return null;
 	}
+
+	public void unsetSimpleVariable(Name name) {
+		unsetSimpleVariable(Names.name(name));
+	}
+
+	public void unsetSimpleVariable(String name) {
+		if (variableEnvironment != null) {
+			variableEnvironment.remove(name);
+		}
+	}
 	
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
@@ -832,6 +842,10 @@ public class Environment implements IRascalFrame {
 		return getRoot().abstractDataType(name, parameters);
 	}
 
+	public void unsetConcreteSyntaxType(String name) {
+		getRoot().unsetConcreteSyntaxType(name);
+	}
+
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
@@ -871,6 +885,12 @@ public class Environment implements IRascalFrame {
 			}
 		}
 		return functions;
+	}
+
+	public void unsetAllFunctions(String name) {
+		if (functionEnvironment != null) {
+			functionEnvironment.remove(name);
+		}
 	}
 	
 	public Environment getParent() {

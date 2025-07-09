@@ -555,15 +555,9 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
     pcfg1 = compilerConfig.typepalPathConfig;
     compilerConfig.typepalPathConfig = pcfg1;
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
-    messagesNoModule = toSet(ms.pathConfig.messages);
-    for(mname <- ms.messages, !ms.moduleLocs[mname]?){
-        messagesNoModule += ms.messages[mname];
-    }   
-    msgs = [ program(ms.moduleLocs[mname], ms.messages[mname] + messagesNoModule) | mname <- ms.messages, ms.moduleLocs[mname] ?  ];
-    if(isEmpty(msgs)){
-        msgs = [ program(m.at, {m}) | Message m <- messagesNoModule ];
-    }
-    return msgs;
+    moduleNames = domain(ms.moduleLocs);
+    messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, mname notin moduleNames} + toSet(ms.pathConfig.messages);
+    return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
 }
 
 list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
