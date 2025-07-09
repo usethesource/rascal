@@ -168,6 +168,10 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	public boolean isWritable(ISourceLocation uri) throws IOException {
 		return registry.isWritable(getActualURI(uri));
 	}
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return registry.isReadable(getActualURI(uri));
+	}
 	
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {

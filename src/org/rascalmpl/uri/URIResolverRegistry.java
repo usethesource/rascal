@@ -690,9 +690,28 @@ public class URIResolverRegistry {
 		if (resolver != null) {
 			return resolver.isWritable(uri);
 		}
+		// for writeable schemes we return false unless the file does not exist
+		if (!exists(uri)) {
+			throw new FileNotFoundException(uri.toString());
+		}
+		//
 		return false;
 	}
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getInputResolver(uri.getScheme());
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+		return resolver.isReadable(uri);
+	}
 
+	/**
+	 * This is byte size, and should not be exposed to the rascal users. 
+	 * @param uri
+	 * @return
+	 * @throws IOException
+	 */
 	public long size(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
@@ -1096,7 +1115,7 @@ public class URIResolverRegistry {
 		try {
 			return resolver.stat(loc);
 		} catch (FileNotFoundException fe) {
-			return new FileAttributes(false, false, -1,-1, false, 0);
+			return new FileAttributes(false, false, -1,-1, false, false, 0);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package org.rascalmpl.uri.jar;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -198,6 +199,14 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
     public long size(ISourceLocation uri) throws IOException {
         ISourceLocation jarUri = getResolvedJarPath(uri);
         return getTargetResolver(jarUri).size(jarUri, getInsideJarPath(uri));
+    }
+
+    @Override
+    public boolean isReadable(ISourceLocation uri) throws IOException {
+        if (exists(uri)) {
+            return true;
+        }
+        throw new FileNotFoundException(uri.toString());
     }
 
 }

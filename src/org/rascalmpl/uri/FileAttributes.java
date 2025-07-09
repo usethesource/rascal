@@ -32,13 +32,15 @@ public class FileAttributes {
 	private final long created;
 	private final long lastModified;
 	private final boolean isWritable;
+	private final boolean isReadable;
 	private final long size;
 
-	public FileAttributes(boolean exists, boolean isFile, long created, long lastModified, boolean isWritable, long size) {
+	public FileAttributes(boolean exists, boolean isFile, long created, long lastModified, boolean isReadable, boolean isWritable, long size) {
 		this.exists = exists;
 		this.isFile = isFile;
 		this.created = created;
 		this.lastModified = lastModified;
+		this.isReadable = isReadable;
 		this.isWritable = isWritable;
 		this.size = size;
 	}
@@ -47,6 +49,10 @@ public class FileAttributes {
 	public boolean isFile() { return isFile; }
 	public long created() { return created; }
 	public long lastModified() { return lastModified; }
+	public boolean isReadable() { return isReadable; }
 	public boolean isWritable() { return isWritable; }
+	/**
+	 * internal use only, size in bytes
+	 */
 	public long size() { return size; }
 }
