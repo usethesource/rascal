@@ -48,6 +48,7 @@ import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import engineering.swat.watch.ActiveWatch;
 import engineering.swat.watch.Approximation;
+import engineering.swat.watch.DaemonThreadPool;
 import engineering.swat.watch.Watch;
 import engineering.swat.watch.WatchEvent;
 import engineering.swat.watch.WatchScope;
@@ -264,13 +265,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		throw new IOException("uri has no path: " + uri);
 	}
 
-	private final ExecutorService watcherPool = Executors.newCachedThreadPool((Runnable r) -> {
-		SecurityManager s = System.getSecurityManager();
-		ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-		Thread t = new Thread(group, r, "file:/// watcher thread-pool");
-		t.setDaemon(true);
-		return t;
-	});
+	private final ExecutorService watcherPool = DaemonThreadPool.buildConstrainedCached("file:///-watch-handler", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 	
 	@Override
 	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) throws IOException {
