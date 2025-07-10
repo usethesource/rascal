@@ -52,7 +52,7 @@ public class FileAttributes {
 	public boolean isReadable() { return isReadable; }
 	public boolean isWritable() { return isWritable; }
 	/**
-	 * internal use only, size in bytes
+	 * internal use only, size in bytes and does not corresponds to Rascal's unicode codepoint
 	 */
 	public long size() { return size; }
 }

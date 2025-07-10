@@ -694,7 +694,6 @@ public class URIResolverRegistry {
 		if (!exists(uri)) {
 			throw new FileNotFoundException(uri.toString());
 		}
-		//
 		return false;
 	}
 	public boolean isReadable(ISourceLocation uri) throws IOException {
