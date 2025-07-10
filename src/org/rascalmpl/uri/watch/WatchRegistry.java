@@ -49,8 +49,8 @@ import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.util.DaemonThreadPool;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -208,7 +208,7 @@ public class WatchRegistry {
     }
 
     /** a private daemon thread thread-pool */
-    private final ExecutorService exec = DaemonThreadPool.buildCached("simulated-watches", 6);
+    private final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("simulated-watches", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 
     public void notifySimulatedWatchers(ISourceLocation loc, ISourceLocationChanged event) {
         if (watchers.containsKey(loc.getScheme())) {
