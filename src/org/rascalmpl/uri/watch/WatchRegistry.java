@@ -40,7 +40,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -51,6 +50,7 @@ import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -208,13 +208,7 @@ public class WatchRegistry {
     }
 
     /** a private daemon thread thread-pool */
-    private final ExecutorService exec = Executors.newCachedThreadPool((Runnable r) -> {
-        SecurityManager s = System.getSecurityManager();
-        ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        Thread t = new Thread(group, r, "Generic watcher thread-pool");
-        t.setDaemon(true);
-        return t;
-    });
+    private final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("simulated-watches", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 
     public void notifySimulatedWatchers(ISourceLocation loc, ISourceLocationChanged event) {
         if (watchers.containsKey(loc.getScheme())) {
