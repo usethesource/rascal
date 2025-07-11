@@ -151,8 +151,40 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         return reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc);
     }
 
+    private final Pattern debuggingCommandPattern = Pattern.compile("^\\s*:set\\s+debugging\\s+(true|false)");
+    private @Nullable ICommandOutput handleDebuggerCommand(String command) {
+        Matcher matcher = debuggingCommandPattern.matcher(command);
+        if (!matcher.find()) {
+            return null;
+        }
+        String message;
+        if(matcher.group(1).equals("true")){
+            if(!debugServer.isClientConnected()){
+                services.startDebuggingSession(debugServer.getPort());
+                message = "Debugging session started.";
+            }
+            else {
+                message = "Debugging session was already running.";
+            }
+        }
+        else {
+            if(debugServer.isClientConnected()){
+                debugServer.terminateDebugSession();
+                message = "Debugging session stopped.";
+            }
+            else {
+                message = "Debugging session was not running.";
+            }
+        }
+        return () -> new AsciiStringOutputPrinter(message);
+    }
+
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
+        var result = handleDebuggerCommand(command);
+        if (result != null) {
+            return result;
+        }
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
