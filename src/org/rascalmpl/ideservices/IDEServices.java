@@ -166,4 +166,14 @@ public interface IDEServices extends IRascalMonitor {
   default void unregisterLocations(IString scheme, IString auth) {
     URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
 	}
+
+  default void startDebuggingSession(int serverPort){
+    throw new UnsupportedOperationException("Debugging is not possible");
+  }
+
+  default void registerDebugServerPort(int processID, int serverPort){
+    throw new UnsupportedOperationException("Debugging is not possible");
+  }
+
+    
 }
