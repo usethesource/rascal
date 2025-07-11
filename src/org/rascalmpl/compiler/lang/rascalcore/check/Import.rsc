@@ -71,15 +71,18 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
 
     pathsPlus = {<from, to> | <from, _, to> <- paths}+;
 
-    cyclicMixed = {mloc1, mloc2 | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
-                             <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
-                             || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
+    cyclicMixed = { mloc1, mloc2 
+                  | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
+                    (  <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
+                    || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths
+                    )
+                  };
 
     for(mloc <- cyclicMixed){
-        mname = getRascalModuleName(mloc, moduleStrs, pcfg);
         set[str] cycle = { getRascalModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
                          { getRascalModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
         if(size(cycle) > 1){
+            mname = getRascalModuleName(mloc, moduleStrs, pcfg);
             ms.messages[mname] = (ms.messages[mname] ? {}) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
         }
     }
