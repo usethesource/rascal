@@ -34,6 +34,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.30.0-RC27</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
+        <lsp4j.version>0.24.0</lsp4j.version>
     </properties>
 
     <licenses>
@@ -583,6 +584,17 @@
             <artifactId>java-watch</artifactId>
             <version>0.9.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j</artifactId>
+            <version>${lsp4j.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.lsp4j</groupId>
+            <artifactId>org.eclipse.lsp4j.debug</artifactId>
+            <version>${lsp4j.version}</version>
+      </dependency>
     </dependencies>
     <profiles>
         <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
