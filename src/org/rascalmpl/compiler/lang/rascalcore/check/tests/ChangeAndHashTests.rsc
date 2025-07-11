@@ -349,7 +349,9 @@ test bool synParameterLayoutChanged()
      = expectEqualGrammar("syntax A[&T] = &T;", "syntax A[ &T ] = &T ;");
 
 test bool synStartChanged()
-    = expectNotEqualGrammar("syntax A = \"a\";", "start syntax A = \"a\";");
+    // start is no longer included in the type of the nonterminal;
+    // the grammar itself is therefore not changed 
+    = expectEqualGrammar("syntax A = \"a\";", "start syntax A = \"a\";");
 
 test bool synStartLayoutChanged()
     = expectEqualGrammar("start syntax A = \"a\";", "start   syntax   A   =   \"a\"  ;");
