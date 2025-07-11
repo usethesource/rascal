@@ -42,8 +42,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
@@ -59,6 +63,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -83,6 +88,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     private final RascalValuePrinter printer;
 
     private static final ISourceLocation PROMPT_LOCATION = URIUtil.rootLocation("prompt");
+
+    protected DebugSocketServer debugServer;
 
     @Override
     public ITree parseCommand(String command) {
@@ -122,7 +129,9 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
-        return ShellEvaluatorFactory.getBasicEvaluator(input, stdout, stderr, services);
+        var evaluator = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
+        debugServer = new DebugSocketServer(evaluator, services);
+        return evaluator;
     }
 
     @Override
@@ -151,8 +160,40 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         return reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc);
     }
 
+    private final Pattern debuggingCommandPattern = Pattern.compile("^\\s*:set\\s+debugging\\s+(true|false)");
+    private @Nullable ICommandOutput handleDebuggerCommand(String command) {
+        Matcher matcher = debuggingCommandPattern.matcher(command);
+        if (!matcher.find()) {
+            return null;
+        }
+        String message;
+        if(matcher.group(1).equals("true")){
+            if(!debugServer.isClientConnected()){
+                services.startDebuggingSession(debugServer.getPort());
+                message = "Debugging session started.";
+            }
+            else {
+                message = "Debugging session was already running.";
+            }
+        }
+        else {
+            if(debugServer.isClientConnected()){
+                debugServer.terminateDebugSession();
+                message = "Debugging session stopped.";
+            }
+            else {
+                message = "Debugging session was not running.";
+            }
+        }
+        return () -> new AsciiStringOutputPrinter(message);
+    }
+
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
+        var result = handleDebuggerCommand(command);
+        if (result != null) {
+            return result;
+        }
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
@@ -239,6 +280,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         commandLineOptions.put(Configuration.PROFILING_PROPERTY.substring("rascal.".length()), "enable sampling profiler" );
         commandLineOptions.put(Configuration.ERRORS_PROPERTY.substring("rascal.".length()), "print raw java errors");
         commandLineOptions.put(Configuration.TRACING_PROPERTY.substring("rascal.".length()), "trace all function calls (warning: a lot of output will be generated)");
+        commandLineOptions.put(Configuration.DEBUGGING_PROPERTY.substring("rascal.".length()), "enable debugging (true/false)");
         return commandLineOptions;
     }
 
