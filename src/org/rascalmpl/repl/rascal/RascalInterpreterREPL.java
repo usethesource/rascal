@@ -42,8 +42,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
@@ -59,6 +63,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -83,6 +88,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     private final RascalValuePrinter printer;
 
     private static final ISourceLocation PROMPT_LOCATION = URIUtil.rootLocation("prompt");
+
+    protected DebugSocketServer debugServer;
 
     @Override
     public ITree parseCommand(String command) {
@@ -122,7 +129,9 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
-        return ShellEvaluatorFactory.getBasicEvaluator(input, stdout, stderr, services);
+        var evaluator = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
+        debugServer = new DebugSocketServer(evaluator, services);
+        return evaluator;
     }
 
     @Override
