@@ -37,7 +37,7 @@ public class JarInputStreamResolver extends JarFileResolver {
             final ISourceLocation lookupKey = URIUtil.changeQuery(jarLocation, "mod=" + CTX.lastModified(jarLocation));
             return fsCache.get(lookupKey, j -> {
                 try {
-                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation), CTX.created(jarLocation), CTX.lastModified(jarLocation));
+                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation), CTX.created(jarLocation), CTX.lastModified(jarLocation), CTX.size(jarLocation));
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);

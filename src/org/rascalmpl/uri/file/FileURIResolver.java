@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
@@ -47,6 +48,7 @@ import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import engineering.swat.watch.ActiveWatch;
 import engineering.swat.watch.Approximation;
+import engineering.swat.watch.DaemonThreadPool;
 import engineering.swat.watch.Watch;
 import engineering.swat.watch.WatchEvent;
 import engineering.swat.watch.WatchScope;
@@ -157,6 +159,36 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
         BasicFileAttributes attr = basicfile.readAttributes() ;
         return attr.creationTime().toMillis();
 	}
+
+
+	@Override
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		return Files.isWritable(resolveToFile(uri).toPath());
+	}
+
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return Files.isReadable(resolveToFile(uri).toPath());
+	}
+
+	@Override
+	public long size(ISourceLocation uri) throws IOException {
+		return resolveToFile(uri).length();
+	}
+
+	@Override
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		var file = resolveToFile(loc).toPath();
+		var attrs = Files.readAttributes(file, BasicFileAttributes.class);
+		return new FileAttributes(true, 
+			attrs.isRegularFile(),
+			attrs.creationTime().toMillis(),
+			attrs.lastModifiedTime().toMillis(),
+			Files.isReadable(file),
+			Files.isWritable(file),
+			attrs.size()
+		);
+	}
 	
 	@Override
 	public String[] list(ISourceLocation uri) {
@@ -233,13 +265,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		throw new IOException("uri has no path: " + uri);
 	}
 
-	private final ExecutorService watcherPool = Executors.newCachedThreadPool((Runnable r) -> {
-		SecurityManager s = System.getSecurityManager();
-		ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-		Thread t = new Thread(group, r, "file:/// watcher thread-pool");
-		t.setDaemon(true);
-		return t;
-	});
+	private final ExecutorService watcherPool = DaemonThreadPool.buildConstrainedCached("file:///-watch-handler", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 	
 	@Override
 	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback, boolean recursive) throws IOException {

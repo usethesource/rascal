@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.zip.CompressedFSTree;
 
@@ -92,4 +93,13 @@ public class JarFileResolver  {
         
         return getFileHierchyCache(jar).directChildren(path);
     }
+
+    public FileAttributes stat(ISourceLocation zip, String path) throws IOException {
+        return getFileHierchyCache(zip).stat(path);
+    }
+
+    public long size(ISourceLocation jar, String path) throws IOException {
+        return getFileHierchyCache(jar).size(path);
+    }
+
 }
