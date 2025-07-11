@@ -271,6 +271,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         commandLineOptions.put(Configuration.PROFILING_PROPERTY.substring("rascal.".length()), "enable sampling profiler" );
         commandLineOptions.put(Configuration.ERRORS_PROPERTY.substring("rascal.".length()), "print raw java errors");
         commandLineOptions.put(Configuration.TRACING_PROPERTY.substring("rascal.".length()), "trace all function calls (warning: a lot of output will be generated)");
+        commandLineOptions.put(Configuration.DEBUGGING_PROPERTY.substring("rascal.".length()), "enable debugging (true/false)");
         return commandLineOptions;
     }
 
