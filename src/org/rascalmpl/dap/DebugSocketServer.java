@@ -48,13 +48,13 @@ public class DebugSocketServer {
     private volatile @Nullable Socket clientSocket;
     private volatile @Nullable IDebugProtocolClient debugClient;
 
-    public DebugSocketServer(Evaluator evaluator, /*TerminalIDEClient*/ IDEServices terminal){
+    public DebugSocketServer(Evaluator evaluator, IDEServices services){
         try {
             serverSocket = new ServerSocket(0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // registerDebugServerPort(terminal);
+        registerDebugServerPort(services);
         startListening(evaluator);
     }
 
@@ -78,8 +78,8 @@ public class DebugSocketServer {
         t.start();
     }
 
-    private void registerDebugServerPort(/*TerminalIDEClient*/ IDEServices terminal){
-    //     terminal.registerDebugServerPort((int) ProcessHandle.current().pid(), getPort());
+    private void registerDebugServerPort(IDEServices services){
+        services.registerDebugServerPort((int) ProcessHandle.current().pid(), getPort());
     }
 
     public boolean isClientConnected(){
