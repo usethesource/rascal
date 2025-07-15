@@ -42,6 +42,7 @@ bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree
             println(edited);
             println("As the transformed:");
             println(transformed);
+            return false;
         }
     }
     catch ParseError(loc l): {
