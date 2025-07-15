@@ -24,8 +24,8 @@ import org.rascalmpl.uri.zip.IndexedFSEntry;
 
 public class JarInputStreamFileTree extends CompressedFSTree {
 
-  public JarInputStreamFileTree(InputStream in, long created, long lastModified) {
-        super(new IndexedFSEntry(created, lastModified), openStream(in));
+  public JarInputStreamFileTree(InputStream in, long created, long lastModified, long size) {
+        super(new IndexedFSEntry(created, lastModified, size), openStream(in));
     }
 
     private static EntryEnumerator openStream(InputStream jarStream) {

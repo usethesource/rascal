@@ -27,11 +27,13 @@ public class Configuration {
 	public final static String GENERATOR_PROFILING_PROPERTY = "rascal.generatorProfiling";
 	public final static String TRACING_PROPERTY = "rascal.tracing";
 	public final static String ERRORS_PROPERTY = "rascal.errors";
+	public final static String DEBUGGING_PROPERTY = "rascal.debugging";
 	
   	private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
   	private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
   	private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
   	private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
+	private boolean debugging = getDefaultBoolean(DEBUGGING_PROPERTY, false);
 	
 	private static boolean getDefaultBoolean(String property, boolean def) {
 		String prop = System.getProperty(property);
@@ -42,6 +44,10 @@ public class Configuration {
 		return prop.equals("true");
 		}
   	}
+
+	public boolean getDebuggingProperty() {
+		return debugging;
+	}
 	
 	public boolean getProfilingProperty(){
 		return profiling;
@@ -73,5 +79,9 @@ public class Configuration {
 	
 	public void setTracing(boolean tracing) {
 	  this.tracing = tracing;
+	}
+
+	public void setDebugging(boolean debugging) {
+		this.debugging = debugging;
 	}
 }
