@@ -26,18 +26,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.unicode.UnicodeDetector;
@@ -46,6 +46,7 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.uri.watch.WatchRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -65,8 +66,6 @@ public class URIResolverRegistry {
 	private final Map<String, ISourceLocationOutput> outputResolvers = new ConcurrentHashMap<>();
 	private final Map<String, Map<String, ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
-	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
-	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
 
 	// we allow the user to define (using -Drascal.fallbackResolver=fully.qualified.classname) a single class that will handle
 	// scheme's not statically registered. That class should implement at least one of these interfaces
@@ -74,15 +73,17 @@ public class URIResolverRegistry {
 	private volatile @Nullable ISourceLocationOutput fallbackOutputResolver;
 	private volatile @Nullable ILogicalSourceLocationResolver fallbackLogicalResolver;
 	private volatile @Nullable IClassloaderLocationResolver fallbackClassloaderResolver;
-	private volatile @Nullable ISourceLocationWatcher fallbackWatcher;
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
 	}
 
+	private final WatchRegistry watchers;
 	private URIResolverRegistry() {
+		watchers = new WatchRegistry(this, this::safeResolve);
 		loadServices();
 	}
+
 
 	/**
 	 * Use with care! This (expensive) reinitialization method clears all caches of all resolvers by
@@ -179,7 +180,7 @@ public class URIResolverRegistry {
 			}
 
 			if (instance instanceof ISourceLocationWatcher) {
-				fallbackWatcher = (ISourceLocationWatcher) instance;
+				watchers.setFallback((ISourceLocationWatcher) instance);
 			}
 			if (!ok) {
 				System.err.println("WARNING: could not load fallback resolver " + fallbackClass
@@ -278,13 +279,13 @@ public class URIResolverRegistry {
 			return new NotifyingOutputStream(
 				original, 
 				loc, 
-				existed ? ISourceLocationWatcher.fileModified(loc) : ISourceLocationWatcher.fileCreated(loc)
+				existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 			);
 		}
 
 		return new NotifyingOutputStream(new BufferedOutputStream(original), 
 			loc, 
-			existed ? ISourceLocationWatcher.fileModified(loc) : ISourceLocationWatcher.fileCreated(loc)
+			existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 		);
 	}
 	private class NotifyingOutputStream extends FilterOutputStream {
@@ -300,14 +301,7 @@ public class URIResolverRegistry {
 
 		public void close() throws IOException {
 			super.close();
-
-			if (watchers.get(loc.getScheme()) == null) {
-				notifyWatcher(loc, event);
-			}
-			else {
-				// if there were watchers registered, then they
-				// should do the notifications
-			}
+			notifyWatcher(loc, event);
 		}
 
 		@Override
@@ -417,7 +411,7 @@ public class URIResolverRegistry {
 		return loc;
 	}
 
-	private ISourceLocation safeResolve(ISourceLocation loc) {
+	private @NonNull ISourceLocation safeResolve(@NonNull ISourceLocation loc) {
 		ISourceLocation resolved = null;
 
 		try {
@@ -449,7 +443,7 @@ public class URIResolverRegistry {
 	}
 
 	private void registerWatcher(ISourceLocationWatcher resolver) {
-		watchers.put(resolver.scheme(), resolver);
+		watchers.registerNative(resolver.scheme(), resolver);
 	}
 
 	public void unregisterLogical(String scheme, String auth) {
@@ -582,30 +576,11 @@ public class URIResolverRegistry {
 		mkParentDir(uri);
 
 		resolver.mkDirectory(uri);
-		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.directoryCreated(uri));
+		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.created(uri));
 	}
 
-	private final ExecutorService exec = Executors.newCachedThreadPool(new ThreadFactory() {
-			public Thread newThread(Runnable r) {
-            	SecurityManager s = System.getSecurityManager();
-            	ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-				Thread t = new Thread(group, r, "Generic watcher thread-pool");
-				t.setDaemon(true);
-				return t;
-			}
-		});
 	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
-		if (watchers.containsKey(key.getScheme())) {
-			// the registered watcher will do the callback itself
-			return;
-		}
-		Set<Consumer<ISourceLocationChanged>> callbacks = watching.get(key);
-		if (callbacks != null) {
-			// we schedule the call in the background
-			for (Consumer<ISourceLocationChanged> c : callbacks) {
-				exec.submit(() -> c.accept(event));
-			}
-		}
+		watchers.notifySimulatedWatchers(key, event);
 	}
 
 	public void remove(ISourceLocation uri, boolean recursive) throws IOException {
@@ -630,8 +605,7 @@ public class URIResolverRegistry {
 		}
 
 		out.remove(uri);
-		notifyWatcher(uri,
-			isDir ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+		notifyWatcher(uri, ISourceLocationWatcher.deleted(uri));
 	}
 
 	/**
@@ -708,6 +682,44 @@ public class URIResolverRegistry {
 		}
 
 		return result;
+	}
+
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getOutputResolver(uri.getScheme());
+		if (resolver != null) {
+			return resolver.isWritable(uri);
+		}
+		// for writeable schemes we return false unless the file does not exist
+		if (!exists(uri)) {
+			throw new FileNotFoundException(uri.toString());
+		}
+		return false;
+	}
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getInputResolver(uri.getScheme());
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+		return resolver.isReadable(uri);
+	}
+
+	/**
+	 * This is byte size, and should not be exposed to the rascal users. 
+	 * @param uri
+	 * @return
+	 * @throws IOException
+	 */
+	public long size(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+
+		return resolver.size(uri);
 	}
 
 	private boolean isRootLogical(ISourceLocation uri) {
@@ -1005,7 +1017,6 @@ public class URIResolverRegistry {
 		// It is assumed that if writeable file channels are supported for a given scheme,
 		// that also a watcher is registered for the given stream, so we do not have to
 		// notify any watchers ourselves
-		assert watchers.get(uri.getScheme()) != null;
 		return resolver.getWritableOutputStream(uri, append);
 	}
 
@@ -1018,80 +1029,17 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
-		throws IOException {
-		if (!isDirectory(loc)) {
-			// so underlying implementations of ISourceLocationWatcher only have to support
-			// watching directories (the native NEO file watchers are like that)
-			loc = URIUtil.getParentLocation(loc);
+	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback) throws IOException {
+		if (getOutputResolver(safeResolve(loc).getScheme()) == null) {
+			throw new UnsupportedSchemeException("Watching not supported on schemes that do not support writing: " + loc.getScheme());
 		}
-
-		final ISourceLocation finalLocCopy = loc;
-		final ISourceLocation resolvedLoc  = safeResolve(loc);
-
-		Consumer<ISourceLocationChanged> newCallback = !resolvedLoc.equals(loc) ? 
-			// we resolved logical resolvers in order to use native watchers as much as possible
-			// for efficiency sake, but this breaks the logical URI abstraction. We have to undo
-			// this renaming before we trigger the callback.
-			changes -> {
-				ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
-				ISourceLocation unresolved = URIUtil.getChildLocation(finalLocCopy, relative.getPath());
-				callback.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
-			}
-			: callback;
-
-		ISourceLocationWatcher watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallbackWatcher);
-		if (watcher != null) {
-			watcher.watch(resolvedLoc, callback);
-		}
-		else {
-			watching.computeIfAbsent(resolvedLoc, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
-		}
-
-		if (isDirectory(resolvedLoc) && recursive) {
-			for (ISourceLocation elem : list(resolvedLoc)) {
-				if (isDirectory(elem)) {
-					try {
-						watch(elem, recursive, newCallback);
-					}
-					catch (IOException e) {
-						// we swallow recursive IO errors which can be caused by file permissions.
-						// it is acceptable that inaccessible files are not watched
-					}
-				}
-			}
-		}
+		watchers.watch(loc, recursive, callback);
 	}
+
 
 	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		loc = safeResolve(loc);
-		if (!isDirectory(loc)) {
-			// so underlying implementations of ISourceLocationWatcher only have to support
-			// watching directories (the native NEO file watchers are like that)
-			loc = URIUtil.getParentLocation(loc);
-		}
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
-		if (watcher != null) {
-			watcher.unwatch(loc, callback);
-		}
-		else {
-			watching.getOrDefault(loc, Collections.emptySet()).remove(callback);
-		}
-		if (isDirectory(loc) && recursive) {
-			for (ISourceLocation elem : list(loc)) {
-				if (isDirectory(elem)) {
-					try {
-						unwatch(elem, recursive, callback);
-					}
-					catch (IOException e) {
-						// we swallow recursive IO errors which can be caused by file permissions.
-						// it is acceptable that inaccessible files are not watched
-					}
-				}
-			}
-		}
-
+		watchers.unwatch(loc, recursive, callback);
 	}
 
 	// these types must align with their correspondig types in IO.rsc
@@ -1130,7 +1078,7 @@ public class URIResolverRegistry {
 			result.insert(vf.constructor(loadCap));
 		}
 
-		if (watchers.containsKey(scheme)) {
+		if (watchers.hasNativeSupport(scheme)) {
 			result.insert(vf.constructor(watchCap));
 		}
 	
@@ -1154,7 +1102,24 @@ public class URIResolverRegistry {
 	}
 
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
-		return watchers.containsKey(loc.getScheme()) || watchers.containsKey(safeResolve(loc).getScheme());
+		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme());
 	}
+
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		loc = safeResolve(loc);
+		var resolver = getInputResolver(loc.getScheme());
+		if (resolver == null) {
+			throw new IOException("Unsupported scheme: " + loc.getScheme());
+		}
+		try {
+			return resolver.stat(loc);
+		} catch (FileNotFoundException fe) {
+			return new FileAttributes(false, false, -1,-1, false, false, 0);
+		}
+	}
+
+
+
+
 
 }

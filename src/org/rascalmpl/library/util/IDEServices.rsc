@@ -25,7 +25,12 @@ Typically a call to this IDE service method is included in the implementation
 of refactoring and quick-fix features of the language service protocol.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
-java void applyDocumentsEdits(list[DocumentEdit] edits);
+java void applyDocumentsEdits(list[FileSystemChange] edits);
+
+void applyFileSystemEdits(list[FileSystemChange] edits) {
+    applyDocumentsEdits(edits);
+}
+
 
 @synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
@@ -58,7 +63,7 @@ For any action instance, the IDE will:
 * and then the (optional) command is executed via the `execution` service of the language service protocol.
 }
 data CodeAction
-    = action(list[DocumentEdit] edits = [], Command command = noop(), str title = command.title);
+    = action(list[FileSystemChange] edits = [], Command command = noop(), str title = command.title);
 
 @synopsis{Commands are an open data-type for describing interactive functions that may be attached to CodeActions.}
 @description{
@@ -81,7 +86,7 @@ can test for changed file contents without waiting, in most cases (see pitfalls)
 }
 @pitfalls{
 * ((CodeAction))s may use the other features of ((util::IDEServices)), and thus start editors or browsers as side-effects.
-* ((CodeAction))s code actions with ((DocumentEdit))s will write to disk and change the original files.
+* ((CodeAction))s code actions with ((FileSystemChanges-FileSystemChange))s will write to disk and change the original files.
 * ((util::IDEServices::Command))s can only be executed by a parametrized command `evaluator``; if you do not provide it then 
 this test function will throw ((CallFailed)) exceptions for every unsupported (((util::IDEServices::Command)).
 * (((util::IDEServices::Command))s can start asynchronous effects by calling non-blocking functions that schedule other effects.
@@ -92,7 +97,7 @@ to synchronize the contents of editors and parse trees, etc. This function is on
 }
 value testCodeAction(CodeAction action, value (Command _) evaluator = value (noop()) { return true; }) {
     if (action.edits?) {
-        executeDocumentEdits(action.edits);
+        executeFileSystemChanges(action.edits);
     }
 
     if (action.command?) {

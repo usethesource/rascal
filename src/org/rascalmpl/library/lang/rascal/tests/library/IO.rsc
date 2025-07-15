@@ -15,9 +15,9 @@ test bool testFileCopyCompletely() {
 
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
         // this should trigger the failing test finally
-        remove(event.src); 
+        remove(event.file); 
     });
     return true;
 }
@@ -40,4 +40,32 @@ test bool testReadBase32() {
     writeFile(|memory:///base32Test/readTest.txt|, original);
     str encoded = readBase32(|memory:///base32Test/readTest.txt|);
     return original == fromBase32(encoded);
+}
+
+test bool testRenameWithinFileScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|tmp:///hello.txt|, "Hello World!");
+    rename(|tmp:///hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameWithinMemoryScheme() {
+    remove(|memory:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |memory:///bye.txt|);
+    return readFile(|memory:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameCrossScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool renameDirectory() {
+    remove(|tmp:///RenamedFolder|, recursive=true);
+    writeFile(|tmp:///Folder/hello.txt|, "Hello World!");
+    rename(|tmp:///Folder|, |tmp:///RenamedFolder|);
+    return readFile(|tmp:///RenamedFolder/hello.txt|) == "Hello World!";
 }
