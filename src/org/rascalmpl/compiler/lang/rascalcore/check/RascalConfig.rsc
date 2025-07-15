@@ -188,16 +188,17 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     return ignoreContinue();
 }
 
-Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRole, Solver s) {
+Accept rascalIsAcceptablePath(loc _defScope, loc def, Use use, PathRole pathRole, Solver s) {
     if(pathRole == importPath()){
         the_define = s.getDefine(def);
         defIdRole = the_define.idRole;
         // Only data declarations, constructors and visible entities are visible
         if(!(defIdRole == dataId() || defIdRole == constructorId() || the_define.defInfo.vis == publicVis())){
+            //println("rascalIsAcceptablePath: <def>, <pathRole>, <use.id> =\> ignoreContinue()");
             return ignoreContinue();
         }
     }
-
+    //println("rascalIsAcceptablePath: <def>, <pathRole>, <use.id> =\> acceptBinding()");
     return acceptBinding();
 }
 
@@ -362,13 +363,50 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
+void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
+    println(header);
+    for(<loc from, PathRole r, loc to> <- tuples){
+        fname = from.path[findLast(from.path, "/")+1 ..];
+        fname = fname[.. findLast(fname, ".")];
+
+        tname = to.path[findLast(to.path, "/")+1 ..];
+        tname = tname[.. findLast(tname, ".")];
+        println("<fname> <r == importPath() ? "imports" : "extends"> <tname>");
+    }
+}
+
+rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
+    lres =for(tup:<from, r, to> <- given){
+            if(contains("<tup>", "Tst1")){
+                append tup;
+            }
+        };
+    return toSet(lres);
+}
+
 // Enhance TModel before running Solver by 
 // - adding transitive edges for extend
 // - adding imports via these extends
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
+    initial = m.paths;
+    // printTuples("*** initial", initial);
+   
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-    m.paths += { <from, importPath(), to2> | <loc from, extendPath(), loc to1> <- m.paths, <loc to1, importPath(), loc to2> <- m.paths};
+    extendDelta = { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+    // printTuples("*** extendDelta",extendDelta);
+    m.paths += extendDelta;
+
+    before = select(m.paths);
+    // printTuples("*** after extend expansion", m.paths);
+    delta = { <from, importPath(), to2> 
+            | <loc from, loc to1> <- extendPlus, 
+              <loc to1, importPath(), loc to2> <- m.paths,
+              <from, extendPath(), to2> notin m.paths
+            };
+    m.paths += delta;
+    after = m.paths;
+   
+    // printTuples("*** delta",after - initial);
     return m;
 }
 
