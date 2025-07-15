@@ -25,29 +25,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
-layout Layout = " "*;
-   
-syntax AB = "a" | "b";
-//syntax ABPlus = AB+ abs;
-syntax ABStar = AB* abs;
-// syntax ABPlusSep = {AB ","}+ abs;
-// syntax ABStarSep = {AB ","}* abs;
-
-int size(&E* l) = (0 | it + 1 | _ <- l);
-    
-
-value main() // test bool sizeABStar2() 
-  = size(([ABStar]"a a").abs) == 2;
-
-// test bool sizeABPlus2() = size(([ABPlus]"a b").abs) == 2;
-
-// test bool sizeABPlus3() = size(([ABPlus]"a b a").abs) == 3;
-
-int size({&E &S}* l) = (0 | it + 1 | _ <- l);
-
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep0() = size(([ABStarSep]"").abs) == 0;
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep1() = size(([ABStarSep]"a").abs) == 1;
-// @ignoreInterpreter{Not implemented}
-// test bool sizeABStarSep2() = size(([ABStarSep]"a, b").abs) == 2;
+                                        
+import lang::rascalcore::compile::Examples::ExceptionTst;  
+extend lang::rascalcore::compile::Examples::IDEServicesTst;      
+                  
+void main(){  throw TypePalUsage("Unknown format directive`"); }

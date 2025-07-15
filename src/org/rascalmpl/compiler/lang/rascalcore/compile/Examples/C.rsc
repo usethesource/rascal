@@ -26,5 +26,5 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::C
 extend lang::rascalcore::compile::Examples::B;
-   
+                  
 void fff(DocumentEdit DE) { }
