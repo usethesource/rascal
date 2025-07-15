@@ -420,13 +420,14 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
         extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
-
+        // println("extendedModuleScopes:"); iprintln(extendedModuleScopes);
+        // println("filteredModuleScopes:"); iprintln(filteredModuleScopes);
         TModel m1 = tmodel();
         m1.rascalTplVersion = compilerConfig.rascalTplVersion;
         m1.modelName = qualifiedModuleName;
         m1.moduleLocs = (qualifiedModuleName : mscope);
 
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInComponentScopes(key));
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key));
 
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
