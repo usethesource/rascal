@@ -20,8 +20,8 @@ import java.util.zip.ZipInputStream;
 
 public class ZipInputStreamFileTree extends CompressedFSTree {
 
-    public ZipInputStreamFileTree(InputStream in, long created, long lastModified) {
-        super(new IndexedFSEntry(created, lastModified), openStream(in));
+    public ZipInputStreamFileTree(InputStream in, long created, long lastModified, long size) {
+        super(new IndexedFSEntry(created, lastModified, size), openStream(in));
     }
 
     private static EntryEnumerator openStream(InputStream zipStream) {
