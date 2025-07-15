@@ -25,10 +25,10 @@ TreeDiff is syntactically correct if:
 * The tree after rewriting _matches_ the tree after applying the edits tot the source text and parsing that.
 * Note that _matching_ ignores case-insensitive literals and layout, indentation and comments
 }
-bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform) {
+bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform, list[TextEdit](Tree, Tree) diff) {
     orig        = parse(grammar, example);
     transformed = transform(orig);
-    edits       = treeDiff(orig, transformed);
+    edits       = diff(orig, transformed);
     edited      = executeTextEdits(example, edits);
     println("<transform> leads to:");
     iprintln(edits);
@@ -67,10 +67,10 @@ significant changes to the code have been made.
 * This specification is not true for any transformation. Only apply it to 
 a test case if you can expect indentation-preservation for _the entire file_.
 }
-bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform) {
+bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform, list[TextEdit](Tree, Tree) diff) {
     orig        = parse(grammar, example);
     transformed = transform(orig);
-    edits       = treeDiff(orig, transformed);
+    edits       = diff(orig, transformed);
     edited      = executeTextEdits(example, edits);
     
     return indentationLevels(example) == indentationLevels(edited);
@@ -107,33 +107,56 @@ start[Program] addDeclarationToStart(start[Program] p) = visit(p) {
                      'end`
 };
 
+start[Program](start[Program]) indent(str indentation = "  ", bool indentFirstLine = true) {
+    return start[Program](start[Program] p) {
+        return parse(#start[Program], indent(indentation, "<p>", indentFirstLine=indentFirstLine));
+    };
+}
+
+start[Program] insertSpacesInDeclaration(start[Program] p) = visit(p) {
+    case (IdType) `<Id id> : <Type t>`
+        => (IdType) `<Id id>  :  <Type t>`
+};
+
 test bool nulTestWithId() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity, treeDiff);
 
 test bool simpleSwapper() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, swapAB)
-    && editsMaintainIndentationLevels(#start[Program], simpleExample, swapAB);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, swapAB, treeDiff)
+    && editsMaintainIndentationLevels(#start[Program], simpleExample, swapAB, treeDiff);
 
 test bool addDeclarationToEndTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd, treeDiff);
 
 test bool addDeclarationToStartTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart, treeDiff);
 
 test bool addDeclarationToStartAndEndTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd, treeDiff);
 
 test bool addDeclarationToEndAndSwapABTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd o swapAB);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd o swapAB, treeDiff);
 
 test bool addDeclarationToStartAndSwapABTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o swapAB);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o swapAB, treeDiff);
 
 test bool addDeclarationToStartAndEndAndSwapABTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd o swapAB);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd o swapAB, treeDiff);
 
 test bool naturalToStringTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString, treeDiff);
 
 test bool naturalToStringAndAtoBTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString o swapAB);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString o swapAB, treeDiff);
+
+test bool nulTestWithIdLayout()
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity, layoutDiff)
+    && editsMaintainIndentationLevels(#start[Program], simpleExample, indent(), layoutDiff);
+
+test bool indentAllLayout()
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, indent(), layoutDiff)
+    && !editsMaintainIndentationLevels(#start[Program], simpleExample, indent(), layoutDiff);
+
+test bool insertSpacesInDeclarationLayout()
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, insertSpacesInDeclaration, layoutDiff)
+    && editsMaintainIndentationLevels(#start[Program], simpleExample, indent(), layoutDiff);
