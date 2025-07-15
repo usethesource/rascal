@@ -33,7 +33,6 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
@@ -229,13 +228,17 @@ public class Reflective {
 		return data;
 	}
 	
-	public IValue parseModuleWithSpaces(ISourceLocation loc) {
-		IActionExecutor<ITree> actions = new NoActionExecutor();	
+	public ITree parseModuleWithSpaces(ISourceLocation loc) {
 		try {
-			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+			var content = getResourceContent(loc);
+			return parseModuleWithSpaces(loc, content);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
+	}
+
+	public static ITree parseModuleWithSpaces(ISourceLocation loc, char[] content) {
+		return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), content, INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 
 	// Note -- copy in ReflectiveCompiled
