@@ -37,6 +37,8 @@ import org.rascalmpl.interpreter.Evaluator;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This class starts a socket server that listens for incoming debug connections from IDEs.
@@ -47,6 +49,7 @@ public class DebugSocketServer {
     private final ServerSocket serverSocket;
     private volatile @Nullable Socket clientSocket;
     private volatile @Nullable IDebugProtocolClient debugClient;
+    private volatile @Nullable ExecutorService threadPool;
 
     public DebugSocketServer(Evaluator evaluator, IDEServices services){
         try {
@@ -65,7 +68,8 @@ public class DebugSocketServer {
                     Socket newClient = serverSocket.accept();
                     if(clientSocket == null || clientSocket.isClosed()){
                         clientSocket = newClient;
-                        debugClient = RascalDebugAdapterLauncher.start(evaluator, clientSocket, this);
+                        threadPool = Executors.newCachedThreadPool();
+                        debugClient = RascalDebugAdapterLauncher.start(evaluator, clientSocket, this, threadPool);
                     } else {
                         newClient.close();
                     }
@@ -111,9 +115,11 @@ public class DebugSocketServer {
                     logger.error("Error closing client socket", e);
                 }
             }
+            threadPool.shutdownNow();
         } finally {
             clientSocket = null;
             debugClient = null;
+            threadPool = null;
         }
     }
 }
