@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,11 +83,13 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final Logger logger;
     private final BreakpointsCollection breakpointsCollection;
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
+    private final ExecutorService ownExecutor;
 
 
-    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator) {
+    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, ExecutorService threadPool) {
         this.debugHandler = debugHandler;
         this.evaluator = evaluator;
+        this.ownExecutor = threadPool;
 
         this.suspendedState = new SuspendedState(evaluator);
         this.logger = LogManager.getLogger(RascalDebugAdapter.class);
@@ -113,7 +117,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setSupportsRestartRequest(false);
 
             return capabilities;
-        });
+        }, ownExecutor);
     }
 
 
@@ -159,7 +163,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             }
             response.setBreakpoints(breakpoints);
             return response;
-        });
+        }, ownExecutor);
     }
 
     private ISourceLocation getLocationFromPath(String path){
@@ -253,7 +257,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             client.thread(thread);
 
             return null;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -267,7 +271,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 t
             });
             return response;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -292,7 +296,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             }
             response.setStackFrames(stackFramesResponse);
             return response;
-        });
+        }, ownExecutor);
     }
 
     private StackFrame createStackFrame(int id, ISourceLocation loc, String name){
@@ -349,7 +353,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
             response.setScopes(scopes.toArray(new Scope[scopes.size()]));
             return response;
-        });
+        }, ownExecutor);
     }
 
     private Scope createScope(String name, int namedVariables, String presentationHint, boolean expensive, int variablesReference){
@@ -383,7 +387,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 return variable;
             }).toArray(Variable[]::new));
             return response;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -395,7 +399,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             debugHandler.processMessage(DebugMessageFactory.requestResumption());
 
             return response;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -403,20 +407,20 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         return CompletableFuture.supplyAsync(() -> {
             debugHandler.processMessage(DebugMessageFactory.requestStepOver());
             return null;
-        });
+        }, ownExecutor);
     }
 
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         // start Runnable to request termination (which blocks the thread waiting that all messages are sent and received between vscode and debug adapter, then close the socket)
-        new java.lang.Thread(new Runnable() {
+        ownExecutor.execute(new Runnable() {
             public void run() {
                 debugHandler.processMessage(DebugMessageFactory.requestTermination());
                 if(suspendedState.isSuspended()){
                     debugHandler.processMessage(DebugMessageFactory.requestResumption());
                 }
             }
-        }).start();
+        });
 
         return CompletableFuture.completedFuture(null);
     }
@@ -427,7 +431,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             debugHandler.processMessage(DebugMessageFactory.requestStepInto());
 
             return null;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -436,7 +440,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             debugHandler.processMessage(DebugMessageFactory.requestStepOut());
 
             return null;
-        });
+        }, ownExecutor);
     }
 
     @Override
@@ -445,7 +449,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             debugHandler.processMessage(DebugMessageFactory.requestSuspension());
 
             return null;
-        });
+        }, ownExecutor);
     }
 }
 

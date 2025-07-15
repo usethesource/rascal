@@ -36,11 +36,12 @@ import org.rascalmpl.interpreter.Evaluator;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 public class RascalDebugAdapterLauncher {
     private static final Logger logger = LogManager.getLogger(RascalDebugAdapterLauncher.class);
 
-    public static IDebugProtocolClient start(Evaluator evaluator, Socket clientSocket, DebugSocketServer socketServer) {
+    public static IDebugProtocolClient start(Evaluator evaluator, Socket clientSocket, DebugSocketServer socketServer, ExecutorService threadPool) {
         try {
             final DebugHandler debugHandler = new DebugHandler();
             debugHandler.setTerminateAction(() -> {
@@ -57,7 +58,7 @@ public class RascalDebugAdapterLauncher {
             });
             evaluator.addSuspendTriggerListener(debugHandler);
 
-            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator);
+            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator, threadPool);
             Launcher<IDebugProtocolClient> launcher = DSPLauncher.createServerLauncher(server, clientSocket.getInputStream(), clientSocket.getOutputStream());
             server.connect(launcher.getRemoteProxy());
             launcher.startListening();
