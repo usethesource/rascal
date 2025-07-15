@@ -240,6 +240,51 @@ list[TextEdit] treeDiff(
 default list[TextEdit] treeDiff(t:appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
     = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides");
 
+
+// Equal trees
+list[TextEdit] layoutDiff(Tree a, Tree b, bool copyComments = false)
+    = [] when a == b;
+
+// layout difference
+list[TextEdit] layoutDiff(
+    t:appl(prod(layouts(str l), _, _), list[Tree] _),
+    r:appl(prod(layouts(l), _, _), list[Tree] _),
+    bool copyComments = false)
+    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
+
+// matched layout trees generate empty diffs such that the original is maintained
+default list[TextEdit] layoutDiff(
+    appl(prod(layouts(_), _, _), list[Tree] _),
+    appl(prod(layouts(_), _, _), list[Tree] _),
+    bool copyComments = false)
+    = [];
+
+// matched literal trees generate empty diffs
+list[TextEdit] layoutDiff(
+    appl(prod(lit(str l), _, _), list[Tree] _),
+    appl(prod(lit(l)    , _, _), list[Tree] _),
+    bool copyComments = false)
+    = [];
+
+// matched case-insensitive literal trees generate empty diffs such that the original is maintained
+list[TextEdit] layoutDiff(
+    appl(prod(cilit(str l), _, _), list[Tree] _),
+    appl(prod(cilit(l)    , _, _), list[Tree] _),
+    bool copyComments = false)
+    = [];
+
+list[TextEdit] layoutDiff(
+    t:appl(prod(lex(str l), _, _), list[Tree] _),
+    r:appl(prod(lex(l)    , _, _), list[Tree] _),
+    bool copyComments = false)
+    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
+
+default list[TextEdit] layoutDiff(
+    appl(Production p, list[Tree] argsA),
+    appl(p, list[Tree] argsB),
+    bool copyComments = false)
+    = [*layoutDiff(a, b, copyComments=copyComments) | <a, b> <- zip2(argsA, argsB)];
+
 @synopsis{decide how many separators we have}
 int seps(\iter-seps(_,list[Symbol] s))      = size(s);
 int seps(\iter-star-seps(_,list[Symbol] s)) = size(s);
