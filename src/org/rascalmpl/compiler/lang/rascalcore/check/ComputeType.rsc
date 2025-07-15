@@ -415,7 +415,10 @@ list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) {
     if(str currentModuleName := s.top(key_current_module)){
-        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
+        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) 
+               | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles),  
+                 kwf <- d.defInfo.commonKeywordFields 
+               ];
     } else {
         throw "getCommonKeywords: key_current_module not found";
     }
