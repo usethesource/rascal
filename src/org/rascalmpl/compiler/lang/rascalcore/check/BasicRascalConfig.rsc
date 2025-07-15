@@ -85,7 +85,7 @@ public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId
 public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
-                                                             moduleVariableId(), productionId(), nonterminalId()
+                                                             moduleVariableId(), productionId()
                                                            };
 public set[IdRole] assignableRoles = variableRoles;
 
