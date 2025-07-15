@@ -51,9 +51,9 @@ import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.util.RascalServices;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -140,7 +140,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 response.setBreakpoints(new Breakpoint[0]);
                 return response;
             }
-            ITree parseTree = RascalServices.parseRascalModule(loc, contents.toCharArray());
+            ITree parseTree = Reflective.parseModuleWithSpaces(loc, contents.toCharArray());
             breakpointsCollection.clearBreakpointsOfFile(loc.getPath());
             Breakpoint[] breakpoints = new Breakpoint[args.getBreakpoints().length];
             for(int i = 0; i<args.getBreakpoints().length; i++){
