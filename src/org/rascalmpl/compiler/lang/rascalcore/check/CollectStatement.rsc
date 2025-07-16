@@ -610,7 +610,7 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
             c.require("statement-not-overloaded", stat, [], 
                 void(Solver s){
                     if(isOverloadedAType(s.getType(stat))){
-                        s.report(error(stat, "Unresolved call to overloaded function or constructor defined as %t",  stat));
+                        s.report(error(stat, "Statement with overloaded type %t not allowed",  stat));
                     }
             });
         }
