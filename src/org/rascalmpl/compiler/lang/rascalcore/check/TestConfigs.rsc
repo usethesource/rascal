@@ -271,7 +271,7 @@ public RascalCompilerConfig getSalixCompilerConfig(bool keep = false){
 // ---- drambiguity -----------------------------------------------------------
 
 public PathConfig getDrAmbiguityPathConfig(bool keep = false) {
-    return makePathConfig([ DRAMBIGUITY, SALIX_CORE + "src/main/rascal" ],
+    return makePathConfig([ REPO + "drambiguity/src", SALIX_CORE + "src/main/rascal" ],
                           [ RASCAL ],
                           keep=keep);
 }
