@@ -606,7 +606,7 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
-        for(Statement stat <- statements, !(stat is assignment)){
+        for(Statement stat <- statements, !(stat is assignment), !(stat is \return)){
             c.require("statement-not-overloaded", stat, [], 
                 void(Solver s){
                     if(isOverloadedAType(s.getType(stat))){
