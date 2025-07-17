@@ -128,8 +128,6 @@ JGenie makeJGenie(MuModule m,
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
-    allExtendScopes = { b | <a, extendPath(), b> <- allPaths };
-    
     extendScopesCurrentModule = { mscope | <currentModuleScope, extendPath(), mscope> <- allPaths };
     importScopesCurrentModule = { mscope | <currentModuleScope, importPath(), mscope> <- allPaths} ;
     flattenedImportScopes = importScopesCurrentModule + { mscope | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
