@@ -363,7 +363,7 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
+private void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
     println(header);
     for(<loc from, PathRole r, loc to> <- tuples){
         fname = from.path[findLast(from.path, "/")+1 ..];
@@ -375,7 +375,7 @@ void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
     }
 }
 
-rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
+private rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
     lres =for(tup:<from, r, to> <- given){
             if(contains("<tup>", "Tst1")){
                 append tup;
@@ -388,25 +388,15 @@ rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
 // - adding transitive edges for extend
 // - adding imports via these extends
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    initial = m.paths;
-    // printTuples("*** initial", initial);
-   
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    extendDelta = { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-    // printTuples("*** extendDelta",extendDelta);
-    m.paths += extendDelta;
+    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
-    before = select(m.paths);
-    // printTuples("*** after extend expansion", m.paths);
     delta = { <from, importPath(), to2> 
             | <loc from, loc to1> <- extendPlus, 
               <loc to1, importPath(), loc to2> <- m.paths,
               <from, extendPath(), to2> notin m.paths
             };
     m.paths += delta;
-    after = m.paths;
-   
-    // printTuples("*** delta",after - initial);
     return m;
 }
 
