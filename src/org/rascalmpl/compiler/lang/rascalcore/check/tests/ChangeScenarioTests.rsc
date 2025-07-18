@@ -543,6 +543,7 @@ test bool onlyChangedModulesAreReChecked0(){
     assert changeAndCheck(topLoc, ["Exception"], pcfg);
     return changeAndCheck(topLoc, ["Map"], pcfg);
 }
+@ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){
     clearMemory();
     pcfg = getRascalWritablePathConfig();
