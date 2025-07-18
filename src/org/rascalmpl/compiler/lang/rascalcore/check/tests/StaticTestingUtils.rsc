@@ -264,6 +264,7 @@ list[str] unexpectedTypeMsgs = [
 	    "Bounds _ and _ are not comparable",
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
 	    "Returned type _ is not always a subtype of expected return type _",
+		"Return statement with overloaded type _ not allowed",
 		"Type parameter _ should be less than _, found _",
 		"Ambiguous pattern type _",
 		"Splice operator not allowed inside a tuple pattern",
