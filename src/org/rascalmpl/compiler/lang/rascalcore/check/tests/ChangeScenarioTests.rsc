@@ -30,6 +30,7 @@ module lang::rascalcore::check::tests::ChangeScenarioTests
 import lang::rascalcore::check::tests::StaticTestingUtils;
 import lang::rascalcore::check::TestConfigs;
 extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::ModuleLocations;
 import util::Reflective;
 import util::Benchmark;
 import IO;
