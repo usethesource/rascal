@@ -468,7 +468,7 @@ test bool onlyTouchedModulesAreReChecked0(){
     assert touchAndCheck(topLoc, ["Exception"], pcfg);
     return touchAndCheck(topLoc, ["Map"], pcfg);
 }
-
+@ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyTouchedModulesAreReChecked1(){
     clearMemory();
     pcfg = getRascalWritablePathConfig();
