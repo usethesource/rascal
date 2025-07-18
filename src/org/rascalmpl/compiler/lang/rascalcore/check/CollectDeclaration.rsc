@@ -670,10 +670,13 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     } catch invalidInstantiation(str msg): {
         s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: <msg>"));
     }
-
-    s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);
+    returnExprTypeDU =deUnique(returnExprTypeU);
+    s.requireSubType(returnExprTypeDU, deUnique(declaredReturnTypeU), msg);
     if(!isVoidAType(declaredReturnTypeU)){
         checkNonVoid(returnExpr, returnExprTypeU, s, "Return value");
+    }
+    if(isOverloadedAType(returnExprTypeDU)){
+        s.report(error(returnExpr, "Return statement with overloaded type %t not allowed", returnExprTypeDU));
     }
  }
 
