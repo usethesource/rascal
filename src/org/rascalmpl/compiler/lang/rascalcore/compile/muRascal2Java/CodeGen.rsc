@@ -71,14 +71,18 @@ int naux = 0;
 
 // Generate code and test class for a single Rascal module
 
-tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs, PathConfig pcfg){
-
+tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus ms){
+    map[str,TModel] tmodels = ms.tmodels;
+    map[str,loc] moduleLocs = ms .moduleLocs;
+    PathConfig pcfg = ms.pathConfig;
     naux = 0;
     moduleName = m.name;
     //println("muRascal2Java: <moduleName>");
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
-    tm = tmodels[moduleName];
+    <found, tm, ms> = getTModelForModule(moduleName, ms, convert=true);
+    //iprintln(tm.paths);
+    //tm = tmodels[moduleName];
     //println("muRascal2Java:"); iprintln(tm);
     
     extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tm.paths };

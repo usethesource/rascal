@@ -98,9 +98,11 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
             tmodels[m] = tpl;
         }
     }
-    tmodels[qualifiedModuleName] = tm;
+    // tmodels[qualifiedModuleName] = tm;
+    ms = addTModel(qualifiedModuleName, tm, ms);
         
-    <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs, pcfg);
+    <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, ms);
+    // <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs, pcfg);
      
     writeFile(interfaceFile, the_interface);
     writeFile(classFile, the_class);
