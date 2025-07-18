@@ -25,8 +25,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
-                                        
-import lang::rascalcore::compile::Examples::ExceptionTst;  
-extend lang::rascalcore::compile::Examples::IDEServicesTst;      
-                  
-void main(){  throw TypePalUsage("Unknown format directive`"); }
+
+datetime now() = $2025-07-17T22:11:24.970+00:00$;
+                     
+datetime created(int n) = now();
+data D = created(int n);
+ 
+bool main(){  return created(0) <= now(); }
