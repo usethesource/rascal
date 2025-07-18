@@ -675,7 +675,7 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     if(!isVoidAType(declaredReturnTypeU)){
         checkNonVoid(returnExpr, returnExprTypeU, s, "Return value");
     }
-    if(isOverloadedAType(returnExprTypeDU)){
+    if(overloadedAType(overloads) := returnExprTypeDU, !all(<def, r, tp> <- overloads, isConstructorAType(tp) || isFunctionAType(tp))){
         s.report(error(returnExpr, "Return statement with overloaded type %t not allowed", returnExprTypeDU));
     }
  }
