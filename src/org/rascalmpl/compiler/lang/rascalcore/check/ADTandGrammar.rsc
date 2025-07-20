@@ -33,6 +33,7 @@ module lang::rascalcore::check::ADTandGrammar
 */
 
 extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::ModuleLocations;
 
 import lang::rascalcore::agrammar::definition::Layout;
 import lang::rascalcore::agrammar::definition::Keywords;
