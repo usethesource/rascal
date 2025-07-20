@@ -249,7 +249,7 @@ public RascalCompilerConfig getTypePalCompilerConfig(bool keep=true){
 // ---- flybytes --------------------------------------------------------------
 
 public PathConfig getFlyBytesProjectPathConfig(bool keep = false) {
-    return makePathConfig([ FLYBYTES ], [ RASCAL ], keep=keep);
+    return makePathConfig([ REPO + "flybytes/src" ], [ RASCAL ], keep=keep);
 }
 
 public RascalCompilerConfig getFlyBytesCompilerConfig(bool keep=true){
@@ -271,7 +271,7 @@ public RascalCompilerConfig getSalixCompilerConfig(bool keep = false){
 // ---- drambiguity -----------------------------------------------------------
 
 public PathConfig getDrAmbiguityPathConfig(bool keep = false) {
-    return makePathConfig([ REPO + "drambiguity/src", SALIX_CORE + "src/main/rascal" ],
+    return makePathConfig([ REPO + "drambiguity/src", REPO + "salix-core/src/main/rascal" ],
                           [ RASCAL ],
                           keep=keep);
 }
