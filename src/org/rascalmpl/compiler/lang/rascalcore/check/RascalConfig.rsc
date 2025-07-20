@@ -38,6 +38,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::ModuleLocations;
 
 import Location;
 import util::FileSystem;
@@ -432,7 +433,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                     r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     if(!comparable(r1, r2)){
-                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined) ];
+                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments at <d2.defined>", d1.defined) ];
                         s.addMessages(msgs);
                     }
 
