@@ -606,11 +606,12 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
-        for(Statement stat <- statements, !(stat is assignment), !(stat is \return)){
+        for(Statement stat <- stats){
             c.require("statement-not-overloaded", stat, [], 
                 void(Solver s){
                     if(isOverloadedAType(s.getType(stat))){
-                        s.report(error(stat, "Statement with overloaded type %t not allowed",  stat));
+                        if(!(stat is assignment || stat is \return))
+                            s.report(error(stat, "Statement with overloaded type %t not allowed",  stat));
                     }
             });
         }
