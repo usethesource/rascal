@@ -276,7 +276,7 @@ public PathConfig getDrAmbiguityPathConfig(bool keep = false) {
                           keep=keep);
 }
 
-public RascalCompilerConfig getDrAmbiguityCompilerConfig(bool keep = false){
+public RascalCompilerConfig getDrAmbiguityCompilerConfig(bool keep = true){
     return rascalCompilerConfig(getDrAmbiguityPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
 
