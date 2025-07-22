@@ -60,3 +60,63 @@ test bool UndefinedPrivateFunction(){
 			value main() = f();
 		");
 }
+
+test bool FunctionNotVisibleViaIndirectImport(){
+	writeModule("module A int twice(int n) = 2 * n;");
+	writeModule("module B import A;");
+	return undeclaredTypeInModule("
+		module FunctionNotVisibleViaIndirectImport
+			import B;
+			int t = twice(3);
+		");
+}
+
+test bool FunctionVisibleViaExtend(){
+	writeModule("module A int twice(int n) = 2 * n;");
+	writeModule("module B extend A;");
+	return checkModuleOK("
+		module FunctionVisibleViaExtend
+			import B;
+			int t = twice(3);
+		");
+}
+
+test bool ADTNotVisibleViaIndirectImport(){
+	writeModule("module A data D = d1();");
+	writeModule("module B import A;");
+	return undeclaredTypeInModule("
+		module ADTNotVisibleViaIndirectImport
+			import B;
+			D x = d1();
+		");
+}
+
+test bool ADTVisibleViaExtend(){
+	writeModule("module A data D = d1();");
+	writeModule("module B extend A;");
+	return checkModuleOK("
+		module ADTVisibleViaExtend
+			import B;
+			D x = d1();
+		");
+}
+
+test bool SyntaxNotVisibleViaIndirectImport(){
+	writeModule("module A syntax A = \"a\";");
+	writeModule("module B import A;");
+	return undeclaredTypeInModule("
+		module SyntaxNotVisibleViaIndirectImport
+			import B;
+			A x = [A] \"a\";
+		");
+}
+
+test bool SyntaxVisibleViaExtend(){
+	writeModule("module A syntax A = \"a\";");
+	writeModule("module B extend A;");
+	return checkModuleOK("
+		module SyntaxVisibleViaExtend
+			import B;
+			A x = [A] \"a\";
+		");
+}
