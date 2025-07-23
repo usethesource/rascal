@@ -278,7 +278,8 @@ list[str] unexpectedTypeMsgs = [
 		"Expected _ type parameter(s) for _, found _",
 		"Type _ cannot be parameterized, found _ parameter(s)",
 		"Expected a non-terminal type, found _",
-		"Expected a binary relation, found _"
+		"Expected a binary relation, found _",
+		"Constructor _ is overloaded, to resolve it _"
 	];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())

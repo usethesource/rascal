@@ -292,17 +292,16 @@ test bool RedeclaredConstructorInSameModuleNotOk(){
 		");
 }
 
-test bool OverloadedConstructorOnUseNotOk(){ 
+test bool OverloadedConstructorDifferentADTOnUseNotOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
 	return unexpectedTypeInModule("
-		module OverloadedConstructorOnUseNotOk
+		module OverloadedConstructorDifferentADTOnUseNotOk
 			import MMM;
 			data DATA2 = d(int m);
 			value main() = d(4);
 		");
 }
 
-@ignore{To be explored}
 test bool OverloadedConstructorSameADTOnUseNotOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
 	return unexpectedTypeInModule("

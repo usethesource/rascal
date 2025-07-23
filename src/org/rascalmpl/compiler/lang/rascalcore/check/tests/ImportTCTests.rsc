@@ -120,3 +120,128 @@ test bool SyntaxVisibleViaExtend(){
 			A x = [A] \"a\";
 		");
 }
+
+str  MBottom =
+	"module Bottom
+    'data Exp;
+	'data Bool = \true() | \false();";
+
+str MLeft =
+	"module Left
+	'extend Bottom;
+	'data Exp = or(Exp lhs, Exp rhs)| maybe() | \true() | \false();";
+
+str MRight = 
+	"module Right
+	'extend Bottom;
+	'data Exp = and(Bool lhs, Bool rhs);
+	'data Exp2 = or(Exp lhs, Exp rhs);";
+
+test bool ImportsWithConflictingConstructorsAllowed(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return checkModuleOK("
+		module ImportsWithConflictingConstructorsAllowed
+			import Left; import Right;
+		");
+}
+
+test bool TrueIsOverloaded(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module OverloadedFieldOk
+			import Left; import Right;
+			Exp main(){
+				return \true();
+			}
+		");
+}
+
+test bool TrueIsOverloadedButResolved(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return checkModuleOK("
+		module OverloadedFieldOk
+			import Left; import Right;
+			Exp main(){
+				return Left::\true();
+			}
+		");
+}
+
+test bool OverloadedFieldOk(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return checkModuleOK("
+		module OverloadedFieldOk
+			import Left; import Right;
+			Exp main(){
+				x = and(Bool::\true(), Bool::\true());
+				return x.lhs;
+			}
+		");
+}
+
+test bool OverloadedOrNotOk(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module OverloadedOrNotOk
+			import Left; import Right;
+			Exp main(){
+				return or(maybe(), maybe());
+			}
+		");
+}
+
+test bool OrIsOverloadedButResolved(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return checkModuleOK("
+		module OrIsOverloadedButResolved
+			import Left; import Right;
+			Exp main(){
+				return Exp::or(maybe(), maybe());
+			}
+		");
+}
+
+test bool FieldLhsIsOverloaded1(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module FieldLhsIsOverloaded1
+			import Left; import Right;
+			Exp main(){
+				x = Exp::or(maybe(), maybe());
+				Exp y = x.lhs;
+				return y;
+			}
+		");
+}
+
+test bool FieldLhsIsOverloaded2(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module FieldLhsIsOverloaded2
+			import Left; import Right;
+			Exp main(){
+				x = Exp::or(maybe(), maybe());
+				return or(x.lhs, x.lhs);
+			}
+		");
+}
+
+test bool OverloadedModuleVarNotOk(){
+	writeModule("module Left public str global = \"World\";");
+	writeModule("module Right public str global = \"Hello\";");
+	return redeclaredVariableInModule("
+		module OverloadedModuleVarNotOk
+			import Left; import Right;
+			str main() = global;
+		");
+}
+
+test bool QualifiedOverloadedModuleVarOk(){
+	writeModule("module Left public str global = \"World\";");
+	writeModule("module Right public str global = \"Hello\";");
+	return checkModuleOK("
+		module OverloadedModuleVarNotOk
+			import Left; import Right;
+			str main() = Left::global;
+		");
+}
