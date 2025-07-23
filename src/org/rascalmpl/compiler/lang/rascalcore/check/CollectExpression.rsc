@@ -730,7 +730,7 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
 }
 
 private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
-    if(current is qualifiedName){
+    if((Expression) `<QualifiedName qn>` := current, size([nm | nm <- qn.names]) > 1){
         return;
     }
     coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
