@@ -94,7 +94,13 @@ void(Solver) makeVarInitRequirement(Variable var)
 
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
-                s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                if(overloadedAType(overloads) := initialTypeU){
+                    for(<def, r, tp> <- overloads){
+                        s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                    }
+                } else {
+                    s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                }
             } else if(!s.unify(initialType, varType)){
                 s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             }
