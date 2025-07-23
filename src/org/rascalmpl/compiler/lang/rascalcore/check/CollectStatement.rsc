@@ -606,15 +606,6 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
-        for(Statement stat <- stats){
-            c.require("statement-not-overloaded", stat, [], 
-                void(Solver s){
-                    if(isOverloadedAType(s.getType(stat))){
-                        if(!(stat is assignment || stat is \return))
-                            s.report(error(stat, "Statement with overloaded type %t not allowed",  stat));
-                    }
-            });
-        }
         c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
         collect(stats, c);
     c.leaveScope(current);
@@ -1180,7 +1171,7 @@ private list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elem
 
 private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
 
-// ---- return, defined in Declarations, close to function declarations -------
+// ---- return, is defined in Declarations, close to function declarations -------
 
 // ---- throw -----------------------------------------------------------------
 
