@@ -225,8 +225,11 @@ ModuleStatus rascalTModelForLocs(
             component = module2component[ordered[mi]];
             jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
-            recheck = !all(m <- component, ms.status[m]?, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
+            recheck = !all(m <- component, m in ms.status, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
+                if(m notin ms.status){
+                    ms.status[m] = {};
+                }
                 mi += 1;
                 if(!recheck){
                     if(tpl_uptodate() notin ms.status[m]){
