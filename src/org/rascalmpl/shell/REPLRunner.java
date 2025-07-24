@@ -30,7 +30,7 @@ public class REPLRunner implements ShellRunner {
         if (!Files.isDirectory(rascalDir)) {
             Files.createDirectories(rascalDir);
         }
-        return rascalDir.resolve(".repl-history-rascal-terminal.jline3");
+        return rascalDir.resolve(".repl-history-rascal-terminal-jline3");
     }
 
     
