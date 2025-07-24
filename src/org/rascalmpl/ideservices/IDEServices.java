@@ -173,7 +173,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param serverPort
    */
   default void startDebuggingSession(int serverPort){
-    throw new UnsupportedOperationException("Debugging is not possible");
+    
   }
 
   /**
@@ -183,7 +183,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param serverPort
    */
   default void registerDebugServerPort(int processID, int serverPort){
-    throw new UnsupportedOperationException("Debugging is not possible");
+    
   }
 
     
