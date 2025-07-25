@@ -497,6 +497,25 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         }
     }
 }
+void checkOverloadedConstructors(Tree t, Solver s){
+    visit(t){
+        case current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`: {
+            tp = s.getType(current);
+            if(overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tp){
+                coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
+                if(size(coverloads) > 1){
+                    ovl1 = coverloads[0];
+                    adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
+                    qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+                    argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+                    msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, to resolve it <qualifyHint> <argHint>",
+                                 current@\loc);
+                    s.addMessages([msg]);
+                }
+            }
+        }
+    }
+}
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
     if(!s.reportedErrors()){
@@ -504,6 +523,10 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 
         for(_mname <- namedTrees){
             addADTsAndCommonKeywordFields(s);
+        }
+
+        for (pt <- range(namedTrees)){
+            checkOverloadedConstructors(pt, s);
         }
    }
 }
