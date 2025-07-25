@@ -279,8 +279,9 @@ list[str] unexpectedTypeMsgs = [
 		"Type _ cannot be parameterized, found _ parameter(s)",
 		"Expected a non-terminal type, found _",
 		"Expected a binary relation, found _",
-		"Constructor _ is overloaded, to resolve it _"
-	];
+		"Constructor _ is overloaded, to resolve it _",
+		"Return expression _ is overloaded"
+];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs, pathConfig=pathConfig);
