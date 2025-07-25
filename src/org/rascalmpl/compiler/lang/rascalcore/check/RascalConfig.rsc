@@ -481,7 +481,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
             msgs = [];
-            if(t1.adt == t2.adt && d1.scope == d2.scope){
+            if(t1.adt == t2.adt /*&& d1.scope == d2.scope*/){
                 msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
             }
             // begin of debatable errors
