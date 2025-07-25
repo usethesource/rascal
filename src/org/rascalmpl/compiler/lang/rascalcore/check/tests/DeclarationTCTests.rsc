@@ -274,10 +274,10 @@ test bool UseVariableInConcreteSyntax() {
 		");
 }
 
-test bool RedeclaredConstructorViaImportOk(){ 
+test bool RedeclaredConstructorViaImportNotOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
-	return checkModuleOK("
-		module RedeclaredConstructorViaImportOk
+	return unexpectedDeclarationInModule("
+		module RedeclaredConstructorViaImportNotOk
 			import MMM;
 			data DATA = d(int m);
 		");
@@ -304,7 +304,7 @@ test bool OverloadedConstructorDifferentADTOnUseNotOk(){
 
 test bool OverloadedConstructorSameADTOnUseNotOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
-	return unexpectedTypeInModule("
+	return unexpectedDeclarationInModule("
 		module OverloadedConstructorSameADTOnUseNotOk
 			import MMM;
 			data DATA = d(int m);
