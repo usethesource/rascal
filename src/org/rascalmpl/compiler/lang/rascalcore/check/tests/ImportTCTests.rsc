@@ -121,48 +121,56 @@ test bool SyntaxVisibleViaExtend(){
 		");
 }
 
-str  MBottom =
-	"module Bottom
-    'data Exp;
-	'data Bool = \true() | \false();";
+str  MBottom =	"module Bottom
+    			'data Exp;
+				'data Bool = \true() | \false();";
 
-str MLeft =
-	"module Left
-	'extend Bottom;
-	'data Exp = or(Exp lhs, Exp rhs)| maybe() | \true() | \false();";
+str MLeft =		"module Left
+				'extend Bottom;
+				'data Exp = or(Exp lhs, Exp rhs)| maybe() | \true() | \false();";
 
-str MRight = 
-	"module Right
-	'extend Bottom;
-	'data Exp = and(Bool lhs, Bool rhs);
-	'data Exp2 = or(Exp lhs, Exp rhs);";
+str MRight = 	"module Right
+				'extend Bottom;
+				'data Exp = and(Bool lhs, Bool rhs);
+				'data Exp2 = or(Exp lhs, Exp rhs);";
 
 test bool ImportsWithConflictingConstructorsAllowed(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
 	return checkModuleOK("
 		module ImportsWithConflictingConstructorsAllowed
-			import Left; import Right;
+			import Left; import Right;	// Both imports declare constructor `or`
 		");
 }
 
-test bool TrueIsOverloaded(){
+test bool OverloadedTrueIsOk(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
-	return unexpectedTypeInModule("
-		module OverloadedFieldOk
+	return checkModuleOK("
+		module OverloadedTrueIsOk
 			import Left; import Right;
 			Exp main(){
-				return \true();
+				return \true(); // resolved to Exp::\true() by declared return type of main
 			}
 		");
 }
 
-test bool TrueIsOverloadedButResolved(){
+test bool OverloadedTrueIsResolved(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
 	return checkModuleOK("
-		module OverloadedFieldOk
+		module OverloadedTrueIsResolved
 			import Left; import Right;
 			Exp main(){
-				return Left::\true();
+				return Left::\true(); // explicit disambiguation
+			}
+		");
+}
+
+test bool OverloadedTrueIsResolvedIncorrectly(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module OverloadedTrueIsResolvedIncorrectly
+			import Left; import Right;
+			Exp main(){
+				return Bool::\true(); // wrong explicit disambiguation
 			}
 		");
 }
@@ -179,9 +187,9 @@ test bool OverloadedFieldOk(){
 		");
 }
 
-test bool OverloadedOrNotOk(){
+test bool OverloadedOrOk(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
-	return unexpectedTypeInModule("
+	return checkModuleOK("
 		module OverloadedOrNotOk
 			import Left; import Right;
 			Exp main(){
@@ -214,10 +222,10 @@ test bool FieldLhsIsOverloaded1(){
 		");
 }
 
-test bool FieldLhsIsOverloaded2(){
+test bool OverloadedFieldLhsIsOk(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
-	return unexpectedTypeInModule("
-		module FieldLhsIsOverloaded2
+	return checkModuleOK("
+		module OverloadedFieldLhsIsOk
 			import Left; import Right;
 			Exp main(){
 				x = Exp::or(maybe(), maybe());
