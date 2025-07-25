@@ -259,12 +259,12 @@ public RascalCompilerConfig getFlyBytesCompilerConfig(bool keep=true){
 // ---- salix -----------------------------------------------------------------
 
 public PathConfig getSalixPathConfig(bool keep = false) {
-    return makePathConfig([ SALIX_CORE + "src/main/rascal", SALIX_CONTRIB + "src/main/rascal" ],
+    return makePathConfig([ REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
                           [ RASCAL ], 
                           keep=keep);
 }
 
-public RascalCompilerConfig getSalixCompilerConfig(bool keep = false){
+public RascalCompilerConfig getSalixCompilerConfig(bool keep = true){
     return rascalCompilerConfig(getSalixPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
 
