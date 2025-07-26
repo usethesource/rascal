@@ -3,8 +3,7 @@ import lang::rascalcore::compile::Examples::Left;
 import lang::rascalcore::compile::Examples::Right;
 
 Exp main(){
-	x = Exp::and(\true(), \true());
-    //x = Exp::or(maybe(), maybe());
-	Exp y = x.lhs;
+	x = or(maybe(), maybe());
+	y = x.lhs;	// ok: lhs is overloaded
 	return y;
 }
