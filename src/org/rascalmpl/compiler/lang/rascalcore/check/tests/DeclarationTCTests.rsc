@@ -274,14 +274,41 @@ test bool UseVariableInConcreteSyntax() {
 		");
 }
 
-
-test bool RedeclareConstructorError(){ 
+test bool RedeclaredConstructorViaImportNotOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
 	return unexpectedDeclarationInModule("
-		module RedeclareConstructorError
+		module RedeclaredConstructorViaImportNotOk
 			import MMM;
 			data DATA = d(int m);
-			DATA x = d(3);
+		");
+}
+
+test bool RedeclaredConstructorInSameModuleNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedDeclarationInModule("
+		module RedeclaredConstructorInSameModuleNotOk
+			data DATA = d(int n);
+			data DATA = d(int m);
+		");
+}
+
+test bool OverloadedConstructorDifferentADTOnUseNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedTypeInModule("
+		module OverloadedConstructorDifferentADTOnUseNotOk
+			import MMM;
+			data DATA2 = d(int m);
+			value main() = d(4);
+		");
+}
+
+test bool OverloadedConstructorSameADTOnUseNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedDeclarationInModule("
+		module OverloadedConstructorSameADTOnUseNotOk
+			import MMM;
+			data DATA = d(int m);
+			value main() = d(4);
 		");
 }
 

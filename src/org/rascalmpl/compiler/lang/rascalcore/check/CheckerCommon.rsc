@@ -39,10 +39,11 @@ extend analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::BasicRascalConfig;
 extend lang::rascalcore::check::ModuleLocations;
+extend lang::rascalcore::CompilerPathConfig;
 
 extend analysis::typepal::Collector;
 
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 import DateTime;
 import Exception;
 import IO;
@@ -76,6 +77,7 @@ data MStatus =
     | checked()
     | check_error()
     | code_generated()
+    | code_generation_error()
     | tpl_uptodate()
     | tpl_saved()
     | ignored()
@@ -339,6 +341,13 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
 
 private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
+void reportLogicalPaths(TModel tm){
+    for(tup: <from, r, to> <- tm.paths){
+        if(from.scheme == "rascal+module" || to.scheme == "rascal+module"){
+            println("**** <tm.modelName>: <tup>");
+        }
+    }
+}
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert = true){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
@@ -348,6 +357,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             tm = convertTModel2PhysicalLocs(tm);
             ms.tmodels[qualifiedModuleName] = tm;
         }
+        //reportLogicalPaths(tm);
         return <true, tm, ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
@@ -372,6 +382,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
                 ms.messages[qualifiedModuleName] = toSet(tm.messages);
                 ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+                //reportLogicalPaths(tm);
                 return <true, tm, ms>;
              }
         } catch e: {

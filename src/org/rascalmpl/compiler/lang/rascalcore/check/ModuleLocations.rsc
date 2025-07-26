@@ -32,6 +32,7 @@ import List;
 import String;
 import util::Reflective;
 import util::FileSystem;
+import lang::rascalcore::check::RascalConfig;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -97,13 +98,19 @@ int commonPrefix(list[str] rdir, list[str] rm){
     return size(rm);
 }
 
-@synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
+@synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    
+    if(isLogicalLoc(moduleLoc)){
+        if(moduleLoc.scheme == "rascal+module"){
+            return replaceAll(moduleLoc.path, "/", "::");
+        } else {
+            throw "Not a logical location with `rascal+module` scheme: <moduleLoc>";
+        }
+    }
     if(!( rscFile || tplFile )){
         throw "Not a Rascal .src or .tpl file: <moduleLoc>";
     }

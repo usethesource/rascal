@@ -36,9 +36,6 @@ extend lang::rascalcore::check::BuiltinFields;
 extend lang::rascalcore::check::ScopeInfo;
 
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascal::\syntax::Rascal;
-
-//import IO;
 import Map;
 import Set;
 import List;
@@ -81,6 +78,33 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
+rel[loc key, IdRole idRole, AType atype]
+    checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
+    
+    rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
+    rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
+    for(tup:<def, r, tp> <- overloads){
+        if(isValueAType(expected)){
+            filteredOverloads += tup;
+            if(isConstructorAType(tp) || isADTAType(tp)){
+                unResolvedConstructorOverloads += tup;
+            }
+        } else if(asubtype(tp, expected)){
+            filteredOverloads += tup;
+        } else if(isConstructorAType(tp) || isADTAType(tp)){
+            unResolvedConstructorOverloads += tup;
+        } 
+    }
+    if(size(unResolvedConstructorOverloads) > 1){
+        adtNames = { getADTName(tp) | <key, idRole, tp>  <- unResolvedConstructorOverloads };
+        qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint> <argHint>");
+        s.report(msg);
+    }
+    return filteredOverloads;
+}
+
 void(Solver) makeVarInitRequirement(Variable var)
     = void(Solver s){
             Bindings bindings = ();
@@ -97,7 +121,14 @@ void(Solver) makeVarInitRequirement(Variable var)
 
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
-                s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                if(overloadedAType(overloads) := initialTypeU){
+                    filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
+                    for(<def, r, tp> <- filteredOverloads){
+                        s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                    }
+                } else {
+                    s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                }
             } else if(!s.unify(initialType, varType)){
                 s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             }
@@ -107,6 +138,13 @@ void(Solver) makeVarInitRequirement(Variable var)
 
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
+
+void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
+    = void(Solver s) {
+        checkNonVoid(t, s, msg ); 
+        if(isOverloadedAType(s.getType(t))) s.report(error(t, msg + " is ambiguous and should be resolved"));
+    
+    };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
 
@@ -418,7 +456,10 @@ list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) {
     if(str currentModuleName := s.top(key_current_module)){
-        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
+        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) 
+               | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles),  
+                 kwf <- d.defInfo.commonKeywordFields 
+               ];
     } else {
         throw "getCommonKeywords: key_current_module not found";
     }
@@ -1312,6 +1353,7 @@ private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Patt
 // ---- asType
 
 private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
+    getPatternType(p, avalue(), scope, s); // to force nested type calculations
     return s.getType(tp);
 }
 
