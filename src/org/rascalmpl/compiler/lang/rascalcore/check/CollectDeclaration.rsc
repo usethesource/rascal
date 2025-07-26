@@ -677,23 +677,7 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
         checkNonVoid(returnExpr, returnExprTypeU, s, "Return value");
     }
     if(overloadedAType(overloads) := returnExprTypeDU){
-        filteredOverloads = {};
-        rel[loc key, IdRole idRole, AType atype] constructorOverloads = {};
-        for(tup:<def, r, tp> <- overloads){
-            if(asubtype(tp, declaredReturnTypeDU)){
-                filteredOverloads += tup;
-            }
-            if(isConstructorAType(tp) || isADTAType(tp)){
-                constructorOverloads += tup;
-            }
-        }
-        if(size(constructorOverloads) > 1){
-            adtNames = { getADTName(tp) | <key, idRole, tp>  <- constructorOverloads};
-            qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-            argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-            msg = error(returnExpr, "Return expression `<returnExpr>` is overloaded, to resolve it <qualifyHint> <argHint>");
-            s.report(msg);
-        }
+        filteredOverloads = checkAndFilterOverloads(returnExpr, overloads, declaredReturnTypeDU, s);
         s.specializedFact(returnExpr, overloadedAType(filteredOverloads));
     }
  }
