@@ -280,7 +280,8 @@ list[str] unexpectedTypeMsgs = [
 		"Expected a non-terminal type, found _",
 		"Expected a binary relation, found _",
 		"Constructor _ is overloaded, to resolve it _",
-		"Return expression _ is overloaded"
+		"Expression _ is overloaded",
+		"Base expression of field selection is ambiguous and should be resolved"
 ];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
