@@ -121,6 +121,8 @@ test bool SyntaxVisibleViaExtend(){
 		");
 }
 
+// Diamond example suggested by Jurgen Vinju
+
 str  MBottom =	"module Bottom
     			'data Exp;
 				'data Bool = \true() | \false();";
@@ -138,7 +140,7 @@ test bool ImportsWithConflictingConstructorsAllowed(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
 	return checkModuleOK("
 		module ImportsWithConflictingConstructorsAllowed
-			import Left; import Right;	// Both imports declare constructor `or`
+			import Left; import Right;	// ok: Both imports declare constructor `or`
 		");
 }
 
@@ -148,7 +150,7 @@ test bool OverloadedTrueIsOk(){
 		module OverloadedTrueIsOk
 			import Left; import Right;
 			Exp main(){
-				return \true(); // resolved to Exp::\true() by declared return type of main
+				return \true(); // ok: resolved to Exp::\true() by declared return type Exp of main
 			}
 		");
 }
@@ -159,7 +161,18 @@ test bool OverloadedTrueIsResolved(){
 		module OverloadedTrueIsResolved
 			import Left; import Right;
 			Exp main(){
-				return Left::\true(); // explicit disambiguation
+				return Left::\true(); // ok: explicit disambiguation is not needed here
+			}
+		");
+}
+
+test bool OverloadedTrueIsNotResolved(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module OverloadedTrueIsNotResolved
+			import Left; import Right;
+			value main(){
+				return \true(); // not ok: explicit disambiguation is needed here due to value return type of main
 			}
 		");
 }
@@ -170,7 +183,7 @@ test bool OverloadedTrueIsResolvedIncorrectly(){
 		module OverloadedTrueIsResolvedIncorrectly
 			import Left; import Right;
 			Exp main(){
-				return Bool::\true(); // wrong explicit disambiguation
+				return Bool::\true(); // not ok: wrong explicit disambiguation
 			}
 		");
 }
@@ -182,7 +195,7 @@ test bool OverloadedFieldOk(){
 			import Left; import Right;
 			Exp main(){
 				x = and(Bool::\true(), Bool::\true());
-				return x.lhs;
+				return x.lhs; // ok: x has already been resolved to Bool in previous statement
 			}
 		");
 }
@@ -193,43 +206,56 @@ test bool OverloadedOrOk(){
 		module OverloadedOrNotOk
 			import Left; import Right;
 			Exp main(){
-				return or(maybe(), maybe());
+				return or(maybe(), maybe()); // ok: or is resolved via return type Exp of main
 			}
 		");
 }
 
-test bool OrIsOverloadedButResolved(){
+test bool OverloadedOrIsResolvedOk(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
 	return checkModuleOK("
-		module OrIsOverloadedButResolved
+		module OverloadedOrIsResolvedOk
 			import Left; import Right;
 			Exp main(){
-				return Exp::or(maybe(), maybe());
+				return Exp::or(maybe(), maybe()); // ok: redundant disambiguation of or
 			}
 		");
 }
 
-test bool FieldLhsIsOverloaded1(){
+test bool OverloadedFieldLhsOk1(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
-	return unexpectedTypeInModule("
-		module FieldLhsIsOverloaded1
+	return checkModuleOK("
+		module OverloadedFieldLhsOk1
 			import Left; import Right;
 			Exp main(){
-				x = Exp::or(maybe(), maybe());
-				Exp y = x.lhs;
+				Exp2 x = or(maybe(), maybe());	// ok: resolved to Exp::or thanks to declared type Exp of x
+				Exp y = x.lhs;					// ok: lhs is overloaded, but resolved by inferred type Exp of x
 				return y;
 			}
 		");
 }
 
-test bool OverloadedFieldLhsIsOk(){
+test bool OverloadedFieldLhsNotOk1(){
 	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
-	return checkModuleOK("
-		module OverloadedFieldLhsIsOk
+	return unexpectedTypeInModule("
+		module OverloadedFieldLhsNotOk1
 			import Left; import Right;
 			Exp main(){
-				x = Exp::or(maybe(), maybe());
-				return or(x.lhs, x.lhs);
+				x = or(maybe(), maybe());	// or cannot be resolved
+				y = x.lhs;					// not ok: x is overloaded, no field selection possible
+				return y;
+			}
+		");
+}
+
+test bool OverloadedFieldLhsNotOk2(){
+	writeModule(MBottom); writeModule(MLeft); writeModule(MRight);
+	return unexpectedTypeInModule("
+		module OverloadedFieldLhsNotOk2
+			import Left; import Right;
+			Exp main(){
+				x = or(maybe(), maybe());	// or cannot be resolved
+				return or(x.lhs, x.lhs);	// not ok: x is overloaded, no field selection possible
 			}
 		");
 }
@@ -240,7 +266,7 @@ test bool OverloadedModuleVarNotOk(){
 	return redeclaredVariableInModule("
 		module OverloadedModuleVarNotOk
 			import Left; import Right;
-			str main() = global;
+			str main() = global;	// not ok: global is ambiguous, disambiguation required
 		");
 }
 
@@ -250,6 +276,6 @@ test bool QualifiedOverloadedModuleVarOk(){
 	return checkModuleOK("
 		module OverloadedModuleVarNotOk
 			import Left; import Right;
-			str main() = Left::global;
+			str main() = Left::global;	// ok: global is explicitly resolved
 		");
 }
