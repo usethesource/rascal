@@ -146,8 +146,8 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
         case acons(a,list[AType] bp, list[Keyword] _):
              return comparableList(ap, bp);
-        // case adt: aadt(str _, list[AType] _, _):
-        //      return asubtype(a,adt);
+        case adt: aadt(str _, list[AType] _, _):
+             return asubtype(a,adt);
         case afunc(a,list[AType] bp, list[Keyword] _):
              return comparableList(ap, bp);
         case anode(_):
