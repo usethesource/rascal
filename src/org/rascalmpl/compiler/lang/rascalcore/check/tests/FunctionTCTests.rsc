@@ -91,3 +91,14 @@ test bool matchNotOK1() = unexpectedType("bool f(&A \<: str a, &B \<:int b) = &A
       }
       return n;
   }");
+
+
+test bool ConstructorAsArgNotOk(){
+   return argumentMismatchInModule("
+      module ConstructorAsArgNotOk
+         data A = a(int i);
+
+         void f(void(A) _) { }
+
+      void main1(){ f(a);  }");
+}
