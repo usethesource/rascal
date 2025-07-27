@@ -146,8 +146,8 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
         case acons(a,list[AType] bp, list[Keyword] _):
              return comparableList(ap, bp);
-        case adt: aadt(str _, list[AType] _, _):
-             return asubtype(a,adt);
+        // case adt: aadt(str _, list[AType] _, _):
+        //      return asubtype(a,adt);
         case afunc(a,list[AType] bp, list[Keyword] _):
              return comparableList(ap, bp);
         case anode(_):
@@ -182,8 +182,8 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     switch(b){
         case anode(_):
             return true;
-        case acons(AType a, list[AType] _, list[Keyword] _):
-            return asubtype(adt, a);
+        // case acons(AType a, list[AType] _, list[Keyword] _):
+        //     return asubtype(adt, a);
         case aadt(n, list[AType] r, _):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
@@ -591,7 +591,7 @@ AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType
                                                   when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
 
 AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
-AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
+//AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
   if(a1.alabel? && a1.alabel == a2.alabel) adt = adt[alabel=a1.alabel];
@@ -620,7 +620,7 @@ AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, l
         return avalue();
 }
 
-AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
+//AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
 AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([]);
 
 AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
@@ -776,7 +776,7 @@ AType aglb(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp
 AType aglb(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = aglb(a1,b);
 
 public AType aglb(acons(AType la, list[AType] _, list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = aglb(la,ra);
-public AType aglb(acons(AType a, list[AType] lp, list[Keyword] _), aadt(str n, list[AType] rp, SyntaxRole sr)) = aglb(a,aadt(n,rp,sr));
+//public AType aglb(acons(AType a, list[AType] lp, list[Keyword] _), aadt(str n, list[AType] rp, SyntaxRole sr)) = aglb(a,aadt(n,rp,sr));
 public AType aglb(acons(AType _, list[AType] _, list[Keyword] _), anode(list[AType] r)) = anode(r);
 
 public AType aglb(aalias(str _, list[AType] _, AType aliased), AType r) = aglb(aliased, r);
