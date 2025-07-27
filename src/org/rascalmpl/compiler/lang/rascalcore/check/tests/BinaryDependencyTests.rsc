@@ -41,7 +41,7 @@ import Map;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
-//import lang::rascalcore::CompilerPathConfig;
+import lang::rascalcore::check::ModuleLocations;
 
 
 // ---- Utilities for test setup ----------------------------------------------
