@@ -279,6 +279,7 @@ test bool IfThen3() = illegalUseInModule("
 test bool IfThen4() = unexpectedType("value zz = { if(1) 10; }; ");
 
 test bool ReturnIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public int X = 1;");
      return checkModuleOK("
           module B
@@ -288,6 +289,7 @@ test bool ReturnIntModuleVarOk() {
 }
 
 test bool AssignGlobalIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public int X = 1;");
      return checkModuleOK("
           module B
@@ -297,6 +299,7 @@ test bool AssignGlobalIntModuleVarOk() {
 }
 
 test bool ReturnIntModuleVarNotOk() {
+     clearMemory();
      writeModule("module A public int X = 1;");
      return unexpectedTypeInModule("
           module B
@@ -306,6 +309,7 @@ test bool ReturnIntModuleVarNotOk() {
 }
 
 test bool AssignIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public int X = 1;");
      return checkModuleOK("
           module B
@@ -315,6 +319,7 @@ test bool AssignIntModuleVarOk() {
 }
 
 test bool AssignAndIncrementIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public int X = 1;");
      return checkModuleOK("
           module B
@@ -324,6 +329,7 @@ test bool AssignAndIncrementIntModuleVarOk() {
 }
 
 test bool AssignListIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public list[int] X = [1];");
      return checkModuleOK("
           module B
@@ -333,6 +339,7 @@ test bool AssignListIntModuleVarOk() {
 }
 
 test bool AssignAndIncrementListIntModuleVarOk() {
+     clearMemory();
      writeModule("module A public list[int] X = [1];");
      return checkModuleOK("
           module B
