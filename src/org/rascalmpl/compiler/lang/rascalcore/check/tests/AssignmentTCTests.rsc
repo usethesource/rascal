@@ -287,6 +287,15 @@ test bool ReturnIntModuleVarOk() {
      ");
 }
 
+test bool AssignGlobalIntModuleVarOk() {
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               int Y = X;
+     ");
+}
+
 test bool ReturnIntModuleVarNotOk() {
      writeModule("module A public int X = 1;");
      return unexpectedTypeInModule("
