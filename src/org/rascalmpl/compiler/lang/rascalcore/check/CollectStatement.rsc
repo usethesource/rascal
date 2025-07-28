@@ -710,18 +710,26 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
         c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
-           c.define(base, variableId(), name, defLub([statement],
-            AType(Solver s){
-                // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
-                // handle the combination of return and possible exception thrown by s.getType properly
-                // It does work in other places though
-                AType x = s.getType(statement);
-                return s.getType(statement);
-            }));
+            if(c.isAlreadyDefined("<name>", name)){
+                c.use(name, variableRoles);
+            } else {
+                c.define(base, variableId(), name, defLub([statement],
+                    AType(Solver s){
+                        // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
+                        // handle the combination of return and possible exception thrown by s.getType properly
+                        // It does work in other places though
+                        AType x = s.getType(statement);
+                        return s.getType(statement);
+                }));
+            }
         } else {
-            c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){
-                return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
-            }));
+             if(c.isAlreadyDefined("<name>", name)){
+                c.use(name, variableRoles);
+            } else {
+                c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){
+                    return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
+                }));
+            }
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?

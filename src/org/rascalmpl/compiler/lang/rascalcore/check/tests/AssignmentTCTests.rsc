@@ -277,3 +277,57 @@ test bool IfThen3() = illegalUseInModule("
      ");
 
 test bool IfThen4() = unexpectedType("value zz = { if(1) 10; }; ");
+
+test bool ReturnIntModuleVarOk() {
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               int main() = X;
+     ");
+}
+
+test bool ReturnIntModuleVarNotOk() {
+     writeModule("module A public int X = 1;");
+     return unexpectedTypeInModule("
+          module B
+               import A;
+               bool main() = X;
+     ");
+}
+
+test bool AssignIntModuleVarOk() {
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X = 2; }
+     ");
+}
+
+test bool AssignAndIncrementIntModuleVarOk() {
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X += 2; }
+     ");
+}
+
+test bool AssignListIntModuleVarOk() {
+     writeModule("module A public list[int] X = [1];");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X[0] = 2; }
+     ");
+}
+
+test bool AssignAndIncrementListIntModuleVarOk() {
+     writeModule("module A public list[int] X = [1];");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X[0] += 2; }
+     ");
+}
