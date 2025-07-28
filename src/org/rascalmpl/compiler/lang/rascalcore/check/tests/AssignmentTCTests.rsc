@@ -318,7 +318,7 @@ test bool AssignIntModuleVarOk() {
      ");
 }
 
-@ignore{Flaky test that succeeds locally but fails in build}
+@ignore{Test needs newer typepal version}
 test bool AssignAndIncrementIntModuleVarOk() {
      clearMemory();
      writeModule("module A public int X = 1;");
