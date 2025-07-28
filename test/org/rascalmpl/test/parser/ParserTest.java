@@ -97,6 +97,7 @@ public class ParserTest {
 	public void testSeparatedList(){
 		executeParser(new SeparatedPlusList());
 		executeParser(new SeparatedStarList());
+		executeParser(new SharedTripleNullableSeparator());
 	}
 	
 	@Test
