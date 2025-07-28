@@ -468,23 +468,22 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
 
+    consIds = domain(consNameDef);
+    for(id <- consIds){
+        defs = consNameDef[id];
+        allDefs = { d.defined | d <- defs };
+        for(d1 <- defs, d2 <- defs,
+            d1.defined != d2.defined,
+            t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            comparableList(t1.fields, t2.fields),
+            ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
-    // consIds = domain(consNameDef);
-    // for(id <- consIds){
-    //     defs = consNameDef[id];
-    //     allDefs = { d.defined | d <- defs };
-    //     for(d1 <- defs, d2 <- defs,
-    //         d1.defined != d2.defined,
-    //         t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-    //         t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-    //         comparableList(t1.fields, t2.fields),
-    //         ! (isSyntaxType(t1) && isSyntaxType(t2))){
-
-    //         if(t1.adt == t2.adt){
-    //             s.addMessages([error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ]);
-    //         }
-    //     }
-    // }
+            if(t1.adt == t2.adt/*&& d1.scope == d2.scope*/){
+                s.addMessages([error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ]);
+            }
+        }
+    }
 }
 void checkOverloadedConstructors(Tree t, Solver s){
     visit(t){
