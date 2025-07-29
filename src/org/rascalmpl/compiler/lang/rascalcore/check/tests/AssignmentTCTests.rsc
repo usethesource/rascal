@@ -318,7 +318,7 @@ test bool AssignIntModuleVarOk() {
      ");
 }
 
-@ignore{Test needs newer typepal version}
+@ignore{Test needs typepal version > 0.15.1}
 test bool AssignAndIncrementIntModuleVarOk() {
      clearMemory();
      writeModule("module A public int X = 1;");
@@ -346,5 +346,32 @@ test bool AssignAndIncrementListIntModuleVarOk() {
           module B
                import A;
                void main() { X[0] += 2; }
+     ");
+}
+
+@ignore{Test needs typepal version > 0.15.1}
+test bool InferredVarAndModuleVarOk(){
+     clearMemory();
+     return checkModuleOK("
+          module B
+               int X = 1;
+               list[int] f() = [X | X \<- [1..10]];
+
+               list[int] g() = [X | X \<- [1..20]];
+               void main() { X += 1; }
+     ");
+}
+
+@ignore{Test needs typepal version > 0.15.1}
+test bool InferredVarAndImportedModuleVarOk(){
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               list[int] f() = [X | X \<- [1..10]];
+
+               list[int] g() = [X | X \<- [1..20]];
+               void main() { X += 1; }
      ");
 }
