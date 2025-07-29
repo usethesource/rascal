@@ -318,7 +318,7 @@ test bool AssignIntModuleVarOk() {
      ");
 }
 
-@ignore{Test needs typepal version > 0.15.1}
+// @ignore{Test needs typepal version > 0.15.1}
 test bool AssignAndIncrementIntModuleVarOk() {
      clearMemory();
      writeModule("module A public int X = 1;");
@@ -349,7 +349,7 @@ test bool AssignAndIncrementListIntModuleVarOk() {
      ");
 }
 
-@ignore{Test needs typepal version > 0.15.1}
+//@ignore{Test needs typepal version > 0.15.1}
 test bool InferredVarAndModuleVarOk(){
      clearMemory();
      return checkModuleOK("
@@ -362,7 +362,7 @@ test bool InferredVarAndModuleVarOk(){
      ");
 }
 
-@ignore{Test needs typepal version > 0.15.1}
+// @ignore{Test needs typepal version > 0.15.1}
 test bool InferredVarAndImportedModuleVarOk(){
      clearMemory();
      writeModule("module A public int X = 1;");
