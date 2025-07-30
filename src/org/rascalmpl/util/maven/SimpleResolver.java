@@ -120,36 +120,18 @@ import org.apache.maven.settings.Mirror;
             artifactId, versionSpec);
     }
 
-    private String findLatestMatchingVersion(Metadata metadata, String groupId, String artifactId, String versionRange) throws UnresolvableModelException {
-        try {
-            VersionRange range = VersionRange.createFromVersionSpec(versionRange);
-
-            return metadata.getVersioning().getVersions().stream()
-                .map(version -> new DefaultArtifactVersion(version))
-                .filter(version -> range.containsVersion(version))
-                .max((v1, v2) -> v1.compareTo(v2))
-                .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange))
-                .toString();            
-        }
-        catch (InvalidVersionSpecificationException e) {
-            throw new UnresolvableModelException("Invalid version range specification", groupId, artifactId, versionRange, e);
-        }
-    }
-
-    private String resolveVersion(String groupId, String artifactId, String version) throws UnresolvableModelException {
-        // Resolve version ranges
-        if (version.startsWith("[") || version.startsWith("(")) {
-            var metadata = downloadArtifactMetadata(groupId, artifactId, version);
-            return findLatestMatchingVersion(metadata, groupId, artifactId, version);
-        }
-
-        return version;
+    public String findLatestMatchingVersion(Metadata metadata, String groupId, String artifactId, VersionRange versionRange) throws UnresolvableModelException {
+        return metadata.getVersioning().getVersions().stream()
+            .map(version -> new DefaultArtifactVersion(version))
+            .filter(version -> versionRange.containsVersion(version))
+            .max((v1, v2) -> v1.compareTo(v2))
+            .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange.toString()))
+            .toString();            
     }
 
     @Override
     public ModelSource resolveModel(String groupId, String artifactId, String version)
         throws UnresolvableModelException {
-        version = resolveVersion(groupId, artifactId, version);
         var local = calculatePomPath(groupId, artifactId, version);
         if (!Files.exists(local)) {
             downloadPom(local, groupId, artifactId, version);
