@@ -180,8 +180,10 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     switch(b){
         case anode(_):
             return true;
-        // case acons(AType a, list[AType] _, list[Keyword] _):
-        //     return asubtype(adt, a);
+        //////////
+        case acons(AType a, list[AType] _, list[Keyword] _):
+            if(isConcreteSyntaxRole(sr)) return asubtype(adt, a);
+        /////////
         case aadt(n, list[AType] r, _):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
