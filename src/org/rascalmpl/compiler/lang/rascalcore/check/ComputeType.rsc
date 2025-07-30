@@ -1140,7 +1140,7 @@ AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solv
    }
    patType = deUnique(patTypeU);
    subjectType = deUnique(subjectTypeU);
-   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patTypeU));
+   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
    return patType;
 }
 
