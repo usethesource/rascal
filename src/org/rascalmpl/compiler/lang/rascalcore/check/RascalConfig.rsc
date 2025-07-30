@@ -479,7 +479,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             comparableList(t1.fields, t2.fields),
             ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
-            if(t1.adt == t2.adt/*&& d1.scope == d2.scope*/){
+            if(t1.adt == t2.adt  && d1.scope.path == d2.scope.path){
                 s.addMessages([error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ]);
             }
         }
