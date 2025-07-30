@@ -302,7 +302,7 @@ ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded =
         tm = ms.tmodels[candidate];
         tm = convertTModel2LogicalLocs(tm, ms.tmodels);
         ms.status[candidate] += tpl_saved();
-        if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
+        if(ms.compilerConfig.verbose) println("Saving tmodel for <candidate> before removing from cache");
         try {
             writeBinaryValueFile(tplLoc, tm);
             if(traceTPL) println("Written <tplLoc>");
