@@ -80,7 +80,7 @@ public class QuickCheck {
                 // TODO: here we could reuse a previous parameter (once in a while) if it
                 // has a comparable actual type, to cover more cases in the test code
                 // where it is necessary that two parameter values match or are equal.
-                values[n] = types[n].randomValue(random, typesConfig, vf, store, tpbindings, maxDepth, maxWidth);
+                values[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
             }
             
             for (int n = 0; n < formals.getArity(); n++) {
@@ -102,7 +102,7 @@ public class QuickCheck {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
-                                smallerValues[n] = types[n].randomValue(random, RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), vf, store, tpbindings, maxDepth, maxWidth);
+                                smallerValues[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
                             }
                             
                             for (int n = 0; n < formals.getArity(); n++) {

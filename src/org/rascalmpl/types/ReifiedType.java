@@ -247,7 +247,7 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
-	public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	    int maxDepth, int maxBreadth) {
 	    
 	    if (store instanceof TypeStoreWithSyntax) {

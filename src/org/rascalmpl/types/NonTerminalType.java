@@ -522,7 +522,7 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
-	public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
 	    int maxDepth, int maxBreadth) {
 	    // TODO this should be made more carefully (use the grammar to generate a true random instance of the 
 	    // given non-terminal

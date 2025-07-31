@@ -122,7 +122,7 @@ public abstract class $RascalModule {
     protected final RascalExecutionContext $rex;
 	
     //protected final IValueFactory $RVF;
-    protected final TypeFactory $TF;
+    public final TypeFactory $TF;
     protected final RascalTypeFactory $RTF;
     public final TypeStore $TS;
 	protected final Traverse $TRAVERSE;

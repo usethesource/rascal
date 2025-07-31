@@ -77,7 +77,7 @@ public class GenerateActuals {
 							continue;
 						}
 						
-						values[n] = types[n].randomValue(random, typesConfig, $VF, $TS, tpbindings, maxDepth, maxWidth);
+						values[n] = types[n].randomValue(random, $VF, $TS, tpbindings, maxDepth, maxWidth);
 					}
 
 					return values;
