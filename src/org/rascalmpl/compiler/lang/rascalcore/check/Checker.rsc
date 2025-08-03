@@ -223,17 +223,19 @@ ModuleStatus rascalTModelForLocs(
         while(mi < nmodules) {
           
             component = module2component[ordered[mi]];
+            sizeComponent = size(component);
             jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
             recheck = !all(m <- component, m in ms.status, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
+               
                 if(m notin ms.status){
                     ms.status[m] = {};
                 }
                 mi += 1;
                 if(!recheck){
                     if(tpl_uptodate() notin ms.status[m]){
-                        <found, tm, ms> = getTModelForModule(m, ms, convert=false);
+                        <found, tm, ms> = getTModelForModule(m, ms, convert=sizeComponent>1);
                         if(found){
                             ms.status[m] += {tpl_uptodate(), checked()};
                         }
@@ -251,7 +253,7 @@ ModuleStatus rascalTModelForLocs(
             } else {
                 for(m <- component){
                     m_compatible = false;
-                    <found, tm, ms> = getTModelForModule(m, ms, convert=false);
+                    <found, tm, ms> = getTModelForModule(m, ms, convert=sizeComponent>1);
                     if(found && !tplOutdated(m, pcfg)){
                         imports_extends_m = imports_and_extends[m];
                    
