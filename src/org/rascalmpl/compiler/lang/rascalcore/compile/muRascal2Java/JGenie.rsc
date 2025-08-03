@@ -134,11 +134,9 @@ JGenie makeJGenie(MuModule m,
     importAndExtendScopes = flattenedImportScopes + extendScopesCurrentModule;
    
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
-    
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
             bool(loc a, loc b) { return a != b && <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
-    
     JGenie thisJGenie;
    
     loc findDefiningModuleForDef(loc def){
@@ -184,15 +182,10 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _getImportViaExtend(loc def, str mname){
-        ibe = importedByExtend[def];
-        if(isEmpty(ibe)){
-            return "";
-        }
-        edef = getFirstFrom(ibe);
-        emod = allLocs2Module[edef];
+        imod = findImportForDef(def);
+        emod = allLocs2Module[def];
         if(emod == mname) return "";
         res = "<module2field(emod)>.";
-        //println("_getImportViaExtend: <def> ==\> <res>");
         return res;
     }
     
