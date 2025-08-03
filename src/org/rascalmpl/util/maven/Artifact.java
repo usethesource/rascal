@@ -151,7 +151,7 @@ public class Artifact {
         }
     }
 
-    private static Artifact createSystemArtifact(Dependency d) {
+    public static Artifact createSystemArtifact(Dependency d) {
         var messages = IRascalValueFactory.getInstance().listWriter();
 
         String systemPath = d.getSystemPath();

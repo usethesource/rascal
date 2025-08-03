@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- 
+  To test using maven itself, use: "mvn dependency:tree -DREPO=${repo-dir}."
+  For instance:
+  mvn dependency:tree -DREPO=file:///D:/rascal/rascal/test/org/rascalmpl/util/maven/m2/repository
+  -->
+   <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+  </properties>
+
+
+  <groupId>range</groupId>
+  <artifactId>test</artifactId>
+  <version>1.0</version>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>${REPO}</url> <!-- Use a system property to set the repo -->
+    </repository>
+  </repositories>
+
+  <dependencies>
+      <dependency>
+        <groupId>range</groupId>
+        <artifactId>level2</artifactId>
+	<version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>range</groupId>
+        <artifactId>level3</artifactId>
+	<version>1.0</version>
+      </dependency>
+  </dependencies>
+</project>

@@ -109,12 +109,16 @@ public class MavenParser {
         modelCache = new CaffeineModelCache();
     }
 
+    private SimpleResolver createResolver() {
+        return new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+    }
+
     public Artifact parseProject() throws ModelResolutionError {
         var request = new DefaultModelBuildingRequest()
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+        var resolver = createResolver();
         var messages = VF.listWriter();
         messages.appendAll(settingMessages);
 
@@ -137,7 +141,7 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+            var resolver = createResolver();
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
             
@@ -149,6 +153,10 @@ public class MavenParser {
             if (model == null) {
                 return Artifact.unresolved(coordinate, messages);
             }
+
+            // TODO: Discuss with Davy if this approach is sane
+            resolver.addDownloaders(originalResolver);
+
             return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
             return Artifact.unresolved(coordinate, messages);
@@ -272,7 +280,7 @@ public class MavenParser {
         project.report(out);
         out.printf("It took %d ms to resolve root artifact%n", stop - start);
         start = System.currentTimeMillis();
-        var deps =project.resolveDependencies(Scope.COMPILE, parser);
+        var deps = project.resolveDependencies(Scope.COMPILE, parser);
         stop = System.currentTimeMillis();
         out.println(deps);
         out.printf("It took %d ms to resolve dependencies%n", stop - start);
