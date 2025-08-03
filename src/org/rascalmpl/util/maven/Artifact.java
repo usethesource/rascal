@@ -34,12 +34,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Model;
@@ -47,7 +47,6 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
-import org.rascalmpl.util.maven.SimpleResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IList;
@@ -122,10 +121,8 @@ public class Artifact {
      */
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
         Set<WithoutVersion> alreadyIncluded = new HashSet<>();
-        Map<WithoutVersion, ImmutablePair<VersionRange,ISourceLocation>> artifactRanges = new HashMap<>();
         var result = new ArrayList<Artifact>(dependencies.size());
-        calculateClassPath(forScope, alreadyIncluded, artifactRanges, result, parser);
-        resolveRanges(result, artifactRanges);
+        calculateClassPath(forScope, alreadyIncluded, result, parser);
         return result;
     }
 
@@ -139,33 +136,25 @@ public class Artifact {
      * For version ranges maven uses the latest version that matches all ranges. If no such version
      * exists, resolution fails.
      */
-    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, Map<WithoutVersion, ImmutablePair<VersionRange,ISourceLocation>> artifactVersionRanges, ArrayList<Artifact> result, MavenParser parser) {
+    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, ArrayList<Artifact> result, MavenParser parser) {
         var messages = IRascalValueFactory.getInstance().listWriter();
         var nextLevel = new ArrayList<Artifact>(dependencies.size());
         for (var d : dependencies) {
             ArtifactCoordinate coordinate = d.getCoordinate();
             var withoutVersion = coordinate.versionLess();
-            var version = coordinate.getVersion();
 
+            var version = coordinate.getVersion();
             if (isVersionRange(version)) {
                 try {
-                    VersionRange range = VersionRange.createFromVersionSpec(version);
-                    artifactVersionRanges.compute(withoutVersion, (key, rangeInfo) -> {
-                        if (rangeInfo == null) {
-                            // Record the first occurence of a version range for this dependency so we have something to report on error
-                            return new ImmutablePair<>(range, d.getPomLocation());
-                        } else {
-                            return new ImmutablePair<>(rangeInfo.left.restrict(range), rangeInfo.right);
-                        }
-                    });
+                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                 }
-                catch (InvalidVersionSpecificationException e) {
-                    messages.append(Messages.error("Invalid version specification: " + version, d.getPomLocation()));
+                catch (UnresolvableModelException e) {
+                    messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
                     continue;
                 }
             }
 
-            // alreadyIncluded: Map withoutVersion -> artifact
             if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
                 continue;
             }
@@ -185,7 +174,7 @@ public class Artifact {
                 continue;
             }
 
-            var art = parser.parseArtifact(d.getCoordinate(), d.getExclusions(), ourResolver);
+            var art = parser.parseArtifact(coordinate, d.getExclusions(), ourResolver);
             if (art != null) {
                 result.add(art);
                 nextLevel.add(art);
@@ -199,26 +188,7 @@ public class Artifact {
         // now we go through the new artifacts and make sure we add their dependencies if needed 
         // but now in their context (their resolver etc)
         for (var a: nextLevel) {
-            a.calculateClassPath(forScope, alreadyIncluded, artifactVersionRanges, result, parser);
-        }
-    }
-
-    private void resolveRanges(List<Artifact> artifacts, Map<WithoutVersion, ImmutablePair<VersionRange,ISourceLocation>> artifactVersionRanges) {
-        for (Artifact artifact : artifacts) {
-            var coord = artifact.getCoordinate();
-            var withoutVersion = coord.versionLess();
-            ImmutablePair<VersionRange, ISourceLocation> rangeInfo = artifactVersionRanges.get(withoutVersion);
-            if (rangeInfo != null) {
-
-                VersionRange range = rangeInfo.left;
-                if (range.getRestrictions().isEmpty()) {
-                    // The intersection of version ranges is empty
-                    messages.append(Messages.error("The intersection of version ranges is empty for " + artifact, rangeInfo.right)); 
-                } else {
-                    // Now find a latest version that is part of the range
-                    String version = ourResolver.findLatestMatchingVersion(coord.getGroupId(), range);
-                }
-            }
+            a.calculateClassPath(forScope, alreadyIncluded, result, parser);
         }
     }
 

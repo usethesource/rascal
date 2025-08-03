@@ -140,7 +140,7 @@ public class MavenParser {
             var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
-            
+
             var request = new DefaultModelBuildingRequest()
                 .setModelSource(modelSource)
                 .setWorkspaceModelResolver(workspaceResolver); // only for repository poms do we setup this extra resolver to help find parent poms
@@ -149,6 +149,10 @@ public class MavenParser {
             if (model == null) {
                 return Artifact.unresolved(coordinate, messages);
             }
+
+            // TODO: Discuss with Davy if this approach is sane
+            resolver.addDownloaders(originalResolver);
+
             return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
             return Artifact.unresolved(coordinate, messages);
@@ -272,7 +276,7 @@ public class MavenParser {
         project.report(out);
         out.printf("It took %d ms to resolve root artifact%n", stop - start);
         start = System.currentTimeMillis();
-        var deps =project.resolveDependencies(Scope.COMPILE, parser);
+        var deps = project.resolveDependencies(Scope.COMPILE, parser);
         stop = System.currentTimeMillis();
         out.println(deps);
         out.printf("It took %d ms to resolve dependencies%n", stop - start);
