@@ -16,7 +16,7 @@
   <repositories>
     <repository>
       <id>central</id>
-      <url>${env.REPO}</url>
+      <url>${REPO}</url>
     </repository>
   </repositories>
 
@@ -24,12 +24,12 @@
       <dependency>
         <groupId>range</groupId>
         <artifactId>level1a</artifactId>
-	<version>1.0</version>
+	      <version>1.0</version>
       </dependency>
       <dependency>
         <groupId>range</groupId>
         <artifactId>level1b</artifactId>
-	<version>1.0</version>
+	      <version>1.0</version>
       </dependency>
   </dependencies>
 </project>

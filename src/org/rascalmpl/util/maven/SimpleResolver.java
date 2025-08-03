@@ -53,7 +53,7 @@ import org.apache.maven.settings.Mirror;
     // TODO: support repository overrides with settings.xml
 
 
-    private final List<SimpleRepositoryDownloader> availableRepostories = new ArrayList<>();
+    private final List<RepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
     private final ModelBuilder builder;
     private final HttpClient client;
@@ -94,16 +94,23 @@ import org.apache.maven.settings.Mirror;
         return pomLocation.resolveSibling(fileName + ".jar");
     }
 
+    private Path calculateMetadataPath(String groupId, String artifactId) {
+        var result = rootRepository;
+        for (var path : groupId.split("\\.")) {
+            result = result.resolve(path);
+        }
+        result = result.resolve(artifactId);
+        return result.resolve("maven-metadata.xml");
+    }
+
     // Note: Because we download both the metadata and the pom files from the first repo that
     // has the file available, we could end up in a situation where the metadata file comes from 
     // a different repo than the pom file. This should not pose a problem as pom files with the
     // same version should be identical. If they are not, there is something seriously wrong with
     // the versioning in one of the repos and we are helpless to fix that anyway.
-    private Metadata downloadArtifactMetadata(String groupId, String artifactId, String versionSpec)
-        throws UnresolvableModelException {
-
-        // TODO: deal with repository filters etc in settings.xml
-        String metadataUrl = String.format("/%s/%s/maven-metadata.xml", groupId.replace('.', '/'), artifactId);
+    private Metadata downloadArtifactMetadata(String groupId, String artifactId, String versionSpec) throws UnresolvableModelException {
+        Path metadataPath = calculateMetadataPath(groupId, artifactId);
+        var url = String.format("/%s/%s/%s", groupId.replace('.', '/'), artifactId, metadataPath.getFileName().toString());
 
         for (var repoDownloader : availableRepostories) {
             if (repoDownloader.getRepo().getLayout().equals("legacy")) {
@@ -111,22 +118,28 @@ import org.apache.maven.settings.Mirror;
                 continue;
             }
 
-            Metadata metadata = repoDownloader.readMetadata(metadataUrl);
+            Metadata metadata = repoDownloader.downloadMetadata(url, metadataPath);
             if (metadata != null) {
                 return metadata;
             }
         }
-        throw new UnresolvableModelException("Could not download artifact metadata from available repositories", groupId,
-            artifactId, versionSpec);
+        throw new UnresolvableModelException("Could not download artifact metadata from available repositories",
+            groupId, artifactId, versionSpec);
     }
 
-    public String findLatestMatchingVersion(Metadata metadata, String groupId, String artifactId, VersionRange versionRange) throws UnresolvableModelException {
-        return metadata.getVersioning().getVersions().stream()
-            .map(version -> new DefaultArtifactVersion(version))
-            .filter(version -> versionRange.containsVersion(version))
-            .max((v1, v2) -> v1.compareTo(v2))
-            .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionRange.toString()))
-            .toString();            
+    public String findLatestMatchingVersion(String groupId, String artifactId, String versionSpec) throws UnresolvableModelException {
+        var metadata = downloadArtifactMetadata(groupId, artifactId, versionSpec);
+        try {
+            VersionRange versionRange = VersionRange.createFromVersionSpec(versionSpec);
+            return metadata.getVersioning().getVersions().stream()
+                .map(version -> new DefaultArtifactVersion(version))
+                .filter(version -> versionRange.containsVersion(version))
+                .max((v1, v2) -> v1.compareTo(v2))
+                .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionSpec))
+                .toString();            
+        } catch (InvalidVersionSpecificationException e) {
+            throw new UnresolvableModelException("Invalid version range specification", groupId, artifactId, versionSpec, e);
+        }
     }
 
     @Override
@@ -138,7 +151,6 @@ import org.apache.maven.settings.Mirror;
         }
         return new FileModelSource(local.toFile());
     }
-
 
     @Override
     public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
@@ -162,12 +174,25 @@ import org.apache.maven.settings.Mirror;
     @Override
     public void addRepository(Repository repository, boolean replace) throws InvalidRepositoryException {
         if (replace) {
-            this.availableRepostories.removeIf(r -> r.repo.getId().equals(repository.getId()));
+            this.availableRepostories.removeIf(r -> r.getRepo().getId().equals(repository.getId()));
         }
         Mirror mirror = mirrors.get(repository.getId());
         Repo repo = mirror == null ?  new Repo(repository) : new MirrorRepo(mirror,repository);
-        this.availableRepostories.add(new SimpleRepositoryDownloader(repo, client));
+
+        // TODO: introduce a RepositoryDownloader factory
+        if (repo.getUrl().startsWith("file:")) {
+            this.availableRepostories.add(new FileRepositoryDownloader(repo));
+        }
+        else {
+            this.availableRepostories.add(new SimpleRepositoryDownloader(repo, client));
+        }
     }
+
+    public void addDownloaders(SimpleResolver originalResolver) {
+        for (var downloader : originalResolver.availableRepostories) {
+            this.availableRepostories.add(downloader);
+        }
+     }
 
     @Override
     public ModelResolver newCopy() {
