@@ -139,6 +139,16 @@ private bool isTerminalSym((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTermin
 private bool isTerminalSym((Sym) `<Sym symbol> $`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `^ <Sym symbol>`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol>  \>\> <Sym _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol>  !\>\> <Sym _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym _>  \<\< <Sym symbol>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym _>  !\<\< <Sym symbol>`) = isTerminalSym(symbol);
+
+private bool isTerminalSym((Sym) `<Sym symbol>?`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`)
+    = isTerminalSym(first) && all(alt <- alternatives, isTerminalSym(alt));
+private bool isTerminalSym((Sym) `(<Sym symbol1> <Sym symbol2>)`) = isTerminalSym(symbol1) && isTerminalSym(symbol2);
+
 private bool isTerminalSym((Sym) `()`) = true;
 private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
 
@@ -176,9 +186,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ inLexicalAdt && isLexicalAType(stp) ? astr() : stp
-                             |
-                               sym <- symbols,
+                    fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<unescape("<name>")>"] 
+                             | sym <- symbols,
                                !isTerminalSym(sym),
                                tsym := s.getType(sym),
                                isNonTerminalAType(tsym),
