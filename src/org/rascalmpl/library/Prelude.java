@@ -165,6 +165,7 @@ public class Prelude {
     private IValue createRandomValue(Type t, int depth, int width) {
         return t.randomValue(
 			random,  
+			RandomTypesConfig.defaultConfig(new Random()).withoutRandomAbstractDatatypes(),
 			values, 
 			new TypeStore(), 
 			Collections.emptyMap(), 
@@ -3941,7 +3942,7 @@ public class Prelude {
 		// don't change the set of types dynamically. the test functions that use this function
 		// have already been type-checked in their static source context.
 		RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
-	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
+	    return start.randomValue(random, typesConfig, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph
