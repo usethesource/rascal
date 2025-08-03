@@ -106,7 +106,12 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     tplFile = endsWith(modulePath, "tpl");
     if(isLogicalLoc(moduleLoc)){
         if(moduleLoc.scheme == "rascal+module"){
-            return replaceAll(moduleLoc.path, "/", "::");
+            path = moduleLoc.path;
+            if(path[0] == "/"){
+                path = path[1..];
+            }
+            res = replaceAll(path, "/", "::");
+            return res;
         } else {
             throw "Not a logical location with `rascal+module` scheme: <moduleLoc>";
         }
