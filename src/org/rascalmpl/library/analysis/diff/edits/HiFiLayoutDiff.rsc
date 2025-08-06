@@ -30,6 +30,7 @@ list[TextEdit] layoutDiff(Tree a, Tree b, bool copyComments = false)
     = [] when a == b;
 
 // layout difference
+// TODO: layout nodes typically do not have @\loc annotations, so we have to get them from somewhere
 list[TextEdit] layoutDiff(
     t:appl(prod(layouts(str l), _, _), list[Tree] _),
     r:appl(prod(layouts(l), _, _), list[Tree] _),
