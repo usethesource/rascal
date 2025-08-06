@@ -180,16 +180,16 @@ executeDocumentEdit(edit);
 readFile(tmp://example.pico|);
 ```
 }
-// equal trees generate empty diffs (note this already ignores whitespace differences)
+// equal trees generate empty diffs (note this already ignores whitespace differences because non-linear matching ignores layout nodes)
 list[TextEdit] treeDiff(Tree a, a) = [];
 
-// skip production labels of original rules when diffing
+// skip production labels of original rules when diffing, to be able to focus on the Symbol constructor for downstream case-distinction
 list[TextEdit] treeDiff(
     Tree t:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args), 
     Tree u)
     = treeDiff(appl(prod(s, syms, attrs), args)[@\loc=t@\loc?|bla:///|], u);
 
-// skip production labels of replacement rules when diffing
+// skip production labels of original rules when diffing, to be able to focus on the Symbol constructor for downstream case-distinction
 list[TextEdit] treeDiff(
     Tree t,
     Tree u:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args))
@@ -213,7 +213,7 @@ list[TextEdit] treeDiff(
     appl(prod(cilit(l)    , _, _), list[Tree] _))
     = [];
 
-// different lexicals generate small diffs even if the parent is equal
+// different lexicals generate small diffs even if the parent is equal. This avoids extremely small edits within the boundaries of single identifiers.
 list[TextEdit] treeDiff(
     t:appl(prod(lex(str l), _, _), list[Tree] _), 
     r:appl(prod(lex(l)    , _, _), list[Tree] _))
@@ -225,12 +225,12 @@ default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
     {
-        rprintln(t);
+        rprintln(t); // TODO remove debug statement
     return [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
     }
 
 // If list production are the same, then the element lists can still be of different length
-// and we switch to listDiff which has different heuristics than normal trees.
+// and we switch to listDiff which has different heuristics than normal trees to detect large identical sublists.
 list[TextEdit] treeDiff(
     Tree t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
     appl(p, list[Tree] bElems))
@@ -238,59 +238,32 @@ list[TextEdit] treeDiff(
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
 default list[TextEdit] treeDiff(t:appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
-    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides");
+    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides"); // TODO remove debug print
 
 
-// Equal trees
-list[TextEdit] layoutDiff(Tree a, Tree b, bool copyComments = false)
-    = [] when a == b;
 
-// layout difference
-list[TextEdit] layoutDiff(
-    t:appl(prod(layouts(str l), _, _), list[Tree] _),
-    r:appl(prod(layouts(l), _, _), list[Tree] _),
-    bool copyComments = false)
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
-
-// matched layout trees generate empty diffs such that the original is maintained
-default list[TextEdit] layoutDiff(
-    appl(prod(layouts(_), _, _), list[Tree] _),
-    appl(prod(layouts(_), _, _), list[Tree] _),
-    bool copyComments = false)
-    = [];
-
-// matched literal trees generate empty diffs
-list[TextEdit] layoutDiff(
-    appl(prod(lit(str l), _, _), list[Tree] _),
-    appl(prod(lit(l)    , _, _), list[Tree] _),
-    bool copyComments = false)
-    = [];
-
-// matched case-insensitive literal trees generate empty diffs such that the original is maintained
-list[TextEdit] layoutDiff(
-    appl(prod(cilit(str l), _, _), list[Tree] _),
-    appl(prod(cilit(l)    , _, _), list[Tree] _),
-    bool copyComments = false)
-    = [];
-
-list[TextEdit] layoutDiff(
-    t:appl(prod(lex(str l), _, _), list[Tree] _),
-    r:appl(prod(lex(l)    , _, _), list[Tree] _),
-    bool copyComments = false)
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
-
-default list[TextEdit] layoutDiff(
-    appl(Production p, list[Tree] argsA),
-    appl(p, list[Tree] argsB),
-    bool copyComments = false)
-    = [*layoutDiff(a, b, copyComments=copyComments) | <a, b> <- zip2(argsA, argsB)];
 
 @synopsis{decide how many separators we have}
-int seps(\iter-seps(_,list[Symbol] s))      = size(s);
-int seps(\iter-star-seps(_,list[Symbol] s)) = size(s);
-default int seps(Symbol _) = 0;
+int seps(\iter-seps(_, list[Symbol] s))      = size(s);
+int seps(\iter-star-seps(_, list[Symbol] s)) = size(s);
+default int seps(Symbol _)                   = 0;
 
-@synsopis{List diff is like text diff on lines; complex and easy to make slow}
+@synopsis{List diff is like text diff on lines; complex and easy to make slow}
+@description{
+This algorithm uses heuristics to avoid searching for the largest common sublist all too often.
+
+1. Since many patches to parse tree lists typically only change a prefix or a postfix, and we 
+can detect this quickly, we first extract patches for those instances.
+2. However, it is also very fast to detect unchanged prefixes and postfixes, so by focusing
+on the changes parts in the middle we generate more instances of case 1.
+3. What we are left with is either an empty list and we are done, or a more complex situation
+where we apply the "largestEqualSubList" algorithm, which splits the list in three parts:
+   * two unequal prefixes
+   * two equal sublists in the middle
+   * two unequal postfixes
+4. the algorithm then concatenates the diffs by recursing to step 1 on the prefixes and the diffs by recursing to step 1. on the postfixes 
+5. two empty lists terminate the recursion,
+}
 list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] replacements) {
     edits = [];
 
@@ -348,11 +321,10 @@ and thus there are interesting differences left, even if we remove any equal
 sublist.
 
 Note that this is not a general algorithm for Largest Common Subsequence (LCS), since it
-uses particular properties of the relation between the original and the replacement list.
+uses particular properties of the relation between the original and the replacement list:
 * New elements are never equal to old elements (due to source locations)
 * Equal prefixes and postfixes may be assumed to be maximal sublists as well (see above).
 * Candidate equal sublists always have consecutive source locations from the origin.
-* etc.
 }
 list[Tree] largestEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
 list[Tree] largestEqualSubList([*_, *Tree sub, *_], [*sub]) = sub;
@@ -399,7 +371,7 @@ private loc fromUntil(Tree from, Tree until) = fromUntil(from@\loc, until@\loc);
 
 @synopsis{Compute location span that is common between an element and a succeeding element}
 @description{
-The resulting loc is including the `from` but exclusing the `until`. It goes right
+The resulting loc is including the `from` but excluding the `until`. It goes right
 up to `until`.
 ```ascii-art
  [from] gap [until]
