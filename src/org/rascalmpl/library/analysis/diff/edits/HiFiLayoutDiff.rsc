@@ -35,14 +35,7 @@ list[TextEdit] layoutDiff(
     t:appl(prod(layouts(str l), _, _), list[Tree] _),
     r:appl(prod(layouts(l), _, _), list[Tree] _),
     bool copyComments = false)
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
-
-// matched layout trees generate empty diffs such that the original is maintained
-default list[TextEdit] layoutDiff(
-    appl(prod(layouts(_), _, _), list[Tree] _),
-    appl(prod(layouts(_), _, _), list[Tree] _),
-    bool copyComments = false)
-    = [];
+    = [replace(t@\loc, learnComments(t@\loc, "<r>", "<t>"))];
 
 // matched literal trees generate empty diffs
 list[TextEdit] layoutDiff(
@@ -58,14 +51,12 @@ list[TextEdit] layoutDiff(
     bool copyComments = false)
     = [];
 
-list[TextEdit] layoutDiff(
-    t:appl(prod(lex(str l), _, _), list[Tree] _),
-    r:appl(prod(lex(l)    , _, _), list[Tree] _),
-    bool copyComments = false)
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
-
+// recurse through the parse tree in the right order to collect layout edits
+// this default fails when the two compared trees are unequal-modulo-layout, such that
+// this precondition is checked and failure to comply is detected as early (high) as possible.
 default list[TextEdit] layoutDiff(
-    appl(Production p, list[Tree] argsA),
-    appl(p, list[Tree] argsB),
+    Tree t:appl(Production p, list[Tree] argsA),
+    t:appl(p, list[Tree] argsB), // note the non-linear equality-modulo-layout check here 
     bool copyComments = false)
     = [*layoutDiff(a, b, copyComments=copyComments) | <a, b> <- zip2(argsA, argsB)];
+    
