@@ -36,8 +36,6 @@ where sub-trees are not annotated with source locations.
 list[TextEdit] layoutDiff(Tree a, Tree b, bool copyComments = false)
     = layoutDiff(a@\loc, a, b, copyComments=copyComments);
 
-
-
 // Equal trees
 list[TextEdit] layoutDiff(loc _span, Tree a, Tree b, bool copyComments = false)
     = [] when a == b;
@@ -47,7 +45,7 @@ list[TextEdit] layoutDiff(loc span,
     t:appl(prod(layouts(str l), _, _), list[Tree] _),
     u:appl(prod(layouts(l), _, _), list[Tree] _),
     bool copyComments = false)
-    = [replace(span, learnComments(t@\loc, "<r>", "<t>"))] when t != u;
+    = [replace(span, learnComments(t@\loc, "<u>", "<t>"))] when eq(t, u);
 
 // the layout was the same as before
 list[TextEdit] layoutDiff(loc span,
@@ -90,6 +88,10 @@ private str learnComments(loc span, str replacement, str original, bool copyComm
         return replacement;
     }
     else {
+        // TODO: 1. detect "non-whitespace" in `original`
+        //       2. strip leading indentation from the non-whitespace if multiple lines are detected
+        //       3. re-indent the multiple lines
+        //       4. integrate the new comments with the new whitespace in a smart manner
         throw "not yet implemented";
     }
 }
