@@ -23,29 +23,48 @@ the pipeline may change layout (whitespace and comments and capitalization of ca
 module analysis::diff::edits::HiFiLayoutDiff
 
 extend analysis::diff::edits::HiFiTreeDiff;
+import ParseTree; // this should not be necessary because imported by HiFiTreeDiff
+import String; // this should not be be necessary because imported by HiFiTreeDiff
+
 
 @synopsis{Extract TextEdits for the differences in whitespace between two otherwise identical ((ParseTree))s.}
-// Equal trees
+@description{
+This is the top-level wrapper that starts a recursion over the entire parse tree.
+We need to keep the span of the current node in order to fill in the possible gaps 
+where sub-trees are not annotated with source locations.
+}
 list[TextEdit] layoutDiff(Tree a, Tree b, bool copyComments = false)
+    = layoutDiff(a@\loc, a, b, copyComments=copyComments);
+
+
+
+// Equal trees
+list[TextEdit] layoutDiff(loc _span, Tree a, Tree b, bool copyComments = false)
     = [] when a == b;
 
-// layout difference
-// TODO: layout nodes typically do not have @\loc annotations, so we have to get them from somewhere
-list[TextEdit] layoutDiff(
+// layout differences are detected, so here we produce a `replace` node:
+list[TextEdit] layoutDiff(loc span,
     t:appl(prod(layouts(str l), _, _), list[Tree] _),
-    r:appl(prod(layouts(l), _, _), list[Tree] _),
+    u:appl(prod(layouts(l), _, _), list[Tree] _),
     bool copyComments = false)
-    = [replace(t@\loc, learnComments(t@\loc, "<r>", "<t>"))];
+    = [replace(span, learnComments(t@\loc, "<r>", "<t>"))] when t != u;
+
+// the layout was the same as before
+list[TextEdit] layoutDiff(loc span,
+    t:appl(prod(layouts(str l), _, _), list[Tree] _),
+    t,
+    bool copyComments = false)
+    = []; 
 
 // matched literal trees generate empty diffs
-list[TextEdit] layoutDiff(
+list[TextEdit] layoutDiff(loc _span,
     appl(prod(lit(str l), _, _), list[Tree] _),
     appl(prod(lit(l)    , _, _), list[Tree] _),
     bool copyComments = false)
     = [];
 
 // matched case-insensitive literal trees generate empty diffs such that the original is maintained
-list[TextEdit] layoutDiff(
+list[TextEdit] layoutDiff(loc _span,
     appl(prod(cilit(str l), _, _), list[Tree] _),
     appl(prod(cilit(l)    , _, _), list[Tree] _),
     bool copyComments = false)
@@ -54,9 +73,23 @@ list[TextEdit] layoutDiff(
 // recurse through the parse tree in the right order to collect layout edits
 // this default fails when the two compared trees are unequal-modulo-layout, such that
 // this precondition is checked and failure to comply is detected as early (high) as possible.
-default list[TextEdit] layoutDiff(
+default list[TextEdit] layoutDiff(loc span,
     Tree t:appl(Production p, list[Tree] argsA),
     t:appl(p, list[Tree] argsB), // note the non-linear equality-modulo-layout check here 
     bool copyComments = false)
-    = [*layoutDiff(a, b, copyComments=copyComments) | <a, b> <- zip2(argsA, argsB)];
+    = [*layoutDiff(|todo:///|, a, b, copyComments=copyComments) | <a, b> <- zip2(argsA, argsB)]; // TODO: here we have to recover the loc of the outermost layout node
     
+@synopsis{Make sure the new layout still contains all the source code comments of the original layout}
+@description{
+This algorithm uses a heuristic to detect source code comments inside layout substrings. If the original
+layout contains comments, but the replacement layout does not, we re-introduce the comments at the
+expected level of indentation.
+}
+private str learnComments(loc span, str replacement, str original, bool copyComments = false) {
+    if (!copyComments) {
+        return replacement;
+    }
+    else {
+        throw "not yet implemented";
+    }
+}
