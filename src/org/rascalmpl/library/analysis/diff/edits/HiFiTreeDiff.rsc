@@ -52,7 +52,7 @@ and comments, of the result.
 
 With this module we bring these two modalities of source-to-source transformations together:
 1. The language engineer uses concrete syntax rewrite rules to derive a new ParseTree from the original;
-2. We run ((treeDiff)) to obtain a set of minimal text edit;
+2. We run ((treeDiff)) to obtain a set of minimal text edits;
 3. We apply the text edits to the editor contents or the file system.
 }
 @benefits{
@@ -78,7 +78,7 @@ testing. If the trees are first independently serialized to disk and then deseri
 this optimization is not present and the algorithm will perform (very) poorly.
 * Substitution patterns should be formatted as best as possible. The algorithm will not infer
 spacing or relative indentation inside of the substituted subtree. It will only infer indentation
-for the entire subtree. 
+for the entire subtree. Another way of resolving this is using a code formatter on the subsituted patterns.
 }
 module analysis::diff::edits::HiFiTreeDiff
 
@@ -109,7 +109,7 @@ However, the parsed tree could be different from the derived tree in terms of wh
 * when tree nodes (grammar rules) are equal, smaller edits are searched by pair-wise comparison of the children
 * differences between respective layout or (case insensitve) literal nodes are always ignored 
 * when lists have changed, careful editing of possible separators ensures syntactic correctness
-* when new sub-trees are inserted, the replacement will be at the same indentation level as the original. (((TODO this is a todo)))
+* when new sub-trees are inserted, the replacement will be at the same indentation level as the original. 
 * when case-insensitive literals have been changed under a grammar rule that remained the same, no edits are produced.
 
 The function comes in handy when we use Rascal to rewrite parse trees, and then need to communicate the effect
@@ -240,13 +240,10 @@ list[TextEdit] treeDiff(
 default list[TextEdit] treeDiff(t:appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
     = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides"); // TODO remove debug print
 
-
-
-
 @synopsis{decide how many separators we have}
-int seps(\iter-seps(_, list[Symbol] s))      = size(s);
-int seps(\iter-star-seps(_, list[Symbol] s)) = size(s);
-default int seps(Symbol _)                   = 0;
+private int seps(\iter-seps(_, list[Symbol] s))      = size(s);
+private int seps(\iter-star-seps(_, list[Symbol] s)) = size(s);
+private default int seps(Symbol _)                   = 0;
 
 @synopsis{List diff is like text diff on lines; complex and easy to make slow}
 @description{
