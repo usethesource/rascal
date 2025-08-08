@@ -814,6 +814,9 @@ bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
+private alias NewLineChar = [\n];
+private alias ReturnChar  = [\t];
+
 @synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
 @description{
 This function takes a ((Tree)) and overwrites the old \loc annotations of every subtree 
@@ -909,11 +912,11 @@ yield of a tree should always produce the exact same locations as ((reposition))
       curOffset += 1;
 
       switch (t) {
-        case [\r] _: {
+        case ReturnChar _: {
           curColumn = 0;
         }
-
-        case [\n] _: {
+      
+        case NewLineChar _ : {
           curLine += 1;
           curColumn = 0;
         }
