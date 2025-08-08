@@ -37,6 +37,7 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import Location;
 import List;
+import Relation;
 import Set;
 import String;
 import Map;
@@ -77,20 +78,17 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     PathConfig pcfg = ms.pathConfig;
     naux = 0;
     moduleName = m.name;
-    //println("muRascal2Java: <moduleName>");
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
     <found, tm, ms> = getTModelForModule(moduleName, ms, convert=true);
-    //iprintln(tm.paths);
-    //tm = tmodels[moduleName];
-    //println("muRascal2Java:"); iprintln(tm);
-    
-    extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tm.paths };
-    
-    imports = { locsModule[m2loc] | <module_scope, importPath(), m2loc> <- tm.paths };
-    imports += { locsModule[m2loc] | imp <- imports, impLoc := moduleLocs[imp], <impLoc, extendPath(), m2loc> <- tm.paths};
-    
-    loc2muFunction = (f.src : f | f <- m.functions);
+
+    strPaths = { <getRascalModuleName(mloc1, pcfg), p, getRascalModuleName(mloc2, pcfg)> | <mloc1, p, mloc2> <- tm.paths };
+
+    extends = { mname | <moduleName, extendPath(), mname> <- strPaths };
+    imports = { mname | <moduleName, importPath(), mname> <- strPaths };
+    imports += { mname | imp <- imports, <imp, extendPath(), mname> <- strPaths};
+   
+    loc2muFunction = (f.src : f | f <- m.functions, bprintln("<f.uniqueName>: <f.src>"));
     
     // Iteratively propagate external dependencies of functions
     functions = m.functions;
@@ -109,7 +107,6 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, jg);
     
-    moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     facts = tm.facts;
     cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) }
                      + { t | loc k <- facts, /AType t:acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts[k],

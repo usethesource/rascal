@@ -152,8 +152,8 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
 
     loc2module = invertUnique(module2loc);
     module_scopes = domain(loc2module);
-    extend_scopes = { module2loc[ext] | ext <- extends };
-    import_scopes = { module2loc[imp] | imp <- imports };
+    extend_scopes = { module2loc[ext] | ext <- extends, ext in  module2loc};
+    import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
@@ -266,7 +266,11 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
         for(def <- relevant_fun_defs, isContainedIn(def.defined, module_scope)){
-            fun = loc2muFunction[def.defined];
+            try {
+                fun = loc2muFunction[def.defined];
+            } catch _:{
+                    println("HERE");
+            }
             inner_scope = "<fun.scopeIn>_";
             break;
         }

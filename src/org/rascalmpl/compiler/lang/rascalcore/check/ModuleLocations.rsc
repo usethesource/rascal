@@ -97,7 +97,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-
+@memo{expireAfter(minutes=5),maximumSize(50)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
