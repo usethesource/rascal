@@ -25,14 +25,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
+ 
+syntax A = "a";
 
-data A = a(int i);
-
-void x(void(A) _) { }
-
-void main1(){
-  x(a);
-}
-
-data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
-bool main2() = f(_) := f(1);
+test bool main() //= //test bool concreteMatchA1() 
+    = (A) `a` := [A] "a";
