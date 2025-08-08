@@ -1,5 +1,5 @@
 module lang::rascal::grammar::tests::LookaheadTests
-
+  
 import Grammar;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Characters;
