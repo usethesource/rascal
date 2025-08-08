@@ -30,15 +30,15 @@ import String; // this should not be be necessary because imported by HiFiTreeDi
 @description{
 See ((HiFiLayoutDiff)).
 }
-list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = false) {
+list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = true) {
     assert original := formatted : "nothing except layout and keyword fields may be different for layoutDiff to work correctly.";
 
     @synopsis{rec is the recursive workhorse, doing a pairwise recursion over the original and the formatted tree}
     @description{
         We recursively skip over every "equal" pairs of nodes, until we detect two different _layout_ nodes. The original location
-        of that node is used to construct a replace ((TextEdit)), and optionally the original layout is inspected for
-        source code comments which may have been lost. Literals are skipped explicitly to avoid arbitrary edits for 
-        case insensitive literals, and to safe some time.
+        of that node and the new contents of the formatted node is used to construct a replace ((TextEdit)), and 
+        optionally the original layout is inspected for source code comments which may have been lost. Literals are skipped 
+        explicitly to avoid arbitrary edits for case insensitive literals, and to safe some time.
     }
 
     // if layout differences are detected, here we produce a `replace` node:
@@ -92,7 +92,8 @@ private str learnComments(Tree original, str replacement) {
         return replacement;
     }
     
-    // TODO this is still a w.i.p.
+    // TODO this is still a w.i.p. 
+    // TODO: can we guarantee that these changes are grammatically correct? probably not..
     if (/\n/ <- commentStrings) { // multiline
         return "<for (c <- commentStrings, l <- split("\n", c)) {>
             '<l><}><replacement>
