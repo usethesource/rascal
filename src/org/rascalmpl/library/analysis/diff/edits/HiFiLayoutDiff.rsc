@@ -45,7 +45,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = fal
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, copyComments ? learnComments(t@\loc, "<u>", "<t>") : "<u>") | tArgs != uArgs] 
+        = [replace(t@\loc, copyComments ? learnComments(t, "<u>") : "<u>") | tArgs != uArgs] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
@@ -78,20 +78,28 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = fal
     
 @synopsis{Make sure the new layout still contains all the source code comments of the original layout}
 @description{
-This algorithm uses a heuristic to detect source code comments inside layout substrings. If the original
-layout contains comments, but the replacement layout does not, we re-introduce the comments at the
-expected level of indentation.
+This algorithm uses the @category("Comments") tag to detect source code comments inside layout substrings. If the original
+layout contains comments, we re-introduce the comments at the expected level of indentation. New comments present in the 
+replacement are also kept.
+
+This trick is complicated by the syntax of multiline comments and single line comments that have
+to end with a newline.
 }
-private str learnComments(loc span, str replacement, str original, bool copyComments = false) {
-    if (!copyComments) {
+private str learnComments(Tree original, str replacement) {
+    commentStrings = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := original];
+
+    if (commentStrings == []) {
         return replacement;
     }
-    else {
-        // TODO: 1. detect "non-whitespace" in `original`
-        //       2. strip leading indentation from the non-whitespace if multiple lines are detected
-        //       3. re-indent the multiple lines
-        //       4. integrate the new comments with the new whitespace in a smart manner
-        throw "not yet implemented";
+    
+    // TODO this is still a w.i.p.
+    if (/\n/ <- commentStrings) { // multiline
+        return "<for (c <- commentStrings, l <- split("\n", c)) {>
+            '<l><}><replacement>
+            '";
+    }
+    else { // single line
+        return "<for (c <- commentStrings, l <- split("\n", c)) {><l><}><replacement>";
     }
 }
 
