@@ -139,9 +139,11 @@ run-time already uses `.src` while the source code still uses `@\loc`.
 
 module ParseTree
 
-extend Type;
-extend Message;
 extend List;
+extend Message;
+extend Type;
+
+import Node;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -811,3 +813,163 @@ bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = tru
 bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
+
+@synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
+@description{
+This function takes a ((Tree)) and overwrites the old \loc annotations of every subtree 
+with fresh locations. The new locations are as-if the file was parsed again from the unparsed result:
+the locations describe the left-to-right order of the sub-trees again exactly, and they are all
+from the same top-level location (read "file").
+
+Typically, with the default options, this algorithm changes _nothing_ in a ((Tree)) which
+has just been produced by the parser. It will rebuild the tree and recompute the exact
+locations as they were originally. However, there are many reasons why the (location) fields 
+in a ((Tree)) are not at all anymore what they were just after parsing:
+1. subtrees may have been removed
+2. subtrees may have been relocated to different parts of the tree;
+2. subtrees may have been introduced from other source files
+3. subtrees may have been introduced from concrete syntax expressions in Rascal code.
+4. other algorithms may have added more keyword fields, for example fully resolved qualified names,
+resolved types, error messages or future computations (closures).
+5. location fields themselves may have been lost accidentally when rewriting trees with ((Statement-Visit))
+6. etc. 
+
+Some downstream algorithms (e.g. ((HiFiLayoutDiff)) ) require source locations to be consistent with the current actual position
+of every source tree. ((reposition)) provides this contract. Even if one of the above transformations have happened,
+after ((reposition)) every node has an accurate position with respect to the hypothetical file contents that would be generated
+if the tree is unparsed (written to a string or a file).
+
+Next to this feature, ((reposition)) may add locations to ((Tree)) nodes which were not annotated
+initially by the ((parser)): layout nodes, literal nodes, and sub-lexical nodes. Some algorithms on 
+parse trees (like formatting), require more detailed location information than provided by the ((parser)):
+* markLexical=true, ensures the sub-structure of lexicals is annotated as well.
+* markLayout=true, ensures annotating layout nodes and their sub-structure as well.
+* markLit=true, ensures literal trees and case-insensitive literal trees are annotated as well.
+* markAmb=true, ensures ambiguity nodes are annotated. NB: the sub-structure of a cluster is always annotated according to the other flags.
+* etc. every kind of node has a "mark" flag for completeness sake.
+
+Finally, ((reposition)) can be used to removed superfluous locations from ((Tree)) nodes. Every node which
+originally had a position will lose it unless ((reposition)) is configured to recompute it.
+
+By default ((reposition)) simulates the behavior of a ((parser)) exactly. Reparsing the 
+yield of a tree should always produce the exact same locations as ((reposition)) does.
+}
+@benefits{
+* Unlike reparsing, ((reposition)) will maintain all other keyword parameters of ((Tree)) nodes, like resolved qualified names and type attributes.
+* Can be used to erase superfluous annotations for memory efficiency, while keeping the essential ones.
+* 
+}
+&T <: Tree reposition(
+  &T <: Tree tree, 
+  loc file = tree@\loc.top, 
+  bool \markSyntax = true,
+  bool \markLexical = true,
+  bool \markSubLexical = false, 
+  bool \markRegular = true,
+  bool \markLayout = false,
+  bool \markSubLayout = false,
+  bool \markLit = false,
+  bool \markSubLit = false,
+  bool \markAmb = false,
+  bool \markCycle = false,
+  bool \markChar = false
+  ) {
+    // the cur variables are shared state by the `rec` local function that recurses over the entire tree
+    int curOffset = 0;
+    int curLine = 1;
+    int curColumn = 0;
+
+    @synopsis{Check if this rule is configured to be annotated}
+    default bool doAnno(Production _)               = false;
+    bool doAnno(prod(\lex(_), _, _))                = markLexical;
+    bool doAnno(prod(\label(_, \lex(_)), _, _))     = markLexical;
+    bool doAnno(prod(\layouts(_), _, _))            = markLayout;
+    bool doAnno(prod(\label(_, \layouts(_)), _, _)) = markLayout;
+    bool doAnno(prod(\sort(_), _, _))               = markSyntax;
+    bool doAnno(prod(\label(_, \sort(_)), _, _))    = markSyntax;
+    bool doAnno(\regular(_))                        = markRegular;
+    bool doAnno(prod(\lit(_), _, _))                = markLit;
+    bool doAnno(prod(\cilit(_), _, _))              = markLit;
+
+    @synopsis{Check if sub-structure of this rule is configured to be annotated}
+    default bool doSub(Production _)               = true;
+    bool doSub(prod(\lex(_), _, _))                = \markSubLexical;
+    bool doSub(prod(\label(_, lex(_)), _, _))      = \markSubLexical;
+    bool doSub(prod(\layouts(_), _, _))            = \markSubLayout;
+    bool doSub(prod(\label(_, \layouts(_)), _, _)) = \markSubLayout;
+    bool doSub(prod(\lit(_), _, _))                = \markSubLit;
+    bool doSub(prod(\cilit(_), _, _))              = \markSubLit;
+
+    // the character nodes drive the actual current position: offset, line and column
+    Tree rec(Tree t:char(int ch), bool _sub) {
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      curOffset += 1;
+
+      switch (t) {
+        case [\r] _: {
+          curColumn = 0;
+        }
+
+        case [\n] _: {
+          curLine += 1;
+          curColumn = 0;
+        }
+      }
+
+      return markChar 
+        ? char(ch)[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, curColumn>)]
+        : char(ch)
+        ;
+    }
+
+    // cycles take no space
+    Tree rec(cycle(Symbol s, int up), bool _sub) = markCycle
+      ? cycle(s, up)[@\loc=file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
+      : cycle(s, up)
+      ;
+
+    // application nodes always have children to traverse, to get to the individual characters eventually
+    // different types of nodes lead to annotation, or not, depending on the parameters of ((reposition))
+    Tree rec(appl(Production prod, list[Tree] args), bool sub) {
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      // once `sub` is false, going down, we can never turn it on again
+      newArgs = [mergeRec(a, sub && doSub(prod)) | a <- args];
+
+      return sub && doAnno(prod) 
+        ? appl(prod, newArgs)[@\loc=file(beginOffset, curOffset - beginOffset, <beginLine, beginColumn>, <curLine, curColumn>)]
+        : appl(prod, newArgs)
+        ;
+    } 
+
+    // ambiguity nodes are simply choices between alternatives which each receive their own positions.
+    Tree rec(t:amb(set[Tree] alts), bool sub) {
+      if (newAlts:{Tree x, *_} := {mergeRec(a, sub) | a <- alts}) {
+        // inherit the outermost positions from one of the alternatives, since they are all the same by definition.
+        return markAmb && x@\loc? 
+          ? amb(newAlts)[@\loc=x@\loc]
+          : amb(newAlts)
+          ;
+      }
+
+      // this never happens because there is always at least two alternatives in a cluster
+      fail; 
+    }
+
+    @synopsis{Recurse, but not without recovering all other keyword parameters except "src" a.k.a. @\loc from the original.}
+    Tree mergeRec(Tree t, bool sub) {
+      oldParams = getKeywordParameters(t);
+      t = rec(t, sub); 
+      newParams = getKeywordParameters(t);
+      mergedParams = (oldParams - ("src" : |unknown:///|)) + newParams;
+      return setKeywordParameters(t, mergedParams);
+    }
+
+    // we start recursion at the top, not forgetting to merge its other keyword fields
+    return mergeRec(tree, true);
+}
