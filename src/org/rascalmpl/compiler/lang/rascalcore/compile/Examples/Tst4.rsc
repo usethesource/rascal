@@ -25,8 +25,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
- 
+
 syntax A = "a";
 
-test bool main() //= //test bool concreteMatchA1() 
-    = (A) `a` := [A] "a";
+@ignore
+bool f() = (A) `a` := [A] "a";

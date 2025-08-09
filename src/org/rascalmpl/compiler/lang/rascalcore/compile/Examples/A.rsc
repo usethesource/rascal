@@ -25,5 +25,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
-  
-data DocumentEdit = de();
+
+int f(X x, X y) = 1;
+int f(x(), x())   = 2; 
