@@ -97,7 +97,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-@memo{expireAfter(minutes=5),maximumSize(50)}
+@memo{expireAfter(minutes=5),maximumSize(500)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
@@ -105,16 +105,11 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
     if(isLogicalLoc(moduleLoc)){
-        if(moduleLoc.scheme == "rascal+module"){
-            path = moduleLoc.path;
-            if(path[0] == "/"){
-                path = path[1..];
-            }
-            res = replaceAll(path, "/", "::");
-            return res;
-        } else {
-            throw "Not a logical location with `rascal+module` scheme: <moduleLoc>";
+        path = moduleLoc.path;
+        if(path[0] == "/"){
+            path = path[1..];
         }
+        return replaceAll(path, "/", "::");
     }
     if(!( rscFile || tplFile )){
         throw "Not a Rascal .src or .tpl file: <moduleLoc>";
