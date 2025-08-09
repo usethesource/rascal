@@ -52,14 +52,15 @@ alias Name_Arity = tuple[str name, int arity];
 
 // Get all functions and constructors from a given tmodel
 
-rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
+rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes, PathConfig pcfg){
      if(!tmodel.moduleLocs[tmodel.modelName]?){
         iprintln(tmodel);
         throw "getFunctionsAndConstructors";
      }
-     mscope = tmodel.moduleLocs[tmodel.modelName];
+     mname = tmodel.modelName;
+    // mscope = tmodel.moduleLocs[tmodel.modelName];
 
-     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, isContainedIn(u, mscope), /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
+     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, getRascalModuleName(u, pcfg) == mname/*isContainedIn(u, mscope)*/, /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>
                                 | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0,
                                   (ov.idRole == functionId() || ov.idRole == constructorId()),
@@ -147,17 +148,17 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){
+str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
     module_scope = module2loc[moduleName];
 
     loc2module = invertUnique(module2loc);
     module_scopes = domain(loc2module);
-    extend_scopes = { module2loc[ext] | ext <- extends, ext in  module2loc};
+    extend_scopes = { module2loc[ext] | ext <- extends, ext in module2loc};
     import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
-    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes) | mname <- tmodels };
+    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes, pcfg) | mname <- tmodels };
 
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
@@ -174,7 +175,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
         for(sdefs <- defs_in_disjoint_scopes){
             if(any(d <- sdefs, d.scope notin module_scopes)){
                 // All local functions trated samw wrt keyword parameters
-                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
 
             } else {
                 // For global functions we differentiate wrt keyword oarameters
@@ -184,8 +185,8 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
                 }
                 with_kwp = {d | <d, kwps> <- kwpFormals, !isEmpty(kwps)};
                 without_kwp = sdefs - with_kwp;
-                resolvers += generateResolver(moduleName, fname, with_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
-                resolvers += generateResolver(moduleName, fname, without_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                resolvers += generateResolver(moduleName, fname, with_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
+                resolvers += generateResolver(moduleName, fname, without_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
             }
         }
     }
@@ -216,7 +217,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 }
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, JGenie jg){
+str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, PathConfig pcfg, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
 
     module_scopes = domain(loc2module);
@@ -265,12 +266,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     inner_scope = "";
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        for(def <- relevant_fun_defs, isContainedIn(def.defined, module_scope)){
-            try {
-                fun = loc2muFunction[def.defined];
-            } catch _:{
-                    println("HERE");
-            }
+        for(def <- relevant_fun_defs, getRascalModuleName(def.defined, pcfg) == moduleName/*isContainedIn(def.defined, module_scope)*/){
+            fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
             break;
         }
