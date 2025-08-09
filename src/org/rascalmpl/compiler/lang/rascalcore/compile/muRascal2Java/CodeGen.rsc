@@ -88,7 +88,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     imports = { mname | <moduleName, importPath(), mname> <- strPaths };
     imports += { mname | imp <- imports, <imp, extendPath(), mname> <- strPaths};
    
-    loc2muFunction = (f.src : f | f <- m.functions, bprintln("<f.uniqueName>: <f.src>"));
+    loc2muFunction = (f.src : f | f <- m.functions);
     
     // Iteratively propagate external dependencies of functions
     functions = m.functions;
@@ -105,7 +105,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     muFunctions = (f.uniqueName : f | f <- m.functions);
  
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
-    resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, jg);
+    resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, pcfg, jg);
     
     facts = tm.facts;
     cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) }
@@ -286,7 +286,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
                        
       the_test_class = generateTestClass(packageName, baseClassName, m.functions, jg);
       
-      the_interface = generateInterface(moduleName, packageName, m.functions, imports, extends, tmodels, jg);
+      the_interface = generateInterface(moduleName, packageName, m.functions, imports, extends, tmodels, pcfg, jg);
       
       return <the_interface, the_class, the_test_class, constants>;
 }
