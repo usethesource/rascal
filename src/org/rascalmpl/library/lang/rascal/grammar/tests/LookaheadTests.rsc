@@ -92,8 +92,8 @@ test bool tF33() = F3[sort("E")] == F3[sort("T")];
 test bool tF34() = F3[lit("*")] == {\char-class([range(42,42)])};
 test bool tF35() = F3[lit("+")] == {\char-class([range(43,43)])};
 test bool tF36() = F3[lit("id")] == {\char-class([range(105,105)])};
-test bool tF37() = F3[sort("E1")] == {empty()} + F3[lit("+")];
-test bool tF38() = F3[sort("T1")] == {empty()} + F3[lit("*")];
+test bool tF37() = F3[sort("E1")] == {Symbol::empty()} + F3[lit("+")];
+test bool tF38() = F3[sort("T1")] == {Symbol::empty()} + F3[lit("*")];
 test bool tF39() = F3[lit("(")] == {\char-class([range(40,40)])};
 test bool tF310() = F3[lit(")")] == {\char-class([range(41,41)])};
       
