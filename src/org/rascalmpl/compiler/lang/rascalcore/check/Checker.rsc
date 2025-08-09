@@ -401,11 +401,11 @@ bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
     return res;
 }
 
-tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus ms, Collector c, set[str] added){
+tuple[set[str], ModuleStatus] loadImportsAndExtends(set[str] moduleNames, ModuleStatus ms, Collector c, set[str] added){
     pcfg = ms.pathConfig;
     rel[str,str] contains = ms.strPaths<0,2>;
-    for(imp <- contains[moduleName]){
-        if(imp notin added){
+    for(imp <- contains[moduleNames]){
+        if(imp notin added, imp notin moduleNames){
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms, convert=true);
@@ -429,6 +429,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     for(str nm <- moduleNames){
         //ms.status[nm] = {};
         ms.messages[nm] = {};
+        ms = removeTModel(nm, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
             mloc = getRascalModuleLocation(nm, pcfg);
@@ -468,11 +469,12 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         rascalPreCollectInitialization(namedTrees, c);
 
         added = {};
-        for(str nm <- domain(namedTrees)){
-            <a, ms> = loadImportsAndExtends(nm, ms, c, added);
-            added += a;
-        }
+        // for(str nm <- domain(namedTrees)){
+        //     <a, ms> = loadImportsAndExtends(nm, ms, c, added);
+        //     added += a;
+        // }
 
+        <added, ms> = loadImportsAndExtends(moduleNames, ms, c, {});
         for(str nm <- namedTrees){
             collect(namedTrees[nm], c);
         }
