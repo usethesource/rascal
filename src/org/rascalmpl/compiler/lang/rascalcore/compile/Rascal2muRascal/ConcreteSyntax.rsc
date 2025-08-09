@@ -31,11 +31,13 @@ import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::SyntaxGetters;
 
 import ParseTree;
 import Message;
 import String;
 import IO;
+import Location;
 
 // WARNING: this module is sensitive to bootstrapping dependencies and implicit contracts:
 // 
@@ -65,9 +67,12 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
       }
    }
 
-   M = visit(M) {
+   ignoredFunctionLocs = {fd@\loc | /FunctionDeclaration fd := M, ignoreCompiler(getTags(fd.tags)) };
+
+   M = top-down-break visit(M) {
      case Tree t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
           => appl(p, [parseFragment(concrete)])[@\loc=t@\loc]
+          when !any(loc ign <- ignoredFunctionLocs, isContainedIn(t@\loc, ign))
    }
    
    return <M, tm>;
