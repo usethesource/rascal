@@ -106,7 +106,7 @@ private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternativ
 
 private MuExp tcc("tag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
 private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
-private MuExp tcc("assoc", [muCon(Associativity \assoc)]) = muCon(Associativity::\assoc(\assoc));
+private MuExp tcc("assoc", [muCon(Associativity \assoc)]) = muCon(Attr::\assoc(\assoc));
 
 // Associativity
 
@@ -161,7 +161,7 @@ private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] para
 private MuExp tcc("lit", [muCon(str string)]) = muCon(Symbol::lit(string));
 private MuExp tcc("cilit", [muCon(str string)]) = muCon(Symbol::cilit(string));
 private MuExp tcc("char-class", [muCon(list[CharRange] ranges)]) = muCon(Symbol::\char-class(ranges));
-private MuExp tcc("empty", []) = muCon(Symbol::empty());
+private MuExp tcc("empty", []) = muCon(empty());
 private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(Symbol::opt(symbol));
 
 private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(Symbol::iter(symbol));
