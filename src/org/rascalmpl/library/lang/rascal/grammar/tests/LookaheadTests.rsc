@@ -125,7 +125,7 @@ private SymbolUse SF = first(Session);
 
 test bool tSF1() = SF[sort("Question")] == {\char-class([range(63,63)])};
 test bool tSF2() = SF[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])};
-test bool tSF3() = SF[sort("Facts")] == {\char-class([range(33,33)]),empty()};
+test bool tSF3() = SF[sort("Facts")] == {\char-class([range(33,33)]),Symbol::empty()};
 test bool tSF4() = SF[lit("a")] == {\char-class([range(97,97)])};
 test bool tSF5() = SF[lit("!")] == {\char-class([range(33,33)])};
 test bool tSF6() = SF[lit("?")] == {\char-class([range(63,63)])};
