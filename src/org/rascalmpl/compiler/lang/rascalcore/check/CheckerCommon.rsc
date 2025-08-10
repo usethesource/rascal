@@ -291,7 +291,7 @@ ModuleStatus updateBOM(str qualifiedModuleName, ModuleStatus ms){
 }
 
 ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded = false){
-    if(ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
+    if(candidate in ms.tmodels && ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
             ms = updateBOM(candidate, ms);

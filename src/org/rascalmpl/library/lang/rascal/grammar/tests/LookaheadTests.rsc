@@ -1,5 +1,5 @@
 module lang::rascal::grammar::tests::LookaheadTests
-
+  
 import Grammar;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Characters;
@@ -92,8 +92,8 @@ test bool tF33() = F3[sort("E")] == F3[sort("T")];
 test bool tF34() = F3[lit("*")] == {\char-class([range(42,42)])};
 test bool tF35() = F3[lit("+")] == {\char-class([range(43,43)])};
 test bool tF36() = F3[lit("id")] == {\char-class([range(105,105)])};
-test bool tF37() = F3[sort("E1")] == {empty()} + F3[lit("+")];
-test bool tF38() = F3[sort("T1")] == {empty()} + F3[lit("*")];
+test bool tF37() = F3[sort("E1")] == {Symbol::empty()} + F3[lit("+")];
+test bool tF38() = F3[sort("T1")] == {Symbol::empty()} + F3[lit("*")];
 test bool tF39() = F3[lit("(")] == {\char-class([range(40,40)])};
 test bool tF310() = F3[lit(")")] == {\char-class([range(41,41)])};
       
@@ -125,7 +125,7 @@ private SymbolUse SF = first(Session);
 
 test bool tSF1() = SF[sort("Question")] == {\char-class([range(63,63)])};
 test bool tSF2() = SF[sort("Session")] == {\char-class([range(33,33)]),\char-class([range(40,40)]),\char-class([range(63,63)])};
-test bool tSF3() = SF[sort("Facts")] == {\char-class([range(33,33)]),empty()};
+test bool tSF3() = SF[sort("Facts")] == {\char-class([range(33,33)]),Symbol::empty()};
 test bool tSF4() = SF[lit("a")] == {\char-class([range(97,97)])};
 test bool tSF5() = SF[lit("!")] == {\char-class([range(33,33)])};
 test bool tSF6() = SF[lit("?")] == {\char-class([range(63,63)])};
