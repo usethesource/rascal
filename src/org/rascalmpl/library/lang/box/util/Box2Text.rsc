@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @synopsis{Two-dimensional text layout algorithm}
 @description{
-The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
+The input to Box2Text is a hierarchy of "Boxes" represented by the ((lang::box::\syntax::Box)) algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
 there is the global soft constraints of the width of the screen (or the paper). 
 
