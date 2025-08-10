@@ -74,7 +74,7 @@ private Production prod2prod(Symbol nt, Prod p) {
     case \all(Prod l, Prod r) :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
     case \first(Prod l, Prod r) : 
-      return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
+      return Symbol::priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
     case associativityGroup(\left(), Prod q) :
       return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
     case associativityGroup(\right(), Prod q) :
