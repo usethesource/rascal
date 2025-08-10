@@ -26,13 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
 
-data A = a(int i);
+syntax A = "a";
 
-void x(void(A) _) { }
-
-void main1(){
-  x(a);
-}
-
-data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
-bool main2() = f(_) := f(1);
+@ignore
+bool f() = (A) `a` := [A] "a";
