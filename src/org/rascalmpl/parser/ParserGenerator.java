@@ -219,7 +219,7 @@ public class ParserGenerator {
 			synchronized (evaluator) {
 				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 			}
-			debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
+			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
@@ -248,7 +248,7 @@ public class ParserGenerator {
 		synchronized (evaluator) {
 			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		}
-		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
+		debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 		
 		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
 	} catch (ClassCastException e) {
