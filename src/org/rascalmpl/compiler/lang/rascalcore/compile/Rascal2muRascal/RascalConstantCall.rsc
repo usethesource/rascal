@@ -106,18 +106,18 @@ private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternativ
 
 private MuExp tcc("tag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
 private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
-private MuExp tcc("assoc", [muCon(ParseTree::Associativity \assoc)]) = muCon(ParseTree::\assoc(\assoc));
+private MuExp tcc("assoc", [muCon(Associativity \assoc)]) = muCon(Attr::\assoc(\assoc));
 
 // Associativity
 
-private MuExp tcc("left", []) = muCon(ParseTree::\left());
-private MuExp tcc("right", []) = muCon(ParseTree::\right());
-private MuExp tcc("assoc", []) = muCon(ParseTree::\assoc());
-private MuExp tcc("non-assoc", []) = muCon(ParseTree::\non-assoc());
+private MuExp tcc("left", []) = muCon(Associativity::\left());
+private MuExp tcc("right", []) = muCon(Associativity::\right());
+private MuExp tcc("assoc", []) = muCon(Associativity::\assoc());
+private MuExp tcc("non-assoc", []) = muCon(Associativity::\non-assoc());
 
 // CharRange
 
-private MuExp tcc("range", [muCon(begin), muCon(end)]) = muCon(ParseTree::range(begin, end));
+private MuExp tcc("range", [muCon(begin), muCon(end)]) = muCon(CharRange::range(begin, end));
 
 // Symbols
 
@@ -132,7 +132,6 @@ private MuExp tcc("void", []) = muCon(\void());
 private MuExp tcc("value", []) = muCon(\value());
 private MuExp tcc("loc", []) = muCon(\loc());
 private MuExp tcc("datetime", []) = muCon(\datetime());
-
  
 private MuExp tcc("label", [muCon(str name), muCon(Symbol symbol)]) = muCon(\label(name, symbol));
 
@@ -153,38 +152,38 @@ private MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\
 private MuExp tcc("start", [muCon(Symbol symbol)]) = muCon(ParseTree::\start(symbol));
 
 private MuExp tcc("sort", [muCon(str name)]) = muCon(Symbol::sort(name));
-private MuExp tcc("lex", [muCon(str name)]) = muCon(lex(name));
-private MuExp tcc("layouts", [muCon(str name)]) = muCon(ParseTree::layouts(name));
-private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(name));
+private MuExp tcc("lex", [muCon(str name)]) = muCon(Symbol::lex(name));
+private MuExp tcc("layouts", [muCon(str name)]) = muCon(Symbol::layouts(name));
+private MuExp tcc("keywords", [muCon(str name)]) = muCon(Symbol::keywords(name));
 private MuExp tcc("parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 
 private MuExp tcc("lit", [muCon(str string)]) = muCon(Symbol::lit(string));
 private MuExp tcc("cilit", [muCon(str string)]) = muCon(Symbol::cilit(string));
 private MuExp tcc("char-class", [muCon(list[CharRange] ranges)]) = muCon(Symbol::\char-class(ranges));
-private MuExp tcc("empty", []) = muCon(ParseTree::empty());
+private MuExp tcc("empty", []) = muCon(empty());
 private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(Symbol::opt(symbol));
 
 private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(Symbol::iter(symbol));
 private MuExp tcc("iter-star", [muCon(Symbol symbol)]) = muCon(Symbol::\iter-star(symbol));
-private MuExp tcc("iter-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(ParseTree::\iter-seps(symbol, separators));
-private MuExp tcc("iter-star-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(ParseTree::\iter-star-seps(symbol, separators));
-private MuExp tcc("alt", [muCon(set[Symbol] alternatives)]) = muCon(ParseTree::alt(alternatives));
+private MuExp tcc("iter-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(Symbol::\iter-seps(symbol, separators));
+private MuExp tcc("iter-star-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(Symbol::\iter-star-seps(symbol, separators));
+private MuExp tcc("alt", [muCon(set[Symbol] alternatives)]) = muCon(Symbol::alt(alternatives));
 
-private MuExp tcc("seq", [muCon(list[Symbol] symbols)]) = muCon(ParseTree::seq(symbols));
-private MuExp tcc("conditional", [muCon(Symbol symbol), muCon(set[Condition] conditions)]) = muCon(ParseTree::conditional(symbol, conditions));
+private MuExp tcc("seq", [muCon(list[Symbol] symbols)]) = muCon(Symbol::seq(symbols));
+private MuExp tcc("conditional", [muCon(Symbol symbol), muCon(set[Condition] conditions)]) = muCon(Symbol::conditional(symbol, conditions));
   
 // Condition
 
-private MuExp tcc("follow", [muCon(Symbol symbol)]) = muCon(ParseTree::follow(symbol));
-private MuExp tcc("not-follow", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-follow(symbol));
-private MuExp tcc("precede", [muCon(Symbol symbol)]) = muCon(ParseTree::precede(symbol));
-private MuExp tcc("not-precede", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-precede(symbol));
-private MuExp tcc("delete", [muCon(Symbol symbol)]) = muCon(ParseTree::delete(symbol));
-private MuExp tcc("at-column", [muCon(int column)]) = muCon(ParseTree::\at-column(column));
-private MuExp tcc("begin-of-line", []) = muCon(ParseTree::\begin-of-line());
-private MuExp tcc("end-of-line", []) = muCon(ParseTree::\end-of-line());
-private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label));
+private MuExp tcc("follow", [muCon(Symbol symbol)]) = muCon(Condition::follow(symbol));
+private MuExp tcc("not-follow", [muCon(Symbol symbol)]) = muCon(Condition::\not-follow(symbol));
+private MuExp tcc("precede", [muCon(Symbol symbol)]) = muCon(Condition::precede(symbol));
+private MuExp tcc("not-precede", [muCon(Symbol symbol)]) = muCon(Condition::\not-precede(symbol));
+private MuExp tcc("delete", [muCon(Symbol symbol)]) = muCon(Condition::delete(symbol));
+private MuExp tcc("at-column", [muCon(int column)]) = muCon(Condition::\at-column(column));
+private MuExp tcc("begin-of-line", []) = muCon(Condition::\begin-of-line());
+private MuExp tcc("end-of-line", []) = muCon(Condition::\end-of-line());
+private MuExp tcc("except", [muCon(str label)]) = muCon(Condition::except(label));
 
 // Grammar
 private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)])
