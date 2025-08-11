@@ -77,6 +77,7 @@ data FormatOptions = formatOptions(
 data CaseInsensitivity
     = toLower()
     | toUpper()
+    | toCapitalized()
     | asIs()
     ;
 
@@ -234,6 +235,7 @@ private FO fo() = formatOptions();
 @synopsis{Implements normalization of case-insensitive literals}
 private str ci(str word, toLower()) = toLowerCase(word);
 private str ci(str word, toUpper()) = toUpperCase(word);
+private str ci(str word, toCapitalized()) = capitalize(word);
 private str ci(str word, asIs())    = word;
 
 @synopsis{Split a text by the supported whitespace characters}
