@@ -178,19 +178,19 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // operators. The effect will be somewhat like a separated list of expressions where
         // the operators are the separators.
         case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
-            return U([toBox(e) | e <- elements]);
+            return U([toBox(e, opts=opts) | e <- elements]);
 
         // postfix operators stick
         case <prod(sort(x),[sort(x),_,lit(_)], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // prefix operators stick
         case <prod(sort(x),[lit(_), _, sort(x)], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // brackets stick
         case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
