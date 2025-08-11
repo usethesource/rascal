@@ -20,6 +20,22 @@ public str simpleExample
       'end    
       '";
 
+public str ifThenElseExample
+    = "begin
+      '  declare
+      '    a : natural;
+      '  if a then 
+      '    a := 10
+      '  else
+      '    if a then 
+      '      a := 11 
+      '    else 
+      '      a := 12 
+      '    fi
+      '  fi
+      'end
+      '";
+
 @synopsis{Specification of what it means for `treeDiff` to be syntactically correct}
 @description{
 TreeDiff is syntactically correct if:
@@ -80,6 +96,15 @@ bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, (&T<:Tr
 start[Program] swapAB(start[Program] p) = visit(p) {
     case (Id) `a` => (Id) `b`
     case (Id) `b` => (Id) `a`
+};
+
+start[Program] swapIfBranches(start[Program] p) = visit(p) {
+    case (Statement) `if <Expression e> then <{Statement ";"}* thenBranch> else <{Statement ";"}* elseBranch> fi`
+      => (Statement) `if <Expression e> then 
+                     '  <{Statement ";"}* elseBranch> 
+                     'else 
+                     '  <{Statement ";"}* thenBranch>
+                     'fi`
 };
 
 start[Program] naturalToString(start[Program] p) = visit(p) {
@@ -172,6 +197,9 @@ test bool naturalToStringTest()
 test bool naturalToStringAndAtoBTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString o swapAB, treeDiff);
 
+test bool swapBranchesTest()
+    = editsAreSyntacticallyCorrect(#start[Program], ifThenElseExample, swapIfBranches, treeDiff);
+    
 test bool nulTestWithIdLayout()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity, layoutDiff)
     && editsMaintainIndentationLevels(#start[Program], simpleExample, identity, layoutDiff);
@@ -183,3 +211,4 @@ test bool indentAllLayout()
 test bool insertSpacesInDeclarationLayout()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, insertSpacesInDeclaration, layoutDiff)
     && editsMaintainIndentationLevels(#start[Program], simpleExample, insertSpacesInDeclaration, layoutDiff);
+

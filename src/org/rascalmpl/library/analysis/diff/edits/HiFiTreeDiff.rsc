@@ -400,7 +400,7 @@ Then it measures the depth of indentation of every line in the original, and tak
 That minimum indentation is stripped off every line that already has that much indentation in the replacement,
 and then _all_ lines are re-indented with the discovered minimum.
 }
-private str learnIndentation(loc span, str replacement, str original) {
+private str learnIndentation(loc span, str replacement, str original, bool useReplacementIndent=true) {
     list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
 
     origIndents = indents(original);
@@ -422,6 +422,11 @@ private str learnIndentation(loc span, str replacement, str original) {
     // TODO: if the minIndent is larger than the current line indent, it should still be stripped up to the max
     stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines];
     
-    return indent(minIndent, "<for (l <- stripped) {><l>
-                             '<}>"[..-1]);
+    // return indent(minIndent, "<for (l <- stripped) {><l>
+    //                          '<}>"[..-1]);
+    return indent(
+        minIndent, 
+        "<for (/^<theInd:[\t\ ]*><rest:[^\t\ ]+.*>$/ <- replLines) {><theInd[..max(size(minIndent), span.begin? ? span.begin.column : 0)]><rest>
+        '<}>"[..-1])
+    ;
 }
