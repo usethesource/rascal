@@ -79,13 +79,13 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
             case asOriginal():
                 return [];
             case asFormatted():
-                return [replace(t@\loc, "<u>") | "<u>" != yield];
+                return [replace(t@\loc, result) | str result := "<u>", result != yield];
             case toUpper():
-                return [replace(t@loc, result) | str result := toUpperCase(yield), result != yield]; 
+                return [replace(t@\loc, result) | str result := toUpperCase(yield), result != yield]; 
             case toLower():
-                return [replace(t@loc, result) | str result := toLowerCase(yield), result != yield]; 
+                return [replace(t@\loc, result) | str result := toLowerCase(yield), result != yield]; 
             case toCapitalized():
-                return [replace(t@loc, result) | str result := capitalize(yield), result != yield];
+                return [replace(t@\loc, result) | str result := capitalize(yield), result != yield];
         }
     }
 
