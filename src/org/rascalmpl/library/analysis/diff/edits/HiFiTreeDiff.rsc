@@ -94,7 +94,7 @@ import util::Math;
 @description{
 This is a "diff" algorithm of two parse trees to generate a ((TextEdit)) script that applies the differences on 
 the textual level, _with minimal collatoral damage in whitespace_. This is why it is called "HiFi": minimal unnecessary
-noise introduction to the original file.
+noise introduction to the original file. It also tries to conserve source code comments; where still possible.
 
 The resulting ((TextEdit))s are an intermediate representation for making changes in source code text files. 
 They can be executed independently via ((ExecuteTextEdits)), or interactively via ((IDEServices)), or LanguageServer features. 
@@ -113,7 +113,7 @@ However, the parsed tree could be different from the derived tree in terms of wh
 * when case-insensitive literals have been changed under a grammar rule that remained the same, no edits are produced.
 
 The function comes in handy when we use Rascal to rewrite parse trees, and then need to communicate the effect
-back to the IDE (for example using ((util::IDEServices)) or ((util::LanguageServer)) interfaces). We use
+back to the IDE (for example using ((util::IDEServices)) or `util::LanguageServer` interfaces). We use
 ((ExecuteTextEdits)) to _test_ the effect of ((TextEdits)) while developing a source-to-source transformation. 
 }
 @benefits{
@@ -125,6 +125,8 @@ the exactness of syntactic and semantic knowledge of the parse trees.
 * The algorithm retrieves and retains indentation levels from the original tree, even if sub-trees in the
 derived tree have mangled indentation. This allows us to ignore the indentation concern while thinking of rewrite
 rules for source-to-souce transformation, and focus on the semantic effect. 
+* The algorithm inherits source code comments from the original, wherever sub-trees of the original and the
+rewritten tree still line up. 
 }
 @pitfalls{
 * If the first argument is not an original parse tree, then basic assumptions of the algorithm fail and it may produce erroneous text edits.
@@ -133,8 +135,9 @@ rules for source-to-souce transformation, and focus on the semantic effect.
 and the performance of the algorithm will degenerate quickly.
 * If the parse tree of the original does not reflect the current state of the text in the file, then the generated text edits will do harm. 
 * If the original tree is not annotated with source locations, the algorithm fails.
-* Both parse trees must be type correct, e.g. the number of symbols in a production rule, must be equal to the number of elements of the argument list of ((Tree::appl)).
+* Both parse trees must be type correct, e.g. the number of symbols in a production rule, must be equal to the number of elements of the argument list of ((appl)).
 * This algorithm does not work with ambiguous (sub)trees.
+* When large sub-trees or sub-lists are moved to other parts of the tree, comment inheritance is not possible anymore. 
 }
 @examples{
 If we rewrite parse trees, this can be done with concrete syntax matching.
@@ -145,9 +148,9 @@ import lang::pico::\syntax::Main;
 import IO;
 import analysis::diff::edits::ExecuteTextEdits;
 import analysis::diff::edits::TextEdits;
-import analysis::diff::edits::TreeDiff;
+import analysis::diff::edits::HiFiTreeDiff;
 // an example Pico program:
-writeFile(|tmp://example.pico|,
+writeFile(|tmp:///example.pico|,
     "begin
     '   declare
     '       a : natural,
@@ -158,7 +161,8 @@ writeFile(|tmp://example.pico|,
     '       b := a
     '   fi
     'end");
-original = parse(#start[Program], |tmp://example.pico|);
+import ParseTree;
+original = parse(#start[Program], |tmp:///example.pico|);
 // match and replace all conditionals
 rewritten = visit(original) {
     case (Statement) `if <Expression e> then <{Statement ";"}* ifBranch> else <{Statement ";"}* elseBranch> fi`
@@ -178,6 +182,8 @@ edit = changed(original@\loc.top, edits);
 executeDocumentEdit(edit);
 // and when we read the result back, we see the transformation succeeded, and indentation was not lost:
 readFile(tmp://example.pico|);
+// It's also possible to directly rewrite the original string, for debugging purposes:
+executeTextEdits("<original>", treeDiff(original, rewritten))
 ```
 }
 // equal trees generate empty diffs (note this already ignores whitespace differences because non-linear matching ignores layout nodes)
