@@ -419,6 +419,7 @@ private str learnIndentation(loc span, str replacement, str original) {
         minIndent = sort(origIndents[1..])[0]? "";
     }
 
+    // TODO: if the minIndent is larger than the current line indent, it should still be stripped up to the max
     stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines];
     
     return indent(minIndent, "<for (l <- stripped) {><l>
