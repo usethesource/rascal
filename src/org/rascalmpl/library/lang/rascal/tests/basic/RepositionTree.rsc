@@ -1,5 +1,6 @@
 module lang::rascal::tests::basic::RepositionTree
 
+import List;
 import ParseTree;
 import lang::pico::\syntax::Main;
 
@@ -12,4 +13,31 @@ test bool repositionSimulatesReparse() {
     t2 = reposition(t1); // defaults set
     assert t1 := t2; // but that skips keyword parameters and layout
     return collect(t1) == collect(t2);
+}
+
+test bool removeAllAnnotations() {
+    t1 = parse(#start[Program], facPico);
+    t2 = reposition(t1, 
+        markSyntax=false, 
+        markLexical=false, 
+        markSubLexical=false, 
+        markAmb=false, 
+        markChar=false, 
+        markLayout=false,
+        markLit=false,
+        markStart=false,
+        markSubLit=false,
+        markSubLayout=false,
+        markRegular=false);
+    assert t1 := t2; // but that skips keyword parameters and layout
+    return collect(t2) == [];
+}
+
+test bool charsFromLeftToRight() {
+    t1 = parse(#start[Program], facPico);
+    t2 = reposition(t1, markChar=true);
+    allChars = [ch | /ch:char(_) := t2];
+    sortedChars = sort(allChars, bool (c1, c2) { return c1@\loc.offset < c2@\loc.offset;});
+
+    return allChars == sortedChars;
 }
