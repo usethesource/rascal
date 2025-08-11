@@ -869,7 +869,7 @@ in a ((Tree)) are not at all anymore what they were just after parsing:
 3. subtrees may have been introduced from concrete syntax expressions in Rascal code.
 4. other algorithms may have added more keyword fields, for example fully resolved qualified names,
 resolved types, error messages or future computations (closures).
-5. location fields themselves may have been lost accidentally when rewriting trees with ((Statement-Visit))
+5. location fields themselves may have been lost accidentally when rewriting trees with `visit`
 6. etc. 
 
 Some downstream algorithms (e.g. ((HiFiLayoutDiff)) ) require source locations to be consistent with the current actual position
