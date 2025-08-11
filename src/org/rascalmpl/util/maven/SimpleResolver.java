@@ -52,6 +52,7 @@ import org.apache.maven.settings.Mirror;
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
 
+    private static RepositoryDownloaderFactory downloaderFactory;
 
     private final List<RepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
@@ -65,6 +66,8 @@ import org.apache.maven.settings.Mirror;
         this.builder = builder;
         this.client = client;
         this.mirrors = new HashMap<>(mirrors);
+
+        downloaderFactory = new RepositoryDownloaderFactory(client);
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
@@ -108,6 +111,7 @@ import org.apache.maven.settings.Mirror;
     // a different repo than the pom file. This should not pose a problem as pom files with the
     // same version should be identical. If they are not, there is something seriously wrong with
     // the versioning in one of the repos and we are helpless to fix that anyway.
+    // Caveat: for SNAPSHOT versions this could be a problem in some edge case scenario.
     private Metadata downloadArtifactMetadata(String groupId, String artifactId, String versionSpec) throws UnresolvableModelException {
         Path metadataPath = calculateMetadataPath(groupId, artifactId);
         var url = String.format("/%s/%s/%s", groupId.replace('.', '/'), artifactId, metadataPath.getFileName().toString());
@@ -178,14 +182,7 @@ import org.apache.maven.settings.Mirror;
         }
         Mirror mirror = mirrors.get(repository.getId());
         Repo repo = mirror == null ?  new Repo(repository) : new MirrorRepo(mirror,repository);
-
-        // TODO: introduce a RepositoryDownloader factory
-        if (repo.getUrl().startsWith("file:")) {
-            this.availableRepostories.add(new FileRepositoryDownloader(repo));
-        }
-        else {
-            this.availableRepostories.add(new SimpleRepositoryDownloader(repo, client));
-        }
+        this.availableRepostories.add(downloaderFactory.createDownloader(repo));
     }
 
     public void addDownloaders(SimpleResolver originalResolver) {
