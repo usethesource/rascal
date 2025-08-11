@@ -751,7 +751,7 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     rel[loc, IdRole, AType] filteredOverloads = {};
-    prevFormals = [];
+    list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
 
     for(ovl:<_, _, tp> <- overloads){
