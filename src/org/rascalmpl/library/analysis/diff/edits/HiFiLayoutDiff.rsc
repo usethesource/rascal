@@ -69,6 +69,13 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = tru
         appl(p /* must be the same by the above assert */, list[Tree] argsB)) 
         = [*rec(a, b) | <a, b> <- zip2(argsA, argsB)]; 
 
+    default list[TextEdit] rec(
+        Tree t,
+        t
+    ) = []
+        when t is char
+          || t is cycle;
+
     // first add required locations to layout nodes
     original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
 
