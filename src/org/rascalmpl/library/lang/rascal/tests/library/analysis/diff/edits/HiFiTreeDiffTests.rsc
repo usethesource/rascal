@@ -1,6 +1,7 @@
 module lang::rascal::tests::library::analysis::diff::edits::HiFiTreeDiffTests
 
 extend analysis::diff::edits::ExecuteTextEdits;
+extend analysis::diff::edits::HiFiLayoutDiff;
 extend analysis::diff::edits::HiFiTreeDiff;
 extend lang::pico::\syntax::Main;
 
@@ -151,7 +152,7 @@ test bool naturalToStringAndAtoBTest()
 
 test bool nulTestWithIdLayout()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity, layoutDiff)
-    && editsMaintainIndentationLevels(#start[Program], simpleExample, indent(), layoutDiff);
+    && editsMaintainIndentationLevels(#start[Program], simpleExample, identity, layoutDiff);
 
 test bool indentAllLayout()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, indent(), layoutDiff)
@@ -159,4 +160,4 @@ test bool indentAllLayout()
 
 test bool insertSpacesInDeclarationLayout()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, insertSpacesInDeclaration, layoutDiff)
-    && editsMaintainIndentationLevels(#start[Program], simpleExample, indent(), layoutDiff);
+    && editsMaintainIndentationLevels(#start[Program], simpleExample, insertSpacesInDeclaration, layoutDiff);
