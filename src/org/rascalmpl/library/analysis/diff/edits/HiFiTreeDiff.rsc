@@ -242,14 +242,16 @@ private int seps(\iter-seps(_, list[Symbol] s))      = size(s);
 private int seps(\iter-star-seps(_, list[Symbol] s)) = size(s);
 private default int seps(Symbol _)                   = 0;
 
-@synopsis{List diff is like text diff on lines; complex and easy to make slow}
+@synopsis{List diff finds minimal differences between the elements of two lists.}
 @description{
 This algorithm uses heuristics to avoid searching for the largest common sublist all too often.
+Also it minimized the sublists that largest common sublist is executed on. 
 
 1. Since many patches to parse tree lists typically only change a prefix or a postfix, and we 
 can detect this quickly, we first extract patches for those instances.
-2. However, it is also very fast to detect unchanged prefixes and postfixes, so by focusing
+2. It is also fast and easy to detect unchanged prefixes and postfixes, so by focusing
 on the changes parts in the middle we generate more instances of case 1.
+3. Another simple and quick case is when simply all elements are different (the prefix==the list==the postfix)
 3. What we are left with is either an empty list and we are done, or a more complex situation
 where we apply the "largestEqualSubList" algorithm, which splits the list in three parts:
    * two unequal prefixes
@@ -283,7 +285,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
         // TODO: what about the separators?
         // we align the prefixes and the postfixes and
         // continue recursively.
-        
+        println("largestEqualSubList was used!");
         return edits 
             + listDiff(beginCover(span, preO), seps, preO, preR)   
             + listDiff(endCover(span, postO), seps, postO, postR)
