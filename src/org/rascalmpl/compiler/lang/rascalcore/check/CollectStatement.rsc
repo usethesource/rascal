@@ -163,7 +163,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     //c.calculate("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
 
-                    conditions = [];
+                    list[Condition] conditions = [];
                     if(replacement is conditional){
                         conditions = [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions];
                     }
