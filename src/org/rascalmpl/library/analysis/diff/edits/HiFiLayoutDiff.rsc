@@ -18,6 +18,7 @@ translating the tree to a `str` using some formatting tools, and then reparsing 
 @benefits{
 * Recovers source code comments which have been lost during earlier steps in the formatting pipeline. This makes losing source code comments an independent concern of a declarative formatter.
 * Recovers the original capitalization of case-insensitive literals which may have been lost during earlier steps in the formatting pipeline.
+* Can standardize the layout of case insensitive literals to ALLCAPS, all lowercase, or capitalized. Or can leave the literal as it was formatted by an earlier stage.
 * Is agnostic towards the design of earlier steps in the formatting pipeline, so lang as `formattedTree := originalTree`. This means that
 the pipeline may change layout (whitespace and comments and capitalization of case-insensitive literals), but nothing else.
 }
