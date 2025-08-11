@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @synopsis{Two-dimensional text layout algorithm}
 @description{
-The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
+The input to Box2Text is a hierarchy of "Boxes" represented by the ((lang::box::\syntax::Box)) algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
 there is the global soft constraints of the width of the screen (or the paper). 
 
@@ -216,12 +216,11 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
 
 private Text II([], Box _c, Options _opts, int _m) = [];
 
-private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+private Text II(list[Box] b:[_, *_]              , c:H(list[Box] _), Options opts, int m) 
+    = HH(b, c, opts, m);
 
-private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opts, int m) {
-    Text t = \continue(head, c, opts, m - opts.is);
-    return rhh(hskip(opts.is),  hh(t, II(tail, c, opts, m - opts.is - hwidth(t))));
-}
+private Text II(list[Box] b:[Box _, *Box _], c:V(list[Box] _), Options opts, int m) 
+    = rhh(hskip(opts.is), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
 
 private Text WDWD([], Box _c , Options _opts, int _m) 
     = [];
@@ -466,6 +465,12 @@ test bool wrappingWithIndent()
     = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), maxWidth=2, wrapAfter=2)
     == "AB
        '  C
+       '";
+
+test bool multiBoxIndentIsVertical()
+    = format(I([L("A"), L("B")]))
+    == "  A
+       '  B
        '";
 
 test bool flipping1NoIndent()

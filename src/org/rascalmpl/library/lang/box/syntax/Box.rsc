@@ -7,9 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
-
-import List;
 
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
