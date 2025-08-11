@@ -86,6 +86,8 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
                 return [replace(t@\loc, result) | str result := toLowerCase(yield), result != yield]; 
             case toCapitalized():
                 return [replace(t@\loc, result) | str result := capitalize(yield), result != yield];
+            default:
+                throw "unexpected option: <ci>";
         }
     }
 
