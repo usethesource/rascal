@@ -28,7 +28,6 @@ package org.rascalmpl.util.maven;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -47,10 +46,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.lang3.function.FailableFunction;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * A note about locking:
@@ -62,14 +58,11 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * and then moving the file to the final location.
  */
 
- // TODO: rename to HttpRepositoryDownloader or similar
-/*package*/ class SimpleRepositoryDownloader extends BaseRepositoryDownloader {
-    // TODO: what to do about non http(s) respositories?
-
+ /*package*/ class HttpRepositoryDownloader extends BaseRepositoryDownloader {
     private final HttpClient client;
     private final Random rand;
 
-    public SimpleRepositoryDownloader(Repo repo, HttpClient client) {
+    public HttpRepositoryDownloader(Repo repo, HttpClient client) {
         super(repo);
 
         this.client = client;

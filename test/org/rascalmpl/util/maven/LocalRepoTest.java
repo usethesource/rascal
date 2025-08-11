@@ -11,10 +11,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LocalRepoTest extends MavenTest {
+public class LocalRepoTest extends AbstractMavenTest {
     @Before
     public void replaceCentralWithLocalRepo() throws InvalidRepositoryException {
-        URL url = MavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
+        URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
         System.err.println("Adding repository: " + url);
 
         // Pass the repository URL through a system property so artifact resolvers can find it
