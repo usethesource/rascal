@@ -33,7 +33,7 @@ data CaseInsensitivity
     = toLower()
     | toUpper()
     | toCapitalized()
-    | asOriginal()
+    | asIs()
     | asFormatted()
     ;
 
@@ -41,7 +41,7 @@ data CaseInsensitivity
 @description{
 See ((HiFiLayoutDiff)).
 }
-list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = true, CaseInsensitivity ci = asOriginal()) {
+list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = true, CaseInsensitivity ci = asIs()) {
     assert original := formatted : "nothing except layout and keyword fields may be different for layoutDiff to work correctly.";
 
     @synopsis{rec is the recursive workhorse, doing a pairwise recursion over the original and the formatted tree}
@@ -77,7 +77,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
         str yield = "<t>";
 
         switch (ci) {
-            case asOriginal():
+            case asIs():
                 return [];
             case asFormatted():
                 return [replace(t@\loc, result) | str result := "<u>", result != yield];
