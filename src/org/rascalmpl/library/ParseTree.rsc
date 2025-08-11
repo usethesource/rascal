@@ -968,9 +968,11 @@ yield of a tree should always produce the exact same locations as ((reposition))
         }
       }
 
+      Tree washCC(Tree x) = x;
+
       return markChar 
-        ? char(ch)[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, curColumn>)]
-        : char(ch)
+        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, curColumn>)]
+        : washCC(char(ch))
         ;
     }
 
@@ -1019,3 +1021,4 @@ yield of a tree should always produce the exact same locations as ((reposition))
     // we start recursion at the top, not forgetting to merge its other keyword fields
     return mergeRec(tree, true);
 }
+ 
