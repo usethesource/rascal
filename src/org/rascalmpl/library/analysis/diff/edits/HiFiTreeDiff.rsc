@@ -411,19 +411,19 @@ private str learnIndentation(loc span, str replacement, str original, bool useRe
     }
 
     minIndent = "";
+
     if ([_] := origIndents) {
         // only one line. have to invent indentation from span
-        minIndent = "<for (_ <- [0..span.begin.column]) {> <}>";
+        minIndent = "<for (_ <- [0..(span.begin?) ? span.begin.column : 0]) {> <}>";
     }
     else {
+        // we skip the first line for learning indentation, because that one would typically be embedded in a previous line.
         minIndent = sort(origIndents[1..])[0]? "";
     }
 
-    // TODO: if the minIndent is larger than the current line indent, it should still be stripped up to the max
-    stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines];
-    
-    // return indent(minIndent, "<for (l <- stripped) {><l>
-    //                          '<}>"[..-1]);
+    // we remove the leading spaces _up to_ the minimal indentation of the original, 
+    // keep the rest of the indentation from the replacement (if any is left), and then the actual content.
+    // that entire multiline result is then lazily indented with the minimal indentation we learned from the original.
     return indent(
         minIndent, 
         "<for (/^<theInd:[\t\ ]*><rest:[^\t\ ]+.*>$/ <- replLines) {><theInd[..max(size(minIndent), span.begin? ? span.begin.column : 0)]><rest>
