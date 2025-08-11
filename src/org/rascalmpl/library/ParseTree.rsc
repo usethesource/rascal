@@ -968,7 +968,7 @@ yield of a tree should always produce the exact same locations as ((reposition))
         }
       }
 
-      Tree washCC(Tree x) = x;
+      Tree washCC(Tree x) = x; // workaround for issue #2342
 
       return markChar 
         ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, curColumn>)]
