@@ -208,6 +208,14 @@ public class RascalJUnitTestRunner extends Runner {
         return desc;
     }
 
+    private static boolean hasImportError(Description mod) {
+        if (mod.getAnnotations().stream().anyMatch(CompilationFailed.class::isInstance)) {
+            return true;
+        }
+        // Recursively check for errors
+        return mod.getChildren().stream().anyMatch(RascalJUnitTestRunner::hasImportError);
+    }
+
     @Override
     public void run(final RunNotifier notifier) {
         if (desc == null) {
@@ -216,9 +224,7 @@ public class RascalJUnitTestRunner extends Runner {
         notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
-            // TODO: this will never match because we are on the level of module descriptions now.
-            // This the reason that modules with errors in them silently succeed with 0 tests run.
-            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+            if (hasImportError(mod)) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
                 break;
             }
