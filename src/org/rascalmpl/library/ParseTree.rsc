@@ -147,6 +147,7 @@ extend Message;
 extend Type;
 
 import Node;
+import Set;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -996,17 +997,14 @@ yield of a tree should always produce the exact same locations as ((reposition))
     } 
 
     // ambiguity nodes are simply choices between alternatives which each receive their own positions.
-    Tree rec(t:amb(set[Tree] alts), bool sub) {
-      if (newAlts:{Tree x, *_} := {mergeRec(a, sub) | a <- alts}) {
-        // inherit the outermost positions from one of the alternatives, since they are all the same by definition.
-        return markAmb && x@\loc? 
-          ? amb(newAlts)[@\loc=x@\loc]
-          : amb(newAlts)
-          ;
-      }
-
-      // this never happens because there is always at least two alternatives in a cluster
-      fail; 
+    Tree rec(amb(set[Tree] alts), bool sub) {
+      newAlts = {mergeRec(a, sub) | a <- alts};  
+      // inherit the outermost positions from one of the alternatives, since they are all the same by definition.  
+      Tree x = getFirstFrom(newAlts);  
+      return markAmb && x@\loc? 
+        ? amb(newAlts)[@\loc=x@\loc]  
+        : amb(newAlts)  
+        ;   
     }
 
     @synopsis{Recurse, but not without recovering all other keyword parameters except "src" a.k.a. @\loc from the original.}
