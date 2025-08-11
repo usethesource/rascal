@@ -72,7 +72,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     list[TextEdit] rec(
         t:appl(prod(cilit(_), _, _), list[Tree] _),
         appl(prod(cilit(_), _, _), list[Tree] _)) {
-            
+
         str yield = "<t>";
 
         switch (ci) {
@@ -85,7 +85,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
             case toLower():
                 return [replace(t@loc, result) | str result := toLowerCase(yield), result != yield]; 
             case toCapitalized():
-                return [replace(t@loc, result) | str result := capitalize(yield), result != yield]
+                return [replace(t@loc, result) | str result := capitalize(yield), result != yield];
         }
     }
 
