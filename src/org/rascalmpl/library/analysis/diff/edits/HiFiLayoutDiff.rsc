@@ -72,7 +72,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     // however, we also offer some convenience functionality to standardize their formatting right here.
     list[TextEdit] rec(
         t:appl(prod(cilit(_), _, _), list[Tree] _),
-        appl(prod(cilit(_), _, _), list[Tree] _)) {
+        u:appl(prod(cilit(_), _, _), list[Tree] _)) {
 
         str yield = "<t>";
 
