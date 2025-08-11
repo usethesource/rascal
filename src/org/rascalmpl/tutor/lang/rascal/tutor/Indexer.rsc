@@ -23,7 +23,7 @@ Index readConceptIndex(PathConfig pcfg) {
 }
 
 Index createConceptIndex(PathConfig pcfg) {
-    targetFile = pcfg.bin + "index.value";
+    loc targetFile = pcfg.bin + "index.value";
 
     // in incremental mode we will have skipped many files. This
     // adds the old index to the newly created ones
