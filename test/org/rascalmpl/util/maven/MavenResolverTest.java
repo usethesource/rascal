@@ -39,7 +39,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class MavenResolverTest extends MavenTest {
+public class MavenResolverTest extends AbstractMavenTest {
     @Test
     public void rascalPomHasRightDependencies() throws ModelResolutionError {
         var parser = createParser("rascal/pom.xml");

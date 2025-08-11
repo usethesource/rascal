@@ -44,7 +44,7 @@ import org.junit.Test;
 
 public class SimpleRepositoryDownloaderTest {
     private static Path tempRepo;
-    private static SimpleRepositoryDownloader downloader;
+    private static HttpRepositoryDownloader downloader;
 
     @BeforeClass
     public static void setupRepo() throws IOException {
@@ -55,7 +55,7 @@ public class SimpleRepositoryDownloaderTest {
             .version(Version.HTTP_2) // upgrade where possible
             .connectTimeout(Duration.ofSeconds(10)) // don't wait longer than 10s to connect to a repo
             .build();
-        downloader = new SimpleRepositoryDownloader(new Repo(remoteRepo), httpClient);
+        downloader = new HttpRepositoryDownloader(new Repo(remoteRepo), httpClient);
     }
 
     @AfterClass

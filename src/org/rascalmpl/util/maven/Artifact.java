@@ -31,17 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -140,7 +134,7 @@ public class Artifact {
         var messages = IRascalValueFactory.getInstance().listWriter();
         var nextLevel = new ArrayList<Artifact>(dependencies.size());
         for (var d : dependencies) {
-            ArtifactCoordinate coordinate = d.getCoordinate();
+            var coordinate = d.getCoordinate();
             var withoutVersion = coordinate.versionLess();
 
             var version = coordinate.getVersion();
