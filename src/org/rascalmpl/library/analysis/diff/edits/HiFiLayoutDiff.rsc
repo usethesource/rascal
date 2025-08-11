@@ -13,6 +13,7 @@ translating the tree to a `str` using some formatting tools, and then reparsing 
 }
 @pitfalls{
 * if `originalTree !:= formattedTree` the algorithm will produce junk. It will break the syntactical correctness of the source code and forget source code comments.
+* if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm can not recover them.
 }
 @benefits{
 * Recovers source code comments which have been lost during earlier steps in the formatting pipeline. This makes losing source code comments an independent concern of a declarative formatter.
@@ -26,11 +27,20 @@ extend analysis::diff::edits::HiFiTreeDiff;
 import ParseTree; // this should not be necessary because imported by HiFiTreeDiff
 import String; // this should not be be necessary because imported by HiFiTreeDiff
 
+@synopsis{Normalization choices for case-insensitive literals.}
+data CaseInsensitivity
+    = toLower()
+    | toUpper()
+    | toCapitalized()
+    | asOriginal()
+    | asFormatted()
+    ;
+
 @synopsis{Extract TextEdits for the differences in whitespace between two otherwise identical ((ParseTree))s.}
 @description{
 See ((HiFiLayoutDiff)).
 }
-list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = true) {
+list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = true, CaseInsensitivity ci = asOriginal()) {
     assert original := formatted : "nothing except layout and keyword fields may be different for layoutDiff to work correctly.";
 
     @synopsis{rec is the recursive workhorse, doing a pairwise recursion over the original and the formatted tree}
@@ -45,7 +55,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = tru
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, copyComments ? learnComments(t, "<u>") : "<u>") | tArgs != uArgs] 
+        = [replace(t@\loc, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
@@ -57,11 +67,27 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = tru
         appl(prod(lit(_), _, _), list[Tree] _))
         = [];
 
-    // matched case-insensitive literal trees generate empty diffs such that the original is maintained
+    // matched case-insensitive literal trees generate empty diffs such that the original is maintained.
+    // however, we also offer some convenience functionality to standardize their formatting right here.
     list[TextEdit] rec(
-        appl(prod(cilit(_), _, _), list[Tree] _),
-        appl(prod(cilit(_), _, _), list[Tree] _))
-        = [];
+        t:appl(prod(cilit(_), _, _), list[Tree] _),
+        appl(prod(cilit(_), _, _), list[Tree] _)) {
+            
+        str yield = "<t>";
+
+        switch (ci) {
+            case asOriginal():
+                return [];
+            case asFormatted():
+                return [replace(t@\loc, "<u>") | "<u>" != yield];
+            case toUpper():
+                return [replace(t@loc, result) | str result := toUpperCase(yield), result != yield]; 
+            case toLower():
+                return [replace(t@loc, result) | str result := toLowerCase(yield), result != yield]; 
+            case toCapitalized():
+                return [replace(t@loc, result) | str result := capitalize(yield), result != yield]
+        }
+    }
 
     list[TextEdit] rec(
         char(_),
@@ -87,33 +113,51 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = tru
     return rec(original, formatted);
 }
 
-    
 @synopsis{Make sure the new layout still contains all the source code comments of the original layout}
 @description{
 This algorithm uses the @category("Comments") tag to detect source code comments inside layout substrings. If the original
 layout contains comments, we re-introduce the comments at the expected level of indentation. New comments present in the 
-replacement are also kept.
+replacement are kept and will overwrite any original comments. 
 
 This trick is complicated by the syntax of multiline comments and single line comments that have
 to end with a newline.
 }
-private str learnComments(Tree original, str replacement) {
-    commentStrings = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := original];
+@benefits{
+* if comments are kepts and formatted by tools like Tree2Box, then this algorithm does not overwrite these.
+* if comments were completely lost, then this algorithm _always_ puts them back (under assumptions of ((layoutDiff)))
+* recovered comments are indented according to the indentation discovered in the _formatted_ replacement tree.
+}
+@pitfalls{
+* if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
+}
+private str learnComments(Tree original, Tree replacement) {
+    originalComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := original];
 
-    if (commentStrings == []) {
-        return replacement;
+    if (originalComments == []) {
+        // if the original did not contain comments, stick with the replacements
+        return "<replacement>";
     }
     
-    // TODO this is still a w.i.p. 
-    // TODO: can we guarantee that these changes are grammatically correct? probably not..
-    if (/\n/ <- commentStrings) { // multiline
-        return "<for (c <- commentStrings, l <- split("\n", c)) {>
-            '<l><}><replacement>
-            '";
+    replacementComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := replacement];
+
+    if (replacementComments != []) {
+        // if the replacement contains comments, we assume they've been accurately retained by a previous stage (like Tree2Box):
+        return "<replacement>";
     }
-    else { // single line
-        return "<for (c <- commentStrings, l <- split("\n", c)) {><l><}><replacement>";
-    }
+
+    // At this point, we know that: (a) comments are not present in the replacement and (b) they used to be there in the original.
+    // So the old comments are going to be the new output. however, we want to learn indentation from the replacement.
+
+    // Drop the last newline of single-line comments, because we don't want two newlines in the output for every comment:
+    str dropEndNl(str line:/^.*\n$/) = (line[..-1]);
+    default str dropEndNl(str line)  = line;
+
+    // the first line of the replacement is the indentation to use.
+    str replacementIndent = split("\n", "<replacement>")[0];
+
+    // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
+    return "<for (c <- originalComments, str line <- split("\n", dropEndNl(c))) {><indent(replacementIndent, trim(line), indentFirstLine=true)>
+           '<}>";
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
