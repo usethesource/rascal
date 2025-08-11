@@ -83,11 +83,11 @@ for the entire subtree. Another way of resolving this is using a code formatter 
 module analysis::diff::edits::HiFiTreeDiff
 
 extend analysis::diff::edits::TextEdits;
-import ParseTree;
+
 import List;
-import String;
 import Location;
-import IO;
+import ParseTree;
+import String;
 import util::Math;
 
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
@@ -253,7 +253,7 @@ can detect this quickly, we first extract patches for those instances.
 on the changes parts in the middle we generate more instances of case 1.
 3. Another simple and quick case is when simply all elements are different (the prefix==the list==the postfix)
 3. What we are left with is either an empty list and we are done, or a more complex situation
-where we apply the "largestEqualSubList" algorithm, which splits the list in three parts:
+where we apply the "findEqualSubList" algorithm, which splits the list in three parts:
    * two unequal prefixes
    * two equal sublists in the middle
    * two unequal postfixes
@@ -274,7 +274,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
     edits += specialEdits;
         
-    equalSubList = largestEqualSubList(originals, replacements);
+    equalSubList = findEqualSubList(originals, replacements);
     
     // by using the (or "a") largest common sublist as a pivot to divide-and-conquer
     // to the left and right of it, we minimize the number of necessary 
@@ -285,7 +285,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
         // TODO: what about the separators?
         // we align the prefixes and the postfixes and
         // continue recursively.
-        println("largestEqualSubList was used!");
+        
         return edits 
             + listDiff(beginCover(span, preO), seps, preO, preR)   
             + listDiff(endCover(span, postO), seps, postO, postR)
@@ -322,10 +322,10 @@ uses particular properties of the relation between the original and the replacem
 * Equal prefixes and postfixes may be assumed to be maximal sublists as well (see above).
 * Candidate equal sublists always have consecutive source locations from the origin.
 }
-list[Tree] largestEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
-list[Tree] largestEqualSubList([*_, *Tree sub, *_], [*sub]) = sub;
-list[Tree] largestEqualSubList([*_, p, *Tree sub, q, *_], [*_, !p, *sub, !q, *_]) = sub;
-default list[Tree] largestEqualSubList(list[Tree] _orig, list[Tree] _repl) = [];
+list[Tree] findEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
+list[Tree] findEqualSubList([*_, *Tree sub, *_], [*sub]) = sub;
+list[Tree] findEqualSubList([*_, p, *Tree sub, q, *_], [*_, !p, *sub, !q, *_]) = sub;
+default list[Tree] findEqualSubList(list[Tree] _orig, list[Tree] _repl) = [];
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
 tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, 
@@ -400,7 +400,7 @@ Then it measures the depth of indentation of every line in the original, and tak
 That minimum indentation is stripped off every line that already has that much indentation in the replacement,
 and then _all_ lines are re-indented with the discovered minimum.
 }
-private str learnIndentation(loc span, str replacement, str original, bool useReplacementIndent=true) {
+private str learnIndentation(loc span, str replacement, str original) {
     list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
 
     origIndents = indents(original);
