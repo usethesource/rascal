@@ -31,8 +31,6 @@ bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree
     transformed = transform(orig);
     edits       = diff(orig, transformed);
     edited      = executeTextEdits(example, edits);
-    println("<transform> leads to:");
-    iprintln(edits);
 
     try {
         if (transformed := parse(grammar, edited)) {
