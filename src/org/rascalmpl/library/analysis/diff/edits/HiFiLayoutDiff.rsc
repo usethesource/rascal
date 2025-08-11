@@ -63,21 +63,23 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool copyComments = tru
         appl(prod(cilit(_), _, _), list[Tree] _))
         = [];
 
+    list[TextEdit] rec(
+        char(_),
+        char(_)
+    ) = [];
+
+    list[TextEdit] rec(
+        cycle(Symbol _, int _),
+        cycle(_, _)
+    ) = [];
+
     // recurse through the entire parse tree to collect layout edits:
     default list[TextEdit] rec(
         Tree t:appl(Production p, list[Tree] argsA),
         appl(p /* must be the same by the above assert */, list[Tree] argsB)) 
         = [*rec(a, b) | <a, b> <- zip2(argsA, argsB)]; 
 
-    default list[TextEdit] rec(
-        char(int c),
-        char(c)
-    ) = [];
-
-    default list[TextEdit] rec(
-        cycle(Symbol s, int l),
-        cycle(s, l)
-    ) = [];
+    
 
     // first add required locations to layout nodes
     original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
