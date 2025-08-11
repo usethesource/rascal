@@ -106,6 +106,18 @@ start[Program] addDeclarationToStart(start[Program] p) = visit(p) {
                      'end`
 };
 
+start[Program] addDeclarationToMiddle(start[Program] p) = visit(p) {
+    case (Program) `begin declare <{IdType ","}* pre>, <IdType middle>, <{IdType ","}* post>; <{Statement  ";"}* body> end`
+        => (Program) `begin
+                     '  declare
+                     '    <{IdType ","}* pre>,
+                     '    <IdType middle>,
+                     '    middle : natural,
+                     '    <{IdType ","}* post>;
+                     '  <{Statement  ";"}* body>
+                     'end`
+};
+
 start[Program](start[Program]) indent(str indentation = "  ", bool indentFirstLine = true) {
     return start[Program](start[Program] p) {
         return parse(#start[Program], indent(indentation, "<p>", indentFirstLine=indentFirstLine));
@@ -130,8 +142,20 @@ test bool addDeclarationToEndTest()
 test bool addDeclarationToStartTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart, treeDiff);
 
+test bool addDeclarationToMiddleTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToMiddle, treeDiff);
+
+test bool addDeclarationToStartAndMiddleTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToMiddle, treeDiff);
+
+test bool addDeclarationToMiddleAndEndTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToMiddle o addDeclarationToEnd, treeDiff);
+
 test bool addDeclarationToStartAndEndTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd, treeDiff);
+
+test bool addDeclarationToStartMiddleAndEndTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToMiddle o addDeclarationToEnd, treeDiff);
 
 test bool addDeclarationToEndAndSwapABTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd o swapAB, treeDiff);
