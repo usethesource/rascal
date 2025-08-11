@@ -377,7 +377,7 @@ private void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
 }
 
 private rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
-    lres =for(tup:<from, r, to> <- given){
+    lres =for(tup:<loc from, PathRole r, loc to> <- given){
             if(contains("<tup>", "Tst1")){
                 append tup;
             }
