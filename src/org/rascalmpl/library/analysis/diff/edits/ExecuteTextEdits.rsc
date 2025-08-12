@@ -37,7 +37,7 @@ void executeFileSystemChange(changed(loc file)) {
 }
 
 @synopsis{Edit a file according to the given ((TextEdit)) instructions}
-void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
+void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     str content = readFile(file);
 
     content = executeTextEdits(content, edits);
