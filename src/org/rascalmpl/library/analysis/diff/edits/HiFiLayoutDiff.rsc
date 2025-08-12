@@ -134,14 +134,14 @@ to end with a newline.
 * if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
 }
 private str learnComments(Tree original, Tree replacement) {
-    originalComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := original];
+    originalComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"(/^[Cc]omment$/)), *_}), _) := original];
 
     if (originalComments == []) {
         // if the original did not contain comments, stick with the replacements
         return "<replacement>";
     }
     
-    replacementComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"("Comment")), *_}), _) := replacement];
+    replacementComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"(/^[Cc]omment$/)), *_}), _) := replacement];
 
     if (replacementComments != []) {
         // if the replacement contains comments, we assume they've been accurately retained by a previous stage (like Tree2Box):
@@ -159,8 +159,9 @@ private str learnComments(Tree original, Tree replacement) {
     str replacementIndent = split("\n", "<replacement>")[0];
 
     // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
-    return "<for (c <- originalComments, str line <- split("\n", dropEndNl(c))) {><indent(replacementIndent, trim(line), indentFirstLine=true)>
-           '<}>";
+    return "<replacement>" + indent(replacementIndent,
+            "<for (c <- originalComments, str line <- split("\n", dropEndNl(c))) {><indent(replacementIndent, trim(line), indentFirstLine=true)>
+           '<}>"[..-1], indentFirstLine=false) + "<replacement>";
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;

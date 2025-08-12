@@ -84,7 +84,7 @@ data CaseInsensitivity
 
 @synopsis{This is the generic default formatter}
 @description{
-This generic formatter is to be overridden by someone constructig a formatter tools
+This generic formatter is to be overridden by someone constructing a formatter tools
 for a specific language. The goal is that this `toBox` default rule maps 
 syntax trees to plausible Box expressions, and that only a minimal amount of specialization
 by the user is necessary.
@@ -132,7 +132,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return HOV([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=0)
                 ], hs=0) | int i <- [0,4..size(elements)]]);
 
          // semi-colons are usually for statement separation
@@ -140,7 +140,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return V([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=0)
                 ], hs=0) | int i <- [0,4..size(elements)]]);
 
         // semi-colons are usually for parameters separation
@@ -164,17 +164,12 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
 
-        // if comments are found in layout trees, then we include them here
-        // and splice them into our context. If the deep match does not find any
-        // comments, then layout positions are reduced to U([]) which dissappears
-        // by splicing the empty list.
+        // we remove all layout node positions to make the number of children predictable
+        // comments can be recovered by `layoutDiff`
         case <prod(layouts(_), _, _), list[Tree] content>:
-            return U([toBox(u, opts=opts) | /u:appl(prod(_, _, {*_,\tag("category"(/^[Cc]omment$/))}), _) <- content]);
+            return NULL();
 
-        // single line comments are special, since they have the newline in a literal
-        // we must guarantee that the formatter will print the newline, but we don't 
-        // want an additional newline due to the formatter. We do remove any unnecessary
-        // spaces
+        // if we are given a comment node, then we can format it here for use by layoutDiff
         case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
@@ -182,6 +177,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                     ], hs=1)
                 ]);
 
+        // if we are given a comment node, then we can pretty print it here for use by layoutDiff     
         case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
