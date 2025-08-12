@@ -50,7 +50,7 @@ str formatPicoString(str file) {
 
 @synopsis{Pico Format function for use in an IDE}
 list[FileSystemChange] formatPico(start[Program] file)
-    = [changed(file@\loc, layoutDiff(file, parse(#start[Program], (format o toBox)(file), |unknown:///|)))];
+    = [changed(file@\loc.top, layoutDiff(file, parse(#start[Program], (format o toBox)(file), file@\loc.top)))];
 
 @synopsis{Make sure while loops are formatted the way we want them to be.}
 Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
@@ -58,4 +58,4 @@ Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO 
         H([L("while"), toBox(e, opts=opts), L("do")]),
         I([toBox(block, opts=opts)]),
         L("od")
-    ]);
+    ]); 
