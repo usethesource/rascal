@@ -204,11 +204,8 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // Those kinds of structures appear again and again as many languages share inspiration
         // from their pre-decessors. Watching out not to loose any comments...
 
-        // we flatten binary operators into their context for better flow of deeply nested
-        // operators. The effect will be somewhat like a separated list of expressions where
-        // the operators are the separators.
         case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
-            return U([toBox(e, opts=opts) | e <- elements]);
+            return HOV([toBox(elements[0], opts=opts), H([toBox(e, opts=opts) | e <- elements[1..]])]);
 
         // postfix operators stick
         case <prod(sort(x),[sort(x),_,lit(_)], _), list[Tree] elements>:
@@ -225,10 +222,10 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
-        case <prod(sort(/[stm]/), [lit(_), *_, lit(_)], _), list[Tree] elements>:
+        case <prod(sort(/[stm]/), [*Symbol pre, op:lit(_), *Symbol bl, cl:lit(_)], _), list[Tree] elements>:
             return V([
-                toBox(elements[0], opts=opts),
-                I([V([toBox(e, opts=opts) | e <- elements[1..-1]])]),
+                H([*[toBox(p, opts=opts) | Tree p <- elements[0..size(pre)]], toBox(elements[size(pre)], opts=opts)]),
+                I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),
                 toBox(elements[-1], opts=opts)
             ]);
     }
