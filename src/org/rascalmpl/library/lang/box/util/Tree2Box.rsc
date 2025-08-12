@@ -67,6 +67,7 @@ module lang::box::util::Tree2Box
 import ParseTree;
 import lang::box::\syntax::Box;
 import String;
+import IO;
 
 @synopsis{Configuration options for toBox}
 data FormatOptions = formatOptions(
@@ -118,8 +119,37 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star(_)), list[Tree] elements>:  
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
+        // comma's are usually for parameters separation
         case <regular(\iter-seps(_, [_, lit(","), _])), list[Tree] elements>:
-            return HV([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return HOV([
+                H([
+                    toBox(elements[i], opts=opts),
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                ], hs=0) | int i <- [0,4..size(elements)]]);
+
+        // comma's are usually for parameters separation
+        case <regular(\iter-star-seps(_, [_, lit(","), _])), list[Tree] elements>:
+            return HOV([
+                H([
+                    toBox(elements[i], opts=opts),
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                ], hs=0) | int i <- [0,4..size(elements)]]);
+
+         // semi-colons are usually for statement separation
+        case <regular(\iter-seps(_, [_, lit(";"), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                ], hs=0) | int i <- [0,4..size(elements)]]);
+
+        // semi-colons are usually for parameters separation
+        case <regular(\iter-star-seps(_, [_, lit(";"), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
+                ], hs=0) | int i <- [0,4..size(elements)]]);
 
         case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
