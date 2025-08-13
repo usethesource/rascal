@@ -10,6 +10,10 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @synopsis{Convert the Rascal internal grammar representation format (Grammar) to 
   a syntax definition in Rascal source code.}
+@pitfalls{
+This function does not use advanced formatting feature because it is a part of
+components early in Rascal's bootstrapping and standard library construction cycle.
+}
 module lang::rascal::format::Grammar
 
 import ParseTree;
