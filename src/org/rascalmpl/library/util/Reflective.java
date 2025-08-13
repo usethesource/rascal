@@ -210,7 +210,7 @@ public class Reflective {
 	    return sw.toString();
 	  }
 	
-	protected char[] getResourceContent(ISourceLocation location) throws IOException{
+	protected static char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
 		Reader textStream = null;
 		
@@ -228,17 +228,12 @@ public class Reflective {
 		return data;
 	}
 	
-	public ITree parseModuleWithSpaces(ISourceLocation loc) {
+	public static ITree parseModuleWithSpaces(ISourceLocation loc) {
 		try {
-			var content = getResourceContent(loc);
-			return parseModuleWithSpaces(loc, content);
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
-	}
-
-	public static ITree parseModuleWithSpaces(ISourceLocation loc, char[] content) {
-		return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), content, INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 
 	// Note -- copy in ReflectiveCompiled
