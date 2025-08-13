@@ -42,7 +42,10 @@ Effectively, a parse tree is a nested tree structure of type `Tree`.
    syntax definition.
    which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
 *  The leaves of a parse tree are always
-characters (`char`), which have an integer index in the UTF8 table. 
+characters (`char`), which have an integer index in the Unicode table. Specifically the 
+integer value is a decimal [codepoint](https://en.wikipedia.org/wiki/Code_point). A Unicode codepoint
+stands for an abstract character: an atomic unit of textual data. By the way, the first 127 characters are the
+same as the ASCII table. 
 
 *  Some internal nodes encode ambiguity (`amb`) by pointing to a set of 
 alternative `Tree` nodes.
