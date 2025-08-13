@@ -56,7 +56,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs] 
+        = [replace(t@\loc, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs, "<t>" != "<u>" /* avoid useless edits */] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
@@ -107,8 +107,6 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
         Tree t:appl(Production p, list[Tree] argsA),
         appl(p /* must be the same by the above assert */, list[Tree] argsB)) 
         = [*rec(a, b) | <a, b> <- zip2(argsA, argsB)]; 
-
-    
 
     // first add required locations to layout nodes
     original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
