@@ -166,4 +166,25 @@ public interface IDEServices extends IRascalMonitor {
   default void unregisterLocations(IString scheme, IString auth) {
     URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
 	}
+
+  /**
+   * Sends a notification to the debug client to start a debugging session on the given debug adapter port 
+   * 
+   * @param serverPort
+   */
+  default void startDebuggingSession(int serverPort){
+    
+  }
+
+  /**
+   * Register the debug adapter port for a given process
+   * 
+   * @param processID
+   * @param serverPort
+   */
+  default void registerDebugServerPort(int processID, int serverPort){
+    
+  }
+
+    
 }
