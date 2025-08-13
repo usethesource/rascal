@@ -28,6 +28,8 @@ package org.rascalmpl.util.maven;
 
 import java.net.http.HttpClient;
 
+import org.apache.maven.model.resolution.InvalidRepositoryException;
+
 public class RepositoryDownloaderFactory {
     private HttpClient client;
     
@@ -35,10 +37,13 @@ public class RepositoryDownloaderFactory {
         this.client = client;
     }
 
-    public RepositoryDownloader createDownloader(Repo repo) {
+    public RepositoryDownloader createDownloader(Repo repo) throws InvalidRepositoryException {
         if (repo.getUrl().startsWith("file:")) {
             return new FileRepositoryDownloader(repo);
+        } else if (repo.getUrl().startsWith("http:") || repo.getUrl().startsWith("https:")) {
+            return new HttpRepositoryDownloader(repo, client);
         }
-        return new HttpRepositoryDownloader(repo, client);
+
+        throw new InvalidRepositoryException("Unsupported repository URL: " + repo.getUrl(), repo.getMavenRepository());
     }
 }
