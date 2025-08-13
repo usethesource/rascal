@@ -12,45 +12,21 @@ import ParseTree;
 
 @synopsis{In-place formatting of an entire Pico file}
 void formatPicoFile(loc file) {
-    // first we parse the program
-    start[Program] tree = parse(#start[Program], file);
-
-    // then we apply an adaptable formatting style to every node
-    Box box = toBox(tree);
-
-    // then we solve the two-dimensional layout problem, and get a formatted result
-    str formatted = format(box);
-
-    // now we extract a list of exact differences from the old and a new parse tree
-    start[Program] formattedTree = parse(#start[Program], formatted, file);
-    list[TextEdit] edits = layoutDiff(tree, formattedTree);
-
-    // finally we apply the differences to the original file
+    edits = formatPicoTree(parse(#start[Program], file));
     executeFileSystemChanges([changed(file, edits)]);
 }
 
 @synopsis{Format a string that contains an entire Pico program}
 str formatPicoString(str file) {
-    // first we parse the program
     start[Program] tree = parse(#start[Program], file, |unknown:///|);
-
-    // then we apply an adaptable formatting style to every node
-    Box box = toBox(tree);
-
-     // then we solve the two-dimensional layout problem, and get a formatted result
-    str formatted = format(box);
-
-    // now we extract a list of exact differences from the old and a new parse tree
-    start[Program] formattedTree = parse(#start[Program], formatted, |unknown:///|);
-    list[TextEdit] edits = layoutDiff(tree, formattedTree);
-
-    // finally we apply the differences to the original contents
-    return executeTextEdits(file, edits);
+    return executeTextEdits(file, formatPico(tree)[0].edits);
 }
 
-@synopsis{Pico Format function for use in an IDE}
-list[FileSystemChange] formatPico(start[Program] file)
-    = [changed(file@\loc.top, layoutDiff(file, parse(#start[Program], (format o toBox)(file), file@\loc.top)))];
+@synopsis{Pico Format function for reuse in file, str or IDE-based formatting contexts}
+list[TextEdit] formatPicoTree(start[Program] file) {
+    formatted = format(toBox(file));
+    return layoutDiff(file, parse(#start[Program], formatted, file@\loc.top));
+}
 
 @synopsis{Format while}
 Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
