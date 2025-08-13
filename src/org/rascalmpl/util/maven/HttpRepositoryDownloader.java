@@ -127,14 +127,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                             writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
                         }
 
-                        // TODO: discuss if we want to return the new result even if writing failed, or maybe read the existing file?
                         return result;
                     }
                 } else {
                     try (var input = response.body()) {
                         R result = resultCreator.apply(input);
                         resultWriter.apply(result);
-                        // TODO: discuss if we want to return the new result even if writing failed, or maybe read the existing file?
                         return result;
                     }
                 }
