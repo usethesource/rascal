@@ -170,7 +170,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         if(matcher.group(1).equals("true")){
             if(!debugServer.isClientConnected()){
                 services.startDebuggingSession(debugServer.getPort());
-                message = "🔗 Debugging session started.";
+                message = "🐞 Debugging session started.";
             }
             else {
                 message = "🔗 Debugging session was already running.";
@@ -179,10 +179,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         else {
             if(debugServer.isClientConnected()){
                 debugServer.terminateDebugSession();
-                message = "🔗 Debugging session stopped.";
+                message = "🛑 Debugging session stopped.";
             }
             else {
-                message = "🔗 Debugging session was not running.";
+                message = "❌ Debugging session was not running.";
             }
         }
         return () -> new AsciiStringOutputPrinter(message);
