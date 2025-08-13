@@ -124,32 +124,54 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return HOV([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
-                ], hs=0) | int i <- [0,4..size(elements)]]);
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
         // comma's are usually for parameters separation
         case <regular(\iter-star-seps(_, [_, lit(","), _])), list[Tree] elements>:
             return HOV([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=0)
-                ], hs=0) | int i <- [0,4..size(elements)]]);
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
          // semi-colons are usually for statement separation
         case <regular(\iter-seps(_, [_, lit(";"), _])), list[Tree] elements>:
             return V([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=0)
-                ], hs=0) | int i <- [0,4..size(elements)]]);
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // optional semi-colons also happen often
+        case <regular(\iter-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
         // semi-colons are usually for parameters separation
         case <regular(\iter-star-seps(_, [_, lit(";"), _])), list[Tree] elements>:
             return V([
                 H([
                     toBox(elements[i], opts=opts),
-                    H([toBox(f, opts=opts) | f <- elements[i+1..i+3]], hs=1)
-                ], hs=0) | int i <- [0,4..size(elements)]]);
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // optional semi-colons also happen often
+        case <regular(\iter-star-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
         case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
@@ -164,8 +186,9 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
 
-        // we remove all layout node positions to make the number of children predictable
-        // comments can be recovered by `layoutDiff`
+        // We remove all layout node positions to make the number of children predictable
+        // Comments can be recovered by `layoutDiff`. By not recursing into layout
+        // positions `toBox` becomes more than twice as fast.
         case <prod(layouts(_), _, _), list[Tree] content>:
             return NULL();
 
