@@ -27,15 +27,12 @@
 package org.rascalmpl.dap;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,9 +49,7 @@ import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
@@ -136,15 +131,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 return response;
             }
 
-            String contents;
-            try(Reader reader = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
-                contents = Prelude.consumeInputStream(reader);
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-                response.setBreakpoints(new Breakpoint[0]);
-                return response;
-            }
-            ITree parseTree = Reflective.parseModuleWithSpaces(loc, contents.toCharArray());
+            ITree parseTree = Reflective.parseModuleWithSpaces(loc);
             breakpointsCollection.clearBreakpointsOfFile(loc.getPath());
             Breakpoint[] breakpoints = new Breakpoint[args.getBreakpoints().length];
             for(int i = 0; i<args.getBreakpoints().length; i++){
