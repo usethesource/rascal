@@ -197,13 +197,12 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 if (unicodeSupported) {
                     target.write(icon);
                 }
-                target.write(message);
-                target.println();
+                target.println(message);
             }
 
             @Override
             public String mimeType() {
-                return MimeTypes.ANSI;
+                return MimeTypes.PLAIN_TEXT;
             }
         };
     }
