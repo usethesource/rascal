@@ -24,7 +24,7 @@ public class REPLRunner implements ShellRunner {
         repl.run();
     }
 
-    public static Path getHistoryFile() throws IOException {
+    private static Path getHistoryFile() throws IOException {
         var home = FileSystems.getDefault().getPath(System.getProperty("user.home"));
         var rascalDir = home.resolve(".rascal");
         if (!Files.isDirectory(rascalDir)) {
