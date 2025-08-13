@@ -63,6 +63,8 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.MimeTypes;
 import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
@@ -166,26 +168,45 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         if (!matcher.find()) {
             return null;
         }
+        String icon;
         String message;
         if(matcher.group(1).equals("true")){
             if(!debugServer.isClientConnected()){
                 services.startDebuggingSession(debugServer.getPort());
-                message = "🐞 Debugging session started.";
+                icon = "🐞 ";
+                message = "Debugging session started.";
             }
             else {
-                message = "🔗 Debugging session was already running.";
+                icon = "🔗 ";
+                message = "Debugging session was already running.";
             }
         }
         else {
             if(debugServer.isClientConnected()){
                 debugServer.terminateDebugSession();
-                message = "🛑 Debugging session stopped.";
+                icon = "🛑 ";
+                message = "Debugging session stopped.";
             }
             else {
-                message = "❌ Debugging session was not running.";
+                icon = "❌ ";
+                message = "Debugging session was not running.";
             }
         }
-        return () -> new AsciiStringOutputPrinter(message);
+        return () -> new IOutputPrinter() {
+            @Override
+            public void write(PrintWriter target, boolean unicodeSupported) {
+                if (unicodeSupported) {
+                    target.write(icon);
+                }
+                target.write(message);
+                target.println();
+            }
+
+            @Override
+            public String mimeType() {
+                return MimeTypes.ANSI;
+            }
+        };
     }
 
     @Override
