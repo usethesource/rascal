@@ -52,10 +52,20 @@ str formatPicoString(str file) {
 list[FileSystemChange] formatPico(start[Program] file)
     = [changed(file@\loc.top, layoutDiff(file, parse(#start[Program], (format o toBox)(file), file@\loc.top)))];
 
-@synopsis{Make sure while loops are formatted the way we want them to be.}
+@synopsis{Format while}
 Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
     = V([
         H([L("while"), toBox(e, opts=opts), L("do")]),
         I([toBox(block, opts=opts)]),
         L("od")
+    ]); 
+
+@synopsis{Format if-then-else }
+Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`, FO opts = fo())
+    = V([
+        H([L("if"), toBox(e, opts=opts), L("then")]),
+            I([toBox(thenPart, opts=opts)]),
+        L("else"),
+            I([toBox(elsePart, opts=opts)]),
+        L("fi")
     ]); 
