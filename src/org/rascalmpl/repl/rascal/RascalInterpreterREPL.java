@@ -65,7 +65,6 @@ import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
-import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
