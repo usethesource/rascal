@@ -806,6 +806,8 @@ public interface IASTVisitor<T> {
 
   public T visitOptionalCommaLexical(OptionalComma.Lexical x);
 
+  public T visitOptionalEqualSignLexical(OptionalEqualSign.Lexical x);
+
   public T visitOptionalTerminatorLexical(OptionalTerminator.Lexical x);
 
   public T visitOutputLexical(Output.Lexical x);
