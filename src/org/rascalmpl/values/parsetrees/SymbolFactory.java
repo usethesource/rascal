@@ -40,6 +40,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -544,4 +545,58 @@ public class SymbolFactory {
     private static int rangeEnd(IConstructor range) {
         return ((IInteger) range.get("end")).intValue();
     }
+
+	private static final IRascalValueFactory VF = IRascalValueFactory.getInstance();
+
+	public static IConstructor makeSort(String name) {
+		return VF.constructor(RascalValueFactory.Symbol_Sort, VF.string(name));
+	}
+
+	public static IConstructor makeSort(String name, IList parameters) {
+		if (parameters.length() != 0) {
+			return VF.constructor(RascalValueFactory.Symbol_ParameterizedSort, VF.string(name), parameters);
+		}
+		else {
+			return makeSort(name);
+		}
+	}
+
+	public static IConstructor makeLex(String name) {
+		return VF.constructor(RascalValueFactory.Symbol_Lex, VF.string(name));
+	}
+
+	public static IConstructor makeLex(String name, IList parameters) {
+		if (parameters.length() != 0) {
+			return VF.constructor(RascalValueFactory.Symbol_ParameterizedLex, VF.string(name), parameters);
+		}
+		else {
+			return makeSort(name);
+		}
+	}
+
+	public static IConstructor makeKeyword(String name) {
+		return VF.constructor(RascalValueFactory.Symbol_Keywords, VF.string(name));
+	}
+
+	public static IConstructor makeKeyword(String name, IList parameters) {
+		if (parameters.length() != 0) {
+			throw new IllegalArgumentException("keyword types can not have parameters");
+		}
+		else {
+			return makeKeyword(name);
+		}
+	}
+
+	public static IConstructor makeLayout(String name) {
+		return VF.constructor(RascalValueFactory.Symbol_Layouts, VF.string(name));
+	}
+
+	public static IConstructor makeLayout(String name, IList parameters) {
+		if (parameters.length() != 0) {
+			throw new IllegalArgumentException("layout types can not have parameters");
+		}
+		else {
+			return makeLayout(name);
+		}
+	}
 }

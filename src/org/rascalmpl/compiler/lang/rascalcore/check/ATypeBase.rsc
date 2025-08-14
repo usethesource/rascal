@@ -337,6 +337,16 @@ data AType
      | \start(AType atype)
      ;
 
+@synopsis{These are the syntax role modifier constructors}
+data AType = \asyntaxRoleModifier(SyntaxRole role, AType modified);
+
+@synopsis{this is the core modifier feature: force the "role", keep the rest}
+AType asyntaxRoleModifier(SyntaxRole newRole, aadt(n, ps, SyntaxRole _oldRole)) = aadt(n, ps, newRole);
+
+@synopsis{The outermost modifier eventually always wins, even on open modified types.}
+AType asyntaxRoleModifier(SyntaxRole role, asyntaxRoleModifier(_, AType s))
+  = asyntaxRoleModifier(role, s);
+
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
 

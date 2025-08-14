@@ -142,9 +142,10 @@ run-time already uses `.src` while the source code still uses `@\loc`.
 
 module ParseTree
 
-extend Type;
-extend Message;
 extend List;
+extend Message;
+extend Type;
+
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -310,7 +311,99 @@ data Symbol
 data Symbol // <19>
      = \conditional(Symbol symbol, set[Condition] conditions);
 
-bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+data Symbol
+    = \syntax(Symbol modified)
+    | \lexical(Symbol modified)
+    | \keyword(Symbol modified)
+    | \layout(Symbol modified)
+    ;
+
+Symbol \data(\syntax(Symbol s))  = \data(s);
+Symbol \data(\lexical(Symbol s)) = \data(s);
+Symbol \data(\keyword(Symbol s)) = \data(s);
+Symbol \data(\layout(Symbol s))  = \data(s);
+
+Symbol \data(a:adt(n, ps))               = a;
+Symbol \data(sort(n))                    = \adt(n, []);
+Symbol \data(\parameterized-sort(n, ps)) = \adt(n, ps);
+Symbol \data(lex(n))                     = \adt(n, []);
+Symbol \data(\parameterized-lex(n, ps))  = \adt(n, ps);
+Symbol \data(\keywords(n))               = \adt(n, []);
+Symbol \data(\layouts(n))                = \adt(n, []);
+
+Symbol \syntax(\data(Symbol s))    = \syntax(s);
+Symbol \syntax(\syntax(Symbol s))  = \syntax(s);
+Symbol \syntax(\lexical(Symbol s)) = \syntax(s);
+Symbol \syntax(\keyword(Symbol s)) = \syntax(s);
+Symbol \syntax(\layout(Symbol s))  = \syntax(s);
+
+Symbol \syntax(adt(n, []))               = sort(n);
+Symbol \syntax(adt(n, [p, *ps]))         = \parameterized-sort(n, [p, *ps]);
+Symbol \syntax(lex(n))                   = sort(n);
+Symbol \syntax(\parameterized-lex(n,ps)) = \parameterized-sort(n,ps);
+Symbol \syntax(sort(n))                  = sort(n);
+Symbol \syntax(\parameterized-sort(n,ps))= \parameterized-sort(n,ps);
+Symbol \syntax(\keywords(n))             = sort(n);
+Symbol \syntax(\layouts(n))              = sort(n);
+
+Symbol \lexical(\data(Symbol s))    = \lexical(s);
+Symbol \lexical(\syntax(Symbol s))  = \lexical(s);
+Symbol \lexical(\lexical(Symbol s)) = \lexical(s);
+Symbol \lexical(\keyword(Symbol s)) = \lexical(s);
+Symbol \lexical(\layout(Symbol s))  = \lexical(s);
+
+Symbol \lexical(adt(n, []))               = lex(n);
+Symbol \lexical(adt(n, [p, *ps]))         = \parameterized-lex(n, [p, *ps]);
+Symbol \lexical(lex(n))                   = lex(n);
+Symbol \lexical(\parameterized-lex(n,ps)) = \parameterized-lex(n,ps);
+Symbol \lexical(sort(n))                  = lex(n);
+Symbol \lexical(\parameterized-sort(n,ps))= \parameterized-lex(n,ps);
+Symbol \lexical(\keywords(n))             = lex(n);
+Symbol \lexical(\layouts(n))              = lex(n);
+
+Symbol \keyword(\data(Symbol s))    = \keyword(s);
+Symbol \keyword(\syntax(Symbol s))  = \keyword(s);
+Symbol \keyword(\lexical(Symbol s)) = \keyword(s);
+Symbol \keyword(\keyword(Symbol s)) = \keyword(s);
+Symbol \keyword(\layout(Symbol s))  = \keyword(s);
+
+Symbol \keyword(adt(n, []))        = keywords(n);
+Symbol \keyword(lex(n))            = keywords(n);
+Symbol \keyword(sort(n))           = keywords(n);
+Symbol \keyword(\keywords(n))      = keywords(n);
+Symbol \keyword(\layouts(n))       = keywords(n);
+
+Symbol \layout(\data(Symbol s))    = \layout(s);
+Symbol \layout(\syntax(Symbol s))  = \layout(s);
+Symbol \layout(\lexical(Symbol s)) = \layout(s);
+Symbol \layout(\keyword(Symbol s)) = \layout(s);
+Symbol \layout(\layout(Symbol s))  = \layout(s);
+
+Symbol \layout(adt(n, []))         = layouts(n);
+Symbol \layout(lex(n))             = layouts(n);
+Symbol \layout(sort(n))            = layouts(n);
+Symbol \layout(\keywords(n))       = layouts(n);
+Symbol \layout(\layouts(n))        = layouts(n);
+
+
+bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\parameterized-sort(_,_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\lex(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\parameterized-lex(_,_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\keywords(_), Symbol::\adt("Tree", [])) = true;
+
+bool subtype(\syntax(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\lexical(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\layout(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\keyword(_), Symbol::\adt("Tree", [])) = true;
+
+bool subtype(\syntax(parameter(_,_)), sort(_))                  = true;
+bool subtype(\syntax(parameter(_,_)), \parameterized-sort(_,_)) = true;
+bool subtype(\lexical(parameter(_,_)), lex(_))                  = true;
+bool subtype(\lexical(parameter(_,_)), \parameterized-lex(_,_)) = true;
+bool subtype(\keyword(parameter(_,_)), keywords(_))             = true;
+bool subtype(\layout(parameter(_,_)), layouts(_))               = true;
 
 
 @synopsis{Datatype for declaring preconditions and postconditions on symbols}
@@ -740,7 +833,6 @@ data Exp = add(Exp, Exp);
 ```
 }
 java &T<:value implode(type[&T<:value] t, Tree tree);
-
 
 @synopsis{Annotate a parse tree node with an (error) message.}
 anno Message Tree@message;

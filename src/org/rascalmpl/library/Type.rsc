@@ -93,6 +93,14 @@ data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
 
+data Symbol = \data(Symbol modified); // to-data modifier
+
+Symbol \data(\data(Symbol s)) = \data(s);
+Symbol \data(adt(n, ps))      = adt(n, ps);
+
+bool subtype(\data(Symbol s), \node())        = true;
+bool subtype(\data(parameter(_,_)), adt(_,_)) = true;
+
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
@@ -499,7 +507,30 @@ public java &T make(type[&T] typ, str name, list[value] args);
  
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
- 
+
+@javaClass{org.rascalmpl.library.Type}
+@synopsis{Instantiate a constructor value by first declaring the given constructor and then applying it to the given parameters.}
+@description{
+The grammar rules for data constructors in a reified type can inversely be applied
+again to construct constructor instances, dynamically.
+
+This "reflection" feature is dynamically typed, so we don't know statically which type
+of ADT will come out.
+}
+@examples{
+This is the value-ified represention of `data Exp = constant(int n)`:
+```rascal-shell
+import Type;
+rule = cons(label("constant",adt("Exp",[])),[label("n",\int())],[],{});
+// we can use it to instantiate a constructor value that uses that rule:
+example = make(rule, [1]);
+// to illustrate we now construct it the normal way and test for equivalence:
+data Exp = constant(int n);
+example == constant(1);
+```
+}
+public java node make(Production cons, list[value] args, map[str,value] keywordArgs=());
+
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
 As opposed to the # operator, which produces the type of a value statically, this
@@ -524,6 +555,9 @@ reify operator `#` does, since values may escape the scope in which they've been
 }
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);
+
+@javaClass{org.rascalmpl.library.Type}
+public java Production getConstructor(&A <: node constructor);
 
 @synopsis{Determine if the given type is an int.}
 public bool isIntType(Symbol::\alias(_,_,Symbol at)) = isIntType(at);

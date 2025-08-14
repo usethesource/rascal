@@ -22,7 +22,6 @@ public abstract class RascalType extends ExternalType {
     @Override
     protected boolean intersectsWithExternal(Type type) {
         assert type instanceof RascalType;
-        System.err.println(this.toString() + "Intersects with " + type);
         return intersects((RascalType) type);
     }
 
@@ -39,6 +38,10 @@ public abstract class RascalType extends ExternalType {
     protected abstract boolean isSupertypeOf(RascalType type);
 
     public boolean isSubtypeOfNonTerminal(RascalType type) {
+        return false;
+    }
+
+    public boolean isSubtypeOfSyntaxModifier(RascalType type) {
         return false;
     }
 
@@ -62,6 +65,10 @@ public abstract class RascalType extends ExternalType {
         return TF.valueType();
     }
 
+    protected Type lubWithModifySyntax(RascalType type) {
+        return TF.valueType();
+    }
+
     protected Type glbWithNonTerminal(RascalType type) {
         return TF.voidType();
     }
@@ -74,6 +81,9 @@ public abstract class RascalType extends ExternalType {
         return TF.voidType();
     }
 
+    protected Type glbWithModifySyntax(RascalType type) {
+        return TF.voidType();
+    }
     
     protected boolean intersectsWithNonTerminal(RascalType type) {
         return false;
@@ -84,6 +94,10 @@ public abstract class RascalType extends ExternalType {
     }
 
     protected boolean intersectsWithReified(RascalType type) {
+        return false;
+    }
+
+     protected boolean intersectsWithModifySyntax(RascalType type) {
         return false;
     }
     
@@ -99,6 +113,10 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
+    public boolean isRoleModifier() {
+        return false;
+    }
+
     public static boolean isNonterminal(Type type) {
         return type.isExternalType() && ((RascalType) type).isNonterminal();
     }
@@ -110,4 +128,9 @@ public abstract class RascalType extends ExternalType {
     public static boolean isFunction(Type type) {
         return type.isExternalType() && ((RascalType) type).isFunction();
     }
+
+     public static boolean isRoleModifier(Type type) {
+        return type.isExternalType() && ((RascalType) type).isRoleModifier();
+    }
+
 }
