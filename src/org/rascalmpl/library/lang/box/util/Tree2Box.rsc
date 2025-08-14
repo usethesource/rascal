@@ -189,7 +189,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // We remove all layout node positions to make the number of children predictable
         // Comments can be recovered by `layoutDiff`. By not recursing into layout
         // positions `toBox` becomes more than twice as fast.
-        case <prod(layouts(_), _, _), list[Tree] content>:
+        case <prod(layouts(_), _, _), list[Tree] _>:
             return NULL();
 
         // if we are given a comment node, then we can format it here for use by layoutDiff
