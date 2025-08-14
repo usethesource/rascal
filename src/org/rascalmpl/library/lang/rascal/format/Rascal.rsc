@@ -56,6 +56,19 @@ list[TextEdit] formatRascalModule(start[Module] \module)
 
 Box toBox(Toplevel* toplevels) = V([toBox(t) | t <- toplevels], vs=2);
 
+Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <Body body>`)
+    = V([
+        toBox(tags),
+        H([L("module"), toBox(name)]),
+        toBox(imports),
+        toBox(body)
+    ], vs=1);
+
+Box toBox(Import* imports) = V([toBox(i) | i <- imports]);
+
+Box toBox((Import) `import <ImportedModule m> ;`)
+    = H([L("import"), H([toBox(m), L(";")], hs=0)]);
+
 Box toBox((Visibility) ``) = NULL();
 
 /* Declarations */
@@ -138,3 +151,18 @@ Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Express
         I([H([L("?"), toBox(thenExp)])]),
         I([H([L(":"), toBox(elseExp)])])
     ]);
+
+// call without kwargs
+Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
+    = H([toBox(caller), L("("), toBox(arguments), L(")")], hs=0);
+
+// call with kwargs
+Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = H([toBox(caller), L("("), toBox(arguments), H([L(","), toBox(kwargs)], hs=1), L(")")], hs=0);
+
+// call with kwargs no-comma
+Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
+
+Box toBox({KeywordArgument[Expression] ","}+ args) 
+    = HV([G([toBox(a), L(",") | a <- args][..-1], gs=2, op=H, hs=0)]);
