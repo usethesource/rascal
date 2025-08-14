@@ -3,9 +3,9 @@
 Using four generic or generated, "language parametric", building blocks we construct a Pico formatting pipeline:
 
 * ((ParseTree)) is used to _generate_ a parser for Pico.   
-* ((Tree2Box)) provides the extensible/overridable and declarative ((toBox) function which maps language constructs to Box expressions. 
+* ((Tree2Box)) provides the extensible/overridable and declarative ((toBox)) function which maps language constructs to Box expressions. 
 The ((toBox)) function combines generic language-parametric rules, as well as bespoke language specific rules..
-* ((Box2Tree)) is a _generic_ reusable algorithm for two-dimensional string layout.
+* ((Box2Text)) is a _generic_ reusable algorithm for two-dimensional string layout.
 * Finally, ((HiFiLayoutDiff)) _generically_ extracts ((TextEdit))s from two trees which are equal modulo whitespace and comments.
 }
 @benefits{
@@ -36,7 +36,7 @@ void formatPicoFile(loc file) {
 @synopsis{Format a string that contains an entire Pico program}
 str formatPicoString(str file) {
     start[Program] tree = parse(#start[Program], file, |unknown:///|);
-    return executeTextEdits(file, formatPico(tree)[0].edits);
+    return executeTextEdits(file, formatPicoTree(tree));
 }
 
 @synopsis{Pico Format function for reuse in file, str or IDE-based formatting contexts}
