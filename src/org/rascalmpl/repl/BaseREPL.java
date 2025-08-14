@@ -38,6 +38,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
@@ -87,7 +88,7 @@ public class BaseREPL {
         } else {
             this.history = null;
         }
-        reader.option(Option.BRACKETED_PASTE, true);
+        reader.option(Option.BRACKETED_PASTE, false); // disable bracket paste
         reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
         reader.option(Option.DISABLE_EVENT_EXPANSION, true); // stop jline expending escaped characters in the input
         reader.variable(LineReader.LINE_OFFSET, 1);
@@ -95,6 +96,7 @@ public class BaseREPL {
 
         if (replService.supportsCompletion()) {
             reader.completer(new AggregateCompleter(replService.completers()));
+            reader.completionMatcher(replService.completionMatcher());
         }
         this.ansiColorsSupported = !term.getType().equals(Terminal.TYPE_DUMB);
         this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
@@ -121,6 +123,7 @@ public class BaseREPL {
             while (keepRunning) {
                 try {
                     replService.flush();
+                    term.writer().write(LineReaderImpl.BRACKETED_PASTE_OFF); // disable bracket paste
                     String line = reader.readLine(this.normalPrompt);
 
                     if (line == null) {
