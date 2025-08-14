@@ -101,7 +101,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
 
   messages = compile(pcfg);
   
-  return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
+  return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
