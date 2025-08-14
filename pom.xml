@@ -581,7 +581,7 @@
         <dependency> <!-- file watch support -->
             <groupId>engineering.swat</groupId>
             <artifactId>java-watch</artifactId>
-            <version>0.9.3</version>
+            <version>0.9.4</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
