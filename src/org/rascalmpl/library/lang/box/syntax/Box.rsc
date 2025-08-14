@@ -81,3 +81,12 @@ algorithm starts counting boxes and widths.
 * NULL will be formatted as `H([])` if it's the outermost Box.
 }
 Box NULL() = U([]);
+
+@synopsis{Convenience box for adding separators to an existing box list}
+@description{
+Each element is wrapped by the `op` operator together with the next separator.
+The resulting list is wrapped by a G box, of which the elements will be spliced
+into their context. 
+}
+Box SL(list[Box] boxes, Box sep, Box(list[Box]) op = H, int hs=1, int vs=0, int is=4)
+  = G([b, sep | b <- boxes][..-1], op=op, hs=hs, vs=vs, is=is);

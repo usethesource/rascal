@@ -128,12 +128,11 @@ Box toBox((Tag) `@<Name n> <TagString c>`)
     , hs=0)
     when "<n>" != "synopsis";
 
-// syntax Parameters
-// 	= \default: "(" Formals formals KeywordFormals keywordFormals ")" 
-// 	| varArgs: "(" Formals formals "..." KeywordFormals keywordFormals ")" ;
-
 Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
     = H([L("("), H([toBox(formals), toBox(keywordFormals)]), L(")")], hs=0);
+
+Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)`)
+    = H([L("("), H([H([toBox(formals), L("...")], hs=0), toBox(keywordFormals)]), L(")")], hs=0);
 
 /* Statements */
 
@@ -165,4 +164,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{Keyw
     = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
 
 Box toBox({KeywordArgument[Expression] ","}+ args) 
-    = HV([G([toBox(a), L(",") | a <- args][..-1], gs=2, op=H, hs=0)]);
+    = SL([toBox(a) | a <- args], L(","), hs=0);
+
+// this should not be necessary
+// Box HV([H([])]) = U([]);
