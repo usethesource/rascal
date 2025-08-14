@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.utils.InfoCmp.Capability;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.OptionalTerminator;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -198,8 +197,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class SetOptionTrue extends org.rascalmpl.ast.ShellCommand.SetOptionTrue {
 
-			public SetOptionTrue(ISourceLocation src, IConstructor node, OptionalTerminator terminator) {
-				super(src, node, terminator);
+			public SetOptionTrue(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
+				super(src, node, name, terminator);
 			}
 
 		@Override
@@ -212,8 +211,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	static public class UnsetOptionTrue extends org.rascalmpl.ast.ShellCommand.UnsetOption {
 
-		public UnsetOptionTrue(ISourceLocation src, IConstructor node, OptionalTerminator terminator) {
-			super(src, node, terminator);
+		public UnsetOptionTrue(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
+			super(src, node, name, terminator);
 		}
 
 		@Override
@@ -249,9 +248,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 	static public class SetOption extends
 			org.rascalmpl.ast.ShellCommand.SetOption {
 
-		public SetOption(ISourceLocation __param1, IConstructor tree, QualifiedName __param2,
-				Expression __param3, OptionalTerminator term) {
-			super(__param1, tree, __param2, __param3, term);
+		public SetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalEqualSign sign,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalTerminator terminator) {
+			super(src, node, name, sign, expression, terminator);
 		}
 
 		@Override
