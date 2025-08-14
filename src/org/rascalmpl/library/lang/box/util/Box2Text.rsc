@@ -121,14 +121,17 @@ data Options = options(
     int hs = 1, 
     int vs = 0, 
     int is = 4, 
-    int maxWidth=80, 
-    int wrapAfter=70
+    int maxWidth = 80, 
+    int wrapAfter = 70
 );
 
 @synopsis{Quickly splice in any nested U boxes, and empty H, V, HV, I or HOV boxes}
 list[Box] u(list[Box] boxes) {
-    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, b notin {H([]),V([]),HV([]),HOV([]),I([])}];
+    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, !isDegenerate(b)];
 }
+
+@synopsis{Empty H, V, HOV, HV, I boxes should not lead to accidental extra separators in their context}
+private bool isDegenerate(Box b) = b has boxes && b.boxes == [];
 
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
@@ -443,15 +446,15 @@ test bool verticalPlacement1()
 test bool verticalIndentation2()
     = format(V([L("A"), I([L("B")]), L("C")]))
     == "A
-       '  B
+       '    B
        'C
        '";
 
 test bool blockIndent()
     = format(V([L("A"), I([V([L("B"), L("C")])]), L("D")]))
     == "A
-       '  B
-       '  C
+       '    B
+       '    C
        'D
        '";
 
@@ -464,13 +467,13 @@ test bool wrappingIgnoreIndent()
 test bool wrappingWithIndent()
     = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), maxWidth=2, wrapAfter=2)
     == "AB
-       '  C
+       '    C
        '";
 
 test bool multiBoxIndentIsVertical()
     = format(I([L("A"), L("B")]))
-    == "  A
-       '  B
+    == "    A
+       '    B
        '";
 
 test bool flipping1NoIndent()
