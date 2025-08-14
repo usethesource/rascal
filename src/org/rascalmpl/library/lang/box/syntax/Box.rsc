@@ -37,7 +37,7 @@ set on every `I` Box according to the current preferences of the user.
 @pitfalls{
 * `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
-data Box(int hs=1, int vs=0, int is=2)
+data Box(int hs=1, int vs=0, int is=4)
     = H(list[Box] boxes)
     | V(list[Box] boxes)
     | HOV(list[Box] boxes)

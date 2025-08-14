@@ -120,7 +120,7 @@ between horizontal and vertical for HOV boxes.
 data Options = options(
     int hs = 1, 
     int vs = 0, 
-    int is = 2, 
+    int is = 4, 
     int maxWidth=80, 
     int wrapAfter=70
 );
