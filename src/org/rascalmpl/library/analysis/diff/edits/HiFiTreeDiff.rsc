@@ -179,7 +179,7 @@ edits = treeDiff(original, rewritten);
 // Wrap them in a single document edit
 edit = changed(original@\loc.top, edits);
 // Apply the document edit on disk:
-executeDocumentEdit(edit);
+executeDocumentEdits([edit]);
 // and when we read the result back, we see the transformation succeeded, and indentation was not lost:
 readFile(tmp://example.pico|);
 // It's also possible to directly rewrite the original string, for debugging purposes:
