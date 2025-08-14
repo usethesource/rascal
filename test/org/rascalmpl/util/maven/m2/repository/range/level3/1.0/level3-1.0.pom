@@ -7,6 +7,13 @@
   <artifactId>level3</artifactId>
   <version>1.0</version>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>${REPO}</url>
+    </repository>
+  </repositories>
+
   <dependencies>
   </dependencies>
 </project>

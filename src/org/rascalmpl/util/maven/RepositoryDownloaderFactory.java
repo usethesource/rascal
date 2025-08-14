@@ -30,6 +30,9 @@ import java.net.http.HttpClient;
 
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 
+/*
+ * Class repsonsible for creating repository downloaders based on the type of repository (determined by the schema of their url).
+ */
 public class RepositoryDownloaderFactory {
     private HttpClient client;
     
