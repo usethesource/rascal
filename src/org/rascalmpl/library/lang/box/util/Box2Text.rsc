@@ -125,9 +125,9 @@ data Options = options(
     int wrapAfter=70
 );
 
-@synopsis{Quickly splice in any nested U boxes}
+@synopsis{Quickly splice in any nested U boxes, and empty H, V, HV, I or HOV boxes}
 list[Box] u(list[Box] boxes) {
-    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes];
+    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, b notin {H([]),V([]),HV([]),HOV([]),I([])}];
 }
 
 @synopsis{simple vertical concatenation (every list element is a line)}
