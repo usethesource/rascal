@@ -23,7 +23,6 @@ module lang::box::\syntax::Box
 * `L` produces A literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
 * `G` is an additional group-by feature that reduces tot the above core features
-* `SL` is a convenience box for separated syntax lists based on `G`
 * `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
 }
 @benefits{
@@ -82,3 +81,12 @@ algorithm starts counting boxes and widths.
 * NULL will be formatted as `H([])` if it's the outermost Box.
 }
 Box NULL() = U([]);
+
+@synopsis{Convenience box for adding separators to an existing box list}
+@description{
+Each element is wrapped by the `op` operator together with the next separator.
+The resulting list is wrapped by a G box, of which the elements will be spliced
+into their context. 
+}
+Box SL(list[Box] boxes, Box sep, Box(list[Box]) op = H, int hs=1, int vs=0, int is=4)
+  = G([b, sep | b <- boxes][..-1], op=op, hs=hs, vs=vs, is=is);
