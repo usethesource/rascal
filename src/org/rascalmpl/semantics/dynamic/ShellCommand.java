@@ -13,9 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -38,7 +36,6 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
@@ -152,7 +149,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			if (!env.getFunctions().isEmpty()) {
 				var functions = env.getFunctions();
 				pr.println("Functions:");
-				for (Pair<String, List<AbstractFunction>> func : functions) {
+				for (Pair<String, LinkedHashSet<AbstractFunction>> func : functions) {
 					pr.println(func.getFirst() + ":");
 					for (AbstractFunction alt : func.getSecond()) {
 						pr.println("   - " + alt.getHeader().replaceAll("\n", " "));
