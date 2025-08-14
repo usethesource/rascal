@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
@@ -210,7 +211,26 @@ public class Artifact {
             // we do not support non-jar artifacts right now
             return null;
         }
-        var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion(), classifier);
+
+        String groupId = m.getGroupId();
+        if (groupId == null) {
+            Parent parent = m.getParent();
+            groupId = parent.getGroupId();
+            if (groupId == null) {
+                throw new RuntimeException("no groupId found");
+            }
+        }
+
+        String version = m.getVersion();
+        if (version == null) {
+            Parent parent = m.getParent();
+            version = parent.getVersion();
+            if (version == null) {
+                throw new RuntimeException("no version found");
+            }
+        }
+
+        var coordinate = new ArtifactCoordinate(groupId, m.getArtifactId(), version, classifier);
         var parent = m.getParent();
         var parentCoordinate = parent == null ? null : new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
         try {
