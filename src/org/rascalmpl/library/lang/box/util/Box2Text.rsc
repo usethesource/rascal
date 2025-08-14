@@ -538,3 +538,36 @@ test bool groupBy() {
 
     return format(V([g1])) == format(V(lst2));
 }
+
+test bool noDegenerateHSeparators()
+    = format(H([L("a"),H([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateVSeparators()
+    = format(V([L("a"),H([]),L("b")])) 
+    == "a
+       'b
+       '";
+
+test bool noDegenerateHVSeparators1()
+    = format(HV([L("a"),V([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateHVSeparators2()
+    = format(HV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    == "a
+       'b
+       '";
+
+test bool noDegenerateHOVSeparators1()
+    = format(HOV([L("a"),V([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateHVSeparators2()
+    = format(HOV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    == "a
+       'b
+       '";
