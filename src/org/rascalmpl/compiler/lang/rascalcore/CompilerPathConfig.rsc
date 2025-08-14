@@ -1,7 +1,6 @@
 module lang::rascalcore::CompilerPathConfig
 
-import util::Reflective;
-import util::PathConfig;
+extend util::PathConfig;
 
 data PathConfig(
     loc generatedSources       = |unknown:///|,
