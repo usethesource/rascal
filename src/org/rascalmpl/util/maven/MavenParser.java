@@ -132,7 +132,7 @@ public class MavenParser {
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+        var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors());
 
         addMavenCentral(resolver);
 
@@ -167,7 +167,7 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+            var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors());
 
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
@@ -240,7 +240,6 @@ public class MavenParser {
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }
-
 
     private static final class CaffeineModelCache implements ModelCache {
         private static final class Key {
