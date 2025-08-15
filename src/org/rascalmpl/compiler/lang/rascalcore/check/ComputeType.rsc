@@ -1024,8 +1024,13 @@ private default AType getPatternType0(Pattern p, AType subjectType, loc scope, S
 // ---- set pattern
 
 private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
-    elmType = isSetAType(subjectType) ? getSetElementType(subjectType) : avalue();
-    setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
+    subjectElmType = isSetAType(subjectType) ? getSetElementType(subjectType) : avalue();
+    patElems = [p | p <- elements0];
+    patElemTypes = [ getPatternType(p, subjectElmType, scope,s) | p <- patElems ];
+    for(int i <- index(patElems)){
+        s.requireComparable(patElemTypes[i], subjectElmType, error(patElems[i], "Pattern element should be comparable with %t, found %t", subjectElmType, patElemTypes[i]));
+    }
+    setType = aset(s.lubList(patElemTypes));
     s.fact(current, setType);
     return setType;
 }
@@ -1033,10 +1038,15 @@ private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }
 // ---- list pattern
 
 private AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
-    elmType = isListAType(subjectType) ? getListElementType(subjectType) : avalue();
-    res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
-    s.fact(current, res);
-    return res;
+    subjectElmType = isListAType(subjectType) ? getListElementType(subjectType) : avalue();
+    patElems = [p | p <- elements0];
+    patElemTypes = [ getPatternType(p, subjectElmType, scope,s) | p <- patElems ];
+    for(int i <- index(patElems)){
+        s.requireComparable(patElemTypes[i], subjectElmType, error(patElems[i], "Pattern element should be comparable with %t, found %t", subjectElmType, patElemTypes[i]));
+    }
+    listType = alist(s.lubList(patElemTypes));
+    s.fact(current, listType);
+    return listType;
 }
 
 // ---- typed variable pattern
@@ -1117,6 +1127,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
 }
 
 AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
+    //println("instantiateAndCompare: <current>, <patType>, <subjectType>");
     if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
       s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
       s.fact(current, patType); // <====
