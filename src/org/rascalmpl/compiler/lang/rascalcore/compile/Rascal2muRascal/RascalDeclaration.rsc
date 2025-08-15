@@ -387,7 +387,7 @@ private default bool hasParameterName(Pattern p, int i) = false;
  */
 private set[MuExp] getVarsUsedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int _, AType t, IdRole idRole) := exp, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
 
 /*
@@ -401,7 +401,7 @@ public set[MuExp] getLocalRefs(MuExp exp)
  */
 public set[MuExp] getExternalRefs(MuExp exp, str fuid, list[MuExp] formals){
    formalNames = {f.name | f <- formals};
-   res = { v1 | /v:muVar(str name2, str fuid2, int _, AType t, IdRole idRole) := exp, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+   res = { v1 | /v:muVar(str name2, str fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    //println("getExternalRefs, <fuid>, <formals>: <res>");
    return res;
 }

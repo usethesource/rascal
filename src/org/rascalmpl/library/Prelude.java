@@ -164,8 +164,8 @@ public class Prelude {
 
     private IValue createRandomValue(Type t, int depth, int width) {
         return t.randomValue(
-			random, 
-			RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), 
+			random,  
+			RandomTypesConfig.defaultConfig(new Random()).withoutRandomAbstractDatatypes(),
 			values, 
 			new TypeStore(), 
 			Collections.emptyMap(), 
@@ -2434,9 +2434,9 @@ public class Prelude {
 		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 	}
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
-		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(false), filters);
-	}
+	// public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+	// 	return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(false), filters);
+	// }
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
 		return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);

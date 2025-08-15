@@ -277,3 +277,101 @@ test bool IfThen3() = illegalUseInModule("
      ");
 
 test bool IfThen4() = unexpectedType("value zz = { if(1) 10; }; ");
+
+test bool ReturnIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               int main() = X;
+     ");
+}
+
+test bool AssignGlobalIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               int Y = X;
+     ");
+}
+
+test bool ReturnIntModuleVarNotOk() {
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return unexpectedTypeInModule("
+          module B
+               import A;
+               bool main() = X;
+     ");
+}
+
+test bool AssignIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X = 2; }
+     ");
+}
+
+// @ignore{Test needs typepal version > 0.15.1}
+test bool AssignAndIncrementIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X += 2; }
+     ");
+}
+
+test bool AssignListIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public list[int] X = [1];");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X[0] = 2; }
+     ");
+}
+
+test bool AssignAndIncrementListIntModuleVarOk() {
+     clearMemory();
+     writeModule("module A public list[int] X = [1];");
+     return checkModuleOK("
+          module B
+               import A;
+               void main() { X[0] += 2; }
+     ");
+}
+
+//@ignore{Test needs typepal version > 0.15.1}
+test bool InferredVarAndModuleVarOk(){
+     clearMemory();
+     return checkModuleOK("
+          module B
+               int X = 1;
+               list[int] f() = [X | X \<- [1..10]];
+
+               list[int] g() = [X | X \<- [1..20]];
+               void main() { X += 1; }
+     ");
+}
+
+// @ignore{Test needs typepal version > 0.15.1}
+test bool InferredVarAndImportedModuleVarOk(){
+     clearMemory();
+     writeModule("module A public int X = 1;");
+     return checkModuleOK("
+          module B
+               import A;
+               list[int] f() = [X | X \<- [1..10]];
+
+               list[int] g() = [X | X \<- [1..20]];
+               void main() { X += 1; }
+     ");
+}

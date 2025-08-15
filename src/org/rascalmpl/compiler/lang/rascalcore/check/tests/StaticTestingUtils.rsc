@@ -113,6 +113,7 @@ set[Message] getAllMessages(ModuleStatus r)
 	= { m | mname <- r.messages, m <- r.messages[mname] };
 
 ModuleStatus checkStatements(str stmts) {
+	clearMemory();
 	mloc = composeModule(stmts);
    	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
@@ -133,7 +134,7 @@ bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = fa
 	return checkModuleAndFilter([mloc], expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
 bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-    ms = rascalTModelForLocs(mlocs, rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
+	ms = rascalTModelForLocs(mlocs, rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
 	msgs = getAllMessages(ms);
 	if (verbose) {
      	println(msgs);
@@ -242,6 +243,7 @@ list[str] unexpectedTypeMsgs = [
 		"Return expression does not bind _",
 	    "Type of generator should be _, found _",
 	    "Pattern should be comparable with _, found _",
+		"Pattern element should be comparable with _, found _",
 	    "Argument of _ should be _, found _",
 		"Cannot call _ with _ argument(s), _",
 	    "_ not defined on _ and _",
@@ -263,6 +265,7 @@ list[str] unexpectedTypeMsgs = [
 	    "Bounds _ and _ are not comparable",
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
 	    "Returned type _ is not always a subtype of expected return type _",
+		"Return statement with overloaded type _ not allowed",
 		"Type parameter _ should be less than _, found _",
 		"Ambiguous pattern type _",
 		"Splice operator not allowed inside a tuple pattern",
@@ -276,14 +279,17 @@ list[str] unexpectedTypeMsgs = [
 		"Expected _ type parameter(s) for _, found _",
 		"Type _ cannot be parameterized, found _ parameter(s)",
 		"Expected a non-terminal type, found _",
-		"Expected a binary relation, found _"
-	];
+		"Expected a binary relation, found _",
+		"Constructor _ is overloaded",
+		"Expression _ is overloaded",
+		"Base expression of field selection is ambiguous and should be resolved"
+];
 
-bool unexpectedTypeInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs);
+bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs, pathConfig=pathConfig);
 
-bool unexpectedTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, unexpectedTypeMsgs);
+bool unexpectedTypeInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], unexpectedTypeMsgs, pathConfig=pathConfig);
 
 bool unexpectedType(str stmts)
 	= checkStatementsAndFilter(stmts, unexpectedTypeMsgs);
@@ -292,8 +298,8 @@ bool unexpectedType(str stmts)
 
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
 
-bool uninitializedInModule(str moduleText) = true;
-bool uninitialized(str stmts) = true;
+bool uninitializedInModule(str _) = true;
+bool uninitialized(str _) = true;
 
 //bool uninitialized(str stmts) =
 	//checkStatementsAndFilter(stmts, [
@@ -311,11 +317,11 @@ list[str] undeclaredVariableMsgs = [
 	"Variable(s) _ and _ should be introduced on both sides of `||` operator"
 ];
 
-bool undeclaredVariableInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs);
+bool undeclaredVariableInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs, pathConfig=pathConfig);
 
-bool undeclaredVariableInModule(loc mloc)
-	= checkModuleAndFilter(mloc, undeclaredVariableMsgs);
+bool undeclaredVariableInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], undeclaredVariableMsgs, pathConfig=pathConfig);
 
 bool undeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredVariableMsgs);
@@ -325,11 +331,11 @@ bool undeclaredVariable(str stmts) =
 list[str] undeclaredTypeMsgs = [
 	"Undefined _"
 ];
-bool undeclaredTypeInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
+bool undeclaredTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs, pathConfig=pathConfig);
 
-bool undeclaredTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, undeclaredTypeMsgs);
+bool undeclaredTypeInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], undeclaredTypeMsgs, pathConfig=pathConfig);
 
 bool undeclaredType(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredTypeMsgs);
@@ -352,11 +358,11 @@ list[str] argumentMismatchMsgs = [
 	"Keyword argument _ has type _, expected _"
 ];
 
-bool argumentMismatchInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, argumentMismatchMsgs);
+bool argumentMismatchInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, argumentMismatchMsgs, pathConfig=pathConfig);
 
-bool argumentMismatchInModule(loc mloc)
-	= checkModuleAndFilter(mloc, argumentMismatchMsgs);
+bool argumentMismatchInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], argumentMismatchMsgs, pathConfig=pathConfig);
 
 bool argumentMismatch(str stmts) =
 	checkStatementsAndFilter(stmts, argumentMismatchMsgs);
@@ -368,11 +374,11 @@ list[str] redeclaredVariableMsgs = [
 	"Double declaration of _ _"
 ];
 
-bool redeclaredVariableInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs);
+bool redeclaredVariableInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs, pathConfig=pathConfig);
 
-bool redeclaredVariableInModule(loc mloc)
-	= checkModuleAndFilter(mloc, redeclaredVariableMsgs);
+bool redeclaredVariableInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], redeclaredVariableMsgs, pathConfig=pathConfig);
 
 bool redeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, redeclaredVariableMsgs);
@@ -385,15 +391,16 @@ list[str] cannotMatchMsgs = [
 	"Incompatible type in assignment to variable _, expected _, found _",
 	"Pattern should be subtype of _, found _",
 	"Pattern should be comparable with _, found _",
+	"Pattern element should be comparable with _, found _",
 	"Expected tuple pattern with _ elements, found _",
 	"Pattern variable _ has been introduced before, add explicit declaration of its type"
 ];
 
-bool cannotMatchInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, cannotMatchMsgs);
+bool cannotMatchInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, cannotMatchMsgs, pathConfig=pathConfig);
 
-bool cannotMatchInModule(loc mloc)
-	= checkModuleAndFilter(mloc, cannotMatchMsgs);
+bool cannotMatchInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], cannotMatchMsgs, pathConfig=pathConfig);
 
 bool cannotMatch(str stmts) =
 	checkStatementsAndFilter(stmts, cannotMatchMsgs);
@@ -406,6 +413,7 @@ list[str] unexpectedDeclarationMsgs = [
 	"Undefined _",
 	"Double declaration of _",
 	"Constructor _ overlaps with other declaration for type _, see _",
+	"Incompatible field _ in _: _ in constructor _ clashes with _ in constructor _",
 	"Constructor _ is used without qualifier and overlaps with other declaration, _",
 	"Unresolved type for _",
 	"Constructor _ in formal parameter should be unique",
@@ -423,13 +431,13 @@ list[str] unexpectedDeclarationMsgs = [
 	"Non-well-formed _ type, labels must be distinct"
 ];
 
-bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = pathConfigForTesting())
+bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
-bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = pathConfigForTesting())
+bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter([mloc], unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
-bool unexpectedDeclaration(str stmts, PathConfig pathConfig = pathConfigForTesting()) =
+bool unexpectedDeclaration(str stmts) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------
@@ -439,11 +447,11 @@ list[str] missingModuleMsgs = [
 	 "Undefined module _",
 	 "Module _ not found_"
 ];
-bool missingModuleInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, missingModuleMsgs);
+bool missingModuleInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, missingModuleMsgs, pathConfig=pathConfig);
 
-bool missingModuleInModule(loc mloc)
-	= checkModuleAndFilter(mloc, missingModuleMsgs);
+bool missingModuleInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], missingModuleMsgs, pathConfig=pathConfig);
 
 bool missingModule(str stmts) =
 	checkStatementsAndFilter(stmts, missingModuleMsgs);
@@ -455,11 +463,11 @@ list[str] illegalUseMsgs = [
 	"Right-hand side of assignment does not always have a value"
 ];
 
-bool illegalUseInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, illegalUseMsgs);
+bool illegalUseInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, illegalUseMsgs, pathConfig=pathConfig);
 
-bool illegalUseInModule(loc mloc)
-	= checkModuleAndFilter(mloc, illegalUseMsgs);
+bool illegalUseInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], illegalUseMsgs, pathConfig=pathConfig);
 
 
 bool illegalUse(str stmts) =
@@ -471,11 +479,11 @@ list[str] nonVoidTypeMsgs = [
 	"Contribution to _ comprehension should not have type `void`"
 ];
 
-bool nonVoidTypeInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
+bool nonVoidTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs, pathConfig=pathConfig);
 
-bool nonVoidTypeInModule(loc mloc)
-	= checkModuleAndFilter(mloc, nonVoidTypeMsgs);
+bool nonVoidTypeInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], nonVoidTypeMsgs, pathConfig=pathConfig);
 
 bool nonVoidType(str stmts) =
     checkStatementsAndFilter(stmts, nonVoidTypeMsgs);
@@ -486,11 +494,11 @@ list[str] unsupportedMsgs = [
 	"Unsupported _"
 ];
 
-bool unsupportedInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, unsupportedMsgs);
+bool unsupportedInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, unsupportedMsgs, pathConfig=pathConfig);
 
-bool unsupportedInModule(loc mloc)
-	= checkModuleAndFilter(mloc, unsupportedMsgs);
+bool unsupportedInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], unsupportedMsgs, pathConfig=pathConfig);
 
 bool unsupported(str stmts) =
     checkStatementsAndFilter(stmts, unsupportedMsgs);

@@ -44,18 +44,18 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
+str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
            'public interface <asBaseInterfaceName(moduleName)>  {
-           '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels)>
+           '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels, pcfg)>
            '}";
 }
 
-lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels){
+lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
     
     lrel[str, AType] result = [];
     rel[str, int, AType] signatures = {};
@@ -72,11 +72,11 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     }
     //iprintln(signatures);
     
-    for(ext <- extends){
+    for(ext <- extends, ext in tmodels){
         escope = tmodels[ext].moduleLocs[ext];
         for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
             def.idRole == functionId() ,//|| def.idRole == constructorId(),
-            def.scope == escope, //isContainedIn(def.defined, escope),
+            getRascalModuleName(def.scope, pcfg) == ext,//def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
             !isNonTerminalAType(tp), !isLexicalAType(tp),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
@@ -101,8 +101,8 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     return sort(result);
 }
 
-str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels){
-    interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels);
+str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
+    interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels, pcfg);
     methods = [generateInterfaceMethod(name, tp) | <name, tp> <- interface_signature];
     return intercalate("\n", methods);
 }
