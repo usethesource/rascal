@@ -7,13 +7,6 @@
   <artifactId>level1b</artifactId>
   <version>1.0</version>
 
-  <repositories>
-    <repository>
-      <id>central</id>
-      <url>${REPO}</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>range</groupId>

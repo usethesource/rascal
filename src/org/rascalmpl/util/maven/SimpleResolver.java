@@ -42,7 +42,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.FileModelSource;
-import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
@@ -56,14 +55,12 @@ import org.apache.maven.settings.Mirror;
 
     private final List<RepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
-    private final ModelBuilder builder;
     private final HttpClient client;
 
     private final Map<String, Mirror> mirrors;
 
-    public SimpleResolver(Path rootRepository, ModelBuilder builder, HttpClient client, Map<String, Mirror> mirrors) {
+    public SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors) {
         this.rootRepository = rootRepository;
-        this.builder = builder;
         this.client = client;
         this.mirrors = new HashMap<>(mirrors);
 
@@ -193,7 +190,7 @@ import org.apache.maven.settings.Mirror;
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(rootRepository, builder, client, mirrors);
+        var result = new SimpleResolver(rootRepository, client, mirrors);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }
