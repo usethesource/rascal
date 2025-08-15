@@ -31,9 +31,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
@@ -57,7 +61,7 @@ public class Artifact {
     private final @Nullable Path resolved;
     private final List<Dependency> dependencies;
     private final @Nullable SimpleResolver ourResolver;
-    private final IList messages;
+    private IList messages;
     private final boolean anyError;
 
     private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
@@ -117,7 +121,8 @@ public class Artifact {
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
         Set<WithoutVersion> alreadyIncluded = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
-        calculateClassPath(forScope, alreadyIncluded, result, parser);
+        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
+        calculateClassPath(forScope, alreadyIncluded, rangedDeps, result, parser);
         return result;
     }
 
@@ -131,8 +136,7 @@ public class Artifact {
      * For version ranges maven uses the latest version that matches all ranges. If no such version
      * exists, resolution fails.
      */
-    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, ArrayList<Artifact> result, MavenParser parser) {
-        var messages = IRascalValueFactory.getInstance().listWriter();
+    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, Map<WithoutVersion, SortedSet<String>> rangedDeps, ArrayList<Artifact> result, MavenParser parser) {
         var nextLevel = new ArrayList<Artifact>(dependencies.size());
         for (var d : dependencies) {
             var coordinate = d.getCoordinate();
@@ -145,9 +149,18 @@ public class Artifact {
                     coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                 }
                 catch (UnresolvableModelException e) {
-                    messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                    messages = messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
                     continue;
                 }
+
+                var versions = rangedDeps.computeIfAbsent(withoutVersion, k -> new TreeSet<>());
+                if (versions.add(version) && versions.size() == 2) { // Only add a warning once
+                    String effectiveVersion = versions.first();
+                    messages = messages.append(Messages.warning("Multiple version ranges found for " + withoutVersion + ", " + effectiveVersion + " is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [" + effectiveVersion + "]", d.getPomLocation()));
+                    System.err.println("messages is now: " + messages);
+                }
+                System.err.println("Adding version " + version + " for " + withoutVersion
+                    + " to rangedDeps, version set is now: " + versions);
             }
 
             if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
@@ -183,7 +196,7 @@ public class Artifact {
         // now we go through the new artifacts and make sure we add their dependencies if needed 
         // but now in their context (their resolver etc)
         for (var a: nextLevel) {
-            a.calculateClassPath(forScope, alreadyIncluded, result, parser);
+            a.calculateClassPath(forScope, alreadyIncluded, rangedDeps, result, parser);
         }
     }
 
