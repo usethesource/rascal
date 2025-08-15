@@ -145,7 +145,11 @@ public class MavenParser {
             throw new ModelResolutionError(messages);
         }
 
-        var result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        Artifact result = null;
+        if (model.getGroupId() != null && model.getVersion() != null) {
+            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        }
+
         if (result == null) {
             return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
         }
