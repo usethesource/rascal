@@ -55,11 +55,16 @@ public class LocalRepoTest extends AbstractMavenTest {
             .map(Artifact::getCoordinate)
             .collect(Collectors.toList());
 
-        for (Artifact artifact : resolvedDependencies) {
-            System.out.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
-        }
-
         Assert.assertTrue(coordinates.contains(new ArtifactCoordinate("range", "level2", "2.0", null)));
+
+        // Check that the warning about multiple version ranges is present
+        for (Artifact artifact : resolvedDependencies) {
+            if (artifact.getCoordinate().getArtifactId().equals("level1b")) {
+                // The full message would be something like:
+                // Multiple version ranges found for range:level2, 1.5 is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [1.5]
+                Assert.assertTrue(artifact.getMessages().get(0).toString().contains("Multiple version ranges found"));
+            }
+        }
     }
 
     //@Test
