@@ -7,21 +7,37 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.maven.settings.Mirror;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LocalRepoTest extends AbstractMavenTest {
+    private MavenSettings settings;
+
     @Before
     public void replaceCentralWithLocalRepo() throws InvalidRepositoryException {
         // Pass the "remote" test repository URL through a system property so artifact resolvers can find it
-        URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
-        System.setProperty("REPO", url.toString());
+        settings = new MavenSettings() {
+            @Override
+            public Map<String, Mirror> getMirrors() {
+                Mirror mirror = new Mirror();
+                mirror.setId("local");
+                mirror.setName("Maven Test Repository");
+                URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
+                mirror.setUrl(url.toString());
+                mirror.setMirrorOf("central");
+
+                return Map.of("central", mirror);
+            }
+        };
+
     }
 
     @After
@@ -31,13 +47,17 @@ public class LocalRepoTest extends AbstractMavenTest {
 
     @Test
     public void testRangedDependencies() throws ModelResolutionError, UnresolvableModelException {
-        var parser = new MavenParser(new MavenSettings(), getPomsPath("range/pom.xml"), tempRepo);
+        var parser = new MavenParser(settings, getPomsPath("range/pom.xml"), tempRepo);
         Artifact project = parser.parseProject();
 
         List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
         List<ArtifactCoordinate> coordinates = resolvedDependencies.stream()
             .map(Artifact::getCoordinate)
             .collect(Collectors.toList());
+
+        for (Artifact artifact : resolvedDependencies) {
+            System.out.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
+        }
 
         Assert.assertTrue(coordinates.contains(new ArtifactCoordinate("range", "level2", "2.0", null)));
     }
