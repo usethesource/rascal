@@ -243,6 +243,7 @@ list[str] unexpectedTypeMsgs = [
 		"Return expression does not bind _",
 	    "Type of generator should be _, found _",
 	    "Pattern should be comparable with _, found _",
+		"Pattern element should be comparable with _, found _",
 	    "Argument of _ should be _, found _",
 		"Cannot call _ with _ argument(s), _",
 	    "_ not defined on _ and _",
@@ -390,6 +391,7 @@ list[str] cannotMatchMsgs = [
 	"Incompatible type in assignment to variable _, expected _, found _",
 	"Pattern should be subtype of _, found _",
 	"Pattern should be comparable with _, found _",
+	"Pattern element should be comparable with _, found _",
 	"Expected tuple pattern with _ elements, found _",
 	"Pattern variable _ has been introduced before, add explicit declaration of its type"
 ];
