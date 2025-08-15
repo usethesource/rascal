@@ -59,12 +59,20 @@ import org.apache.maven.settings.Mirror;
 
     private final Map<String, Mirror> mirrors;
 
-    public SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors) {
+    private final SimpleResolver parentResolver;
+
+    public SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors, SimpleResolver parentResolver) {
         this.rootRepository = rootRepository;
         this.client = client;
         this.mirrors = new HashMap<>(mirrors);
 
         downloaderFactory = new RepositoryDownloaderFactory(client);
+        this.parentResolver = parentResolver;
+
+        // Some defensive programming to ensure that the parent resolver has the same root repository
+        if (parentResolver != null && parentResolver.rootRepository != rootRepository) {
+            throw new IllegalArgumentException("Parent resolver must have the same root repository as this resolver");
+        }
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
@@ -124,6 +132,11 @@ import org.apache.maven.settings.Mirror;
                 return metadata;
             }
         }
+
+        if (parentResolver != null) {
+            return parentResolver.downloadArtifactMetadata(groupId, artifactId, versionSpec);
+        }
+
         throw new UnresolvableModelException("Could not download artifact metadata from available repositories",
             groupId, artifactId, versionSpec);
     }
@@ -190,7 +203,7 @@ import org.apache.maven.settings.Mirror;
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(rootRepository, client, mirrors);
+        var result = new SimpleResolver(rootRepository, client, mirrors, parentResolver);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }
@@ -224,6 +237,12 @@ import org.apache.maven.settings.Mirror;
                 return;
             }
         }
+
+        if (parentResolver != null) {
+            parentResolver.downloadArtifact(local, groupId, artifactId, version, force);
+            return;
+        }
+
         throw new UnresolvableModelException("Could not download artifact from available repositories", groupId, artifactId, version);
     }
 
