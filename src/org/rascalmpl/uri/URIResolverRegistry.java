@@ -461,7 +461,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return inputResolvers.get(subScheme);
+				result = inputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackInputResolver;
 		}
@@ -474,7 +477,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return classloaderResolvers.get(subScheme);
+				result = classloaderResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackClassloaderResolver;
 		}
@@ -487,7 +493,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return outputResolvers.get(subScheme);
+				result = outputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackOutputResolver;
 		}
