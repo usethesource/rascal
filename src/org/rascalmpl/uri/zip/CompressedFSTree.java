@@ -34,7 +34,7 @@ public class CompressedFSTree extends FileSystemTree<IndexedFSEntry> {
     private final long totalSize;
 
     public CompressedFSTree(IndexedFSEntry root, EntryEnumerator openEntries) {
-        super(root);
+        super(root, false);
         long totalSize = 0;
         int pos = 0;
         try (var entries = openEntries.openZip()) {
@@ -43,11 +43,11 @@ public class CompressedFSTree extends FileSystemTree<IndexedFSEntry> {
                 var childEntry = new IndexedFSEntry(je, pos);
                 String name = je.getName();
                 if (je.isDirectory()) {
-                    addDirectory(je.getName(), childEntry, IndexedFSEntry::new);
+                    addDirectory(je.getName(), childEntry, CompressedFSTree::createDirectory);
                 }
                 else {
                     totalSize += 24 + (name.length() * 2);
-                    addFile(name, childEntry, IndexedFSEntry::new);
+                    addFile(name, childEntry, CompressedFSTree::createDirectory);
                 }
                 pos++;
             }
@@ -60,6 +60,10 @@ public class CompressedFSTree extends FileSystemTree<IndexedFSEntry> {
         }
     }
 
+    private static IndexedFSEntry createDirectory(long creation, long modification) {
+        return new IndexedFSEntry(creation, modification, 1);
+    }
+
     public long getTotalSize() {
         return totalSize;
     }
@@ -67,4 +71,5 @@ public class CompressedFSTree extends FileSystemTree<IndexedFSEntry> {
     public int getPosition(String path) throws IOException {
         return getEntry(path).offset;
     }
+
 }

@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @synopsis{Two-dimensional text layout algorithm}
 @description{
-The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
+The input to Box2Text is a hierarchy of "Boxes" represented by the ((lang::box::\syntax::Box)) algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
 there is the global soft constraints of the width of the screen (or the paper). 
 
@@ -120,15 +120,18 @@ between horizontal and vertical for HOV boxes.
 data Options = options(
     int hs = 1, 
     int vs = 0, 
-    int is = 2, 
-    int maxWidth=80, 
-    int wrapAfter=70
+    int is = 4, 
+    int maxWidth = 80, 
+    int wrapAfter = 70
 );
 
 @synopsis{Quickly splice in any nested U boxes}
 list[Box] u(list[Box] boxes) {
-    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes];
+    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, !isDegenerate(b)];
 }
+
+@synopsis{Empty H, V, HOV, HV, I boxes should not lead to accidental extra separators in their context}
+private bool isDegenerate(Box b) = b has boxes && b.boxes == [];
 
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
@@ -216,12 +219,11 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
 
 private Text II([], Box _c, Options _opts, int _m) = [];
 
-private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+private Text II(list[Box] b:[_, *_]              , c:H(list[Box] _), Options opts, int m) 
+    = HH(b, c, opts, m);
 
-private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opts, int m) {
-    Text t = \continue(head, c, opts, m - opts.is);
-    return rhh(hskip(opts.is),  hh(t, II(tail, c, opts, m - opts.is - hwidth(t))));
-}
+private Text II(list[Box] b:[Box _, *Box _], c:V(list[Box] _), Options opts, int m) 
+    = rhh(hskip(opts.is), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
 
 private Text WDWD([], Box _c , Options _opts, int _m) 
     = [];
@@ -444,15 +446,15 @@ test bool verticalPlacement1()
 test bool verticalIndentation2()
     = format(V([L("A"), I([L("B")]), L("C")]))
     == "A
-       '  B
+       '    B
        'C
        '";
 
 test bool blockIndent()
     = format(V([L("A"), I([V([L("B"), L("C")])]), L("D")]))
     == "A
-       '  B
-       '  C
+       '    B
+       '    C
        'D
        '";
 
@@ -465,7 +467,13 @@ test bool wrappingIgnoreIndent()
 test bool wrappingWithIndent()
     = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), maxWidth=2, wrapAfter=2)
     == "AB
-       '  C
+       '    C
+       '";
+
+test bool multiBoxIndentIsVertical()
+    = format(I([L("A"), L("B")]))
+    == "    A
+       '    B
        '";
 
 test bool flipping1NoIndent()
@@ -530,3 +538,36 @@ test bool groupBy() {
 
     return format(V([g1])) == format(V(lst2));
 }
+
+test bool noDegenerateHSeparators()
+    = format(H([L("a"),H([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateVSeparators()
+    = format(V([L("a"),H([]),L("b")])) 
+    == "a
+       'b
+       '";
+
+test bool noDegenerateHVSeparators1()
+    = format(HV([L("a"),V([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateHVSeparators2()
+    = format(HV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    == "a
+       'b
+       '";
+
+test bool noDegenerateHOVSeparators1()
+    = format(HOV([L("a"),V([]),L("b")])) 
+    == "a b
+       '";
+
+test bool noDegenerateHVSeparators2()
+    = format(HOV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    == "a
+       'b
+       '";

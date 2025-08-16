@@ -25,6 +25,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.fs.FSEntry;
 import org.rascalmpl.uri.fs.FileSystemTree;
@@ -75,7 +76,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 			this(created, lastModified, null);
 		}
 		public MemoryEntry(long created, long lastModified, @Nullable byte[] contents) {
-			super(created, lastModified);
+			super(created, lastModified, contents == null ? 0 : contents.length );
 			this.contents = contents;
 		}
 
@@ -102,7 +103,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 		return getFS(loc.getAuthority());
 	}
 	private FileSystemTree<MemoryEntry> getFS(String authority) {
-		return fileSystems.computeIfAbsent(authority, a -> new FileSystemTree<MemoryEntry>(new MemoryEntry()));
+		return fileSystems.computeIfAbsent(authority, a -> new FileSystemTree<MemoryEntry>(new MemoryEntry(), true));
 	}
 
 	private MemoryEntry get(ISourceLocation uri) throws IOException {
@@ -211,6 +212,30 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	}
 
 	@Override
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		if (isFile(uri)) {
+			return true;
+		}
+		throw new FileNotFoundException(uri.toString());
+	}
+
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return isWritable(uri);
+	}
+
+	@Override
+	public long size(ISourceLocation uri) throws IOException {
+		return getFS(uri).size(uri.getPath());
+	}
+
+	@Override
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		return getFS(loc).stat(loc.getPath());
+	}
+
+
+	@Override
 	public void remove(ISourceLocation uri) throws IOException {
 	    if (uri.getScheme().endsWith("+readonly")) {
             throw new AccessDeniedException(uri.toString());
@@ -230,4 +255,5 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 			fileSystems.remove(uri.getAuthority());
 		}
 	}
+
 }
