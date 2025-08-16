@@ -36,9 +36,12 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -49,6 +52,7 @@ import org.apache.maven.model.building.ModelCache;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.building.ModelSource2;
+import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -66,6 +70,9 @@ import io.usethesource.vallang.IValueFactory;
 
 public class MavenParser {
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
+
+    private static final String MAVEN_CENTRAL_ID = "central";
+    private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2";
 
     private final MavenSettings settings;
     private final Path projectPom;
@@ -109,12 +116,27 @@ public class MavenParser {
         modelCache = new CaffeineModelCache();
     }
 
+    private void addMavenCentral(SimpleResolver resolver) {
+        Repository repo = new Repository();
+        repo.setId(MAVEN_CENTRAL_ID);
+        repo.setUrl(MAVEN_CENTRAL_URL);
+        try {
+            resolver.addRepository(repo);
+        }
+        catch (InvalidRepositoryException e) {
+            throw new RuntimeException("Invalid repository: " + repo.getId() + " at " + repo.getUrl(), e);
+        }
+    }
+
     public Artifact parseProject() throws ModelResolutionError {
         var request = new DefaultModelBuildingRequest()
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+        var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors());
+
+        addMavenCentral(resolver);
+
         var messages = VF.listWriter();
         messages.appendAll(settingMessages);
 
@@ -123,9 +145,13 @@ public class MavenParser {
             throw new ModelResolutionError(messages);
         }
 
-        var result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        Artifact result = null;
+        if (model.getGroupId() != null && model.getVersion() != null) {
+            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        }
+
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion(), ""), messages);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
         }
         return result;
     }
@@ -137,10 +163,11 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+            var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors());
+
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
-            
+
             var request = new DefaultModelBuildingRequest()
                 .setModelSource(modelSource)
                 .setWorkspaceModelResolver(workspaceResolver); // only for repository poms do we setup this extra resolver to help find parent poms
@@ -149,6 +176,8 @@ public class MavenParser {
             if (model == null) {
                 return Artifact.unresolved(coordinate, messages);
             }
+
+
             return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
             return Artifact.unresolved(coordinate, messages);
@@ -207,7 +236,6 @@ public class MavenParser {
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }
-
 
     private static final class CaffeineModelCache implements ModelCache {
         private static final class Key {
@@ -272,7 +300,7 @@ public class MavenParser {
         project.report(out);
         out.printf("It took %d ms to resolve root artifact%n", stop - start);
         start = System.currentTimeMillis();
-        var deps =project.resolveDependencies(Scope.COMPILE, parser);
+        var deps = project.resolveDependencies(Scope.COMPILE, parser);
         stop = System.currentTimeMillis();
         out.println(deps);
         out.printf("It took %d ms to resolve dependencies%n", stop - start);
