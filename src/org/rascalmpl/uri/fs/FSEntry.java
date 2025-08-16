@@ -38,15 +38,17 @@ public class FSEntry {
     final long created;
 
     volatile long lastModified;
+    volatile long size;
 
 
-    public FSEntry(long created, long lastModified) {
+    public FSEntry(long created, long lastModified, long size) {
         this.created = created;
         this.lastModified = lastModified;
+        this.size = size;
     }
 
-    public FSEntry(@Nullable FileTime created, long lastModified) {
-        this(created == null ? lastModified : created.toMillis(), lastModified);
+    public FSEntry(@Nullable FileTime created, long lastModified, long size) {
+        this(created == null ? lastModified : created.toMillis(), lastModified, size);
     }
 
     public long getCreated() {
@@ -56,13 +58,17 @@ public class FSEntry {
         return lastModified;
     }
 
+    public long getSize() {
+        return size;
+    }
+
     public static FSEntry forFile(Path file) {
         try {
             var attr = Files.readAttributes(file, BasicFileAttributes.class);
-            return new FSEntry(attr.creationTime().toMillis(), attr.lastModifiedTime().toMillis());
+            return new FSEntry(attr.creationTime().toMillis(), attr.lastModifiedTime().toMillis(), attr.size());
         }
         catch (IOException e) {
-            return new FSEntry(0, 0);
+            return new FSEntry(0, 0, 0);
         }
     }
 }

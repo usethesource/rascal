@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.model.Model;
@@ -144,18 +145,13 @@ public class MavenParser {
             throw new ModelResolutionError(messages);
         }
 
-        String groupId = model.getGroupId();
-        if (groupId == null) {
-            Parent parent = model.getParent();
-            groupId = parent.getGroupId();
-            if (groupId == null) {
-                System.err.println("No groupId found in " + projectPomLocation);
-            }
+        Artifact result = null;
+        if (model.getGroupId() != null && model.getVersion() != null) {
+            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
         }
 
-        var result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion(), ""), messages);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
         }
         return result;
     }

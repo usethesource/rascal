@@ -42,4 +42,6 @@ public interface ISourceLocationOutput {
 	}
 	
 	void setLastModified(ISourceLocation uri, long timestamp) throws IOException;
+
+	boolean isWritable(ISourceLocation uri) throws IOException;
 }

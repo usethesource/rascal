@@ -176,4 +176,22 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertNotNull("gson should be resolved", maybeGson.get().getResolved());
     }
 
+    @Test
+    public void testMissingGroupId() throws ModelResolutionError {
+        var parser = createParser("local-reference/pom-no-groupid.xml");
+        var project = parser.parseProject();
+        var msgs = project.getMessages();
+        assertEquals(1, msgs.size());
+        assertTrue(msgs.get(0).toString().contains("\\'groupId\\' is missing"));
+    }
+
+    @Test
+    public void testMissingVersion() throws ModelResolutionError {
+        var parser = createParser("local-reference/pom-no-version.xml");
+        var project = parser.parseProject();
+        var msgs = project.getMessages();
+        assertEquals(1, msgs.size());
+        assertTrue(msgs.get(0).toString().contains("\\'version\\' is missing"));
+    }
+
 }
