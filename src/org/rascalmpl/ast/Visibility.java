@@ -74,7 +74,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 ; 
+      return 641 ; 
     } 
   
     	
@@ -129,7 +129,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 ; 
+      return 701 ; 
     } 
   
     	
@@ -184,7 +184,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 ; 
+      return 13 ; 
     } 
   
     	

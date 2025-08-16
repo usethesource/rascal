@@ -23,9 +23,11 @@ import java.nio.file.Paths;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -117,6 +119,11 @@ public class BasicIDEServices implements IDEServices {
     }
   }
 
+  @Override
+  public void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+      Messages.write(messages, projectRoot, stderr());
+  }
+  
   @Override
   public void jobStart(String name, int workShare, int totalWork) {
     monitor.jobStart(name, workShare, totalWork);

@@ -7,9 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
-
-import List;
 
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
@@ -38,7 +37,7 @@ set on every `I` Box according to the current preferences of the user.
 @pitfalls{
 * `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
-data Box(int hs=1, int vs=0, int is=2)
+data Box(int hs=1, int vs=0, int is=4)
     = H(list[Box] boxes)
     | V(list[Box] boxes)
     | HOV(list[Box] boxes)
