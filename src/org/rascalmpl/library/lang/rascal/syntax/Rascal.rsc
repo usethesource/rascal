@@ -473,9 +473,9 @@ syntax LocationLiteral
 	= \default: ProtocolPart protocolPart PathPart pathPart ;
 
 syntax ShellCommand
-	= setOption: "set" QualifiedName name "="? Expression expression OptionalTerminator terminator
-	| setOptionTrue: "set" QualifiedName OptionalTerminator terminator
-	| unsetOption: "unset" QualifiedName OptionalTerminator terminator
+	= setOption: "set" QualifiedName name OptionalEqualSign sign Expression expression OptionalTerminator terminator
+	| setOptionTrue: "set" QualifiedName name OptionalTerminator terminator
+	| unsetOption: "unset" QualifiedName name OptionalTerminator terminator
 	| undeclare: "undeclare" QualifiedName? optName OptionalTerminator terminator
 	| help: "help" OptionalTerminator terminator
 	| edit: "edit" QualifiedName name OptionalTerminator terminator
@@ -488,6 +488,12 @@ syntax ShellCommand
 	| listModules: "modules" OptionalTerminator terminator
 	| clear: "clear" OptionalTerminator terminator
 	;
+
+lexical OptionalEqualSign
+	= absent: ()
+	| present: "="
+	;
+
 lexical OptionalTerminator
 	= absent: ()
 	| present: ";"

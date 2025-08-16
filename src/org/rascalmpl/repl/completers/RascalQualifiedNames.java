@@ -43,7 +43,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class RascalQualifiedNames {
 
-    private static final Pattern splitIdentifiers = Pattern.compile("[:][:]");
+    private static final Pattern splitIdentifiers = Pattern.compile("::");
 
     public static String escape(String name) {
         return splitIdentifiers.splitAsStream(name + " ") // add space such that the last "::" is not lost
@@ -51,6 +51,9 @@ public class RascalQualifiedNames {
             .collect(Collectors.joining("::")).trim();
     }
     public static String unescape(String term) {
+        if (!term.contains("\\")) {
+            return term;
+        }
         return splitIdentifiers.splitAsStream(term + " ") // add space such that the last "::" is not lost
             .map(RascalQualifiedNames::unescapeKeyword)
             .collect(Collectors.joining("::")).trim()
