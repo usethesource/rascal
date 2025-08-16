@@ -327,6 +327,29 @@ Check whether location `file` is actually a file.
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isFile(loc file);
 
+@synopsis{Check whether a given location is a readable file}
+@description{
+Tries to predict whether a `file` is readable. 
+If the file does not exist, this will throw an exception
+}
+@pitfalls{
+There are (rare) cases where it will return `true`` and ((readFile)) will still throw an exception (and even less likely but possible for the inverse).
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isReadable(loc file) throws PathNotFound;
+
+@synopsis{Check whether a given location is a writable file (and not readonly/non-existing).}
+@description{
+Tries to predict whether a file `file` is writable. 
+If the file does not exist, this will throw an exception
+}
+@pitfalls{
+There are cases where it will return `true`` and ((writeFile)) will still throw an exception (and even less likely but possible for the inverse).
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isWritable(loc file) throws PathNotFound;
+
+
 
 
 @synopsis{Last modification date of a location.}

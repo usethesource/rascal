@@ -16,6 +16,7 @@ import org.apache.maven.settings.Mirror;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class LocalRepoTest extends AbstractMavenTest {
@@ -85,7 +86,8 @@ public class LocalRepoTest extends AbstractMavenTest {
         }
     }
 
-    //@Test
+    @Ignore
+    @Test
     /**
      * This is a stress test that checks all POMs in your local maven repository.
      */
