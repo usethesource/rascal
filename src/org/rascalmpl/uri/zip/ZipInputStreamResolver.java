@@ -35,7 +35,7 @@ public class ZipInputStreamResolver extends ZipFileResolver {
             final ISourceLocation lookupKey = URIUtil.changeQuery(zipLocation, "mod=" + CTX.lastModified(zipLocation));
             return fsCache.get(lookupKey, j -> {
                 try {
-                    return new ZipInputStreamFileTree(CTX.getInputStream(zipLocation), CTX.created(zipLocation), CTX.lastModified(zipLocation));
+                    return new ZipInputStreamFileTree(CTX.getInputStream(zipLocation), CTX.created(zipLocation), CTX.lastModified(zipLocation), CTX.size(zipLocation));
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);

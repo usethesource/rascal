@@ -1088,6 +1088,26 @@ public class Prelude {
 	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(REGISTRY.isFile(sloc));
 	}
+
+	public IBool isReadable(ISourceLocation sloc){
+		try {
+			return values.bool(REGISTRY.isReadable(sloc));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
+
+	public IBool isWritable(ISourceLocation sloc){
+		try {
+			return values.bool(REGISTRY.isWritable(sloc));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
 	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
@@ -3084,6 +3104,10 @@ public class Prelude {
 		}
 		
 		return values.string(chars);
+	}
+
+	public IString indent(IString indentation, IString content, IBool indentFirstLine) {
+		return content.indent(indentation, indentFirstLine.getValue());
 	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException

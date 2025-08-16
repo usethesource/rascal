@@ -1226,9 +1226,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 		else if (!stack.isExpandable()) { // A 'normal' non-terminal.
 			EdgesSet<P> cachedEdges = cachedEdgesForExpect.get(stack.getName());
-			if(cachedEdges == null){
+			// Note that result sharing has been disabled for list separators, to
+			// prevent issues related to cycle detection down the line (because a
+			// result that can be reused may not be a separator and thus is not and
+			// can not be flagged as such, as doing so would be erroneous).
+			if(cachedEdges == null || stack.isSeparator()){
 				cachedEdges = new EdgesSet<P>(1);
-				cachedEdgesForExpect.put(stack.getName(), cachedEdges);
+				if(!stack.isSeparator()){
+					cachedEdgesForExpect.put(stack.getName(), cachedEdges);
+				}
 				
 				AbstractStackNode<P>[] expects = invokeExpects(stack);
 				if(expects == null){
