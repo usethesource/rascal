@@ -30,12 +30,18 @@ public interface ISourceLocationInput {
 	default long created(ISourceLocation uri) throws IOException {
 		return lastModified(uri);
 	}
+	/** In bytes !only for internal use! */
+	long size(ISourceLocation uri)  throws IOException; 
 	boolean isDirectory(ISourceLocation uri);  
 	boolean isFile(ISourceLocation uri) ;
+	boolean isReadable(ISourceLocation uri) throws IOException;
+
 	String[] list(ISourceLocation uri)  throws IOException;
 	String scheme();
 	boolean supportsHost();
 	default boolean supportsReadableFileChannel() {
 	    return false;
 	}
+
+	FileAttributes stat(ISourceLocation uri) throws IOException;
 }
