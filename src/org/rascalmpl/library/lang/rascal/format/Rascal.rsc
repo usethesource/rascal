@@ -31,6 +31,7 @@ import analysis::diff::edits::TextEdits;
 import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
 import String;
+import IO;
 
 @synopsis{Format an entire Rascal file, in-place.}
 void formatRascalFile(loc \module) {
@@ -94,14 +95,16 @@ Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Pa
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`)
     = V([
         toBox(tags),
-        H([toBox(vis), toBox(sig), L(";")])
+        H([toBox(vis), H0([toBox(sig), L(";")])])
     ]);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V([
         toBox(tags),
-        H([toBox(vis), toBox(sig)]),
-        I([H([L("="), H([toBox(exp), L(";")], hs=0)])])
+        HOV([
+            H([toBox(vis), toBox(sig)]),
+            I([H([L("="), H0([toBox(exp), L(";")])])])
+        ])
     ]);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`)
@@ -111,7 +114,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
             H([toBox(vis), toBox(sig)]),
             I([H([L("="), toBox(exp)])])
         ]),
-        I([H([L("when"), HOV([toBox(conds)]), L(";")])])
+        I([H([L("when"), H0([HOV([toBox(conds)]), L(";")])])])
     ]);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { <Statement* stats> }`)
@@ -124,19 +127,23 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { 
     
 Box toBox(Tag* tags) = V([toBox(t) | Tag t <- tags]);
 
-// Box toBox((Tag) `@synopsis <TagString c>`) 
-//     = H([
-//         L("@"), L("synopsis"), L("{"),
-//         H([L("<l>") | l <- split("\n", "<c>"[1..-1])]),
-//         L("}")]
-//     , hs=0);
+Box toBox((Tag) `@synopsis<TagString c>`) 
+    = H0([
+        L("@"), L("synopsis"),
+        toBox(c)
+    ]);
 
-// Box toBox((Tag) `@<Name n> <TagString c>`) 
-//     = HOV([
-//         H([L("@"), L("<n>")], hs=0),
-//         toBox(c)]
-//     , hs=0)
-//     when "<n>" != "synopsis";
+Box toBox((Tag) `@<Name n> <TagString c>`) 
+    = HOV([
+        H0([L("@"), L("<n>")]),
+        toBox(c)
+    ])
+    when "<n>" != "synopsis";
+
+Box toBox((Tag) `@<Name n>`) 
+    = HOV([
+        H0([L("@"), L("<n>")])
+    ]);
 
 Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
     = H([L("("), H([toBox(formals), toBox(keywordFormals)]), L(")")], hs=0);
@@ -169,17 +176,47 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
         L("}")
     ]);
 
-// Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
-//                       '  <Statement st>
-//                       '`)
-//     = V([
-//         H([
-//             H0([toBox(label), L("if")]), 
-//             H0([L("("), toBox(cs), L(")")])
-//         ]),
-//         I(*[toBox(s) | s <- sts])
-//     ]) 
-//     when !(st is blockStatement);
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
+                      '  <Statement* sts>
+                      '} else {
+                      ' <Statement* ests>
+                      '}`)
+    = V([
+        H([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")]),
+            L("{")
+        ]),
+        I([*[toBox(s) | s <- sts]]),
+        L("}"),
+        H([L("else"), L("{")]),
+        I([*[toBox(s) | s <- ests]]),
+        L("}")
+    ]);
+
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
+                      '  <Statement st>
+                      '`)
+    = H([
+        H([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")])
+        ]),
+        toBox(st)
+    ]) 
+    when !(st is nonEmptyBlock);
+
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) <Statement st> else <Statement st2>`)
+    = HOV([
+        H([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")])
+        ]),
+        I([toBox(st)]),
+        L("else"),
+        I([toBox(st2)])
+    ]) 
+    when !(st is nonEmptyBlock) && !(st2 is nonEmptyBlock);
 
 /* Expressions */
 
@@ -204,6 +241,11 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{Keyw
 
 Box toBox({KeywordArgument[Expression] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","), hs=0);
+
+/* Types */
+
+Box toBox((StructuredType)`<BasicType bt>[<{TypeArg ","}+ args>]`)
+    = H0([toBox(bt),L("["), toBox(args), L("]")]);
 
 // this should not be necessary
 Box HV([H([])]) = U([]);
