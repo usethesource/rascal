@@ -854,7 +854,7 @@ bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
 private alias NewLineChar = [\n];
-private alias ReturnChar  = [\t];
+private alias ReturnChar  = [\r];
 
 @synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
 @description{
