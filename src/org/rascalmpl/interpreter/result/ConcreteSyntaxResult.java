@@ -142,7 +142,13 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		
 		return super.fieldUpdate(name, repl, store);
 	}
-	
+
+	private static boolean hasField(IConstructor prod, Name field) {
+		IList syms = ProductionAdapter.getSymbols(prod);
+		int index = SymbolAdapter.indexOfLabel(syms, Names.name(field));
+		return index >= 0;
+	}
+
 	private static boolean errorHasFieldBeforeDot(IConstructor errorProd, Name field) {
 		int dot = ProductionAdapter.getErrorDot(errorProd);
 		IList syms = ProductionAdapter.getSymbols(ProductionAdapter.getErrorProduction(errorProd));
@@ -173,8 +179,12 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public Result<IBool> isDefined(Name name) {
 		if (TreeAdapter.isAppl((ITree) getValue())) {
 			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
-			if (ProductionAdapter.isError(prod) && errorHasFieldBeforeDot(prod, name)) {
-				return ResultFactory.bool(true, ctx);
+			if (ProductionAdapter.isError(prod)) {
+				if (errorHasFieldBeforeDot(prod, name)) {
+					return ResultFactory.bool(true, ctx);
+				}
+			} else if (hasField(prod, name)) {
+				ResultFactory.bool(true, ctx);
 			}
 		}
 
