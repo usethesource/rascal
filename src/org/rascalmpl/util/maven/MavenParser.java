@@ -180,6 +180,7 @@ public class MavenParser {
 
             return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
+            messages.append(Messages.error("Could not resolve " + coordinate + ". " + e.getMessage(), projectPomLocation));
             return Artifact.unresolved(coordinate, messages);
         }
     }
