@@ -175,6 +175,11 @@ test bool testHasAfterDot() = !(getTestStatement() has val);
 
 test bool testIsDefinedBeforeDot() = getTestStatement().var?;
 
+test bool testIsDefinedValidTree() {
+    Statement stat = parse(#Statement, "a := 42");
+    return stat.var?;
+}
+
 test bool testIsDefinedAfterDot() = !getTestStatement().val?;
 
 test bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
