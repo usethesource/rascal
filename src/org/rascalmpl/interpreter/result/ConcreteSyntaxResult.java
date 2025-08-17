@@ -145,6 +145,9 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 
 	private static boolean hasField(IConstructor prod, Name field) {
 		IList syms = ProductionAdapter.getSymbols(prod);
+		if (syms == null) {
+			return false;
+		}
 		int index = SymbolAdapter.indexOfLabel(syms, Names.name(field));
 		return index >= 0;
 	}
@@ -184,7 +187,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					return ResultFactory.bool(true, ctx);
 				}
 			} else if (hasField(prod, name)) {
-				ResultFactory.bool(true, ctx);
+				return ResultFactory.bool(true, ctx);
 			}
 		}
 
