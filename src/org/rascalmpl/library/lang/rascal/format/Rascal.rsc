@@ -36,20 +36,28 @@ import String;
 void formatRascalFile(loc \module) {
     start[Module] tree = parse(#start[Module], \module);
     edits = formatRascalModule(tree);
-    executeFileSystemChanges(changed(\module, edits));
+    executeFileSystemChanges(changed(edits));
 }
 
 @synopsis{Format a Rascal module string}
 str formatRascalString(str \module) 
-    = executeTextEdits(\module, formatRascalModule(parse(#start[Module], \module, |unknown:///|)));
+    = executeTextEdits(\module, formatRascalModule(parse(#start[Module], \module, |tmp:///temporary.rsc|)));
 
 @synopsis{Top-level work-horse for formatting Rascal modules}
 @benefits{
 * retains source code comments 
 * uses Box for adaptive nested formatting
 }
-list[TextEdit] formatRascalModule(start[Module] \module) 
-    = layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
+list[TextEdit] formatRascalModule(start[Module] \module) {
+    try {
+        return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
+    }
+    catch e:ParseError(loc place): { 
+        writeFile(|tmp:///temporary.rsc|, format(toBox(\module)));
+        println("Formatted module contains a parse error here: <place>");
+        throw e;
+    }
+}
 
 
 /* Modules */
@@ -99,9 +107,11 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`)
     = V([
         toBox(tags),
-        H([toBox(vis), toBox(sig)]),
-        I([H([L("="), toBox(exp)])]),
-        I([L("when"), V([toBox(c) | c <- conds])])
+        HOV([
+            H([toBox(vis), toBox(sig)]),
+            I([H([L("="), toBox(exp)])])
+        ]),
+        I([H([L("when"), HOV([toBox(conds)]), L(";")])])
     ]);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { <Statement* stats> }`)
@@ -114,19 +124,19 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { 
     
 Box toBox(Tag* tags) = V([toBox(t) | Tag t <- tags]);
 
-Box toBox((Tag) `@synopsis <TagString c>`) 
-    = H([
-        L("@"), L("synopsis"), L("{"),
-        H([L("<l>") | l <- split("\n", "<c>"[1..-1])]),
-        L("}")]
-    , hs=0);
+// Box toBox((Tag) `@synopsis <TagString c>`) 
+//     = H([
+//         L("@"), L("synopsis"), L("{"),
+//         H([L("<l>") | l <- split("\n", "<c>"[1..-1])]),
+//         L("}")]
+//     , hs=0);
 
-Box toBox((Tag) `@<Name n> <TagString c>`) 
-    = HOV([
-        H([L("@"), L("<n>")], hs=0),
-        toBox(c)]
-    , hs=0)
-    when "<n>" != "synopsis";
+// Box toBox((Tag) `@<Name n> <TagString c>`) 
+//     = HOV([
+//         H([L("@"), L("<n>")], hs=0),
+//         toBox(c)]
+//     , hs=0)
+//     when "<n>" != "synopsis";
 
 Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
     = H([L("("), H([toBox(formals), toBox(keywordFormals)]), L(")")], hs=0);
@@ -141,6 +151,35 @@ Box toBox(Statement* stmts)
 
 Box toBox((Statement) `return <Expression e>;`)
     = HV([L("return"), I([H([toBox(e), L(";")], hs=0)])]);
+
+// | @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration thenStatement () !>> "else" 
+// 	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement!variableDeclaration!functionDeclaration elseStatement 
+	
+// if with a block statement is formatted differently then without the block
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
+                      '  <Statement* sts>
+                      '}`)
+    = V([
+        H([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")]),
+            L("{")
+        ]),
+        I([*[toBox(s) | s <- sts]]),
+        L("}")
+    ]);
+
+// Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
+//                       '  <Statement st>
+//                       '`)
+//     = V([
+//         H([
+//             H0([toBox(label), L("if")]), 
+//             H0([L("("), toBox(cs), L(")")])
+//         ]),
+//         I(*[toBox(s) | s <- sts])
+//     ]) 
+//     when !(st is blockStatement);
 
 /* Expressions */
 
@@ -167,4 +206,9 @@ Box toBox({KeywordArgument[Expression] ","}+ args)
     = SL([toBox(a) | a <- args], L(","), hs=0);
 
 // this should not be necessary
-// Box HV([H([])]) = U([]);
+Box HV([H([])]) = U([]);
+
+Box H0(list[Box] boxes) = H(boxes, hs=0);
+Box H1(list[Box] boxes) = H(boxes, hs=0);
+Box V0(list[Box] boxes) = V(boxes, hs=0);
+Box V1(list[Box] boxes) = V(boxes, hs=0);
