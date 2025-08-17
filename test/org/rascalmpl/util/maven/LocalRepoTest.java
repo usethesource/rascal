@@ -86,6 +86,43 @@ public class LocalRepoTest extends AbstractMavenTest {
         }
     }
 
+    /**
+     * This test checks if transitive exclusions work correctly:
+     * - pom-transitive-exclusions.xml has trans:level1:1.0 as a dependency with trans:level3 as an exclusion
+     * - trans:level1:1.0 has trans:level2:1.0 as dependency
+     * - trans:level2:1.0 has trans:level3:1.0 as dependency
+     * - trans:level3:1.0 should not be included in the resolved dependencies
+     */
+    @Test
+    public void testTransitiveExclusions() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-transitive-exclusions.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        Assert.assertEquals(2, resolvedDependencies.size());
+        Assert.assertTrue(resolvedDependencies.stream().allMatch(artifact -> !artifact.getCoordinate().getArtifactId().equals("level3")));
+    }
+
+    /**
+     * This test checks if caching takes transitive exclusions into account.
+     * - pom-transitive-exclusions.xml has:
+     *      - trans:level1:1.0 as a dependency with trans:level3 as an exclusion
+     *      - trans:level2:1.0 as a dependency without exclusions
+     * - trans:level1:1.0 has trans:level2:1.0 as dependency
+     * - trans:level2:1.0 has trans:level3:1.0 as dependency
+     * - trans:level3:1.0 should be included in the resolved dependencies because there is a path where it is not excluded.
+     */
+    @Test
+    public void testExclusionBasedCaching() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-exclusion-caching.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        for (Artifact artifact : resolvedDependencies) {
+            System.out.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
+        }
+        Assert.assertEquals(3, resolvedDependencies.size());
+        Assert.assertTrue(resolvedDependencies.stream().anyMatch(artifact -> artifact.getCoordinate().getArtifactId().equals("level3")));
+    }
+
     @Ignore
     @Test
     /**
