@@ -96,6 +96,7 @@ public class BaseREPL {
 
         if (replService.supportsCompletion()) {
             reader.completer(new AggregateCompleter(replService.completers()));
+            reader.completionMatcher(replService.completionMatcher());
         }
         this.ansiColorsSupported = !term.getType().equals(Terminal.TYPE_DUMB);
         this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");

@@ -1594,6 +1594,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitOptionalEqualSignLexical(OptionalEqualSign.Lexical x) { 
+    return null; 
+  }
+
   public T visitOptionalTerminatorLexical(OptionalTerminator.Lexical x) { 
     return null; 
   }
