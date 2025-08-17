@@ -98,29 +98,37 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw RuntimeExceptionFactory.illegalArgument(actuals[0], ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 			
-		if (actuals.length == 4) {
-			int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
-			int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
-			int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
-			int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
-			
-			if (iBeginLine < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iBeginColumn < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iEndLine < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iEndColumn < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
+		try {
+			if (actuals.length == 4) {
+				int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
+				int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
+				int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
+				int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
+				
+				if (iBeginLine < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iBeginColumn < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iEndLine < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iEndColumn < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+			}
+			else {
+				return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength), ctx);
+			}
 		}
-		else {
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength), ctx);
+		catch (IllegalArgumentException e) {
+			var lw = ctx.getValueFactory().listWriter();
+			lw.append(actuals);
+
+			throw RuntimeExceptionFactory.illegalArgument(lw.done(), e.getMessage(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 	

@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
+import org.jline.reader.CompletionMatcher;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.ideservices.IDEServices;
@@ -42,6 +43,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
+import org.rascalmpl.repl.completers.CompletionMatcherWithEscapes;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
@@ -201,6 +203,11 @@ public class RascalReplServices implements IREPLService {
         result.add(new RascalKeywordCompletion());
         result.add(new RascalLocationCompletion());
         return result;
+    }
+
+    @Override
+    public CompletionMatcher completionMatcher() {
+        return new CompletionMatcherWithEscapes();
     }
 
 
