@@ -397,6 +397,7 @@ public class URIUtil {
 	public static ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		// first we normalize trailing slashes, since "relativize" does not consider them meaningful
 		// while ISourceLocation does.
+		var originalInside = inside; // We want to be able to return the literal original input location
 		try {
 			if (outside.getPath().endsWith(URI_PATH_SEPARATOR)) {
 				outside = changePath(outside, outside.getPath().substring(0, outside.getPath().length() - 1));
@@ -414,7 +415,7 @@ public class URIUtil {
 		}
 
 		if (!isParentOf(outside, inside)) {
-			return inside;
+			return originalInside;
 		}
 
 		String[] outsidePath = outside.getPath().split(URI_PATH_SEPARATOR);

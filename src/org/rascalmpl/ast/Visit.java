@@ -31,21 +31,21 @@ public abstract class Visit extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Case> getCases() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSubject() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getSubject() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStrategy() {
     return false;
   }
 
   public org.rascalmpl.ast.Strategy getStrategy() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
