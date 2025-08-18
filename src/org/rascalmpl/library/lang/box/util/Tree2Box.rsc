@@ -102,16 +102,23 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return NULL();
 
         // literals are printed as-is
-        case <prod(lit(_), _, _), _>: 
-            return L("<t>");
+        case <prod(lit(_), _, _), _>: {
+            str yield =  "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
         
         // case-insensitive literals are optionally normalized
-        case <prod(cilit(_), _, _), _>: 
-            return L(ci("<t>", opts.ci));
+        case <prod(cilit(_), _, _), _>: {
+            str yield =  "<t>"; 
+            return yield != "" ?  L(ci("<t>", opts.ci)) : NULL();
+        }
         
         // non-existing content should not generate accidental spaces
         case <regular(opt(_)), []>: 
-            return NULL();
+            return NULL(); 
+
+        case <regular(opt(_)), [Tree present]>: 
+            return U([toBox(present)]); 
         
         // non-separated lists should stick without spacing (probably lexical)
         case <regular(iter(_)), list[Tree] elements>:
@@ -217,8 +224,10 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                     ], hs=1);
 
         // lexicals are never split in pieces, unless it's comments but those are handled above.
-        case <prod(lex(_), _, _), _> :
-            return L("<t>");
+        case <prod(lex(_), _, _), _> : {
+            str yield = "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
