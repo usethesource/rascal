@@ -31,7 +31,7 @@ public abstract class QualifiedName extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Name> getNames() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

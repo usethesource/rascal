@@ -31,7 +31,7 @@ public abstract class Formals extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getFormals() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
