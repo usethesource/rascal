@@ -180,6 +180,19 @@ test bool testIsDefinedValidTree() {
     return stat.var?;
 }
 
+test bool testTreeBuiltinFieldPresence() {
+    Statement stat = parse(#Statement, "a := 42");
+    return stat.prod? && stat.args?;
+}
+
+data Tree(int testThisField=-1);
+
+test bool testTreeKeywordFieldPresence() {
+    Statement stat = parse(#Statement, "a := 42");
+    stat.testThisField=42;
+    return stat.testThisField?;
+}
+
 test bool testIsDefinedAfterDot() = !getTestStatement().val?;
 
 test bool testFieldAccessBeforeDot() = "<getTestStatement().var>" == "input";
