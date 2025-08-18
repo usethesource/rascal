@@ -31,7 +31,7 @@ public abstract class ModuleParameters extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeVar> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
