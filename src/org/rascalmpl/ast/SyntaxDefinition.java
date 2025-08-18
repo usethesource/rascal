@@ -31,28 +31,28 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Prod getProduction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStart() {
     return false;
   }
 
   public org.rascalmpl.ast.Start getStart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDefined() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getDefined() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVis() {
     return false;
   }
 
   public org.rascalmpl.ast.Visibility getVis() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
