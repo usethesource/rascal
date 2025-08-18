@@ -655,6 +655,29 @@ tuple[list[&T],list[&T]] split(list[&T] l) {
 	return <take(half,l), drop(half,l)>;
 }
 
+@synopsis{Groups sublists for consecutive elements which are `similar`}
+@description{
+This function does not change the order of the elements. Only elements
+which are similar end-up in a sub-list with more than one element. The
+elements which are not similar to their siblings, end up in singleton
+lists.
+}
+@examples{
+```rascal-shell
+import List;
+bool bothEvenOrBothOdd(int a, int b) = (a % 2 == 0 && b % 2 == 0) || (a % 2 == 1 && b % 2 == 1);
+group([1,7,3,6,2,9], bothEvenOrBothOdd);
+```
+}
+public list[list[&T]] group(list[&T] input, bool (&T a, &T b) similar) {
+  lres = while ([hd, *tl] := input) {
+      sim = [hd, *takeWhile(tl, bool (&T a) { return similar(a, hd); })];
+	    append sim;
+	    input = drop(size(sim), input);
+  }
+
+  return lres; 
+}
 
 @synopsis{Sum the elements of a list.}
 @examples{
