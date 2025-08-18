@@ -28,7 +28,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
         testRepo = url.toString();
 
-        // Or alternatively we can use settings to override the central repository
+        // We can use a mirror in settings to override the central repository
         settings = new MavenSettings() {
             @Override
             public Map<String, Mirror> getMirrors() {
@@ -68,6 +68,7 @@ public class LocalRepoTest extends AbstractMavenTest {
 
     @Test
     public void testSimpleResolverParentResolution() throws ModelResolutionError, UnresolvableModelException, IOException {
+        // We still want access to maven central, so use string replacement to set the REPO
         String content = Files.readString(getPomsPath("parent/pom.xml"));
         content = content.replace("${REPO}", testRepo);
         // We need some place to store the modified pom
