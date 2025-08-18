@@ -67,7 +67,7 @@ module lang::box::util::Tree2Box
 import ParseTree;
 import lang::box::\syntax::Box;
 import String;
-import IO;
+
 
 @synopsis{Configuration options for toBox}
 data FormatOptions = formatOptions(
@@ -82,6 +82,8 @@ data CaseInsensitivity
     | asIs()
     ;
 
+private Symbol notNl = #![\n].symbol;
+
 @synopsis{This is the generic default formatter}
 @description{
 This generic formatter is to be overridden by someone constructing a formatter tools
@@ -92,8 +94,7 @@ by the user is necessary.
 default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
-    Symbol nl = #[\n].symbol;
-    Symbol notNl = #![\n].symbol;
+    
     
     switch (<delabel(p), args>) {
         // nothing should not produce additional spaces
@@ -241,7 +242,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
-        case <prod(sort(/[stm]/), [*Symbol pre, op:lit(_), *Symbol bl, cl:lit(_)], _), list[Tree] elements>:
+        case <prod(sort(/[stm]/), [*Symbol pre, lit(_), *Symbol _, lit(_)], _), list[Tree] elements>:
             return V([
                 H([*[toBox(p, opts=opts) | Tree p <- elements[0..size(pre)]], toBox(elements[size(pre)], opts=opts)]),
                 I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),
@@ -265,14 +266,13 @@ default Box toBox(cycle(_, _), FO opts=fo()) = NULL();
 private alias FO = FormatOptions;
 
 @synopsis{Removing production labels removes similar patterns in the main toBox function.}
-private Production delabel(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs))
-    = prod(s, delabel(syms), attrs);
+private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs))
+    = prod(delabel(s), [delabel(x) | x <- syms], attrs);
 
-private default Production delabel(Production p) = p;
+private Production delabel(regular(Symbol s)) = regular(delabel(s));
 
-private list[Symbol] delabel(list[Symbol] syms) = [delabel(s) | s <- syms];
-
-private Symbol delabel(label(_, Symbol s)) = s;
+private Symbol delabel(label(_, Symbol s)) = delabel(s);
+private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;
 
 @synopsis{This is a short-hand for legibility's sake}
