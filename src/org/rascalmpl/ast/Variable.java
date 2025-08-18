@@ -31,14 +31,14 @@ public abstract class Variable extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getInitial() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
