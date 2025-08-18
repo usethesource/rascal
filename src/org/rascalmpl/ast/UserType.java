@@ -31,14 +31,14 @@ public abstract class UserType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

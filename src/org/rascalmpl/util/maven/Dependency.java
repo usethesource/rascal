@@ -87,7 +87,7 @@ import io.usethesource.vallang.ISourceLocation;
             messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", pomLocation));
             version = "???";
         }
-        var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
+        var coordinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
         Scope scope;
 
 
@@ -105,7 +105,7 @@ import io.usethesource.vallang.ISourceLocation;
             .map(e -> ArtifactCoordinate.versionLess(e.getGroupId(), e.getArtifactId()))
             .collect(Collectors.toUnmodifiableSet());
 
-        return new Dependency(coodinate, scope, d.getSystemPath(), d.isOptional(), exclusions, pomLocation);
+        return new Dependency(coordinate, scope, d.getSystemPath(), d.isOptional(), exclusions, pomLocation);
     }
 
 

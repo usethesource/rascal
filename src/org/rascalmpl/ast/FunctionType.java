@@ -31,14 +31,14 @@ public abstract class FunctionType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
