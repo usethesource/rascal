@@ -31,7 +31,7 @@ public abstract class Tags extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Tag> getTags() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
