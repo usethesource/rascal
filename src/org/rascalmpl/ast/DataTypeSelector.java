@@ -31,14 +31,14 @@ public abstract class DataTypeSelector extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getProduction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSort() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getSort() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

@@ -31,14 +31,14 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
