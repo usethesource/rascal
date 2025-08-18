@@ -69,6 +69,17 @@ public class Artifact {
         this.anyError = messages.stream().anyMatch(Messages::isError);
     }
 
+    private Artifact(Artifact original, String version) {
+        var coord = original.coordinate;
+        this.coordinate = new ArtifactCoordinate(coord.getGroupId(), coord.getArtifactId(), version, coord.getClassifier());
+        this.parentCoordinate = original.parentCoordinate;
+        this.resolved = original.resolved;
+        this.dependencies = original.dependencies;
+        this.messages = original.messages;
+        this.ourResolver = original.ourResolver;
+        this.anyError = original.anyError;
+    }
+
     public ArtifactCoordinate getCoordinate() {
         return coordinate;
     }
@@ -103,17 +114,41 @@ public class Artifact {
      * @return
      */
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
-        var alreadyIncluded = new HashSet<ArtifactCoordinate.WithoutVersion>();
+        Set<WithoutVersion> alreadyIncluded = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
         calculateClassPath(forScope, alreadyIncluded, result, parser);
         return result;
     }
 
+    private static boolean isVersionRange(String version) {
+        return version != null && (version.startsWith("[") || version.startsWith("("));
+    }
 
-    private void calculateClassPath(Scope forScope, HashSet<WithoutVersion> alreadyIncluded, ArrayList<Artifact> result, MavenParser parser) {
+    /**
+     * For unrestricted versions (just simple version numbers), we will use the first version
+     * it encounters. This means top-level versions take preference.
+     * For version ranges maven uses the latest version that matches all ranges. If no such version
+     * exists, resolution fails.
+     */
+    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, ArrayList<Artifact> result, MavenParser parser) {
+        var messages = IRascalValueFactory.getInstance().listWriter();
         var nextLevel = new ArrayList<Artifact>(dependencies.size());
         for (var d : dependencies) {
-            var withoutVersion = d.getCoordinate().versionLess();
+            var coordinate = d.getCoordinate();
+            var withoutVersion = coordinate.versionLess();
+
+            var version = coordinate.getVersion();
+            if (isVersionRange(version)) {
+                try {
+                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
+                }
+                catch (UnresolvableModelException e) {
+                    messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                    continue;
+                }
+            }
+
             if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
                 continue;
             }
@@ -133,7 +168,7 @@ public class Artifact {
                 continue;
             }
 
-            var art = parser.parseArtifact(d.getCoordinate(), d.getExclusions(), ourResolver);
+            var art = parser.parseArtifact(coordinate, d.getExclusions(), ourResolver);
             if (art != null) {
                 result.add(art);
                 nextLevel.add(art);
@@ -175,6 +210,7 @@ public class Artifact {
             // we do not support non-jar artifacts right now
             return null;
         }
+
         var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion(), classifier);
         var parent = m.getParent();
         var parentCoordinate = parent == null ? null : new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
