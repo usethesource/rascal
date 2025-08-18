@@ -58,35 +58,26 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * and then moving the file to the final location.
  */
 
-/*package*/ class SimpleRepositoryDownloader {
-    // TODO: what to do about non http(s) respositories?
-
-    public final Repo repo;
+ /*package*/ class HttpRepositoryDownloader extends BaseRepositoryDownloader {
     private final HttpClient client;
     private final Random rand;
 
-    public SimpleRepositoryDownloader(Repo repo, HttpClient client) {
-        this.repo = repo;
+    public HttpRepositoryDownloader(Repo repo, HttpClient client) {
+        super(repo);
+
         this.client = client;
         rand = new Random();
     }
 
-    public Repo getRepo() {
-        return repo;
-    }
-
+    @Override
     public boolean download(String url, Path target, boolean force) {
-        Path directory = target.getParent();
-        if (Files.notExists(directory)) {
-            try {
-                Files.createDirectories(directory);
-            }
-            catch (IOException e) {
-                return false;
-            }
+        try {
+            ensureTargetDirectoryExists(target);
+        } catch (IOException e) {
+            return false;
         }
 
-        Optional<Path> result = download(url, target, force,
+        Path result = download(url, target, force, true,
             (InputStream input) -> { 
                 Path tempTarget = getTempFile(target);
                 Files.copy(input, tempTarget);
@@ -94,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             },
             (Path tempArtifact) -> moveToTarget(tempArtifact, target, force)
         );
-        return result.isPresent();
+        return result != null;
     }
 
     private Path getTempFile(Path target) {
@@ -102,38 +93,48 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return target.resolveSibling(tempFileName);
     }
 
+    @Override
     public @Nullable String downloadAndRead(String url, Path target, boolean force) {
-        return download(url, target, force,
+        return download(url, target, force, true,
             (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
             (String content) -> writeToTarget(content, target, force)
-        ).orElse(null);
+        );
     }
 
-    public <R> Optional<R> download(String url, Path target, boolean force, 
+    private @Nullable <R> R download(String url, Path target, boolean force, boolean hasChecksums,
         FailableFunction<InputStream, R, IOException> resultCreator,
         FailableFunction<R, Boolean, IOException> resultWriter) {
         try {
-            var artifactUri = createUri(repo.getUrl(), url);
+            var artifactUri = createUri(getRepo().getUrl(), url);
             var req = HttpRequest.newBuilder(artifactUri).GET().build();
             HttpResponse<InputStream> response = client.send(req, BodyHandlers.ofInputStream());
 
             if (response.statusCode() == 200) {
-                try (var input = new ChecksumInputStream(response.body())) {
-                    R result = resultCreator.apply(input);
+                if (hasChecksums) {
+                    try (var input = new ChecksumInputStream(response.body())) {
+                        R result = resultCreator.apply(input);
 
-                    String sha1Checksum = input.getSha1Checksum();
-                    String md5Checksum = input.getMd5Checksum();
+                        String sha1Checksum = input.getSha1Checksum();
+                        String md5Checksum = input.getMd5Checksum();
 
-                    if (!verifyChecksum(url, response.headers(), sha1Checksum, md5Checksum)) {
-                        return Optional.empty();
+                        if (!verifyChecksum(url, response.headers(), sha1Checksum, md5Checksum)) {
+                            return null;
+                        }
+
+                        // Only write checksums if copying succeeds so the checksums will always match the current file
+                        if (resultWriter.apply(result)) {
+                            writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
+                            writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
+                        }
+
+                        return result;
                     }
-
-                    // Only write checksums if copying succeeds so the checksums will always match the current file
-                    if (resultWriter.apply(result)) {
-                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
-                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
+                } else {
+                    try (var input = response.body()) {
+                        R result = resultCreator.apply(input);
+                        resultWriter.apply(result);
+                        return result;
                     }
-                    return Optional.of(result);
                 }
             }
             else {
@@ -143,12 +144,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                     body.close();
                 }
             }
-            return Optional.empty();
+            return null;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Optional.empty();
+            return null;
         } catch (URISyntaxException | IOException e) {
-            return Optional.empty();
+            return null;
         }
     }
 
@@ -179,20 +180,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         // Maybe we should return null on an IOException? That would mean no checksum checking in that case.
-        return downloadChecksum(createUri(repo.getUrl(), checksumUrl));
+        return downloadChecksum(createUri(getRepo().getUrl(), checksumUrl));
     }
 
     private @Nullable String downloadChecksum(URI uri) throws IOException, InterruptedException {
         var req = HttpRequest.newBuilder(uri).GET().build();
         HttpResponse<String> result = client.send(req, BodyHandlers.ofString());
         return result.statusCode() == 200 ? result.body() : null;
-    }
-
-    private URI createUri(String url, String suffix) throws URISyntaxException {
-        if (url.endsWith("/") && suffix.startsWith("/")) {
-            suffix = suffix.substring(1);
-        }
-        return new URI(url + suffix);
     }
 
     private boolean moveToTarget(Path from, Path to, boolean force) throws IOException {
