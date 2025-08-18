@@ -82,6 +82,61 @@ Box toBox((Visibility) ``) = NULL();
 
 /* Declarations */
 
+Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType t> <CommonKeywordParameters ps>;`)
+    = V([
+        toBox(t),
+        H([
+            toBox(v), L("data"), H0([toBox(t), <toBox(ps)>, L(";")])
+        ])
+    ]);
+
+Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <{Variant "|"}+ vs>;`)
+    = HOV([
+        toBox(t),
+        H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
+        I([H([V([G([
+                L("="),
+                *[L("|"), toBox(va) | va <- vs][1..] // host the bars `|` up to the same level of `=`
+            ])])
+        ]), L(";")], hs=0)
+    ]);
+
+// syntax Variant
+// 	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
+
+// KeywordFormals
+//     = \default: OptionalComma optionalComma [,\ (\t\n] << {KeywordFormal ","}+ keywordFormalList
+//     | none: ()
+//     ;
+Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
+    = H0([
+        toBox(n),
+        L("("),
+        HOV([toBox(args)]),
+        H([
+            L(","),
+            HOV([toBox(kws)])
+        ]),
+        L(")")
+    ]);
+
+Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>)`)
+    = H0([
+        toBox(n),
+        L("("),
+        HOV([toBox(args)]),
+        L(")")
+    ]);
+
+Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
+                    '<{KeywordFormal ","}+ kws>)`)
+    = H0([
+        H0([toBox(n), L("(")]),
+        H0([toBox(args), L(",")]),
+        HOV([toBox(kws)]),
+        L(")")
+    ]);
+
 Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters> throws <{Type ","}+ exs>`)
@@ -129,8 +184,8 @@ Box toBox(Tag* tags) = V([toBox(t) | Tag t <- tags]);
 
 Box toBox((Tag) `@synopsis<TagString c>`) 
     = H0([
-        L("@"), L("synopsis"),
-        toBox(c)
+        L("@"), L("synopsis"), 
+        HV([toBox(c)])
     ]);
 
 Box toBox((Tag) `@<Name n> <TagString c>`) 
@@ -158,9 +213,6 @@ Box toBox(Statement* stmts)
 
 Box toBox((Statement) `return <Expression e>;`)
     = HV([L("return"), I([H([toBox(e), L(";")], hs=0)])]);
-
-// | @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration thenStatement () !>> "else" 
-// 	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement!variableDeclaration!functionDeclaration elseStatement 
 	
 // if with a block statement is formatted differently then without the block
 Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
@@ -194,6 +246,38 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
         L("}")
     ]);
 
+// For if-then-else there are four cases to consider, each block with and without the curlies
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
+                      '  <Statement* sts>
+                      '} else 
+                      ' <Statement ests>`)
+    = V([
+        H([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")]),
+            L("{")
+        ]),
+        I([*[toBox(s) | s <- sts]]),
+        L("}"),
+        HV([L("else"), I([HOV([toBox(s) | s <- ests])])])
+    ]) when !(ests is nonEmptyBlock);
+
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
+                      '  <Statement sts>
+                      'else {
+                      ' <Statement* ests>
+                      '}`)
+    = V([
+        HV([
+            H0([toBox(label), L("if")]), 
+            H0([L("("), toBox(cs), L(")")]),
+            HOV([I([toBox(s) | s <- sts])])
+        ]),
+        H([L("else"), L("{")]),
+        I([*[toBox(s) | s <- ests]]),
+        L("}")
+    ]) when !(sts is nonEmptyBlock); 
+
 Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
                       '  <Statement st>
                       '`)
@@ -217,6 +301,9 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) <Statement st> 
         I([toBox(st2)])
     ]) 
     when !(st is nonEmptyBlock) && !(st2 is nonEmptyBlock);
+
+Box toBox((Statement) `<Expression exp>;`)
+    = H0([toBox(exp), L(";")]);
 
 /* Expressions */
 
@@ -242,10 +329,83 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{Keyw
 Box toBox({KeywordArgument[Expression] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","), hs=0);
 
+Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
+    = H0([toBox(cont), L("["), HV([toBox(subscripts)]), L("]")]);
+
+Box toBox((Expression)`[<Expression first>..<Expression last>]`)
+    = H0([L("["), toBox(first),L(".."),toBox(last), L("]")]);
+
+Box toBox((Expression)`[<Expression first>,<Expression second>..<Expression last>]`)
+    = H0([L("["), toBox(first), H([L(","), toBox(second)]), L(".."), toBox(last), L("]")]);
+
+Box toBox((Expression) `<Expression exp>.<Name field>`)
+    = H0([toBox(exp), L("."), toBox(field)]);
+
+Box toBox((Expression)`<Expression exp>[<Name key> = <Expression repl>]`)
+    = H0([toBox(exp), L("["),H([toBox(key), L("="), toBox(repl)]), L("]")]);
+
+Box toBox((Expression) `<Expression exp>\<<{Field ","}+ fields>\>`)
+    = H0([toBox(exp),L("\<"), HV([toBox(fields)]), L("\>")]);
+
+Box toBox((Expression) `(<Expression init> | <Expression result> | <{Expression ","}+ gs>)`)
+    = HOV([
+        L("("),
+        H([toBox(init), I([H([L("|"), toBox(result)])]), H([L("|"), HV([toBox(gs)])])]),
+        L(")")
+    ]);
+
+Box toBox((Expression) `any(<{Expression ","}+ gens>)`)
+    = H0([
+        H0([L("any"), L("(")]),
+        HV([toBox(gens)]),
+        L(")")
+    ]);
+
+Box toBox((Expression) `all(<{Expression ","}+ gens>)`)
+    = H0([
+        H0([L("all"), L("(")]),
+        HV([toBox(gens)]),
+        L(")")
+    ]);
+
+/*
+
+	= @breakable{results,generators} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| @breakable{from,to,generators} \map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
+*/
+Box toBox((Expression) `[<{Expression ","}+ results> | <{Expression ","}+ gens>]`)
+    = HV([
+        H0([L("["), HV([toBox(results)])]),
+        H0([H([L("|"), HOV([toBox(gens)])]), L("]")])
+    ]);
+
 /* Types */
+
+Box toBox((Sym) `&<Nonterminal n>`)
+    = H0([L("&", <toBox(n)>)]);
+
+Box toBox((Sym) `<Nonterminal n>[<{Sym ","}+ ps>]`)
+    = H0([toBox(n),L("["),HV([toBox(ps)]),L("]")]);
 
 Box toBox((StructuredType)`<BasicType bt>[<{TypeArg ","}+ args>]`)
     = H0([toBox(bt),L("["), toBox(args), L("]")]);
+
+Box toBox((UserType)`<QualifiedName bt>[<{Type ","}+ args>]`)
+    = H0([toBox(bt),L("["), toBox(args), L("]")]);
+
+Box toBox((TypeVar) `&<Name n>`)
+    = H0([L("&"), toBox(n)]);
+
+Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
+    = H([
+        H0([
+            L("&"), 
+            toBox(n)
+        ]),
+        L("\<:"), 
+        toBox(bounds)
+    ]);
 
 // this should not be necessary
 Box HV([H([])]) = U([]);
