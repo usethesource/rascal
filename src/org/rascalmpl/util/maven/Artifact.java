@@ -156,10 +156,7 @@ public class Artifact {
                 if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                     String effectiveVersion = versions.first();
                     messages = messages.append(Messages.warning("Multiple version ranges found for " + withoutVersion + ", " + effectiveVersion + " is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [" + effectiveVersion + "]", d.getPomLocation()));
-                    System.err.println("messages is now: " + messages);
                 }
-                System.err.println("Adding version " + version + " for " + withoutVersion
-                    + " to rangedDeps, version set is now: " + versions);
             }
 
             if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
