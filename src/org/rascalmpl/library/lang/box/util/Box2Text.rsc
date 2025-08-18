@@ -566,7 +566,7 @@ test bool noDegenerateHOVSeparators1()
     == "a b
        '";
 
-test bool noDegenerateHVSeparators2()
+test bool noDegenerateHOVSeparators2()
     = format(HOV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
     == "a
        'b
