@@ -31,21 +31,21 @@ public abstract class DateTimeLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.DateAndTime getDateAndTime() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDate() {
     return false;
   }
 
   public org.rascalmpl.ast.JustDate getDate() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTime() {
     return false;
   }
 
   public org.rascalmpl.ast.JustTime getTime() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

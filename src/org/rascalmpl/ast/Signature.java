@@ -31,35 +31,35 @@ public abstract class Signature extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasModifiers() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionModifiers getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParameters() {
     return false;
   }
 
   public org.rascalmpl.ast.Parameters getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
