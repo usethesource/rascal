@@ -31,35 +31,35 @@ public abstract class StringLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPre() {
     return false;
   }
 
   public org.rascalmpl.ast.PreStringChars getPre() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasConstant() {
     return false;
   }
 
   public org.rascalmpl.ast.StringConstant getConstant() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTemplate() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTemplate getTemplate() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
