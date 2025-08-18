@@ -31,60 +31,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
-
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class MavenResolverTest {
-
-    private static Path tempRepo;
-
-    @BeforeClass
-    public static void setupRepo() throws IOException {
-        tempRepo = Files.createTempDirectory("m2-test-repo");
-    }
-
-    @AfterClass
-    public static void cleanupRepo() throws IOException {
-         try (Stream<Path> pathStream = Files.walk(tempRepo)) {
-            pathStream.sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
-        }
-    }
-
-    private static Path getPomsPath(String subPath) {
-        var path = MavenResolverTest.class.getResource("/org/rascalmpl/util/maven/poms/" + subPath);
-        if (path == null) {
-            throw new IllegalStateException("Could not find: " + subPath);
-        }
-        try {
-            return Path.of(path.toURI());
-        }
-        catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private MavenParser parse(String path) {
-        return new MavenParser(new MavenSettings(), getPomsPath(path), tempRepo);
-    }
-
+public class MavenResolverTest extends AbstractMavenTest {
     @Test
     public void rascalPomHasRightDependencies() throws ModelResolutionError {
-        var parser = parse("rascal/pom.xml");
+        var parser = createParser("rascal/pom.xml");
         var project = parser.parseProject();
 
         assertEquals("rascal", project.getCoordinate().getArtifactId());
@@ -109,7 +67,7 @@ public class MavenResolverTest {
 
     @Test
     public void nestedDependenciesWithParentPomsShouldWork() throws ModelResolutionError {
-        var parser = parse("multi-module/example-core/pom.xml");
+        var parser = createParser("multi-module/example-core/pom.xml");
         var project = parser.parseProject();
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeJline3Reader = locate(resolved, "jline-reader");
@@ -129,7 +87,7 @@ public class MavenResolverTest {
 
     @Test
     public void localReferenceIsAvailableInModel() throws ModelResolutionError {
-        var parser = parse("local-reference/pom.xml");
+        var parser = createParser("local-reference/pom.xml");
         var project = parser.parseProject();
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeTestLib = locate(resolved, "test-lib");
@@ -142,7 +100,7 @@ public class MavenResolverTest {
 
     @Test
     public void multiModulePomsWork() throws ModelResolutionError {
-        var parser = parse("multi-module/example-ide/pom.xml");
+        var parser = createParser("multi-module/example-ide/pom.xml");
         var project = parser.parseProject();
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeRascalLsp = locate(resolved, "rascal-lsp");
@@ -165,7 +123,9 @@ public class MavenResolverTest {
             Path mirrorHome = cwd.resolve(Path.of("test", "org", "rascalmpl", "util", "maven", "mirrorhomedir"));
             System.setProperty("user.home", mirrorHome.toString());
 
-            MavenParser parser = parse("local-reference/pom-mirror.xml");
+            MavenParser parser = new MavenParser(MavenSettings.readSettings(), getPomsPath(
+                "local-reference/pom-mirror.xml"), tempRepo);
+
             Artifact project = parser.parseProject();
             List<Artifact> resolved = project.resolveDependencies(Scope.COMPILE, parser);
             Assert.assertNotNull("Dependency hast not been resolved by mirror", resolved.get(0).getResolved());
@@ -206,6 +166,32 @@ public class MavenResolverTest {
         }
     }
 
+    @Test
+    public void testVersionRange() throws ModelResolutionError {
+        var parser = createParser("remote-reference/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeGson = locate(resolved, "gson");
+        assertTrue("gson should be found", maybeGson.isPresent());
+        assertNotNull("gson should be resolved", maybeGson.get().getResolved());
+    }
 
+    @Test
+    public void testMissingGroupId() throws ModelResolutionError {
+        var parser = createParser("local-reference/pom-no-groupid.xml");
+        var project = parser.parseProject();
+        var msgs = project.getMessages();
+        assertEquals(1, msgs.size());
+        assertTrue(msgs.get(0).toString().contains("\\'groupId\\' is missing"));
+    }
+
+    @Test
+    public void testMissingVersion() throws ModelResolutionError {
+        var parser = createParser("local-reference/pom-no-version.xml");
+        var project = parser.parseProject();
+        var msgs = project.getMessages();
+        assertEquals(1, msgs.size());
+        assertTrue(msgs.get(0).toString().contains("\\'version\\' is missing"));
+    }
 
 }
