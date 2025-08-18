@@ -75,8 +75,11 @@ Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <B
 
 Box toBox(Import* imports) = V([toBox(i) | i <- imports]);
 
-Box toBox((Import) `import <ImportedModule m> ;`)
-    = H([L("import"), H([toBox(m), L(";")], hs=0)]);
+Box toBox((Import) `import <ImportedModule m>;`)
+    = H([L("import"), H0([toBox(m), L(";")])]);
+
+Box toBox((Import) `extend <ImportedModule m>;`)
+    = H([L("extend"), H0([toBox(m), L(";")])]);
 
 Box toBox((Visibility) ``) = NULL();
 
@@ -91,10 +94,10 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType t> <CommonKeywor
     ]);
 
 Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <{Variant "|"}+ vs>;`)
-    = HOV([
+    = V([
         toBox(t),
         H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
-        I([H([HOV([G([
+        I([H([H([G([
                 L("="),
                 *[L("|"), toBox(va) | va <- vs][1..] // host the bars `|` up to the same level of `=`
             ])])
@@ -201,107 +204,124 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
-// retain original grouping
-Box toBox(Statement* stmts) 
-    = V([V([toBox(s) | s <- g]) | g <- group([s | s <- stmts], consecutive)], vs=2);
-
-bool consecutive(Tree a, Tree b) = b@\loc.begin.line - a@\loc.begin.line <= 1;
+// TODO retain original grouping
+Box toBox(Statement* stmts) = V([toBox(st) | st <- stmts]);
 
 Box toBox((Statement) `return <Expression e>;`)
     = HV([L("return"), I([H([toBox(e), L(";")], hs=0)])]);
 	
 // if with a block statement is formatted differently then without the block
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
-                      '  <Statement* sts>
-                      '}`)
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
+                      '  <Statement sts>`)
     = V([
         H([
             H0([toBox(label), L("if")]), 
             H0([L("("), toBox(cs), L(")")]),
-            L("{")
+            blockOpen(sts)
         ]),
-        I([*[toBox(s) | s <- sts]]),
-        L("}")
+        indentedBlock(sts),
+        blockClose(sts)
     ]);
 
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
-                      '  <Statement* sts>
-                      '} else {
-                      ' <Statement* ests>
-                      '}`)
-    = V([
-        H([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")]),
-            L("{")
-        ]),
-        I([*[toBox(s) | s <- sts]]),
-        L("}"),
-        H([L("else"), L("{")]),
-        I([*[toBox(s) | s <- ests]]),
-        L("}")
-    ]);
-
-// For if-then-else there are four cases to consider, each block with and without the curlies
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) {
-                      '  <Statement* sts>
-                      '} else 
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
+                      '  <Statement sts>
+                      'else
                       ' <Statement ests>`)
     = V([
         H([
             H0([toBox(label), L("if")]), 
             H0([L("("), toBox(cs), L(")")]),
-            L("{")
+            blockOpen(sts)
         ]),
-        I([*[toBox(s) | s <- sts]]),
-        L("}"),
-        HV([L("else"), I([HOV([toBox(s) | s <- ests])])])
-    ]) when !(ests is nonEmptyBlock);
-
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
-                      '  <Statement sts>
-                      'else {
-                      ' <Statement* ests>
-                      '}`)
-    = V([
-        HV([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")]),
-            HOV([I([toBox(s) | s <- sts])])
-        ]),
-        H([L("else"), L("{")]),
-        I([*[toBox(s) | s <- ests]]),
-        L("}")
-    ]) when !(sts is nonEmptyBlock); 
-
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
-                      '  <Statement st>
-                      '`)
-    = H([
-        H([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")])
-        ]),
-        toBox(st)
-    ]) 
-    when !(st is nonEmptyBlock);
-
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) <Statement st> else <Statement st2>`)
-    = HOV([
-        H([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")])
-        ]),
-        I([toBox(st)]),
-        L("else"),
-        I([toBox(st2)])
-    ]) 
-    when !(st is nonEmptyBlock) && !(st2 is nonEmptyBlock);
+        indentedBlock(sts),
+        blockClose(sts),
+        H([L("else"), blockOpen(ests)]),
+        indentedBlock(ests),
+        blockClose(ests)
+    ]);
 
 Box toBox((Statement) `<Expression exp>;`)
     = H0([toBox(exp), L(";")]);
 
+Box toBox((Statement) `throw <Statement e>`)
+    = H([L("throw"), toBox(e)]);
+
+Box toBox((Statement) `<Label label> for(<{Expression ","}+ gs> ) <Statement block>`) 
+    = HOV([
+        H0([toBox(label), H([L("for"), L("(")]), HV([toBox(gs)]), H([L(")"), blockOpen(block)])]),
+        indentedBlock(block),
+        blockClose(block)
+    ]);
+
+ Box toBox((Statement) `switch(<Expression e>) { <Case+ cases> }`)  
+    = V([
+        H0([L("switch"), L("("), toBox(e), H([L(")"), L("{")])]),
+        V([toBox(cases)], vs=1),
+        L("}")
+    ]);
+
+Box toBox((Statement) `try <Statement body> <Catch+ handlers>`)
+    = V([
+        H([L("try"), blockOpen(body)]),
+        indentedBlock(body),
+        blockClose(body),
+        V([toBox(handlers)])
+    ]);
+
+//  "try" Statement body Catch+ handlers "finally" Statement!variableDeclaration!functionDeclaration finallyBody 
+Box toBox((Statement) `try <Statement body> <Catch+ handlers> finally <Statement fBody>`)
+    = V([
+        H([L("try"), blockOpen(body)]),
+        indentedBlock(body),
+        blockClose(body),
+        V([toBox(handlers)]),
+        H([L("finally"), blockOpen(fBody)]),
+        indentedBlock(fBody),
+        blockClose(fBody)
+    ]);
+
+Box toBox((Catch) `catch: <Statement body>`)
+    = V([
+        H([H0([L("catch"), L(":")]), blockOpen(body)]),
+        indentedBlock(body),
+        blockClose(body)
+    ]);
+
+Box toBox((Catch) `catch <Pattern p>: <Statement body>`)
+    = V([
+        H([L("catch"), H0([toBox(p), L(":")]), blockOpen(body)]),
+        indentedBlock(body),
+        blockClose(body)
+    ]);
+
+
+
+// These are three reusable buildig blocks to avoid case-distinction overloads, with and without curlies
+// Using these functions  avoids a combinatorial explosion of overloads for syntax constructs
+// with multiple blocks of statements, like if-then-else and try-catch-finally.
+Box blockOpen(Statement s) = s is nonEmptyBlock ? L("{") : NULL();
+Box blockClose(Statement s) = s is nonEmptyBlock ? L("}") : NULL();
+Box indentedBlock((Statement) `{<Statement+ st>}`)
+    = I([V([toBox(st)])]);
+
+default Box indentedBlock(Statement s) = I([toBox(s)]);
+
 /* Expressions */
+
+
+Box toBox((Expression) `{<{Expression ","}* elems>}`)
+    = H0([
+        L("{"),
+        HV([toBox(elems)]),
+        L("}")
+    ]);
+
+Box toBox((Expression) `[<{Expression ","}* elems>]`)
+    = H0([
+        L("["),
+        HV([toBox(elems)]),
+        L("]")
+    ]);
 
 Box toBox((Expression) `(<{Mapping[Expression] ","}* mappings>)`)
     = H0([L("("),HOV([toBox(mappings)]),L(")")]);
