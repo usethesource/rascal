@@ -37,7 +37,7 @@ import IO;
 void formatRascalFile(loc \module) {
     start[Module] tree = parse(#start[Module], \module);
     edits = formatRascalModule(tree);
-    executeFileSystemChanges(changed(edits));
+    executeFileSystemChanges([changed(edits)]);
 }
 
 @synopsis{Format a Rascal module string}
@@ -94,20 +94,13 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
     = HOV([
         toBox(t),
         H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
-        I([H([V([G([
+        I([H([HOV([G([
                 L("="),
                 *[L("|"), toBox(va) | va <- vs][1..] // host the bars `|` up to the same level of `=`
             ])])
         ]), L(";")], hs=0)
     ]);
 
-// syntax Variant
-// 	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
-
-// KeywordFormals
-//     = \default: OptionalComma optionalComma [,\ (\t\n] << {KeywordFormal ","}+ keywordFormalList
-//     | none: ()
-//     ;
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
     = H0([
         toBox(n),
@@ -208,8 +201,11 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
+// retain original grouping
 Box toBox(Statement* stmts) 
-    = V([toBox(s) | s <- stmts]);
+    = V([V([toBox(s) | s <- g]) | g <- group([s | s <- stmts], consecutive)], vs=2);
+
+bool consecutive(Tree a, Tree b) = b@\loc.begin.line - a@\loc.begin.line <= 1;
 
 Box toBox((Statement) `return <Expression e>;`)
     = HV([L("return"), I([H([toBox(e), L(";")], hs=0)])]);
@@ -307,12 +303,29 @@ Box toBox((Statement) `<Expression exp>;`)
 
 /* Expressions */
 
+Box toBox((Expression) `(<{Mapping[Expression] ","}* mappings>)`)
+    = H0([L("("),HOV([toBox(mappings)]),L(")")]);
+
+Box toBox((Expression) `<Expression exp>@<Name name>`)
+    = H0([toBox(exp), L("@"), toBox(name)]);
+
+Box toBox((ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`)
+    = H0([toBox(pre),toBox(expression),toBox(tail)]);
+
+Box toBox((ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`)
+    = H0([toBox(mid),toBox(expression),toBox(tail)]);
+
+Box toBox((LocationLiteral) `<ProtocolPart protocolPart><PathPart pathPart>`)
+    = H0([toBox(protocolPart), toBox(pathPart)]);
+
 Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`)
-    =  HOV([
+    = HOV([
         toBox(condition),
         I([H([L("?"), toBox(thenExp)])]),
         I([H([L(":"), toBox(elseExp)])])
     ]);
+
+// Pattern expression "(" {Pattern ","}* arguments KeywordArguments[Pattern] keywordArguments ")" 
 
 // call without kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
@@ -326,8 +339,24 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
 
-Box toBox({KeywordArgument[Expression] ","}+ args) 
+Box toBox({KeywordArgument[&T] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","), hs=0);
+
+/* pattern version */
+
+// call without kwargs
+Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>)`)
+    = H([toBox(caller), L("("), toBox(arguments), L(")")], hs=0);
+
+// call with kwargs
+Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>, <{KeywordArgument[Pattern] ","}+ kwargs>)`)
+    = H([toBox(caller), L("("), toBox(arguments), H([L(","), toBox(kwargs)], hs=1), L(")")], hs=0);
+
+// call with kwargs no-comma
+Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgument[Pattern] ","}+ kwargs>)`)
+    = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
+
+/* continue with expressions */
 
 Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
     = H0([toBox(cont), L("["), HV([toBox(subscripts)]), L("]")]);
@@ -368,19 +397,31 @@ Box toBox((Expression) `all(<{Expression ","}+ gens>)`)
         L(")")
     ]);
 
-/*
-
-	= @breakable{results,generators} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
-	| @breakable{from,to,generators} \map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
-	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
-*/
 Box toBox((Expression) `[<{Expression ","}+ results> | <{Expression ","}+ gens>]`)
     = HV([
         H0([L("["), HV([toBox(results)])]),
         H0([H([L("|"), HOV([toBox(gens)])]), L("]")])
     ]);
 
+Box toBox((Expression) `{<{Expression ","}+ results> | <{Expression ","}+ gens>}`)
+    = HV([
+        H0([L("{"), HV([toBox(results)])]),
+        H0([H([L("|"), HOV([toBox(gens)])]), L("}")])
+    ]);
+
+Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}+ gens>)`)
+    = HV([
+        H0([L("{"), HOV([toBox(from), H([L(":"), toBox(to)])])]),
+        H0([H([L("|"), HOV([toBox(gens)])]), L("}")])
+    ]);
+
+Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
+    = H0([toBox(exp), L("["), L("@"), H([toBox(name), L("="), toBox(val)]), L("]")]);
+
 /* Types */
+
+Box toBox((FunctionType) `<Type typ>(<{TypeArg ","}* args>)`)
+    = H0([toBox(typ), L("("), HV([toBox(args)]), L(")")]);
 
 Box toBox((Sym) `&<Nonterminal n>`)
     = H0([L("&", <toBox(n)>)]);
@@ -404,7 +445,7 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
             toBox(n)
         ]),
         L("\<:"), 
-        toBox(bounds)
+        toBox(bound)
     ]);
 
 // this should not be necessary
