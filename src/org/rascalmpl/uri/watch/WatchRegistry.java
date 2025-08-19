@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -100,15 +101,18 @@ public class WatchRegistry {
             .thenComparing(ISourceLocation::getQuery);
     }
 
-    public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
+    public void watch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, final Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var resolvedLoc = safeResolve(loc);
-        var watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallback);
+        var watcher = watchers.get(resolvedLoc.getScheme());
         if (watcher != null) {
             startNormalWatch(loc, recursive, callback, resolvedLoc, watcher);
         }
-        else {
+        else if (hasResolvers.test(resolvedLoc)) {
             startSimulatedWatch(loc, recursive, callback, resolvedLoc);
+        }
+        else if (fallback != null) {
+            fallback.watch(resolvedLoc, callback, recursive);
         }
     }
 
@@ -176,7 +180,7 @@ public class WatchRegistry {
         }
     }
 
-    public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+    public void unwatch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var actualCallback = wrappedHandlers.remove(new WatchKey(loc, recursive, callback, clearedReferences));
         if (actualCallback != null) {
@@ -188,7 +192,7 @@ public class WatchRegistry {
 
         loc = safeResolve(loc);
 
-        var watcher = watchers.getOrDefault(loc.getScheme(), fallback);
+        var watcher = watchers.get(loc.getScheme());
         if (watcher != null) {
             var simulated = simulatedRecursiveWatchers.get(loc);
             if (simulated != null) {
@@ -198,12 +202,15 @@ public class WatchRegistry {
                 watcher.unwatch(loc, callback, recursive);
             }
         }
-        else {
+        else if (hasResolvers.test(loc)) {
             var entries = internalWatchers.get(loc);
             if (entries != null) {
                 final var finalCallback = callback;
                 entries.removeIf(p -> p.isRecursive() == recursive && p.getHandler() == finalCallback);
             }
+        }
+        else if (fallback != null) {
+            fallback.unwatch(loc, callback, recursive);
         }
     }
 
