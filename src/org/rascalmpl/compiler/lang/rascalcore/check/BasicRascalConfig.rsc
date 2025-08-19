@@ -60,34 +60,49 @@ data IdRole
     | typeVarId()
     ;
 
-public map[IdRole, set[IdRole]] idRoleOverloading =
-    (functionId(): {functionId(), constructorId(), productionId()},
-     constructorId(): {functionId(), constructorId(), productionId()},
-     productionId(): {functionId(), constructorId(), productionId()},
-     fieldId() : {fieldId(), keywordFieldId()},
-     keywordFieldId(): {fieldId(), keywordFieldId()},
-     dataId(): { dataId(), constructorId(), nonterminalId(), lexicalId(), layoutId(), keywordId(), fieldId()},
-     nonterminalId(): {dataId(), constructorId(), nonterminalId(), fieldId()},
-     lexicalId(): {dataId(), constructorId(), lexicalId(), fieldId()},
-     layoutId(): {dataId(), constructorId(), layoutId(), fieldId()},
-     keywordId(): {dataId(), constructorId(), keywordId(), fieldId()},
-     typeVarId(): {typeVarId()},
-     annoId(): {annoId()}
-    );
-
-public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] baseSyntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] syntaxRoles = {aliasId()} + baseSyntaxRoles;
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()};
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] localVariableRoles = formalRoles + {variableId(), patternVariableId()};
+public set[IdRole] variableRoles = localVariableRoles + { moduleVariableId() };
 public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
                                                              moduleVariableId(), productionId()
                                                            };
 public set[IdRole] assignableRoles = variableRoles;
+
+set[IdRole] variableOrAliasRoles = variableRoles + {aliasId()};
+set[IdRole] functionRoles = {functionId(), constructorId(), productionId()};
+set[IdRole] variableAliasOrFunctionRoles = variableOrAliasRoles + functionRoles;
+
+public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
+    (functionId():          variableOrAliasRoles,
+     constructorId():       variableOrAliasRoles - {moduleVariableId(), productionId()},
+     productionId():        variableOrAliasRoles - {moduleVariableId(), constructorId()},
+     variableId():          variableAliasOrFunctionRoles,
+     moduleVariableId():    variableAliasOrFunctionRoles - {constructorId(), productionId()},
+     formalId():            variableAliasOrFunctionRoles,
+     keywordFormalId():     variableAliasOrFunctionRoles,
+     patternVariableId():   variableAliasOrFunctionRoles,
+
+     nonterminalId():       baseSyntaxRoles - nonterminalId(),
+     lexicalId():           baseSyntaxRoles - lexicalId(),
+     layoutId():            baseSyntaxRoles - layoutId(),
+     keywordId():           baseSyntaxRoles - keywordId(),
+
+     fieldId():             { },
+     keywordFieldId():      { },
+     dataId():              { },
+     
+     aliasId():             variableAliasOrFunctionRoles,
+     typeVarId():           {typeVarId()},
+     annoId():              {annoId()}
+    );
 
 data PathRole
     = importPath()

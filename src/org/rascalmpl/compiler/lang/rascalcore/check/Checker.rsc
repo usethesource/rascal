@@ -427,7 +427,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     modelName = intercalate(" + ", toList(moduleNames));
     map[str, Module] namedTrees = ();
     for(str nm <- moduleNames){
-        //ms.status[nm] = {};
+        ms.status[nm] = {};
         ms.messages[nm] = {};
         ms = removeTModel(nm, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
