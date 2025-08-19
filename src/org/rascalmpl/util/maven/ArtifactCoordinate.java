@@ -98,6 +98,10 @@ public class ArtifactCoordinate {
                 ;
         }
 
+        @Override
+        public String toString() {
+            return base.getGroupId() + ":" + base.getArtifactId();
+        }
     }
 
     @Override
