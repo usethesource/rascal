@@ -82,13 +82,19 @@ data Symbol      // <3>
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
-     | \overloaded(set[Symbol] alternatives)
      | \reified(Symbol symbol)
      ;
 
 data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
+
+@synopsis{Overloaded/union types are always reduced to the least upperbound of their constituents.}
+@description{
+This semantics of overloading in the type system is essential to make sure it remains a _lattice_.
+}
+Symbol overloaded(set[Symbol] alternatives)
+     = (\void() | lub(it, a) | Symbol a <- alternatives);
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
