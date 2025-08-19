@@ -180,7 +180,7 @@ The following graph depicts Rascal's type lattice for a number of example types,
 import Type;
 data Exp = \int(int i);
 allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
-[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), value(value), #type[int], #type[value]};
+[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), #value(value), #type[int], #type[value]};
 import analysis::graphs::Graph;
 typeLattice = transitiveReduction({ <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)});
 import vis::Graphs;
