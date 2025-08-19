@@ -11,7 +11,6 @@ default Symbol unwrap(Symbol s) = s;
 
 test bool subtype_same(type[value] s) = subtype(s, s);
 
-@ignore{this fails for an interesting reason. TODO have to fix}
 test bool sub_type_label(type[value] s, str lbl) = subtype(s, type(\label(lbl, s.symbol), ()));
 
 test bool subtype_void(type[value] s) = subtype(#void, s);
