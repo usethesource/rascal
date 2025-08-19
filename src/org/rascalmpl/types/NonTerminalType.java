@@ -141,7 +141,8 @@ public class NonTerminalType extends RascalType {
                 symbol = symbols().getLabeledSymbol(symbol);
             }
             
-            return RTF.nonTerminalType((IConstructor) symbol);
+			// this could be a label on an abstract type as well
+            return TypeFactory.getInstance().fromSymbol((IConstructor) symbol, store, grammar);
         }
 
         @Override
