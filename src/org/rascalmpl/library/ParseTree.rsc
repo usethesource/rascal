@@ -854,7 +854,6 @@ bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
 private alias NewLineChar = [\n];
-private alias ReturnChar  = [\r];
 
 @synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
 @description{
@@ -958,10 +957,6 @@ yield of a tree should always produce the exact same locations as ((reposition))
       curColumn += 1;
 
       switch (t) {
-        case ReturnChar _: {
-          curColumn = 0;
-        }
-      
         case NewLineChar _ : {
           curLine += 1;
           curColumn = 0;
