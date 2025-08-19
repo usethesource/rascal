@@ -170,19 +170,21 @@ Production choice(Symbol s, set[Production] choices) {
   
 @synopsis{Subtype is the core implementation of Rascal's type lattice.}
 @description{
-
-// TODO: visualize the _actually implemented_ type lattice of Rascal with this code:
-// 
+The following graph depicts Rascal's type lattice for a number of example types, including:
+* all the builtin types, with `value` as maximum and `void` as the minimum of the lattice
+* parameterized container types (co-variant)
+* a function type example (variant in parameter positions, both directions)
+* a data type `Exp`
+* a reified type `type[value]` and `type[int]` (co-variant)
 ```rascal-prepare
 import Type;
 data Exp = \int(int i);
 allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
-[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #value(value), #type[int], #type[value]};
+[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), value(value), #type[int], #type[value]};
 import analysis::graphs::Graph;
 typeLattice = transitiveReduction({ <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)});
 import vis::Graphs;
-// TODO: something goes wrong with the graph layout here
-graph(typeLattice);
+graph(typeLattice<1,0>, cfg=cytoGraphConfig(\layout=defaultDagreLayout());
 ```
 }
 @examples{
