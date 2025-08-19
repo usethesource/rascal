@@ -155,7 +155,8 @@ public class Artifact {
                 var versions = rangedDeps.computeIfAbsent(withoutVersion, k -> new TreeSet<>());
                 if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                     String effectiveVersion = versions.first();
-                    messages = messages.append(Messages.warning("Multiple version ranges found for " + withoutVersion + ", " + effectiveVersion + " is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [" + effectiveVersion + "]", d.getPomLocation()));
+                    messages = messages.append(Messages.warning("Multiple version ranges found for " + withoutVersion + " are used. " 
+                        + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["+ effectiveVersion + "]</version>", d.getPomLocation()));
                 }
             }
 
