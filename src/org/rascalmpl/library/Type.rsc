@@ -51,7 +51,7 @@ We define here:
 <4>  Parameters that represent a type variable.
 
 In ((module:ParseTree)), see ((ParseTree-Symbol)), 
-Symbols will be further extended with the symbols that may occur in a parse tree.
+Symbols will be further extended with the symbols that may occur in a parse tree. 
 }  
 data Symbol    // <1>
      = \int()
@@ -157,7 +157,30 @@ Production choice(Symbol s, set[Production] choices) {
 }
 
   
-@synopsis{the subtype relation lifted to `type` from the Symbol level}
+@synopsis{Subtype is the core implementation of Rascal's type lattice.}
+@description{
+
+// TODO: visualize the _actually implemented_ type lattice of Rascal with this code:
+// 
+```rascal-prepare
+import Type;
+data Exp = \int(int i);
+allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
+[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #value(value), #type[int], #type[value]};
+import analysis::graphs::Graph;
+typeLattice = transitiveReduction({ <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)});
+import vis::Graphs;
+// TODO: something goes wrong with the graph layout here
+graph(typeLattice);
+```
+}
+@examples{
+```rascal-shell
+import Type;
+subtype(#int, #value)
+subtype(#value, #int)
+```
+}
 bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 
 @synopsis{This function documents and implements the subtype relation of Rascal's type system.}
@@ -177,6 +200,9 @@ there can be non-empty intersections when the types are not sub-types.
 }
 @javaClass{org.rascalmpl.library.Type}
 java bool intersects(Symbol s, Symbol t);
+
+bool intersects(type[&T] t, type[&U] u)
+     = intersects(t1.symbol, t2.symbol);
 
 @synopsis{Check if two types are comparable, i.e., one is a subtype of the other or vice versa.}
 bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
@@ -207,16 +233,32 @@ java bool eq(value x, value y);
 This function implements the lub operation in Rascal's type system, via unreifying the Symbol values
 and calling into the underlying run-time Type implementation.
 }
+@examples{
+import Type;
+lub(#tuple[int,value], #tuple[value, int])     
+lub(#int, #real)
+}
 @javaClass{org.rascalmpl.library.Type}
 java Symbol lub(Symbol s1, Symbol s2);
+
+type[value] lub(type[&T] t, type[&T] u)
+     = type(lub(t.symbol, u.symbol), ());
 
 @synopsis{The greatest lower bound (glb) between two types, i.e. a common descendant of two types in the lattice which is largest.}
 @description{
 This function implements the glb operation in Rascal's type system, via unreifying the Symbol values
 and calling into the underlying run-time Type implementation.
 }
+@examples{
+import Type;
+glb(#tuple[int,value], #tuple[value, int])   
+glb(#int, #real)  
+}
 @javaClass{org.rascalmpl.library.Type}
 java Symbol glb(Symbol s1, Symbol s2);
+
+type[value] glb(type[&T] t, type[&T] u)
+     = type(glb(t.symbol, u.symbol), ());
 
 data Exception = typeCastException(Symbol from, type[value] to);
 
