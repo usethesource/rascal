@@ -83,7 +83,6 @@ data Symbol      // <3>
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
      | \overloaded(set[Symbol] alternatives)
-     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;
 
