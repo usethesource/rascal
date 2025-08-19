@@ -84,16 +84,14 @@ data Symbol      // <3>
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+     | \overloaded(set[Symbol] alternatives)
+     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;
 
 data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
-
-@synopsis{An overloaded type reduces to the least upperbound of its constituents}
-Symbol overloaded(set[Symbol] symbols)
-     = (\void() | lub(it, s) | s <- symbols);
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
@@ -118,9 +116,11 @@ data Attr
      = \tag(value \tag) 
      ;
 
-@synopsis{A var-func type reduces to the equivalent type where the last parameter is a list.}
-Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
-              \func(ret, [*parameters, \list(varArg)], []);
+@synopsis{Transform a function with varargs (`...`) to a normal function with a list argument.}
+public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
+              \func(ret, parameters + \list(varArg), []);
+
+
 
 @synopsis{Normalize the choice between alternative productions.}
 @description{
