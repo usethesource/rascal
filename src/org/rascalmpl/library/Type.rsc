@@ -215,7 +215,7 @@ there can be non-empty intersections when the types are not sub-types.
 java bool intersects(Symbol s, Symbol t);
 
 bool intersects(type[&T] t, type[&U] u)
-     = intersects(t1.symbol, t2.symbol);
+     = intersects(t.symbol, u.symbol);
 
 @synopsis{Check if two types are comparable, i.e., one is a subtype of the other or vice versa.}
 bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
