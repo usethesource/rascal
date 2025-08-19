@@ -14,11 +14,11 @@ import Exception;
 
 public data Num(loc src=|unknown:///|, map[int,list[str]] comments = ());
 public data Exp(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
-public Exp number(Num::\int("0")) = number(Num::\int("01"));
+public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
 
 public data Number(loc src=|unknown:///|, map[int,list[str]] comments = ());
 public data Expr(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
-public Expr number(Number::\int("0")) = number(Number::\int("02"));
+public Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
 
 public Exp implodeExp(str s) = implode(#Exp, parseExp(s));
 public Exp implodeExpLit1() = implode(#Exp, expLit1());
