@@ -73,8 +73,6 @@ data Symbol     // <2>
   
 data Symbol      // <3>
      = \set(Symbol symbol)
-     | \rel(list[Symbol] symbols)
-     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
@@ -88,6 +86,15 @@ data Symbol      // <3>
 data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
+
+@synopsis{rel types are syntactic sugar for sets of tuples.}
+Symbol \rel(list[Symbol] symbols) 
+     = \set(\tuple(symbols));
+
+@synopsis{lrel types are syntactic sugar for lists of tuples.}
+Symbol \lrel(list[Symbol] symbols) 
+     = \list(\tuple(symbols));
+
 
 @synopsis{Overloaded/union types are always reduced to the least upperbound of their constituents.}
 @description{
