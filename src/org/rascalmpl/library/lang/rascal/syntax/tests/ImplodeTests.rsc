@@ -12,13 +12,13 @@ import lang::rascal::\syntax::tests::ImplodeTestGrammar;
 import ParseTree;
 import Exception;
 
-public data Num(loc src=|unknown:///|, map[int,list[str]] comments = ()) = \int(str n);
-public data Exp(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name) | eq(Exp e1, Exp e2) | number(Num n);
-public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
+public data Num(loc src=|unknown:///|, map[int,list[str]] comments = ());
+public data Exp(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
+public Exp number(Num::\int("0")) = number(Num::\int("01"));
 
-public data Number(loc src=|unknown:///|, map[int,list[str]] comments = ()) = \int(str n);
-public data Expr(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name) | eq(Expr e1, Expr e2) | number(Number n);
-public Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
+public data Number(loc src=|unknown:///|, map[int,list[str]] comments = ());
+public data Expr(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
+public Expr number(Number::\int("0")) = number(Number::\int("02"));
 
 public Exp implodeExp(str s) = implode(#Exp, parseExp(s));
 public Exp implodeExpLit1() = implode(#Exp, expLit1());
