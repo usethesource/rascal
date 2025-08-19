@@ -444,7 +444,7 @@ Box toBox((FunctionType) `<Type typ>(<{TypeArg ","}* args>)`)
     = H0([toBox(typ), L("("), HV([toBox(args)]), L(")")]);
 
 Box toBox((Sym) `&<Nonterminal n>`)
-    = H0([L("&", <toBox(n)>)]);
+    = H0([L("&"), toBox(n)]);
 
 Box toBox((Sym) `<Nonterminal n>[<{Sym ","}+ ps>]`)
     = H0([toBox(n),L("["),HV([toBox(ps)]),L("]")]);
@@ -470,6 +470,10 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
 
 // this should not be necessary
 Box HV([H([])]) = U([]);
+Box HV([V([])]) = U([]);
+Box HV([U([])]) = U([]);
+
+Box L("") { throw "empty literal generated";}
 
 Box H0(list[Box] boxes) = H(boxes, hs=0);
 Box H1(list[Box] boxes) = H(boxes, hs=0);
