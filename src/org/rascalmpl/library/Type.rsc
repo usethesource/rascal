@@ -78,7 +78,6 @@ data Symbol      // <3>
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
-     | \bag(Symbol symbol)
      | \adt(str name, list[Symbol] parameters)
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
