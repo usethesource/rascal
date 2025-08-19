@@ -55,25 +55,27 @@ import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
-// Define the name overloading that is allowed
-// bool rascalMayOverloadNew(set[loc] defs, map[loc, Define] defines){
-//     <fstDef, restDefs> = takeFirstFrom(defs);
-
-//     fstRole = defines[fstDef].idRole;
-//     result = false;
-//     if(fstRole in idRoleOverloading){
-//         fstMayOverload = idRoleOverloading[fstRole];
-//         result = all(rdef <- restDefs, defines[rdef].idRole in fstMayOverload);
-//     }
-//     oldResult = rascalMayOverloadOld(defs, defines);
-//     if(result != oldResult){
-//         throw "rascalMayOverload, new: <result>, old: <oldResult>: <defs>, <[defines[def] | def <- defs]>";
-//     }
-//     return result;
-// }
-
-// Define the name overloading that is allowed
+//Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
+
+    set[IdRole] roles = { defines[def].idRole | def <- defs };
+    set[IdRole] forbidden = { *(forbiddenIdRoleOverloading[role] ? {}) | IdRole role <- roles };
+    result = isEmpty(roles & forbidden);
+
+    oldResult = rascalMayOverloadOld(defs, defines);
+    if(result != oldResult){
+        roles = { defines[def].idRole | def <- defs };
+        println("rascalMayOverload, new: <result>, old: <oldResult>, for <roles>");
+        for(def <- defs){
+            println(defines[def]);
+        }
+        throw "rascalMayOverload";
+    }
+    return result;
+}
+
+// Define the name overloading that is allowed
+bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
     bool seenVAR = false;
     bool seenNT  = false;
     bool seenLEX = false;
