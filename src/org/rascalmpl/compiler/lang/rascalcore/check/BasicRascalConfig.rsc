@@ -101,7 +101,7 @@ public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
      
      aliasId():             variableAliasOrFunctionRoles,
      typeVarId():           {typeVarId()},
-     annoId():              {annoId()}
+     annoId():              { }
     );
 
 data PathRole
