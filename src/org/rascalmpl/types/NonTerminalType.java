@@ -139,10 +139,10 @@ public class NonTerminalType extends RascalType {
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
             if (symbols().isLabel(symbol)) {
                 symbol = symbols().getLabeledSymbol(symbol);
+				return TypeFactory.getInstance().fromSymbol((IConstructor) symbol, store, grammar);
             }
             
-			// this could be a label on an abstract type as well
-            return TypeFactory.getInstance().fromSymbol((IConstructor) symbol, store, grammar);
+            return RTF.nonTerminalType((IConstructor) symbol);
         }
 
         @Override
