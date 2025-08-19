@@ -42,7 +42,7 @@ data CaseInsensitivity
 See ((HiFiLayoutDiff)).
 }
 list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = true, CaseInsensitivity ci = asIs()) {
-    assert original := formatted : "nothing except layout and keyword fields may be different for layoutDiff to work correctly.";
+    assert original := formatted : "nothing except layout and keyword fields may be different for layoutDiff to work correctly. <treeDiff(original, formatted)>";
 
     @synopsis{rec is the recursive workhorse, doing a pairwise recursion over the original and the formatted tree}
     @description{
@@ -153,13 +153,16 @@ private str learnComments(Tree original, Tree replacement) {
     str dropEndNl(str line:/^.*\n$/) = (line[..-1]);
     default str dropEndNl(str line)  = line;
 
-    // the first line of the replacement is the indentation to use.
-    str replacementIndent = split("\n", "<replacement>")[0];
+    // the first line of the replacement ,is the indentation to use.
+    str replString = "<replacement>";
+    str replacementIndent = /^\n+$/ !:= replString
+        ? split("\n", replString)[0]
+        : "";
 
     // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
-    return "<replacement>" + indent(replacementIndent,
+    return replString + indent(replacementIndent,
             "<for (c <- originalComments, str line <- split("\n", dropEndNl(c))) {><indent(replacementIndent, trim(line), indentFirstLine=true)>
-           '<}>"[..-1], indentFirstLine=false) + "<replacement>";
+           '<}>"[..-1], indentFirstLine=false) + replString;
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
