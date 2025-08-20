@@ -60,7 +60,7 @@ data IdRole
     | typeVarId()
     ;
 
-public set[IdRole] baseSyntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] baseSyntaxRoles = {nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] syntaxRoles = {aliasId()} + baseSyntaxRoles;
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()};
@@ -80,20 +80,27 @@ set[IdRole] variableOrAliasRoles = variableRoles + {aliasId()};
 set[IdRole] functionRoles = {functionId(), constructorId(), productionId()};
 set[IdRole] variableAliasOrFunctionRoles = variableOrAliasRoles + functionRoles;
 
+public map[IdRole, set[IdRole]] allowedIdRoleOverloading =
+    (functionId():          functionRoles +  baseSyntaxRoles,
+     constructorId():       functionRoles +  baseSyntaxRoles
+    );
+// For each IdRole give a set of forbidden overloads with other IdRoles 
+// Not listed here or empty forbids: all overloads are allowed
 public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
     (functionId():          variableOrAliasRoles,
      constructorId():       variableOrAliasRoles - {moduleVariableId(), productionId()},
      productionId():        variableOrAliasRoles - {moduleVariableId(), constructorId()},
      variableId():          variableAliasOrFunctionRoles,
      moduleVariableId():    variableAliasOrFunctionRoles - {constructorId(), productionId()},
-     formalId():            variableAliasOrFunctionRoles,
+     formalId():            variableAliasOrFunctionRoles - {nestedFormalId()},
+     nestedFormalId():      variableAliasOrFunctionRoles - {formalId()},
      keywordFormalId():     variableAliasOrFunctionRoles,
      patternVariableId():   variableAliasOrFunctionRoles,
 
-     nonterminalId():       baseSyntaxRoles - nonterminalId(),
-     lexicalId():           baseSyntaxRoles - lexicalId(),
-     layoutId():            baseSyntaxRoles - layoutId(),
-     keywordId():           baseSyntaxRoles - keywordId(),
+     nonterminalId():       syntaxRoles - nonterminalId(),
+     lexicalId():           syntaxRoles - lexicalId(),
+     layoutId():            syntaxRoles - layoutId(),
+     keywordId():           syntaxRoles - keywordId(),
 
      fieldId():             { },
      keywordFieldId():      { },

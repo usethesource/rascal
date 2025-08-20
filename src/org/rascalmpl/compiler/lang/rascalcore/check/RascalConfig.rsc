@@ -57,10 +57,15 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 //Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-
-    set[IdRole] roles = { defines[def].idRole | def <- defs };
-    set[IdRole] forbidden = { *(forbiddenIdRoleOverloading[role] ? {}) | IdRole role <- roles };
-    result = isEmpty(roles & forbidden);
+    set[IdRole] roles = {defines[def].idRole | def <- defs};
+    
+    result = true;
+    for(role <- roles){
+        if(any(role2 <- roles, role2 != role, role in (forbiddenIdRoleOverloading[role2] ? {}))){
+            result = false;
+            break;
+        }
+    }
 
     oldResult = rascalMayOverloadOld(defs, defines);
     if(result != oldResult){
@@ -111,7 +116,7 @@ bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
         case keywordId():
             { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
         case aliasId():
-            { if(seenALIAS || seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
+            { if(seenALIAS ||  seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
         }
     }
     return true;
