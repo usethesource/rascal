@@ -51,9 +51,9 @@ test bool lubReflectsSubtype(type[value] a, type[value] b)
 test bool glbReflectsSubtype(type[value] a, type[value] b)
     = subtype(glb(a, b), a) && subtype(glb(a,b), b);
 
-test bool monotonic(type[value] a1, type[value] a2, type[value] b1, type[value] b2)
+test bool monotonicity(type[value] a1, type[value] a2, type[value] b1, type[value] b2)
     = subtype(a1, a2) && subtype(b1, b2)
-        ==> subtype(glb(a1, b2), a2) && subtype(glb(a1, b1), glb(a2, b2));
+        ==> subtype(glb(a1, b2), glb(a2,b2)) && subtype(glb(a1, b1), glb(a2, b2));
 
 // labels
 
