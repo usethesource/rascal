@@ -25,9 +25,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-  
-extend lang::rascalcore::compile::Examples::A;
+          
+syntax Body = "body";
 
-int main() {
-    return size(trim(" x "));
-}
+alias Body = int;
+
+Body f(Body b) = b;
+
+// data AType;
+
+// data MuExp = muFailReturn(AType tp);
+
+//  MuExp muReturn1(AType t, muFailReturn(AType t)){
+//     return muFailReturn(t);
+// }
