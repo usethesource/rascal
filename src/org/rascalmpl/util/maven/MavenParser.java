@@ -83,6 +83,8 @@ public class MavenParser {
     private final Path rootMavenRepo;
     private final List<IValue> settingMessages;
 
+    private final SimpleResolver rootResolver;
+
     public MavenParser(Path projectPom) {
         this(MavenSettings.readSettings(), projectPom);
     }
@@ -114,6 +116,9 @@ public class MavenParser {
             .build();
 
         modelCache = new CaffeineModelCache();
+
+        rootResolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors(), null);
+        addMavenCentral(rootResolver);
     }
 
     private void addMavenCentral(SimpleResolver resolver) {
@@ -133,9 +138,8 @@ public class MavenParser {
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors(), null);
+        var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors(), rootResolver);
 
-        addMavenCentral(resolver);
 
         var messages = VF.listWriter();
         messages.appendAll(settingMessages);
