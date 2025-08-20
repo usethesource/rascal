@@ -25,6 +25,23 @@ For values of type `type[...]` the static and dynamic type systems satisfy three
 3. ... `D` holds all the necessary data and syntax rules required to form values of type `T`.
 
 In other words, the `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified _and_ said value will contain the full grammatical definition for what was bound to `&T`.
+
+The ((subtype)) relation of Rascal has all the mathematical properties of a _finite lattice_; where ((lub)) implements the _join_ and ((glb)) implements the _meet_ operation.
+This is a core design principle of Rascal with the following benefits:
+* Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambigous manner.
+* A _principal type_ can always be computed, which is a most precise and unique solution of a type inference problem. Without the lattice, solution candidates could become incomparable and thus ambiguous. Without
+this principal type property, type inference is predictable for programmers.
+* Solving type inference constraints can be implemented efficiently. The algorithm, based on ((lub)) and ((glb)), makes progress _deterministically_ and does not require backtracking
+to find better solutions. Since the lattice is not very deep, fixed-point solutions are always found quickly.
+
+Much of the aspects of the ((subtype)) lattice are derived from the fact that Rascal's values are _immutable_ or _readonly_. This typically allows for containers
+to be co-variant in their type parameters: `list[int] <: list[value]`. Because all values in Rascal are immutable, and implemented using persistent data-structures,
+its type literals do not feature annotations for co- and contra-variance. We can assume co-variance practically everywhere (even for function parameters).
+
+Function types in Rascal are special because functions are always _openly extensible_, as are the modules they are contained in. This means that the parameter
+types of functions can also be extended, and thus they are co-variant (accepting more rather than fewer kinds of data). Contra-variance is still also allowed, 
+of course, and so we say function parameter types are "variant" in both directions. ((lub)) has been hard-wired to choose the more general (co-variant) 
+solutions for function parameter types to reflect the general applicability of the openly extensible functions.
 }
 @examples{
 ```rascal-shell
