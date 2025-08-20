@@ -2,26 +2,81 @@ module lang::rascal::tests::basic::Types
 
 import Type;
 
-Symbol unwrap(\label(str lbl, Symbol s)) = unwrap(s);
-Symbol unwrap(\parameter(str name, Symbol bound)) = unwrap(bound);
-Symbol unwrap(\alias(str name, list[Symbol] parameters, Symbol s)) = unwrap(s);
-default Symbol unwrap(Symbol s) = s;
 
-// subtype
+// equals is an equivalence relation
+test bool typeEqualsReflexive(type[value] t) = t == t;
 
-test bool subtype_same(type[value] s) = subtype(s, s);
+test bool typeEqualsTransitive(type[value] s, type[value] t, type[value] u)
+    = s == t && t == u ==> s == u;
 
-test bool sub_type_label(type[value] s, str lbl) = subtype(s, type(\label(lbl, s.symbol), ()));
+test bool typeEqualsSymmetric(type[value] s, type[value] t) 
+    = t == s <==> s == t;
 
-test bool subtype_void(type[value] s) = subtype(#void, s);
-test bool subtype_value(type[value] s) = subtype(s, #value);
+// subtype is a partial order
+
+test bool subtypeReflexive(type[value] s) = subtype(s, s);
+
+test bool subtypeTransitive(type[value] s, type[value] t, type[value] u)
+    = subtype(s, t) && subtype(t,u) ==> subtype(s, u);
+
+test bool subtypeAntiSymmetric(type[value] s, type[value] t)
+    = subtype(s, t) && subtype(t, s) ==> s == t;
+
+// lattice laws
+test bool lubIsIdempotent(type[value] s)
+    = lub(s, s) == s;
+
+test bool glbIsIdempotent(type[value] s)
+    = glb(s, s) == s;
+
+test bool valueIsMax(type[value] s, type[value] t)
+    = subtype(lub(s, t), #value);
+
+test bool voidIsMin(type[value] s, type[value] t)
+    = subtype(#void, glb(s, t));
+
+test bool voidIsMin2(type[value] s) = subtype(#void, s);
+
+test bool valueIsMax2(type[value] s)   = subtype(s, #value);
+
+test bool absorption1(type[value] a, type[value] b)
+    = lub(a, glb(a, b)) == a;
+
+test bool absorption2(type[value] a, type[value] b)
+    = glb(a, lub(a, b)) == a;
+
+test bool lubReflectsSubtype(type[value] a, type[value] b)
+    = subtype(a, lub(a, b)) && subtype(b, lub(a,b));
+
+test bool glbReflectsSubtype(type[value] a, type[value] b)
+    = subtype(glb(a, b), a) && subtype(glb(a,b), b);
+
+test bool monotonic(type[value] a1, type[value] a2, type[value] b1, type[value] b2)
+    = subtype(a1, a2) && subtype(b1, b2)
+        ==> subtype(glb(a1, b2), a2) && subtype(glb(a1, b1), glb(a2, b2));
+
+// labels
+
+test bool subtypeLabelsAreAliasesLeft(type[value] s, str lbl) = subtype(s, type(\label(lbl, s.symbol), ()));
+test bool subtypeLabelsAreAliasesRight(type[value] s, str lbl) = subtype(type(\label(lbl, s.symbol), ()), s);
+
+// ADT'S
+
+data Exp = exp();
+test bool subtypeNode() = subtype(#Exp, #node);
+
+// numerics
 
 test bool subtype_int_num() = subtype(\int(), \num());
 test bool subtype_real_num() = subtype(\real(), \num());
 test bool subtype_rat_num() = subtype(\rat(), \num());
+test bool subtypeNum(type[num] t) = subtype(t, #num);
+test bool lubNum(type[num] t, type[num] u) = lub(t, u) == #num;
 
+// smoke test int != str
 test bool subtype_int_str() = !subtype(\int(), \str());
 
+// co-variance
 test bool subtype_list(type[value] s) = subtype(\list(s.symbol), \list(\value()));
 test bool subtype_set(type[value] s) = subtype(\set(s.symbol), \set(\value()));
 test bool subtype_map(type[value] k, type[value] v) = subtype(\map(k.symbol, v.symbol), \map(\value(), \value()));
@@ -34,6 +89,23 @@ test bool subtype_rel2(type[value] s, type[value] t, type[value] u) = subtype(\r
 
 test bool subtype_lrel1(type[value] s, type[value] t) = subtype(\lrel([s.symbol, t.symbol]), \lrel([\value(), \value()]));
 test bool subtype_lrel2(type[value] s, type[value] t, type[value] u) = subtype(\lrel([s.symbol, t.symbol, u.symbol]), \lrel([\value(), \value(), \value()]));
+
+// tuples
+
+test bool tuplesWithVoidParametersDoNotExist1() = equivalent(type(\tuple([\void()]),()), #void);
+test bool tuplesWithVoidParametersDoNotExist2() = equivalent(type(\tuple([\void(),\void()]),()),#void);
+
+// functions
+
+test bool functionsWithVoidParametersDoNotExist1() = #int(void) == #void;
+test bool functionsWithVoidParametersDoNotExist2() = #int(void, void) == #void;
+test bool functionsWithVoidParametersDoNotExist3() = #int(void a, void b) == #void;
+
+test bool functionParametersAreCoVariant() = subtype(#int(int), #int(num));
+test bool functionParametersAreContraVariant() = subtype(#int(num), #int(int));
+test bool functionsParametersLubUp() = lub(#int(int), #int(str)) == #int(value);
+
+test bool functionReturnsAreCoVariant() = subtype(#int(int), #value(int));
 
 // lub
 

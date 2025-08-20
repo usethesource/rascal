@@ -182,9 +182,9 @@ data Exp = \int(int i);
 allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
 [value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), #value(value), #type[int], #type[value]};
 import analysis::graphs::Graph;
-typeLattice = transitiveReduction({ <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)});
+typeLattice = { <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)};
 import vis::Graphs;
-graph(typeLattice<1,0>, cfg=cytoGraphConfig(\layout=defaultDagreLayout());
+graph(transitiveReduction(typeLattice<1,0>), cfg=cytoGraphConfig(\layout=defaultDagreLayout()));
 ```
 }
 @examples{
@@ -220,8 +220,12 @@ bool intersects(type[&T] t, type[&U] u)
 @synopsis{Check if two types are comparable, i.e., one is a subtype of the other or vice versa.}
 bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
 
+bool comparable(type[value] s, type[value] t) = comparable(s.symbol, t.symbol);
+
 @synopsis{Check if two types are equivalent, i.e. they are both subtypes of each other.}
 bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
+
+bool equivalent(type[value] s, type[value] t) = equivalent(s.symbol, t.symbol);
 
 @synopsis{Strict structural equality between values.}
 @description{
