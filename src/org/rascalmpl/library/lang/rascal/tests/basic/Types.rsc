@@ -92,11 +92,13 @@ test bool subtype_lrel2(type[value] s, type[value] t, type[value] u) = subtype(\
 
 // tuples
 
+// there can exist no tuples that take a void parameter, hence types with those void parameters represent an _empty set_ of values, hence such tuples types are equivalent to `void`
 test bool tuplesWithVoidParametersDoNotExist1() = equivalent(type(\tuple([\void()]),()), #void);
 test bool tuplesWithVoidParametersDoNotExist2() = equivalent(type(\tuple([\void(),\void()]),()),#void);
 
 // functions
 
+// there can exist no functions that take a void parameter, hence types with those void parameters represent an _empty set_ of values, hence such function types are equivalent to `void`
 test bool functionsWithVoidParametersDoNotExist1() = #int(void) == #void;
 test bool functionsWithVoidParametersDoNotExist2() = #int(void, void) == #void;
 test bool functionsWithVoidParametersDoNotExist3() = #int(void a, void b) == #void;
