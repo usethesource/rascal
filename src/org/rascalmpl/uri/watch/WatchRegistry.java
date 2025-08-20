@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import org.apache.logging.log4j.LogManager;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
@@ -104,6 +105,11 @@ public class WatchRegistry {
     public void watch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, final Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var resolvedLoc = safeResolve(loc);
+        if (!reg.exists(resolvedLoc)) {
+            LogManager.getLogger(WatchRegistry.class).warn("[WatchRegistry] Not watching nonexistent loc " + loc);
+            return;
+        }
+
         var watcher = watchers.get(resolvedLoc.getScheme());
         if (watcher != null) {
             startNormalWatch(loc, recursive, callback, resolvedLoc, watcher);
