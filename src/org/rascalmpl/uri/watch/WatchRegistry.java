@@ -106,8 +106,7 @@ public class WatchRegistry {
         throws IOException {
         var resolvedLoc = safeResolve(loc);
         if (!reg.exists(resolvedLoc)) {
-            LogManager.getLogger(WatchRegistry.class).warn("[WatchRegistry] Not watching nonexistent loc " + loc);
-            return;
+            throw new IOException("Cannot watch nonexistent location " + loc);
         }
 
         var watcher = watchers.get(resolvedLoc.getScheme());
