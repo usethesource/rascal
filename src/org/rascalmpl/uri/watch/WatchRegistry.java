@@ -45,7 +45,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import org.apache.logging.log4j.LogManager;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
