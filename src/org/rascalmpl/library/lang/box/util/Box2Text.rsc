@@ -71,6 +71,7 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
+import Exception;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -186,8 +187,11 @@ private Text rhh(Text a, Text b) = hh(a, b);
 private Text rvv(Text _, []) = [];
 private default Text rvv(Text a, Text b) = vv(a,b);
     
-private Text LL(str s ) = [s]; 
-   
+private Text LL(str s) {
+    assert s != "" : "literal strings must never be empty for Box2Text to work correctly.";
+    return [s];
+}
+
 private Text HH([], Box _, Options _opts, int _m) = [];
 
 private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
