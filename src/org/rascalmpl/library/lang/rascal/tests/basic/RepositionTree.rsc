@@ -3,6 +3,7 @@ module lang::rascal::tests::basic::RepositionTree
 import List;
 import ParseTree;
 import lang::pico::\syntax::Main;
+import String;
 
 loc facPico = |project://rascal/src/org/rascalmpl/library/lang/pico/examples/fac.pico|;
 
@@ -34,10 +35,11 @@ test bool removeAllAnnotations() {
 }
 
 test bool charsFromLeftToRight() {
+    // removing \r from this test to avoid problems.
     t1 = parse(#start[Program], facPico);
     t2 = reposition(t1, markChar=true);
     allChars = [ch | /ch:char(_) := t2];
-    sortedChars = sort(allChars, bool (c1, c2) { return c1@\loc.offset < c2@\loc.offset;});
+    sortedChars = sort(allChars, bool (Tree c1, Tree c2) { return c1@\loc.offset < c2@\loc.offset;});
 
     return allChars == sortedChars;
 }

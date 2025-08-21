@@ -31,7 +31,7 @@ public abstract class FunctionBody extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

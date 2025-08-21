@@ -31,35 +31,35 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   public org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.MonotonicNonNull QualifiedName getOptName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSign() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalEqualSign getSign() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTerminator() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalTerminator getTerminator() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

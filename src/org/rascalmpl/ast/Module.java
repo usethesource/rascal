@@ -31,14 +31,14 @@ public abstract class Module extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Body getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasHeader() {
     return false;
   }
 
   public org.rascalmpl.ast.Header getHeader() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

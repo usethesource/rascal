@@ -31,7 +31,7 @@ public abstract class Toplevel extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declaration getDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

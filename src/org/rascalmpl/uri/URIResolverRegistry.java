@@ -1039,16 +1039,20 @@ public class URIResolverRegistry {
 	}
 
 	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback) throws IOException {
-		if (getOutputResolver(safeResolve(loc).getScheme()) == null) {
-			throw new UnsupportedSchemeException("Watching not supported on schemes that do not support writing: " + loc.getScheme());
-		}
-		watchers.watch(loc, recursive, callback);
+		watchers.watch(loc, recursive, this::anyIOResolverRegistered, callback);
+	}
+
+	/**
+	 * Assumes already resolve location
+	 */
+	private boolean anyIOResolverRegistered(ISourceLocation loc) {
+		return inputResolvers.containsKey(loc.getScheme()) || outputResolvers.containsKey(loc.getScheme());
 	}
 
 
 	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		watchers.unwatch(loc, recursive, callback);
+		watchers.unwatch(loc, recursive, this::anyIOResolverRegistered, callback);
 	}
 
 	// these types must align with their correspondig types in IO.rsc
@@ -1111,7 +1115,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
-		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme());
+		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme()) || watchers.hasFallback();
 	}
 
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
@@ -1126,9 +1130,5 @@ public class URIResolverRegistry {
 			return new FileAttributes(false, false, -1,-1, false, false, 0);
 		}
 	}
-
-
-
-
 
 }

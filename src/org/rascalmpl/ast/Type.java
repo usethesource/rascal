@@ -31,56 +31,56 @@ public abstract class Type extends AbstractAST {
   }
 
   public org.rascalmpl.ast.BasicType getBasic() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSelector() {
     return false;
   }
 
   public org.rascalmpl.ast.DataTypeSelector getSelector() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFunction() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionType getFunction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStructured() {
     return false;
   }
 
   public org.rascalmpl.ast.StructuredType getStructured() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTypeVar() {
     return false;
   }
 
   public org.rascalmpl.ast.TypeVar getTypeVar() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasUser() {
     return false;
   }
 
   public org.rascalmpl.ast.UserType getUser() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
