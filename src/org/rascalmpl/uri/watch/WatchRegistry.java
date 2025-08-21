@@ -107,6 +107,9 @@ public class WatchRegistry {
         if (!reg.exists(resolvedLoc)) {
             throw new IOException("Cannot watch nonexistent location " + loc);
         }
+        if (recursive && !reg.isDirectory(resolvedLoc)) {
+            throw new IOException("Cannot recursively watch a file: " + loc);
+        }
 
         var watcher = watchers.get(resolvedLoc.getScheme());
         if (watcher != null) {
