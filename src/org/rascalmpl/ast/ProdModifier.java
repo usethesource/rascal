@@ -31,14 +31,14 @@ public abstract class ProdModifier extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Assoc getAssociativity() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTag() {
     return false;
   }
 
   public org.rascalmpl.ast.Tag getTag() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
