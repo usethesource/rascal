@@ -111,7 +111,7 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
     = V([
         toBox(t),
         H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
-        I([H([H([G([
+        I([H([HOV([G([
                 L("="),
                 *[L("|"), toBox(va) | va <- vs][1..] // host the bars `|` up to the same level of `=`
             ])])
@@ -211,7 +211,7 @@ Box toBox((Tag) `@<Name n>`)
     ]);
 
 Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
-    = H([L("("), H([toBox(formals), toBox(keywordFormals)]), L(")")], hs=0);
+    = H([L("("), HV([toBox(formals), toBox(keywordFormals)]), L(")")], hs=0);
 
 Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)`)
     = H([L("("), H([H([toBox(formals), L("...")], hs=0), toBox(keywordFormals)]), L(")")], hs=0);
@@ -322,6 +322,12 @@ default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 /* Expressions */
 
+
+Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
+    = HOV([L("("),
+        AG([toBox(m.from), L(":"), toBox(m.to), L(",") |  m <- mappings][..-1], gs=4, columns=[l(), c(), l(), l()]),
+        L(")")
+    ]);
 
 Box toBox((Expression) `{<{Expression ","}* elems>}`)
     = H0([
