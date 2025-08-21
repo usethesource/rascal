@@ -71,6 +71,7 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
+import IO;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -295,21 +296,6 @@ private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options op
     return HVHV(T, m - hwidth(T), [next, *tail], opts, m, H([]));
 }
 
-// empty lists do not need grouping
-private Text GG([], Box(list[Box]) op, int gs, Box c, Options opts, int m)
-    = \continue(U([]), c, opts, m);
-
-// the last elements are smaller than the group size, just wrap them up and finish
-private Text GG([*Box last], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
-    = \continue(op(u(last))[hs=opts.hs][vs=opts.vs][is=opts.is], c, opts, m)
-    when size(last) < gs;
-
-// we pick the head of (size group size) and then continue with the rest
-private Text GG([*Box heads, *Box tail], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
-    = \continue(op(heads)[hs=opts.hs][vs=opts.vs][is=opts.is], NULL(), opts, m)
-    + \continue(G(tail, op=op, hs=opts.hs, vs=opts.vs, is=opts.is, gs=gs), c, opts, m)
-    when size(heads) == gs;
-
 private Text continueWith(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
 private Text continueWith(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
 private Text continueWith(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
@@ -324,8 +310,6 @@ private Text continueWith(Box b:U(list[Box] bl)  , Box c, Options opts, int m) =
 
 private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
-
-private Text continueWith(Box b:G(list[Box] bl), Box c, Options opts, int m) = GG(u(bl), b.op, b.gs, c, opts, m);
 
 @synopsis{General shape of a Box operator, as a parameter to `G`}
 private alias BoxOp = Box(list[Box]);
@@ -361,11 +345,11 @@ private int Acolumns(list[Row] rows) = (0 | max(it, size(row.cells)) | row <- ro
 
 @synopsis{Compute the maximum cell width for each column in an array}
 private list[int] Awidth(list[list[Box]] rows) 
-    = [(0 | max(it, row[col].width) | row <- rows ) | int col <- [0..size(head(rows))]];
+    = [(0 | max(it, row[col].width) | row <- rows, col < size(row) ) | int col <- [0..size(head(rows))]];
 
 @synopsis{Adds empty cells to every row until every row has the same amount of columns.}
 list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
-    = [ R(u([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
+    = [ R(u([*row.cells, *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
 
 @synopsis{Helper function for aligning Text inside an array cell}
 private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0 

@@ -32,12 +32,23 @@ import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
 import String;
 import IO;
+import util::IDEServices;
+import Location;
 
 @synopsis{Format an entire Rascal file, in-place.}
 void formatRascalFile(loc \module) {
     start[Module] tree = parse(#start[Module], \module);
     edits = formatRascalModule(tree);
     executeFileSystemChanges([changed(edits)]);
+}
+
+@synopsis{Format any Rascal module and dump the result as a string}
+void debugFormatRascalFile(loc \module) {
+    newFile = executeTextEdits(readFile(\module), formatRascalModule(parse(#start[Module], \module)));
+    newLoc = |tmp:///| + relativize(|project://rascal|, \module).path;
+    writeFile(newLoc, newFile);
+    edit(newLoc);
+    return;
 }
 
 @synopsis{Format a Rascal module string}
@@ -81,6 +92,9 @@ Box toBox((Import) `import <ImportedModule m>;`)
 Box toBox((Import) `extend <ImportedModule m>;`)
     = H([L("extend"), H0([toBox(m), L(";")])]);
 
+Box toBox((QualifiedName) `<{Name "::"}+ names>`)
+    = H0([SL([toBox(n) | n <- names], L("::"), op=H, hs=0)]);
+    
 Box toBox((Visibility) ``) = NULL();
 
 /* Declarations */

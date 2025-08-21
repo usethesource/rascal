@@ -47,7 +47,6 @@ data Box(int hs=1, int vs=0, int is=4)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
-    | G(list[Box] boxes, Box(list[Box]) op = H, int gs=2)
     | NULL()
     ;
 
@@ -90,3 +89,18 @@ into their context.
 }
 Box SL(list[Box] boxes, Box sep, Box(list[Box]) op = H, int hs=1, int vs=0, int is=4)
   = G([b, sep | b <- boxes][..-1], op=op, hs=hs, vs=vs, is=is);
+
+@synopsis{G boxes implement a group-by feature.}
+Box G([], Box(list[Box]) op = H, int gs=2)
+  = U([]);
+
+Box G(list[Box] boxes:[Box head, *_], Box(list[Box]) op=H, int gs=2, int hs=1, int vs=0, int is=4)
+  = U([op(boxes[..gs], hs=hs, vs=vs, is=is), *G(boxes[gs..], op=op, gs=gs, hs=hs, vs=vs, is=is).boxes]);
+
+@synopsis{AG boxes implement a group-by feature for table rows.}
+Box AG([], int gs=2, list[Alignment] columns=[])
+  = A([]);
+
+Box AG(list[Box] boxes:[Box head, *_], int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]])
+  = A([R(boxes[..gs]), *AG(boxes[gs..], gs=gs).rows], columns=columns);
+
