@@ -89,6 +89,10 @@ public class WatchRegistry {
         this.fallback = fallback;
     }
 
+    public boolean hasFallback() {
+        return fallback != null;
+    }
+
     private ISourceLocation safeResolve(ISourceLocation loc) {
         return resolver.apply(loc);
     }
