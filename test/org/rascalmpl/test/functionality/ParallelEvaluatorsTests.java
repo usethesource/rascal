@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.lang.StackWalker.Option;
 import java.util.Optional;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
