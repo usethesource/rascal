@@ -83,11 +83,6 @@ import org.apache.maven.settings.Mirror;
 
         downloaderFactory = new RepositoryDownloaderFactory(client);
         this.parentResolver = parentResolver;
-
-        // Some defensive programming to ensure that the parent resolver has the same root repository
-        if (parentResolver != null && parentResolver.rootRepository != rootRepository) {
-            throw new IllegalArgumentException("Parent resolver must have the same root repository as this resolver");
-        }
     }
 
     public SimpleResolver createChildResolver() {
