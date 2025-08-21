@@ -57,19 +57,23 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 //Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    set[IdRole] roles = {defines[def].idRole | def <- defs};
-    
+    list[IdRole] roles = [ defines[def].idRole | def <- defs ];
     result = true;
-    for(role <- roles){
-        if(any(role2 <- roles, role in (forbiddenIdRoleOverloading[role2] ? {}))){
-            result = false;
-            break;
+    if(size(roles) == 1){
+        role = roles[0];
+        result = role in (role in forbiddenIdRoleOverloading ? forbiddenIdRoleOverloading[role] : {});
+    } else {
+        for(role <- roles){
+            if(any(role2 <- roles, role2 != role, 
+                   role2 in (role in forbiddenIdRoleOverloading ? forbiddenIdRoleOverloading[role] : {}))){
+                result = false;
+                break;
+            }
         }
     }
 
     oldResult = rascalMayOverloadOld(defs, defines);
     if(result != oldResult){
-        roles = { defines[def].idRole | def <- defs };
         println("rascalMayOverload, new: <result>, old: <oldResult>, for <roles>");
         for(def <- defs){
             println(defines[def]);
