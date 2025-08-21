@@ -89,6 +89,10 @@ public class WatchRegistry {
         this.fallback = fallback;
     }
 
+    public boolean hasFallback() {
+        return fallback != null;
+    }
+
     private ISourceLocation safeResolve(ISourceLocation loc) {
         return resolver.apply(loc);
     }
@@ -104,6 +108,13 @@ public class WatchRegistry {
     public void watch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, final Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var resolvedLoc = safeResolve(loc);
+        if (!reg.exists(resolvedLoc)) {
+            throw new IOException("Cannot watch nonexistent location " + loc);
+        }
+        if (recursive && !reg.isDirectory(resolvedLoc)) {
+            throw new IOException("Cannot recursively watch a file: " + loc);
+        }
+
         var watcher = watchers.get(resolvedLoc.getScheme());
         if (watcher != null) {
             startNormalWatch(loc, recursive, callback, resolvedLoc, watcher);

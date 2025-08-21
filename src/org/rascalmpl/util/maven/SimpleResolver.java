@@ -49,7 +49,22 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
 
 /*package*/ class SimpleResolver implements ModelResolver {
-    // TODO: support repository overrides with settings.xml
+    private static final String MAVEN_CENTRAL_ID = "central";
+    private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2";
+
+    public static SimpleResolver createRootResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors) {
+        SimpleResolver rootResolver = new SimpleResolver(rootRepository, client, mirrors, null);
+        Repository repo = new Repository();
+        repo.setId(MAVEN_CENTRAL_ID);
+        repo.setUrl(MAVEN_CENTRAL_URL);
+        try {
+            rootResolver.addRepository(repo);
+            return rootResolver;
+        }
+        catch (InvalidRepositoryException e) {
+            throw new RuntimeException("Invalid repository: " + repo.getId() + " at " + repo.getUrl(), e);
+        }
+    }
 
     private static RepositoryDownloaderFactory downloaderFactory;
 
@@ -59,12 +74,19 @@ import org.apache.maven.settings.Mirror;
 
     private final Map<String, Mirror> mirrors;
 
-    public SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors) {
+    private final SimpleResolver parentResolver;
+
+    private SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors, SimpleResolver parentResolver) {
         this.rootRepository = rootRepository;
         this.client = client;
         this.mirrors = new HashMap<>(mirrors);
 
         downloaderFactory = new RepositoryDownloaderFactory(client);
+        this.parentResolver = parentResolver;
+    }
+
+    public SimpleResolver createChildResolver() {
+        return new SimpleResolver(rootRepository, client, mirrors, this);
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
@@ -124,6 +146,11 @@ import org.apache.maven.settings.Mirror;
                 return metadata;
             }
         }
+
+        if (parentResolver != null) {
+            return parentResolver.downloadArtifactMetadata(groupId, artifactId, versionSpec);
+        }
+
         throw new UnresolvableModelException("Could not download artifact metadata from available repositories",
             groupId, artifactId, versionSpec);
     }
@@ -190,7 +217,7 @@ import org.apache.maven.settings.Mirror;
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(rootRepository, client, mirrors);
+        var result = new SimpleResolver(rootRepository, client, mirrors, parentResolver);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }
@@ -224,6 +251,12 @@ import org.apache.maven.settings.Mirror;
                 return;
             }
         }
+
+        if (parentResolver != null) {
+            parentResolver.downloadArtifact(local, groupId, artifactId, version, force);
+            return;
+        }
+
         throw new UnresolvableModelException("Could not download artifact from available repositories", groupId, artifactId, version);
     }
 
