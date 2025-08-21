@@ -10,6 +10,8 @@
 @synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
 
+import List;
+
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
 * `H` puts their elements next to each other one the same line separated by `hs` spaces.
