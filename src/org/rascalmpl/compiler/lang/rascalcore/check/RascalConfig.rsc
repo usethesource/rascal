@@ -61,7 +61,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     
     result = true;
     for(role <- roles){
-        if(any(role2 <- roles, role2 != role, role in (forbiddenIdRoleOverloading[role2] ? {}))){
+        if(any(role2 <- roles, role in (forbiddenIdRoleOverloading[role2] ? {}))){
             result = false;
             break;
         }
