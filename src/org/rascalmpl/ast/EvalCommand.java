@@ -31,21 +31,21 @@ public abstract class EvalCommand extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declaration getDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasImported() {
     return false;
   }
 
   public org.rascalmpl.ast.Import getImported() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatement() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

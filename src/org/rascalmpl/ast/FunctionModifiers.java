@@ -31,7 +31,7 @@ public abstract class FunctionModifiers extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.FunctionModifier> getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

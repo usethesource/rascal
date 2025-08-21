@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.model.Model;
@@ -67,14 +68,14 @@ import io.usethesource.vallang.IValueFactory;
 public class MavenParser {
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
 
-    private final MavenSettings settings;
     private final Path projectPom;
     private final ISourceLocation projectPomLocation;
     private final ModelBuilder builder;
     private final HttpClient httpClient;
     private final ModelCache modelCache;
-    private final Path rootMavenRepo;
     private final List<IValue> settingMessages;
+
+    private final SimpleResolver rootResolver;
 
     public MavenParser(Path projectPom) {
         this(MavenSettings.readSettings(), projectPom);
@@ -85,9 +86,7 @@ public class MavenParser {
     }
 
     /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo) {
-        this.settings = settings;
         this.projectPom = projectPom;
-        this.rootMavenRepo = rootMavenRepo;
         try {
             this.projectPomLocation = URIUtil.createFileLocation(projectPom);
         }
@@ -107,6 +106,8 @@ public class MavenParser {
             .build();
 
         modelCache = new CaffeineModelCache();
+
+        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors());
     }
 
     public Artifact parseProject() throws ModelResolutionError {
@@ -114,7 +115,8 @@ public class MavenParser {
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+        var resolver = rootResolver.createChildResolver();
+
         var messages = VF.listWriter();
         messages.appendAll(settingMessages);
 
@@ -123,9 +125,13 @@ public class MavenParser {
             throw new ModelResolutionError(messages);
         }
 
-        var result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        Artifact result = null;
+        if (model.getGroupId() != null && model.getVersion() != null) {
+            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+        }
+
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion(), ""), messages);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
         }
         return result;
     }
@@ -137,10 +143,11 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
+            var resolver = originalResolver.createChildResolver();
+
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
-            
+
             var request = new DefaultModelBuildingRequest()
                 .setModelSource(modelSource)
                 .setWorkspaceModelResolver(workspaceResolver); // only for repository poms do we setup this extra resolver to help find parent poms
@@ -149,6 +156,8 @@ public class MavenParser {
             if (model == null) {
                 return Artifact.unresolved(coordinate, messages);
             }
+
+
             return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
             return Artifact.unresolved(coordinate, messages);
@@ -207,7 +216,6 @@ public class MavenParser {
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }
-
 
     private static final class CaffeineModelCache implements ModelCache {
         private static final class Key {
@@ -272,7 +280,7 @@ public class MavenParser {
         project.report(out);
         out.printf("It took %d ms to resolve root artifact%n", stop - start);
         start = System.currentTimeMillis();
-        var deps =project.resolveDependencies(Scope.COMPILE, parser);
+        var deps = project.resolveDependencies(Scope.COMPILE, parser);
         stop = System.currentTimeMillis();
         out.println(deps);
         out.printf("It took %d ms to resolve dependencies%n", stop - start);
