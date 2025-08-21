@@ -78,6 +78,7 @@ public set[IdRole] assignableRoles = variableRoles;
 
 set[IdRole] variableOrAliasRoles = variableRoles + {aliasId()};
 set[IdRole] functionRoles = {functionId(), constructorId(), productionId()};
+set[IdRole] variableOrFunctionRoles = variableRoles + functionRoles;
 set[IdRole] variableAliasOrFunctionRoles = variableOrAliasRoles + functionRoles;
 
 public map[IdRole, set[IdRole]] allowedIdRoleOverloading =
@@ -87,15 +88,15 @@ public map[IdRole, set[IdRole]] allowedIdRoleOverloading =
 // For each IdRole give a set of forbidden overloads with other IdRoles 
 // Not listed here or empty forbids: all overloads are allowed
 public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
-    (functionId():          variableOrAliasRoles,
-     constructorId():       variableOrAliasRoles - {moduleVariableId(), productionId()},
-     productionId():        variableOrAliasRoles - {moduleVariableId(), constructorId()},
-     variableId():          variableAliasOrFunctionRoles,
-     moduleVariableId():    variableAliasOrFunctionRoles - {constructorId(), productionId()},
-     formalId():            variableAliasOrFunctionRoles - {nestedFormalId()},
-     nestedFormalId():      variableAliasOrFunctionRoles - {formalId()},
-     keywordFormalId():     variableAliasOrFunctionRoles,
-     patternVariableId():   variableAliasOrFunctionRoles,
+    (functionId():          variableRoles /* variableOrAliasRoles */, 
+     constructorId():       variableRoles /* variableOrAliasRoles */ - {moduleVariableId(), productionId()},
+     productionId():        variableRoles /* variableOrAliasRoles */ - {moduleVariableId(), constructorId()},
+     variableId():          variableOrFunctionRoles, // variableAliasOrFunctionRoles,
+     moduleVariableId():    variableOrFunctionRoles /*variableAliasOrFunctionRoles*/ - {constructorId(), productionId()},
+     formalId():            variableOrFunctionRoles /*variableAliasOrFunctionRoles*/ - {nestedFormalId()},
+     nestedFormalId():      variableOrFunctionRoles /*variableAliasOrFunctionRoles*/ - {formalId()},
+     keywordFormalId():     variableOrFunctionRoles /*variableAliasOrFunctionRoles*/,
+     patternVariableId():   variableOrFunctionRoles /*variableAliasOrFunctionRoles*/,
 
      nonterminalId():       syntaxRoles - nonterminalId(),
      lexicalId():           syntaxRoles - lexicalId(),
@@ -106,7 +107,7 @@ public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
      keywordFieldId():      { },
      dataId():              { },
      
-     aliasId():             variableAliasOrFunctionRoles,
+     aliasId():             {aliasId()}, //variableAliasOrFunctionRoles,
      typeVarId():           {typeVarId()},
      annoId():              { }
     );
