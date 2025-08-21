@@ -1115,7 +1115,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
-		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme());
+		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme()) || watchers.hasFallback();
 	}
 
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
@@ -1130,9 +1130,5 @@ public class URIResolverRegistry {
 			return new FileAttributes(false, false, -1,-1, false, false, 0);
 		}
 	}
-
-
-
-
 
 }
