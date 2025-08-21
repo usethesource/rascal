@@ -31,14 +31,14 @@ public abstract class Renaming extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getFrom() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTo() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getTo() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

@@ -461,7 +461,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return inputResolvers.get(subScheme);
+				result = inputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackInputResolver;
 		}
@@ -474,7 +477,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return classloaderResolvers.get(subScheme);
+				result = classloaderResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackClassloaderResolver;
 		}
@@ -487,7 +493,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return outputResolvers.get(subScheme);
+				result = outputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackOutputResolver;
 		}
@@ -1030,16 +1039,20 @@ public class URIResolverRegistry {
 	}
 
 	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback) throws IOException {
-		if (getOutputResolver(safeResolve(loc).getScheme()) == null) {
-			throw new UnsupportedSchemeException("Watching not supported on schemes that do not support writing: " + loc.getScheme());
-		}
-		watchers.watch(loc, recursive, callback);
+		watchers.watch(loc, recursive, this::anyIOResolverRegistered, callback);
+	}
+
+	/**
+	 * Assumes already resolve location
+	 */
+	private boolean anyIOResolverRegistered(ISourceLocation loc) {
+		return inputResolvers.containsKey(loc.getScheme()) || outputResolvers.containsKey(loc.getScheme());
 	}
 
 
 	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		watchers.unwatch(loc, recursive, callback);
+		watchers.unwatch(loc, recursive, this::anyIOResolverRegistered, callback);
 	}
 
 	// these types must align with their correspondig types in IO.rsc

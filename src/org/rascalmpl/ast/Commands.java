@@ -31,7 +31,7 @@ public abstract class Commands extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.EvalCommand> getCommands() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

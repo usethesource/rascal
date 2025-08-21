@@ -31,14 +31,14 @@ public abstract class TypeVar extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBound() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getBound() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
