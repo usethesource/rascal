@@ -125,7 +125,7 @@ data Options = options(
     int wrapAfter = 70
 );
 
-@synopsis{Quickly splice in any nested U boxes}
+@synopsis{Quickly splice in any nested U boxes, and empty H, V, HV, I or HOV boxes}
 list[Box] u(list[Box] boxes) {
     return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, !isDegenerate(b)];
 }
@@ -566,7 +566,7 @@ test bool noDegenerateHOVSeparators1()
     == "a b
        '";
 
-test bool noDegenerateHVSeparators2()
+test bool noDegenerateHOVSeparators2()
     = format(HOV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
     == "a
        'b
