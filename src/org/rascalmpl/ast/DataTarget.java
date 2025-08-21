@@ -31,7 +31,7 @@ public abstract class DataTarget extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getLabel() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

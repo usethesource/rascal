@@ -1,0 +1,125 @@
+package org.rascalmpl.util.maven;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.maven.model.resolution.InvalidRepositoryException;
+import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.maven.settings.Mirror;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+public class LocalRepoTest extends AbstractMavenTest {
+    private String testRepo;
+    private MavenSettings settings;
+
+    @Before
+    public void replaceCentralWithLocalRepo() throws InvalidRepositoryException {
+        URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
+        testRepo = url.toString();
+
+        // We can use a mirror in settings to override the central repository
+        settings = new MavenSettings() {
+            @Override
+            public Map<String, Mirror> getMirrors() {
+                Mirror mirror = new Mirror();
+                mirror.setId("local");
+                mirror.setName("Maven Test Repository");
+                mirror.setUrl(testRepo);
+                mirror.setMirrorOf("central");
+
+                return Map.of("central", mirror);
+            }
+        };
+
+    }
+
+    @After
+    public void clearRepoProperty() {
+        System.clearProperty("REPO");
+    }
+
+    @Test
+    public void testRangedDependencies() throws ModelResolutionError, UnresolvableModelException {
+        var parser = new MavenParser(settings, getPomsPath("range/pom.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        List<ArtifactCoordinate> coordinates = resolvedDependencies.stream()
+            .map(Artifact::getCoordinate)
+            .collect(Collectors.toList());
+
+        Assert.assertTrue(coordinates.contains(new ArtifactCoordinate("range", "level2", "2.0", null)));
+
+        // Check that the warning about multiple version ranges is present
+        for (Artifact artifact : resolvedDependencies) {
+            if (artifact.getCoordinate().getArtifactId().equals("level1b")) {
+                // The full message would be something like:
+                // Multiple version ranges found for range:level2, 1.5 is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [1.5]
+                Assert.assertTrue(artifact.getMessages().get(0).toString().contains("Multiple version ranges found"));
+            }
+        }
+    }
+
+    @Test
+    public void testSimpleResolverParentResolution() throws ModelResolutionError, UnresolvableModelException, IOException {
+        // We still want access to maven central, so use string replacement to set the REPO
+        String content = Files.readString(getPomsPath("parent/pom.xml"));
+        content = content.replace("${REPO}", testRepo);
+        // We need some place to store the modified pom
+        Path pomPath = tempRepo.resolve("parent-pom.xml");
+        Files.writeString(pomPath, content);
+
+        var parser = new MavenParser(new MavenSettings(), pomPath, tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+
+        // just parent:rascal:1.0 and org.rascalmpl:rascal:1.0
+        Assert.assertEquals(resolvedDependencies.size(), 2);
+
+        for (Artifact artifact : resolvedDependencies) {
+            Assert.assertTrue(artifact.getMessages().isEmpty());
+        }
+    }
+
+    @Ignore
+    @Test
+    /**
+     * This is a stress test that checks all POMs in your local maven repository.
+     */
+    public void testAllPomsInM2Repo() throws ModelResolutionError, UnresolvableModelException, IOException {
+        String home = System.getProperty("user.home");
+        Path repo = Paths.get(home, ".m2", "repository");
+        System.err.println("Checking all POMs in " + repo.toAbsolutePath());
+        Files.walk(repo)
+            .filter(Files::isRegularFile)
+            .filter(path -> path.toString().endsWith(".pom"))
+            .filter(path -> !path.toString().contains("SNAPSHOT"))
+            .forEach(pomPath -> {
+                try {
+                    var parser = new MavenParser(new MavenSettings(), pomPath, tempRepo);
+                    Artifact project = parser.parseProject();
+                    List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+                    List<ArtifactCoordinate> coordinates =
+                        resolvedDependencies.stream().map(Artifact::getCoordinate).collect(Collectors.toList());
+                    String relPath = repo.relativize(pomPath).toString();
+                    Collections.sort(coordinates, (left,right) -> left.toString().compareTo(right.toString()));
+                    System.out.println(relPath + ": " + coordinates);
+                } catch (Exception e) {
+                    System.err.println("Failed to parse " + pomPath + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+    }
+
+}
