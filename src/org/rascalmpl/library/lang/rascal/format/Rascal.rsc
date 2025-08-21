@@ -473,8 +473,7 @@ Box HV([H([])]) = U([]);
 Box HV([V([])]) = U([]);
 Box HV([U([])]) = U([]);
 
-Box L("") { throw "empty literal generated";}
-
+// helpful short-hands might end up in box::syntax::Box 
 Box H0(list[Box] boxes) = H(boxes, hs=0);
 Box H1(list[Box] boxes) = H(boxes, hs=0);
 Box V0(list[Box] boxes) = V(boxes, hs=0);
