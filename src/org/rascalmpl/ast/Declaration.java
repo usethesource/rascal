@@ -31,98 +31,98 @@ public abstract class Declaration extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getTypes() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVariables() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Variable> getVariables() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVariants() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Variant> getVariants() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCommonKeywordParameters() {
     return false;
   }
 
   public org.rascalmpl.ast.CommonKeywordParameters getCommonKeywordParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFunctionDeclaration() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasKind() {
     return false;
   }
 
   public org.rascalmpl.ast.Kind getKind() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTags() {
     return false;
   }
 
   public org.rascalmpl.ast.Tags getTags() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasAnnoType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getAnnoType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBase() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getBase() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOnType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getOnType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasUser() {
     return false;
   }
 
   public org.rascalmpl.ast.UserType getUser() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVisibility() {
     return false;
   }
 
   public org.rascalmpl.ast.Visibility getVisibility() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
