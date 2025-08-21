@@ -31,84 +31,84 @@ public abstract class StringTemplate extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGenerators() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStats() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStatsElse() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStatsElse() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStatsThen() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStatsThen() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStats() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStatsElse() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsElse() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStatsThen() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsThen() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCondition() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getCondition() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBody() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElseString() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getElseString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasThenString() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getThenString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

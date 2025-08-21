@@ -31,91 +31,91 @@ public abstract class Sym extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Sym> getAlternatives() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParameters() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Sym> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSequence() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Sym> getSequence() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCistring() {
     return false;
   }
 
   public org.rascalmpl.ast.CaseInsensitiveStringConstant getCistring() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCharClass() {
     return false;
   }
 
   public org.rascalmpl.ast.Class getCharClass() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasColumn() {
     return false;
   }
 
   public org.rascalmpl.ast.IntegerLiteral getColumn() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasNonterminal() {
     return false;
   }
 
   public org.rascalmpl.ast.Nonterminal getNonterminal() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLabel() {
     return false;
   }
 
   public org.rascalmpl.ast.NonterminalLabel getLabel() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasString() {
     return false;
   }
 
   public org.rascalmpl.ast.StringConstant getString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFirst() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getFirst() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMatch() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getMatch() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSep() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSep() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

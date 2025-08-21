@@ -31,21 +31,21 @@ public abstract class IntegerLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.DecimalIntegerLiteral getDecimal() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasHex() {
     return false;
   }
 
   public org.rascalmpl.ast.HexIntegerLiteral getHex() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOctal() {
     return false;
   }
 
   public org.rascalmpl.ast.OctalIntegerLiteral getOctal() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
