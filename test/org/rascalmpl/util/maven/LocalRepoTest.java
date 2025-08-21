@@ -20,19 +20,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class LocalRepoTest extends AbstractMavenTest {
+    private String testRepo;
     private MavenSettings settings;
 
     @Before
     public void replaceCentralWithLocalRepo() throws InvalidRepositoryException {
-        // Pass the "remote" test repository URL through a system property so artifact resolvers can find it
+        URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
+        testRepo = url.toString();
+
+        // We can use a mirror in settings to override the central repository
         settings = new MavenSettings() {
             @Override
             public Map<String, Mirror> getMirrors() {
                 Mirror mirror = new Mirror();
                 mirror.setId("local");
                 mirror.setName("Maven Test Repository");
-                URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
-                mirror.setUrl(url.toString());
+                mirror.setUrl(testRepo);
                 mirror.setMirrorOf("central");
 
                 return Map.of("central", mirror);
@@ -65,6 +68,27 @@ public class LocalRepoTest extends AbstractMavenTest {
                 // Multiple version ranges found for range:level2, 1.5 is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [1.5]
                 Assert.assertTrue(artifact.getMessages().get(0).toString().contains("Multiple version ranges found"));
             }
+        }
+    }
+
+    @Test
+    public void testSimpleResolverParentResolution() throws ModelResolutionError, UnresolvableModelException, IOException {
+        // We still want access to maven central, so use string replacement to set the REPO
+        String content = Files.readString(getPomsPath("parent/pom.xml"));
+        content = content.replace("${REPO}", testRepo);
+        // We need some place to store the modified pom
+        Path pomPath = tempRepo.resolve("parent-pom.xml");
+        Files.writeString(pomPath, content);
+
+        var parser = new MavenParser(new MavenSettings(), pomPath, tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+
+        // just parent:rascal:1.0 and org.rascalmpl:rascal:1.0
+        Assert.assertEquals(resolvedDependencies.size(), 2);
+
+        for (Artifact artifact : resolvedDependencies) {
+            Assert.assertTrue(artifact.getMessages().isEmpty());
         }
     }
 
