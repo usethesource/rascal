@@ -36,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
@@ -59,7 +61,7 @@ public class Artifact {
     private final @Nullable Path resolved;
     private final List<Dependency> dependencies;
     private final @Nullable SimpleResolver ourResolver;
-    private final IList messages;
+    private IList messages;
     private final boolean anyError;
 
     private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
@@ -121,7 +123,8 @@ public class Artifact {
         Map<ArtifactCoordinate.WithoutVersion, String> resolvedVersions = new HashMap<>();
         Set<WithoutVersion> exclusions = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
-        calculateClassPath(forScope, alreadyResolved, resolvedVersions, exclusions, result, parser);
+        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
+        calculateClassPath(forScope, alreadyResolved, resolvedVersions, rangedDeps, exclusions, result, parser);
         return result;
     }
 
@@ -185,8 +188,8 @@ public class Artifact {
             this.excludes = excludes;
         }
 
-        public void calculateClassPath(Scope forScope, Set<ResolveKey> alreadyIncluded, Map<WithoutVersion, String> resolvedVersions, ArrayList<Artifact> result, MavenParser parser) {
-            artifact.calculateClassPath(forScope, alreadyIncluded, resolvedVersions, excludes, result, parser);
+        public void calculateClassPath(Scope forScope, Set<ResolveKey> alreadyIncluded, Map<WithoutVersion, String> resolvedVersions, Map<WithoutVersion, SortedSet<String>> rangedDeps, ArrayList<Artifact> result, MavenParser parser) {
+            artifact.calculateClassPath(forScope, alreadyIncluded, resolvedVersions, rangedDeps, excludes, result, parser);
         }
     }
 
@@ -195,9 +198,8 @@ public class Artifact {
      * Note that caching is done modulo transitive exclusions.
      * For ranged versions we just use the first suitable version for the first range we encounter.
      */
-    private void calculateClassPath(Scope forScope, Set<ResolveKey> alreadySolved, Map<WithoutVersion, String> resolvedVersions,
+    private void calculateClassPath(Scope forScope, Set<ResolveKey> alreadySolved, Map<WithoutVersion, String> resolvedVersions, Map<WithoutVersion, SortedSet<String>> rangedDeps,
         Set<WithoutVersion> excludes, ArrayList<Artifact> result, MavenParser parser) {
-        var messages = IRascalValueFactory.getInstance().listWriter();
         var nextLevel = new ArrayList<ResolveState>(dependencies.size());
         for (var d : dependencies) {
             var coordinate = d.getCoordinate();
@@ -205,24 +207,36 @@ public class Artifact {
             boolean alreadyResolved;
 
             var versionLess = coordinate.versionLess();
+
+            var version = coordinate.getVersion();
+            if (isVersionRange(version)) {
+                try {
+                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(),
+                        version);
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version,
+                        coordinate.getClassifier());
+                }
+                catch (UnresolvableModelException e) {
+                    messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                    continue;
+                }
+
+                var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
+                if (versions.add(version) && versions.size() == 2) { // Only add a warning once
+                    String effectiveVersion = versions.first();
+                    messages = messages.append(Messages.warning("Multiple version ranges found for " + versionLess
+                        + " are used. "
+                        + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
+                        + effectiveVersion + "]</version>", d.getPomLocation()));
+                }
+            }
+
             String resolvedVersion = resolvedVersions.get(versionLess);
             if (resolvedVersion != null) {
                 alreadyResolved = true;
                 coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
             } else {
                 alreadyResolved = false;
-                var version = coordinate.getVersion();
-                if (isVersionRange(version)) {
-                    try {
-                        version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
-                        coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
-                    }
-                    catch (UnresolvableModelException e) {
-                        messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
-                        continue;
-                    }
-                }
-
                 resolvedVersions.put(versionLess, version);
             }
 
@@ -239,7 +253,7 @@ public class Artifact {
                 var pomDep = ourResolver.calculatePomPath(d.getCoordinate());
                 if (!Files.notExists(pomDep)) {
                     // ok, doesn't exist yet. so don't download it to calculate dependencies
-                    // and don't add it to the list since somewhere else somebody might depend on it 
+                    // and don't add it to the list since somewhere else somebody might depend on it
                     continue;
                 }
             }
@@ -268,10 +282,10 @@ public class Artifact {
             // only do test scope for top level, switch to compile after that
             forScope = Scope.COMPILE;
         }
-        // now we go through the new artifacts and make sure we add their dependencies if needed 
+        // now we go through the new artifacts and make sure we add their dependencies if needed
         // but now in their context (their resolver etc)
         for (var state: nextLevel) {
-            state.calculateClassPath(forScope, alreadySolved, resolvedVersions, result, parser);
+            state.calculateClassPath(forScope, alreadySolved, resolvedVersions, rangedDeps, result, parser);
         }
     }
 
