@@ -31,14 +31,14 @@ public abstract class StructuredType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBasicType() {
     return false;
   }
 
   public org.rascalmpl.ast.BasicType getBasicType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

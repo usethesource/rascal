@@ -28,7 +28,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
         testRepo = url.toString();
 
-        // Or alternatively we can use settings to override the central repository
+        // We can use a mirror in settings to override the central repository
         settings = new MavenSettings() {
             @Override
             public Map<String, Mirror> getMirrors() {
@@ -59,15 +59,21 @@ public class LocalRepoTest extends AbstractMavenTest {
             .map(Artifact::getCoordinate)
             .collect(Collectors.toList());
 
-        for (Artifact artifact : resolvedDependencies) {
-            System.out.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
-        }
-
         Assert.assertTrue(coordinates.contains(new ArtifactCoordinate("range", "level2", "2.0", null)));
+
+        // Check that the warning about multiple version ranges is present
+        for (Artifact artifact : resolvedDependencies) {
+            if (artifact.getCoordinate().getArtifactId().equals("level1b")) {
+                // The full message would be something like:
+                // Multiple version ranges found for range:level2, 1.5 is used. Maybe you should fix the desired version in your top-level pom using a fixed version spec like [1.5]
+                Assert.assertTrue(artifact.getMessages().get(0).toString().contains("Multiple version ranges found"));
+            }
+        }
     }
 
     @Test
     public void testSimpleResolverParentResolution() throws ModelResolutionError, UnresolvableModelException, IOException {
+        // We still want access to maven central, so use string replacement to set the REPO
         String content = Files.readString(getPomsPath("parent/pom.xml"));
         content = content.replace("${REPO}", testRepo);
         // We need some place to store the modified pom
@@ -82,6 +88,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         Assert.assertEquals(resolvedDependencies.size(), 2);
 
         for (Artifact artifact : resolvedDependencies) {
+            System.err.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
             Assert.assertTrue(artifact.getMessages().isEmpty());
         }
     }
