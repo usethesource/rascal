@@ -31,7 +31,7 @@ public abstract class ModuleActuals extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getTypes() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

@@ -40,8 +40,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -52,7 +50,6 @@ import org.apache.maven.model.building.ModelCache;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.building.ModelSource2;
-import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -71,17 +68,14 @@ import io.usethesource.vallang.IValueFactory;
 public class MavenParser {
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
 
-    private static final String MAVEN_CENTRAL_ID = "central";
-    private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2";
-
-    private final MavenSettings settings;
     private final Path projectPom;
     private final ISourceLocation projectPomLocation;
     private final ModelBuilder builder;
     private final HttpClient httpClient;
     private final ModelCache modelCache;
-    private final Path rootMavenRepo;
     private final List<IValue> settingMessages;
+
+    private final SimpleResolver rootResolver;
 
     public MavenParser(Path projectPom) {
         this(MavenSettings.readSettings(), projectPom);
@@ -92,9 +86,7 @@ public class MavenParser {
     }
 
     /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo) {
-        this.settings = settings;
         this.projectPom = projectPom;
-        this.rootMavenRepo = rootMavenRepo;
         try {
             this.projectPomLocation = URIUtil.createFileLocation(projectPom);
         }
@@ -114,18 +106,8 @@ public class MavenParser {
             .build();
 
         modelCache = new CaffeineModelCache();
-    }
 
-    private void addMavenCentral(SimpleResolver resolver) {
-        Repository repo = new Repository();
-        repo.setId(MAVEN_CENTRAL_ID);
-        repo.setUrl(MAVEN_CENTRAL_URL);
-        try {
-            resolver.addRepository(repo);
-        }
-        catch (InvalidRepositoryException e) {
-            throw new RuntimeException("Invalid repository: " + repo.getId() + " at " + repo.getUrl(), e);
-        }
+        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors());
     }
 
     public Artifact parseProject() throws ModelResolutionError {
@@ -133,9 +115,7 @@ public class MavenParser {
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors(), null);
-
-        addMavenCentral(resolver);
+        var resolver = rootResolver.createChildResolver();
 
         var messages = VF.listWriter();
         messages.appendAll(settingMessages);
@@ -163,7 +143,7 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, httpClient, settings.getMirrors(), originalResolver);
+            var resolver = originalResolver.createChildResolver();
 
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);

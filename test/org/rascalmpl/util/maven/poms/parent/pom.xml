@@ -14,6 +14,10 @@
       <id>test</id>
       <url>${REPO}</url>
     </repository>
+    <repository>
+      <id>usethesource</id>
+      <url>https://releases.usethesource.io/maven/</url>
+    </repository>
   </repositories>
 
   <groupId>parent</groupId>

@@ -854,7 +854,6 @@ bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
 private alias NewLineChar = [\n];
-private alias ReturnChar  = [\t];
 
 @synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
 @description{
@@ -958,10 +957,6 @@ yield of a tree should always produce the exact same locations as ((reposition))
       curColumn += 1;
 
       switch (t) {
-        case ReturnChar _: {
-          curColumn = 0;
-        }
-      
         case NewLineChar _ : {
           curLine += 1;
           curColumn = 0;
@@ -971,7 +966,7 @@ yield of a tree should always produce the exact same locations as ((reposition))
       Tree washCC(Tree x) = x; // workaround for issue #2342
 
       return markChar 
-        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, curColumn>)]
+        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, max([curColumn, beginColumn + 1]) /* for \r */>)]
         : washCC(char(ch))
         ;
     }
