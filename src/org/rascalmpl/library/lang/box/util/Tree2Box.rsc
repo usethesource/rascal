@@ -248,6 +248,9 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
+        case <prod(_,[chain],_), [Tree single]>:
+            return toBox(single);
+
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
