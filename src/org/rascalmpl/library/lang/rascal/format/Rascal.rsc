@@ -325,9 +325,13 @@ default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
     = HOV([L("("),
-        AG([toBox(m.from), L(":"), toBox(m.to), L(",") |  m <- mappings][..-1], gs=4, columns=[l(), c(), l(), l()]),
+        AG([toBox(m.from), L(":"), toBox(m.to) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
         L(")")
     ]);
+
+
+int tupleWidth(Expression _) = 1;
+int tupleWith((Expression) `\< <{Expression ","}+ elems> \>`) = size(elems.args) / 4 + 1;
 
 Box toBox((Expression) `{<{Expression ","}* elems>}`)
     = H0([

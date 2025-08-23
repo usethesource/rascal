@@ -309,7 +309,7 @@ private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) =
 private Text continueWith(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
 
 private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
-    = AA(rows, c, b.columns, opts, m);
+    = AA(rows, c, b.columns, b.rs, opts, m);
 
 @synopsis{General shape of a Box operator, as a parameter to `G`}
 private alias BoxOp = Box(list[Box]);
@@ -348,8 +348,9 @@ private list[int] Awidth(list[list[Box]] rows)
     = [(0 | max(it, row[col].width) | row <- rows, col < size(row) ) | int col <- [0..size(head(rows))]];
 
 @synopsis{Adds empty cells to every row until every row has the same amount of columns.}
-list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
-    = [ R(u([*row.cells, *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
+list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows), Box rs=NULL())
+    = [ R(u([*row.cells[..-1], H([row.cells[-1], rs],hs=0), *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows[..-1]]
+    + [ R(u([*rows[-1].cells, *[SPACE(1) | _ <- [0..columns - size(rows[-1].cells)]]]))] ;
 
 @synopsis{Helper function for aligning Text inside an array cell}
 private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
@@ -366,14 +367,16 @@ private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1
         align(l(), cell, maxWidth)
         : cell;
 
-private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts, int m) {
-    list[list[Box]] rows = RR(AcompleteRows(table), c, opts, m);
+private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Options opts, int m) {
+    if (table == []) {
+        return [];
+    }
+
+    list[list[Box]] rows = RR(AcompleteRows(table, rs=rs), c, opts, m);
     list[int] maxWidths  = Awidth(rows);
     
-    return \continue(V([
-        H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) 
-    | row <- rows
-    ]),c, opts, m);
+    return \continue(V([ 
+        H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
 }
 
 @synopsis{Check soft limit for HV and HOV boxes}

@@ -45,7 +45,7 @@ data Box(int hs=1, int vs=0, int is=4)
     | HV(list[Box] boxes)
     | I(list[Box] boxes)
     | WD(list[Box] boxes)
-    | A(list[Row] rows, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
+    | A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
@@ -89,20 +89,20 @@ Each element is wrapped by the `op` operator together with the next separator.
 The resulting list is wrapped by a G box, of which the elements will be spliced
 into their context. 
 }
-Box SL(list[Box] boxes, Box sep, Box(list[Box]) op = H, int hs=1, int vs=0, int is=4)
-  = G([b, sep | b <- boxes][..-1], op=op, hs=hs, vs=vs, is=is);
+Box SL(list[Box] boxes, Box sep, Box op = H([]))
+  = G([b, sep | b <- boxes][..-1], op=op, gs=2);
 
 @synopsis{G boxes implement a group-by feature.}
-Box G([], Box(list[Box]) op = H, int gs=2)
+Box G([], Box op = H([]), int gs=2)
   = U([]);
 
-Box G(list[Box] boxes:[Box head, *_], Box(list[Box]) op=H, int gs=2, int hs=1, int vs=0, int is=4)
-  = U([op(boxes[..gs], hs=hs, vs=vs, is=is), *G(boxes[gs..], op=op, gs=gs, hs=hs, vs=vs, is=is).boxes]);
+Box G(list[Box] boxes:[Box head, *_], Box op=H([]), int gs=2)
+  = U([op[boxes=boxes[..gs]], *G(boxes[gs..], op=op, gs=gs).boxes]);
 
-@synopsis{AG boxes implement a group-by feature for table rows.}
-Box AG([], int gs=2, list[Alignment] columns=[])
-  = A([]);
+@synopsis{AG boxes implement a group-by feature for A rows, with optional row separators}
+Box AG([], int gs=2, list[Alignment] columns=[], Box rs=NULL())
+  = A([], columns=columns, rs=rs);
 
-Box AG(list[Box] boxes:[Box head, *_], int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]])
-  = A([R(boxes[..gs]), *AG(boxes[gs..], gs=gs).rows], columns=columns);
+Box AG(list[Box] boxes:[Box _, *_], int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]], Box rs=NULL())
+  = A([R(boxes[..gs]), *AG(boxes[gs..], gs=gs, rs=rs).rows], columns=columns, rs=rs);
 
