@@ -26,11 +26,17 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
           
-syntax Body = "body";
+data D = d(int n) | d(str s);
 
-alias Body = int;
+void f(D x){
+    d(arg) := x;
+}
 
-Body f(Body b) = b;
+// syntax Body = "body";
+
+// alias Body = int;
+
+// Body f(Body b) = b;
 
 // data AType;
 
