@@ -633,7 +633,7 @@ int main(
 
     flatMessages = [*msgs | program(_, msgs) <- messages];
 
-    return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
+    return mainMessageHandler(flatMessages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 // ---- Convenience check function during development -------------------------
