@@ -2498,7 +2498,7 @@ default value translatePatternAsConstant(Pattern p){
 value translateConcretePatternAsConstant(p:appl(Production::prod(sort(str A),[Symbol::lit(str litA)],{}),[appl(prod(Symbol::lit(litA),[\char-class([CharRange::range(int charA,charA)])], {}),[Tree::char(charA)])])) {
     return p;
 }
-value translateConcretePatternAsConstant(p:Production::prod(Symbol::lit(str charA),[\char-class([CharRange::range(int charA,charA)])],{})) {
+value translateConcretePatternAsConstant(p:Production::prod(Symbol::lit(str charA),[\char-class([CharRange::range(int charR,charR)])],{})) {
     return p;
 }
 value translateConcretePatternAsConstant(p:appl(Production::prod(Symbol::sort(str A), [Symbol::lit(str Alit)], {}),[appl(prod(lit(Alit), [\char-class([CharRange::range(int charA, charA)])], {}), [Tree::char(charA)])])) {
