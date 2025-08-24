@@ -350,12 +350,9 @@ AType symbol2atype1(Symbol::label(str label, symbol)){
 }
 
 AType symbol2atype1(Symbol::\set(Symbol symbol)) = aset(symbol2atype(symbol));
-AType symbol2atype1(Symbol::\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
-AType symbol2atype1(Symbol::\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
 AType symbol2atype1(Symbol::\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
 AType symbol2atype1(Symbol::\list(Symbol symbol)) = alist(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
-AType symbol2atype1(Symbol::\bag(Symbol symbol)) = abag(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
 AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
 
