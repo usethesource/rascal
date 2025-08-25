@@ -10,6 +10,8 @@
 @synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
 
+import List;
+
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
 * `H` puts their elements next to each other one the same line separated by `hs` spaces.
@@ -23,7 +25,6 @@ module lang::box::\syntax::Box
 * `L` produces A literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
 * `G` is an additional group-by feature that reduces tot the above core features
-* `SL` is a convenience box for separated syntax lists based on `G`
 * `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
 }
 @benefits{
@@ -44,11 +45,10 @@ data Box(int hs=1, int vs=0, int is=4)
     | HV(list[Box] boxes)
     | I(list[Box] boxes)
     | WD(list[Box] boxes)
-    | A(list[Row] rows, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
+    | A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
-    | G(list[Box] boxes, Box(list[Box]) op = H, int gs=2)
     | NULL()
     ;
 
@@ -82,3 +82,27 @@ algorithm starts counting boxes and widths.
 * NULL will be formatted as `H([])` if it's the outermost Box.
 }
 Box NULL() = U([]);
+
+@synopsis{Convenience box for adding separators to an existing box list}
+@description{
+Each element is wrapped by the `op` operator together with the next separator.
+The resulting list is wrapped by a G box, of which the elements will be spliced
+into their context. 
+}
+Box SL(list[Box] boxes, Box sep, Box op = H([], hs=0))
+  = G([b, sep | b <- boxes][..-1], op=op, gs=2);
+
+@synopsis{G boxes implement a group-by feature.}
+Box G([], Box op = H([]), int gs=2)
+  = U([]);
+
+Box G(list[Box] boxes:[Box head, *_], Box op=H([]), int gs=2)
+  = U([op[boxes=boxes[..gs]], *G(boxes[gs..], op=op, gs=gs).boxes]);
+
+@synopsis{AG boxes implement a group-by feature for A rows, with optional row separators}
+Box AG([], int gs=2, list[Alignment] columns=[], Box rs=NULL())
+  = A([], columns=columns, rs=rs);
+
+Box AG(list[Box] boxes:[Box _, *_], int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]], Box rs=NULL())
+  = A([R(boxes[..gs]), *AG(boxes[gs..], gs=gs, rs=rs).rows], columns=columns, rs=rs);
+

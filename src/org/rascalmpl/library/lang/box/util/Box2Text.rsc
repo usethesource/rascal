@@ -71,6 +71,7 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
+import IO;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -186,8 +187,11 @@ private Text rhh(Text a, Text b) = hh(a, b);
 private Text rvv(Text _, []) = [];
 private default Text rvv(Text a, Text b) = vv(a,b);
     
-private Text LL(str s ) = [s]; 
-   
+private Text LL(str s) {
+    assert s != "" : "literal strings must never be empty for Box2Text to work correctly.";
+    return [s];
+}
+
 private Text HH([], Box _, Options _opts, int _m) = [];
 
 private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
@@ -292,21 +296,6 @@ private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options op
     return HVHV(T, m - hwidth(T), [next, *tail], opts, m, H([]));
 }
 
-// empty lists do not need grouping
-private Text GG([], Box(list[Box]) op, int gs, Box c, Options opts, int m)
-    = \continue(U([]), c, opts, m);
-
-// the last elements are smaller than the group size, just wrap them up and finish
-private Text GG([*Box last], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
-    = \continue(op(u(last))[hs=opts.hs][vs=opts.vs][is=opts.is], c, opts, m)
-    when size(last) < gs;
-
-// we pick the head of (size group size) and then continue with the rest
-private Text GG([*Box heads, *Box tail], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
-    = \continue(op(heads)[hs=opts.hs][vs=opts.vs][is=opts.is], NULL(), opts, m)
-    + \continue(G(tail, op=op, hs=opts.hs, vs=opts.vs, is=opts.is, gs=gs), c, opts, m)
-    when size(heads) == gs;
-
 private Text continueWith(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
 private Text continueWith(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
 private Text continueWith(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
@@ -320,9 +309,7 @@ private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) =
 private Text continueWith(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
 
 private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
-    = AA(rows, c, b.columns, opts, m);
-
-private Text continueWith(Box b:G(list[Box] bl), Box c, Options opts, int m) = GG(u(bl), b.op, b.gs, c, opts, m);
+    = AA(rows, c, b.columns, b.rs, opts, m);
 
 @synopsis{General shape of a Box operator, as a parameter to `G`}
 private alias BoxOp = Box(list[Box]);
@@ -358,11 +345,12 @@ private int Acolumns(list[Row] rows) = (0 | max(it, size(row.cells)) | row <- ro
 
 @synopsis{Compute the maximum cell width for each column in an array}
 private list[int] Awidth(list[list[Box]] rows) 
-    = [(0 | max(it, row[col].width) | row <- rows ) | int col <- [0..size(head(rows))]];
+    = [(0 | max(it, row[col].width) | row <- rows, col < size(row) ) | int col <- [0..size(head(rows))]];
 
 @synopsis{Adds empty cells to every row until every row has the same amount of columns.}
-list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
-    = [ R(u([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
+list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows), Box rs=NULL())
+    = [ R(u([*row.cells[..-1], H([row.cells[-1], rs],hs=0), *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows[..-1]]
+    + [ R(u([*rows[-1].cells, *[SPACE(1) | _ <- [0..columns - size(rows[-1].cells)]]]))] ;
 
 @synopsis{Helper function for aligning Text inside an array cell}
 private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
@@ -379,15 +367,43 @@ private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1
         align(l(), cell, maxWidth)
         : cell;
 
-private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts, int m) {
-    list[list[Box]] rows = RR(AcompleteRows(table), c, opts, m);
+private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Options opts, int m) {
+    if (table == []) {
+        return [];
+    }
+
+    // first flatten any nested U cell lists into the Rows
+    table = [R(u(r.cells)) | Row r <- table];
+
+    // then we can know the number of columns
+    int maxColumns = Acolumns(table);
+
+    // then we fill each row up to the maximum of columns
+    list[list[Box]] rows = RR(AcompleteRows(table, columns=maxColumns, rs=rs), c, opts, m);
+
+    // and we infer alignments where not provided
+    alignments = AcompleteAlignments(alignments, maxColumns);
+
+    // finally we compute alignment information
     list[int] maxWidths  = Awidth(rows);
     
-    return \continue(V([
-        H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) 
-    | row <- rows
-    ]),c, opts, m);
+    try {
+        // A row is simply an H box where each cell is filled with enough spaces to align for the next column
+        return \continue(V([ 
+            H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
+    }
+    catch IllegalArgument(_, "List size mismatch"): {
+        throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
+    }
 }
+
+@synopsis{Cuts off and extends the alignment spec to the width of the table}
+@description{
+* if too few columns are specified: `l()`'s are added accordingly
+* if too many columns are specified: they are cut off from the right
+}
+private list[Alignment] AcompleteAlignments(list[Alignment] alignments, int maxColumns) 
+    = [*alignments[..maxColumns], *[l() | _ <- [0..maxColumns - size(alignments)]]];
 
 @synopsis{Check soft limit for HV and HOV boxes}
 // TODO this seems to ignore SPACE boxes?
