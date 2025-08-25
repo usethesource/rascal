@@ -120,7 +120,7 @@ public class Artifact {
      */
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
-        Map<ArtifactCoordinate.WithoutVersion, String> resolvedVersions = new HashMap<>();
+        Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
         Set<WithoutVersion> exclusions = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
         var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
@@ -211,21 +211,18 @@ public class Artifact {
             var version = coordinate.getVersion();
             if (isVersionRange(version)) {
                 try {
-                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(),
-                        version);
-                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version,
-                        coordinate.getClassifier());
+                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                 }
                 catch (UnresolvableModelException e) {
-                    messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                    messages = messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
                     continue;
                 }
 
                 var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
                 if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                     String effectiveVersion = versions.first();
-                    messages = messages.append(Messages.warning("Multiple version ranges found for " + versionLess
-                        + " are used. "
+                    messages = messages.append(Messages.warning("Multiple version ranges found for " + versionLess + " are used. "
                         + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
                         + effectiveVersion + "]</version>", d.getPomLocation()));
                 }
@@ -268,6 +265,7 @@ public class Artifact {
             if (!d.getExclusions().isEmpty()) {
                 newExcludes = new HashSet<>(excludes);
                 newExcludes.addAll(d.getExclusions());
+                newExcludes = Collections.unmodifiableSet(newExcludes);
             }
 
             var art = parser.parseArtifact(coordinate, newExcludes, ourResolver);
