@@ -93,7 +93,7 @@ Box toBox((Import) `extend <ImportedModule m>;`)
     = H([L("extend"), H0([toBox(m), L(";")])]);
 
 Box toBox((QualifiedName) `<{Name "::"}+ names>`)
-    = H0([SL([toBox(n) | n <- names], L("::"), op=H, hs=0)]);
+    = H0([SL([toBox(n) | n <- names], L("::"), op=H([]))]);
     
 Box toBox((Visibility) ``) = NULL();
 
@@ -270,9 +270,19 @@ Box toBox((Statement) `<Label label> for(<{Expression ","}+ gs> ) <Statement blo
  Box toBox((Statement) `switch(<Expression e>) { <Case+ cases> }`)  
     = V([
         H0([L("switch"), L("("), toBox(e), H([L(")"), L("{")])]),
-        V([toBox(cases)], vs=1),
+        I([V([toBox(cases)], vs=1)]),
         L("}")
     ]);
+
+Box toBox((Case) `case <Pattern p>:  <Statement block>`)
+    = HOV([H([L("case"), H0([toBox(p), L(":")]), blockOpen(block)]), indentedBlock(block), blockClose(block)]);
+
+Box toBox((Case) `case <Pattern p> =\> <Expression repl>`)
+    = H([L("case"), toBox(p), HV([I([L("=\>"), toBox(repl)])])]);
+
+Box toBox((Case) `default: <Statement block>`)
+    = HOV([H([L("default:"), blockOpen(block)]), I([indentedBlock(block)]), blockClose(block)]);
+
 
 Box toBox((Statement) `try <Statement body> <Catch+ handlers>`)
     = V([
@@ -282,7 +292,6 @@ Box toBox((Statement) `try <Statement body> <Catch+ handlers>`)
         V([toBox(handlers)])
     ]);
 
-//  "try" Statement body Catch+ handlers "finally" Statement!variableDeclaration!functionDeclaration finallyBody 
 Box toBox((Statement) `try <Statement body> <Catch+ handlers> finally <Statement fBody>`)
     = V([
         H([L("try"), blockOpen(body)]),
@@ -314,14 +323,21 @@ Box toBox((Catch) `catch <Pattern p>: <Statement body>`)
 // Using these functions  avoids a combinatorial explosion of overloads for syntax constructs
 // with multiple blocks of statements, like if-then-else and try-catch-finally.
 Box blockOpen(Statement s) = s is nonEmptyBlock ? L("{") : NULL();
+
 Box blockClose(Statement s) = s is nonEmptyBlock ? L("}") : NULL();
+
 Box indentedBlock((Statement) `{<Statement+ st>}`)
     = I([V([toBox(st)])]);
 
 default Box indentedBlock(Statement s) = I([toBox(s)]);
 
-/* Expressions */
+/* Expressions / Patterns */
 
+Box toBox((Expression) `\< <{Expression ","}+ elems> \>`) 
+    = H0([L("\<"), HV([toBox(elems)]), L("\>")]);
+
+Box toBox((Expression) `type(<Expression sym>, <Expression grammar>)`)
+    = H0([L("type"), L("("), toBox(sym), H1([L(","), toBox(grammar)]), L(")")]);
 
 Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
     = HOV([L("("),
@@ -329,11 +345,23 @@ Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
         L(")")
     ], hs=0);
 
+Box toBox((Pattern) `\< <{Pattern ","}+ elems> \>`) 
+    = H0([L("\<"), HV([toBox(elems)]), L("\>")]);
 
-int tupleWidth(Expression _) = 1;
-int tupleWith((Expression) `\< <{Expression ","}+ elems> \>`) = size(elems.args) / 4 + 1;
+Box toBox((Pattern) `type(<Pattern sym>, <Pattern grammar>)`)
+    = H0([L("type"), L("("), toBox(sym), H1([L(","), toBox(grammar)]), L(")")]);
+
+Box toBox((Pattern) `( <{Mapping[Pattern] ","}* mappings>)`)
+    = HOV([L("("),
+        AG([toBox(m.from), L(":"), toBox(m.to) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
+        L(")")
+    ], hs=0);
+
 
 Box toBox((Expression) `{ }`)
+    = H([L("{"), L("}")]);
+
+Box toBox((Pattern) `{ }`)
     = H([L("{"), L("}")]);
 
 Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
@@ -350,7 +378,21 @@ Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
         L("}")
     ]) when !(elems[0] is \tuple); 
 
-Box toBox((Expression) `[<{Expression ","}* elems>]`)
+Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
+    = H0([
+        L("{"),
+        AG([L("\<"), SL([toBox(f) | f <- e.elements ], L(",")), L("\>")  | e <- elems], gs=3, rs=L(",")),
+        L("}")
+    ]) when elems[0] is \tuple;
+
+Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
+    = H0([
+        L("{"),
+        HV([toBox(elems)]),
+        L("}")
+    ]) when !(elems[0] is \tuple); 
+
+Box toBox((Pattern) `[<{Pattern ","}* elems>]`)
     = H0([
         L("["),
         HV([toBox(elems)]),
@@ -376,36 +418,32 @@ Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Express
         I([H([L(":"), toBox(elseExp)])])
     ]);
 
-// Pattern expression "(" {Pattern ","}* arguments KeywordArguments[Pattern] keywordArguments ")" 
-
 // call without kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
-    = H([toBox(caller), L("("), toBox(arguments), L(")")], hs=0);
+    = H0([toBox(caller), L("("), HOV([toBox(arguments)]), L(")")]);
 
 // call with kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = H([toBox(caller), L("("), toBox(arguments), H([L(","), toBox(kwargs)], hs=1), L(")")], hs=0);
+    = H0([toBox(caller), L("("), H0([HOV([toBox(arguments)]), L(",")]), HOV([toBox(kwargs)]), L(")")]);
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
+    = H0([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")]);
 
 Box toBox({KeywordArgument[&T] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","), hs=0);
 
-/* pattern version */
-
 // call without kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>)`)
-    = H([toBox(caller), L("("), toBox(arguments), L(")")], hs=0);
+    = H0([toBox(caller), L("("), HOV([toBox(arguments)]), L(")")]);
 
 // call with kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>, <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = H([toBox(caller), L("("), toBox(arguments), H([L(","), toBox(kwargs)], hs=1), L(")")], hs=0);
+    = H0([toBox(caller), L("("), H0([HOV([toBox(arguments)]), L(",")]), HOV([toBox(kwargs)]), L(")")]);
 
 // call with kwargs no-comma
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = H([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")], hs=0);
+    = H0([toBox(caller), L("("), V([toBox(arguments),toBox(kwargs)]), L(")")]);
 
 /* continue with expressions */
 
