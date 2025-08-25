@@ -104,7 +104,7 @@ public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
      dataId():              { },
      
      aliasId():             {aliasId()},
-     typeVarId():           {typeVarId()},
+     typeVarId():           { },
      annoId():              { }
     );
 
