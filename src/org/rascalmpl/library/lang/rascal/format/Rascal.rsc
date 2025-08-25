@@ -507,6 +507,49 @@ Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
     = H0([toBox(exp), L("["), L("@"), H([toBox(name), L("="), toBox(val)]), L("]")]);
 
+/* String templates */
+
+/*
+syntax StringTemplate
+	= ifThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
+	| ifThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
+	| \for       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
+	| doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
+	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
+*/
+
+Box toBox((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+    = H([H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")])]);
+
+Box toBox((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+    = H([H0([H1([L("for"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")])]);
+
+Box toBox((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>} else { <Statement* preE> <StringMiddle elseS>  <Statement* postE>}`)
+    = H([
+        H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), 
+        V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")]),
+        L("else"), L("{"),
+        V([I([toBox(preE)])]), H0([toBox(elseS)]), V([I([toBox(postE)])]), L("}")]);
+
+Box toBox((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
+    = H0([toBox(mid), toBox(e), toBox(tail)]);
+
+Box toBox((StringTail) `<MidStringChars mid><StringTemplate e><StringTail tail>`)
+    = H0([toBox(mid), toBox(e), toBox(tail)]);
+
+Box toBox((MidStringChars) `\><StringCharacter* ch>\<`)
+    = H0([L("\>"), toBox(ch), L("\<")]);
+
+Box toBox((PostStringChars) `\><StringCharacter* ch>"`)
+    = H0([L("\>"), toBox(ch),L("\"")]);
+
+Box toBox((StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`)
+    = H0([toBox(pre), toBox(template), toBox(tail)]);
+
+Box toBox((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
+    = H0([toBox(pre), toBox(template), toBox(tail)]);
+
+
 /* Types */
 
 Box toBox((FunctionType) `<Type typ>(<{TypeArg ","}* args>)`)
