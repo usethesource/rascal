@@ -372,12 +372,38 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
         return [];
     }
 
-    list[list[Box]] rows = RR(AcompleteRows(table, rs=rs), c, opts, m);
+    // first flatten any nested U cell lists into the Rows
+    table = [R(u(r.cells)) | Row r <- table];
+
+    // then we can know the number of columns
+    int maxColumns = Acolumns(table);
+
+    // then we fill each row up to the maximum of columns
+    list[list[Box]] rows = RR(AcompleteRows(table, columns=maxColumns, rs=rs), c, opts, m);
+
+    // and we infer alignments where not provided
+    alignments = AcompleteAlignments(alignments, maxColumns);
+
+    // finally we compute alignment information
     list[int] maxWidths  = Awidth(rows);
     
-    return \continue(V([ 
-        H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
+    try {
+        // A row is simply an H box where each cell is filled with enough spaces to align for the next column
+        return \continue(V([ 
+            H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
+    }
+    catch IllegalArgument(_, "List size mismatch"): {
+        throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
+    }
 }
+
+@synopsis{Cuts off and extends the alignment spec to the width of the table}
+@description{
+* if too few columns are specified: `l()`'s are added accordingly
+* if too many columns are specified: they are cut off from the right
+}
+private list[Alignment] AcompleteAlignments(list[Alignment] alignments, int maxColumns) 
+    = [*alignments[..maxColumns], *[l() | _ <- [0..maxColumns - size(alignments)]]];
 
 @synopsis{Check soft limit for HV and HOV boxes}
 // TODO this seems to ignore SPACE boxes?
