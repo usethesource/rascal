@@ -182,17 +182,17 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             ]);
 
         case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, op=H([], hs=0))], hs=1);
 
         case <regular(\iter-star-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, op=H([], hs=0))], hs=1);
           
         // with only one separator it's probably a lexical
         case <regular(\iter-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, op=H([], hs=0))], hs=0);
 
         case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, op=H([], hs=0))], hs=0);
 
         // We remove all layout node positions to make the number of children predictable
         // Comments can be recovered by `layoutDiff`. By not recursing into layout
