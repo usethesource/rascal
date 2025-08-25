@@ -89,7 +89,7 @@ Each element is wrapped by the `op` operator together with the next separator.
 The resulting list is wrapped by a G box, of which the elements will be spliced
 into their context. 
 }
-Box SL(list[Box] boxes, Box sep, Box op = H([]))
+Box SL(list[Box] boxes, Box sep, Box op = H([], hs=0))
   = G([b, sep | b <- boxes][..-1], op=op, gs=2);
 
 @synopsis{G boxes implement a group-by feature.}
