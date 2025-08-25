@@ -327,18 +327,28 @@ Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
     = HOV([L("("),
         AG([toBox(m.from), L(":"), toBox(m.to) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
         L(")")
-    ]);
+    ], hs=0);
 
 
 int tupleWidth(Expression _) = 1;
 int tupleWith((Expression) `\< <{Expression ","}+ elems> \>`) = size(elems.args) / 4 + 1;
 
-Box toBox((Expression) `{<{Expression ","}* elems>}`)
+Box toBox((Expression) `{ }`)
+    = H([L("{"), L("}")]);
+
+Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
+    = H0([
+        L("{"),
+        AG([L("\<"), SL([toBox(f) | f <- e.elements ], L(",")), L("\>")  | e <- elems], gs=3, rs=L(",")),
+        L("}")
+    ]) when elems[0] is \tuple;
+
+Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
     = H0([
         L("{"),
         HV([toBox(elems)]),
         L("}")
-    ]);
+    ]) when !(elems[0] is \tuple); 
 
 Box toBox((Expression) `[<{Expression ","}* elems>]`)
     = H0([
@@ -346,9 +356,6 @@ Box toBox((Expression) `[<{Expression ","}* elems>]`)
         HV([toBox(elems)]),
         L("]")
     ]);
-
-Box toBox((Expression) `(<{Mapping[Expression] ","}* mappings>)`)
-    = H0([L("("),HOV([toBox(mappings)]),L(")")]);
 
 Box toBox((Expression) `<Expression exp>@<Name name>`)
     = H0([toBox(exp), L("@"), toBox(name)]);
