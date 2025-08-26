@@ -156,7 +156,7 @@ public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
 
 // ----
 public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
-    LSP_REPO = |file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/|;
+    LSP_REPO = REPO + "rascal-language-servers/rascal-lsp";
     return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
                             REPO + "rascal/test/org/rascalmpl/benchmark/",
                             REPO + "rascal/src/org/rascalmpl/compiler",
@@ -283,7 +283,8 @@ public RascalCompilerConfig getDrAmbiguityCompilerConfig(bool keep = true){
 // ---- rascal-language-server ------------------------------------------------
 
 public PathConfig getLSPPathConfig(bool keep = false) {
-    return makePathConfig([ RASCAL_LSP + "src/main/rascal", RASCAL_LSP + "src/test/rascal"],
+    REPO_LSP = REPO + "rascal-language-servers/rascal-lsp/";
+    return makePathConfig([ REPO_LSP + "src/main/rascal/library", REPO_LSP + "src/test/rascal"],
                           [ RASCAL ],
                           keep=keep);
 }
