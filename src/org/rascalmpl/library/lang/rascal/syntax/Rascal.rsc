@@ -392,10 +392,10 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\" \' \< \> \\ b f n r t] 
-	| UnicodeEscape 
-	| ![\" \' \< \> \\]
-	| [\n] HorizontalSpace [\'] // margin 
+	= esc			:  "\\" [\" \' \< \> \\ b f n r t] 
+	| unicode		: UnicodeEscape 
+	| anychar		: ![\" \' \< \> \\]
+	| continuation	: [\n] HorizontalSpace [\'] // margin 
 	;
 
 layout HorizontalSpace
