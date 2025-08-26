@@ -265,8 +265,8 @@ public class Artifact {
             if (!d.getExclusions().isEmpty()) {
                 newExcludes = new HashSet<>(excludes);
                 newExcludes.addAll(d.getExclusions());
-                newExcludes = Collections.unmodifiableSet(newExcludes);
             }
+            newExcludes = Collections.unmodifiableSet(newExcludes);
 
             var art = parser.parseArtifact(coordinate, newExcludes, ourResolver);
             if (art != null) {
