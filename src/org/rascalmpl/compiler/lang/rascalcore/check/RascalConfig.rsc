@@ -71,59 +71,59 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         }
     }
 
-    oldResult = rascalMayOverloadOld(defs, defines);
-    if(result != oldResult){
-        println("rascalMayOverload, new: <result>, old: <oldResult>, for <roles>");
-        for(def <- defs){
-            println(defines[def]);
-        }
-        throw "rascalMayOverload";
-    }
+    // oldResult = rascalMayOverloadOld(defs, defines);
+    // if(result != oldResult){
+    //     println("rascalMayOverload, new: <result>, old: <oldResult>, for <roles>");
+    //     for(def <- defs){
+    //         println(defines[def]);
+    //     }
+    //     throw "rascalMayOverload";
+    // }
     return result;
 }
 
-// Define the name overloading that is allowed
-bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
-    bool seenVAR = false;
-    bool seenNT  = false;
-    bool seenLEX = false;
-    bool seenLAY = false;
-    bool seenKEY = false;
-    bool seenALIAS = false;
-    bool seenFUNCTION = false;
+// // Define the name overloading that is allowed
+// bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
+//     bool seenVAR = false;
+//     bool seenNT  = false;
+//     bool seenLEX = false;
+//     bool seenLAY = false;
+//     bool seenKEY = false;
+//     bool seenALIAS = false;
+//     bool seenFUNCTION = false;
 
-    for(def <- defs){
-        // Forbid:
-        // - overloading of variables/formals/pattern variables
-        // - overloading of incompatible syntax definitions
-        // - alias and most other names
-        switch(defines[def].idRole){
-        case functionId():
-            { if(seenVAR || seenALIAS) return false; seenFUNCTION = true; }
-        case variableId():
-            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
-        case moduleVariableId():
-            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
-        case formalId():
-            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
-        case keywordFormalId():
-            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
-        case patternVariableId():
-            { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
-        case nonterminalId():
-            { if(seenLEX || seenLAY || seenKEY || seenALIAS){  return false; } seenNT = true; }
-        case lexicalId():
-            { if(seenNT || seenLAY || seenKEY || seenALIAS) {  return false; } seenLEX= true; }
-        case layoutId():
-            { if(seenNT || seenLEX || seenKEY || seenALIAS) {  return false; } seenLAY = true; }
-        case keywordId():
-            { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
-        case aliasId():
-            { if(seenALIAS ||  seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
-        }
-    }
-    return true;
-}
+//     for(def <- defs){
+//         // Forbid:
+//         // - overloading of variables/formals/pattern variables
+//         // - overloading of incompatible syntax definitions
+//         // - alias and most other names
+//         switch(defines[def].idRole){
+//         case functionId():
+//             { if(seenVAR || seenALIAS) return false; seenFUNCTION = true; }
+//         case variableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case moduleVariableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case formalId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case keywordFormalId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case patternVariableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case nonterminalId():
+//             { if(seenLEX || seenLAY || seenKEY || seenALIAS){  return false; } seenNT = true; }
+//         case lexicalId():
+//             { if(seenNT || seenLAY || seenKEY || seenALIAS) {  return false; } seenLEX= true; }
+//         case layoutId():
+//             { if(seenNT || seenLEX || seenKEY || seenALIAS) {  return false; } seenLAY = true; }
+//         case keywordId():
+//             { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
+//         case aliasId():
+//             { if(seenALIAS ||  seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
+//         }
+//     }
+//     return true;
+// }
 
 
 // Name resolution filters
