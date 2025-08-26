@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 
+    To test with maven:
+    - Uncomment the "repositories" section    
+    - Run: "mvn -DREPO="<path-to-m2-test-repo>" -f pom-breadth-first.xml dependency:tree"
+    - For instance: "mvn -DREPO="file:/D:/rascal/rascal/target/test-classes/org/rascalmpl/util/maven/m2/repository" -f pom-breadth-first.xml dependency:tree"
+     -->
+    <groupId>breadth-first</groupId>
+    <artifactId>root</artifactId>
+    <version>1.0</version>
+    
+    <!-- Uncomment this section to test with maven inteself
+    <repositories>
+      <repository>
+        <id>test</id>
+        <url>${REPO}</url>
+      </repository>
+    </repositories>
+    -->
+
+    <dependencies>
+        <dependency>
+            <groupId>breadth-first</groupId>
+            <artifactId>level1a</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>breadth-first</groupId>
+            <artifactId>level1b</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+</project>
