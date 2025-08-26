@@ -130,7 +130,27 @@ public class LocalRepoTest extends AbstractMavenTest {
         Assert.assertTrue(resolvedDependencies.stream().anyMatch(artifact -> artifact.getCoordinate().getArtifactId().equals("level3")));
     }
 
-    @Ignore
+    /**
+     * This test checks if version numbers are resolved "breadth-first".
+     * - pom-breadth-first.xml has:
+     *     - breadth-first:level1a:1.0 as a dependency
+     *     - breadth-first:level1b:1.0 as a dependency
+     * - breadth-first:level1a:1.0 has breadh-first:level2:1.0 as a dependency
+     * - breadth-first:level2:1.0 has breadh-first:level3:1.0 as a dependency
+     * - breadth-first:level1b:1.0 has breadh-first:level3:2.0 as a dependency
+     * 
+     * When resolving breadth-first, breadth-first:level3 should be resolved to version 2.0.
+     */
+    @Test
+    public void testBreadthFirstResolving() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-breadth-first.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        var level3 = resolvedDependencies.get(3);
+        Assert.assertEquals("2.0", level3.getCoordinate().getVersion());
+    }
+
+    //@Ignore
     @Test
     /**
      * This is a stress test that checks all POMs in your local maven repository.
