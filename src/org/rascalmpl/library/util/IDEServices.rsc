@@ -62,8 +62,8 @@ For any action instance, the IDE will:
 * if the title is selected, then the (optional) edits will be executed first
 * and then the (optional) command is executed via the `execution` service of the language service protocol.
 }
-data CodeAction
-    = action(list[FileSystemChange] edits = [], Command command = noop(), str title = command.title);
+data CodeAction(list[FileSystemChange] edits = [], Command command = noop(), str title = command.title)
+    = action();
 
 @synopsis{Commands are an open data-type for describing interactive functions that may be attached to CodeActions.}
 @description{
