@@ -549,6 +549,9 @@ Box toBox((StringLiteral) `<PreStringChars pre><StringTemplate template><StringT
 Box toBox((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
     = H0([toBox(pre), toBox(template), toBox(tail)]);
 
+// TODO: here we should split the list into lines based on the \n and \' character for continuations.
+// Box toBox((PreStringChars) `"<StringCharacter* sc> \<`)
+//     = V0([H0([s | s <- takeWhile([ch | ch <- sc], bool (StringCharacter ca) { return /^\n/ !:= "<c1>";  })])]);
 
 /* Types */
 
