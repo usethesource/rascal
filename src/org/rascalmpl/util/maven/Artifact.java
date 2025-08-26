@@ -33,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -119,12 +121,10 @@ public class Artifact {
      * @return
      */
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
-        Set<ResolveKey> alreadyResolved = new HashSet<>();
-        Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
-        Set<WithoutVersion> exclusions = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
-        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
-        calculateClassPath(forScope, alreadyResolved, resolvedVersions, rangedDeps, exclusions, result, parser);
+        Queue<ResolveState> resolveQueue = new LinkedList<>();
+        resolveQueue.add(new ResolveState(this, Collections.emptySet()));
+        calculateClassPath(forScope, resolveQueue, result, parser);
         return result;
     }
 
@@ -181,15 +181,11 @@ public class Artifact {
      */
     static private class ResolveState {
         private final Artifact artifact;
-        private final Set<WithoutVersion> excludes;
+        private final Set<WithoutVersion> exclusions;
 
         public ResolveState(Artifact artifact, Set<WithoutVersion> excludes) {
             this.artifact = artifact;
-            this.excludes = excludes;
-        }
-
-        public void calculateClassPath(Scope forScope, Set<ResolveKey> alreadyIncluded, Map<WithoutVersion, String> resolvedVersions, Map<WithoutVersion, SortedSet<String>> rangedDeps, ArrayList<Artifact> result, MavenParser parser) {
-            artifact.calculateClassPath(forScope, alreadyIncluded, resolvedVersions, rangedDeps, excludes, result, parser);
+            this.exclusions = excludes;
         }
     }
 
@@ -197,93 +193,96 @@ public class Artifact {
      * We will use the first version we encounter (breadth-first) and cache it.
      * Note that caching is done modulo transitive exclusions.
      * For ranged versions we just use the first suitable version for the first range we encounter.
+     *
+     * This method is intentionaly static so we can be sure we do not use instance variables by mistake.
      */
-    private void calculateClassPath(Scope forScope, Set<ResolveKey> alreadySolved, Map<WithoutVersion, String> resolvedVersions, Map<WithoutVersion, SortedSet<String>> rangedDeps,
-        Set<WithoutVersion> excludes, ArrayList<Artifact> result, MavenParser parser) {
-        var nextLevel = new ArrayList<ResolveState>(dependencies.size());
-        for (var d : dependencies) {
-            var coordinate = d.getCoordinate();
+    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
+        Set<ResolveKey> alreadyResolved = new HashSet<>();
+        Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
+        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
 
-            boolean alreadyResolved;
+        while (!resolveQueue.isEmpty()) {
+            var state = resolveQueue.poll();
+            var artifact = state.artifact;
+            for (var d : artifact.dependencies) {
+                var coordinate = d.getCoordinate();
 
-            var versionLess = coordinate.versionLess();
+                var versionLess = coordinate.versionLess();
 
-            var version = coordinate.getVersion();
-            if (isVersionRange(version)) {
-                try {
-                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
-                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
+                var version = coordinate.getVersion();
+                if (isVersionRange(version)) {
+                    try {
+                        version = artifact.ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
+                        coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
+                    }
+                    catch (UnresolvableModelException e) {
+                        artifact.messages = artifact.messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                        continue;
+                    }
+
+                    var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
+                    if (versions.add(version) && versions.size() == 2) { // Only add a warning once
+                        String effectiveVersion = versions.first();
+                        artifact.messages = artifact.messages.append(Messages.warning("Multiple version ranges found for " + versionLess + " are used. "
+                            + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
+                            + effectiveVersion + "]</version>", d.getPomLocation()));
+                    }
                 }
-                catch (UnresolvableModelException e) {
-                    messages = messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+
+                String resolvedVersion = resolvedVersions.get(versionLess);
+
+                boolean resolved;
+                if (resolvedVersion != null) {
+                    resolved = true;
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
+                } else {
+                    resolved = false;
+                    resolvedVersions.put(versionLess, version);
+                }
+
+                var key = new ResolveKey(coordinate, state.exclusions);
+                if (alreadyResolved.contains(key) || !d.shouldInclude(forScope)) {
+                    continue;
+                }
+                alreadyResolved.add(key);
+
+                if (d.getScope() == Scope.PROVIDED) {
+                    // current maven behavior seems to be:
+                    // - do not download provided dependencies
+                    // - if a provided dependency is present in the maven repository it's considered "provided"
+                    var pomDep = artifact.ourResolver.calculatePomPath(d.getCoordinate());
+                    if (!Files.notExists(pomDep)) {
+                        // ok, doesn't exist yet. so don't download it to calculate dependencies
+                        // and don't add it to the list since somewhere else somebody might depend on it
+                        continue;
+                    }
+                }
+                if (d.getScope() == Scope.SYSTEM) {
+                    if (!resolved) {
+                        result.add(createSystemArtifact(d));
+                    }
                     continue;
                 }
 
-                var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
-                if (versions.add(version) && versions.size() == 2) { // Only add a warning once
-                    String effectiveVersion = versions.first();
-                    messages = messages.append(Messages.warning("Multiple version ranges found for " + versionLess + " are used. "
-                        + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
-                        + effectiveVersion + "]</version>", d.getPomLocation()));
+                Set<WithoutVersion> newExclusions = state.exclusions;
+                if (!d.getExclusions().isEmpty()) {
+                    newExclusions = new HashSet<>(state.exclusions);
+                    newExclusions.addAll(d.getExclusions());
+                }
+                newExclusions = Collections.unmodifiableSet(newExclusions);
+
+                var art = parser.parseArtifact(coordinate, newExclusions, artifact.ourResolver);
+                if (art != null) {
+                    if (!resolved) {
+                        result.add(art);
+                    }
+                    resolveQueue.add(new ResolveState(art, newExclusions));
                 }
             }
-
-            String resolvedVersion = resolvedVersions.get(versionLess);
-            if (resolvedVersion != null) {
-                alreadyResolved = true;
-                coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
-            } else {
-                alreadyResolved = false;
-                resolvedVersions.put(versionLess, version);
+            if (forScope == Scope.TEST) {
+                // only do test scope for top level, switch to compile after that
+                forScope = Scope.COMPILE;
             }
-
-            var key = new ResolveKey(coordinate, excludes);
-            if (alreadySolved.contains(key) || !d.shouldInclude(forScope)) {
-                continue;
-            }
-            alreadySolved.add(key);
-
-            if (d.getScope() == Scope.PROVIDED) {
-                // current maven behavior seems to be:
-                // - do not download provided dependencies
-                // - if a provided dependency is present in the maven repository it's considered "provided"
-                var pomDep = ourResolver.calculatePomPath(d.getCoordinate());
-                if (!Files.notExists(pomDep)) {
-                    // ok, doesn't exist yet. so don't download it to calculate dependencies
-                    // and don't add it to the list since somewhere else somebody might depend on it
-                    continue;
-                }
-            }
-            if (d.getScope() == Scope.SYSTEM) {
-                if (!alreadyResolved) {
-                    result.add(createSystemArtifact(d));
-                }
-                continue;
-            }
-
-            Set<WithoutVersion> newExcludes = excludes;
-            if (!d.getExclusions().isEmpty()) {
-                newExcludes = new HashSet<>(excludes);
-                newExcludes.addAll(d.getExclusions());
-            }
-            newExcludes = Collections.unmodifiableSet(newExcludes);
-
-            var art = parser.parseArtifact(coordinate, newExcludes, ourResolver);
-            if (art != null) {
-                if (!alreadyResolved) {
-                    result.add(art);
-                }
-                nextLevel.add(new ResolveState(art, newExcludes));
-            }
-        }
-        if (forScope == Scope.TEST) {
-            // only do test scope for top level, switch to compile after that
-            forScope = Scope.COMPILE;
-        }
-        // now we go through the new artifacts and make sure we add their dependencies if needed
-        // but now in their context (their resolver etc)
-        for (var state: nextLevel) {
-            state.calculateClassPath(forScope, alreadySolved, resolvedVersions, rangedDeps, result, parser);
         }
     }
 
