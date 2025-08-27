@@ -231,12 +231,10 @@ public class Artifact {
 
                 String resolvedVersion = resolvedVersions.get(versionLess);
 
-                boolean resolved;
-                if (resolvedVersion != null) {
-                    resolved = true;
+                boolean resolved = resolvedVersion != null;
+                if (resolved) {
                     coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
                 } else {
-                    resolved = false;
                     resolvedVersions.put(versionLess, version);
                 }
 
@@ -266,8 +264,12 @@ public class Artifact {
 
                 Set<WithoutVersion> newExclusions = state.exclusions;
                 if (!d.getExclusions().isEmpty()) {
-                    newExclusions = new HashSet<>(state.exclusions);
-                    newExclusions.addAll(d.getExclusions());
+                    if (state.exclusions.isEmpty()) {
+                        newExclusions = d.getExclusions();
+                    } else {
+                        newExclusions = new HashSet<>(newExclusions);
+                        newExclusions.addAll(d.getExclusions());
+                    }
                 }
                 newExclusions = Collections.unmodifiableSet(newExclusions);
 
