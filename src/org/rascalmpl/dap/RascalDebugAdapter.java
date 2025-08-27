@@ -88,7 +88,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         this.services = services;
         this.ownExecutor = threadPool;
 
-        this.suspendedState = new SuspendedState(evaluator);
+        this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
