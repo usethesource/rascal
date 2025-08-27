@@ -62,6 +62,8 @@ str formatRascalString(str \module)
 }
 list[TextEdit] formatRascalModule(start[Module] \module) {
     try {
+        iprintln(toBox(\module));
+        println(format(toBox(\module)));
         return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
     }
     catch e:ParseError(loc place): { 
@@ -509,49 +511,105 @@ Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
 
 /* String templates */
 
+// String literals and string templates
+
+@synopsis{A temporary box to indicate a string literal must be split to the next line.}
+data Box = CONTINUE();
+
+@synopsis{String literals require complex re-structuring to flatten complex structures into a list of lines.}
+Box toBox(StringLiteral l) {
+    list[list[Box]] group([]) = [];
+    list[list[Box]] group([Box b]) = [[b]];
+    list[list[Box]] group([*Box pre, CONTINUE(), *Box post]) = [[*pre], *group(post)];
+    default list[list[Box]] group(list[Box] line) = [line];
+
+    lines = group(flatString(l));
+    
+   
+        return V([
+            H0(lines[0]),
+            *[H0([L("\'"), *line]) | line <- lines[1..]]]);
+   
+}
+
+list[Box] flatString((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
+    = [*flatString(mid), toBox(e), *flatString(tail)];
+
+list[Box] flatString((StringTail) `<MidStringChars mid><StringTemplate e><StringTail tail>`)
+    = [*flatString(mid), *flatString(e), *flatString(tail)];
+
+list[Box] flatString((StringTail) `<PostStringChars ch>`) = flatString(ch);
+
+list[Box] flatString((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
+    = [*flatString(pre), toBox(template), *flatString(tail)];
+
+list[Box] flatString((StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`) 
+    = [*flatString(pre), *flatString(template), *flatString(tail)];
+
+list[Box] flatString((StringLiteral) `"<StringCharacter* sc>"`) 
+    = [L("\""),  *[*flatString(s) | s <-sc], L("\"")];
+
+list[Box] flatString((StringConstant) `"<StringCharacter* sc>"`)
+    = [L("\""), *[*flatString(s) | s <-sc], L("\"")];
+
+list[Box] flatString((MidStringChars) `\><StringCharacter* sc>\<`)
+    = [L("\>"), *[*flatString(s) | s <-sc], L("\<")];
+
+list[Box] flatString((PostStringChars) `\><StringCharacter* sc>"`)
+    = [L("\>"), *[*flatString(s) | s <-sc], L("\"")];
+
+list[Box] flatString((PreStringChars) `"<StringCharacter* sc>\<`)
+    = [L("\""), *[*flatString(s) | s <-sc], L("\<")];
+
+list[Box] flatString(StringCharacter s) = [CONTINUE()] when s is continuation;
+
 /*
-syntax StringTemplate
-	= ifThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| ifThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	| \for       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
-*/
+ mid: MidStringChars mid 
+	| template: MidStringChars mid StringTemplate template StringMiddle tail 
+	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
+    */
 
-Box toBox((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
-    = H([H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")])]);
+list[Box] flatString((StringMiddle) `<MidStringChars mid>`) = flatString(mid);
 
-Box toBox((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
-    = H([H0([H1([L("for"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")])]);
+list[Box] flatString((StringMiddle) `<MidStringChars mid><StringTemplate template><StringMiddle tail>`) 
+    = [*flatString(mid), *flatString(template), *flatString(tail)];
 
-Box toBox((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>} else { <Statement* preE> <StringMiddle elseS>  <Statement* postE>}`)
-    = H([
-        H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), 
-        V([I([toBox(pre)])]), H0([toBox(body)]), V([I([toBox(post)])]), L("}")]),
-        L("else"), L("{"),
-        V([I([toBox(preE)])]), H0([toBox(elseS)]), V([I([toBox(postE)])]), L("}")]);
+list[Box] flatString((StringMiddle) `<MidStringChars mid><Expression e><StringMiddle tail>`) 
+    = [*flatString(mid), toBox(e), *flatString(tail)];
 
-Box toBox((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
-    = H0([toBox(mid), toBox(e), toBox(tail)]);
 
-Box toBox((StringTail) `<MidStringChars mid><StringTemplate e><StringTail tail>`)
-    = H0([toBox(mid), toBox(e), toBox(tail)]);
+default list[Box] flatString(StringCharacter c) = [L("<c>")];
 
-Box toBox((MidStringChars) `\><StringCharacter* ch>\<`)
-    = H0([L("\>"), toBox(ch), L("\<")]);
+// even in templates we keep making sure continuations can float to the top
+list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+    = [
+        H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])])]), 
+        *flatString(body),
+        V([I([toBox(post)])]),
+        L("}")
+    ];
 
-Box toBox((PostStringChars) `\><StringCharacter* ch>"`)
-    = H0([L("\>"), toBox(ch),L("\"")]);
+list[Box] flatString((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+    = [
+        H0([H1([L("for"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])])]), 
+        *flatString(body),
+        V([I([toBox(post)])]),
+        L("}")
+    ];
 
-Box toBox((StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`)
-    = H0([toBox(pre), toBox(template), toBox(tail)]);
-
-Box toBox((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
-    = H0([toBox(pre), toBox(template), toBox(tail)]);
-
-// TODO: here we should split the list into lines based on the \n and \' character for continuations.
-// Box toBox((PreStringChars) `"<StringCharacter* sc> \<`)
-//     = V0([H0([s | s <- takeWhile([ch | ch <- sc], bool (StringCharacter ca) { return /^\n/ !:= "<c1>";  })])]);
+list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>} else { <Statement* preE> <StringMiddle elseS>  <Statement* postE>}`)
+    = [
+        H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")])]), 
+        V([I([toBox(pre)])]), 
+        *flatString(body), 
+        V([I([toBox(post)])]), 
+        L("}"),
+        H1([L("else"), L("{")]),
+        V([I([toBox(preE)])]), 
+        *flatString(elseS), 
+        V([I([toBox(postE)])]), 
+        L("}")
+    ];
 
 /* Types */
 
