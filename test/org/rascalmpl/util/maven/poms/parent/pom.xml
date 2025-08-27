@@ -21,13 +21,13 @@
   </repositories>
 
   <groupId>parent</groupId>
-  <artifactId>test</artifactId>
+  <artifactId>main</artifactId>
   <version>1.0</version>
 
   <dependencies>
       <dependency>
         <groupId>parent</groupId>
-        <artifactId>rascal</artifactId>
+        <artifactId>test</artifactId>
 	      <version>1.0</version>
       </dependency>
   </dependencies>
