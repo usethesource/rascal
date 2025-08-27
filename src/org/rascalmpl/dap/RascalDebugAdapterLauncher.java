@@ -26,22 +26,19 @@
  */
 package org.rascalmpl.dap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.rascalmpl.debug.DebugHandler;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 
-import java.io.*;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-
 public class RascalDebugAdapterLauncher {
-    private static final Logger logger = LogManager.getLogger(RascalDebugAdapterLauncher.class);
-
-    public static IDebugProtocolClient start(Evaluator evaluator, Socket clientSocket, DebugSocketServer socketServer, ExecutorService threadPool) {
+    public static IDebugProtocolClient start(Evaluator evaluator, Socket clientSocket, DebugSocketServer socketServer, IDEServices services, ExecutorService threadPool) {
         try {
             final DebugHandler debugHandler = new DebugHandler();
             debugHandler.setTerminateAction(() -> {
@@ -58,13 +55,13 @@ public class RascalDebugAdapterLauncher {
             });
             evaluator.addSuspendTriggerListener(debugHandler);
 
-            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator, threadPool);
+            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator, services, threadPool);
             Launcher<IDebugProtocolClient> launcher = DSPLauncher.createServerLauncher(server, clientSocket.getInputStream(), clientSocket.getOutputStream());
             server.connect(launcher.getRemoteProxy());
             launcher.startListening();
             return launcher.getRemoteProxy();
         } catch (IOException e) {
-            logger.fatal("Error opening communication to DAP", e);
+            services.warning("Error opening communication to DAP", RascalDebugAdapter.DEBUGGER_LOC);
             throw new RuntimeException("Error opening connection to DAP", e);
         }
     }
