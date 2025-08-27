@@ -261,3 +261,24 @@ test bool testBase32AllChars1() = testBase32("`1234567890-=~!@#$%^&*");
 test bool testBase32AllChars2() = testBase32("()_+qwertyuiop[]\\QWERTYUIOP");
 test bool testBase32AllChars3() = testBase32("{}|asdfghjkl;\'ASDFGHJKL:\"");
 test bool testBase32AllChars4() = testBase32("zxcvbnm,./ZXCVBNM\<\>? ");
+
+// mostUsedNewLline
+test bool mostUsedNewlineTestMixed() = mostUsedNewline("\r\n\n\r\n\t\t\t\t") == "\r\n";
+test bool mostUsedNewlineTestTie() = mostUsedNewline("\n\n\r\n\r\n") == "\n";
+test bool mostUsedNewlineTestGreedy() = mostUsedNewline("\r\n\r\n\n") == "\r\n";
+
+// insertFinalNewline
+test bool insertFinalNewlineTestSimple() = insertFinalNewline("a\nb") == "a\nb\n";
+test bool insertFinalNewlineTestNoop() = insertFinalNewline("a\nb\n") == "a\nb\n";
+test bool insertFinalNewlineTestMixed() = insertFinalNewline("a\nb\r\n") == "a\nb\r\n";
+
+// trimFinalNewlines
+test bool trimFinalNewlineTestSimple() = trimFinalNewlines("a\n\n\n") == "a";
+test bool trimFinalNewlineTestEndOnly() = trimFinalNewlines("a\n\n\nb\n\n") == "a\n\n\nb";
+test bool trimFinalNewlineTestWhiteSpace() = trimFinalNewlines("a\n\n\nb\n\n ") == "a\n\n\nb\n\n ";
+
+// trimTrailingWhitespace
+test bool trimTrailingWhitespaceTest() = trimTrailingWhitespace("a  \nb\t\n  c  \n") == "a\nb\n  c\n";
+
+// perLine
+test bool perLineTest() = perLine("a\nb\r\nc\n\r\n", str(str line) { return line + "x"; }) == "ax\nbx\r\ncx\nx\r\nx";
