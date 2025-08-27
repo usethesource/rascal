@@ -14,7 +14,7 @@
     <artifactId>root</artifactId>
     <version>1.0</version>
     
-    <!-- Uncomment this section to test with maven inteself
+    <!-- Uncomment this section to test with maven itself instead of unit test in LocalRepoTest
     <repositories>
       <repository>
         <id>test</id>
