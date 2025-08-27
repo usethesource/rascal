@@ -76,7 +76,7 @@ list[TextEdit] formatRascalModule(start[Module] \module) {
 
 /* Modules */
 
-Box toBox(Toplevel* toplevels) = V([toBox(t) | t <- toplevels], vs=2);
+Box toBox(Toplevel* toplevels) = V([toBox(t) | t <- toplevels], vs=1);
 
 Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <Body body>`)
     = V([
@@ -101,6 +101,15 @@ Box toBox((Visibility) ``) = NULL();
 
 /* Declarations */
 
+
+Box toBox((Declaration) `<Tags t> <Visibility v> alias  <UserType user> = <Type base>;`)
+    = V([
+        toBox(t),
+        H([
+            toBox(v), L("alias"), toBox(user), L("="), H0([toBox(base), L(";")])
+        ])
+    ]);
+
 Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType t> <CommonKeywordParameters ps>;`)
     = V([
         toBox(t),
@@ -119,6 +128,9 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
             ])])
         ]), L(";")], hs=0)
     ]);
+
+Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
+    = H0([L("("), HOV([toBox(fs)]), L(")")]);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
     = H0([
@@ -144,7 +156,7 @@ Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
                     '<{KeywordFormal ","}+ kws>)`)
     = H0([
         H0([toBox(n), L("(")]),
-        H0([toBox(args), L(",")]),
+        H0([toBox(args)]),
         HOV([toBox(kws)]),
         L(")")
     ]);
@@ -335,6 +347,12 @@ default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 /* Expressions / Patterns */
 
+Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>..<OptionalExpression optLast>]`)
+    = H0([toBox(e), L("["),toBox(optFirst), L(".."), toBox(optLast), L("]")]);
+
+Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>, <Expression second>..<OptionalExpression optLast>]`)
+    = H0([toBox(e), L("["),toBox(optFirst), H1([L(","), toBox(second)]), L(".."), toBox(optLast), L("]")]);
+
 Box toBox((Expression) `\< <{Expression ","}+ elems> \>`) 
     = H0([L("\<"), HV([toBox(elems)]), L("\>")]);
 
@@ -449,6 +467,13 @@ Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgume
 
 /* continue with expressions */
 
+Box toBox((Expression) `[<{Expression ","}* elements>]`)
+    = HOV([
+        L("["),
+        I([HV([toBox(elements)])]),
+        L("]")
+    ], hs=0);
+
 Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
     = H0([toBox(cont), L("["), HV([toBox(subscripts)]), L("]")]);
 
@@ -509,9 +534,7 @@ Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
     = H0([toBox(exp), L("["), L("@"), H([toBox(name), L("="), toBox(val)]), L("]")]);
 
-/* String templates */
-
-// String literals and string templates
+/* String templates and string literals */
 
 @synopsis{A temporary box to indicate a string literal must be split to the next line.}
 data Box = CONTINUE();
@@ -523,13 +546,14 @@ Box toBox(StringLiteral l) {
     list[list[Box]] group([*Box pre, CONTINUE(), *Box post]) = [[*pre], *group(post)];
     default list[list[Box]] group(list[Box] line) = [line];
 
+    // we collect a flat list of boxes, with intermittents CONTINUE() boxes at the top-level,
+    // and then we split the list by the CONTINUE boxes
     lines = group(flatString(l));
-    
    
-        return V([
-            H0(lines[0]),
-            *[H0([L("\'"), *line]) | line <- lines[1..]]]);
-   
+    // every vertically positioned line, except the first one, starts with the continuation character
+    return V([
+        H0(lines[0]),
+        *[H0([L("\'"), *line]) | line <- lines[1..]]]);
 }
 
 list[Box] flatString((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
@@ -563,12 +587,6 @@ list[Box] flatString((PreStringChars) `"<StringCharacter* sc>\<`)
 
 list[Box] flatString(StringCharacter s) = [CONTINUE()] when s is continuation;
 
-/*
- mid: MidStringChars mid 
-	| template: MidStringChars mid StringTemplate template StringMiddle tail 
-	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
-    */
-
 list[Box] flatString((StringMiddle) `<MidStringChars mid>`) = flatString(mid);
 
 list[Box] flatString((StringMiddle) `<MidStringChars mid><StringTemplate template><StringMiddle tail>`) 
@@ -580,7 +598,9 @@ list[Box] flatString((StringMiddle) `<MidStringChars mid><Expression e><StringMi
 
 default list[Box] flatString(StringCharacter c) = [L("<c>")];
 
-// even in templates we keep making sure continuations can float to the top
+// Even in templates we keep making sure continuations signs can float to the top list
+// We also keep the conditional structures as horizontal as possible, "in line" with the way string templates are interpreted
+// We never change whitespace inside of the string literals!
 list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
         H0([H1([L("if"), L("(")]), HV([toBox(conds)]), H1([L(")"), L("{")]), V([I([toBox(pre)])])]), 
