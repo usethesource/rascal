@@ -26,14 +26,13 @@
  */
 package org.rascalmpl.dap.variable;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.io.StandardTextWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-
 import java.io.IOException;
 import java.io.Writer;
+
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalVariableUtils {
 
@@ -51,8 +50,7 @@ public class RascalVariableUtils {
         } catch (LimitedResultWriter.IOLimitReachedException e) {
             return w.toString();
         } catch (IOException e) {
-            final Logger logger = LogManager.getLogger(RascalVariableUtils.class);
-            logger.error(e.getMessage(), e);
+            System.err.println(e.getMessage());
             return "error during serialization...";
         }
     }

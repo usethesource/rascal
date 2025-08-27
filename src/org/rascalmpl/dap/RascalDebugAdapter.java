@@ -37,8 +37,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.Thread;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
@@ -48,6 +46,7 @@ import org.rascalmpl.dap.variable.RascalVariable;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIUtil;
@@ -75,19 +74,21 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final DebugHandler debugHandler;
     private final Evaluator evaluator;
     private final SuspendedState suspendedState;
-    private final Logger logger;
     private final BreakpointsCollection breakpointsCollection;
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
+    private final IDEServices services;
     private final ExecutorService ownExecutor;
 
+    public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
-    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, ExecutorService threadPool) {
+
+    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool) {
         this.debugHandler = debugHandler;
         this.evaluator = evaluator;
+        this.services = services;
         this.ownExecutor = threadPool;
 
         this.suspendedState = new SuspendedState(evaluator);
-        this.logger = LogManager.getLogger(RascalDebugAdapter.class);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
@@ -158,7 +159,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             try {
                 return URIUtil.createFileLocation(path);
             } catch (URISyntaxException e) {
-                logger.error(e.getMessage(), e);
+                services.warning(e.getMessage(), DEBUGGER_LOC);
                 return null;
             }
         } else {
@@ -171,7 +172,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 }
                 return URIUtil.createFromURI(finalUri);
             } catch (URISyntaxException e) {
-                logger.error(e.getMessage(), e);
+                services.warning(e.getMessage(), DEBUGGER_LOC);
                 return null;
             }
         }
