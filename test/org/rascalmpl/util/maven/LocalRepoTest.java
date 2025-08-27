@@ -150,7 +150,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         Assert.assertEquals("2.0", level3.getCoordinate().getVersion());
     }
 
-    //@Ignore
+    @Ignore
     @Test
     /**
      * This is a stress test that checks all POMs in your local maven repository.
