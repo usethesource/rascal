@@ -271,7 +271,7 @@ public class Artifact {
                         newExclusions.addAll(d.getExclusions());
                     }
                 }
-                newExclusions = Collections.unmodifiableSet(newExclusions);
+                newExclusions = Set.copyOf(newExclusions); // Turn the set into an immutable set (if it is not already)
 
                 var art = parser.parseArtifact(coordinate, newExclusions, artifact.ourResolver);
                 if (art != null) {
