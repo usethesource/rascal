@@ -85,7 +85,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
 
         // just parent:rascal:1.0 and org.rascalmpl:rascal:1.0
-        Assert.assertEquals(resolvedDependencies.size(), 2);
+        Assert.assertEquals(2, resolvedDependencies.size());
 
         for (Artifact artifact : resolvedDependencies) {
             System.err.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
