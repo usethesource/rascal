@@ -4,7 +4,7 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>parent</groupId>
-  <artifactId>rascal</artifactId>
+  <artifactId>test</artifactId>
   <version>1.0</version>
 
   <!-- We do not specify the repo on purpose to check it is inherited by our parent SimpleResolver -->
