@@ -36,6 +36,7 @@ extend lang::rascalcore::agrammar::definition::Characters;
 
 import Node;
 import Set;
+import List;
 
 // ---- asubtype --------------------------------------------------------------
 
@@ -192,6 +193,8 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
         case avalue():
             return true;
+        case p:aparameter(_, AType bnd, closed=true):
+            return asubtype(adt, bnd);
     }
     fail;
 }
@@ -590,7 +593,10 @@ AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType
                                                 = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
                                                   when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
 
-AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
+AType alub(aadt(str n, list[AType] lp, SyntaxRole lr), aadt(str m, list[AType] rp,SyntaxRole rr))
+    = n != m && (n == "Tree" && rr != dataSyntax() || m == "Tree" && lr != dataSyntax()) 
+      ? aadt("Tree", [], dataSyntax()) 
+      : anode([]);
 //AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
