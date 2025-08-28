@@ -282,4 +282,18 @@ test bool trimFinalNewlineTestWhiteSpace() = trimFinalNewlines("a\n\n\nb\n\n ") 
 test bool trimTrailingWhitespaceTest() = trimTrailingWhitespace("a  \nb\t\n  c  \n") == "a\nb\n  c\n";
 
 // perLine
-test bool perLineTest() = perLine("a\nb\r\nc\n\r\n", str(str line) { return line + "x"; }) == "ax\nbx\r\ncx\nx\r\nx";
+test bool perLineTest() = perLine("a\nb\r\nc\n\r\n", str(str line) { return line + "x"; }) == "ax\nbx\r\ncx\nx\r\n";
+
+// separateLines
+test bool separateLinesTestSimple() = separateLines("a\nb\r\nc\n\r\n") == [<"a", "\n">, <"b", "\r\n">, <"c", "\n">, <"", "\r\n">];
+test bool separateLinesTestSimpleWithLast() = separateLines("a\nb\r\nc\n\r\n", includeEmptyLastLine=true) == [<"a", "\n">, <"b", "\r\n">, <"c", "\n">, <"", "\r\n">, <"", "">];
+test bool separateLinesTestNoFinalNewline() = separateLines("a\nb\r\nc") == [<"a", "\n">, <"b", "\r\n">, <"c", "">];
+test bool separateLinesTestNoFinalNewlineNoEmpty() = separateLines("a\nb\r\nc", includeEmptyLastLine=true) == [<"a", "\n">, <"b", "\r\n">, <"c", "">];
+test bool separateLinesTestOnlyNewlines() = separateLines("\n\r\n\n\r\n") == [<"", "\n">, <"", "\r\n">, <"", "\n">, <"", "\r\n">];
+test bool separateLinesTestNoNewlines() = separateLines("abc") == [<"abc", "">];
+
+// substrings
+test bool substringsTestEmpty() = substrings("") == {};
+test bool substringsTestSingle() = substrings("a") == {};
+test bool substringsTestTwo() = substrings("ab") == {"a", "b"};
+test bool substringsTestThree() = substrings("abc") == {"a", "b", "c", "ab", "bc"};
