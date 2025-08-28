@@ -194,7 +194,7 @@ public class Artifact {
      * Note that caching is done modulo transitive exclusions.
      * For ranged versions we just use the first suitable version for the first range we encounter.
      *
-     * This method is intentionaly static so we can be sure we do not use instance variables by mistake.
+     * This method is intentionally static so we can be sure we do not use instance variables by mistake.
      */
     private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
