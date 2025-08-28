@@ -249,7 +249,7 @@ public RascalCompilerConfig getTypePalCompilerConfig(bool keep=true){
 // ---- flybytes --------------------------------------------------------------
 
 public PathConfig getFlyBytesProjectPathConfig(bool keep = false) {
-    return makePathConfig([ REPO + "flybytes/src" ], [ RASCAL ], keep=keep);
+    return makePathConfig([ REPO + "flybytes/src", REPO + "rascal/src/org/rascalmpl/library" ], [ ], keep=keep);
 }
 
 public RascalCompilerConfig getFlyBytesCompilerConfig(bool keep=true){
