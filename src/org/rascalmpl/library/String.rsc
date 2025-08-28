@@ -742,6 +742,11 @@ str(str) indentTabsAsSpaces(int tabSize) {
 }
 
 @synopsis{Compute all possible strict substrings of a string.}
+@pitfalls{
+* Does not include the empty string.
+* Does not include the input string itself.
+* The number of substrings is quadratic in the size of the string; expensive to compute.
+}
 set[str] substrings(str input)
     = {input[i..i+l] | int i <- [0..size(input)], int l <- [1..size(input)], i + l <= size(input)};
 
