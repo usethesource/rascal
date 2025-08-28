@@ -85,16 +85,8 @@ default bool asubtype(AType l, AType r){
             return asubtype(l, t);
         case \seq(list[AType] rl):
             return \seq(list[AType] ll) := l && asubtypeList(ll, rl);
-        case p2:aparameter(str _, AType b2): {
-                res = false;
-                if(l is aparameter){
-                    res = asubtypeParam(l, r);
-                } else {
-                    res = p2.closed ? (equivalent(l, b2) || l is avoid) : asubtype(l, b2);     // [S6, S8]
-                }
-                //println("asubtype(<l>, <r>) =\> <res>");
-                return res;
-            }
+        case p:aparameter(str _, AType _):
+            return asubtypeRightTypeParam(l, p);
         case areified(AType t):
             return asubtype(l, t);
     }
@@ -102,6 +94,17 @@ default bool asubtype(AType l, AType r){
         return asubtype(unset(l, "alabel") , unset(r, "alabel"));
     else
         return l == r;
+}
+
+bool asubtypeRightTypeParam(AType l, r:aparameter(str _, AType bnd)){
+    res = false;
+    if(l is aparameter){
+        res = asubtypeParam(l, r);
+    } else {
+        res = r.closed ? (equivalent(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
+    }
+    //println("asubtype(<l>, <r>) =\> <res>");
+    return res;
 }
 
 bool asubtype(p1:aparameter(str n1, AType b1), AType r)
@@ -194,7 +197,8 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
         case avalue():
             return true;
         case p:aparameter(_, AType bnd, closed=true):
-            return asubtype(adt, bnd);
+            return asubtypeRightTypeParam(adt, p);
+            //return asubtype(adt, bnd);
     }
     fail;
 }
