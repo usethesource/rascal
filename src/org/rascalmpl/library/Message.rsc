@@ -21,8 +21,28 @@ module Message
 
 import IO;
 
-@synopsis{Symbolic representation of error messages with a source location of the cause.}
-data Message 
+@synopsis{Symbolic representation of UI-facing error messages.}
+@description{
+A `Message` or a `list[Message]` is typically produced by language processors such as
+parsers, type checkers, static analyzers, etc. The Message data type is a simple contract between
+these producers and the consumers of the messages (typically terminals, editors and IDE's).
+
+* The severity of an error is encoded in the constructor name: error, warning or info.
+* The `msg` field is a UI-facing string that describes why something was hard or impossible to process.
+* The `at` field points at the source code that was identified as a primary cause of a problem.
+* The optional `causes` lists secondary causes via recursion. Each of the causes is a _conjunctive_
+cause of the primary issue. This means that if hypothetically at least one of them was resolved, the primary issue
+would also be resolved.
+}
+@benefits{
+* The Message data type has consumers on the terminal, in editors and in the IDE. One uniform format
+for all user environments. This makes error producing tools reusable in different contexts without adaptation.
+}
+@pitfalls{
+* One of the error constructors misses an `at` field. This constructor is _deprecated_. Error messages without
+source locations are not useful in any UI context. 
+}
+data Message(list[Message] causes=[]) 
     = error(str msg, loc at)
     | error(str msg)  
     | warning(str msg, loc at)
