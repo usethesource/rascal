@@ -772,9 +772,9 @@ list[tuple[str, str]] separateLines(str input, list[str] lineseps = newLineChara
 
     list[tuple[str, str]] lines = [];
     int next = 0;
-    for (int i <- [0..size(input)]) {
+    for (int i <- [0..size(input)], i >= next) {
         // greedily match line separators (longest first)
-        if (i >= next, str nl <- orderedSeps, nl == input[i..i+size(nl)]) {
+        if (str nl <- orderedSeps, nl == input[i..i+size(nl)]) {
             lines += <input[next..i], nl>;
             next = i + size(nl); // skip to the start of the next line
         }
@@ -797,9 +797,9 @@ str perLine(str input, str(str) lineFunc, list[str] lineseps = newLineCharacters
     = mergeLines([<lineFunc(l), nl> | <l, nl> <- separateLines(input, lineseps=lineseps)]);
 
 @synopsis{Trim trailing non-newline whitespace from each line in a multi-line string.}
-str trimTrailingWhitespace(str input) {
+str trimTrailingWhitespace(str input, list[str] lineseps = newLineCharacters) {
     str trimLineTrailingWs(/^<nonWhiteSpace:.*\S>\s*$/) = nonWhiteSpace;
     default str trimLineTrailingWs(/^\s*$/) = "";
 
-    return perLine(input, trimLineTrailingWs);
+    return perLine(input, trimLineTrailingWs, lineseps=lineseps);
 }

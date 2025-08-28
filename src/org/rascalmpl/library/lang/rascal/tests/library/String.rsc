@@ -265,6 +265,7 @@ test bool testBase32AllChars4() = testBase32("zxcvbnm,./ZXCVBNM\<\>? ");
 // mostUsedNewLline
 test bool mostUsedNewlineTestMixed() = mostUsedNewline("\r\n\n\r\n\t\t\t\t") == "\r\n";
 test bool mostUsedNewlineTestTie() = mostUsedNewline("\n\n\r\n\r\n") == "\n";
+test bool mostUsedNewlineTestNone() = mostUsedNewline("abcdefg") == "\n";
 test bool mostUsedNewlineTestGreedy() = mostUsedNewline("\r\n\r\n\n") == "\r\n";
 
 // insertFinalNewline
