@@ -47,7 +47,6 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -184,9 +183,9 @@ public class Artifact {
         private final Artifact artifact;
         private final Set<WithoutVersion> exclusions;
 
-        public ResolveState(Artifact artifact, Set<WithoutVersion> excludes) {
+        public ResolveState(Artifact artifact, Set<WithoutVersion> exclusions) {
             this.artifact = artifact;
-            this.exclusions = excludes;
+            this.exclusions = exclusions;
         }
     }
 
@@ -200,7 +199,7 @@ public class Artifact {
     private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
         Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
-        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
+        Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
 
         while (!resolveQueue.isEmpty()) {
             var state = resolveQueue.poll();
