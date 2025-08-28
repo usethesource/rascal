@@ -88,7 +88,6 @@ public class LocalRepoTest extends AbstractMavenTest {
         Assert.assertEquals(2, resolvedDependencies.size());
 
         for (Artifact artifact : resolvedDependencies) {
-            System.err.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
             Assert.assertTrue(artifact.getMessages().isEmpty());
         }
     }
@@ -123,9 +122,6 @@ public class LocalRepoTest extends AbstractMavenTest {
         var parser = new MavenParser(settings, getPomsPath("local-reference/pom-exclusion-caching.xml"), tempRepo);
         Artifact project = parser.parseProject();
         List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
-        for (Artifact artifact : resolvedDependencies) {
-            System.out.println("messages for " + artifact.getCoordinate() + ": " + artifact.getMessages());
-        }
         Assert.assertEquals(3, resolvedDependencies.size());
         Assert.assertTrue(resolvedDependencies.stream().anyMatch(artifact -> artifact.getCoordinate().getArtifactId().equals("level3")));
     }
