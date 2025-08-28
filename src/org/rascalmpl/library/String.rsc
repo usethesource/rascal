@@ -767,7 +767,7 @@ str trimFinalNewlines(str input, list[str] lineseps = newLineCharacters) {
 }
 
 @synopsis{Split a string in <text, newline> pairs for each line.}
-list[tuple[str, str]] separateLines(str input, list[str] lineseps = newLineCharacters) {
+list[tuple[str, str]] separateLines(str input, bool includeEmptyLastLine = false, list[str] lineseps = newLineCharacters) {
     orderedSeps = reverse(sort(lineseps, bySize));
 
     list[tuple[str, str]] lines = [];
@@ -781,8 +781,8 @@ list[tuple[str, str]] separateLines(str input, list[str] lineseps = newLineChara
     }
 
     // last line
-    if (str nl <- orderedSeps, nl == input[-size(nl)..]) {
-        lines += <input[next..next+size(nl)], "">;
+    if (next < size(input) || includeEmptyLastLine) {
+        lines += <input[next..], "">;
     }
 
     return lines;
@@ -793,8 +793,8 @@ str mergeLines(list[tuple[str, str]] lines)
     = ("" | it + line + sep | <line, sep> <- lines);
 
 @synopsis{Process the text of a string per line, maintaining the original newline characters.}
-str perLine(str input, str(str) lineFunc, list[str] lineseps = newLineCharacters)
-    = mergeLines([<lineFunc(l), nl> | <l, nl> <- separateLines(input, lineseps=lineseps)]);
+str perLine(str input, str(str) lineFunc, bool includeEmptyLastLine = false, list[str] lineseps = newLineCharacters)
+    = mergeLines([<lineFunc(l), nl> | <l, nl> <- separateLines(input, includeEmptyLastLine=includeEmptyLastLine, lineseps=lineseps)]);
 
 @synopsis{Trim trailing non-newline whitespace from each line in a multi-line string.}
 str trimTrailingWhitespace(str input, list[str] lineseps = newLineCharacters) {
