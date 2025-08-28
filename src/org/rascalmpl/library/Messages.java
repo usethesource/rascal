@@ -158,7 +158,7 @@ public class Messages {
                 out.println("[INFO] " + output);
             }
 
-            IList causes = (IList) msg.get("causes");
+            IList causes = (IList) msg.asWithKeywordParameters().getParameter("causes");
             if (causes != null) {
                 maxLine = 0;
                 maxColumn = 0;
@@ -187,7 +187,7 @@ public class Messages {
 
         int col = 0;
         int line = 0;
-        
+
         if (loc.hasLineColumn()) {
             col = loc.getBeginColumn();
             line = loc.getBeginLine();
