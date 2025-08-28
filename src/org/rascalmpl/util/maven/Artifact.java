@@ -47,6 +47,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -206,7 +207,6 @@ public class Artifact {
             var artifact = state.artifact;
             for (var d : artifact.dependencies) {
                 var coordinate = d.getCoordinate();
-
                 var versionLess = coordinate.versionLess();
 
                 var version = coordinate.getVersion();
@@ -229,6 +229,10 @@ public class Artifact {
                     }
                 }
 
+                if (!d.shouldInclude(forScope)) {
+                    continue;
+                }
+
                 String resolvedVersion = resolvedVersions.get(versionLess);
 
                 boolean resolved = resolvedVersion != null;
@@ -239,7 +243,7 @@ public class Artifact {
                 }
 
                 var key = new ResolveKey(coordinate, state.exclusions);
-                if (alreadyResolved.contains(key) || !d.shouldInclude(forScope)) {
+                if (alreadyResolved.contains(key)) {
                     continue;
                 }
                 alreadyResolved.add(key);
@@ -307,8 +311,12 @@ public class Artifact {
         return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
     }
 
+    private static boolean isJarPackaging(String packaging) {
+        return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
+    }
+
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
-        if (m.getPackaging() != null && !("jar".equals(m.getPackaging()) || "eclipse-plugin".equals(m.getPackaging()))) {
+        if (m.getPackaging() != null && !isJarPackaging(m.getPackaging())) {
             // we do not support non-jar artifacts right now
             return null;
         }
@@ -318,12 +326,17 @@ public class Artifact {
         var parentCoordinate = parent == null ? null : new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
         try {
             var loc = isRoot ? null : resolver.resolveJar(coordinate); // download jar if needed
-            var dependencies = m.getDependencies().stream()
+            List<Dependency> dependencies;
+            if (m.getPackaging().equals("bundle")) {
+                dependencies = Collections.emptyList();
+            } else {
+                dependencies = m.getDependencies().stream()
                 .filter(d -> !"import".equals(d.getScope()))
                 .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
                 .map(d -> Dependency.build(d, messages, pomLocation))
                 .collect(Collectors.toUnmodifiableList())
                 ;
+            }
             return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
         } catch (UnresolvableModelException e) {
             messages.append(Messages.error("Could not download corresponding jar", pomLocation));
