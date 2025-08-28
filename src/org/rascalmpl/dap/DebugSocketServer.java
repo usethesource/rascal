@@ -26,32 +26,31 @@
  */
 package org.rascalmpl.dap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.debug.TerminatedEventArguments;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.Evaluator;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.eclipse.lsp4j.debug.TerminatedEventArguments;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.Evaluator;
+
 /**
  * This class starts a socket server that listens for incoming debug connections from IDEs.
  */
 public class DebugSocketServer {
 
-    private static final Logger logger = LogManager.getLogger(DebugSocketServer.class);
+    private final IDEServices services;
     private final ServerSocket serverSocket;
     private volatile @Nullable Socket clientSocket;
     private volatile @Nullable IDebugProtocolClient debugClient;
     private volatile @Nullable ExecutorService threadPool;
 
     public DebugSocketServer(Evaluator evaluator, IDEServices services){
+        this.services = services;
         try {
             serverSocket = new ServerSocket(0);
         } catch (IOException e) {
@@ -69,12 +68,12 @@ public class DebugSocketServer {
                     if(clientSocket == null || clientSocket.isClosed()){
                         clientSocket = newClient;
                         threadPool = Executors.newCachedThreadPool();
-                        debugClient = RascalDebugAdapterLauncher.start(evaluator, clientSocket, this, threadPool);
+                        debugClient = RascalDebugAdapterLauncher.start(evaluator, clientSocket, this, services, threadPool);
                     } else {
                         newClient.close();
                     }
                 } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
+                    services.warning(e.getMessage(), RascalDebugAdapter.DEBUGGER_LOC);
                 }
             }
         });
@@ -112,7 +111,7 @@ public class DebugSocketServer {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    logger.error("Error closing client socket", e);
+                    services.warning("Error closing client socket", RascalDebugAdapter.DEBUGGER_LOC);
                 }
             }
             threadPool.shutdownNow();
