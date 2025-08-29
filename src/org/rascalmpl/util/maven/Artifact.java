@@ -47,7 +47,6 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
 import org.rascalmpl.values.IRascalValueFactory;
 
