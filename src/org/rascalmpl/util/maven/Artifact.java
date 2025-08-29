@@ -315,7 +315,8 @@ public class Artifact {
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
-        if (m.getPackaging() != null && !isJarPackaging(m.getPackaging())) {
+        String packaging = m.getPackaging();
+        if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
             return null;
         }
@@ -326,7 +327,7 @@ public class Artifact {
         try {
             var loc = isRoot ? null : resolver.resolveJar(coordinate); // download jar if needed
             List<Dependency> dependencies;
-            if (m.getPackaging().equals("bundle")) {
+            if (packaging != null && packaging.equals("bundle")) {
                 dependencies = Collections.emptyList();
             } else {
                 dependencies = m.getDependencies().stream()
