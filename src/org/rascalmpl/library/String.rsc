@@ -748,7 +748,7 @@ str(str) indentTabsAsSpaces(int tabSize) {
 * The number of substrings is quadratic in the size of the string; expensive to compute.
 }
 set[str] substrings(str input)
-    = {input[i..i+l] | int i <- [0..size(input)], int l <- [1..size(input)], i + l <= size(input)};
+    = {input[i..i+l] | int i <- [0..size(input)], int l <- [1..size(input)-i+1]} - input;
 
 @synopsis{If a string does not end with a newline character, append one. }
 str insertFinalNewline(str input, list[str] lineseps = newLineCharacters)
