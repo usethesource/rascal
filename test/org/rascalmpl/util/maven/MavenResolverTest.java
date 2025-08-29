@@ -31,10 +31,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -194,4 +197,22 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertTrue(msgs.get(0).toString().contains("\\'version\\' is missing"));
     }
 
+    @Test
+    public void checkRascalPaths() throws ModelResolutionError, IOException {
+        var parser = createParser("rascal/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        List<String> paths = resolved.stream()
+            .map(artifact -> artifact.getResolved())
+            .map(path -> tempRepo.relativize(path))
+            .map(path -> path.toString())
+            .sorted()
+            .collect(Collectors.toList());
+
+        List<String> expected = Files.lines(getPomsPath("rascal/expected-path-list.txt"))
+            .sorted()
+            .collect(Collectors.toList());
+
+        Assert.assertEquals(expected, paths);
+    }
 }
