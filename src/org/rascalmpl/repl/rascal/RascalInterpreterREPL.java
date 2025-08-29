@@ -158,7 +158,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     private boolean isWatchable(ISourceLocation loc) {
-        return reg.exists(loc) && (reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc));
+        return reg.isDirectory(loc) && (reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc));
     }
 
     private final Pattern debuggingCommandPattern = Pattern.compile("^\\s*:set\\s+debugging\\s+(true|false)");
