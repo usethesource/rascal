@@ -202,14 +202,14 @@ public class MavenResolverTest extends AbstractMavenTest {
         var parser = createParser("rascal/pom.xml");
         var project = parser.parseProject();
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
-        List<String> paths = resolved.stream()
+        List<Path> paths = resolved.stream()
             .map(artifact -> artifact.getResolved())
             .map(path -> tempRepo.relativize(path))
-            .map(path -> path.toString())
             .sorted()
             .collect(Collectors.toList());
 
-        List<String> expected = Files.lines(getPomsPath("rascal/expected-path-list.txt"))
+        List<Path> expected = Files.lines(getPomsPath("rascal/expected-path-list.txt"))
+            .map(line -> Path.of(line))
             .sorted()
             .collect(Collectors.toList());
 
