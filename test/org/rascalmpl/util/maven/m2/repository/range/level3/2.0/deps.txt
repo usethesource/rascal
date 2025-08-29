@@ -1,0 +1,6 @@
+[INFO]    org.rascalmpl:typepal:jar:0.15.1:provided -- module typepal (auto)
+[INFO]    org.apache.maven.doxia:doxia-module-apt:jar:2.0.0:runtime -- module doxia.module.apt (auto)
+[INFO]    org.apache.maven.doxia:doxia-module-xdoc:jar:2.0.0:runtime -- module doxia.module.xdoc (auto)
+[INFO]    org.tukaani:xz:jar:1.9:runtime -- module org.tukaani.xz
+[INFO]    org.slf4j:jcl-over-slf4j:jar:1.7.36:runtime -- module org.apache.commons.logging [auto]
+
