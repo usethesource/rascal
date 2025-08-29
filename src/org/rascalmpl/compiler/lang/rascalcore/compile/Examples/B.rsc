@@ -25,12 +25,33 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-          
-data D = d(int n) | d(str s);
+  
+   
+syntax Program = "program";
+   
+data Tree;
 
-void f(D x){
-    d(arg) := x;
+bool editsAreSyntacticallyCorrect(type[&T<:Tree] _grammar, Tree(Tree) _transform) = true;
+
+Tree identity(Tree x) = x;
+
+test bool nulTestWithId() 
+    = editsAreSyntacticallyCorrect(#start[Program], identity);
+  
+data Wrap[&T] = wrap(&T val);
+&T id(&T arg) = arg;
+        
+&T f(&T param) {
+    Wrap[&T] x = wrap(param);
+                   
+    return id(x);
 }
+
+// data D = d(int n) | d(str s);
+
+// void f(D x){
+//     d(arg) := x;
+// }
 
 // syntax Body = "body";
 
