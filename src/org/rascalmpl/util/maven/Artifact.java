@@ -234,20 +234,8 @@ public class Artifact {
                     continue;
                 }
 
-                if (d.getScope() == Scope.PROVIDED) {
-                    if (!topLevel) {
-                        continue;
-                    }
-
-                    // current maven behavior seems to be:
-                    // - do not download provided dependencies
-                    // - if a provided dependency is present in the maven repository it's considered "provided"
-                    var pomDep = artifact.ourResolver.calculatePomPath(d.getCoordinate());
-                    if (!Files.notExists(pomDep)) {
-                        // ok, doesn't exist yet. so don't download it to calculate dependencies
-                        // and don't add it to the list since somewhere else somebody might depend on it
-                        continue;
-                    }
+                if (!topLevel && d.getScope() == Scope.PROVIDED) {
+                    continue;
                 }
 
                 String resolvedVersion = resolvedVersions.get(versionLess);
@@ -255,8 +243,7 @@ public class Artifact {
                 boolean resolved = resolvedVersion != null;
                 if (resolved) {
                     coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
-                }
-                else {
+                } else {
                     resolvedVersions.put(versionLess, version);
                 }
 
