@@ -254,8 +254,7 @@ public class Artifact {
 
                 boolean resolved = resolvedVersion != null;
                 if (resolved) {
-                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(),
-                        resolvedVersion, coordinate.getClassifier());
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
                 }
                 else {
                     resolvedVersions.put(versionLess, version);
