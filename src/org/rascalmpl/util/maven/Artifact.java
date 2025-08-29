@@ -210,10 +210,6 @@ public class Artifact {
                 var coordinate = d.getCoordinate();
                 var versionLess = coordinate.versionLess();
 
-                if (coordinate.getArtifactId().equals("typepal")) {
-                    DebugUtil.opportunityToBreak();
-                }
-
                 var version = coordinate.getVersion();
                 if (isVersionRange(version)) {
                     try {
