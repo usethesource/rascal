@@ -336,6 +336,22 @@ public class PathConfig {
         return resolveProjectOnClasspath("rascal");
     }
 
+    public static ISourceLocation inferProjectRoot(Class<?> clazz) throws IOException {
+        var url = clazz.getProtectionDomain().getCodeSource().getLocation();
+        
+        if (url.getProtocol().equals("file")) {
+            try {
+                return inferProjectRoot(vf.sourceLocation(URIUtil.fromURL(url)));
+            }
+            catch (URISyntaxException e) {
+                throw new IOException(e);
+            }
+        }
+        else {
+            throw new FileNotFoundException();
+        }
+    }
+
     public static ISourceLocation inferProjectRoot(ISourceLocation member) {
         ISourceLocation current = member;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();

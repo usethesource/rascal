@@ -25,9 +25,44 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-import IO;
-import lang::rascalcore::compile::Examples::A;
   
-void main(){
-    X += 1;
+   
+syntax Program = "program";
+   
+data Tree;
+
+bool editsAreSyntacticallyCorrect(type[&T<:Tree] _grammar, Tree(Tree) _transform) = true;
+
+Tree identity(Tree x) = x;
+
+test bool nulTestWithId() 
+    = editsAreSyntacticallyCorrect(#start[Program], identity);
+  
+data Wrap[&T] = wrap(&T val);
+&T id(&T arg) = arg;
+        
+&T f(&T param) {
+    Wrap[&T] x = wrap(param);
+                   
+    return id(x);
 }
+
+// data D = d(int n) | d(str s);
+
+// void f(D x){
+//     d(arg) := x;
+// }
+
+// syntax Body = "body";
+
+// alias Body = int;
+
+// Body f(Body b) = b;
+
+// data AType;
+
+// data MuExp = muFailReturn(AType tp);
+
+//  MuExp muReturn1(AType t, muFailReturn(AType t)){
+//     return muFailReturn(t);
+// }
