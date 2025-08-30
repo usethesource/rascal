@@ -25,20 +25,68 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-  
-   
-syntax Program = "program";
-   
-data Tree;
+    
+//import lang::rascalcore::check::AType;
 
-bool editsAreSyntacticallyCorrect(type[&T<:Tree] _grammar, Tree(Tree) _transform) = true;
+// value main(){
+//     //  &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+//     //   return f(t, u); 
+//     // };
 
-Tree identity(Tree x) = x;
+//     // int addition(int i, int j) = i + j;
 
-test bool nulTestWithId() 
-    = editsAreSyntacticallyCorrect(#start[Program], identity);
-  
+//     // func = curry(curry, addition);
+
+//     // Argument 0 should have type `&S(&U)(int(int,int),&T)`, found `&S(&U)(&S(&T,&U),&T)`",
+//     // return comparable(
+//     //         aparameter("T",avalue(),closed=false),
+//     //         aint(alabel="i")
+//     // );
+
+//     return comparable(
+//         afunc(aparameter("S",avalue(),closed=true),
+//                     [aint(alabel="i")
+//                     ],[],alabel="f"),
+//         afunc(aint(),
+//                     [aint(alabel="i")
+//                     ],[])
+//     );
+//     return comparable(
+//         afunc(afunc(aparameter("S",avalue(),closed=true),[aparameter("U",avalue(),closed=false)],[]),
+//             [afunc(aparameter("S",avalue(),closed=true),
+//                     [aparameter("T",avalue(),closed=true/*false*/),
+//                      aparameter("U",avalue(),closed=true/*false*/)
+//                     ],[],alabel="f"),
+//              aparameter("T",avalue(),closed=false,alabel="t")
+//             ],[],abstractFingerprint=0,alabel="curry",returnsViaAllPath=true), 
+//         afunc(afunc(aparameter("S",avalue(),closed=true),[aparameter("U",avalue(),closed=true/*false*/)],[]),
+//             [afunc(aint(),
+//                     [aint(alabel="i"),aint(alabel="j")],[]),
+//                      aparameter("T",avalue(),closed=false,alabel="t")],[],alabel="f")
+//     );
+// }
+
+
+test bool selfApplyCurry() {
+    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
+
+    int addition(int i, int j) = i + j;
+
+    func = curry(curry, addition);
+
+    assert int(int)(int) _ := func;
+
+    func2 = func(1);
+
+    assert int(int) _ := func2;
+
+    return func2(1) == 2;
+}
+          
 data Wrap[&T] = wrap(&T val);
+
 &T id(&T arg) = arg;
         
 &T f(&T param) {
@@ -46,6 +94,8 @@ data Wrap[&T] = wrap(&T val);
                    
     return id(x);
 }
+           
+           
 
 // data D = d(int n) | d(str s);
 
