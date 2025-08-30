@@ -201,6 +201,7 @@ public class Artifact {
         Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
         Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
 
+        boolean topLevel = true;
         while (!resolveQueue.isEmpty()) {
             var state = resolveQueue.poll();
             var artifact = state.artifact;
@@ -232,6 +233,10 @@ public class Artifact {
                     continue;
                 }
 
+                if (!topLevel && d.getScope() == Scope.PROVIDED) {
+                    continue;
+                }
+
                 String resolvedVersion = resolvedVersions.get(versionLess);
 
                 boolean resolved = resolvedVersion != null;
@@ -247,17 +252,6 @@ public class Artifact {
                 }
                 alreadyResolved.add(key);
 
-                if (d.getScope() == Scope.PROVIDED) {
-                    // current maven behavior seems to be:
-                    // - do not download provided dependencies
-                    // - if a provided dependency is present in the maven repository it's considered "provided"
-                    var pomDep = artifact.ourResolver.calculatePomPath(d.getCoordinate());
-                    if (!Files.notExists(pomDep)) {
-                        // ok, doesn't exist yet. so don't download it to calculate dependencies
-                        // and don't add it to the list since somewhere else somebody might depend on it
-                        continue;
-                    }
-                }
                 if (d.getScope() == Scope.SYSTEM) {
                     if (!resolved) {
                         result.add(createSystemArtifact(d));
@@ -284,6 +278,7 @@ public class Artifact {
                     resolveQueue.add(new ResolveState(art, newExclusions));
                 }
             }
+            topLevel = false;
             if (forScope == Scope.TEST) {
                 // only do test scope for top level, switch to compile after that
                 forScope = Scope.COMPILE;
