@@ -34,8 +34,12 @@ module lang::rascalcore::check::AType
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::agrammar::definition::Characters;
 
+import lang::rascalcore::check::ATypeInstantiation;
+
+import IO;
 import Node;
 import Set;
+import String;
 import List;
 
 // ---- asubtype --------------------------------------------------------------
@@ -96,12 +100,29 @@ default bool asubtype(AType l, AType r){
         return l == r;
 }
 
-bool asubtypeRightTypeParam(AType l, r:aparameter(str _, AType bnd)){
+set[str] usedTypeParameters(AType t){
+    println("usedTypeParameters(<t>)");
+    res = {};
+    visit(t){
+        case p:aparameter(_,_): {
+            unm =  deUnique(p.pname);
+            res = res + unm;
+        }
+    }
+    return res;
+}
+
+bool asubtypeRightTypeParam(AType l, r:aparameter(str rnm, AType bnd)){
     res = false;
     if(l is aparameter){
         res = asubtypeParam(l, r);
     } else {
-        res = r.closed ? (equivalent(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
+        urnm = deUnique(rnm);
+        if(deUnique(rnm) in {deUnique(pnm) | /aparameter(str pnm,_) := l}){
+            res = false;
+        } else {
+            res = r.closed ? (asubtype/*equivalent*/(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
+        }
     }
     //println("asubtype(<l>, <r>) =\> <res>");
     return res;
@@ -111,6 +132,16 @@ bool asubtype(p1:aparameter(str n1, AType b1), AType r)
     = asubtypeParam(p1, r);
 
 // From "Exploring Type Parameters:
+// [S1] asubtype(aparameter(n1, b1,closed=false), aparameter(n2, b2, closed=false))  = true;
+// [S2] asubtype(aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=true))     = n1 == n2  /* && subtype(aglb(b1,b2), aglb(b2,b1)); // subtype is altijd true maar wel de redenatie */
+// [S3] asubtype(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=true)) = asubtype(p1, b2); // let op parameters in bounds
+// [S4] asubtype(aparameter(n1, b1,closed=true), p2:aparameter(n2, b2,closed=false)) = asubtype(b1, p2);
+
+// [S5] asubtype(aparameter(n, b, closed=false), r)                       = asubtype(b, r) when !(r is aparameter)
+// [S6] asubtype(l, aparameter(n, b,closed=false))                        = asubtype(l, b) when !(l is aparameter)
+// [S7] asubtype(aparameter(n, b,closed=true), r)                         = asubtype(b, r) when !(r is aparameter)
+// [S8] asubtype(l, aparameter(n, b,closed=true))                         = l is avoid
+
 // aparameter, open
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
      res = false;
@@ -129,6 +160,11 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     res = false;
     if(aparameter(str n2, AType _, closed=true) := r ){                  // [S2]
+        // k1 = findFirst(n1, ".");
+        // n1 = k1 < 0 ? n1 : n1[0..k1];
+        // k2 = findFirst(n2, ".");
+        // n2 = k2 < 0 ? n2 : n2[0..k2];
+        //res = deUnique(n1) == deUnique(n2);
         res = n1 == n2;
     } else if(p2:aparameter(str _, AType _,closed=false) := r){// [S4]
         res = asubtype(b1, p2);
@@ -475,8 +511,11 @@ default bool isLayoutAType(AType _) = false;
 .Synopsis
 Check if two types are comparable, i.e., have a common supertype.
 }
-bool comparable(AType s, AType t)
-    = s == t || asubtype(s,t) || asubtype(t,s);
+bool comparable(AType s, AType t){
+    res = s == t || asubtype(s,t) || asubtype(t,s);
+   //println("asubtype(<s>, <t>) =\> <res>");
+    return res;
+}
 
 bool comparableList(list[AType] l, list[AType] r) {
     if(size(l) == 0){
