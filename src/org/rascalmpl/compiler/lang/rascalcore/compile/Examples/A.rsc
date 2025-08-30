@@ -26,5 +26,21 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
 
-int f(X x, X y) = 1;
-int f(x(), x())   = 2; 
+import lang::rascalcore::check::ATypeBase;
+
+AType makeClosedTypeParams(AType t){
+    return visit(t) { case par:aparameter(_,_) => par[closed=true] };
+}
+
+value main() =  makeClosedTypeParams(aadt("TreeSearchResult",[aparameter("T",aadt("Tree",[],dataSyntax()),closed=true)],dataSyntax()));
+
+// set[str] usedTypeParameters(AType t){
+//     res = {};
+//     visit(t){
+//         case aparameter(str nm,_): {
+//             unm =  deUnique(nm);
+//             res = res + unm;
+//         }
+//     }
+//     return res;
+// }
