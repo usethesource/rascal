@@ -42,6 +42,7 @@ module lang::rascalcore::check::ATypeInstantiation
     Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
+extend lang::rascalcore::check::ATypeBase; // seemingly redunant to make interpreter happy
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::NameUtils;
 
@@ -209,9 +210,9 @@ AType invalidInstantiation(str pname, AType bound, AType actual){
 }
 
 AType makeClosedTypeParams(AType t){
-    //println("makeClosedTypeParams: <t>");
-    res = visit(t) { case par:aparameter(str nm,AType bnd,closed=false):{  par.closed=true; insert par;} };
-    //println("makeClosedTypeParams =\> <res>");
+    // println("makeClosedTypeParams: <t>");
+    AType res = visit(t) { case par:aparameter(_, _) => par[closed=true] };
+    // println("makeClosedTypeParams =\> <res>");
     return res;
 }
 
