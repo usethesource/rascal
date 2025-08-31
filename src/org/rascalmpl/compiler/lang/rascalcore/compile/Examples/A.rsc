@@ -26,10 +26,14 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
 
+import IO;
 import lang::rascalcore::check::ATypeBase;
 
 AType makeClosedTypeParams(AType t){
-    return visit(t) { case par:aparameter(_,_) => par[closed=true] };
+    println("makeClosedTypeParams: <t>");
+    AType res = visit(t) { case par:aparameter(str nm,AType bnd,closed=false) => par[closed=true] };
+    //println("makeClosedTypeParams =\> <res>");
+    return res;
 }
 
 value main() =  makeClosedTypeParams(aadt("TreeSearchResult",[aparameter("T",aadt("Tree",[],dataSyntax()),closed=true)],dataSyntax()));
