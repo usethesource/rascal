@@ -42,8 +42,8 @@ module lang::rascalcore::check::ATypeInstantiation
     Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
-extend lang::rascalcore::check::ATypeBase; // seemingly redunant to make interpreter happy
-extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
+import lang::rascalcore::check::ATypeUtils; // was extend but this lead to "typeContainsRascalTypeParams" not being found
 extend lang::rascalcore::check::NameUtils;
 
 import List;
