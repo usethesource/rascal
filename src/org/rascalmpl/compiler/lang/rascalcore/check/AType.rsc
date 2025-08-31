@@ -111,25 +111,32 @@ set[str] usedTypeParameters(AType t){
     }
     return res;
 }
+bool occursTypeParameter(str nm, AType t){
+    unm = deUnique(nm);
+    visit(t){
+        case p:aparameter(_,_):
+            if(unm == deUnique(p.pname)) return true;
+    }
+    return false;
+}
 
 bool asubtypeRightTypeParam(AType l, r:aparameter(str rnm, AType bnd)){
     res = false;
     if(l is aparameter){
-        res = asubtypeParam(l, r);
+        res = asubtypeLeftTypeParam(l, r);
     } else {
-        urnm = deUnique(rnm);
-        if(deUnique(rnm) in {deUnique(pnm) | /aparameter(str pnm,_) := l}){
+        if(occursTypeParameter(rnm, l)){
             res = false;
         } else {
-            res = r.closed ? (asubtype/*equivalent*/(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
+            res = r.closed ? (/*asubtype*/equivalent(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
         }
     }
-    //println("asubtype(<l>, <r>) =\> <res>");
+    //println("asubtypeRightTypeParam(<l>, <r>) =\> <res>");
     return res;
 }
 
 bool asubtype(p1:aparameter(str n1, AType b1), AType r)
-    = asubtypeParam(p1, r);
+    = asubtypeLeftTypeParam(p1, r);
 
 // From "Exploring Type Parameters:
 // [S1] asubtype(aparameter(n1, b1,closed=false), aparameter(n2, b2, closed=false))  = true;
@@ -143,21 +150,23 @@ bool asubtype(p1:aparameter(str n1, AType b1), AType r)
 // [S8] asubtype(l, aparameter(n, b,closed=true))                         = l is avoid
 
 // aparameter, open
-bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
+bool asubtypeLeftTypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
      res = false;
      if(aparameter(str _, AType _, closed=false) := r){                 // [S1]
         res = true;
      } else if(aparameter(str _, AType b2, closed=true) := r){          // [S3]
         res = asubtype(p1, b2);
+     } else if(occursTypeParameter(n1, r)){
+        res = true;
       } else {                                                          // [S5]
         res = asubtype(b1, r);
      }
-     //println("asubtype(<p1>, <r>) =\> <res>");
+    //  println("asubtypeLeftTypeParam(<p1>, <r>) =\> <res>");
      return res;
  }
 
 // aparameter, closed
-bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
+bool asubtypeLeftTypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     res = false;
     if(aparameter(str n2, AType _, closed=true) := r ){                  // [S2]
         // k1 = findFirst(n1, ".");
@@ -166,12 +175,14 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
         // n2 = k2 < 0 ? n2 : n2[0..k2];
         //res = deUnique(n1) == deUnique(n2);
         res = n1 == n2;
+    } else if(occursTypeParameter(n1, r)){
+        res = true;
     } else if(p2:aparameter(str _, AType _,closed=false) := r){// [S4]
         res = asubtype(b1, p2);
     } else {                                                              // [S7]
         res = asubtype(b1, r);
     }
-    //println("asubtype(<p1>, <r>) =\> <res>");
+    // println("asubtypeLeftTypeParam(<p1>, <r>) =\> <res>");
     return res;
 }
 
@@ -513,7 +524,7 @@ Check if two types are comparable, i.e., have a common supertype.
 }
 bool comparable(AType s, AType t){
     res = s == t || asubtype(s,t) || asubtype(t,s);
-   //println("asubtype(<s>, <t>) =\> <res>");
+//    println("asubtype(<s>, <t>) =\> <res>");
     return res;
 }
 
