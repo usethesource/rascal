@@ -33,6 +33,7 @@ are only available as binary (e.g., as.tpl files on the libs path).
 module lang::rascalcore::check::tests::BinaryDependencyTests
 
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::TestConfigs;
 import util::Reflective;
 import IO;
