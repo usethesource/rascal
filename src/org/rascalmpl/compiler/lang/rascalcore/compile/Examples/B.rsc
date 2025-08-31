@@ -25,48 +25,32 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-    
-//import lang::rascalcore::check::AType;
+             
+// //test bool assignmentNotOK1()
+// void f(&T x) { &T y = 1; }
 
-// value main(){
-//     //  &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
-//     //   return f(t, u); 
-//     // };
-
-//     // int addition(int i, int j) = i + j;
-
-//     // func = curry(curry, addition);
-
-//     // Argument 0 should have type `&S(&U)(int(int,int),&T)`, found `&S(&U)(&S(&T,&U),&T)`",
-//     // return comparable(
-//     //         aparameter("T",avalue(),closed=false),
-//     //         aint(alabel="i")
-//     // );
-
-//     return comparable(
-//         afunc(aparameter("S",avalue(),closed=true),
-//                     [aint(alabel="i")
-//                     ],[],alabel="f"),
-//         afunc(aint(),
-//                     [aint(alabel="i")
-//                     ],[])
-//     );
-//     return comparable(
-//         afunc(afunc(aparameter("S",avalue(),closed=true),[aparameter("U",avalue(),closed=false)],[]),
-//             [afunc(aparameter("S",avalue(),closed=true),
-//                     [aparameter("T",avalue(),closed=true/*false*/),
-//                      aparameter("U",avalue(),closed=true/*false*/)
-//                     ],[],alabel="f"),
-//              aparameter("T",avalue(),closed=false,alabel="t")
-//             ],[],abstractFingerprint=0,alabel="curry",returnsViaAllPath=true), 
-//         afunc(afunc(aparameter("S",avalue(),closed=true),[aparameter("U",avalue(),closed=true/*false*/)],[]),
-//             [afunc(aint(),
-//                     [aint(alabel="i"),aint(alabel="j")],[]),
-//                      aparameter("T",avalue(),closed=false,alabel="t")],[],alabel="f")
-//     );
+// //test bool makeSmallerNotOK() 
+// &T <: num makeSmallerThan(&T <: num n) {
+//       if (int i := n) {
+//          return i;
+//       }
+//       return n;
 // }
 
+// //test bool returnHeadTailNotOK() 
+// tuple[&T, list[&T]] headTail(list[&T] l) {
+//        if ([&T h, *&T t] := l) {
+//          return <h, t>;
+//        }
+//        return <0,[]>;
+// }
+  
+// //test bool returnNotOK3()
+// &T get(list[&T] _) = 1;
 
+// //test bool returnNotOK4()
+// list[&T] emptyList(list[&T] _) = [1];
+    
 test bool selfApplyCurry() {
     &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
       return f(t, u); 
@@ -85,34 +69,34 @@ test bool selfApplyCurry() {
     return func2(1) == 2;
 }
           
-data Wrap[&T] = wrap(&T val);
+// data Wrap[&T] = wrap(&T val);
 
-&T id(&T arg) = arg;
+// &T id(&T arg) = arg;
         
-&T f(&T param) {
-    Wrap[&T] x = wrap(param);
+// &T f(&T param) {
+//     Wrap[&T] x = wrap(param);
                    
-    return id(x);
-}
+//     return id(x);  // "Types Wrap[&T] and &T do not match"
+// }
            
            
 
-// data D = d(int n) | d(str s);
+// // data D = d(int n) | d(str s);
 
-// void f(D x){
-//     d(arg) := x;
-// }
+// // void f(D x){
+// //     d(arg) := x;
+// // }
 
-// syntax Body = "body";
+// // syntax Body = "body";
 
-// alias Body = int;
+// // alias Body = int;
 
-// Body f(Body b) = b;
+// // Body f(Body b) = b;
 
-// data AType;
+// // data AType;
 
-// data MuExp = muFailReturn(AType tp);
+// // data MuExp = muFailReturn(AType tp);
 
-//  MuExp muReturn1(AType t, muFailReturn(AType t)){
-//     return muFailReturn(t);
-// }
+// //  MuExp muReturn1(AType t, muFailReturn(AType t)){
+// //     return muFailReturn(t);
+// // }
