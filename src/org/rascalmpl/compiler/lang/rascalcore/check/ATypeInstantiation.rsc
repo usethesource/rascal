@@ -43,7 +43,7 @@ module lang::rascalcore::check::ATypeInstantiation
 */
 
 import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
-import lang::rascalcore::check::ATypeUtils; // was extend but this lead to "typeContainsRascalTypeParams" not being found
+extend lang::rascalcore::check::ATypeUtils; // was extend but this lead to "typeContainsRascalTypeParams" not being found
 extend lang::rascalcore::check::NameUtils;
 
 import List;
