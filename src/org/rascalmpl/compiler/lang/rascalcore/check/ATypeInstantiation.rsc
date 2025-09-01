@@ -43,7 +43,7 @@ module lang::rascalcore::check::ATypeInstantiation
 */
 
 import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
-extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeUtils; // was extend
 extend lang::rascalcore::check::NameUtils;
 
 import List;
