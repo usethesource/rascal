@@ -43,7 +43,7 @@ module lang::rascalcore::check::ATypeInstantiation
 */
 
 import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
-extend lang::rascalcore::check::ATypeUtils; // was extend but this lead to "typeContainsRascalTypeParams" not being found
+extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::NameUtils;
 
 import List;
@@ -210,10 +210,7 @@ AType invalidInstantiation(str pname, AType bound, AType actual){
 }
 
 AType makeClosedTypeParams(AType t){
-    // println("makeClosedTypeParams: <t>");
-    AType res = visit(t) { case par:aparameter(_, _) => par[closed=true] };
-    // println("makeClosedTypeParams =\> <res>");
-    return res;
+    return visit(t) { case par:aparameter(_, _) => par[closed=true] };
 }
 
 void requireClosedTypeParams(AType t){
