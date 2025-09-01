@@ -80,7 +80,8 @@ void generateTestSources(list[str] cmdLineArgs) {
    }  
 
    ignored = ["lang::rascal::tests::concrete::Patterns3",
-               "lang::rascal::syntax::tests::ExpressionGrammars"
+               "lang::rascal::syntax::tests::ExpressionGrammars",
+               "lang::sdf2::util::SDF2Grammar"
               ];           
    modulesToCompile -= ignored;    
    
