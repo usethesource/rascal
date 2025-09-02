@@ -1,7 +1,28 @@
+@synopsis{Basic IO for XML to Rascal and  back}
+@description{
+The XML binding implemented by this module is _untyped_. The readers produce
+values of type `node` for every (nested) tag. 
+
+To bind the resulting values to more strictly typed ADTs, use ((util::Validate)).
+}
 module lang::xml::IO
+
+import util::Maybe;
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
+
+@javaClass{org.rascalmpl.library.lang.xml.IO}
+@synopsis{Stream all the tags in a file, one-by-one, without ever having the entire XML file in memory.}
+@description{
+((streamXML)) returns a closure function. When you call it repeatedly, it will produce a single value `just(...)` for each
+occurrence of `elementName` tags in the input. The final call will produce `nothing()`, so you know when to stop.
+
+`IO` exceptions can still be thrown even when you are already streaming. This means an entire file has dissappeared,
+or permissions were revoked during the execution of the stream. Only when you receive `nothing()` it is indicated
+that the `elementName` tag is not further present in the file.
+}
+java Maybe[value]() streamXML(loc file, str elementName, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
