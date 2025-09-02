@@ -25,60 +25,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
-             
-// //test bool assignmentNotOK1()
-// void f(&T x) { &T y = 1; }
-
-// //test bool makeSmallerNotOK() 
-// &T <: num makeSmallerThan(&T <: num n) {
-//       if (int i := n) {
-//          return i;
-//       }
-//       return n;
-// }
-
-// //test bool returnHeadTailNotOK() 
-// tuple[&T, list[&T]] headTail(list[&T] l) {
-//        if ([&T h, *&T t] := l) {
-//          return <h, t>;
-//        }
-//        return <0,[]>;
-// }
-  
-// //test bool returnNotOK3()
-// &T get(list[&T] _) = 1;
-
-// //test bool returnNotOK4()
-// list[&T] emptyList(list[&T] _) = [1];
-    
-test bool selfApplyCurry() {
-    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
-      return f(t, u); 
-    };
-
-    int addition(int i, int j) = i + j;
-
-    func = curry(curry, addition);
-
-    assert int(int)(int) _ := func;
-
-    func2 = func(1);
-
-    assert int(int) _ := func2;
-
-    return func2(1) == 2;
-}
-          
-// data Wrap[&T] = wrap(&T val);
-
-// &T id(&T arg) = arg;
-        
-// &T f(&T param) {
-//     Wrap[&T] x = wrap(param);
-                   
-//     return id(x);  // "Types Wrap[&T] and &T do not match"
-// }
-           
            
 
 // // data D = d(int n) | d(str s);
@@ -87,11 +33,11 @@ test bool selfApplyCurry() {
 // //     d(arg) := x;
 // // }
 
-// // syntax Body = "body";
+syntax Body = "body";
 
-// // alias Body = int;
+alias Body = int;
 
-// // Body f(Body b) = b;
+Body f(Body b) = b;
 
 // // data AType;
 
