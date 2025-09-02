@@ -146,29 +146,7 @@ public class Messages {
             boolean isError = type.equals("error");
             boolean isWarning = type.equals("warning");
 
-            ISourceLocation loc = (ISourceLocation) msg.get("at");
-            int col = 0;
-            int line = 0;
-            if (loc.hasLineColumn()) {
-                col = loc.getBeginColumn();
-                line = loc.getBeginLine();
-            }
-
-            // this shortens the location strings to the part that is different for every file,
-            // leaving out a possibly very large common prefix
-            loc = root != null ? URIUtil.relativize(root, loc) : loc;
-
-            String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
-                ? ((IString) msg.get("msg")).getValue()
-                : loc.getPath().substring(1)
-                + ((line == 0 && col == 0) ? "" : 
-                (":"
-                + String.format("%0" + lineWidth + "d", line)
-                + ":"
-                + String.format("%0" + colWidth + "d", col)))
-                + ": "
-                + ((IString) msg.get("msg")).getValue()
-            ;
+            String output = getMessageString(root, lineWidth, colWidth, msg);
 
             if (isError) {
                 out.println("[ERROR] " + output);
@@ -179,9 +157,55 @@ public class Messages {
             else {
                 out.println("[INFO] " + output);
             }
+
+            IList causes = (IList) msg.asWithKeywordParameters().getParameter("causes");
+            if (causes != null) {
+                maxLine = 0;
+                maxColumn = 0;
+
+                for (IValue error : causes) {
+                    ISourceLocation loc = (ISourceLocation) ((IConstructor) error).get("at");
+
+                    if (loc.hasLineColumn()) {
+                        maxLine = Math.max(loc.getBeginLine(), maxLine);
+                        maxColumn = Math.max(loc.getBeginColumn(), maxColumn);
+                    } 
+                }
+
+                for (IValue cause : causes) {
+                    out.println("    * " + getMessageString(root, lineWidth, colWidth, (IConstructor) cause));
+                }
+            }
         }
 
         out.flush();
 		return;
+    }
+
+    private static String getMessageString(ISourceLocation root, int lineWidth, int colWidth, IConstructor msg) {
+        ISourceLocation loc = (ISourceLocation) msg.get("at");
+
+        int col = 0;
+        int line = 0;
+
+        if (loc.hasLineColumn()) {
+            col = loc.getBeginColumn();
+            line = loc.getBeginLine();
+        }
+
+        // this shortens the location strings to the part that is different for every file,
+        // leaving out a possibly very large common prefix
+        loc = root != null ? URIUtil.relativize(root, loc) : loc;
+
+        return (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
+            ? ((IString) msg.get("msg")).getValue()
+            : loc.getPath().substring(1)
+            + ((line == 0 && col == 0) ? "" : 
+            (":"
+            + String.format("%0" + lineWidth + "d", line)
+            + ":"
+            + String.format("%0" + colWidth + "d", col)))
+            + ": "
+            + ((IString) msg.get("msg")).getValue();
     }
 }
