@@ -44,7 +44,6 @@ source locations are not useful in any UI context.
 }
 data Message(list[Message] causes=[]) 
     = error(str msg, loc at)
-    | error(str msg)  
     | warning(str msg, loc at)
     | info(str msg, loc at)
     ;
