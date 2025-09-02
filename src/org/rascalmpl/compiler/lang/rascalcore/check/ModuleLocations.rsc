@@ -112,7 +112,7 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
         return replaceAll(path, "/", "::");
     }
     if(!( rscFile || tplFile )){
-        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories
