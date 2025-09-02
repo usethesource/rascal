@@ -85,11 +85,65 @@ public class LocalRepoTest extends AbstractMavenTest {
         List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
 
         // just parent:rascal:1.0 and org.rascalmpl:rascal:1.0
-        Assert.assertEquals(resolvedDependencies.size(), 2);
+        Assert.assertEquals(2, resolvedDependencies.size());
 
         for (Artifact artifact : resolvedDependencies) {
             Assert.assertTrue(artifact.getMessages().isEmpty());
         }
+    }
+
+    /**
+     * This test checks if transitive exclusions work correctly:
+     * - pom-transitive-exclusions.xml has trans:level1:1.0 as a dependency with trans:level3 as an exclusion
+     * - trans:level1:1.0 has trans:level2:1.0 as dependency
+     * - trans:level2:1.0 has trans:level3:1.0 as dependency
+     * - trans:level3:1.0 should not be included in the resolved dependencies
+     */
+    @Test
+    public void testTransitiveExclusions() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-transitive-exclusions.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        Assert.assertEquals(2, resolvedDependencies.size());
+        Assert.assertTrue(resolvedDependencies.stream().allMatch(artifact -> !artifact.getCoordinate().getArtifactId().equals("level3")));
+    }
+
+    /**
+     * This test checks if caching takes transitive exclusions into account.
+     * - pom-transitive-exclusions.xml has:
+     *      - trans:level1:1.0 as a dependency with trans:level3 as an exclusion
+     *      - trans:level2:1.0 as a dependency without exclusions
+     * - trans:level1:1.0 has trans:level2:1.0 as dependency
+     * - trans:level2:1.0 has trans:level3:1.0 as dependency
+     * - trans:level3:1.0 should be included in the resolved dependencies because there is a path where it is not excluded.
+     */
+    @Test
+    public void testExclusionBasedCaching() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-exclusion-caching.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        Assert.assertEquals(3, resolvedDependencies.size());
+        Assert.assertTrue(resolvedDependencies.stream().anyMatch(artifact -> artifact.getCoordinate().getArtifactId().equals("level3")));
+    }
+
+    /**
+     * This test checks if version numbers are resolved "breadth-first".
+     * - pom-breadth-first.xml has:
+     *     - breadth-first:level1a:1.0 as a dependency
+     *     - breadth-first:level1b:1.0 as a dependency
+     * - breadth-first:level1a:1.0 has breadh-first:level2:1.0 as a dependency
+     * - breadth-first:level2:1.0 has breadh-first:level3:1.0 as a dependency
+     * - breadth-first:level1b:1.0 has breadh-first:level3:2.0 as a dependency
+     * 
+     * When resolving breadth-first, breadth-first:level3 should be resolved to version 2.0.
+     */
+    @Test
+    public void testBreadthFirstResolving() throws ModelResolutionError, UnresolvableModelException, IOException {
+        var parser = new MavenParser(settings, getPomsPath("local-reference/pom-breadth-first.xml"), tempRepo);
+        Artifact project = parser.parseProject();
+        List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
+        var level3 = resolvedDependencies.get(3);
+        Assert.assertEquals("2.0", level3.getCoordinate().getVersion());
     }
 
     @Ignore
