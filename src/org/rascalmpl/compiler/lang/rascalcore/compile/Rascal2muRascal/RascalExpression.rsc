@@ -273,7 +273,7 @@ private str removeMargins(str s) {
 // --- computeIndent
 
 private str computeIndent(str s) {
-   removed = removeMargins(s);
+   str removed = removeMargins(s);
    if(endsWith(s, "\n")){
       return "";
    }
