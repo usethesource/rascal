@@ -28,10 +28,12 @@ public class SkippedNodeFlattener<T, P> {
 	private static class MemoKey {
 		private int offset;
 		private int length;
+		private int errorPos;
 
 		public MemoKey(SkippedNode node) {
 			this.offset = node.getOffset();
 			this.length = node.getLength();
+			this.errorPos = node.getErrorPosition();
 		}
 
 		@Override
@@ -40,12 +42,12 @@ public class SkippedNodeFlattener<T, P> {
 				return false;
 			}
 			MemoKey peerKey = (MemoKey) peer;
-			return offset == peerKey.offset && length == peerKey.length;
+			return offset == peerKey.offset && length == peerKey.length && errorPos == peerKey.errorPos;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(offset, length);
+			return Objects.hash(offset, length, errorPos);
 		}
 	}
 
@@ -68,12 +70,16 @@ public class SkippedNodeFlattener<T, P> {
 
 		result = nodeConstructorFactory.createSkippedNode(node.getSkippedChars());
 
-		// Add source location
+		// Add source and parse error locations
 		if (node.getInputUri() != null) {
 			int startOffset = node.getOffset();
 			int endOffset = startOffset + node.getLength();
 			P sourceLocation = nodeConstructorFactory.createPositionInformation(node.getInputUri(), startOffset, endOffset, positionStore);
 			result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
+
+			int errorPos = node.getErrorPosition();
+			P errorLocation = nodeConstructorFactory.createPositionInformation(node.getInputUri(), errorPos, errorPos+1, positionStore);
+			result = nodeConstructorFactory.addParseErrorPosition(result, errorLocation);
 		}
 
 		memoTable.put(key, result);
