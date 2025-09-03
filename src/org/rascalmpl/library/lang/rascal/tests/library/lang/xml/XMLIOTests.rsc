@@ -97,3 +97,10 @@ private bool originTracking(node example, str content) {
 
    return true;
 }
+
+test bool streamingAPI() {
+    loc l = |std:///lang/rascal/tests/library/lang/xml/glossary.xml|;
+    next = streamXML(|std:///lang/rascal/tests/library/lang/xml/glossary.xml|, "GlossEntry");
+
+    return just(node _) := next() && nothing() := next();
+}
