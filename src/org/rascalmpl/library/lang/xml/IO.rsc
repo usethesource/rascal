@@ -1,9 +1,9 @@
 @synopsis{Basic IO for XML to Rascal and  back}
 @description{
-The XML binding implemented by this module is _untyped_. The readers produce
+The XML binding implemented by this module is _untyped_. The readers and streamers produce
 values of type `node` for every (nested) tag. 
 
-To bind the resulting values to more strictly typed ADTs, use ((util::Validate)).
+To bind the resulting values to more strictly typed ADTs, use ((util::Validator)).
 }
 module lang::xml::IO
 
@@ -35,6 +35,7 @@ nextCD()
 nextCD()
 // or we get the next 500, filtering the final `nothing()` results:
 [ cd | _ <- [0..500], just(cd) := nextCD()]
+```
 }
 @benefits{
 * Low latency for accessing the first element in a long stream, and then the next and the next.
