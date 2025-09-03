@@ -1,6 +1,7 @@
 module lang::rascal::tests::library::lang::xml::XMLIOTests
 
 import IO;
+import String;
 import lang::xml::IO;
 
 bool checkXMLResult(str input, node expected, bool fullyQualify = false) {
@@ -84,9 +85,14 @@ private bool originTracking(node example, str content) {
    poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, str line> <- poss, p.offset?) { // some (top) nodes do not have offsets
-      assert content[p.offset] == "\<";                // all nodes start with a opening tag <
-      assert content[p.offset + p.length - 1] == "\>"; // all nodes end with a closing tag >
-      assert "<p.begin.line>" == line;
+      assert content[p.offset] == "\<" 
+        : "<p> does not start with an opening \<";                // all nodes start with a opening tag <
+
+      assert trim(content[p.offset..p.offset + p.length])[-1] == "\>" 
+        : "<p> does not end with a closing \> [<content[p.offset..p.offset+p.length]>]]"; // all nodes end with a closing tag >
+
+      assert "<p.begin.line>" == line 
+        : "<p> begin line is unequal to actual begin line <line>";
    }
 
    return true;
