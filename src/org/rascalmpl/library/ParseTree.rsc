@@ -785,7 +785,7 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 ```
 }
-java &T<:value implode(type[&T<:value] t, Tree tree)
+java &T<:value implode(type[&T<:value] t, Tree tree);
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
