@@ -26,21 +26,9 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
 
-/*
-    Perform a path analysis on the Rascal source code of a function.
-    On the fly it will report dead code.
-*/
-
-extend lang::rascalcore::check::CheckerCommon;
+datetime now() = $2025-07-17T22:11:24.970+00:00$;
+                     
+datetime created(int n) = now();
+data D = created(int n);
  
-import lang::rascal::\syntax::Rascal;
-
-// import String;
-
-/********************************************************************/
-/*       Return path analysis                                       */
-/********************************************************************/
-
-
-bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
-    = true;
+bool main(){  return created(0) <= now(); }

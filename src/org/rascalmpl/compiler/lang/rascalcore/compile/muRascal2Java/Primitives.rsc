@@ -96,7 +96,7 @@ list[str] transPrimArgs(str prim, AType r, list[AType] atypes, list[MuExp] exps,
 
 JCode transPrim("add_list_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
 JCode transPrim("add_set_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)         = "<w>.insert(<v>);\n"; 
-JCode transPrim("add_map_writer", AType r, list[AType] atypes, [str w, str k, str v], JGenie jg)  = "<w>.insert($VF.tuple(<k>, <v>));\n"; 
+JCode transPrim("add_map_writer", AType r, list[AType] atypes, [str w, str k, str v], JGenie jg)  = "<w>.insert($RVF.tuple(<k>, <v>));\n"; 
 JCode transPrim("add_string_writer", AType r, [AType a], [str w, str s], JGenie jg)      = "<w>.write(<s>.getValue());\n" when a == astr();
 JCode transPrim("add_string_writer", AType r, [AType a], [str w, str s], JGenie jg)      = "<w>.write(<s>.toString());\n" when a != astr();
 
@@ -138,8 +138,8 @@ JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie j
 //        return muPrim(op, result, details, newArgs, src);
 //    }                                                         
 // TODO reconsider arg [AType a]
-JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.list(<intercalate(", ", args)>)";
-JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)              = "$VF.set(<intercalate(", ", args)>)";
+JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)             = "$RVF.list(<intercalate(", ", args)>)";
+JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)              = "$RVF.set(<intercalate(", ", args)>)";
 JCode transPrim("create_map", AType r, [AType a, AType b], list[str] args, JGenie jg)     = "$buildMap(<intercalate(", ", args)>)";
 JCode transPrim("create_loc", aloc(), [AType a], [str uri], JGenie jg)                    = "$create_aloc(<uri>)";
 JCode transPrim("create_loc_with_offset", aloc(), [aloc(), aint(), aint()], [str l, str off, str len], JGenie jg)
@@ -147,12 +147,12 @@ JCode transPrim("create_loc_with_offset", aloc(), [aloc(), aint(), aint()], [str
 JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc(),aint(), aint(),_,_], [str l, str off, str len, str bgn, str end], JGenie jg)
                                                                                           = "$create_aloc_with_offset_and_begin_end(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
 
-JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$VF.tuple(<intercalate(", ", args)>)";
+JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$RVF.tuple(<intercalate(", ", args)>)";
 
 list[str] transPrimArgs("create_node", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
                                                                                           = [ trans(exp, jg) | exp <- exps ];
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
-                                                                                          = "$VF.node(<castArg(astr(), name)>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
+                                                                                          = "$RVF.node(<castArg(astr(), name)>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
                                                                                           
 list[str] transPrimArgs("create_reifiedType", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
                                                                                           = [ trans(exp, jg) | exp <- exps ];
@@ -234,8 +234,8 @@ JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGe
 // has_field
 // ---- in --------------------------------------------------------------------
 
-JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$VF.bool(<y>.contains(<x>))"                when isSetOrListLikeType(b);
-JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$VF.bool(<y>.containsKey(<x>))"             when isMapAType(b);
+JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$RVF.bool(<y>.contains(<x>))"                when isSetOrListLikeType(b);
+JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$RVF.bool(<y>.containsKey(<x>))"             when isMapAType(b);
 
 // ---- intersect -------------------------------------------------------------
 
@@ -343,7 +343,7 @@ JCode transPrim("nonterminal-get-arg", AType r, [AType a, aint()], [str s, str i
 
 // ---- not -------------------------------------------------------------------
 
-list[str] transPrimArgs("not", abool(), [abool()], [MuExp x], JGenie jg)                 = [producesNativeBool(x) ? "$VF.bool(<trans(x, jg)>)" : trans(x, jg) ];
+list[str] transPrimArgs("not", abool(), [abool()], [MuExp x], JGenie jg)                 = [producesNativeBool(x) ? "$RVF.bool(<trans(x, jg)>)" : trans(x, jg) ];
            
 JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                           = "(<castArg(abool(),x)>).not()";
 
@@ -353,14 +353,14 @@ JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie 
 
 // ---- notin -----------------------------------------------------------------
 
-JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).contains(<x>))"       when isSetOrListLikeType(b);
-JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).containsKey(<x>))"    when isMapAType(b);
+JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$RVF.bool(!(<y>).contains(<x>))"       when isSetOrListLikeType(b);
+JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$RVF.bool(!(<y>).containsKey(<x>))"    when isMapAType(b);
                                                                                                             
 // ---- open_..._writer -------------------------------------------------------
 
-JCode transPrim("open_list_writer", AType r, [], [], JGenie jg)                          = "$VF.listWriter()";
-JCode transPrim("open_set_writer", AType r, [], [], JGenie jg)                           = "$VF.setWriter();\n";   
-JCode transPrim("open_map_writer", AType r, [], [], JGenie jg)                           = "$VF.mapWriter()";  
+JCode transPrim("open_list_writer", AType r, [], [], JGenie jg)                          = "$RVF.listWriter()";
+JCode transPrim("open_set_writer", AType r, [], [], JGenie jg)                           = "$RVF.setWriter();\n";   
+JCode transPrim("open_map_writer", AType r, [], [], JGenie jg)                           = "$RVF.mapWriter()";  
 JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)                        = "new StringWriter()";
 
 // ---- parse -----------------------------------------------------------------
@@ -577,6 +577,8 @@ JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie 
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b), !equivalent(getElementType(a), b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapAType(a), isMapAType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$adatetime_subtract_adatetime(<x>,<y>)"     
+                                                                                                when isDateTimeAType(a), isDateTimeAType(b);
 
 // ---- delete ----------------------------------------------------------------
 JCode transPrim("delete", AType r, [AType a, AType b], [str x, str y], JGenie jg)        = "<x>.delete(<y>)";
