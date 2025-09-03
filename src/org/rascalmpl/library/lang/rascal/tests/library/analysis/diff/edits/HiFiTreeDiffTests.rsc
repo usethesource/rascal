@@ -42,7 +42,7 @@ TreeDiff is syntactically correct if:
 * The tree after rewriting _matches_ the tree after applying the edits tot the source text and parsing that.
 * Note that _matching_ ignores case-insensitive literals and layout, indentation and comments
 }
-bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform, list[TextEdit](Tree, Tree) diff) {
+bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, Tree(Tree) transform, list[TextEdit](Tree, Tree) diff) {
     orig        = parse(grammar, example);
     transformed = transform(orig);
     edits       = diff(orig, transformed);
@@ -82,7 +82,7 @@ significant changes to the code have been made.
 * This specification is not true for any transformation. Only apply it to 
 a test case if you can expect indentation-preservation for _the entire file_.
 }
-bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, (&T<:Tree)(&T<:Tree) transform, list[TextEdit](Tree, Tree) diff) {
+bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, Tree(Tree) transform, list[TextEdit](Tree, Tree) diff) {
     orig        = parse(grammar, example);
     transformed = transform(orig);
     edits       = diff(orig, transformed);
@@ -91,7 +91,7 @@ bool editsMaintainIndentationLevels(type[&T<:Tree] grammar, str example, (&T<:Tr
     return indentationLevels(example) == indentationLevels(edited);
 }
 
-(&X<:Tree) identity(&X<:Tree x) = x;
+Tree identity(Tree x) = x;
 
 start[Program] swapAB(start[Program] p) = visit(p) {
     case (Id) `a` => (Id) `b`

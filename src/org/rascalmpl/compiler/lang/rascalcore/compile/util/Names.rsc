@@ -29,13 +29,7 @@ module lang::rascalcore::compile::util::Names
 import String;
 import List;
 import util::Reflective;
-
-data PathConfig(
-    loc generatedSources       = |unknown:///|,
-    loc generatedTestSources   = |unknown:///|,
-    loc generatedResources     = |unknown:///|,
-    loc generatedTestResources = |unknown:///|
-);
+import lang::rascalcore::CompilerPathConfig;
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
 public /*const*/ str compiled_rascal_package_as_path = "org/rascalmpl"; //"rascal";
@@ -142,6 +136,16 @@ str asBaseInterfaceName(str qname){
 
 str asADTName(str adtName)
     = "ADT_<asJavaName(adtName, completeId=false)>";
+
+str asNTName(str adtName){
+    if(startsWith(adtName, "ADT_")){
+        return "NT_<adtName[4..]>";
+    }
+    if(adtName[0] == "$"){
+        return adtName;
+    }
+    return "NT_<asJavaName(adtName, completeId=false)>"; 
+}   
     
 set[str] javaKeywords = {
     "abstract", "continue", "for",        "new",       "switch",

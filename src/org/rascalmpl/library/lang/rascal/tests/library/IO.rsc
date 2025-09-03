@@ -26,7 +26,7 @@ test bool createdDoesNotCrashOnURIRewrites() {
     loc l = |tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|;
     remove(l);  // remove the file if it exists
     writeFile(l, "123456789");
-    return created(l) <= now();
+    return IO::created(l) <= now();
 }
 
 test bool testWriteBase32() {

@@ -110,7 +110,7 @@ test bool tst_rangeX(rel[int, int] X) {
 }
 
 @expected{UndeclaredField}
-@ignoreCompiler{The checker would detect this}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker}
 test bool fieldSelectionNoFields() {
    x = {};
    x<name>; // throws UndeclaredField

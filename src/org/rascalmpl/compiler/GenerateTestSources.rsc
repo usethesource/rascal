@@ -47,8 +47,8 @@ void main() = main([]);
 
 loc REPO = |file:///Users/paulklint/git/|;
 
-list[str] getRascalModules(loc rootFolder)
-  = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
+  = [ getModuleName(file, pcfg) //replaceAll(file[extension=""].path[1..], "/", "::") 
     | loc file <- find(rootFolder, "rsc") 
     ];        
 
@@ -58,28 +58,32 @@ void generateTestSources(list[str] cmdLineArgs) {
      return;
    }
    
-   genCompilerConfig = getAllSrcPathConfig()[logPathConfig=false];
+   pcfg = getAllSrcREPOPathConfig(keep=true);
+   genCompilerConfig = getAllSrcREPOCompilerConfig(pcfg, keep=true);
    
    map[str,int] durations = ();
 
-   modulesToCompile = [];
+   list[str] modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-      modulesToCompile = getRascalModules(|std:///|);     
+      modulesToCompile = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);     
    } else {              
-       testFolders = [ |std:///lang/rascal/tests|,
-                       //REPO + "/rascal-core/lang/rascalcore/check::tests"
-                       REPO + "/typepal/src/"
+       testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
+                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
+                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
+                      // , REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
                      ];
        
-       modulesToCompile = [ *getRascalModules(testFolder)
+       modulesToCompile = [ *getRascalModules(testFolder, pcfg)
                           | testFolder <- testFolders
                           ];
    }  
 
    ignored = ["lang::rascal::tests::concrete::Patterns3",
-              "lang::rascal::syntax::tests::ExpressionGrammars"
-             ];           
+               "lang::rascal::syntax::tests::ExpressionGrammars",
+               "lang::sdf2::util::SDF2Grammar",
+               "lang::sdf2::util::Importer"
+              ];           
    modulesToCompile -= ignored;    
    
    list[str] exceptions = [];
@@ -87,13 +91,13 @@ void generateTestSources(list[str] cmdLineArgs) {
    for (i <- index(modulesToCompile)) {
       m = modulesToCompile[i];
       println("Compiling module <m> [<i>/<n>]");
-      e = safeCompile(m, genCompilerConfig, (int d) { durations[m] = d; });
+      e = safeCompile(m, genCompilerConfig, void (int d) { durations[m] = d; });
       if(!isEmpty(e)){
         exceptions += e;
       }
    }
    println("Compiled <n> modules");
-   println("<size(exceptions)> failed to compile: <exceptions>");
+   println("<size(exceptions)> failed to compile:"); iprintln(exceptions);
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
@@ -101,14 +105,17 @@ void generateTestSources(list[str] cmdLineArgs) {
 }
 
 str safeCompile(str \module, RascalCompilerConfig compilerConfig, void (int duration) measure) {
+  result = "";
    try {
      measure(cpuTimeOf(() {    
        msgs = compile(\module, compilerConfig);
        if(!isEmpty(msgs)){
             iprintln(msgs);
        }
+       errors = [ msg | msg <- msgs, msg is error ];
+       result = isEmpty(errors) ? "" : "<errors>";
      }));
-     return "";
+     return result;
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
