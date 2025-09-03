@@ -23,13 +23,15 @@ public class SkippedNode extends AbstractNode {
 	private final URI inputUri;
 	private final int[] skippedChars;
 	private final int offset;
+	private final int errorPosition;
 
-	public SkippedNode(URI inputUri, int[] skippedChars, int offset) {
+	public SkippedNode(URI inputUri, int[] skippedChars, int offset, int errorPosition) {
 		super();
 		
 		this.inputUri = inputUri;
 		this.skippedChars = skippedChars;
 		this.offset = offset;
+		this.errorPosition = errorPosition;
 	}
 	
 	public int getTypeIdentifier(){
@@ -50,7 +52,11 @@ public class SkippedNode extends AbstractNode {
 	public int getOffset(){
 		return offset;
 	}
-	
+
+	public int getErrorPosition() {
+		return errorPosition;
+	}
+
 	public boolean isEmpty() {
 		return (skippedChars.length == 0);
 	}
@@ -65,6 +71,6 @@ public class SkippedNode extends AbstractNode {
 
 	@Override
 	public String toString() {
-		return "SkippedNode[skippedChars=" + new String(skippedChars, 0, skippedChars.length) + ",offset=" + offset + "]";
+		return "SkippedNode[skippedChars=" + new String(skippedChars, 0, skippedChars.length) + ",offset=" + offset + ",errorPos=" + errorPosition + "]";
 	}
 }

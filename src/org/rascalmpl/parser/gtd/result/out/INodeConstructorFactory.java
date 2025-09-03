@@ -47,6 +47,8 @@ public interface INodeConstructorFactory<T, P> {
 	P createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore);
 	
 	T addPositionInformation(T node, P location);
+
+	T addParseErrorPosition(T node, P location);
 	
 	Object getRhs(Object production);
 	
