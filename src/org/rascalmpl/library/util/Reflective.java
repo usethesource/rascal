@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -64,11 +65,13 @@ import io.usethesource.vallang.type.Type;
 public class Reflective {
 	protected final IValueFactory values;
 	private final IRascalMonitor monitor;
+	private RascalSearchPath resolver;
 
-	public Reflective(IValueFactory values, IRascalMonitor monitor) {
+	public Reflective(IValueFactory values, IRascalMonitor monitor, RascalSearchPath resolver) {
 		super();
 		this.values = values;
 		this.monitor = monitor;
+		this.resolver = resolver;
 	}
 	
 	public IString getRascalVersion() {
@@ -82,6 +85,16 @@ public class Reflective {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
+	}
+
+	public ISourceLocation resolveModuleOnCurrentInterpreterSearchPath(IString moduleName) {
+		var result = resolver.resolveModule(moduleName.getValue());
+
+		if (result == null) {
+			throw RuntimeExceptionFactory.moduleNotFound(moduleName);
+		}
+
+		return result;
 	}
 
 	public IString getLineSeparator() {

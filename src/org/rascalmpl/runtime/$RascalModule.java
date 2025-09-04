@@ -51,6 +51,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
@@ -224,6 +225,11 @@ public abstract class $RascalModule {
 				else if (formals[i].isAssignableFrom(IValueFactory.class)) {
                     args[i] = $RVF;
                 }
+				else if (formals[i].isAssignableFrom(RascalSearchPath.class)) {
+					// we set an empty dummy because in the compiled context,
+					// there is no Rascal search path.
+					args[i] = new RascalSearchPath();
+				}
                 else if (formals[i].isAssignableFrom(TypeStore.class)) {
                     args[i] = $TS;
                 }
