@@ -16,14 +16,10 @@ package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.exceptions.ImplementationError;
@@ -215,9 +211,5 @@ public class GlobalEnvironment {
 
 	public boolean isBootstrapper() {
 	    return bootstrapper;
-	}
-
-	public List<String> getExtendCycle() {
-        return Collections.unmodifiableList(extendStack.stream().collect(Collectors.toList()));
 	}
 }
