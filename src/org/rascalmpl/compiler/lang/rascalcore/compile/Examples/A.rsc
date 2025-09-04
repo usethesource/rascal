@@ -25,5 +25,26 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
-     
-public int X = 42;
+
+import IO;
+import lang::rascalcore::check::ATypeBase;
+
+AType makeClosedTypeParams(AType t){
+    println("makeClosedTypeParams: <t>");
+    AType res = visit(t) { case par:aparameter(str nm,AType bnd,closed=false) => par[closed=true] };
+    //println("makeClosedTypeParams =\> <res>");
+    return res;
+}
+
+value main() =  makeClosedTypeParams(aadt("TreeSearchResult",[aparameter("T",aadt("Tree",[],dataSyntax()),closed=true)],dataSyntax()));
+
+// set[str] usedTypeParameters(AType t){
+//     res = {};
+//     visit(t){
+//         case aparameter(str nm,_): {
+//             unm =  deUnique(nm);
+//             res = res + unm;
+//         }
+//     }
+//     return res;
+// }

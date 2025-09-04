@@ -60,19 +60,53 @@ data IdRole
     | typeVarId()
     ;
 
-public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] baseSyntaxRoles = {nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] syntaxRoles = {aliasId()} + baseSyntaxRoles;
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()};
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] localVariableRoles = formalRoles + {variableId(), patternVariableId()};
+public set[IdRole] variableRoles = localVariableRoles + { moduleVariableId() };
 public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
-                                                             moduleVariableId(), productionId(), nonterminalId()
+                                                             moduleVariableId(), productionId()
                                                            };
 public set[IdRole] assignableRoles = variableRoles;
+
+set[IdRole] variableOrAliasRoles = variableRoles + {aliasId()};
+set[IdRole] functionRoles = {functionId(), constructorId(), productionId()};
+set[IdRole] variableOrFunctionRoles = variableRoles + functionRoles;
+set[IdRole] variableAliasOrFunctionRoles = variableOrAliasRoles + functionRoles;
+
+// For each IdRole give a set of forbidden overloads with other IdRoles 
+// Not listed here or empty forbids: all overloads are allowed
+public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
+    (functionId():          variableRoles, 
+     constructorId():       variableRoles - {moduleVariableId(), productionId()},
+     productionId():        variableRoles - {moduleVariableId(), constructorId()},
+     variableId():          variableOrFunctionRoles,
+     moduleVariableId():    variableOrFunctionRoles - {constructorId(), productionId()},
+     formalId():            variableOrFunctionRoles - {nestedFormalId()},
+     nestedFormalId():      variableOrFunctionRoles - {formalId(), nestedFormalId()},
+     keywordFormalId():     variableOrFunctionRoles,
+     patternVariableId():   variableOrFunctionRoles,
+
+     nonterminalId():       syntaxRoles - nonterminalId(),
+     lexicalId():           syntaxRoles - lexicalId(),
+     layoutId():            syntaxRoles - layoutId(),
+     keywordId():           syntaxRoles - keywordId(),
+
+     fieldId():             { },
+     keywordFieldId():      { },
+     dataId():              { },
+     
+     aliasId():             {aliasId()},
+     typeVarId():           { },
+     annoId():              { }
+    );
 
 data PathRole
     = importPath()

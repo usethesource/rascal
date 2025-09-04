@@ -102,7 +102,7 @@ public class QuickCheck {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
-                                smallerValues[n] = types[n].randomValue(random, RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes(), vf, store, tpbindings, maxDepth, maxWidth);
+                                smallerValues[n] = types[n].randomValue(random, typesConfig, vf, store, tpbindings, maxDepth, maxWidth);
                             }
                             
                             for (int n = 0; n < formals.getArity(); n++) {

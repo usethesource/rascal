@@ -50,7 +50,7 @@ extend lang::rascalcore::check::BasicRascalConfig;
 extend ParseTree;
 
 import analysis::typepal::Messenger;
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::util::Names; // TODO: undesired forward reference
 
@@ -350,12 +350,9 @@ AType symbol2atype1(Symbol::label(str label, symbol)){
 }
 
 AType symbol2atype1(Symbol::\set(Symbol symbol)) = aset(symbol2atype(symbol));
-AType symbol2atype1(Symbol::\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
-AType symbol2atype1(Symbol::\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
 AType symbol2atype1(Symbol::\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
 AType symbol2atype1(Symbol::\list(Symbol symbol)) = alist(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
-AType symbol2atype1(Symbol::\bag(Symbol symbol)) = abag(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
 AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
 
@@ -1390,9 +1387,10 @@ bool isLexicalAType(AType::\iter-star(AType s, isLexical=b)) = b; //isLexicalATy
 bool isLexicalAType(AType::\iter-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
 bool isLexicalAType(AType::\iter-star-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
 
+bool isLexicalAType(\opt(AType atype)) = isLexicalAType(atype);
 bool isLexicalAType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalAType(s));
 bool isLexicalAType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalAType(s));
-bool isLexicalAType(AType t) = false;
+default bool isLexicalAType(AType t) = false;
 
 // ---- literal/terminal
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
@@ -1447,6 +1445,7 @@ bool isRegExpType(AType tp)
     = isEmpty(tp) || isIterType(tp) || isOptType(tp) || isAltType(tp) || isSeqType(tp);
 
 bool isIterType(aparameter(_,AType tvb)) = isIterType(tvb);
+bool isIterType(AType::\conditional(AType ss,_)) = isIterType(ss);
 bool isIterType(AType::\iter(_)) = true;
 bool isIterType(AType::\iter-star(_)) = true;
 bool isIterType(AType::\iter-seps(_,_)) = true;
@@ -1455,6 +1454,7 @@ bool isIterType(AType::\opt(_)) = true;
 default bool isIterType(AType _) = false; 
 
 AType getIterElementType(aparameter(_,AType tvb)) = getIterElementType(tvb);
+AType getIterElementType(AType::\conditional(AType ss,_)) = getIterElementType(ss);
 AType getIterElementType(AType::\iter(AType i)) = i;
 AType getIterElementType(AType::\iter-star(AType i)) = i;
 AType getIterElementType(AType::\iter-seps(AType i,_)) = i;
@@ -1465,6 +1465,7 @@ default AType getIterElementType(AType i) {
 }
  
 int getIterOrOptDelta(aparameter(_,AType tvb)) = getIterOrOptDelta(tvb);
+int getIterOrOptDelta(AType::\conditional(AType ss,_)) = getIterOrOptDelta(ss);
 int getIterOrOptDelta(AType::\iter(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-star(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-seps(AType i, list[AType] seps, isLexical=b)) {

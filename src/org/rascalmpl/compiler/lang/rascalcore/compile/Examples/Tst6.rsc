@@ -24,12 +24,25 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
+@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst6
- 
-import List;
-
- 
-value main() {
-  L = [1,2,3];
-  return size(L[1..2]);
+import IO;
+import ParseTree;
+import lang::rascal::grammar::storage::ModuleParserStorage;
+    
+lexical W = [\ ];
+layout L = W*;
+lexical A = [A];
+start syntax As = A+;
+    
+value main() { //test bool storeParserNonModule() {
+  storeParsers(#As, |home://test-tmp/parsersA.jar|);
+  p = loadParsers(|home://test-tmp/parsersA.jar|);
+  println("p1");
+  p1 = p(type(sort("As"), ()), "A A", |origin:///|);
+  println("p1 = <p1>");
+  println("p2");
+  p2 = parse(#As, "A A", |origin:///|);
+  println("p2 = <p2>");
+  return p1 == p2;
 }
