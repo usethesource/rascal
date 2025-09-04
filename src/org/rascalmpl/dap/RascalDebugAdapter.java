@@ -109,7 +109,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 services.warning("Could not read contents of " + l.top(), l);
                 return "";
             }
-        }, lineBase, columnBase);
+        });
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -313,14 +313,24 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
+    private int shiftLine(int line) {
+        // Rascal locations use 1 as line base. If DAP is configured to expect base 0, we shift the line number
+        return line + lineBase - 1;
+    }
+
+    private int shiftColumn(int column) {
+        // Rascal locations use 0 as column base. If DAP is configured to expect base 1, we shift the column
+        return column + columnBase;
+    }
+
     private StackFrame createStackFrame(int id, ISourceLocation loc, String name){
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
         if(loc != null){
             var offsets = columns.get(loc);
-            var line = offsets.translateLine(loc.getBeginLine());
-            var column = offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false);
+            var line = shiftLine(loc.getBeginLine());
+            var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
             frame.setLine(line);
             frame.setColumn(column);
             frame.setSource(getSourceFromISourceLocation(loc));

@@ -36,26 +36,10 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
     private final ArrayList<IntArray> wideColumnOffsets;
     private final ArrayList<IntArray> wideColumnOffsetsInverse;
 
-    private final int lineBase;
-    private final int columnBase;
-
-    public ArrayLineOffsetMap(IntArray lines, ArrayList<IntArray> wideColumnOffsets, ArrayList<IntArray> wideColumnOffsetsInverse, int lineBase, int columnBase) {
+    public ArrayLineOffsetMap(IntArray lines, ArrayList<IntArray> wideColumnOffsets, ArrayList<IntArray> wideColumnOffsetsInverse) {
         this.lines = lines;
         this.wideColumnOffsets = wideColumnOffsets;
         this.wideColumnOffsetsInverse = wideColumnOffsetsInverse;
-        this.lineBase = lineBase;
-        this.columnBase = columnBase;
-    }
-
-    @Override
-    public int translateLine(int line) {
-        // Rascal locations use 1 as line base. We shift the line number with the configured line base
-        return line + lineBase - 1;
-    }
-
-    @Override
-    public int translateInverseLine(int line) {
-        return line - lineBase + 1;
     }
 
     @Override
@@ -64,12 +48,11 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
         if (lineIndex < 0) {
             return column;
         }
-        // Rascal locations use 0 as column base. We shift the column with the configured column base
-        return column + translateColumnForLine(wideColumnOffsets.get(lineIndex), column, isEnd) + columnBase;
+        return column + translateColumnForLine(wideColumnOffsets.get(lineIndex), column, isEnd);
     }
 
     private int translateColumnForLine(IntArray lineOffsets, int column, boolean isEnd) {
-        int columnIndex = lineOffsets.search(column - columnBase);
+        int columnIndex = lineOffsets.search(column);
         if (columnIndex >= 0) {
             // exact hit
             if (isEnd) {
@@ -93,12 +76,8 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
     }
 
 
-    public static LineColumnOffsetMap build(String contents) {
-        return build(contents, 1, 0);
-    }
-
     @SuppressWarnings("java:S3776") // parsing tends to be complex
-    public static LineColumnOffsetMap build(String contents, int lineBase, int columnBase) {
+    public static LineColumnOffsetMap build(String contents) {
         int line = 0;
         int column = 0;
         char prev = '\0';
@@ -141,18 +120,10 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
         if (linesMap.isEmpty()) {
             return EMPTY_MAP;
         }
-        return new ArrayLineOffsetMap(linesWithSurrogate.build(), linesMap, inverseLinesMap, lineBase, columnBase);
+        return new ArrayLineOffsetMap(linesWithSurrogate.build(), linesMap, inverseLinesMap);
     }
 
     private static LineColumnOffsetMap EMPTY_MAP = new LineColumnOffsetMap(){
-        @Override
-        public int translateLine(int line) {
-            return line;
-        }
-        @Override
-        public int translateInverseLine(int line) {
-            return line;
-        }
         @Override
         public int translateColumn(int line, int column, boolean atEnd) {
             return column;

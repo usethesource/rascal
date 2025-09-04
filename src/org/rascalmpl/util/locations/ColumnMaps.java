@@ -40,14 +40,10 @@ public class ColumnMaps {
     private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
 
     public ColumnMaps(Function<ISourceLocation, String> getContents) {
-        this(getContents, 1, 0);
-    }
-
-    public ColumnMaps(Function<ISourceLocation, String> getContents, int lineBase, int columnBase) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l), lineBase, columnBase));
+            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l)));
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
