@@ -42,7 +42,8 @@ module lang::rascalcore::check::ATypeInstantiation
     Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
-extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
+import lang::rascalcore::check::ATypeUtils; // was extend
 extend lang::rascalcore::check::NameUtils;
 
 import List;
@@ -97,7 +98,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b) {
 }
 
 public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
-
+    //println("ENTER matchRascalTypeParams0: <r>, <s>, <b>"); 
     // The simple case: if the receiver is a basic type or a node 
     // (i.e., has no internal structure), just do a comparability
     // check. The receiver obviously does not contain a parameter.
@@ -113,7 +114,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
             if (varName in b) {
                 lubbed = alub(s, b[varName]);
                 if (!asubtype(lubbed, varBound))
-                    throw invalidMatch("Type parameter `<deUnique(varName)>` should be less than <prettyAType(varBound)>, but is bound to <prettyAType(lubbed)>");
+                    throw invalidMatch("Type parameter `<deUnique(varName)>` should be less than <prettyAType(deUnique(varBound))>, but is bound to <prettyAType(deUnique(lubbed))>");
                 b[varName] = lubbed;
             } else {
                 b[varName] = s;
@@ -132,6 +133,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
                 b[varName] = s;
             }
         }
+        //println("LEAVE matchRascalTypeParams0: <r>, <s> =\> <b>");
         return b;
     }
         
@@ -200,7 +202,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     
     if(comparable(r, s)) return b;
     
-    throw invalidMatch("Types <prettyAType(r)> and <prettyAType(s)> do not match");
+    throw invalidMatch("Types <prettyAType(deUnique(r))> and <prettyAType(deUnique(s))> do not match");
 }
 
 AType invalidInstantiation(str pname, AType bound, AType actual){
@@ -208,7 +210,7 @@ AType invalidInstantiation(str pname, AType bound, AType actual){
 }
 
 AType makeClosedTypeParams(AType t){
-    return visit(t) { case par:aparameter(_,_) => par[closed=true] };
+    return visit(t) { case par:aparameter(_, _) => par[closed=true] };
 }
 
 void requireClosedTypeParams(AType t){

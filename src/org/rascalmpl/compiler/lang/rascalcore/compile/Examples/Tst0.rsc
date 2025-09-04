@@ -25,7 +25,18 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst0
-
-import lang::rascalcore::check::Checker;
-
-value main() = 42;
+  
+import ParseTree;
+import String;
+import IO;
+import util::Reflective;
+import Grammar;
+           
+value main() {
+    GEMPTY0 =  grammar({sort("S")}, ());
+    s = sort("S");
+    GEMPTY1 = grammar({s}, ());
+    println("GEMPTY0, <getHashCode(GEMPTY0)>, <typeOf(GEMPTY0)>, <GEMPTY0>");
+    println("GEMPTY1, <getHashCode(GEMPTY1)>, <typeOf(GEMPTY1)>, <GEMPTY1>");
+    return -1;
+}

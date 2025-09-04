@@ -33,6 +33,7 @@ are only available as binary (e.g., as.tpl files on the libs path).
 module lang::rascalcore::check::tests::BinaryDependencyTests
 
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::TestConfigs;
 import util::Reflective;
 import IO;
@@ -41,6 +42,7 @@ import Map;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
+import lang::rascalcore::check::ModuleLocations;
 
 
 // ---- Utilities for test setup ----------------------------------------------
@@ -67,7 +69,7 @@ loc generatedSources(str pname)
     = projectDir(pname) + "generated/";
 
 loc resources(str pname)
-    = projectDir(pname) + "resources/";
+    = projectDir(pname) + "bin/";
 
 Project createProject(str pname, map[str mname, str mtext] modules, PathConfig pcfg){
     remove(projectDir(pname), recursive=true);
@@ -239,7 +241,7 @@ test bool importSimpleBinaryModule(){
                   'int bFunction() = aFunction(); // library usage
                   "),
             createPathConfig(clientName)
-                    [libs=[resources(libName)]] // library dependency on where the .tpl files are
+                    [libs=[bin(libName)]] // library dependency on where the .tpl files are
                 );
     return checkExpectNoErrors("B", client.pcfg, remove = [lib, client]);
 }
@@ -263,7 +265,7 @@ test bool extendTransitiveBinaryModule() {
                             'int bFunction() = aFunction();  // library usage
                             "),
                        createPathConfig(clientName)
-                        [libs=[resources(libName)]]);        // dependency on library lib
+                        [libs=[bin(libName)]]);        // dependency on library lib
 
     assert checkExpectNoErrors("B", client.pcfg);
     client = removeSourceOfModule("B", client);
@@ -277,8 +279,8 @@ test bool extendTransitiveBinaryModule() {
 
     return  checkExpectNoErrors("C",
             client.pcfg
-                [libs=[resources(libName) ,       // library dependencies for both projects we depend on
-                       resources(clientName)]]
+                [libs=[bin(libName) ,       // library dependencies for both projects we depend on
+                       bin(clientName)]]
             remove = [lib, client]);
 }
 
@@ -302,7 +304,7 @@ test bool incompatibleWithBinaryLibrary(){
                       'int main() = f(42, 43); // incompatible call fo f
                     "),
                      createPathConfig(clientName)
-                        [libs = [resources(libName)] ]
+                        [libs = [bin(libName)] ]
          );
     return checkExpectErrors("M2", ["Expected 1 argument(s), found 2"], client.pcfg, remove = [lib, client]);
 }
@@ -327,7 +329,7 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
                       'int main() = f(42);
                     "),
                      createPathConfig(clientName)
-                        [libs = [resources(libName)] ]
+                        [libs = [bin(libName)] ]
          );
     assert checkExpectNoErrors("M2", client.pcfg);
 
@@ -373,7 +375,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
         createProject(typepalName,
                       ("TP": "extend IO;"),
                       createPathConfig(typepalName)
-                        [libs = [resources(rascalName)]] // binary dependency on rascal
+                        [libs = [bin(rascalName)]] // binary dependency on rascal
         );
     assert checkExpectNoErrors("TP", typepal.pcfg);
 
@@ -385,8 +387,8 @@ test bool incompatibleVersionsOfBinaryLibrary(){
                               'value main() = f(3);
                               "),
                     createPathConfig(coreName)
-                        [libs = [ resources(rascalName),
-                                  resources(typepalName)] ] // binary dependency on rascal and typepal
+                        [libs = [ bin(rascalName),
+                                  bin(typepalName)] ] // binary dependency on rascal and typepal
         );
     assert checkExpectNoErrors("Check", core.pcfg);
 
