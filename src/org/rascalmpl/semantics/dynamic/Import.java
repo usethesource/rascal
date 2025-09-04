@@ -194,13 +194,7 @@ public abstract class Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-      // try {
-			  extendCurrentModule(this.getLocation(), name, eval);
-      // }
-      // catch (CyclicExtend e) {
-        // handleLoadError(eval, name, e.getMessage(), eval.getHeap().getModule(name).getLocation(), getLocation());
-      // }
-
+      extendCurrentModule(this.getLocation(), name, eval);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}
@@ -217,9 +211,6 @@ public abstract class Import {
 		  try {  
 		    importModule(name, getLocation(), eval);
 		  }
-      // catch (CyclicExtend e) {
-      //   handleLoadError(eval, name, e.getMessage(), eval.getHeap().getModule(name).getLocation(), getLocation());
-      // }
 		  finally {
 		    eval.setCurrentAST(this);
 		  }
@@ -248,22 +239,27 @@ public abstract class Import {
 
 	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
-		
+
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
-			loadModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
-			loadModule(src, name, eval);
 		} 
-		
-		addImportToCurrentModule(src, name, eval);
+
+    ModuleEnvironment modEnv = loadModule(src, name, eval);
+
+    if (modEnv.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
+      eval.warning(name + " was loaded but not imported here because it has errors.", src);
+    }
+    else {
+      addImportToCurrentModule(src, name, eval);
+    }
 		
 		if (heap.getModule(name).isDeprecated()) {
-			eval.getErrorPrinter().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			eval.warning(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage(), src);
 		}
 		
 		return;
@@ -287,7 +283,11 @@ public abstract class Import {
       other = loadModule(x, name, eval);
     } 
 
-    
+    if (other.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
+      eval.warning(name + " was loaded but not extended in here because it has errors", x);
+      return;
+    }
+
     // If we are trying to extend ourselves, we should stop here,
     // otherwise we can go ahead and merge the other module in.
     // Beware that the other module may already have been extended
@@ -301,7 +301,7 @@ public abstract class Import {
     }
     else {
         // good to go!
-        thisEnv.extend(other); //heap.getModule(name));
+        thisEnv.extend(other); 
     }
 	}
 	
@@ -326,7 +326,7 @@ public abstract class Import {
           Module module = buildModule(uri, env, eval, jobName);
 
           if (isDeprecated(module)) {
-              eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+              eval.warning("Deprecated module " + name + ":" + getDeprecatedMessage(module), uri);
           }
 
           if (module != null) {
@@ -340,15 +340,15 @@ public abstract class Import {
           }
       }
       catch (StaticError e) {
-          handleLoadError(eval, name, e.getMessage(), e.getLocation(), x);
+          handleLoadError(eval, name, e.getMessage(), e.getLocation());
           throw e;
       }
-      catch (Throw  e) {
-          handleLoadError(eval, name, e.getMessage(), e.getLocation(), x);
+      catch (Throw e) {
+          handleLoadError(eval, name, e.getMessage(), e.getLocation());
           throw e;
       } 
       catch (Throwable e) {
-          handleLoadError(eval, name, e.getMessage(), x, x);
+          handleLoadError(eval, name, e.getMessage(), x);
           e.printStackTrace();
           throw new ModuleImport(name, e.getMessage(), x);
       } 
@@ -360,15 +360,16 @@ public abstract class Import {
 	}
   
   /*
-   * This tries to clean up any module that ends up in an inconsistent state. The big feature is to 
-   * find all dependent modules and remove them as well. After fixing the issue, the user can start
-   * reloading modules again.
+   * This tries to clearly warn about any module that ends up in an inconsistent state. The modules
+   * are kept on the heap because they form a proper dependency graph that can be used to accurately
+   * reload all dependent modules after a fix.
+   * 
+   * The side-effect of this method is that the prompt looses access to the fawlty modules, such
+   * that users can not start depending (easily) on their ill-defined behavior.
    */
-  private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error, ISourceLocation module) {
+  private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error) {
       eval.getEvaluator().warning(message, error);
-      eval.getEvaluator().warning("Unloading " + name + " from the prompt.", module);
-      eval.__getRootScope().unImport(name);
-      eval.__getRootScope().unExtend(name);
+      eval.getHeap().getModule(name).setFawlty();
   }
 
 
@@ -548,11 +549,14 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
 			  throw rascalException;
 		  }
 	  }
+    catch (CyclicExtend e) {
+      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
+    }
     catch (StaticError e) {
-      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation(), imp.getLocation());
+      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
     }
 	  catch (Throwable e) {
-		  handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), imp.getLocation(), imp.getLocation());
+		  handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), imp.getLocation());
 		  // parsing the current module should be robust wrt errors in modules it depends on.
 		  if (eval.isInterrupted()) {
 			  throw e;
