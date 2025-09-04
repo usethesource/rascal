@@ -170,8 +170,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 }
                 Breakpoint b = new Breakpoint();
                 b.setId(i);
-                b.setLine(shiftLine(breakpoint.getLine()));
-                b.setColumn(shiftColumn(breakpoint.getColumn()));
+                b.setLine(breakpoint.getLine());
+                b.setColumn(breakpoint.getColumn());
                 b.setVerified(treeBreakableLocation != null);
                 breakpoints[i] = b;
             }
@@ -313,24 +313,14 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
-    private int shiftLine(int line) {
-        // Rascal locations use 1 as line base. If DAP is configured to expect base 0, we shift the line number
-        return line + lineBase - 1;
-    }
-
-    private int shiftColumn(int column) {
-        // Rascal locations use 0 as column base. If DAP is configured to expect base 1, we shift the column
-        return column + columnBase;
-    }
-
     private StackFrame createStackFrame(int id, ISourceLocation loc, String name){
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
         if(loc != null){
             var offsets = columns.get(loc);
-            var line = shiftLine(loc.getBeginLine());
-            var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
+            var line = offsets.translateLine(loc.getBeginLine());
+            var column = offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false);
             frame.setLine(line);
             frame.setColumn(column);
             frame.setSource(getSourceFromISourceLocation(loc));
