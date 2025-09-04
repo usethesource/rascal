@@ -85,6 +85,18 @@ in making configuration issues tractable.
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
+@javaClass{org.rascalmpl.library.util.Reflective}
+@synopsis{Search a module name in the interpreter's search path}
+@description{
+This exists to help debugging interactive loading and reloading of Rascal modulePathAsList
+by the REPL and the interpreter. It does not work in a compiled context.
+}
+@pitfalls{
+This is internal information for the interpreter and should not be used by client code.
+Only for debugging purposes of the interpreter and the REPL.
+}
+java loc resolveModuleOnCurrentInterpreterSearchPath(str moduleName);
+
 @synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
