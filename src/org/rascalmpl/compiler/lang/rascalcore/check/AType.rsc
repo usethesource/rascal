@@ -34,8 +34,13 @@ module lang::rascalcore::check::AType
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::agrammar::definition::Characters;
 
+import lang::rascalcore::check::ATypeInstantiation;
+
+import IO;
 import Node;
 import Set;
+import String;
+import List;
 
 // ---- asubtype --------------------------------------------------------------
 
@@ -84,16 +89,8 @@ default bool asubtype(AType l, AType r){
             return asubtype(l, t);
         case \seq(list[AType] rl):
             return \seq(list[AType] ll) := l && asubtypeList(ll, rl);
-        case p2:aparameter(str _, AType b2): {
-                res = false;
-                if(l is aparameter){
-                    res = asubtypeParam(l, r);
-                } else {
-                    res = p2.closed ? (equivalent(l, b2) || l is avoid) : asubtype(l, b2);     // [S6, S8]
-                }
-                //println("asubtype(<l>, <r>) =\> <res>");
-                return res;
-            }
+        case p:aparameter(str _, AType _):
+            return asubtypeRightTypeParam(l, p);
         case areified(AType t):
             return asubtype(l, t);
     }
@@ -103,35 +100,78 @@ default bool asubtype(AType l, AType r){
         return l == r;
 }
 
-bool asubtype(p1:aparameter(str n1, AType b1), AType r)
-    = asubtypeParam(p1, r);
+bool occursTypeParameter(str nm, AType t){
+    unm = deUnique(nm);
+    visit(t){
+        case p:aparameter(_,_):
+            if(unm == deUnique(p.pname)) return true;
+    }
+    return false;
+}
 
 // From "Exploring Type Parameters:
+// [S1] asubtype(aparameter(n1, b1,closed=false), aparameter(n2, b2, closed=false))  = true;
+// [S2] asubtype(aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=true))     = n1 == n2
+// [S3] asubtype(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=true)) = asubtype(p1, b2); // let op parameters in bounds
+// [S4] asubtype(aparameter(n1, b1,closed=true), p2:aparameter(n2, b2,closed=false)) = asubtype(b1, p2);
+
+// [S5a] asubtype(aparameter(n, b, closed=false), r) = asubtype(b, r) when !(r is aparameter), !occursTypeParameter(n, r)
+// [S5b] asubtype(aparameter(n, b, closed=false), r) = true when occursTypeParameter(n, r)
+// [S6a] asubtype(l, aparameter(n, b,closed=false))  = asubtype(l, b) when !(l is aparameter), !occursTypeParameter(n, l)
+// [S6b] asubtype(l, aparameter(n, b,closed=false))  = false when occursTypeParameter(n, l)
+// [S7a]  asubtype(aparameter(n, b,closed=true), r)  = true when occursTypeParameter(n, r)
+// [S7b]  asubtype(aparameter(n, b,closed=true), r)  = asubtype(b, r) when !(r is aparameter),  !occursTypeParameter(n, r)
+// [S8a] asubtype(l, aparameter(n, b,closed=true))   = l is avoid
+// [S8b] asubtype(l, aparameter(n, b,closed=true))   = false when occursTypeParameter(n, l)
+// [S8c] asubtype(l, aparameter(n, b,closed=true))   = equivalent(l,b) when !(l is parameter), !occursTypeParameter(n, l)
+
+bool asubtypeRightTypeParam(AType l, r:aparameter(str rnm, AType bnd)){
+    res = false;
+    if(l is aparameter){
+        res = asubtypeLeftTypeParam(l, r);
+    } else {
+        if(occursTypeParameter(rnm, l)){
+            res = false;
+        } else {
+            res = r.closed ? (equivalent(l, bnd) || l is avoid) : asubtype(l, bnd);     // [S6, S8]
+        }
+    }
+    //println("asubtypeRightTypeParam(<l>, <r>) =\> <res>");
+    return res;
+}
+
+bool asubtype(p1:aparameter(str n1, AType b1), AType r)
+    = asubtypeLeftTypeParam(p1, r);
+
 // aparameter, open
-bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
+bool asubtypeLeftTypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
      res = false;
      if(aparameter(str _, AType _, closed=false) := r){                 // [S1]
         res = true;
      } else if(aparameter(str _, AType b2, closed=true) := r){          // [S3]
         res = asubtype(p1, b2);
+     } else if(occursTypeParameter(n1, r)){
+        res = true;
       } else {                                                          // [S5]
         res = asubtype(b1, r);
      }
-     //println("asubtype(<p1>, <r>) =\> <res>");
+    //  println("asubtypeLeftTypeParam(<p1>, <r>) =\> <res>");
      return res;
  }
 
 // aparameter, closed
-bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
+bool asubtypeLeftTypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     res = false;
     if(aparameter(str n2, AType _, closed=true) := r ){                  // [S2]
         res = n1 == n2;
+    } else if(occursTypeParameter(n1, r)){
+        res = true;
     } else if(p2:aparameter(str _, AType _,closed=false) := r){// [S4]
         res = asubtype(b1, p2);
     } else {                                                              // [S7]
         res = asubtype(b1, r);
     }
-    //println("asubtype(<p1>, <r>) =\> <res>");
+    // println("asubtypeLeftTypeParam(<p1>, <r>) =\> <res>");
     return res;
 }
 
@@ -148,8 +188,6 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
              return comparableList(ap, bp);
         case adt: aadt(str _, list[AType] _, _):
              return asubtype(a,adt);
-        case afunc(a,list[AType] bp, list[Keyword] _):
-             return comparableList(ap, bp);
         case anode(_):
              return true;
         case afunc(AType b, list[AType] bp, list[Keyword] _):
@@ -182,8 +220,10 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     switch(b){
         case anode(_):
             return true;
+        //////////
         case acons(AType a, list[AType] _, list[Keyword] _):
-            return asubtype(adt, a);
+            if(isConcreteSyntaxRole(sr)) return asubtype(adt, a);
+        /////////
         case aadt(n, list[AType] r, _):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
@@ -192,6 +232,8 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
         case avalue():
             return true;
+        case p:aparameter(_, AType bnd):
+            return asubtypeRightTypeParam(adt, p);
     }
     fail;
 }
@@ -386,6 +428,8 @@ bool asubtype(areified(AType s), AType b){
             return true;
         case avalue():
             return true;
+        case p: aparameter(_, AType bnd):
+            return asubtypeRightTypeParam(s, p);
     }
     fail;
 }
@@ -467,60 +511,16 @@ default bool isLayoutAType(AType _) = false;
 .Synopsis
 Check if two types are comparable, i.e., have a common supertype.
 }
-bool comparable(AType s, AType t)
-    = s == t || asubtype(s,t) || asubtype(t,s);
+bool comparable(AType s, AType t){
+    return s == t || asubtype(s,t) || asubtype(t,s);
+}
 
 bool comparableList(list[AType] l, list[AType] r) {
     if(size(l) == 0){
         return size(r) == 0;
     }
-    //for(i <- index(l)){
-    //    b = comparable(l[i], r[i]);
-    //    println("comparableList <i>: <l[i]>, <r[i]> =\> <b>");
-    //}
     return size(l) == size(r) && all(i <- index(l), comparable(l[i], r[i]));
 }
-
-bool outerComparable(AType l, AType r){
-    return outerComparable1(l, r);
-}
-
-bool outerComparable1(AType l, l) = true;
-bool outerComparable1(alist(_), alist(_)) = true;
-bool outerComparable1(aset(_), aset(_)) = true;
-bool outerComparable1(abag(_), abag(_)) = true;
-bool outerComparable1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(arel(_), aset(_)) = true;
-bool outerComparable1(aset(_), arel(_)) = true;
-bool outerComparable1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(alrel(_), alist(_)) = true;
-bool outerComparable1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) == size(ts2);
-bool outerComparable1(amap(_,_), amap(_,_)) = true;
-
-bool outerComparable1(f1:afunc(AType r1, list[AType] p1, list[Keyword] _), f2:afunc(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && (f1.varArgs ? (f2.varArgs ? outerComparable(p1, p2)
-                                                           : outerComparable(p1[0..-1], p2))
-                                             : (f2.varArgs ? outerComparable(p1, p2[0..-1])
-                                                           : outerComparable(p1, p2)));
-
-bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), acons(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && outerComparable(p1, p2);
-bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && outerComparable(p1, p2);
-
-bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2))
-    = outerComparable(bound1, bound2);
-
-bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
-
-
-default bool outerComparable1(AType l, AType r) {
-    return comparable(l, r);
-}
-
-bool outerComparable(list[AType] l, list[AType] r) = all(i <- index(l), outerComparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-default bool outerComparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
-
 
 @doc{
 .Synopsis
@@ -631,8 +631,11 @@ AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType
                                                 = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
                                                   when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
 
-AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
-AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
+AType alub(aadt(str n, list[AType] lp, SyntaxRole lr), aadt(str m, list[AType] rp,SyntaxRole rr))
+    = n != m && (n == "Tree" && rr != dataSyntax() || m == "Tree" && lr != dataSyntax()) 
+      ? aadt("Tree", [], dataSyntax()) 
+      : anode([]);
+//AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
   if(a1.alabel? && a1.alabel == a2.alabel) adt = adt[alabel=a1.alabel];
@@ -661,7 +664,7 @@ AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, l
         return avalue();
 }
 
-AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
+//AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
 AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([]);
 
 AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
@@ -687,17 +690,17 @@ AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
 
-AType alub(\iter(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter-star(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-seps(_, _), \iter-seps(_,_)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-seps(_,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-seps(AType l, _), \iter-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-seps(AType l,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax()) when l != r;
 
-AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
+AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 
 AType alub(l:aadt("Tree", _, _), AType r) = l
     when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
@@ -817,7 +820,7 @@ AType aglb(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp
 AType aglb(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = aglb(a1,b);
 
 public AType aglb(acons(AType la, list[AType] _, list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = aglb(la,ra);
-public AType aglb(acons(AType a, list[AType] lp, list[Keyword] _), aadt(str n, list[AType] rp, SyntaxRole sr)) = aglb(a,aadt(n,rp,sr));
+//public AType aglb(acons(AType a, list[AType] lp, list[Keyword] _), aadt(str n, list[AType] rp, SyntaxRole sr)) = aglb(a,aadt(n,rp,sr));
 public AType aglb(acons(AType _, list[AType] _, list[Keyword] _), anode(list[AType] r)) = anode(r);
 
 public AType aglb(aalias(str _, list[AType] _, AType aliased), AType r) = aglb(aliased, r);

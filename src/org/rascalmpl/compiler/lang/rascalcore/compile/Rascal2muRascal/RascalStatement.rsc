@@ -37,8 +37,6 @@ import ParseTree;
 import util::Math;
 import util::Reflective;
 
-import lang::rascal::\syntax::Rascal;
-
 import lang::rascalcore::check::AType;
 //import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::Fingerprint;

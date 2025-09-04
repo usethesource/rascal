@@ -36,7 +36,7 @@ test bool matchNestedSet() = checkOK("{{1}} := {};");
 data Bool = and(Bool, Bool) | t();
 data Prop = or(Prop, Prop) | f();
 
-test bool cannotMatchListStr1() = cannotMatch("[1] := \"a\";");
+test bool cannotMatchListStr1() = cannotMatch("[1] := \"a\";");  // int and str are not comparable
 
 test bool unguardedMatchNoEscape1() = undeclaredVariable("int n = 3; int m := n; m == n;");
 
@@ -52,25 +52,29 @@ test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *in
  	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
   
-test bool matchListError2() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");
+test bool matchListError2() = cannotMatch("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; "); // list[str] and int are not comparable
   
-test bool matchBoolIntError1() = cannotMatch("true !:= 1;"); 
+test bool matchBoolIntError1() = cannotMatch("true !:= 1;"); // bool and int are not comparable
 
-test bool matchBoolIntError2() = cannotMatch("!(1 := true);"); 
+test bool matchBoolIntError2() = cannotMatch("!(1 := true);"); // int and bool are not comparable
 
-test bool noMatchBoolIntError1() = cannotMatch("true !:= 1;"); 
+
+test bool noMatchBoolIntError1() = cannotMatch("true !:= 1;"); // bool and int are not comparable
   
-test bool noMatchBoolIntError2() = cannotMatch("1 !:= true;");  	
+test bool noMatchBoolIntError2() = cannotMatch("1 !:= true;");  	// int and bool are not comparable
+
   
-test bool matchStringBoolError11() = cannotMatch("\"abc\" := true;");  
+test bool matchStringBoolError11() = cannotMatch("\"abc\" := true;");  // str and bool are not comparable
+
  
-test bool matchStringBoolError21() = cannotMatch("true := \"abc\";");  
+test bool matchStringBoolError21() = cannotMatch("true := \"abc\";");  // bool and str are not comparable
+
   	
-test bool noMatchStringBoolError11() = cannotMatch("\"abc\"  !:= true;");  
+test bool noMatchStringBoolError11() = cannotMatch("\"abc\"  !:= true;");  // str and bool are not comparable
 
-test bool noMatchStringBoolError21() = cannotMatch("true !:= \"abc\";");  
+test bool noMatchStringBoolError21() = cannotMatch("true !:= \"abc\";");  // bool and str are not comparable
 
-test bool matchStringIntError11() = cannotMatch("\"abc\" !:= 1;");  
+test bool matchStringIntError11() = cannotMatch("\"abc\" !:= 1;");  // str and int are not comparable
 
 test bool matchStringIntError2() = cannotMatch("1 !:= \"abc\";");  
   	
@@ -95,14 +99,18 @@ test bool noMatchIntRealError1() = cannotMatch("2  !:= 1.5;");
 test bool noMatchIntRealError2() = cannotMatch("1.5 !:= 2;"); 
  	
 test bool errorRedclaredVariable1() = redeclaredVariable("{1, *int L, 2, *int L} := {1,2,3};"); 
-  	
-test bool matchSetWrongElemError1() = checkOK("{1, \"a\", 2, *set[int] L} := {1,2,3};");
-  		
-test bool matchSetWrongElemError2() = checkOK("{1, set[str] L, 2} := {1,2,3};");
 
-test bool matchSetWrongElemError3() = checkOK("{1, str S, 2} := {1,2,3};");
- 
-test bool matchSetWrongElemError4() = cannotMatch("set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};"); 
+// pattern element of type set[int] and subject element type int are not comparable
+test bool matchSetWrongElemError1() = cannotMatch("{1, \"a\", 2, *set[int] L} := {1,2,3};"); 
+
+// pattern element of type set[str] and subject element type int are not comparable 		
+test bool matchSetWrongElemError2() = cannotMatch("{1, set[str] L, 2} := {1,2,3};");
+
+// pattern element of type str and subject element type int are not comparable
+test bool matchSetWrongElemError3() = cannotMatch("{1, str S, 2} := {1,2,3};");
+
+// pattern element of type set[str] and subject element type int are not comparable
+test bool matchSetWrongElemError4() = cannotMatch("set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};");
 
 test bool matchSetErrorRedeclaredSpliceVar() = redeclaredVariable("set[int] x = {1,2,3}; {1, * int L, * int L} := x;"); 
 
@@ -144,15 +152,15 @@ test bool noMatchTupleArityError() = cannotMatch("\<1\> !:= \<1,2\>;");
  
 test bool matchSetStringError() = cannotMatch("{1} := \"a\";");  
   
-test bool matchListError3() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
+test bool matchListError3() = cannotMatch("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");	
 	
 test bool matchListError4() = unexpectedDeclaration("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
-test bool matchListError5() = checkOK("!([1, list[str] L, 2] := [1,2,3]);"); 
+test bool matchListError5() = cannotMatch("!([1, list[str] L, 2] := [1,2,3]);"); 
  
 test bool matchListError6() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
    	
-test bool matchListError7() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
+test bool matchListError7() = cannotMatch("list[int] x = [1,2,3] ; [1, str S, 2] := x;");
   	
 test bool matchListError8() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
   	
@@ -274,7 +282,7 @@ test bool Lst1() = checkOK("[] := [1];");
 test bool Lst2() = checkOK("[1] := [1];");
 test bool Lst3() = checkOK("[1,2] := [1];");
 test bool Lst4() = checkOK("[1,2] := [1, 1.5];");
-test bool Lst5() = checkOK("[1,2.5] := [1, 2];");
+test bool Lst5() = cannotMatch("[1,2.5] := [1, 2];"); // real and int are not comparable
 test bool Lst6() = unexpectedType("[1] := [\"a\"];");
 test bool Lst7() = checkOK("[x] := [\"a\"];");
 test bool Lst8() = unexpectedType("m && x == \"a\";"); 
@@ -285,7 +293,7 @@ test bool Set1() = checkOK("{} := {1};");
 test bool Set2() = checkOK("{1} := {1};");
 test bool Set3() = checkOK("{1,2} := {1};");
 test bool Set4() = checkOK("{1,2} := {1, 1.5};");
-test bool Set5() = checkOK("{1,2.5} := {1, 2};");
+test bool Set5() = cannotMatch("{1,2.5} := {1, 2};"); // real and int are not comparable
 test bool Set6() = unexpectedType("{1} := {\"a\"};");
 test bool Set7() = checkOK("{x} := {\"a\"};");
 test bool Set8() = checkOK("{x} := {\"a\"} && x == \"a\";");
