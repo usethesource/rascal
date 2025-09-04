@@ -27,6 +27,7 @@
 package org.rascalmpl.dap;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -48,8 +49,11 @@ import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.locations.ColumnMaps;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -78,6 +82,9 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
     private final IDEServices services;
     private final ExecutorService ownExecutor;
+    private final ColumnMaps columns;
+    private int lineBase = 1;   // Default in DAP
+    private int columnBase = 1; // Default in DAP
 
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
@@ -93,6 +100,16 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
         debugHandler.setEventTrigger(eventTrigger);
+
+        columns = new ColumnMaps(l -> {
+            try {
+                return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
+            }
+            catch (IOException e) {
+                services.warning("Could not read contents of " + l.top(), l);
+                return "";
+            }
+        });
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -102,6 +119,15 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
+        var linesStartAt1 = args.getLinesStartAt1();
+        var columnsStartAt1 = args.getColumnsStartAt1();
+        if (linesStartAt1 != null && linesStartAt1.booleanValue() == false) {
+            lineBase = 0;
+        }
+        if (columnsStartAt1 != null && columnsStartAt1.booleanValue() == false) {
+            columnBase = 0;
+        }
+        
         return CompletableFuture.supplyAsync(() -> {
             Capabilities capabilities = new Capabilities();
 
@@ -144,8 +170,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 }
                 Breakpoint b = new Breakpoint();
                 b.setId(i);
-                b.setLine(breakpoint.getLine());
-                b.setColumn(breakpoint.getColumn());
+                b.setLine(shiftLine(breakpoint.getLine()));
+                b.setColumn(shiftColumn(breakpoint.getColumn()));
                 b.setVerified(treeBreakableLocation != null);
                 breakpoints[i] = b;
             }
@@ -287,13 +313,26 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
+    private int shiftLine(int line) {
+        // Rascal locations use 1 as line base. If DAP is configured to expect base 0, we shift the line number
+        return line + lineBase - 1;
+    }
+
+    private int shiftColumn(int column) {
+        // Rascal locations use 0 as column base. If DAP is configured to expect base 1, we shift the column
+        return column + columnBase;
+    }
+
     private StackFrame createStackFrame(int id, ISourceLocation loc, String name){
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
         if(loc != null){
-            frame.setLine(loc.getBeginLine());
-            frame.setColumn(loc.getBeginColumn());
+            var offsets = columns.get(loc);
+            var line = shiftLine(loc.getBeginLine());
+            var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
+            frame.setLine(line);
+            frame.setColumn(column);
             frame.setSource(getSourceFromISourceLocation(loc));
         }
         return frame;
