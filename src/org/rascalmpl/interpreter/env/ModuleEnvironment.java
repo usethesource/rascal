@@ -60,9 +60,6 @@ import io.usethesource.vallang.type.TypeStore;
  * A module environment represents a module object (i.e. a running module).
  * It manages imported modules and visibility of the
  * functions and variables it declares. 
- * 
- * TODO: add management of locally declared types and constructors
- * 
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
@@ -77,10 +74,11 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
+	private boolean fawlty = false;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	public final static String SHELL_MODULE = "$shell$";
+	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
@@ -94,6 +92,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.fawlty = false;
 	}
 	
 	/**
@@ -113,6 +112,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
 		this.deprecated = env.deprecated;
+		this.fawlty = env.fawlty;
 	}
 
 	@Override
@@ -127,6 +127,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.fawlty = false;
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -187,9 +188,8 @@ public class ModuleEnvironment extends Environment {
 	  this.bootstrap |= other.bootstrap;
 	  
 	  addExtend(other.getName());
+	  this.fawlty |= other.fawlty;
 	}
-	
-	
 	
 	@Override
 	public GlobalEnvironment getHeap() {
@@ -446,12 +446,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void storeVariable(String name, Result<IValue> value) {
-//		if (value instanceof AbstractFunction) {
-//			storeFunction(name, (AbstractFunction) value);
-//			return;
-//		}
-		
+	public void storeVariable(String name, Result<IValue> value) {		
 		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
@@ -1064,5 +1059,13 @@ public class ModuleEnvironment extends Environment {
 
 	public Set<IValue> getProductions() {
 		return productions;
+	}
+
+	public void setFawlty() {
+		this.fawlty = true;
+	}
+
+	public boolean isFawlty() {
+		return fawlty;
 	}
 }
