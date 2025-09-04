@@ -57,4 +57,12 @@ public class StandardLibraryURIResolver implements ILogicalSourceLocationResolve
         return "";
     }
 
+    /*
+     * Not for general use, but necessary information about the bill of
+     * materials for bootstrapping (running Rascal to implement Rascal).
+     */
+    public static ISourceLocation getDebugBootstrapLocation() {
+        return currentRascalJar;
+    }
+
 }
