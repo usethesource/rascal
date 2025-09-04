@@ -88,7 +88,7 @@ java loc resolveProjectOnClasspath(str projectName);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @synopsis{Search a module name in the interpreter's search path}
 @description{
-This exists to help debugging interactive loading and reloading of Rascal modulePathAsList
+This exists to help debugging interactive loading and reloading of Rascal modules
 by the REPL and the interpreter. It does not work in a compiled context.
 }
 @pitfalls{
