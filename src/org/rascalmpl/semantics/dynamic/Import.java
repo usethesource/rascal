@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -261,12 +263,7 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		ModuleEnvironment other = heap.getModule(name);
 
-		if (heap.isCyclicExtend(name)) {
-		    throw new CyclicExtend(name, heap.getExtendCycle(), x);
-		}
-		
 		try {
-		    heap.pushExtend(name);
 			if (other == null) {
 				// deal with a fresh module that needs initialization
 				heap.addModule(new ModuleEnvironment(name, heap));
@@ -278,17 +275,26 @@ public abstract class Import {
 				other = loadModule(x, name, eval);
 			} 
 
-			// now simply extend the current module
-			eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
+      // If we are trying to extend ourselves, we should stop here,
+      // otherwise we can go ahead and merge the other module in.
+      // Beware that the other module may already have been extended
+      // itself.
+      var thisEnv = eval.getCurrentModuleEnvironment();
+      var extendSet = eval.getHeap().getExtendingModules(name);
+      if (extendSet.contains(thisEnv.getName())) {
+          // abort the extend and the loading of the current module alltogether
+          throw new CycleDetectedException(thisEnv.getName(), extendSet.stream().collect(Collectors.toList()));
+      }
+      else {
+          // good to go!
+			    thisEnv.extend(other); //heap.getModule(name));
+      }
 		}
 		catch (Throwable e) {
 			// extending a module is robust against broken modules
 			if (eval.isInterrupted()) {
 				throw e;
 			}
-		}
-		finally {
-		    heap.popExtend();
 		}
 	}
 	
@@ -325,6 +331,10 @@ public abstract class Import {
 
               module.interpret(eval);
           }
+      }
+      catch (CyclicExtend e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
       }
       catch (SyntaxError e) {
           handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
