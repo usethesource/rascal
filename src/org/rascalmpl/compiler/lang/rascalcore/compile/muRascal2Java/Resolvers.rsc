@@ -52,14 +52,15 @@ alias Name_Arity = tuple[str name, int arity];
 
 // Get all functions and constructors from a given tmodel
 
-rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
+rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes, PathConfig pcfg){
      if(!tmodel.moduleLocs[tmodel.modelName]?){
         iprintln(tmodel);
         throw "getFunctionsAndConstructors";
      }
-     mscope = tmodel.moduleLocs[tmodel.modelName];
+     mname = tmodel.modelName;
+    // mscope = tmodel.moduleLocs[tmodel.modelName];
 
-     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, isContainedIn(u, mscope), /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
+     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, getRascalModuleName(u, pcfg) == mname/*isContainedIn(u, mscope)*/, /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>
                                 | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0,
                                   (ov.idRole == functionId() || ov.idRole == constructorId()),
@@ -93,42 +94,44 @@ str varName(muVar(str name, str _fuid, int pos, AType _, IdRole idRole)){ // dup
 /*  Convert an AType to a test for that AType (represented as VType)         */
 /*****************************************************************************/
 
-//str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+//str vtypeisatype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
-str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
-    = "<e> instanceof IConstructor && <intercalate(" || ", ["((IConstructor)<e>).getConstructorType().equivalent(<atype2vtype(tp, jg)>)" | <_, _, tp> <- overloads])>";
+str vtypeisatype(str e, str etype, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
+    = "<e> instanceof IConstructor && <intercalate(" || ", ["((IConstructor)<e>).getConstructorType().equivalent(<jg.accessType(tp)>)" | <_, _, tp> <- overloads])>";
 
-//str atype2istype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg)
+//str vtypeisatype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg)
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
 
-str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg) {
-    res = "$isSubtypeOf(<e>.getType(), <jg.accessType(a)>)";
+str vtypeisatype(str e, str etype, a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg) {
+    res = "$isSubtypeOf(<etype>, <jg.accessType(a)>)";
     return res;
 }
 
 
-str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg) {
-    res = "$isNonTerminal(<e>.getType(), <jg.accessType(a)>)";
+str vtypeisatype(str e, str etype, a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg) {
+    res = "$isNonTerminal(<etype>, <jg.accessType(a)>)";
     return res;
     //return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(sort(adtName))>)";
 }
 
-str atype2istype(str e, aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg) {
-    return "$isNonTerminal(<e>.getType(), <jg.shareConstant(lex(adtName))>)";
+str vtypeisatype(str e, str etype, aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg) {
+    return "$isNonTerminal(<etype>, <jg.shareConstant(lex(adtName))>)";
     //return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(lex(adtName))>)";
 }
 
-str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg) {
-    return "$isNonTerminal(<e>.getType(), <jg.shareConstant(a)>)";
+str vtypeisatype(str e, str etype, a:aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg) {
+    return "$isNonTerminal(<etype>, <jg.shareConstant(a)>)";
     //return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(keywords(adtName))>)";
 }
 
-default str atype2istype(str e, AType t, JGenie jg) {
-    if(isFunctionAType(t)){
-        return "$intersectsType(<e>.getType(),<jg.accessType(t)>)";
-    } else {
-        return "$isSubtypeOf(<e>.getType(),<jg.accessType(t)>)";
-    }
+default str vtypeisatype(str e, str etype, AType t, JGenie jg) {
+    // In theory we should generate here:
+    // if(isFunctionAType(t)){
+    //     return "$intersectsType(<etype>,<jg.accessType(t)>)";
+    // }
+    // However, this fails for rguments that have signatures like &T (value input, loc origin)
+    // as happens for parse functions as arguments.
+    return "$isSubtypeOf(<etype>,<jg.accessType(t)>)";
 }
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
@@ -145,17 +148,17 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){
+str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
     module_scope = module2loc[moduleName];
 
     loc2module = invertUnique(module2loc);
     module_scopes = domain(loc2module);
-    extend_scopes = { module2loc[ext] | ext <- extends };
-    import_scopes = { module2loc[imp] | imp <- imports };
+    extend_scopes = { module2loc[ext] | ext <- extends, ext in module2loc};
+    import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
-    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes) | mname <- tmodels };
+    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes, pcfg) | mname <- tmodels };
 
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
@@ -172,7 +175,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
         for(sdefs <- defs_in_disjoint_scopes){
             if(any(d <- sdefs, d.scope notin module_scopes)){
                 // All local functions trated samw wrt keyword parameters
-                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
 
             } else {
                 // For global functions we differentiate wrt keyword oarameters
@@ -182,8 +185,8 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
                 }
                 with_kwp = {d | <d, kwps> <- kwpFormals, !isEmpty(kwps)};
                 without_kwp = sdefs - with_kwp;
-                resolvers += generateResolver(moduleName, fname, with_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
-                resolvers += generateResolver(moduleName, fname, without_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                resolvers += generateResolver(moduleName, fname, with_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
+                resolvers += generateResolver(moduleName, fname, without_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
             }
         }
     }
@@ -214,7 +217,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 }
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, JGenie jg){
+str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, PathConfig pcfg, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
 
     module_scopes = domain(loc2module);
@@ -263,7 +266,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     inner_scope = "";
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        for(def <- relevant_fun_defs, isContainedIn(def.defined, module_scope)){
+        for(def <- relevant_fun_defs, getRascalModuleName(def.defined, pcfg) == moduleName/*isContainedIn(def.defined, module_scope)*/){
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
             break;
@@ -306,6 +309,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
 
     actuals = intercalate(", ", ["$P<i>" | i <- index(resolver_formals_types)]);
     body = resolver_returns_void ? "" : "<atype2javatype(resolver_return_type)> $result = null;\n";
+    body += "<for(int i <- index(resolver_formals_types)){>Type $P<i>Type = $P<i>.getType();\n<}>";
 
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     activeKwpFormals1 = { *jg.collectKwpFormals(fun)
@@ -378,10 +382,6 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
 
     void handleDef(Define def){
         inner_scope = "";
-        //if(def.scope notin module_scopes, /*isContainedIn(def.scope, module_scope) */def in local_fun_defs){
-        //    fun = loc2muFunction[def.defined];
-        //    inner_scope = "<fun.scopeIn>_";
-        //}
         uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>";
         if(physical2logical[def.defined]?){
           ph = physical2logical[def.defined];
@@ -389,26 +389,27 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
           if(path[0] == "/"){
             path = path[1..];
           }
-          //i = findLast(path, "/");
-          //path = path[i+1..];
 
           name = replaceAll(path, "/", "_");
           uniqueName = "<inner_scope><asJavaName(name, completeId=false)>";
-       }
-        //uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>$<def.uid>";
-        //uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
+        }
         def_type = def.defInfo.atype;
 
         conds = [];
         call_actuals = [];
         def_type_formals = getFunctionOrConstructorArgumentTypes(def_type);
         for(int i <- index(resolver_formals_types)){
-            if(i < resolver_arity_formal_types && unsetRec(def_type_formals[i]) != resolver_formals_types[i]){
-                conds +=  atype2istype("$P<i>", def_type_formals[i], jg);
-                call_actuals += "(<atype2javatype(def_type_formals[i])>) $P<i>";
+            if(   i < resolver_arity_formal_types 
+               //&& unsetRec(def_type_formals[i]) != resolver_formals_types[i]
+               //&& !(isFunctionAType(def_type_formals[i]) && !isEmpty(getTypeParameters(def_type_formals[i])))
+              ){
+                conds += 
+                 vtypeisatype("$P<i>", "$P<i>Type", def_type_formals[i], jg);
+                //call_actuals += "(<atype2javatype(def_type_formals[i])>) $P<i>";
             } else {
-                call_actuals += "$P<i>";
+                ;//call_actuals += "$P<i>";
             }
+            call_actuals += "(<atype2javatype(def_type_formals[i])>) $P<i>";
         }
 
        actuals_text = intercalate(", ", call_actuals);
@@ -461,9 +462,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             }
         } else {
             if(hasKeywordParameters(def_type)){
-                base_call = "return $VF.constructor(<jg.getATypeAccessor(def_type)><atype2idpart(def_type)>, new IValue[]{<actuals_text>}, $kwpActuals);";
+                base_call = "return $RVF.constructor(<jg.getATypeAccessor(def_type)><atype2idpart(def_type)>, new IValue[]{<actuals_text>}, $kwpActuals);";
             } else {
-                base_call = "return $VF.constructor(<jg.getATypeAccessor(def_type)><atype2idpart(def_type)>, new IValue[]{<actuals_text>});";
+                base_call = "return $RVF.constructor(<jg.getATypeAccessor(def_type)><atype2idpart(def_type)>, new IValue[]{<actuals_text>});";
             }
         }
 
@@ -517,10 +518,10 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 }
                 // Share common conditions
                 calls_with_same_cond = call;
-                constructor_seen = contains(call, "$VF.constructor");
+                constructor_seen = contains(call, "$RVF.constructor");
 
                 while(i < size(overloads) -1 && conds == overloads[i+1].conds){
-                    repeated_conses = constructor_seen && contains(overloads[i+1].call, "$VF.constructor");
+                    repeated_conses = constructor_seen && contains(overloads[i+1].call, "$RVF.constructor");
                     i += 1;
                     if(repeated_conses){
                         calls_with_same_cond = "throw new RuntimeException(\"Constructor `<functionName>` is overloaded and can only be called with qualifier\");";
@@ -577,7 +578,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     }
 
     if(isEmpty(cons_defs) || resolver_arity_formal_types > 0){
-        body += "\nthrow RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$P<i>" | int i <- index(resolver_formals_types)/*, formal := resolver_formals_types[i]*/ ])>));";
+        body += "\nthrow RuntimeExceptionFactory.callFailed($RVF.list(<intercalate(", ", ["$P<i>" | int i <- index(resolver_formals_types)/*, formal := resolver_formals_types[i]*/ ])>));";
     }
     resolvers = "public <atype2javatype(resolver_return_type)> <resolver_name>(<argTypes>){ // Generated by Resolver
                 '   <body>

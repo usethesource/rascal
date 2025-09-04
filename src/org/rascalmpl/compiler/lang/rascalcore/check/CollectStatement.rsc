@@ -37,8 +37,6 @@ import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
 import lang::rascalcore::check::PathAnalysis;
 
-import lang::rascal::\syntax::Rascal;
-
 import List;
 import Set;
 import String;
@@ -165,7 +163,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     //c.calculate("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
 
-                    conditions = [];
+                    list[Expression] conditions = [];
                     if(replacement is conditional){
                         conditions = [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions];
                     }
@@ -712,18 +710,26 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
         c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
-           c.define(base, variableId(), name, defLub([statement],
-            AType(Solver s){
-                // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
-                // handle the combination of return and possible exception thrown by s.getType properly
-                // It does work in other places though
-                AType x = s.getType(statement);
-                return s.getType(statement);
-            }));
+            if(c.isAlreadyDefined("<name>", name)){
+                c.use(name, variableRoles);
+            } else {
+                c.define(base, variableId(), name, defLub([statement],
+                    AType(Solver s){
+                        // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
+                        // handle the combination of return and possible exception thrown by s.getType properly
+                        // It does work in other places though
+                        AType x = s.getType(statement);
+                        return s.getType(statement);
+                }));
+            }
         } else {
-            c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){
-                return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
-            }));
+             if(c.isAlreadyDefined("<name>", name)){
+                c.use(name, variableRoles);
+            } else {
+                c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){
+                    return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
+                }));
+            }
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
@@ -1036,6 +1042,11 @@ private AType computeDefaultAssignableType(Statement current, AType receiverType
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
+private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
+    c.report(error(current, "Constructor assignable is not supported by the compiler"));
+    collect(name, arguments, c);    
+}
+
 private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 
     // Note we will use a list `taus` of type variables that is accessible in `makeDef` and `checkTupleElemAssignment` in order to make
@@ -1168,7 +1179,7 @@ private list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elem
 
 private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
 
-// ---- return, defined in Declarations, close to function declarations -------
+// ---- return, is defined in Declarations, close to function declarations -------
 
 // ---- throw -----------------------------------------------------------------
 
