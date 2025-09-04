@@ -21,6 +21,7 @@ import org.jline.utils.OSUtils;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
@@ -407,8 +408,12 @@ public class PathConfig {
         if (mode == RascalConfigMode.INTERPRETER) {
             // if you want to test rascal changes, use RascalShell class and run it as a java process
             srcs.append(URIUtil.rootLocation("std"));
+            
+            messages.append(Messages.info("Bootstrap |std:///| = " + StandardLibraryURIResolver.getDebugBootstrapLocation(), workspaceRascal));
             // add our own jar to the lib path to make sure rascal classes are found 
-            libs.append(resolveCurrentRascalRuntimeJar());
+            var runtime = resolveCurrentRascalRuntimeJar();
+            libs.append(runtime);
+            messages.append(Messages.info("Bootstrap runtime   = " + runtime, workspaceRascal));
         }
         else {
             // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
