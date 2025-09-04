@@ -19,8 +19,14 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class CyclicExtend extends StaticError {
     private static final long serialVersionUID = -7673780054774870139L;
+    private final List<String> cycle;
 
     public CyclicExtend(String name, List<String> cycle, ISourceLocation loc) {
-		super("Extend cycle detected: " + cycle.stream().collect(Collectors.joining(", ")), loc);
-	}
+		  super("Extend cycle detected: " + cycle.stream().collect(Collectors.joining(", ")), loc);
+      this.cycle = cycle;
+	  }
+
+    public List<String> getCycle() {
+        return cycle;
+    }
 }

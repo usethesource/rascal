@@ -170,7 +170,7 @@ public class GlobalEnvironment {
 		
 		return result;
 	}
-	
+
 	public Set<String> getExtendingModules(String mod) {
 		Set<String> result = new HashSet<>();
 		Deque<String> todo = new ArrayDeque<>();
