@@ -68,6 +68,6 @@ public AType regulars(AType s, AType l, set[AType] others) {
     case x:\iter-star(AType n) => inheritLabel(x, \iter-star-seps(n, [l])) when !isLexicalAType(x)
     case x:\iter-seps(AType n, [AType sep]) => inheritLabel(x, \iter-seps(n,[l,sep,l])) when !isLexicalAType(x),  sep != l, sep notin others, isValidSep(sep, others)
     case x:\iter-star-seps(AType n, [AType sep]) => inheritLabel(x, \iter-star-seps(n, [l, sep, l])) when !isLexicalAType(x), sep != l, sep notin others, isValidSep(sep, others)
-    case x:\seq(list[AType] elems) => inheritLabel(x, \seq(intermix(elems, l, others)))
+    case x:\seq(list[AType] elems) => inheritLabel(x, \seq(intermix(elems, l, others))) when !isLexicalAType(x)
   }
 }

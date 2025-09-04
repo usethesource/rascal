@@ -41,11 +41,11 @@ public set[AAttr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m
  
 public AAttr mod2attr(ProdModifier m) {
   switch (m) {
-    case \associativity(\left())                : return \aassoc(AAssociativity::aleft());
-    case \associativity(\right())               : return \aassoc(AAssociativity::aright());
-    case \associativity(\nonAssociative())      : return \aassoc(AAssociativity::\a-non-assoc());
-    case \associativity(\associative())         : return \aassoc(AAssociativity::\aassoc());
-    case \bracket()                             : return AAttr::\abracket();
+    case \associativity(\left())                : return \aassoc(aleft());
+    case \associativity(\right())               : return \aassoc(aright());
+    case \associativity(\nonAssociative())      : return \aassoc(\a-non-assoc());
+    case \associativity(\associative())         : return \aassoc(\aassoc());
+    case \bracket()                             : return \abracket();
     case \tag(\default(Name n, TagString s))    : return \atag("<n>"("<s>"));
     case \tag(\empty(Name n))                   : return \atag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
@@ -60,8 +60,8 @@ public AAttr mod2attr(ProdModifier m) {
 
 Maybe[AAssociativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(AAssociativity x) := mod2assoc(m));
 
-Maybe[AAssociativity] mod2assoc(\associativity(\left()))           = just(AAssociativity::aleft());
-Maybe[AAssociativity] mod2assoc(\associativity(\right()))          = just(AAssociativity::aright());
-Maybe[AAssociativity] mod2assoc(\associativity(\associative()))    = just(AAssociativity::aleft());
-Maybe[AAssociativity] mod2assoc(\associativity(\nonAssociative())) = just(AAssociativity::\a-non-assoc());
+Maybe[AAssociativity] mod2assoc(\associativity(\left()))           = just(aleft());
+Maybe[AAssociativity] mod2assoc(\associativity(\right()))          = just(aright());
+Maybe[AAssociativity] mod2assoc(\associativity(\associative()))    = just(aleft());
+Maybe[AAssociativity] mod2assoc(\associativity(\nonAssociative())) = just(\a-non-assoc());
 default Maybe[AAssociativity] mod2assoc(ProdModifier _)            = nothing();
