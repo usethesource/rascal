@@ -154,7 +154,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// If we are at the end of the input, skip nothing
 		if (location >= input.length) {
-			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
+			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation, location);
 			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			return nodes; // No other nodes would be useful
 		}
@@ -174,7 +174,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				InputMatcher endMatcher = endIter.next();
 				int matchEnd = endMatcher.match(input, pos);
 				if (matchEnd > 0 && !skipSet.get(matchEnd-startLocation)) {
-					result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, matchEnd);
+					result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, matchEnd, location);
 					skipSet.set(matchEnd-startLocation);
 					nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 					endIter.remove();
@@ -188,7 +188,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 					InputMatcher nextMatcher = nextIter.next();
 					int matchEnd = nextMatcher.match(input, pos);
 					if (matchEnd > 0 && !skipSet.get(pos-startLocation)) {
-						result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, pos);
+						result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, pos, location);
 						skipSet.set(pos-startLocation);
 						nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 						nextIter.remove();
