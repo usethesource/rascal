@@ -47,7 +47,7 @@ public class ColumnMaps {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l)));
+            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l), lineBase, columnBase));
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
