@@ -39,6 +39,7 @@ import java.util.function.BiFunction;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -103,7 +104,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public class RascalRuntimeValueFactory extends RascalValueFactory {
     
     private final RascalExecutionContext rex;
-    
+    private ParserGenerator generator;
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
         .softValues()
         .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
@@ -115,16 +116,14 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     }
 
     private ParserGenerator getParserGenerator() {
-    	return ParserGeneratorFactory.getInstance(rex).getParserGenerator(this);
+        if (this.generator == null) {
+            	this.generator = ParserGeneratorFactory.getInstance(rex).getParserGenerator(this);
+        }
+        return generator;
     }
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-        	System.err.println("generateParser: " + grammar.hashCode());
-//        	for(IValue key : grammar) {
-//        		System.err.println(key + ":\n\t" + grammar.get(key));
-//        	}
-        	
             return getParserGenerator().getNewParser(rex, URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
@@ -234,6 +233,26 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         return function(functionType, new ParseFunction(this, reifiedGrammar, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
 
+    protected static String getParserMethodName(IConstructor symbol) {
+		// we use a fast non-synchronized path for simple cases; 
+		// this is to prevent locking the evaluator in IDE contexts
+		// where many calls into the evaluator/parser are fired in rapid
+		// succession.
+
+		switch (symbol.getName()) {
+			case "start":
+				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+			case "layouts":
+				return "layouts_" + SymbolAdapter.getName(symbol);
+			case "sort":
+			case "lex":
+			case "keywords":
+				return SymbolAdapter.getName(symbol);
+		}
+
+        return null;
+    }
+
     @Override
     public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects,
         IBool firstAmbiguity, ISet filters) {
@@ -242,7 +261,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         
         // here the return type is parametrized and instantiated when the parser function is called with the
         // given start non-terminal:
-        
         Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
         
         Type functionType = tf.functionType(parameterType,
@@ -250,6 +268,70 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             tf.tupleEmpty());
         
         return function(functionType, new ParametrizedParseFunction(this, reifiedGrammar, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    @Override
+    public void storeParsers(IValue reifiedGrammar, ISourceLocation saveLocation) throws IOException {
+        IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
+        getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
+    }  
+   
+    @Override
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        // here the return type is parametrized and instantiated when the parser function is called with the
+        // given start non-terminal:
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+        
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        ISourceLocation caller = URIUtil.rootLocation("unknown");
+                    
+        return function(
+            functionType, 
+            new ParametrizedParseFunction( 
+                this, 
+                caller, 
+                allowAmbiguity, maxAmbDepth, allowRecovery, maxAmbDepth, maxAmbDepth, hasSideEffects, firstAmbiguity, filters)
+        );
+    }
+
+    @Override
+    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,  IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+      
+        ISourceLocation caller = URIUtil.rootLocation("unknown");
+                    
+        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+
+        checkPreconditions(startSort, reifiedGrammar.getType());
+            
+        String name = getParserMethodName(startSort);
+
+        return function(functionType, new ParseFunction(this, caller, allowAmbiguity, null, allowRecovery, maxRecoveryTokens, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+    }
+
+     
+    private static IConstructor checkPreconditions(IValue start, Type reified) {
+        if (!(reified instanceof ReifiedType)) {
+           throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
+        }
+        
+        Type nt = reified.getTypeParameters().getFieldType(0);
+        
+        if (!(nt instanceof NonTerminalType)) {
+            throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
+        }
+        
+        return (IConstructor) start;
     }
     
     /**
@@ -361,7 +443,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         protected IValue parse(IValue start, IString input, ISourceLocation origin, boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects, ISet filters, ParserGenerator generator) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
-            //System.err.println("parse uses grammar:"); System.err.println(grammar);
+            System.err.println("parse uses grammar:"); System.err.println(grammar);
             if (origin == null) {
                 origin = URIUtil.rootLocation("unknown");
             }
@@ -371,7 +453,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                //System.err.println(grammar);
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (Ambiguous e) {
@@ -379,7 +460,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
             }
             catch (UndeclaredNonTerminalException e){
-                throw RuntimeExceptionFactory.illegalArgument(vf.string(e.getName()));
+                throw RuntimeExceptionFactory.illegalArgument(vf.string("Unknown nonterminal: " + e.getName()));
             }
         }
         
