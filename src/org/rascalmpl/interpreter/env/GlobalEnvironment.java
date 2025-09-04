@@ -48,29 +48,12 @@ public class GlobalEnvironment {
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
 	/**
-	 * For extend cycle detector
-	 */
-	private final Deque<String> extendStack = new ArrayDeque<>();
-	
-	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
 	
 	private boolean bootstrapper;
-	
-	public void pushExtend(String module) {
-	    extendStack.push(module);
-	}
-	
-	public void popExtend() {
-	    extendStack.pop();
-	}
-	
-	public boolean isCyclicExtend(String module) {
-	    return extendStack.contains(module);
-	}
-  
+
 	public void clear() {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
