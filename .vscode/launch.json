@@ -33,6 +33,7 @@
         },
         {
             "type": "java",
+            "cwd": "/Users/jurgenv",
             "name": "Launch RascalShell",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",

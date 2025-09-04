@@ -26,7 +26,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -283,7 +282,7 @@ public abstract class Import {
       var extendSet = eval.getHeap().getExtendingModules(name);
       if (extendSet.contains(thisEnv.getName())) {
           // abort the extend and the loading of the current module alltogether
-          throw new CycleDetectedException(thisEnv.getName(), extendSet.stream().collect(Collectors.toList()));
+          throw new CyclicExtend(thisEnv.getName(), extendSet.stream().collect(Collectors.toList()), x);
       }
       else {
           // good to go!
