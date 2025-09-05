@@ -300,8 +300,10 @@ public abstract class Import {
 
     var extendSet = other.getExtendsTransitive();
     if (extendSet.contains(thisEnv.getName())) {
+        List<String> path = eval.getHeap().findCyclicExtendPathFrom(other.getName(), thisEnv.getName());
+        assert !path.isEmpty() : "weird to have detected a non-existent cycle";
         // abort the extend and the loading of the current module alltogether
-        throw new CyclicExtend(thisEnv.getName(), extendSet.stream().collect(Collectors.toList()), x);
+        throw new CyclicExtend(thisEnv.getName(), path, x);
     }
     else {
         // good to go!
