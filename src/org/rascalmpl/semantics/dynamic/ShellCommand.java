@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -148,7 +148,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			if (!env.getFunctions().isEmpty()) {
 				var functions = env.getFunctions();
 				pr.println("Functions:");
-				for (Pair<String, List<AbstractFunction>> func : functions) {
+				for (Pair<String, LinkedHashSet<AbstractFunction>> func : functions) {
 					pr.println(func.getFirst() + ":");
 					for (AbstractFunction alt : func.getSecond()) {
 						pr.println("   - " + alt.getHeader().replaceAll("\n", " "));
