@@ -44,6 +44,8 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -997,6 +999,30 @@ public class ModuleEnvironment extends Environment {
 		return Collections.<String>emptySet();
 	}
 	
+	public SetMultimap.Transient<String, String> collectExtendsGraph() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
+	}
+
 	public Set<String> getExtendsTransitive() {
 		List<String> todo = new LinkedList<String>();
 		Set<String> done = new HashSet<String>();
