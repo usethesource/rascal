@@ -348,16 +348,12 @@ public abstract class Import {
       }
       catch (StaticError e) {
           handleLoadError(eval, name, e.getMessage(), e.getLocation());
-          throw e;
       }
       catch (Throw e) {
           handleLoadError(eval, name, e.getMessage(), e.getLocation());
-          throw e;
       } 
       catch (Throwable e) {
           handleLoadError(eval, name, e.getMessage(), x);
-          e.printStackTrace();
-          throw new ModuleImport(name, e.getMessage(), x);
       } 
       finally {
           eval.jobStep(jobName, name, 1);
