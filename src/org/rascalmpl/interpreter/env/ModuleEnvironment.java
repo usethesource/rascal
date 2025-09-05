@@ -44,6 +44,8 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -60,9 +62,6 @@ import io.usethesource.vallang.type.TypeStore;
  * A module environment represents a module object (i.e. a running module).
  * It manages imported modules and visibility of the
  * functions and variables it declares. 
- * 
- * TODO: add management of locally declared types and constructors
- * 
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
@@ -77,10 +76,11 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
+	private boolean fawlty = false;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	public final static String SHELL_MODULE = "$shell$";
+	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
@@ -94,6 +94,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.fawlty = false;
 	}
 	
 	/**
@@ -113,6 +114,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
 		this.deprecated = env.deprecated;
+		this.fawlty = env.fawlty;
 	}
 
 	@Override
@@ -127,6 +129,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.fawlty = false;
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -187,9 +190,8 @@ public class ModuleEnvironment extends Environment {
 	  this.bootstrap |= other.bootstrap;
 	  
 	  addExtend(other.getName());
+	  this.fawlty |= other.fawlty;
 	}
-	
-	
 	
 	@Override
 	public GlobalEnvironment getHeap() {
@@ -379,16 +381,20 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		if (importedModules.remove(moduleName)) {
-			ModuleEnvironment old = heap.getModule(moduleName);
-			if (old != null) {
-				typeStore.unimportStores(new TypeStore[] { old.getStore() });
+		if (importedModules != null) {
+			if (importedModules.remove(moduleName)) {
+				ModuleEnvironment old = heap.getModule(moduleName);
+				if (old != null) {
+					typeStore.unimportStores(new TypeStore[] { old.getStore() });
+				}
 			}
 		}
 	}
 	
 	public void unExtend(String moduleName) {
-		extended.remove(moduleName);
+		if (extended != null) {
+			extended.remove(moduleName);
+		}
 	}
 
 	@Override
@@ -442,12 +448,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void storeVariable(String name, Result<IValue> value) {
-//		if (value instanceof AbstractFunction) {
-//			storeFunction(name, (AbstractFunction) value);
-//			return;
-//		}
-		
+	public void storeVariable(String name, Result<IValue> value) {		
 		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
@@ -998,6 +999,30 @@ public class ModuleEnvironment extends Environment {
 		return Collections.<String>emptySet();
 	}
 	
+	public SetMultimap.Transient<String, String> collectExtendsGraph() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
+	}
+
 	public Set<String> getExtendsTransitive() {
 		List<String> todo = new LinkedList<String>();
 		Set<String> done = new HashSet<String>();
@@ -1060,5 +1085,13 @@ public class ModuleEnvironment extends Environment {
 
 	public Set<IValue> getProductions() {
 		return productions;
+	}
+
+	public void setFawlty() {
+		this.fawlty = true;
+	}
+
+	public boolean isFawlty() {
+		return fawlty;
 	}
 }

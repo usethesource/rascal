@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
@@ -193,7 +194,7 @@ public abstract class Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-			extendCurrentModule(this.getLocation(), name, eval);
+      extendCurrentModule(this.getLocation(), name, eval);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}
@@ -205,8 +206,10 @@ public abstract class Import {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-		  try {
-		    importModule(Names.fullName(getModule().getName()), getLocation(), eval);
+      String name = Names.fullName(this.getModule().getName());
+
+		  try {  
+		    importModule(name, getLocation(), eval);
 		  }
 		  finally {
 		    eval.setCurrentAST(this);
@@ -236,22 +239,31 @@ public abstract class Import {
 
 	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
-		
+    ModuleEnvironment modEnv;
+
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
-			loadModule(src, name, eval);
+      modEnv = loadModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
-			loadModule(src, name, eval);
+      modEnv = loadModule(src, name, eval);
 		} 
-		
-		addImportToCurrentModule(src, name, eval);
+    else {
+      modEnv = heap.getModule(name);
+    }
+
+    if (modEnv.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
+      eval.warning(name + " was loaded but not imported here because it has errors.", src);
+    }
+    else {
+      addImportToCurrentModule(src, name, eval);
+    }
 		
 		if (heap.getModule(name).isDeprecated()) {
-			eval.getErrorPrinter().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			eval.warning(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage(), src);
 		}
 		
 		return;
@@ -261,35 +273,42 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		ModuleEnvironment other = heap.getModule(name);
 
-		if (heap.isCyclicExtend(name)) {
-		    throw new CyclicExtend(name, heap.getExtendCycle(), x);
-		}
-		
-		try {
-		    heap.pushExtend(name);
-			if (other == null) {
-				// deal with a fresh module that needs initialization
-				heap.addModule(new ModuleEnvironment(name, heap));
-				other = loadModule(x, name, eval);
-			} 
-			else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
-				// in the root scope we treat an extend as a "reload"
-				heap.resetModule(name);
-				other = loadModule(x, name, eval);
-			} 
+    // Register this extend _before_ recursion, to be able to detect a cycle
+    eval.getCurrentModuleEnvironment().addExtend(name);
 
-			// now simply extend the current module
-			eval.getCurrentModuleEnvironment().extend(other); //heap.getModule(name));
-		}
-		catch (Throwable e) {
-			// extending a module is robust against broken modules
-			if (eval.isInterrupted()) {
-				throw e;
-			}
-		}
-		finally {
-		    heap.popExtend();
-		}
+    if (other == null) {
+      // deals with a fresh module that needs initialization
+      heap.addModule(new ModuleEnvironment(name, heap));
+      other = loadModule(x, name, eval);
+    } 
+    else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
+      // in the root scope we treat an extend as a "reload"
+      heap.resetModule(name);
+      other = loadModule(x, name, eval);
+    } 
+
+    if (other.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
+      eval.warning(name + " was loaded but not extended in here because it has errors", x);
+      return;
+    }
+
+    // If we are trying to extend ourselves, we should stop here,
+    // otherwise we can go ahead and merge the other module in.
+    // Beware that the other module may already have been extended
+    // itself.
+    var thisEnv = eval.getCurrentModuleEnvironment();
+
+    var extendSet = other.getExtendsTransitive();
+    if (extendSet.contains(thisEnv.getName())) {
+        List<String> path = eval.getHeap().findCyclicExtendPathFrom(other.getName(), thisEnv.getName());
+        assert !path.isEmpty() : "weird to have detected a non-existent cycle";
+        // abort the extend and the loading of the current module alltogether
+        throw new CyclicExtend(thisEnv.getName(), path, x);
+    }
+    else {
+        // good to go!
+        thisEnv.extend(other); 
+    }
 	}
 	
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
@@ -301,6 +320,7 @@ public abstract class Import {
 	        m = new ModuleEnvironment(name, heap);
 	        heap.addModule(m);
 	    }
+      
       final ModuleEnvironment env = m;
 
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
@@ -313,7 +333,7 @@ public abstract class Import {
           Module module = buildModule(uri, env, eval, jobName);
 
           if (isDeprecated(module)) {
-              eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+              eval.warning("Deprecated module " + name + ":" + getDeprecatedMessage(module), uri);
           }
 
           if (module != null) {
@@ -326,22 +346,14 @@ public abstract class Import {
               module.interpret(eval);
           }
       }
-      catch (SyntaxError e) {
-          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-          throw e;
-      }
       catch (StaticError e) {
-          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-          throw e;
+          handleLoadError(eval, name, e.getMessage(), e.getLocation());
       }
-      catch (Throw  e) {
-          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-          throw e;
+      catch (Throw e) {
+          handleLoadError(eval, name, e.getMessage(), e.getLocation());
       } 
       catch (Throwable e) {
-          handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
-          e.printStackTrace();
-          throw new ModuleImport(name, e.getMessage(), x);
+          handleLoadError(eval, name, e.getMessage(), x);
       } 
       finally {
           eval.jobStep(jobName, name, 1);
@@ -350,10 +362,17 @@ public abstract class Import {
       return env;
 	}
   
-  private static void handleLoadError(GlobalEnvironment heap, ModuleEnvironment env, IEvaluator<Result<IValue>> eval,
-      String name, String message, ISourceLocation location, ISourceLocation origin) {
-      heap.removeModule(env);
-      eval.getEvaluator().warning("Could not load " + name + " due to: " + message + " at " + location, origin);
+  /*
+   * This tries to clearly warn about any module that ends up in an inconsistent state. The modules
+   * are kept on the heap because they form a proper dependency graph that can be used to accurately
+   * reload all dependent modules after a fix.
+   * 
+   * The side-effect of this method is that the prompt looses access to the fawlty modules, such
+   * that users can not start depending (easily) on their ill-defined behavior.
+   */
+  private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error) {
+      eval.getEvaluator().warning(message, error);
+      eval.getHeap().getModule(name).setFawlty();
   }
 
 
@@ -533,8 +552,14 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
 			  throw rascalException;
 		  }
 	  }
+    catch (CyclicExtend e) {
+      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
+    }
+    catch (StaticError e) {
+      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
+    }
 	  catch (Throwable e) {
-		  eval.getEvaluator().warning(e.getMessage(), imp.getLocation());
+		  handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), imp.getLocation());
 		  // parsing the current module should be robust wrt errors in modules it depends on.
 		  if (eval.isInterrupted()) {
 			  throw e;
