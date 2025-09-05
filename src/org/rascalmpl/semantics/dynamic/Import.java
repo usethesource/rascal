@@ -239,17 +239,21 @@ public abstract class Import {
 
 	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
+    ModuleEnvironment modEnv;
 
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
+      modEnv = loadModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
+      modEnv = loadModule(src, name, eval);
 		} 
-
-    ModuleEnvironment modEnv = loadModule(src, name, eval);
+    else {
+      modEnv = heap.getModule(name);
+    }
 
     if (modEnv.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
       eval.warning(name + " was loaded but not imported here because it has errors.", src);
@@ -314,6 +318,7 @@ public abstract class Import {
 	        m = new ModuleEnvironment(name, heap);
 	        heap.addModule(m);
 	    }
+      
       final ModuleEnvironment env = m;
 
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
