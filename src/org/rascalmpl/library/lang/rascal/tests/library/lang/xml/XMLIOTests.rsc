@@ -3,6 +3,7 @@ module lang::rascal::tests::library::lang::xml::XMLIOTests
 import IO;
 import String;
 import lang::xml::IO;
+import util::Maybe;
 
 bool checkXMLResult(str input, node expected, bool fullyQualify = false) {
     result = readXML(input, fullyQualify = fullyQualify);
