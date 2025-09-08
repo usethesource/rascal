@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -305,8 +306,20 @@ public abstract class Import {
         // abort the extend and the loading of the current module alltogether
         throw new CyclicExtend(thisEnv.getName(), path, x);
     }
+    else if (!other.isInitialized()) {
+        // TODO if this really happens we have to find a way to fix it. 
+        // A user can't fix this.
+        throw new ModuleImport(other.getName(), "Internal error: extending a module which is not fully initialized yet.", x);
+    }
+    // else if (other.collectModuleDependencyGraph().values().contains(thisEnv.getName())) {
+    //   // TODO THIS WHOLE BLOCK IS DEBUG CODE TO BE REMOVED
+    //     // import+extend cycle
+    //     var parent = other.getName();
+    //     var cycle = heap.depthFirstSearch(other.getName(), new HashSet<>(), eval.getValueFactory().list(eval.getValueFactory().string(parent)) , other.collectModuleDependencyGraph());
+    //     throw new CyclicExtend(thisEnv.getName(), cycle.stream().map(IString.class::cast).map(IString::getValue).collect(Collectors.toList()), x);
+    // }
     else {
-        // good to go!
+        // good to go
         thisEnv.extend(other); 
     }
 	}
@@ -356,6 +369,7 @@ public abstract class Import {
           handleLoadError(eval, name, e.getMessage(), x);
       } 
       finally {
+          env.setInitialized();
           eval.jobStep(jobName, name, 1);
       }
 
