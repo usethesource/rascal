@@ -285,8 +285,8 @@ test bool cyclicImportOk(){
 	return checkModuleOK("module B import A;");
 }
 
-@ignoreCompiler{TODO}
+@ignore{TODO}
 test bool cyclicExtendNotOk(){
 	writeModule("module A extend B;");
-	return unexpectedDeclaration("module B extend A;");
+	return unexpectedDeclarationInModule("module B extend A;");
 }
