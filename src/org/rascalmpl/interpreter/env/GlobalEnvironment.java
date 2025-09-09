@@ -245,23 +245,6 @@ public class GlobalEnvironment {
 			.collect(Collectors.toList());
     }
 
-	/**
-	 * This starts with an edge that is not yet in the graph because we are loading these
-	 * modules. Then the rest of graph is loaded from what we already have in memory.
-	 * @param parent the first and last node of a detected cycle.
-	 * @return
-	 */
-    public List<String> findCyclicImportPathFrom(String parent, String child) {
-        SetMultimap.Transient<String, String> graph = getImportGraphFrom(child);
-		graph.__put(parent, child); // add the last edge that was not yet registered
-		IRascalValueFactory vf = IRascalValueFactory.getInstance();
-		return depthFirstSearch(parent, new HashSet<>(), vf.list(vf.string(parent)), graph)
-			.stream()
-			.map(IString.class::cast)
-			.map(IString::getValue)
-			.collect(Collectors.toList());
-    }
-
 	/*
 	 * dfs uses an immutable IList for the path such that we don't have to maintain a stack, next to the 
 	 * recursion.
