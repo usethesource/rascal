@@ -22,7 +22,7 @@ public class CyclicExtend extends StaticError {
     private final List<String> cycle;
 
     public CyclicExtend(String name, List<String> cycle, ISourceLocation loc) {
-        super("Extend cycle detected:\n* " + cycle.stream().collect(Collectors.joining("\n* ")), loc);
+        super("Extend cycle detected (" + name + "):\n* " + cycle.stream().collect(Collectors.joining("\n* ")), loc);
         this.cycle = cycle;
     }
 

@@ -87,6 +87,10 @@ public class GlobalEnvironment {
 		return loadStack.contains(name);
 	}
 
+	public List<String> getLoadStack() {
+		return loadStack.stream().collect(Collectors.toList());
+	}
+
 	/**
 	 * Register a source resolver for a specific scheme. Will overwrite the previously
 	 * registered source resolver for this scheme.
