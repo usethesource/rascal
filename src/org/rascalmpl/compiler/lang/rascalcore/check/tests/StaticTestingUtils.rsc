@@ -428,7 +428,8 @@ list[str] unexpectedDeclarationMsgs = [
 	"Exclude (`\\`) requires keywords as right argument, found _",
 	"Nested iteration",
 	"Element name _ ignored",
-	"Non-well-formed _ type, labels must be distinct"
+	"Non-well-formed _ type, labels must be distinct",
+	"Mixed import/extend cycle not allowed"
 ];
 
 bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
