@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.Module;
@@ -306,7 +308,7 @@ public abstract class Import {
     else if (!other.isInitialized()) {
         // TODO if this really happens we have to find a way to fix it. 
         // A user can't fix this.
-        throw new ModuleImport(other.getName(), "Internal error: extending a module which is not fully initialized yet.", x);
+        throw new ModuleImport(other.getName(), "Internal error: extending a module which is not fully initialized yet. " + heap.onLoadingStack(other.getName()), x);
     }
     // else if (other.collectModuleDependencyGraph().values().contains(thisEnv.getName())) {
     //   // TODO THIS WHOLE BLOCK IS DEBUG CODE TO BE REMOVED
@@ -324,18 +326,25 @@ public abstract class Import {
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 	    GlobalEnvironment heap = eval.getHeap();
       String jobName = IEvaluator.LOADING_JOB_CONSTANT;
-
-	    ModuleEnvironment m = heap.getModule(name);
-	    if (m == null) {
-	        m = new ModuleEnvironment(name, heap);
-	        heap.addModule(m);
-	    }
+    
       
-      final ModuleEnvironment env = m;
+      ModuleEnvironment m = heap.getModule(name);
+      if (m == null) {
+          m = new ModuleEnvironment(name, heap);
+          heap.addModule(m);
+      }
 
+      if (heap.pushModuleLoading(name)) {
+          // already loading this module
+          heap.popModuleLoading();
+          return m;
+      }
+    
+      final ModuleEnvironment env = m;
+        
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
-      try {
+      try {       
           eval.jobTodo(jobName, 1);
           if (uri == null) {
               throw new ModuleImport(name, "can not find in search path", x);
@@ -368,6 +377,8 @@ public abstract class Import {
       finally {
           env.setInitialized();
           eval.jobStep(jobName, name, 1);
+          var popped = heap.popModuleLoading();
+          assert popped.equals(name) : popped + " != " + name;
       }
 
       return env;
@@ -384,6 +395,9 @@ public abstract class Import {
   private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error) {
       eval.getEvaluator().warning(message, error);
       eval.getHeap().getModule(name).setFawlty();
+
+      // eval.warning("Non-initialized modules are currently: \n* " 
+      //   + eval.getHeap().nonInitializedModules().stream().collect(Collectors.joining("\n* ")), eval.getCurrentAST().getLocation());
   }
 
 
@@ -465,8 +479,8 @@ private static boolean isDeprecated(Module preModule){
       Environment old = eval.getCurrentEnvt();
       try {
           eval.setCurrentEnvt(env);
-          env.setInitialized(true);
-          
+          // env.setInitialized(true);
+             
           declareTypesWhichDoNotNeedImportedModulesAlready(eval, env, top);
           
           eval.getCurrentModuleEnvironment().clearProductions();
