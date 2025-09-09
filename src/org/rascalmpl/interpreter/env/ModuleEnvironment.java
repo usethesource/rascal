@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -339,7 +340,7 @@ public class ModuleEnvironment extends Environment {
 		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
 		
 		if (functionEnvironment != null) {
-			for (List<AbstractFunction> f : functionEnvironment.values()) {
+			for (LinkedHashSet<AbstractFunction> f : functionEnvironment.values()) {
 				for (AbstractFunction c : f) {
 					if (c.isTest()) {
 						result.add(c);
@@ -564,7 +565,7 @@ public class ModuleEnvironment extends Environment {
 	
 	private void getLocalPublicFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			List<AbstractFunction> lst = functionEnvironment.get(name);
+			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
 				if (!isNamePrivate(name)) {
 					collection.addAll(lst);
@@ -575,7 +576,7 @@ public class ModuleEnvironment extends Environment {
 	
 	private void getLocalPublicFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null && !isNamePrivate(name)) {
-			List<AbstractFunction> lst = functionEnvironment.get(name);
+			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
 			
 			if (lst != null) {
 				for (AbstractFunction func : lst) {
