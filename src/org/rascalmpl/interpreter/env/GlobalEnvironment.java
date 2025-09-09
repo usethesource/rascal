@@ -16,12 +16,10 @@ package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +33,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.capsule.SetMultimap;
-import io.usethesource.capsule.SetMultimap.Transient;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IString;
 
@@ -47,6 +44,8 @@ import io.usethesource.vallang.IString;
  * 
  */
 public class GlobalEnvironment {
+	private final Deque<String> loadStack = new ArrayDeque<>();
+
 	/** The heap of Rascal */
 	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		
@@ -68,6 +67,26 @@ public class GlobalEnvironment {
 		sourceResolvers.clear();
 	}
 	
+	/**
+	 * Push a module on the load stack and
+	 * return true iff its already on the stack.
+	 * @param name
+	 * @return
+	 */
+	public boolean pushModuleLoading(String name) {
+		var preExists = loadStack.contains(name);
+		loadStack.push(name);
+		return preExists;
+	}
+
+	public String popModuleLoading() {
+		return loadStack.pop();
+	}
+
+	public boolean onLoadingStack(String name) {
+		return loadStack.contains(name);
+	}
+
 	/**
 	 * Register a source resolver for a specific scheme. Will overwrite the previously
 	 * registered source resolver for this scheme.
@@ -278,5 +297,12 @@ public class GlobalEnvironment {
 
 		// no cycle found here
 		return vf.list();
+	}
+
+	public List<String> nonInitializedModules() {
+		return moduleEnvironment.entrySet().stream()
+			.filter(e -> !e.getValue().isInitialized())
+			.map(e -> e.getKey())
+			.collect(Collectors.toList());
 	}
 }
