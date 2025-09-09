@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.CyclicExtend;
+import org.rascalmpl.interpreter.staticErrors.CyclicImportExtend;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -300,23 +301,22 @@ public abstract class Import {
 
     var extendSet = other.getExtendsTransitive();
     if (extendSet.contains(thisEnv.getName())) {
+        // this predicts any cycle through only "extends"
         List<String> path = eval.getHeap().findCyclicExtendPathFrom(other.getName(), thisEnv.getName());
         assert !path.isEmpty() : "weird to have detected a non-existent cycle";
         // abort the extend and the loading of the current module alltogether
         throw new CyclicExtend(thisEnv.getName(), path, x);
     }
     else if (!other.isInitialized()) {
-        // TODO if this really happens we have to find a way to fix it. 
-        // A user can't fix this.
-        throw new ModuleImport(other.getName(), "Internal error: extending a module which is not fully initialized yet. " + heap.onLoadingStack(other.getName()), x);
+        // this catches a single cycle which goes through both import and extends
+        var startCycle = other.getName();
+        var cycle = heap.getLoadStack()
+          .stream()
+          .takeWhile(m -> !startCycle.equals(m))  // skip the prefix that leads to the cycle
+          .collect(Collectors.toList());
+        cycle.add(startCycle); // add the cyclic element for reporting purposes
+        throw new CyclicImportExtend(other.getName(), cycle, x);
     }
-    // else if (other.collectModuleDependencyGraph().values().contains(thisEnv.getName())) {
-    //   // TODO THIS WHOLE BLOCK IS DEBUG CODE TO BE REMOVED
-    //     // import+extend cycle
-    //     var parent = other.getName();
-    //     var cycle = heap.depthFirstSearch(other.getName(), new HashSet<>(), eval.getValueFactory().list(eval.getValueFactory().string(parent)) , other.collectModuleDependencyGraph());
-    //     throw new CyclicExtend(thisEnv.getName(), cycle.stream().map(IString.class::cast).map(IString::getValue).collect(Collectors.toList()), x);
-    // }
     else {
         // good to go
         thisEnv.extend(other); 
