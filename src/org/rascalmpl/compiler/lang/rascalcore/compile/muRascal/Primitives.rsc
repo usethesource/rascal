@@ -27,7 +27,7 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::compile::muRascal::Primitives
 
 extend lang::rascalcore::check::ATypeBase;
-extend lang::rascalcore::compile::muRascal::AST;
+import lang::rascalcore::compile::muRascal::AST;
 
 import List;
 import Node;
