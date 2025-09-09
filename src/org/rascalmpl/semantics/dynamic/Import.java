@@ -395,9 +395,6 @@ public abstract class Import {
   private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error) {
       eval.getEvaluator().warning(message, error);
       eval.getHeap().getModule(name).setFawlty();
-
-      // eval.warning("Non-initialized modules are currently: \n* " 
-      //   + eval.getHeap().nonInitializedModules().stream().collect(Collectors.joining("\n* ")), eval.getCurrentAST().getLocation());
   }
 
 
