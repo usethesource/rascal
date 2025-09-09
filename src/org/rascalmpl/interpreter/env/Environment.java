@@ -20,6 +20,7 @@ package org.rascalmpl.interpreter.env;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +99,7 @@ public class Environment implements IRascalFrame {
 	}
 	
 	protected Map<String, Result<IValue>> variableEnvironment;
-	protected Map<String, List<AbstractFunction>> functionEnvironment;
+	protected Map<String, LinkedHashSet<AbstractFunction>> functionEnvironment;
 	protected Map<String, NameFlags> nameFlags;
 	protected Map<Type, Type> staticTypeParameters;
 	protected Map<Type, Type> dynamicTypeParameters;
@@ -360,7 +361,7 @@ public class Environment implements IRascalFrame {
 	
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			List<AbstractFunction> locals = functionEnvironment.get(name);
+			LinkedHashSet<AbstractFunction> locals = functionEnvironment.get(name);
 			
 			if (locals != null) {
 				collection.addAll(locals);
@@ -392,7 +393,7 @@ public class Environment implements IRascalFrame {
 	
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			List<AbstractFunction> locals = functionEnvironment.get(name);
+			LinkedHashSet<AbstractFunction> locals = functionEnvironment.get(name);
 			
 			if (locals != null) {
 				for (AbstractFunction func : locals) {
@@ -632,17 +633,17 @@ public class Environment implements IRascalFrame {
 	}
  
 	public void storeFunction(String name, AbstractFunction function) {
-		List<AbstractFunction> list = null;
+		LinkedHashSet<AbstractFunction> list = null;
 		
 		if (functionEnvironment != null) {
 			list = functionEnvironment.get(name);
 		}
 		
 		if (list == null || !this.isNameOverloadable(name)) {
-			list = new ArrayList<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
+			list = new LinkedHashSet<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
 			
 			if (functionEnvironment == null) {
-				functionEnvironment = new HashMap<String, List<AbstractFunction>>();
+				functionEnvironment = new HashMap<String, LinkedHashSet<AbstractFunction>>();
 			}
 			functionEnvironment.put(name, list);
 		}
@@ -873,15 +874,15 @@ public class Environment implements IRascalFrame {
 		return vars;
 	}
 
-	public List<Pair<String, List<AbstractFunction>>> getFunctions() {
-		ArrayList<Pair<String, List<AbstractFunction>>> functions = new ArrayList<Pair<String, List<AbstractFunction>>>();
+	public List<Pair<String, LinkedHashSet<AbstractFunction>>> getFunctions() {
+		ArrayList<Pair<String, LinkedHashSet<AbstractFunction>>> functions = new ArrayList<Pair<String, LinkedHashSet<AbstractFunction>>>();
 		if (parent != null) {
 			functions.addAll(parent.getFunctions());
 		}
 		if (functionEnvironment != null) {
 			// don't just add the Map.Entries, as they may not live outside the iteration
-			for (Entry<String, List<AbstractFunction>> entry : functionEnvironment.entrySet()) {
-				functions.add(new Pair<String, List<AbstractFunction>>(entry.getKey(), entry.getValue()));
+			for (Entry<String, LinkedHashSet<AbstractFunction>> entry : functionEnvironment.entrySet()) {
+				functions.add(new Pair<String, LinkedHashSet<AbstractFunction>>(entry.getKey(), entry.getValue()));
 			}
 		}
 		return functions;
@@ -966,11 +967,11 @@ public class Environment implements IRascalFrame {
 	protected void extendFunctionEnv(Environment other) {
 		if (other.functionEnvironment != null) {
 		    if (this.functionEnvironment == null) {
-		      this.functionEnvironment = new HashMap<String, List<AbstractFunction>>();
+		      this.functionEnvironment = new HashMap<String, LinkedHashSet<AbstractFunction>>();
 		    }
 		    
 		    for (String name : other.functionEnvironment.keySet()) {
-		      List<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
+		      LinkedHashSet<AbstractFunction> otherFunctions = other.functionEnvironment.get(name);
 		      
 		      if (otherFunctions != null) {
 		        for (AbstractFunction function : otherFunctions) {

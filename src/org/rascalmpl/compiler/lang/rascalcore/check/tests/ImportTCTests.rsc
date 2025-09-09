@@ -279,3 +279,14 @@ test bool QualifiedOverloadedModuleVarOk(){
 			str main() = Left::global;	// ok: global is explicitly resolved
 		");
 }
+
+test bool cyclicImportOk(){
+	writeModule("module A import B;");
+	return checkModuleOK("module B import A;");
+}
+
+@ignore{TODO}
+test bool cyclicExtendNotOk(){
+	writeModule("module A extend B;");
+	return unexpectedDeclarationInModule("module B extend A;");
+}
