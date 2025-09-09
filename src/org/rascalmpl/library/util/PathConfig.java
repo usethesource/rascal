@@ -64,7 +64,14 @@ public class PathConfig {
         "messages", tf.listType(Messages.Message),
         "generatedSources", tf.sourceLocationType() // deprecated!
     );
-    private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+    private static final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+
+    static {
+        store.extendStore(Messages.ts);
+        PathConfigFields.forEach((n, t) -> {
+            store.declareKeywordParameter(pathConfigConstructor, n, t);
+        });
+    }
     
     private final ISourceLocation projectRoot;
     private final List<ISourceLocation> srcs;		
