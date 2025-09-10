@@ -577,7 +577,9 @@ public class PathConfig {
                 // unless this is a local project (that never got added to m2 repo)
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", art.getCoordinate().getArtifactId(), "");
                 if (reg.exists(projectLoc)) {
-                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    if (mode == RascalConfigMode.INTERPRETER) {
+                        messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
                 }
                 else {
@@ -608,7 +610,9 @@ public class PathConfig {
             if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
-                messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                if (mode == RascalConfigMode.INTERPRETER) {
+                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                }
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
             else {
@@ -699,7 +703,7 @@ public class PathConfig {
         IListWriter resourcesWriter = (IListWriter) vf.listWriter().unique();
         IListWriter messages = vf.listWriter();
         
-        if (isRoot) {
+        if (isRoot && mode == RascalConfigMode.INTERPRETER) {
             messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 
