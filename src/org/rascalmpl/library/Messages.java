@@ -199,7 +199,7 @@ public class Messages {
 
         return (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
             ? ((IString) msg.get("msg")).getValue()
-            : loc.getPath().substring(1)
+            : (root != null ? loc.getPath().substring(1) : loc)
             + ((line == 0 && col == 0) ? "" : 
             (":"
             + String.format("%0" + lineWidth + "d", line)

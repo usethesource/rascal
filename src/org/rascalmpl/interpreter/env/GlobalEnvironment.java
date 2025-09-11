@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -85,6 +86,10 @@ public class GlobalEnvironment {
 
 	public boolean onLoadingStack(String name) {
 		return loadStack.contains(name);
+	}
+
+	public void writeLoadMessages(PrintWriter out) {
+		moduleEnvironment.values().stream().forEach(m -> m.writeLoadMessages(out));
 	}
 
 	public List<String> getLoadStack() {

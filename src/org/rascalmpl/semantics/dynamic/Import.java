@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -240,29 +242,20 @@ public abstract class Import {
 
 	public static void importModule(String name, ISourceLocation src, IEvaluator<Result<IValue>> eval) {
 		GlobalEnvironment heap = eval.__getHeap();
-    ModuleEnvironment modEnv;
 
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
 			heap.addModule(new ModuleEnvironment(name, heap));
-      modEnv = loadModule(src, name, eval);
+       loadModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
 			heap.resetModule(name);
-      modEnv = loadModule(src, name, eval);
+      loadModule(src, name, eval);
 		} 
-    else {
-      modEnv = heap.getModule(name);
-    }
 
-    if (modEnv.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
-      eval.warning(name + " was loaded but not imported here because it has errors.", src);
-    }
-    else {
-      addImportToCurrentModule(src, name, eval);
-    }
-		
+    addImportToCurrentModule(src, name, eval);
+    		
 		if (heap.getModule(name).isDeprecated()) {
 			eval.warning(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage(), src);
 		}
@@ -288,11 +281,6 @@ public abstract class Import {
       other = loadModule(x, name, eval);
     } 
 
-    if (other.isFawlty() && eval.getCurrentEnvt() == eval.__getRootScope()) {
-      eval.warning(name + " was loaded but not extended in here because it has errors", x);
-      return;
-    }
-
     // If we are trying to extend ourselves, we should stop here,
     // otherwise we can go ahead and merge the other module in.
     // Beware that the other module may already have been extended
@@ -305,7 +293,10 @@ public abstract class Import {
         List<String> path = eval.getHeap().findCyclicExtendPathFrom(other.getName(), thisEnv.getName());
         assert !path.isEmpty() : "weird to have detected a non-existent cycle";
         // abort the extend and the loading of the current module alltogether
-        throw new CyclicExtend(thisEnv.getName(), path, x);
+        throw new CyclicExtend(thisEnv.getName(), 
+          path.stream().map(m -> eval.getRascalResolver().resolveModule(m)).collect(Collectors.toList()), 
+          x
+        );
     }
     else if (!other.isInitialized()) {
         // this catches a single cycle which goes through both import and extends
@@ -313,8 +304,9 @@ public abstract class Import {
         var cycle = heap.getLoadStack()
           .stream()
           .takeWhile(m -> !startCycle.equals(m))  // skip the prefix that leads to the cycle
+          .map(m -> eval.getRascalResolver().resolveModule(m)) // turn the module name into a linkable location
           .collect(Collectors.toList());
-        cycle.add(startCycle); // add the cyclic element for reporting purposes
+        cycle.add(eval.getRascalResolver().resolveModule(startCycle)); // add the cyclic element for reporting purposes
         throw new CyclicImportExtend(other.getName(), cycle, x);
     }
     else {
@@ -366,13 +358,18 @@ public abstract class Import {
           }
       }
       catch (StaticError e) {
-          handleLoadError(eval, name, e.getMessage(), e.getLocation());
+          handleLoadError(env, e.getMessage(), e.getLocation());
       }
       catch (Throw e) {
-          handleLoadError(eval, name, e.getMessage(), e.getLocation());
+          handleLoadError(env, e.getMessage(), e.getLocation());
       } 
       catch (Throwable e) {
-          handleLoadError(eval, name, e.getMessage(), x);
+        var msg = e.getClass().getSimpleName() + ": " + e.getMessage() + "\n";
+          handleLoadError(env, 
+            msg + "\n"
+            + Arrays.stream(e.getStackTrace())
+                .map(s->s.toString())
+                .collect(Collectors.joining("\n")), x);
       } 
       finally {
           env.setInitialized();
@@ -392,9 +389,8 @@ public abstract class Import {
    * The side-effect of this method is that the prompt looses access to the fawlty modules, such
    * that users can not start depending (easily) on their ill-defined behavior.
    */
-  private static void handleLoadError(IEvaluator<Result<IValue>> eval, String name, String message, ISourceLocation error) {
-      eval.getEvaluator().warning(message, error);
-      eval.getHeap().getModule(name).setFawlty();
+  private static void handleLoadError(ModuleEnvironment m, String message, ISourceLocation error) {
+      m.addLoadError(message, error);
   }
 
 
@@ -484,8 +480,11 @@ private static boolean isDeprecated(Module preModule){
           ISet rules = Modules.getSyntax(top);
           eval.getMonitor().jobTodo(jobName, rules.size());
           for (IValue rule : rules) {
-              evalImport(eval, (IConstructor) rule);
+              evalSyntax(eval, name, (IConstructor) rule);
               eval.getMonitor().jobStep(jobName, "defining syntax for " + name, 1);
+              if (eval.isInterrupted()) {
+                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+              }
           }
 
           ISet imports = Modules.getImports(top);
@@ -493,6 +492,9 @@ private static boolean isDeprecated(Module preModule){
           for (IValue mod : imports) {
               evalImport(eval, (IConstructor) mod);
               eval.getMonitor().jobStep(jobName, "importing for " + name, 1);
+              if (eval.isInterrupted()) {
+                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+              }
           }
 
           ISet extend = Modules.getExtends(top);
@@ -500,6 +502,9 @@ private static boolean isDeprecated(Module preModule){
           for (IValue mod : extend) {
               evalImport(eval, (IConstructor) mod);
               eval.getMonitor().jobStep(jobName, "extending for " + name, 1);
+              if (eval.isInterrupted()) {
+                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+              }
           }
 
           ISet externals = Modules.getExternals(top);
@@ -507,6 +512,9 @@ private static boolean isDeprecated(Module preModule){
           for (IValue mod : externals) {
               evalImport(eval, (IConstructor) mod);
               eval.getMonitor().jobStep(jobName, "external importing for " + name, 1);
+              if (eval.isInterrupted()) {
+                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+              }
           }
       }
       finally {
@@ -562,30 +570,48 @@ private static boolean isDeprecated(Module preModule){
       eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), true);
   }
 
-public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
+  public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
+    String name = Names.fullName(imp.getModule().getName());
+
 	  try {
 		    imp.interpret(eval);
 	  }
 	  catch (Throw rascalException) {
-		  eval.getEvaluator().warning(rascalException.getMessage(), rascalException.getLocation());
-		  // parsing the current module should be robust wrt errors in modules it depends on.
-		  if (eval.isInterrupted()) {
-			  throw rascalException;
-		  }
+      // when a global initializer throws a runtime exception
+      handleLoadError(eval.getHeap().getModule(name), rascalException.getMessage(), rascalException.getLocation());
 	  }
-    catch (CyclicExtend e) {
-      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
+    catch (CyclicExtend | CyclicImportExtend e) {
+      // when we end up in a cycle which we can't implement
+      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation());
     }
     catch (StaticError e) {
-      handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), e.getLocation());
+      // all other static errors
+      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation());
     }
 	  catch (Throwable e) {
-		  handleLoadError(eval, Names.fullName(imp.getModule().getName()), e.getMessage(), imp.getLocation());
-		  // parsing the current module should be robust wrt errors in modules it depends on.
-		  if (eval.isInterrupted()) {
-			  throw e;
-		  }
+      // all internal implementation errors that mess up a module's loading
+		  handleLoadError(eval.getHeap().getModule(name), e.getMessage(), imp.getLocation());
+	  }
+  }
+
+  public static void evalSyntax(IEvaluator<Result<IValue>> eval, String moduleName, IConstructor mod) {
+	  org.rascalmpl.ast.Import def = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
+
+	  try {
+		    def.interpret(eval);
+	  }
+	  catch (Throw rascalException) {
+      // when a global initializer throws a runtime exception
+      handleLoadError(eval.getHeap().getModule(moduleName), rascalException.getMessage(), rascalException.getLocation());
+	  }
+    catch (StaticError e) {
+      // all other static errors
+      handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), e.getLocation());
+    }
+	  catch (Throwable e) {
+      // all internal implementation errors that mess up a module's loading
+		  handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), def.getLocation());
 	  }
   }
   
@@ -694,21 +720,24 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
         return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
       }
       else {
+        // this is unexpected, probably a bug in the interpreter or the parser generator
         ISourceLocation loc = TreeAdapter.getLocation(tree);   
-        monitor.warning("error while parsing concrete syntax: " + e.getException(), loc);
+        monitor.warning("internal error while parsing concrete syntax: " + e.getException(), loc);
         return (ITree) tree.asWithKeywordParameters().setParameter("parseError", loc);
       }
     }
     catch (StaticError e) {
+      // that's an internal bug in the parser or parser generator
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      monitor.warning(e.getMessage(), e.getLocation());
+      monitor.warning("internal error while parsing concrete syntax: " + e.getMessage(), e.getLocation());
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
+      // this happens when the syntax definition is incomplete
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      monitor.warning(e.getMessage(), src);
+      monitor.warning("error while parsing concrete syntax: " + e.getMessage(), src);
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
   }
