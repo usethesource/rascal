@@ -89,6 +89,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		    return res;
 		  }
 		  finally {
+			__eval.getHeap().writeLoadMessages(__eval.getErrorPrinter());
 		    __eval.setCurrentAST(this);
 		  }
 
