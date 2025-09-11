@@ -93,12 +93,7 @@ public class ShellEvaluatorFactory {
         pcfg.reportConfigurationInfo();
         
         if (!pcfg.getMessages().isEmpty()) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages(), pcfg.getProjectRoot());
-            } 
-            else {
-                Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
-            }
+            Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
         }
 
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
