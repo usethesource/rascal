@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,9 +40,11 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -51,6 +54,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -77,7 +81,7 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
-	private boolean fawlty = false;
+	private List<IConstructor> loadMessages = new LinkedList<>();
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -95,7 +99,6 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
-		this.fawlty = false;
 	}
 	
 	/**
@@ -115,7 +118,6 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
 		this.deprecated = env.deprecated;
-		this.fawlty = env.fawlty;
 	}
 
 	@Override
@@ -130,11 +132,10 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
-		this.fawlty = false;
+		this.loadMessages.clear();
 	}
 	
 	public void extend(ModuleEnvironment other) {
-//	  super.extend(other);
 		extendNameFlags(other);
 		  
 	  // First extend the imports before functions and variables
@@ -191,7 +192,6 @@ public class ModuleEnvironment extends Environment {
 	  this.bootstrap |= other.bootstrap;
 	  
 	  addExtend(other.getName());
-	  this.fawlty |= other.fawlty;
 	}
 	
 	@Override
@@ -215,6 +215,22 @@ public class ModuleEnvironment extends Environment {
 		if (productions != null) {
 			productions.clear();
 		}
+	}
+
+	public void addLoadError(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.error(message, loc));
+	}
+
+	public void addLoadWarning(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.warning(message, loc));
+	}
+
+	public void addLoadInfo(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.info(message, loc));
+	}
+
+	public void writeLoadMessages(PrintWriter out) {
+		Messages.write(loadMessages.stream().collect(IRascalValueFactory.getInstance().listWriter()), out);
 	}
 	
 	public boolean definesSyntax() {
@@ -1127,13 +1143,5 @@ public class ModuleEnvironment extends Environment {
 
 	public Set<IValue> getProductions() {
 		return productions;
-	}
-
-	public void setFawlty() {
-		this.fawlty = true;
-	}
-
-	public boolean isFawlty() {
-		return fawlty;
 	}
 }

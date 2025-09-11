@@ -1118,6 +1118,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.writeLoadMessages(getErrorPrinter());
         }
     }
 
