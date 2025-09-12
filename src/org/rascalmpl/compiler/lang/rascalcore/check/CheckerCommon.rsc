@@ -300,6 +300,7 @@ ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded =
          }
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
+        tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]);
         tm = convertTModel2LogicalLocs(tm, ms.tmodels);
         ms.status[candidate] += tpl_saved();
         if(ms.compilerConfig.verbose) println("Saving tmodel for <candidate> before removing from cache");

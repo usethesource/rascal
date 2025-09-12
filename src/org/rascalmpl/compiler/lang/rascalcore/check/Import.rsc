@@ -180,11 +180,23 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 <incompatible, ms> = isCompatibleBinaryLibrary(tm, ms);
                 if(!isEmpty(incompatible)){
-                    txt = "Review of dependencies, reconfiguration or recompilation needed: binary module `<qualifiedModuleName>` uses incompatible module(s) <intercalateAnd(incompatible)>";
+                    txt = "Review of dependencies, reconfiguration or recompilation needed: binary module `<qualifiedModuleName>` depends (indirectly) on incompatible module(s) <intercalateAnd(incompatible)>";
                     msg = error(txt, mloc);
+                    
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? {} += { msg };
-                    throw rascalBinaryNeedsRecompilation(qualifiedModuleName, msg);
+                    txt2 = "Review of dependencies, reconfiguration or recompilation needed: imported/extended binary module `<qualifiedModuleName>` depends (indirectly) on incompatible module(s) <intercalateAnd(incompatible)>";
+
+                    usingModules = {user | <user, qualifiedModuleName> <- ms.strPaths<0,2>*};
+                    for(user <- usingModules){
+                            mloc = getRascalModuleLocation(user, pcfg);
+                            if(!isModuleLocationInLibs(user, mloc, pcfg)){
+                                msg2 = error(txt2, mloc);
+                                ms.messages[user] ? {} += { msg2 };
+                            }
+                    }
+
+                    //throw rascalBinaryNeedsRecompilation(qualifiedModuleName, msg);
                 } else {
                     allImportsAndExtendsValid = true;
                     if(ms.compilerConfig.verbose){
@@ -260,15 +272,15 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
         return <[], ms>;
     } else {
         println("BOM of <lib.modelName>:"); iprintln(lib.store[key_bom]);
-        println("libDependsOn:"); for(l <- libDependsOn, contains("<l>", "Content"), contains("<l>", "field")) println(l);
-        println("dependentsProvide:"); for(l <- dependentsProvide, contains("<l>", "Content"), contains("<l>", "field")) println(l);
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
+        // println("libDependsOn:"); for(l <- libDependsOn, contains("<l>", "Content"), contains("<l>", "field")) println(l);
+        // println("dependentsProvide:"); for(l <- dependentsProvide, contains("<l>", "Content"), contains("<l>", "field")) println(l);
+        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<size(unsatisfied)>): <unsatisfied>");
         for(u <- unsatisfied){ 
             println("<u> =\> <lib.logical2physical[u]>");
         }
-                incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
+        incompatibleModules = { getModuleFromLogical(u) | u <- unsatisfied };
 
-        return <toList(incompatibleModules), ms>;
+        return <sort(incompatibleModules), ms>;
     }
 }
 
