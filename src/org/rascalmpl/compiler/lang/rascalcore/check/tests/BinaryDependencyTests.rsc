@@ -401,7 +401,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     // Update Checks' modifcation time to make sure it will rechecked
     touch(getRascalModuleLocation("Check", core.pcfg));
     // Recompile Check and discover the error
-    return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` uses incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
+    return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }
 
 // ---- Binary compatibility of two TModels -----------------------------------
