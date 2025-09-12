@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.util.locations;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * Translate ISourceLocation columns to LSP columns
  *
@@ -34,4 +36,5 @@ package org.rascalmpl.util.locations;
 public interface LineColumnOffsetMap {
     int translateColumn(int line, int column, boolean isEnd);
     int translateInverseColumn(int line, int column, boolean isEnd);
+    Pair<Integer, Integer> calculateInverseOffsetLength(int beginLine, int beginColumn, int endLine, int endColumn);
 }
