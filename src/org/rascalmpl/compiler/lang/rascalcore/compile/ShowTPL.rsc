@@ -28,7 +28,7 @@ module lang::rascalcore::compile::ShowTPL
 
 import IO;
 import ValueIO;
-extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::CheckerCommon;
 
 loc tplLoc = |file:///Users/paulklint/git/bird/bird-core/target/classes/rascal/lang/bird/$Checker.tpl|;
 TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
