@@ -27,9 +27,9 @@
     <dependencyManagement>
         <dependencies>
           <dependency>
-            <groupId>org.rascalmpl</groupId>
-            <artifactId>rascal</artifactId>
-            <version>0.40.17</version>
+            <groupId>io.usethesource</groupId>
+            <artifactId>capsule</artifactId>
+            <version>0.7.1</version>
           </dependency>
           <dependency>
             <groupId>org.rascalmpl</groupId>
