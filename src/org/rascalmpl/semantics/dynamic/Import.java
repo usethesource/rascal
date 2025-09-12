@@ -361,7 +361,8 @@ public abstract class Import {
           handleLoadError(env, e.getMessage(), e.getLocation());
       }
       catch (Throw e) {
-          handleLoadError(env, e.getMessage(), e.getLocation());
+          var msg = e.getMessage() + "\n" + e.getTrace().toString();
+          handleLoadError(env, msg, e.getLocation());
       } 
       catch (Throwable e) {
         var msg = e.getClass().getSimpleName() + ": " + e.getMessage() + "\n";
