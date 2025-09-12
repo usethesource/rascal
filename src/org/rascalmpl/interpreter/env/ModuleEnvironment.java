@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,16 +40,21 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -61,9 +67,6 @@ import io.usethesource.vallang.type.TypeStore;
  * A module environment represents a module object (i.e. a running module).
  * It manages imported modules and visibility of the
  * functions and variables it declares. 
- * 
- * TODO: add management of locally declared types and constructors
- * 
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
@@ -78,10 +81,11 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
+	private List<IConstructor> loadMessages = new LinkedList<>();
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	public final static String SHELL_MODULE = "$shell$";
+	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
@@ -128,10 +132,10 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.loadMessages.clear();
 	}
 	
 	public void extend(ModuleEnvironment other) {
-//	  super.extend(other);
 		extendNameFlags(other);
 		  
 	  // First extend the imports before functions and variables
@@ -190,8 +194,6 @@ public class ModuleEnvironment extends Environment {
 	  addExtend(other.getName());
 	}
 	
-	
-	
 	@Override
 	public GlobalEnvironment getHeap() {
 		return heap;
@@ -213,6 +215,22 @@ public class ModuleEnvironment extends Environment {
 		if (productions != null) {
 			productions.clear();
 		}
+	}
+
+	public void addLoadError(String message, ISourceLocation loc, String trace) {
+		loadMessages.add(Messages.addCause(Messages.error(message, loc), trace, loc));
+	}
+
+	public void addLoadWarning(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.warning(message, loc));
+	}
+
+	public void addLoadInfo(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.info(message, loc));
+	}
+
+	public void writeLoadMessages(PrintWriter out) {
+		Messages.write(loadMessages.stream().collect(IRascalValueFactory.getInstance().listWriter()), out);
 	}
 	
 	public boolean definesSyntax() {
@@ -380,16 +398,20 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		if (importedModules.remove(moduleName)) {
-			ModuleEnvironment old = heap.getModule(moduleName);
-			if (old != null) {
-				typeStore.unimportStores(new TypeStore[] { old.getStore() });
+		if (importedModules != null) {
+			if (importedModules.remove(moduleName)) {
+				ModuleEnvironment old = heap.getModule(moduleName);
+				if (old != null) {
+					typeStore.unimportStores(new TypeStore[] { old.getStore() });
+				}
 			}
 		}
 	}
 	
 	public void unExtend(String moduleName) {
-		extended.remove(moduleName);
+		if (extended != null) {
+			extended.remove(moduleName);
+		}
 	}
 
 	@Override
@@ -443,12 +465,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void storeVariable(String name, Result<IValue> value) {
-//		if (value instanceof AbstractFunction) {
-//			storeFunction(name, (AbstractFunction) value);
-//			return;
-//		}
-		
+	public void storeVariable(String name, Result<IValue> value) {		
 		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
@@ -999,6 +1016,71 @@ public class ModuleEnvironment extends Environment {
 		return Collections.<String>emptySet();
 	}
 	
+	/**
+	 * This collects only "extends" edges starting from the current module
+	 * @return
+	 */
+	public SetMultimap.Transient<String, String> collectExtendsGraph() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
+	}
+
+	/**
+	 * This collects only "extends" edges starting from the current module
+	 * @return
+	 */
+	public SetMultimap.Transient<String, String> collectModuleDependencyGraph() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+			  
+			  for (String e : env.getImports()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
+	}
+
+	
+
 	public Set<String> getExtendsTransitive() {
 		List<String> todo = new LinkedList<String>();
 		Set<String> done = new HashSet<String>();

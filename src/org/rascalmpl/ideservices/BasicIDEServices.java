@@ -26,7 +26,6 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
@@ -156,7 +155,7 @@ public class BasicIDEServices implements IDEServices {
 
   @Override
   public void warning(String message, ISourceLocation src) {
-    monitor.warning(message,  src);
+      monitor.warning(message,  src);
   }
 
   @Override
