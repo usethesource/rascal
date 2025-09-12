@@ -358,19 +358,18 @@ public abstract class Import {
           }
       }
       catch (StaticError e) {
-          handleLoadError(env, e.getMessage(), e.getLocation());
+          handleLoadError(env, e.getMessage(), e.getLocation(), "");
       }
       catch (Throw e) {
-          var msg = e.getMessage() + "\n" + e.getTrace().toString();
-          handleLoadError(env, msg, e.getLocation());
+          handleLoadError(env, e.getMessage(), e.getLocation(), e.getTrace().toString());
       } 
       catch (Throwable e) {
-        var msg = e.getClass().getSimpleName() + ": " + e.getMessage() + "\n";
+        var msg = e.getClass().getSimpleName() + ": " + e.getMessage();
           handleLoadError(env, 
-            msg + "\n"
-            + Arrays.stream(e.getStackTrace())
-                .map(s->s.toString())
-                .collect(Collectors.joining("\n")), x);
+            msg, x, 
+            Arrays.stream(e.getStackTrace())
+                .map(Object::toString)
+                .collect(Collectors.joining("\n")));
       } 
       finally {
           env.setInitialized();
@@ -390,8 +389,8 @@ public abstract class Import {
    * The side-effect of this method is that the prompt looses access to the fawlty modules, such
    * that users can not start depending (easily) on their ill-defined behavior.
    */
-  private static void handleLoadError(ModuleEnvironment m, String message, ISourceLocation error) {
-      m.addLoadError(message, error);
+  private static void handleLoadError(ModuleEnvironment m, String message, ISourceLocation error, String trace) {
+      m.addLoadError(message, error, trace);
   }
 
 
@@ -580,19 +579,22 @@ private static boolean isDeprecated(Module preModule){
 	  }
 	  catch (Throw rascalException) {
       // when a global initializer throws a runtime exception
-      handleLoadError(eval.getHeap().getModule(name), rascalException.getMessage(), rascalException.getLocation());
+      handleLoadError(eval.getHeap().getModule(name), rascalException.getMessage(), rascalException.getLocation(), rascalException.getTrace().toString());
 	  }
     catch (CyclicExtend | CyclicImportExtend e) {
       // when we end up in a cycle which we can't implement
-      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation());
+      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation(), "");
     }
     catch (StaticError e) {
       // all other static errors
-      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation());
+      handleLoadError(eval.getHeap().getModule(name), e.getMessage(), e.getLocation(), "");
     }
 	  catch (Throwable e) {
       // all internal implementation errors that mess up a module's loading
-		  handleLoadError(eval.getHeap().getModule(name), e.getMessage(), imp.getLocation());
+		  handleLoadError(eval.getHeap().getModule(name), e.getMessage(), imp.getLocation(),
+        Arrays.stream(e.getStackTrace())
+            .map(Object::toString)
+            .collect(Collectors.joining("\n")));
 	  }
   }
 
@@ -604,15 +606,18 @@ private static boolean isDeprecated(Module preModule){
 	  }
 	  catch (Throw rascalException) {
       // when a global initializer throws a runtime exception
-      handleLoadError(eval.getHeap().getModule(moduleName), rascalException.getMessage(), rascalException.getLocation());
+      handleLoadError(eval.getHeap().getModule(moduleName), rascalException.getMessage(), rascalException.getLocation(), rascalException.getTrace().toString());
 	  }
     catch (StaticError e) {
       // all other static errors
-      handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), e.getLocation());
+      handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), e.getLocation(), "");
     }
 	  catch (Throwable e) {
       // all internal implementation errors that mess up a module's loading
-		  handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), def.getLocation());
+		  handleLoadError(eval.getHeap().getModule(moduleName), e.getMessage(), def.getLocation(),
+      Arrays.stream(e.getStackTrace())
+                .map(Object::toString)
+                .collect(Collectors.joining("\n")));
 	  }
   }
   
