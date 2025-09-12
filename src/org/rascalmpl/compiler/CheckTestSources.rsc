@@ -61,15 +61,15 @@ void checkTestSources(list[str] cmdLineArgs) {
    total = 0;
    
    list[str] modulesToCheck = [];
-   
+   pcfg = getAllSrcREPOPathConfig(keep=true);
    if("all" in cmdLineArgs){
-      modulesToCheck = getRascalModules(|std:///|, genCompilerConfig.typepalPathConfig);               
+      modulesToCheck = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);         
    } else {         
       testFolders = [ //|std:///lang/rascal/tests|,
                        //REPO + "/rascal-core/lang/rascalcore/check::tests",
                        REPO + "/typepal/src/"
                     ];
-      modulesToCheck = [ *getRascalModules(testFolder, genCompilerConfig.typepalPathConfig)
+      modulesToCheck = [ *getRascalModules(testFolder, pcfg)
                        | testFolder <- testFolders
                       ];
     }
