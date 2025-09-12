@@ -23,7 +23,16 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
-
+      - uses: s4u/maven-settings-action@v3.1.0
+        with:
+          mirrors: '[
+            {
+              "id": "usethesource-gh", 
+              "mirrorOf": "usethesource", 
+              "url": "${{ secrets.MAVEN_MIRROR_URL }}",
+              "username": "github",
+              "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"
+            }]'
       - name: Run Tests
         run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
@@ -63,6 +72,17 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        with:
+          mirrors: '[
+            {
+              "id": "usethesource-gh", 
+              "mirrorOf": "usethesource", 
+              "url": "${{ secrets.MAVEN_MIRROR_URL }}",
+              "username": "github",
+              "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"
+            }]'
 
       - name: Compile & Bootstrap
         run: mvn -B compile -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` 
@@ -148,6 +168,16 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
+      - uses: s4u/maven-settings-action@v3.1.0
+        with:
+          mirrors: '[
+            {
+              "id": "usethesource-gh", 
+              "mirrorOf": "usethesource", 
+              "url": "${{ secrets.MAVEN_MIRROR_URL }}",
+              "username": "github",
+              "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"
+            }]'
 
       - name: Run Tests
         # single quotes to help windows deal with argument splitting
@@ -176,6 +206,17 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: 'maven'
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        with:
+          mirrors: '[
+            {
+              "id": "usethesource-gh", 
+              "mirrorOf": "usethesource", 
+              "url": "${{ secrets.MAVEN_MIRROR_URL }}",
+              "username": "github",
+              "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"
+            }]'
 
       - name: Retrieve dependencies for integration tests
         run: bash src/org/rascalmpl/compiler/lang/rascalcore/check/tests/download-test-jars.sh
