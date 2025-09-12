@@ -43,7 +43,7 @@ abstract class AbstractMavenTest {
     }
 
     protected MavenParser createParser(String path) {
-        return new MavenParser(new MavenSettings(), getPomsPath(path), tempRepo);
+        return new MavenParser(MavenSettings.readSettings(), getPomsPath(path), tempRepo);
     }
 
 }
