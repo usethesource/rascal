@@ -17,9 +17,10 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.rascalmpl</groupId>
-      <artifactId>rascal</artifactId>
-      <version>0.40.17</version>
+      <!-- let's make it a bit small to get faster result -->
+      <groupId>io.usethesource</groupId>
+      <artifactId>capsule</artifactId>
+      <version>0.7.1</version>
     </dependency>
   </dependencies>
 </project>
