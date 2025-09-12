@@ -217,8 +217,8 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 
-	public void addLoadError(String message, ISourceLocation loc) {
-		loadMessages.add(Messages.error(message, loc));
+	public void addLoadError(String message, ISourceLocation loc, String trace) {
+		loadMessages.add(Messages.addCause(Messages.error(message, loc), trace, loc));
 	}
 
 	public void addLoadWarning(String message, ISourceLocation loc) {
