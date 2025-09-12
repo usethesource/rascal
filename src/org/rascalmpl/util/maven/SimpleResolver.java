@@ -47,13 +47,14 @@ import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Server;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     private static final String MAVEN_CENTRAL_ID = "central";
     private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2";
 
-    public static SimpleResolver createRootResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors) {
-        SimpleResolver rootResolver = new SimpleResolver(rootRepository, client, mirrors, null);
+    public static SimpleResolver createRootResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors, Map<String, Server> servers) {
+        SimpleResolver rootResolver = new SimpleResolver(rootRepository, client, mirrors, servers, null);
         Repository repo = new Repository();
         repo.setId(MAVEN_CENTRAL_ID);
         repo.setUrl(MAVEN_CENTRAL_URL);
@@ -73,20 +74,22 @@ import org.apache.maven.settings.Mirror;
     private final HttpClient client;
 
     private final Map<String, Mirror> mirrors;
+    private final Map<String, Server> servers;
 
     private final SimpleResolver parentResolver;
 
-    private SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors, SimpleResolver parentResolver) {
+    private SimpleResolver(Path rootRepository, HttpClient client, Map<String, Mirror> mirrors, Map<String, Server> servers, SimpleResolver parentResolver) {
         this.rootRepository = rootRepository;
         this.client = client;
-        this.mirrors = new HashMap<>(mirrors);
+        this.mirrors = Map.copyOf(mirrors);
+        this.servers = Map.copyOf(servers);
 
         downloaderFactory = new RepositoryDownloaderFactory(client);
         this.parentResolver = parentResolver;
     }
 
     public SimpleResolver createChildResolver() {
-        return new SimpleResolver(rootRepository, client, mirrors, this);
+        return new SimpleResolver(rootRepository, client, mirrors, servers, this);
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
@@ -206,7 +209,7 @@ import org.apache.maven.settings.Mirror;
         }
         Mirror mirror = mirrors.get(repository.getId());
         Repo repo = mirror == null ?  new Repo(repository) : new MirrorRepo(mirror,repository);
-        this.availableRepostories.add(downloaderFactory.createDownloader(repo));
+        this.availableRepostories.add(downloaderFactory.createDownloader(repo, servers.get(repo.getId())));
     }
 
     public void addDownloaders(SimpleResolver originalResolver) {
@@ -217,7 +220,7 @@ import org.apache.maven.settings.Mirror;
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(rootRepository, client, mirrors, parentResolver);
+        var result = new SimpleResolver(rootRepository, client, mirrors, servers, parentResolver);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }

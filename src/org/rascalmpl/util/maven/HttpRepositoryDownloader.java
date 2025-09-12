@@ -41,11 +41,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.maven.settings.Server;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -61,11 +63,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  /*package*/ class HttpRepositoryDownloader extends BaseRepositoryDownloader {
     private final HttpClient client;
     private final Random rand;
+    private final String authHeader;
 
-    public HttpRepositoryDownloader(Repo repo, HttpClient client) {
+    public HttpRepositoryDownloader(Repo repo, @Nullable Server server, HttpClient client) {
         super(repo);
 
         this.client = client;
+        if (server != null && server.getPassword() != null && !server.getPassword().isEmpty()) {
+            String auth = server.getUsername() + ":" + server.getPassword();
+            authHeader = "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+        }
+        else {
+            authHeader = "";
+        }
+        
         rand = new Random();
     }
 
@@ -101,12 +112,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         );
     }
 
+    private HttpRequest.Builder request(URI uri) {
+        var result = HttpRequest.newBuilder(uri);
+        if (!authHeader.isEmpty()) {
+            return result.header("Authorization", authHeader);
+        }
+        return result;
+    }
+
     private @Nullable <R> R download(String url, Path target, boolean force, boolean hasChecksums,
         FailableFunction<InputStream, R, IOException> resultCreator,
         FailableFunction<R, Boolean, IOException> resultWriter) {
         try {
             var artifactUri = createUri(getRepo().getUrl(), url);
-            var req = HttpRequest.newBuilder(artifactUri).GET().build();
+            var req = request(artifactUri).GET().build();
             HttpResponse<InputStream> response = client.send(req, BodyHandlers.ofInputStream());
 
             if (response.statusCode() == 200) {
@@ -184,7 +203,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     private @Nullable String downloadChecksum(URI uri) throws IOException, InterruptedException {
-        var req = HttpRequest.newBuilder(uri).GET().build();
+        var req = request(uri).GET().build();
         HttpResponse<String> result = client.send(req, BodyHandlers.ofString());
         return result.statusCode() == 200 ? result.body() : null;
     }
