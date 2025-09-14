@@ -381,15 +381,6 @@ public java bool inCompiledMode();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str diff(value old, value new);
 
-@synopsis{Watch value val: 
-- running in interpreted mode: write val to a file, 
-- running in compiled mode: compare val with previously written value}
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name, value suffix);
-
 @synopsis{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, bool concretePatterns);
