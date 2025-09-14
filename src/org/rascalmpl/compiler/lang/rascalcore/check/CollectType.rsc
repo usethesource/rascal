@@ -33,7 +33,9 @@ module lang::rascalcore::check::CollectType
     Check type declarations
 */
 
-extend lang::rascalcore::check::ATypeInstantiation;
+
+
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::agrammar::definition::Symbols;
@@ -46,6 +48,8 @@ import List;
 import Node;
 import Set;
 import String;
+
+extend lang::rascalcore::check::ATypeInstantiation;
 
 void collect(current: (Type) `( <Type tp> )`, Collector c){
     c.fact(current, tp);
