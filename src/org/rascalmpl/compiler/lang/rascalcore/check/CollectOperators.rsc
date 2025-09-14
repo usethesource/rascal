@@ -26,8 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @bootstrapParser
 module lang::rascalcore::check::CollectOperators
- 
-extend lang::rascalcore::check::CheckerCommon;
+
 import lang::rascalcore::check::BacktrackFree;
 
 import lang::rascalcore::check::CollectPattern;
@@ -35,6 +34,8 @@ import lang::rascalcore::check::CollectExpression;
 
 import Node;
 import Set;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 // ---- is
 
