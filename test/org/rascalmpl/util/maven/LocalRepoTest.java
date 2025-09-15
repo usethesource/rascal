@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Server;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,8 +30,20 @@ public class LocalRepoTest extends AbstractMavenTest {
         URL url = AbstractMavenTest.class.getResource("/org/rascalmpl/util/maven/m2/repository");
         testRepo = url.toString();
 
+        var originalSettings = MavenSettings.readSettings();
         // We can use a mirror in settings to override the central repository
         settings = new MavenSettings() {
+
+            @Override
+            Map<String, Server> getServerSettings() {
+                return originalSettings.getServerSettings();
+            }
+
+            @Override
+            List<Proxy> getProxies() {
+                return originalSettings.getProxies();
+            }
+
             @Override
             public Map<String, Mirror> getMirrors() {
                 Mirror mirror = new Mirror();
@@ -80,7 +94,7 @@ public class LocalRepoTest extends AbstractMavenTest {
         Path pomPath = tempRepo.resolve("parent-pom.xml");
         Files.writeString(pomPath, content);
 
-        var parser = new MavenParser(new MavenSettings(), pomPath, tempRepo);
+        var parser = new MavenParser(MavenSettings.readSettings(), pomPath, tempRepo);
         Artifact project = parser.parseProject();
         List<Artifact> resolvedDependencies = project.resolveDependencies(Scope.COMPILE, parser);
 

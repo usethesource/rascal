@@ -57,10 +57,10 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
     }
     unsatisfied = libDependsOn - dependentsProvide;
     if(isEmpty(unsatisfied)){
-        println("isCompatibleBinaryLibrary <libName>: satisfied");
+        //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
+        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
         incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
         return <toList(incompatibleModules), ms>;
     }

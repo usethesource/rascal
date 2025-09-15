@@ -107,7 +107,7 @@ public class MavenParser {
 
         modelCache = new CaffeineModelCache();
 
-        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors());
+        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors(), settings.getServerSettings());
     }
 
     public Artifact parseProject() throws ModelResolutionError {

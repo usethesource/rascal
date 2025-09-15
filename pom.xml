@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC60-SNAPSHOT</version>
+    <version>0.41.0-RC61-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -586,7 +586,7 @@
         <dependency> <!-- file watch support -->
             <groupId>engineering.swat</groupId>
             <artifactId>java-watch</artifactId>
-            <version>0.9.4</version>
+            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>

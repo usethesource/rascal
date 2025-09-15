@@ -180,7 +180,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 <incompatible, ms> = isCompatibleBinaryLibrary(tm, ms);
                 if(!isEmpty(incompatible)){
-                    txt = "Recompilation or reconfiguration needed: binary module `<qualifiedModuleName>` uses incompatible module(s) <intercalateAnd(incompatible)>";
+                    txt = "Review of dependencies, reconfiguration or recompilation needed: binary module `<qualifiedModuleName>` uses incompatible module(s) <intercalateAnd(incompatible)>";
                     msg = error(txt, mloc);
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? {} += { msg };
