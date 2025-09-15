@@ -31,11 +31,6 @@ module lang::rascalcore::check::CollectDeclaration
     Check all declarations in a module
 */
 
-extend lang::rascalcore::check::CheckerCommon;
-extend lang::rascalcore::check::CollectDataDeclaration;
-extend lang::rascalcore::check::CollectSyntaxDeclaration;
-
-extend lang::rascalcore::check::Fingerprint;
 import lang::rascalcore::check::PathAnalysis;
 
 //import lang::rascalcore::check::ScopeInfo;
@@ -46,6 +41,8 @@ import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;
 
+import lang::rascalcore::check::ATypeBase; // seemingly redundant
+
 import IO;
 import List;
 import Map;
@@ -55,6 +52,12 @@ import Set;
 import String;
 
 import util::Reflective;
+
+extend lang::rascalcore::check::CheckerCommon;
+extend lang::rascalcore::check::CollectDataDeclaration;
+extend lang::rascalcore::check::CollectSyntaxDeclaration;
+
+extend lang::rascalcore::check::Fingerprint;
 
 // ---- Utilities -------------------------------------------------------------
 
