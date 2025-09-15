@@ -478,5 +478,14 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             return null;
         }, ownExecutor);
     }
+
+    @Override
+    public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
+        System.err.println("evaluate: " + args);
+        EvaluateResponse response = new EvaluateResponse();
+        response.setResult(args.getExpression());
+        return CompletableFuture.completedFuture(response);
+    }
+    
 }
 
