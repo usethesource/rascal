@@ -34,7 +34,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class Messages {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final IValueFactory vf = IRascalValueFactory.getInstance();
-    private static final TypeStore ts = new TypeStore();
+    public static final TypeStore ts = new TypeStore();
 
 
     // These declarations mirror the data definition in the `Message` root module of the standard library.

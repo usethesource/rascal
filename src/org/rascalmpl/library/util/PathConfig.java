@@ -64,7 +64,14 @@ public class PathConfig {
         "messages", tf.listType(Messages.Message),
         "generatedSources", tf.sourceLocationType() // deprecated!
     );
-    private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+    private static final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+
+    static {
+        store.extendStore(Messages.ts);
+        PathConfigFields.forEach((n, t) -> {
+            store.declareKeywordParameter(pathConfigConstructor, n, t);
+        });
+    }
     
     private final ISourceLocation projectRoot;
     private final List<ISourceLocation> srcs;		
@@ -372,7 +379,7 @@ public class PathConfig {
         return current;
     }
 
-    public PathConfig parse(String pathConfigString) throws IOException {
+    public static PathConfig parse(String pathConfigString) throws IOException {
         try {
             IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
             IWithKeywordParameters<?> kwp = cons.asWithKeywordParameters();
@@ -570,7 +577,9 @@ public class PathConfig {
                 // unless this is a local project (that never got added to m2 repo)
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", art.getCoordinate().getArtifactId(), "");
                 if (reg.exists(projectLoc)) {
-                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    if (mode == RascalConfigMode.INTERPRETER) {
+                        messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
                 }
                 else {
@@ -601,7 +610,9 @@ public class PathConfig {
             if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
-                messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                if (mode == RascalConfigMode.INTERPRETER) {
+                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                }
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
             else {
@@ -692,7 +703,7 @@ public class PathConfig {
         IListWriter resourcesWriter = (IListWriter) vf.listWriter().unique();
         IListWriter messages = vf.listWriter();
         
-        if (isRoot) {
+        if (isRoot && mode == RascalConfigMode.INTERPRETER) {
             messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 

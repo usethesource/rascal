@@ -29,6 +29,8 @@ package org.rascalmpl.util.maven;
 import java.net.http.HttpClient;
 
 import org.apache.maven.model.resolution.InvalidRepositoryException;
+import org.apache.maven.settings.Server;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*
  * Class repsonsible for creating repository downloaders based on the type of repository (determined by the schema of their url).
@@ -40,11 +42,11 @@ public class RepositoryDownloaderFactory {
         this.client = client;
     }
 
-    public RepositoryDownloader createDownloader(Repo repo) throws InvalidRepositoryException {
+    public RepositoryDownloader createDownloader(Repo repo, @Nullable Server server) throws InvalidRepositoryException {
         if (repo.getUrl().startsWith("file:")) {
             return new FileRepositoryDownloader(repo);
         } else if (repo.getUrl().startsWith("http:") || repo.getUrl().startsWith("https:")) {
-            return new HttpRepositoryDownloader(repo, client);
+            return new HttpRepositoryDownloader(repo, server, client);
         }
 
         throw new InvalidRepositoryException("Unsupported repository URL: " + repo.getUrl(), repo.getMavenRepository());
