@@ -39,6 +39,7 @@ import util::Maybe;
 
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
+import lang::rascalcore::check::ATypeBase; // seemingly redundant
 
 // ---- syntax definition -----------------------------------------------------
 
@@ -232,12 +233,12 @@ private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(AAssociativity a), AProduction p) = associativity(nt, a, {p});
 
 void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
-    asc = AAssociativity::aleft();
+    asc = aleft();
     switch("<ass>"){
-    case "assoc":       asc = AAssociativity::aleft();
-    case "left":        asc = AAssociativity::aleft();
-    case "non-assoc":   asc = AAssociativity::\a-non-assoc();
-    case "right":       asc = AAssociativity::aright();
+    case "assoc":       asc = aleft();
+    case "left":        asc = aleft();
+    case "non-assoc":   asc = \a-non-assoc();
+    case "right":       asc = aright();
     }
 
     if(<Tree adt, _, _, _> := c.top(currentAdt)){

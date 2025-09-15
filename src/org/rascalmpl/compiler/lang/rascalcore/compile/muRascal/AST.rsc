@@ -34,6 +34,8 @@ import Node;
 import ParseTree;
 import IO;
 
+import lang::rascalcore::check::ATypeBase;
+
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::compile::muRascal::Primitives;
 
