@@ -266,26 +266,37 @@ public class GlobalEnvironment {
         SetMultimap.Transient<String, String> graph = getExtendGraphFrom(child);
 		graph.__put(parent, child); // add the last edge that was not yet registered
 		IRascalValueFactory vf = IRascalValueFactory.getInstance();
-		return depthFirstSearch(parent, new HashSet<>(), vf.list(vf.string(parent)), graph)
+		return depthFirstCycleSearch(parent, new HashSet<>(), vf.list(vf.string(parent)), graph)
 			.stream()
 			.map(IString.class::cast)
 			.map(IString::getValue)
 			.collect(Collectors.toList());
     }
 
+	public List<String> findCyclicDependency(String start) {
+        SetMultimap.Transient<String, String> graph = getModule(start).collectModuleDependencyGraph();
+		IRascalValueFactory vf = IRascalValueFactory.getInstance();
+		return depthFirstCycleSearch(start, new HashSet<>(), vf.list(vf.string(start)), graph)
+			.stream()
+			.map(IString.class::cast)
+			.map(IString::getValue)
+			.collect(Collectors.toList());
+    }
+
+
 	/*
 	 * dfs uses an immutable IList for the path such that we don't have to maintain a stack, next to the 
 	 * recursion.
 	 * otherwise this is a standard depth-first search for a directed graph
 	 */
-	public IList depthFirstSearch(String parent, Set<String> visited, IList path,  SetMultimap.Transient<String, String> graph) {
+	public IList depthFirstCycleSearch(String parent, Set<String> visited, IList path,  SetMultimap.Transient<String, String> graph) {
 		visited.add(parent);
 		var vf = IRascalValueFactory.getInstance();
 
 		for (String child : graph.get(parent)) {
 			if (!visited.contains(child)) {
 				// a new node but not cyclic (yet) 
-				IList result = depthFirstSearch(child, visited, path.append(vf.string(child)), graph);
+				IList result = depthFirstCycleSearch(child, visited, path.append(vf.string(child)), graph);
 				if (!result.isEmpty()) {
 					// then this is the first cycle we found, so we're done
 					return result;
