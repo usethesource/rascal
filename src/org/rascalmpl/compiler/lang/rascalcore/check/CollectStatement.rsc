@@ -30,7 +30,6 @@ module lang::rascalcore::check::CollectStatement
 /*
     Check all statements
 */
-extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
@@ -41,6 +40,9 @@ import List;
 import Set;
 import String;
 import Map;
+
+extend lang::rascalcore::check::CheckerCommon;
+
 
 // Rascal statements
 
