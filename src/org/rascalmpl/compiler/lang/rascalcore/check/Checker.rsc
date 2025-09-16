@@ -28,7 +28,7 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::check::Checker
 
 /*
-    Top level driver for the checker (rascalTModelForLocsNote).
+    Top level driver for the checker (rascalTModelForLocs).
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 

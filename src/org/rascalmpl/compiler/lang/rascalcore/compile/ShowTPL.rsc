@@ -30,7 +30,7 @@ import IO;
 import ValueIO;
 import lang::rascalcore::check::CheckerCommon;
 
-loc tplLoc = |file:///Users/paulklint/git/bird/bird-core/target/classes/rascal/lang/bird/$Checker.tpl|;
+loc tplLoc = |unknown:///|;
 TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
 
 void setTPL(loc tpl){
