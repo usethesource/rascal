@@ -266,18 +266,20 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
        }
     }
     unsatisfied = libDependsOn - dependentsProvide;
+    println("libDependsOn: <size(libDependsOn)>
+            'dependentsProvide: <size(dependentsProvide)>
+            'unstatisfied: <size(unsatisfied)>
+            ");
     
     if(isEmpty(unsatisfied)){
         //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
         println("BOM of <lib.modelName>:"); iprintln(lib.store[key_bom]);
-        // println("libDependsOn:"); for(l <- libDependsOn, contains("<l>", "Content"), contains("<l>", "field")) println(l);
-        // println("dependentsProvide:"); for(l <- dependentsProvide, contains("<l>", "Content"), contains("<l>", "field")) println(l);
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<size(unsatisfied)>): <unsatisfied>");
-        for(u <- unsatisfied){ 
-            println("<u> =\> <lib.logical2physical[u]>");
-        }
+        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<size(unsatisfied)>)");
+        // for(u <- unsatisfied){ 
+        //     println("<u> =\> <lib.logical2physical[u]>");
+        // }
         incompatibleModules = { getModuleFromLogical(u) | u <- unsatisfied };
 
         return <sort(incompatibleModules), ms>;
