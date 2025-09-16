@@ -127,10 +127,10 @@ Project removeSourceOfModule(str mname, Project pd){
     return pd;
 }
 
-bool expectNoErrors(map[str, list[Message]] msgsMap){
-    present = (/error(_,_) := msgsMap);
+bool expectNoErrors(list[ModuleMessages] modMsgs){
+    present = (/error(_,_) := modMsgs);
     if(present){
-            iprintln(msgsMap);
+            iprintln(modMsgs);
     }
     return !present;
 }
@@ -148,8 +148,8 @@ bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
     }
 }
 
-bool expectErrors(map[str, list[Message]] msgsMap, list[str] expected){
-    errors = {e | /e:error(_,_) := msgsMap};
+bool expectErrors(list[ModuleMessages] modMsgs, list[str] expected){
+    errors = {e | /e:error(_,_) := modMsgs};
 
     for(e <- errors){
         if(any(ex <- expected, findFirst(e.msg, ex)>= 0)){
