@@ -195,8 +195,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                                 ms.messages[user] ? {} += { msg2 };
                             }
                     }
-
-                    //throw rascalBinaryNeedsRecompilation(qualifiedModuleName, msg);
                 } else {
                     allImportsAndExtendsValid = true;
                     if(ms.compilerConfig.verbose){
