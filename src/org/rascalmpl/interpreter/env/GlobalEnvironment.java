@@ -273,17 +273,6 @@ public class GlobalEnvironment {
 			.collect(Collectors.toList());
     }
 
-	public List<String> findCyclicDependency(String start) {
-        SetMultimap.Transient<String, String> graph = getModule(start).collectModuleDependencyGraph();
-		IRascalValueFactory vf = IRascalValueFactory.getInstance();
-		return depthFirstCycleSearch(start, new HashSet<>(), vf.list(vf.string(start)), graph)
-			.stream()
-			.map(IString.class::cast)
-			.map(IString::getValue)
-			.collect(Collectors.toList());
-    }
-
-
 	/*
 	 * dfs uses an immutable IList for the path such that we don't have to maintain a stack, next to the 
 	 * recursion.
