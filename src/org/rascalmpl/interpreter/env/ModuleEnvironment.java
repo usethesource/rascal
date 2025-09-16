@@ -1044,43 +1044,6 @@ public class ModuleEnvironment extends Environment {
 		return result;
 	}
 
-	/**
-	 * This collects only "extends" edges starting from the current module
-	 * @return
-	 */
-	public SetMultimap.Transient<String, String> collectModuleDependencyGraph() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
-		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
-		todo.add(this.getName());
-		GlobalEnvironment heap = getHeap();
-		
-		while (!todo.isEmpty()) {
-		   String mod = todo.remove(0);	
-		   done.add(mod);
-		   ModuleEnvironment env = heap.getModule(mod);
-		   if (env != null) {
-			  for (String e : env.getExtends()) {
-				  result.__put(mod, e);
-				  if (!done.contains(e)) {
-					  todo.add(e);
-				  }
-			  }
-			  
-			  for (String e : env.getImports()) {
-				  result.__put(mod, e);
-				  if (!done.contains(e)) {
-					  todo.add(e);
-				  }
-			  }
-		   }
-		}
-		
-		return result;
-	}
-
-	
-
 	public Set<String> getExtendsTransitive() {
 		List<String> todo = new LinkedList<String>();
 		Set<String> done = new HashSet<String>();
