@@ -343,7 +343,7 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
 private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
 void reportLogicalPaths(TModel tm){
-    for(tup: <from, r, to> <- tm.paths){
+    for(tup: <loc from, r, loc to> <- tm.paths){
         if(from.scheme == "rascal+module" || to.scheme == "rascal+module"){
             println("**** <tm.modelName>: <tup>");
         }

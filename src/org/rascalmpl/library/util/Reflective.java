@@ -253,11 +253,6 @@ public class Reflective {
 	
 	public IBool inCompiledMode() { return values.bool(false); }
 	
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name){
-		return watch(tp, val, name, values.string(""));
-	}
-	
 	protected String stripQuotes(IValue suffixVal){
 		String s1 = suffixVal.toString();
 		if(s1.startsWith("\"")){
@@ -424,22 +419,6 @@ public class Reflective {
 		}
 		return indent + "old " + sOld + ", new " + sNew;
 		
-	}
-
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal){
-		ISourceLocation watchLoc;
-		String suffix = stripQuotes(suffixVal);
-		String name1 = stripQuotes(name);
-
-		String path = "watchpoints/" + (suffix.length() == 0 ? name1 : (name1 + "-" + suffix)) + ".txt";
-		try {
-			watchLoc = values.sourceLocation("home", null, path, null, null);
-		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
-		}
-		Prelude.writeTextValueFile(values, false, watchLoc, val);
-		return val;
 	}
 
 	public IInteger getFingerprint(IValue val, IBool concretePatterns){

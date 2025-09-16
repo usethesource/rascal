@@ -31,10 +31,6 @@ module lang::rascalcore::check::CollectExpression
     Check all expressions
 */
 
-extend lang::rascalcore::check::CheckerCommon;
-extend lang::rascalcore::check::PathAnalysis;
-extend lang::rascalcore::check::CollectLiteral;
-
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectStatement;
 
@@ -44,6 +40,10 @@ import Set;
 import String;
 import util::Math;
 import IO;
+
+extend lang::rascalcore::check::CheckerCommon;
+extend lang::rascalcore::check::PathAnalysis;
+extend lang::rascalcore::check::CollectLiteral;
 
 // ---- Rascal literals, also see CollectLiteral
 
