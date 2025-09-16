@@ -376,17 +376,6 @@ public abstract class Import {
           eval.jobStep(jobName, name, 1);
           var popped = heap.popModuleLoading();
           assert popped.equals(name) : popped + " != " + name;
-
-          // JV: This code below is slow and also inaccurate (false positives).
-          // Pure import cycles _are_ allowed and so are cycles with both imports and extends in them.
-          // The code below is meant for debugging purposes, because the interpreter has a hard time
-          // initializing cyclic dependencies in the right order. Knowing where the cycles are, is
-          // half the work in debugging their effect on the interpreter's state. 
-
-          // var cycle = heap.findCyclicDependency(popped);
-          // if (!cycle.isEmpty()) {
-          //   handleLoadError(env, "cyclic module dependency detected", x, cycle.stream().collect(Collectors.joining("\n* ")));
-          // }
       }
 
       return env;
