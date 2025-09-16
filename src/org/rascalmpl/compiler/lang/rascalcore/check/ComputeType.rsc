@@ -99,7 +99,7 @@ rel[loc key, IdRole idRole, AType atype]
         adtNames = { getADTName(tp) | <key, idRole, tp>  <- unResolvedConstructorOverloads };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint> <argHint>");
+        msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
         s.report(msg);
     }
     return filteredOverloads;

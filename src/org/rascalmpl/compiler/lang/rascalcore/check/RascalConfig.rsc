@@ -519,7 +519,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint> <argHint>",
+        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
                          current@\loc);
         s.addMessages([msg]);
     }
@@ -539,8 +539,8 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-bool isLogicalLoc(loc l)
-    = startsWith(l.scheme, "rascal+");
+// bool isLogicalLoc(loc l)
+//     = startsWith(l.scheme, "rascal+");
 
 loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){

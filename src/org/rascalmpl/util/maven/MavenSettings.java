@@ -37,6 +37,7 @@ import java.util.Map;
 
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -121,6 +122,23 @@ public class MavenSettings {
         }
 
         return mirrors;
+    }
+
+    Map<String, Server> getServerSettings() {
+        Map<String, Server> servers = new HashMap<>();
+
+        if (systemSettings != null) {
+            for (Server server : systemSettings.getServers()) {
+                servers.put(server.getId(), server);
+            }
+        }
+
+        if (userSettings != null) {
+            for (Server server : userSettings.getServers()) {
+                servers.put(server.getId(), server);
+            }
+        }
+        return servers;
     }
 
     List<Proxy> getProxies() {
