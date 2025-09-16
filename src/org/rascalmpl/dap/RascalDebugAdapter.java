@@ -49,6 +49,8 @@ import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.utils.StringUtils;
+import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -481,9 +483,42 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
-        System.err.println("evaluate: " + args);
         EvaluateResponse response = new EvaluateResponse();
-        response.setResult(args.getExpression());
+
+        String expr = args.getExpression();
+        switch (args.getContext()) {
+            case "hover": // Not called until we set the supportsEvaluateForHovers capability to true
+            case "clipboard": // Not called until we set the supportsClipboardContext capability to true
+            case "repl": // Called from the debugger repl
+            case "watch": // Called from watched expressions, we only support variables here
+                response.setResult("Must be a variable.");
+                OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
+                if (identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
+                    // The entire expression is a valid identifier
+                    response.setResult("Undefined variable");
+                    List<RascalVariable> variables = suspendedState.getVariables(args.getFrameId(), 0, -1);
+                    for (RascalVariable var : variables) {
+                        if (var.getName().equals(expr)) {
+                            response.setResult(var.getDisplayValue());
+                            response.setType(var.getType().toString());
+                            response.setVariablesReference(var.getReferenceID());
+                            response.setNamedVariables(var.getNamedVariables());
+                            response.setIndexedVariables(var.getIndexedVariables());
+                            break;
+                        }
+                    }   
+                }
+                break;
+
+            case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
+                // In this case the expression already contains the value of the variable. We just return it.
+                response.setResult(expr);
+                break;
+
+            default:
+                break;
+        }
+
         return CompletableFuture.completedFuture(response);
     }
     
