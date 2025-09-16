@@ -265,23 +265,21 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
            dependentsProvide += domain(tm.logical2physical);
        }
     }
+
     unsatisfied = libDependsOn - dependentsProvide;
-    println("libDependsOn: <size(libDependsOn)>
-            'dependentsProvide: <size(dependentsProvide)>
-            'unstatisfied: <size(unsatisfied)>
-            ");
     
     if(isEmpty(unsatisfied)){
         //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
         println("BOM of <lib.modelName>:"); iprintln(lib.store[key_bom]);
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<size(unsatisfied)>)");
-        // for(u <- unsatisfied){ 
-        //     println("<u> =\> <lib.logical2physical[u]>");
-        // }
+        println("libDependsOn: <size(libDependsOn)>
+                'dependentsProvide: <size(dependentsProvide)>
+                'unstatisfied: <size(unsatisfied)>
+                ");
+        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<unsatisfied>)");
+        
         incompatibleModules = { getModuleFromLogical(u) | u <- unsatisfied };
-
         return <sort(incompatibleModules), ms>;
     }
 }
