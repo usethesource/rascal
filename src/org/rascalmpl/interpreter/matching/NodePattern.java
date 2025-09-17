@@ -153,7 +153,7 @@ public class NodePattern extends AbstractMatchingResult {
 			for (String kwLabel : keywordParameters.keySet()) {
 				IValue subjectParam = kwArgs.get(kwLabel);
 				if (subjectParam == null) {
-					subjectParam = func.computeDefaultKeywordParameter(kwLabel, (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
+					subjectParam = func.computeDefaultKeywordParameter(kwLabel, (IConstructor) subject.getValue()).getValue();
 				}
 				IMatchingResult matcher = keywordParameters.get(kwLabel);
 				matcher.initMatch(ResultFactory.makeResult(kwFormals.get(kwLabel), subjectParam, ctx));
@@ -179,7 +179,7 @@ public class NodePattern extends AbstractMatchingResult {
 				IValue subjectParam = kwArgs.get(entry.getKey());
 				
 				if (subjectParam == null && func != null) { // we may have a default available
-					subjectParam = func.computeDefaultKeywordParameter(entry.getKey(), (IConstructor) subject.getValue(), ctx.getCurrentEnvt()).getValue();
+					subjectParam = func.computeDefaultKeywordParameter(entry.getKey(), (IConstructor) subject.getValue()).getValue();
 				}
 				
 				if (func != null) {
