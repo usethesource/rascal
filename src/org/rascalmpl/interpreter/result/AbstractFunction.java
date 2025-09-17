@@ -226,17 +226,17 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
-		
+
+		if (arity - 1 > actuals.getArity()) {
+			return false;
+		}
+
 		for (i = 0; i < arity - 1; i++) {
 			if (!actuals.getFieldType(i).isSubtypeOf(getFormals().getFieldType(i))) {
 				return false;
 			}
 		}
 		
-		if (i > actuals.getArity()) {
-			return false;
-		}
-
 		Type elementType = getFormals().getFieldType(i).getElementType();
 
 		for (; i < actuals.getArity(); i++) {
