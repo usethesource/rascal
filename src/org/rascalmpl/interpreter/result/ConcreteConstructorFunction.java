@@ -22,6 +22,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 
@@ -40,7 +41,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 public class ConcreteConstructorFunction extends ConstructorFunction {
 
 	public ConcreteConstructorFunction(AbstractAST ast, Type constructorType, IEvaluator<Result<IValue>> eval, Environment env) {
-		super(ast, eval, env, constructorType, Collections.<KeywordFormal>emptyList());
+		super(ast, eval, env, constructorType, Collections.<KeywordFormal>emptyList(), Collections.<GenericKeywordParameters>emptySet());
 	}
 	
 	@Override
