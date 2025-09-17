@@ -492,7 +492,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 case "clipboard": // Not called until we set the supportsClipboardContext capability to true
                 case "repl": // Called from the debugger repl
                 case "watch": // Called from watched expressions. Only singular variable references are supported.
-                    response.setResult("Must be a variable.");
+                    response.setResult("Only singular variable references are supported");
                     OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
                     if (identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
                         // The entire expression is a valid identifier
