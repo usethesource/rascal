@@ -26,8 +26,4 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
                   
-import analysis::typepal::AType;
-  
-AType main() {
-    return tvar(|hi:///|);
-}
+int x = 0;
