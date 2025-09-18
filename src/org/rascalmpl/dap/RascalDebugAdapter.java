@@ -47,12 +47,14 @@ import org.rascalmpl.dap.variable.RascalVariable;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.util.locations.ColumnMaps;
@@ -123,10 +125,10 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
         var linesStartAt1 = args.getLinesStartAt1();
         var columnsStartAt1 = args.getColumnsStartAt1();
-        if (linesStartAt1 != null && linesStartAt1.booleanValue() == false) {
+        if (linesStartAt1 != null && !linesStartAt1.booleanValue()) {
             lineBase = 0;
         }
-        if (columnsStartAt1 != null && columnsStartAt1.booleanValue() == false) {
+        if (columnsStartAt1 != null && !columnsStartAt1.booleanValue()) {
             columnBase = 0;
         }
         
@@ -160,7 +162,16 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 return response;
             }
 
-            ITree parseTree = Reflective.parseModuleWithSpaces(loc);
+            ITree parseTree;
+            try {
+                parseTree = Reflective.parseModuleWithSpaces(loc);
+            } catch (Throw t) {
+                services.warning("Cannot set breakpoint(s): " + t.getMessage(), loc);
+                return response;
+            } catch (ParseError e) {
+                services.warning("Cannot set breakpoint(s): " + e.toString(), loc);
+                return response;
+            }
             breakpointsCollection.clearBreakpointsOfFile(loc.getPath());
             Breakpoint[] breakpoints = new Breakpoint[args.getBreakpoints().length];
             for(int i = 0; i<args.getBreakpoints().length; i++){
