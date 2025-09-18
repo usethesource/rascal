@@ -214,6 +214,7 @@ public class MavenParser {
     private ModelBuildingResult buildModel(ModelBuildingRequest request, ModelResolver resolver) throws ModelBuildingException {
         request.setModelResolver(resolver)
             .setModelCache(modelCache)
+            .setLocationTracking(true)
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }
