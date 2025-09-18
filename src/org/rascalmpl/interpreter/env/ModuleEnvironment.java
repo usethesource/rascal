@@ -611,8 +611,7 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType, List<KeywordFormal> initializers) {
 		Type cons = makeTupleType(adt, name, tupleType);
-		var genericKwps = lookupGenericKeywordParameters(cons.getAbstractDataType());
-		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers, genericKwps);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
 		markNameFinal(name);
 		markNameOverloadable(name);

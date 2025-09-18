@@ -48,9 +48,8 @@ public class ConstructorFunction extends NamedFunction {
 	protected final Type constructorType;
 	private Type kwTypes = null; // cache
 	private final List<KeywordFormal> initializers;
-	private final Set<GenericKeywordParameters> genericKwps;
 
-	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers, Set<GenericKeywordParameters> genericKwps) {
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
 		super(ast, 
 			eval, 
 			TF.functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), 
@@ -64,7 +63,6 @@ public class ConstructorFunction extends NamedFunction {
 		);
 		this.constructorType = constructorType;
 		this.initializers = initializers;
-		this.genericKwps = genericKwps;
 	}
 	
 	public Type getConstructorType() {
@@ -73,12 +71,12 @@ public class ConstructorFunction extends NamedFunction {
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
-		return new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers, genericKwps);
+		return new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
 	}
 	
 	// TODO: refactor and make small. For now this does the job.
-	public Result<IValue> computeDefaultKeywordParameter(String label, IConstructor value) {
-		Set<GenericKeywordParameters> kws = genericKwps;
+	public Result<IValue> computeDefaultKeywordParameter(String label, IConstructor value, Environment callerEnvironment) {
+		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		IWithKeywordParameters<? extends IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
 		Environment resultEnv = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
