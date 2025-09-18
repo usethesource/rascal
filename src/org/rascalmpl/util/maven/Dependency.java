@@ -93,10 +93,6 @@ import io.usethesource.vallang.ISourceLocation;
         return column;
     }
 
-    public String getPosition() {
-        return line + ":" + column;
-    }
-
     static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pomLocation) {
         var version = d.getVersion();
         if (version == null) {
