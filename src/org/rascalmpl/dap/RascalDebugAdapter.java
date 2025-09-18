@@ -125,10 +125,10 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
         var linesStartAt1 = args.getLinesStartAt1();
         var columnsStartAt1 = args.getColumnsStartAt1();
-        if (linesStartAt1 != null && linesStartAt1.booleanValue() == false) {
+        if (linesStartAt1 != null && !linesStartAt1.booleanValue()) {
             lineBase = 0;
         }
-        if (columnsStartAt1 != null && columnsStartAt1.booleanValue() == false) {
+        if (columnsStartAt1 != null && !columnsStartAt1.booleanValue()) {
             columnBase = 0;
         }
         
