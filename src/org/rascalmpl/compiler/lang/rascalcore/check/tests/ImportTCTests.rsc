@@ -274,7 +274,7 @@ test bool QualifiedOverloadedModuleVarOk(){
 	writeModule("module Left public str global = \"World\";");
 	writeModule("module Right public str global = \"Hello\";");
 	return checkModuleOK("
-		module OverloadedModuleVarNotOk
+		module OverloadedModuleVarOk
 			import Left; import Right;
 			str main() = Left::global;	// ok: global is explicitly resolved
 		");
