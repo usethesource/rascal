@@ -26,12 +26,17 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.InputLocation;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.library.Prelude;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.util.locations.ColumnMaps;
 
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -46,14 +51,19 @@ import io.usethesource.vallang.ISourceLocation;
     private final boolean optional;
     private final Set<ArtifactCoordinate.WithoutVersion> exclusions;
     private final ISourceLocation pomLocation;
+    private final int line;
+    private final int column;
+    private ISourceLocation location;
 
-    private Dependency(ArtifactCoordinate coordinate, Scope scope, @Nullable String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions, ISourceLocation pomLocation) {
+    private Dependency(ArtifactCoordinate coordinate, Scope scope, @Nullable String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions, ISourceLocation pomLocation, int line, int column) {
         this.coordinate = coordinate;
         this.scope = scope;
         this.systemPath = systemPath;
         this.optional = optional;
         this.exclusions = exclusions;
         this.pomLocation = pomLocation;
+        this.line = line;
+        this.column = column;
     }
 
     public ArtifactCoordinate getCoordinate() {
@@ -78,6 +88,18 @@ import io.usethesource.vallang.ISourceLocation;
 
     public ISourceLocation getPomLocation() {
         return pomLocation;
+    }
+
+    public int getLine() {
+        return line;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public String getPosition() {
+        return line + ":" + column;
     }
 
     static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pomLocation) {
@@ -105,7 +127,14 @@ import io.usethesource.vallang.ISourceLocation;
             .map(e -> ArtifactCoordinate.versionLess(e.getGroupId(), e.getArtifactId()))
             .collect(Collectors.toUnmodifiableSet());
 
-        return new Dependency(coordinate, scope, d.getSystemPath(), d.isOptional(), exclusions, pomLocation);
+        int line = -1, column = -1;
+        InputLocation loc = d.getLocation("");
+        if (loc != null) {
+            line = loc.getLineNumber();
+            column = loc.getColumnNumber();
+        }
+
+        return new Dependency(coordinate, scope, d.getSystemPath(), d.isOptional(), exclusions, pomLocation, line, column);
     }
 
 
