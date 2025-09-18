@@ -390,10 +390,12 @@ public class ModuleEnvironment extends Environment {
 				typeStore.unimportStores(new TypeStore[] { old.getStore() });
 			}
 		}
+		cachedGeneralKeywordParameters = null;
 	}
 	
 	public void unExtend(String moduleName) {
 		extended.remove(moduleName);
+		cachedGeneralKeywordParameters = null;
 	}
 
 	@Override
