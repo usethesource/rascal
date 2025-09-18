@@ -26,7 +26,6 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,9 +33,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.model.InputLocation;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.library.Prelude;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.util.locations.ColumnMaps;
 
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -53,7 +49,6 @@ import io.usethesource.vallang.ISourceLocation;
     private final ISourceLocation pomLocation;
     private final int line;
     private final int column;
-    private ISourceLocation location;
 
     private Dependency(ArtifactCoordinate coordinate, Scope scope, @Nullable String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions, ISourceLocation pomLocation, int line, int column) {
         this.coordinate = coordinate;
