@@ -371,7 +371,7 @@ bool argumentMismatch(str stmts) =
 
 list[str] redeclaredVariableMsgs = [
 	"Undefined _ due to double declaration",
-	"Double declaration of _ _"
+	"Double declaration of _"
 ];
 
 bool redeclaredVariableInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
