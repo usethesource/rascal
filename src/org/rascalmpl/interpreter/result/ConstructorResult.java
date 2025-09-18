@@ -157,7 +157,7 @@ public class ConstructorResult extends NodeResult {
 	                ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
 
 	                if (cons != null) {
-	                    return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue());
+	                    return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
 	                }
 	                else {
 	                    // The constructor is not in scope, but there might be a generic keyword parameter in scope nevertheless
