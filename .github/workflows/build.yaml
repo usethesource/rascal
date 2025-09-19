@@ -11,16 +11,18 @@ on:
       - 'feat/*'
 env:
   MAVEN_OPTS: "-Xmx4G -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  IS_OWN_PR: "${{ secrets.MAVEN_MIRROR_URL }}"
 
 jobs:
   test-linux:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     steps: 
 
       - uses: actions/checkout@v4
 
       - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
         with:
           servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
           mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
@@ -52,7 +54,8 @@ jobs:
     needs: [test-linux]
     permissions:
       contents: write
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployments' || '' }} 
     steps:
       - uses: browser-actions/setup-chrome@latest
         with:
@@ -64,6 +67,7 @@ jobs:
       - run: which chromedriver
 
       - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
         with:
           servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
           mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
@@ -152,13 +156,14 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, buildjet-4vcpu-ubuntu-2204-arm]
+        os: [windows-latest, macos-latest]
     env:
       MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
       - uses: actions/checkout@v4
 
       - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
         with:
           servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
           mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
@@ -188,11 +193,12 @@ jobs:
   compiler-tests:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-2vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     steps: 
       - uses: actions/checkout@v4
 
       - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
         with:
           servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
           mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
