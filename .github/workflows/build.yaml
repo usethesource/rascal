@@ -16,9 +16,8 @@ env:
 jobs:
   test-linux:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps: 
-
       - uses: actions/checkout@v4
 
       - uses: s4u/maven-settings-action@v3.1.0
@@ -54,7 +53,7 @@ jobs:
     needs: [test-linux]
     permissions:
       contents: write
-    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    runs-on: buildjet-4vcpu-ubuntu-2204
     environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployments' || '' }} 
     steps:
       - uses: browser-actions/setup-chrome@latest
@@ -193,7 +192,7 @@ jobs:
   compiler-tests:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
-    runs-on: ${{ env.IS_OWN_PR != '' && 'buildjet-2vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    runs-on: buildjet-2vcpu-ubuntu-2204
     steps: 
       - uses: actions/checkout@v4
 
