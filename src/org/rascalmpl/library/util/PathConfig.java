@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -149,70 +150,24 @@ public class PathConfig {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((projectRoot == null) ? 0 : projectRoot.hashCode());
-        result = prime * result + ((srcs == null) ? 0 : srcs.hashCode());
-        result = prime * result + ((libs == null) ? 0 : libs.hashCode());
-        result = prime * result + ((bin == null) ? 0 : bin.hashCode());
-        result = prime * result + ((ignores == null) ? 0 : ignores.hashCode());
-        result = prime * result + ((resources == null) ? 0 : resources.hashCode());
-        result = prime * result + ((messages == null) ? 0 : messages.hashCode());
-        return result;
+        return Objects.hash(projectRoot, srcs, libs, bin, ignores, resources, messages);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!(obj instanceof PathConfig)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         PathConfig other = (PathConfig) obj;
-        if (projectRoot == null) {
-            if (other.projectRoot != null)
-                return false;
-        }
-        else if (!projectRoot.equals(other.projectRoot))
-            return false;
-        if (srcs == null) {
-            if (other.srcs != null)
-                return false;
-        }
-        else if (!srcs.equals(other.srcs))
-            return false;
-        if (libs == null) {
-            if (other.libs != null)
-                return false;
-        }
-        else if (!libs.equals(other.libs))
-            return false;
-        if (bin == null) {
-            if (other.bin != null)
-                return false;
-        }
-        else if (!bin.equals(other.bin))
-            return false;
-        if (ignores == null) {
-            if (other.ignores != null)
-                return false;
-        }
-        else if (!ignores.equals(other.ignores))
-            return false;
-        if (resources == null) {
-            if (other.resources != null)
-                return false;
-        }
-        else if (!resources.equals(other.resources))
-            return false;
-        if (messages == null) {
-            if (other.messages != null)
-                return false;
-        }
-        else if (!messages.equals(other.messages))
-            return false;
-        return true;
+        return Objects.equals(projectRoot, other.projectRoot)
+            && Objects.equals(srcs, other.srcs)
+            && Objects.equals(ignores, other.ignores)
+            && Objects.equals(bin, other.bin)
+            && Objects.equals(libs, other.libs)
+            && Objects.equals(resources, other.resources)
+            && Objects.equals(messages, other.messages);
     }
 
     private static IList messages(IConstructor pcfg) {
