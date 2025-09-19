@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -145,6 +146,28 @@ public class PathConfig {
         this.libs = libs.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
         this.resources = resources.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());;
         this.messages = messages.stream().map(IConstructor.class::cast).collect(Collectors.toList());;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectRoot, srcs, libs, bin, ignores, resources, messages);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof PathConfig)) {
+            return false;
+        }
+        PathConfig other = (PathConfig) obj;
+        return Objects.equals(projectRoot, other.projectRoot)
+            && Objects.equals(srcs, other.srcs)
+            && Objects.equals(ignores, other.ignores)
+            && Objects.equals(bin, other.bin)
+            && Objects.equals(libs, other.libs)
+            && Objects.equals(resources, other.resources)
+            && Objects.equals(messages, other.messages);
     }
 
     private static IList messages(IConstructor pcfg) {
