@@ -147,6 +147,74 @@ public class PathConfig {
         this.messages = messages.stream().map(IConstructor.class::cast).collect(Collectors.toList());;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((projectRoot == null) ? 0 : projectRoot.hashCode());
+        result = prime * result + ((srcs == null) ? 0 : srcs.hashCode());
+        result = prime * result + ((libs == null) ? 0 : libs.hashCode());
+        result = prime * result + ((bin == null) ? 0 : bin.hashCode());
+        result = prime * result + ((ignores == null) ? 0 : ignores.hashCode());
+        result = prime * result + ((resources == null) ? 0 : resources.hashCode());
+        result = prime * result + ((messages == null) ? 0 : messages.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PathConfig other = (PathConfig) obj;
+        if (projectRoot == null) {
+            if (other.projectRoot != null)
+                return false;
+        }
+        else if (!projectRoot.equals(other.projectRoot))
+            return false;
+        if (srcs == null) {
+            if (other.srcs != null)
+                return false;
+        }
+        else if (!srcs.equals(other.srcs))
+            return false;
+        if (libs == null) {
+            if (other.libs != null)
+                return false;
+        }
+        else if (!libs.equals(other.libs))
+            return false;
+        if (bin == null) {
+            if (other.bin != null)
+                return false;
+        }
+        else if (!bin.equals(other.bin))
+            return false;
+        if (ignores == null) {
+            if (other.ignores != null)
+                return false;
+        }
+        else if (!ignores.equals(other.ignores))
+            return false;
+        if (resources == null) {
+            if (other.resources != null)
+                return false;
+        }
+        else if (!resources.equals(other.resources))
+            return false;
+        if (messages == null) {
+            if (other.messages != null)
+                return false;
+        }
+        else if (!messages.equals(other.messages))
+            return false;
+        return true;
+    }
+
     private static IList messages(IConstructor pcfg) {
         return getListValueFromConstructor(pcfg, defaultMessages, "messages");
     }
