@@ -106,10 +106,11 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     default list[TextEdit] rec(
         Tree t:appl(Production p, list[Tree] argsA),
         appl(p /* must be the same by the above assert */, list[Tree] argsB)) 
-        = [*rec(a, b) | <a, b> <- zip2(argsA, argsB)]; 
+        = [*rec(argsA[i], argsB[i]) | i <- [0..size(argsA)]]; 
 
     // first add required locations to layout nodes
-    original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
+    // TODO: check if indeed repositioning is never needed
+    // original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
 
     return rec(original, formatted);
 }
