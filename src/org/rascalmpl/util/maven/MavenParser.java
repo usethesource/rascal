@@ -76,6 +76,7 @@ public class MavenParser {
     private final List<IValue> settingMessages;
 
     private final SimpleResolver rootResolver;
+    private final DependencyOriginMapper originMapper = new DependencyOriginMapper();
 
     public MavenParser(Path projectPom) {
         this(MavenSettings.readSettings(), projectPom);
@@ -127,16 +128,17 @@ public class MavenParser {
 
         Artifact result = null;
         if (model.getGroupId() != null && model.getVersion() != null) {
-            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+            result = Artifact.build(model, null, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver, 
+                originMapper);
         }
 
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), null, messages, originMapper);
         }
         return result;
     }
 
-    /*package*/ @Nullable Artifact parseArtifact(ArtifactCoordinate coordinate, Set<ArtifactCoordinate.WithoutVersion> exclusions, SimpleResolver originalResolver) {
+    /*package*/ @Nullable Artifact parseArtifact(ArtifactCoordinate coordinate, Set<ArtifactCoordinate.WithoutVersion> exclusions, Dependency origin, SimpleResolver originalResolver) {
         var messages = VF.listWriter();
         try {
             var modelSource = originalResolver.resolveModel(coordinate);
@@ -154,14 +156,14 @@ public class MavenParser {
 
             var model = getBestModel(pomLocation, request, resolver, messages);
             if (model == null) {
-                return Artifact.unresolved(coordinate, messages);
+                return Artifact.unresolved(coordinate, origin, messages, originMapper);
             }
 
 
-            return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
+            return Artifact.build(model, origin, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver, originMapper);
         } catch (UnresolvableModelException e) {
             messages.append(Messages.error("Could not resolve " + coordinate + ". " + e.getMessage(), projectPomLocation));
-            return Artifact.unresolved(coordinate, messages);
+            return Artifact.unresolved(coordinate, origin, messages, originMapper);
         }
     }
 

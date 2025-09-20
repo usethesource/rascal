@@ -65,10 +65,14 @@ public class Artifact {
     private final @Nullable SimpleResolver ourResolver;
     private IList messages;
     private final boolean anyError;
+    private final Dependency origin;
+    private final DependencyOriginMapper originMapper;
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver, DependencyOriginMapper originMapper) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
+        this.origin = origin;
+        this.originMapper = originMapper;
         this.resolved = resolved;
         this.dependencies = dependencies;
         this.messages = messages;
@@ -80,6 +84,8 @@ public class Artifact {
         var coord = original.coordinate;
         this.coordinate = new ArtifactCoordinate(coord.getGroupId(), coord.getArtifactId(), version, coord.getClassifier());
         this.parentCoordinate = original.parentCoordinate;
+        this.origin = original.origin;
+        this.originMapper = original.originMapper;
         this.resolved = original.resolved;
         this.dependencies = original.dependencies;
         this.messages = original.messages;
@@ -124,7 +130,7 @@ public class Artifact {
         var result = new ArrayList<Artifact>(dependencies.size());
         Queue<ResolveState> resolveQueue = new LinkedList<>();
         resolveQueue.add(new ResolveState(this, Collections.emptySet()));
-        calculateClassPath(forScope, resolveQueue, result, parser);
+        calculateClassPath(forScope, resolveQueue, result, parser, originMapper);
         return result;
     }
 
@@ -196,7 +202,7 @@ public class Artifact {
      *
      * This method is intentionally static so we can be sure we do not use instance variables by mistake.
      */
-    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
+    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser, DependencyOriginMapper originMapper) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
         Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
         Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
@@ -254,7 +260,7 @@ public class Artifact {
 
                 if (d.getScope() == Scope.SYSTEM) {
                     if (!resolved) {
-                        result.add(createSystemArtifact(d));
+                        result.add(createSystemArtifact(d, originMapper));
                     }
                     continue;
                 }
@@ -270,7 +276,7 @@ public class Artifact {
                 }
                 newExclusions = Set.copyOf(newExclusions); // Turn the set into an immutable set (if it is not already)
 
-                var art = parser.parseArtifact(coordinate, newExclusions, artifact.ourResolver);
+                var art = parser.parseArtifact(coordinate, newExclusions, d, artifact.ourResolver);
                 if (art != null) {
                     if (!resolved) {
                         result.add(art);
@@ -286,7 +292,7 @@ public class Artifact {
         }
     }
 
-    private static Artifact createSystemArtifact(Dependency d) {
+    private static Artifact createSystemArtifact(Dependency d, DependencyOriginMapper originMapper) {
         var messages = IRascalValueFactory.getInstance().listWriter();
 
         String systemPath = d.getSystemPath();
@@ -302,14 +308,14 @@ public class Artifact {
             }
         }
 
-        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
+        return new Artifact(d.getCoordinate(), null, d, path, Collections.emptyList(), messages.done(), null, originMapper);
     }
 
     private static boolean isJarPackaging(String packaging) {
         return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
     }
 
-    /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
+    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver, DependencyOriginMapper originMapper) {
         String packaging = m.getPackaging();
         if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
@@ -332,16 +338,16 @@ public class Artifact {
                 .collect(Collectors.toUnmodifiableList())
                 ;
             }
-            return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
+            return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver, originMapper);
         } catch (UnresolvableModelException e) {
             messages.append(Messages.error("Could not download corresponding jar", pomLocation));
-            return new Artifact(coordinate, parentCoordinate, null, Collections.emptyList(), messages.done(), resolver);
+            return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver, originMapper);
         }
 
     }
 
-    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, IListWriter messages) {
-        return new Artifact(coordinate, null, null, Collections.emptyList(), messages.done(), null);
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages, DependencyOriginMapper originMapper) {
+        return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null, originMapper);
     }
 
     @Override
