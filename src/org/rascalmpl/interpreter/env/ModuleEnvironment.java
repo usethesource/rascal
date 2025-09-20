@@ -78,10 +78,11 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
+	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	public final static String SHELL_MODULE = "$shell$";
+	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
@@ -95,6 +96,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.cachedGeneralKeywordParameters = null;
 	}
 	
 	/**
@@ -113,14 +115,15 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = env.syntaxDefined;
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
+		this.cachedGeneralKeywordParameters = null;
 		this.deprecated = env.deprecated;
 	}
 
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashSet<String>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.importedModules = new HashSet<>();
+		this.concreteSyntaxTypes = new HashMap<>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
@@ -128,10 +131,11 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.generalKeywordParameters = new HashMap<>();
+		this.cachedGeneralKeywordParameters = null;
 	}
 	
 	public void extend(ModuleEnvironment other) {
-//	  super.extend(other);
 		extendNameFlags(other);
 		  
 	  // First extend the imports before functions and variables
@@ -386,10 +390,12 @@ public class ModuleEnvironment extends Environment {
 				typeStore.unimportStores(new TypeStore[] { old.getStore() });
 			}
 		}
+		cachedGeneralKeywordParameters = null;
 	}
 	
 	public void unExtend(String moduleName) {
 		extended.remove(moduleName);
+		cachedGeneralKeywordParameters = null;
 	}
 
 	@Override
@@ -710,6 +716,16 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<GenericKeywordParameters> lookupGenericKeywordParameters(Type adt) {
+		if (cachedGeneralKeywordParameters != null) {
+			var result = cachedGeneralKeywordParameters.get(adt);
+			if (result != null) {
+				return result;
+			}
+		}
+		else {
+			cachedGeneralKeywordParameters = io.usethesource.capsule.Map.Transient.of();
+		}
+
 		Set<GenericKeywordParameters> result = new HashSet<>();
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list != null) {
@@ -725,6 +741,9 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 		
+		// save the result for next time
+		cachedGeneralKeywordParameters.put(adt, result);
+
 		return result;
 	}
 	
