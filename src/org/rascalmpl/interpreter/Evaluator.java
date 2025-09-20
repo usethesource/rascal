@@ -1118,6 +1118,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.writeLoadMessages(getErrorPrinter());
         }
     }
 
@@ -1208,7 +1209,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 affectedModules.add(mod);
                             }
                             else {
-                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
                                 warning("could not reimport " + imp, errorLocation);
                             }
                         }
@@ -1227,7 +1227,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 env.addExtend(ext);
                             }
                             else {
-                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
                                 warning("could not re-extend " + ext, errorLocation);
                             }
                         }
