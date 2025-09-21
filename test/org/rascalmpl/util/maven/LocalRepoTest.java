@@ -83,6 +83,8 @@ public class LocalRepoTest extends AbstractMavenTest {
                 Assert.assertTrue(artifact.getMessages().get(0).toString().contains("Multiple version ranges found"));
             }
         }
+
+        printMessages(project, resolvedDependencies);
     }
 
     @Test

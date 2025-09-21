@@ -32,15 +32,12 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.model.InputLocation;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.library.Messages;
-
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Identifies a listed dependency, not resolved to an artifact yet.
  */
-/*package*/ class Dependency {
+public class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
     private final @Nullable String systemPath;
@@ -93,12 +90,12 @@ import io.usethesource.vallang.ISourceLocation;
         return column;
     }
 
-    static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pomLocation) {
+    static @Nullable Dependency build(org.apache.maven.model.Dependency d, ISourceLocation pomLocation) {
         var version = d.getVersion();
         if (version == null) {
             // while rare, this happens when a user has an incomplete dependencyManagement section
-            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", pomLocation));
-            version = "???";
+            // We cannot handle null versions, so use a placeholder
+            version = "???"; 
         }
         var coordinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
         Scope scope;
