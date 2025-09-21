@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.resolution.InvalidRepositoryException;
@@ -45,5 +46,26 @@ abstract class AbstractMavenTest {
     protected MavenParser createParser(String path) {
         return new MavenParser(MavenSettings.readSettings(), getPomsPath(path), tempRepo);
     }
+
+    
+    protected void printMessages(Artifact project, List<Artifact> resolved) {
+        var msgs = project.getMessages();
+        if (!msgs.isEmpty()) {
+            System.err.println("Project messages:");
+            for (var msg : msgs) {
+                System.err.println(msg);
+            }
+        }
+
+        for (var art : resolved) {
+            if (!art.getMessages().isEmpty()) {
+                System.err.println("Artifact messages for: " + art.getCoordinate());
+                for (var msg : art.getMessages()) {
+                    System.err.println(msg);
+                }
+            }
+        }
+    }
+
 
 }
