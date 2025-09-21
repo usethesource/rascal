@@ -30,7 +30,7 @@ import IO;
 import ValueIO;
 import lang::rascalcore::check::CheckerCommon;
 
-loc tplLoc = |unknown:///|;
+loc tplLoc =  |file:///Users/paulklint/git/compiled-rascal/src/main/java/rascal/rascalcore/compile/Examples/$A.tpl|;
 TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
 
 void setTPL(loc tpl){

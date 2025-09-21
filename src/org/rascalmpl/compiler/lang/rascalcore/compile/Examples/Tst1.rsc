@@ -25,10 +25,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
+import IO;
+data PathRole = extendPath();
 
-datetime now() = $2025-07-17T22:11:24.970+00:00$;
-                     
-datetime created(int n) = now();
-data D = created(int n);
- 
-bool main(){  return created(0) <= now(); }
+void main() {
+    x = <|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>),extendPath(),|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>)>;
+    iprintln({x, x});
+  }
