@@ -543,6 +543,22 @@ test bool onlyChangedModulesAreReChecked0(){
     assert changeAndCheck(topLoc, ["Exception"], pcfg);
     return changeAndCheck(topLoc, ["Map"], pcfg);
 }
+
+test bool simpleChange(){
+    pcfg = pathConfigForTesting();
+    A = "module A import B; void f() throws EmptyList {}";
+    B = "module B data RuntimeException = EmptyList();";
+    writeModules(A, B);
+    ALoc = getRascalModuleLocation("A", pcfg);
+    BLoc = getRascalModuleLocation("B", pcfg);
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    A1 = "module A import B; void f() throws EmptyList {} public int n = 0;";
+    writeModule(A1);
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    return true;
+}
 @ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){
     clearMemory();
