@@ -187,10 +187,10 @@ ModuleStatus rascalTModelForLocs(
     try {
         ms = getImportAndExtendGraph(topModuleNames, ms);
 
-        // if(/error(_,_) := ms.messages){
+        if(/error(_,_) := ms.messages){
 
-        //     return clearTModelCache(ms);
-        // }
+            return clearTModelCache(ms);
+        }
 
         imports_and_extends = ms.strPaths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
@@ -539,10 +539,12 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
     for(candidate <- candidates){
         mname = getRascalModuleName(candidate, pcfg);
         <found, tm, ms> = getTModelForModule(mname, ms, convert=false);
-        imports_and_extends = ms.strPaths<0,2>[mname];
-        <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
-        if(!compatible){
-            return <false, ms>;
+        if(found){
+            imports_and_extends = ms.strPaths<0,2>[mname];
+            <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
+            if(!compatible){
+                return <false, ms>;
+            }
         }
     }
     return <true, ms>;
