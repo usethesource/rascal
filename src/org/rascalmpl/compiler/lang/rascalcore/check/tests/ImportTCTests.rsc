@@ -280,13 +280,55 @@ test bool QualifiedOverloadedModuleVarOk(){
 		");
 }
 
-test bool cyclicImportOk(){
+test bool selfImportNotOK(){
+	return unexpectedDeclarationInModule("module A import A;");
+}
+
+test bool selfExtendNotOK(){
+	return unexpectedDeclarationInModule("module A extend A;");
+}
+
+test bool cyclic2ImportOk(){
 	writeModule("module A import B;");
 	return checkModuleOK("module B import A;");
 }
 
-@ignore{TODO}
-test bool cyclicExtendNotOk(){
+test bool cyclic3ImportOk(){
+	writeModule("module A import B;");
+	writeModule("module B import C;");
+	return checkModuleOK("module C import A;");
+}
+
+test bool cyclic2ExtendNotOk(){
 	writeModule("module A extend B;");
 	return unexpectedDeclarationInModule("module B extend A;");
 }
+
+test bool cyclic2MixedOk(){
+	writeModule("module A extend B;");
+	return unexpectedDeclarationInModule("module B import A;");
+}
+
+test bool cyclic3ExtendNotOk(){
+	writeModule("module A extend B;");
+	writeModule("module B extend C;");
+	return unexpectedDeclarationInModule("module C extend A;");
+}
+
+// test bool cyclic3MixedNotOk1(){
+// 	writeModule("module A import B;");
+// 	writeModule("module B extend C;");
+// 	return unexpectedDeclarationInModule("module C extend A;");
+// }
+
+test bool cyclic3MixedNotOk1(){
+	writeModule("module A extend B;");
+	writeModule("module B import C;");
+	return unexpectedDeclarationInModule("module C extend A;");
+}
+
+// test bool cyclic3MixedNotOk1(){
+// 	writeModule("module A extend B;");
+// 	writeModule("module B extend C;");
+// 	return unexpectedDeclarationInModule("module C import A;");
+// }
