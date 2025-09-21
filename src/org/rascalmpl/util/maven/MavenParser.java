@@ -53,7 +53,6 @@ import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -76,17 +75,21 @@ public class MavenParser {
     private final List<IValue> settingMessages;
 
     private final SimpleResolver rootResolver;
-    private final DependencyOriginMapper originMapper = new DependencyOriginMapper();
+    private final MavenMessageFactory messageFactory;
 
-    public MavenParser(Path projectPom) {
-        this(MavenSettings.readSettings(), projectPom);
+    public MavenParser(Path projectPom, MavenMessageFactory messageFactory) {
+        this(MavenSettings.readSettings(), projectPom, messageFactory);
     }
 
-    /*package*/ MavenParser(MavenSettings settings, Path projectPom) {
-        this(settings, projectPom, settings.getLocalRepository());
+    /*package*/ MavenParser(MavenSettings settings, Path projectPom, MavenMessageFactory messageFactory) {
+        this(settings, projectPom, settings.getLocalRepository(), messageFactory);
     }
 
-    /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo) {
+    MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo) {
+        this(settings, projectPom, rootMavenRepo, new MavenMessageFactory());
+    }
+
+    /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo, MavenMessageFactory messageFactory) {
         this.projectPom = projectPom;
         try {
             this.projectPomLocation = URIUtil.createFileLocation(projectPom);
@@ -109,6 +112,8 @@ public class MavenParser {
         modelCache = new CaffeineModelCache();
 
         rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors(), settings.getServerSettings());
+
+        this.messageFactory = messageFactory;
     }
 
     public Artifact parseProject() throws ModelResolutionError {
@@ -129,11 +134,11 @@ public class MavenParser {
         Artifact result = null;
         if (model.getGroupId() != null && model.getVersion() != null) {
             result = Artifact.build(model, null, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver, 
-                originMapper);
+                messageFactory);
         }
 
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), null, messages, originMapper);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), null, messages, messageFactory);
         }
         return result;
     }
@@ -156,14 +161,13 @@ public class MavenParser {
 
             var model = getBestModel(pomLocation, request, resolver, messages);
             if (model == null) {
-                return Artifact.unresolved(coordinate, origin, messages, originMapper);
+                return Artifact.unresolved(coordinate, origin, messages, messageFactory);
             }
 
-
-            return Artifact.build(model, origin, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver, originMapper);
+            return Artifact.build(model, origin, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver, messageFactory);
         } catch (UnresolvableModelException e) {
-            messages.append(Messages.error("Could not resolve " + coordinate + ". " + e.getMessage(), projectPomLocation));
-            return Artifact.unresolved(coordinate, origin, messages, originMapper);
+            messages.append(messageFactory.error("Could not resolve " + coordinate + ". " + e.getMessage(), origin));
+            return Artifact.unresolved(coordinate, origin, messages, messageFactory);
         }
     }
 
@@ -195,14 +199,16 @@ public class MavenParser {
         } 
     }
 
-    private static void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
+    private void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
         for (var problem : problems) {
-            // TODO: figure out how we can get correct offset & length from the xml parser (right now it has line & column, but they're always 0)
             String message = problem.getMessage();
+            // If maven has no coordinates to report, it uses -1, -1 for line and column
+            int line = Math.max(0, problem.getLineNumber());
+            int column = Math.max(0, problem.getColumnNumber());
             switch (problem.getSeverity()) {
                 case ERROR: // fall through
-                case FATAL: messages.append(Messages.error(message, loc)); break;
-                case WARNING: messages.append(Messages.warning(message, loc)); break;
+                case FATAL: messages.append(messageFactory.error(message, loc, line, column)); break;
+                case WARNING: messages.append(messageFactory.warning(message, loc, line, column)); break;
                 default: throw new UnsupportedOperationException("Missing case: " + problem.getSeverity());
             }
         }
@@ -277,7 +283,7 @@ public class MavenParser {
 
     private static void test(Path target) throws ModelResolutionError {
         var start = System.currentTimeMillis();
-        var parser = new MavenParser(new MavenSettings(), target);
+        var parser = new MavenParser(new MavenSettings(), target, new MavenMessageFactory());
         var project = parser.parseProject();
         var stop = System.currentTimeMillis();
         var out = new PrintWriter(System.out);
