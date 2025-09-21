@@ -128,7 +128,7 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
         assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
         String message = maybeCoreLink.get().getMessages().get(0).toString();
-        assertTrue("example-core should have a warning message", message.contains("No downloading & updating logic of SNAPSHOTS yet"));
+        assertTrue("example-core should have a warning message", message.contains("No downloading & updating logic of SNAPSHOTs yet"));
         assertTrue("example-core message should have origin information", message.contains("<20,17>"));
     }
 
