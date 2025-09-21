@@ -431,6 +431,8 @@ list[str] unexpectedDeclarationMsgs = [
 	"Nested iteration",
 	"Element name _ ignored",
 	"Non-well-formed _ type, labels must be distinct",
+	"Self import not allowed",
+	"Extend cycle not allowed",
 	"Mixed import/extend cycle not allowed"
 ];
 
@@ -447,8 +449,8 @@ bool unexpectedDeclaration(str stmts) =
 
 list[str] missingModuleMsgs = [
 	"Reference to name _ cannot be resolved",
-	 "Undefined module _",
-	 "Module _ not found_"
+	"Undefined module _",
+	"Module _ not found_"
 ];
 bool missingModuleInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter(moduleText, missingModuleMsgs, pathConfig=pathConfig);
