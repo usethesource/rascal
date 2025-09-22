@@ -19,7 +19,6 @@ package org.rascalmpl.interpreter.env;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,11 +97,11 @@ public class Environment implements IRascalFrame {
 		}
 	}
 	
-	protected Map<String, Result<IValue>> variableEnvironment;
-	protected Map<String, LinkedHashSet<AbstractFunction>> functionEnvironment;
-	protected Map<String, NameFlags> nameFlags;
-	protected Map<Type, Type> staticTypeParameters;
-	protected Map<Type, Type> dynamicTypeParameters;
+	protected io.usethesource.capsule.Map.Transient<String, Result<IValue>> variableEnvironment;
+	protected io.usethesource.capsule.Map.Transient<String, LinkedHashSet<AbstractFunction>> functionEnvironment;
+	protected io.usethesource.capsule.Map.Transient<String, NameFlags> nameFlags;
+	protected io.usethesource.capsule.Map.Transient<Type, Type> staticTypeParameters;
+	protected io.usethesource.capsule.Map.Transient<Type, Type> dynamicTypeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
 	protected ISourceLocation callerLocation; // different from the scope location (more precise)
@@ -474,7 +473,7 @@ public class Environment implements IRascalFrame {
      */
 	protected void flagName(String name, NameFlags flags) {
 		if (nameFlags == null) {
-			nameFlags = new HashMap<String,NameFlags>();
+			nameFlags = io.usethesource.capsule.Map.Transient.of();
 		}
 		
 		if (nameFlags.containsKey(name)) {
@@ -511,14 +510,14 @@ public class Environment implements IRascalFrame {
 	
 	public void storeStaticParameterType(Type par, Type type) {
 		if (staticTypeParameters == null) {
-			staticTypeParameters = new HashMap<Type,Type>();
+			staticTypeParameters = io.usethesource.capsule.Map.Transient.of();
 		}
 		staticTypeParameters.put(par, type);
 	}
 	
 	public void storeDynamicParameterType(Type par, Type type) {
         if (dynamicTypeParameters == null) {
-            dynamicTypeParameters = new HashMap<Type,Type>();
+            dynamicTypeParameters = io.usethesource.capsule.Map.Transient.of();
         }
         dynamicTypeParameters.put(par, type);
     }
@@ -583,7 +582,7 @@ public class Environment implements IRascalFrame {
 		if (env == null) {
 			// an undeclared variable, which gets an inferred type
 			if (variableEnvironment == null) {
-				variableEnvironment = new HashMap<String,Result<IValue>>();
+				variableEnvironment = io.usethesource.capsule.Map.Transient.of();
 			}
 			variableEnvironment.put(name, value);
 			//System.out.println("Inferred: " + name);
@@ -643,7 +642,7 @@ public class Environment implements IRascalFrame {
 			list = new LinkedHashSet<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
 			
 			if (functionEnvironment == null) {
-				functionEnvironment = new HashMap<String, LinkedHashSet<AbstractFunction>>();
+				functionEnvironment = io.usethesource.capsule.Map.Transient.of();
 			}
 			functionEnvironment.put(name, list);
 		}
@@ -675,7 +674,7 @@ public class Environment implements IRascalFrame {
 			}
 		}
 		if (variableEnvironment == null) {
-			variableEnvironment = new HashMap<String,Result<IValue>>();
+			variableEnvironment = io.usethesource.capsule.Map.Transient.of();
 		}
 		variableEnvironment.put(name, ResultFactory.nothing(type));
 		return true;
@@ -689,7 +688,7 @@ public class Environment implements IRascalFrame {
 			if (env.staticTypeParameters != null) {
 				for (Type key : env.staticTypeParameters.keySet()) {
 				    if (result ==  null) {
-				        result = new HashMap<>();
+				        result = io.usethesource.capsule.Map.Transient.of();
 				    }
 					if (!result.containsKey(key)) {
 						result.put(key, env.staticTypeParameters.get(key));
@@ -713,7 +712,7 @@ public class Environment implements IRascalFrame {
             if (env.dynamicTypeParameters != null) {
                 for (Type key : env.dynamicTypeParameters.keySet()) {
                     if (result ==  null) {
-                        result = new HashMap<>();
+                        result = io.usethesource.capsule.Map.Transient.of();
                     }
                     if (!result.containsKey(key)) {
                         result.put(key, env.dynamicTypeParameters.get(key));
@@ -731,16 +730,16 @@ public class Environment implements IRascalFrame {
 	
 	public void storeStaticTypeBindings(Map<Type, Type> bindings) {
 		if (staticTypeParameters == null) {
-			staticTypeParameters = new HashMap<Type, Type>();
+			staticTypeParameters = io.usethesource.capsule.Map.Transient.of();
 		}
-		staticTypeParameters.putAll(bindings);
+		staticTypeParameters.__putAll(bindings);
 	}
 	
 	public void storeDynamicTypeBindings(Map<Type, Type> bindings) {
         if (dynamicTypeParameters == null) {
-            dynamicTypeParameters = new HashMap<Type, Type>();
+            dynamicTypeParameters = io.usethesource.capsule.Map.Transient.of();
         }
-        dynamicTypeParameters.putAll(bindings);
+        dynamicTypeParameters.__putAll(bindings);
     }
 
 	@Override
@@ -864,12 +863,12 @@ public class Environment implements IRascalFrame {
 	}
 
 	public Map<String, Result<IValue>> getVariables() {
-		Map<String, Result<IValue>> vars = new HashMap<String, Result<IValue>>();
+		io.usethesource.capsule.Map.Transient<String, Result<IValue>> vars = io.usethesource.capsule.Map.Transient.of();
 		if (parent != null) {
-			vars.putAll(parent.getVariables());
+			vars.__putAll(parent.getVariables());
 		}
 		if (variableEnvironment != null) {
-			vars.putAll(variableEnvironment);
+			vars.__putAll(variableEnvironment);
 		}
 		return vars;
 	}
@@ -932,7 +931,7 @@ public class Environment implements IRascalFrame {
 		// they govern how overloading is handled in functions.
 		if (other.nameFlags != null) {
 			if (this.nameFlags == null) {
-				this.nameFlags = new HashMap<String, NameFlags>();
+				this.nameFlags = io.usethesource.capsule.Map.Transient.of();
 			}
 
 			for (String name : other.nameFlags.keySet()) {
@@ -958,16 +957,16 @@ public class Environment implements IRascalFrame {
 	protected void extendTypeParams(Environment other) {
 		if (other.staticTypeParameters != null) {
 		    if (this.staticTypeParameters == null) {
-		      this.staticTypeParameters = new HashMap<Type, Type>();
+		      this.staticTypeParameters = io.usethesource.capsule.Map.Transient.of();
 		    }
-		    this.staticTypeParameters.putAll(other.staticTypeParameters);
+		    this.staticTypeParameters.__putAll(other.staticTypeParameters);
 		  }
 	}
 	
 	protected void extendFunctionEnv(Environment other) {
 		if (other.functionEnvironment != null) {
 		    if (this.functionEnvironment == null) {
-		      this.functionEnvironment = new HashMap<String, LinkedHashSet<AbstractFunction>>();
+		      this.functionEnvironment = io.usethesource.capsule.Map.Transient.of();
 		    }
 		    
 		    for (String name : other.functionEnvironment.keySet()) {
@@ -985,11 +984,11 @@ public class Environment implements IRascalFrame {
 	protected void extendVariableEnv(Environment other) {
 		if (other.variableEnvironment != null) {
 		    if (this.variableEnvironment == null) {
-		      this.variableEnvironment = new HashMap<String, Result<IValue>>();
+		      this.variableEnvironment = io.usethesource.capsule.Map.Transient.of();
 		    }
 		    // TODO: if variables are bound to closures
 		    // we have to cloneInto those values to.
-		    this.variableEnvironment.putAll(other.variableEnvironment);
+		    this.variableEnvironment.__putAll(other.variableEnvironment);
 		  }
 	}
 

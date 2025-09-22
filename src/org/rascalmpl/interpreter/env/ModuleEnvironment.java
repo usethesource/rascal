@@ -19,7 +19,6 @@ package org.rascalmpl.interpreter.env;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -45,6 +44,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.capsule.Map.Transient;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -71,14 +71,14 @@ public class ModuleEnvironment extends Environment {
 	protected Set<String> extended;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
-	protected Map<Type, List<KeywordFormal>> generalKeywordParameters;
-	protected Map<String, NonTerminalType> concreteSyntaxTypes;
+	protected io.usethesource.capsule.Map.Transient<Type, List<KeywordFormal>> generalKeywordParameters;
+	protected io.usethesource.capsule.Map.Transient<String, NonTerminalType> concreteSyntaxTypes;
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String deprecated;
-	protected Map<String, AbstractFunction> resourceImporters;
-	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	protected io.usethesource.capsule.Map.Transient<String, AbstractFunction> resourceImporters;
+	protected io.usethesource.capsule.Map.Transient<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -88,14 +88,14 @@ public class ModuleEnvironment extends Environment {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
 		this.importedModules = new HashSet<String>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.concreteSyntaxTypes = io.usethesource.capsule.Map.Transient.of();
 		this.productions = new HashSet<IValue>();
-		this.generalKeywordParameters = new HashMap<Type,List<KeywordFormal>>();
+		this.generalKeywordParameters = io.usethesource.capsule.Map.Transient.of();
 		this.typeStore = new TypeStore();
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
-		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.resourceImporters = io.usethesource.capsule.Map.Transient.of();
 		this.cachedGeneralKeywordParameters = null;
 	}
 	
@@ -123,7 +123,7 @@ public class ModuleEnvironment extends Environment {
 	public void reset() {
 		super.reset();
 		this.importedModules = new HashSet<>();
-		this.concreteSyntaxTypes = new HashMap<>();
+		this.concreteSyntaxTypes = io.usethesource.capsule.Map.Transient.of();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
@@ -131,7 +131,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
-		this.generalKeywordParameters = new HashMap<>();
+		this.generalKeywordParameters = io.usethesource.capsule.Map.Transient.of();
 		this.cachedGeneralKeywordParameters = null;
 	}
 	
@@ -149,9 +149,9 @@ public class ModuleEnvironment extends Environment {
 	  
 	  if (other.concreteSyntaxTypes != null) {
 	    if (this.concreteSyntaxTypes == null) {
-	      this.concreteSyntaxTypes = new HashMap<String,NonTerminalType>();
+	      this.concreteSyntaxTypes = io.usethesource.capsule.Map.Transient.of();
 	    }
-	    this.concreteSyntaxTypes.putAll(other.concreteSyntaxTypes);
+	    this.concreteSyntaxTypes.__putAll(other.concreteSyntaxTypes);
 	  }
 	  
 	  if (other.typeStore != null) {
@@ -178,9 +178,9 @@ public class ModuleEnvironment extends Environment {
 	  
 	  if (other.generalKeywordParameters != null) {
 		  if (this.generalKeywordParameters == null) {
-			  this.generalKeywordParameters = new HashMap<>();
+			  this.generalKeywordParameters = io.usethesource.capsule.Map.Transient.of();
 		  }
-		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
+		  this.generalKeywordParameters.__putAll(other.generalKeywordParameters);
 	  }
 	  
 	  extendTypeParams(other);
