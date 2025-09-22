@@ -28,7 +28,6 @@ import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.ArtifactCoordinate;
-import org.rascalmpl.util.maven.Dependency;
 import org.rascalmpl.util.maven.MavenMessageFactory;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
@@ -603,7 +602,7 @@ public class PathConfig {
                 return; 
             }
             if (libProjectName.equals("rascal-lsp")) {
-                checkLSPVersionsMatch(manifestRoot, messages, messageFactory, dep, art.getOrigin());
+                checkLSPVersionsMatch(manifestRoot, messages, messageFactory, dep, art);
                 // we'll be adding the rascal-lsp by hand later
                 // so we ignore the rascal-lsp dependency
                 return;
@@ -637,7 +636,7 @@ public class PathConfig {
         buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages, messageFactory);
     }
 
-    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, MavenMessageFactory messageFactory, ISourceLocation jarLocation, Dependency dependency) throws IOException {
+    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, MavenMessageFactory messageFactory, ISourceLocation jarLocation, Artifact artifact) throws IOException {
         // Rascal LSP is special because the VScode extension pre-loads it into the parametric DSL VM.
         // If the version is different, then the debugger may point to the wrong code, and also the Rascal
         // IDE features like "jump-to-definition" could be off.
@@ -649,7 +648,7 @@ public class PathConfig {
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(messageFactory.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", dependency));
+                    messages.append(messageFactory.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", artifact));
                 }
             }
         }

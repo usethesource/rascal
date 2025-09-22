@@ -42,6 +42,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -341,7 +342,8 @@ public class Artifact {
                 .map(d -> {
                     if (d.getVersion() == null) {
                         // while rare, this happens when a user has an incomplete dependencyManagement section
-                        messages.append(messageFactory.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing a version", pomLocation, 0, 0));
+                        InputLocation depLoc = d.getLocation("");
+                        messages.append(messageFactory.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
                     }
                     return Dependency.build(d, pomLocation);
                 })
