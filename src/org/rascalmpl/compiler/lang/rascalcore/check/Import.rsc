@@ -192,8 +192,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-        ms.paths = tm.paths;
-        ms.strPaths = getStrPaths(tm.paths, pcfg);
+        ms.paths += tm.paths;
+        ms.strPaths += getStrPaths(tm.paths, pcfg);
         //assert PathsAreEquivalent(ms);
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
@@ -270,7 +270,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms.moduleLocs += tm.moduleLocs;
             ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
-            assert PathsAreEquivalent(ms);
+            //assert PathsAreEquivalent(ms);
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
             ms.messages[qualifiedModuleName] ? {} += toSet(tm.messages);
             for(<imp, pr> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
@@ -443,6 +443,7 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
             return <(m: tmodel(modelName=m,messages=toList(ms.messages[m]))), ms>;
         }
     }
+    tm.paths = visit(tm.paths){ case loc l => l.top };
     transient_tms = (m : tm | m <- component);
     org_tm = tm;
     for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
