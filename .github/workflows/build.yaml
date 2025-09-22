@@ -108,7 +108,6 @@ jobs:
           jobs: |
             tests (macos-latest)
             tests (windows-latest)
-            tests (buildjet-4vcpu-ubuntu-2204-arm)
           ttl: 15
 
       - name: Deploy
