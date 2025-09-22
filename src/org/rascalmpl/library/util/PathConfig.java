@@ -581,12 +581,12 @@ public class PathConfig {
                 if (reg.exists(projectLoc)) {
                     if (mode == RascalConfigMode.INTERPRETER) {
                         // Note that this is not the main project pom so art.getOrigin() should not be null
-                        messages.append(messageFactory.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art.getOrigin()));
+                        messages.append(messageFactory.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                     }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, messageFactory, projectLoc);
                 }
                 else {
-                    messages.append(messageFactory.error("Declared dependency does not exist: " + art.getCoordinate(), art.getOrigin()));
+                    messages.append(messageFactory.error("Declared dependency does not exist: " + art.getCoordinate(), art));
                 }
                 return;
             }
@@ -614,7 +614,7 @@ public class PathConfig {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 if (mode == RascalConfigMode.INTERPRETER) {
-                    messages.append(messageFactory.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art.getOrigin()));
+                    messages.append(messageFactory.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                 }
                 addProjectAndItsDependencies(mode, srcs, libs, messages, messageFactory, projectLoc);
             }
@@ -626,7 +626,7 @@ public class PathConfig {
                 }
             }
         } catch (URISyntaxException e) {
-            messages.append(messageFactory.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art.getOrigin()));
+            messages.append(messageFactory.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art));
         } 
     }
 
