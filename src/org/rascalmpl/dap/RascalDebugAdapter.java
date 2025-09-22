@@ -113,7 +113,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 services.warning("Could not read contents of " + l.top(), l);
                 return "";
             }
-        });
+        }, true);
     }
 
     public void connect(IDebugProtocolClient client) {

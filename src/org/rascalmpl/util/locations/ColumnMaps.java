@@ -26,9 +26,15 @@
  */
 package org.rascalmpl.util.locations;
 
+import java.io.IOException;
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -38,12 +44,44 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class ColumnMaps {
     private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
+    private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> activeWatches = new ConcurrentHashMap<>();
 
-    public ColumnMaps(Function<ISourceLocation, String> getContents) {
+    public ColumnMaps(Function<ISourceLocation, String> getContents, boolean clearOnFileModification) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l)));
+            .<ISourceLocation, LineColumnOffsetMap>removalListener((k, ignored1, ignored2) -> {
+                if (clearOnFileModification && k != null) {
+                    cleanupWatch(k);
+                }
+            })
+            .build(l -> {
+                var result = ArrayLineOffsetMap.build(getContents.apply(l));
+                if (clearOnFileModification) {
+                    registerWatch(l);
+                }
+                return result;
+            });
+    }
+
+    private void registerWatch(ISourceLocation l) throws IOException {
+        // in URI Resolver the callback is the "id" of the watch
+        // so we have to keep it around to be able to cleanup the watch later
+        Consumer<ISourceLocationChanged> clearEntry = c -> clear(l);
+        if (activeWatches.putIfAbsent(l, clearEntry) == null) {
+            URIResolverRegistry.getInstance().watch(l, false, clearEntry);
+        }
+    }
+
+    private void cleanupWatch(ISourceLocation k) {
+        var callback = activeWatches.remove(k);
+        if (callback != null) {
+            try {
+                URIResolverRegistry.getInstance().unwatch(k, false, callback);
+            } catch (IOException e) {
+                // swallowed
+            }
+        }
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
