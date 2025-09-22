@@ -67,9 +67,9 @@ public class Artifact {
     private IList messages;
     private final boolean anyError;
     private final @Nullable Dependency origin; // Only null for main project artifact
-    private final MavenMessageFactory messageFactory;
+    private final MavenMessageConverter messageFactory;
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver, MavenMessageFactory messageFactory) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver, MavenMessageConverter messageFactory) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
         this.origin = origin;
@@ -207,7 +207,7 @@ public class Artifact {
      *
      * This method is intentionally static so we can be sure we do not use instance variables by mistake.
      */
-    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser, MavenMessageFactory messageFactory) {
+    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser, MavenMessageConverter messageFactory) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
         Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
         Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
@@ -297,7 +297,7 @@ public class Artifact {
         }
     }
 
-    private static Artifact createSystemArtifact(Dependency d, MavenMessageFactory messageFactory) {
+    private static Artifact createSystemArtifact(Dependency d, MavenMessageConverter messageFactory) {
         var messages = IRascalValueFactory.getInstance().listWriter();
 
         String systemPath = d.getSystemPath();
@@ -320,7 +320,7 @@ public class Artifact {
         return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
     }
 
-    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver, MavenMessageFactory messageFactory) {
+    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver, MavenMessageConverter messageFactory) {
         String packaging = m.getPackaging();
         if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
@@ -358,7 +358,7 @@ public class Artifact {
 
     }
 
-    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages, MavenMessageFactory messageFactory) {
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages, MavenMessageConverter messageFactory) {
         return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null, messageFactory);
     }
 

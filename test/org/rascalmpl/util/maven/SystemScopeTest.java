@@ -42,7 +42,7 @@ public class SystemScopeTest extends AbstractMavenTest {
 
     @Test
     public void testSystemScope() throws ModelResolutionError, MalformedURLException, IOException {
-        var parser = new MavenParser(new MavenSettings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system.xml"), new MavenMessageFactory());
+        var parser = new MavenParser(new MavenSettings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system.xml"), new MavenMessageConverter());
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
         Assert.assertEquals(1, deps.size());
@@ -66,7 +66,7 @@ public class SystemScopeTest extends AbstractMavenTest {
     }
 
     private void verifyIllegalSystemPath(String pomFile) throws ModelResolutionError, MalformedURLException, IOException{
-        var parser = new MavenParser(new MavenSettings(), getPomsPath("local-reference/" + pomFile), new MavenMessageFactory());
+        var parser = new MavenParser(new MavenSettings(), getPomsPath("local-reference/" + pomFile), new MavenMessageConverter());
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
         Assert.assertEquals("Dependency should not be dropped", 1, deps.size());

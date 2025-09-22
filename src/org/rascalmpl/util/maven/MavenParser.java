@@ -75,21 +75,21 @@ public class MavenParser {
     private final List<IValue> settingMessages;
 
     private final SimpleResolver rootResolver;
-    private final MavenMessageFactory messageFactory;
+    private final MavenMessageConverter messageFactory;
 
-    public MavenParser(Path projectPom, MavenMessageFactory messageFactory) {
+    public MavenParser(Path projectPom, MavenMessageConverter messageFactory) {
         this(MavenSettings.readSettings(), projectPom, messageFactory);
     }
 
-    /*package*/ MavenParser(MavenSettings settings, Path projectPom, MavenMessageFactory messageFactory) {
+    /*package*/ MavenParser(MavenSettings settings, Path projectPom, MavenMessageConverter messageFactory) {
         this(settings, projectPom, settings.getLocalRepository(), messageFactory);
     }
 
     MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo) {
-        this(settings, projectPom, rootMavenRepo, new MavenMessageFactory());
+        this(settings, projectPom, rootMavenRepo, new MavenMessageConverter());
     }
 
-    /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo, MavenMessageFactory messageFactory) {
+    /*package*/ MavenParser(MavenSettings settings, Path projectPom, Path rootMavenRepo, MavenMessageConverter messageFactory) {
         this.projectPom = projectPom;
         try {
             this.projectPomLocation = URIUtil.createFileLocation(projectPom);
@@ -283,7 +283,7 @@ public class MavenParser {
 
     private static void test(Path target) throws ModelResolutionError {
         var start = System.currentTimeMillis();
-        var parser = new MavenParser(new MavenSettings(), target, new MavenMessageFactory());
+        var parser = new MavenParser(new MavenSettings(), target, new MavenMessageConverter());
         var project = parser.parseProject();
         var stop = System.currentTimeMillis();
         var out = new PrintWriter(System.out);
