@@ -130,6 +130,7 @@ ModuleStatus rascalTModelForLocs(
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
+    mlocs = [m.top | m <- mlocs];
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
