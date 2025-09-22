@@ -108,7 +108,6 @@ jobs:
           jobs: |
             tests (macos-latest)
             tests (windows-latest)
-            test-linux
           ttl: 15
 
       - name: Deploy
