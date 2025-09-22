@@ -54,7 +54,7 @@ jobs:
     permissions:
       contents: write
     runs-on: buildjet-4vcpu-ubuntu-2204
-    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployments' || '' }} 
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployment' || '' }} 
     steps:
       - uses: browser-actions/setup-chrome@latest
         with:
