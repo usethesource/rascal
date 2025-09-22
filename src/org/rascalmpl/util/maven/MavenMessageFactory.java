@@ -50,16 +50,32 @@ public class MavenMessageFactory {
         return Messages.message(type, message, messageLocation);
     }
 
-    public IValue info(String message, Dependency d) {
-        return message(Messages.Message_info, message, d.getPomLocation(), d.getLine(), d.getColumn());
+    private IValue message(Type type, String message, Dependency dep) {
+        return message(type, message, dep.getPomLocation(), dep.getLine(), dep.getColumn());
     }
 
-    public IValue warning(String message, Dependency d) {
-        return message(Messages.Message_warning, message, d.getPomLocation(), d.getLine(), d.getColumn());
+    public IValue info(String message, Dependency dep) {
+        return message(Messages.Message_info, message, dep);
     }
 
-    public IValue error(String message, Dependency d) {
-        return message(Messages.Message_error, message, d.getPomLocation(), d.getLine(), d.getColumn());
+    public IValue warning(String message, Dependency dep) {
+        return message(Messages.Message_warning, message, dep);
+    }
+
+    public IValue error(String message, Dependency dep) {
+        return message(Messages.Message_error, message, dep);
+    }
+
+    public IValue info(String message, Artifact artifact) {
+        return info(message, artifact.getOrigin());
+    }
+
+    public IValue warning(String message, Artifact artifact) {
+        return warning(message, artifact.getOrigin());
+    }
+
+    public IValue error(String message, Artifact artifact) {
+        return error(message, artifact.getOrigin());
     }
 
     public IValue error(String message, ISourceLocation pomLocation, int line, int column) {
