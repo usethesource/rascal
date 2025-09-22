@@ -18,13 +18,13 @@ import io.usethesource.vallang.type.Type;
 /**
  * This class is responsible for mapping dependency pom and position information to an ISourceLocation of the declaration of the dependency.
  */
-public class MavenMessageFactory {
+public class MavenMessageConverter {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
     private final ColumnMaps columnMaps;
     private IOException pomReadException;
 
-    public MavenMessageFactory() {
+    public MavenMessageConverter() {
         columnMaps = new ColumnMaps(l -> {
             try {
                 return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));

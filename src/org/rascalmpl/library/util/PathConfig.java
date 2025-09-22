@@ -28,7 +28,7 @@ import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.ArtifactCoordinate;
-import org.rascalmpl.util.maven.MavenMessageFactory;
+import org.rascalmpl.util.maven.MavenMessageConverter;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
@@ -470,7 +470,7 @@ public class PathConfig {
     /**
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
-    private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages, MavenMessageFactory messageFactory) throws IOException {
+    private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages, MavenMessageConverter messageFactory) throws IOException {
         var insideRascalJar = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
         var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
         var typepal = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/typepal");
@@ -519,7 +519,7 @@ public class PathConfig {
         }
     }
 
-    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages, MavenMessageFactory messageFactory) throws IOException, URISyntaxException {
+    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages, MavenMessageConverter messageFactory) throws IOException, URISyntaxException {
         if (isRoot) {
             if (mode == RascalConfigMode.INTERPRETER) {
                 srcs.append(URIUtil.rootLocation("std")); // you'll always get rascal from standard in case of interpreter mode
@@ -568,7 +568,7 @@ public class PathConfig {
     }
 
     private static void addArtifactToPathConfig(Artifact art, ISourceLocation manifestRoot, RascalConfigMode mode, IListWriter srcs,
-        IListWriter libs, IListWriter messages, MavenMessageFactory messageFactory) throws IOException {
+        IListWriter libs, IListWriter messages, MavenMessageConverter messageFactory) throws IOException {
         RascalManifest manifest = new RascalManifest();
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         try {
@@ -630,13 +630,13 @@ public class PathConfig {
     }
 
     private static void addProjectAndItsDependencies(RascalConfigMode mode, IListWriter srcs, IListWriter libs,
-        IListWriter messages, MavenMessageFactory messageFactory, ISourceLocation projectLoc) throws IOException, URISyntaxException {
+        IListWriter messages, MavenMessageConverter messageFactory, ISourceLocation projectLoc) throws IOException, URISyntaxException {
         projectLoc = safeResolve(projectLoc); // for now, remove the project loc, later we can undo this and keep the project loc around
         var childMavenClasspath = getPomXmlCompilerClasspath(projectLoc, messages, messageFactory);
         buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages, messageFactory);
     }
 
-    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, MavenMessageFactory messageFactory, ISourceLocation jarLocation, Artifact artifact) throws IOException {
+    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, MavenMessageConverter messageFactory, ISourceLocation jarLocation, Artifact artifact) throws IOException {
         // Rascal LSP is special because the VScode extension pre-loads it into the parametric DSL VM.
         // If the version is different, then the debugger may point to the wrong code, and also the Rascal
         // IDE features like "jump-to-definition" could be off.
@@ -704,7 +704,7 @@ public class PathConfig {
         IListWriter srcsWriter = (IListWriter) vf.listWriter().unique();
         IListWriter resourcesWriter = (IListWriter) vf.listWriter().unique();
         IListWriter messages = vf.listWriter();
-        MavenMessageFactory messageFactory = new MavenMessageFactory();
+        MavenMessageConverter messageFactory = new MavenMessageConverter();
         
         if (isRoot && mode == RascalConfigMode.INTERPRETER) {
             messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
@@ -900,7 +900,7 @@ public class PathConfig {
      * @param manifestRoot
      * @return
      */
-    private static List<Artifact> getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages, MavenMessageFactory messageFactory) {
+    private static List<Artifact> getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages, MavenMessageConverter messageFactory) {
         try {
             var reg = URIResolverRegistry.getInstance();
             if (!manifestRoot.getScheme().equals("file")) {
