@@ -25,7 +25,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::C
-     
+                                           
+                
 import lang::rascalcore::compile::Examples::B;
 			
-A x = [A] "a";
+D x = d1();  

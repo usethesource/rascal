@@ -26,9 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::B
                  
-data RuntimeException 
-    = EmptyList()
-    ;  
+extend lang::rascalcore::compile::Examples::A;
 
 // int x = 1;
 // // data D = d(int n) | d(str s);
