@@ -27,6 +27,7 @@
 package org.rascalmpl.util.locations;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
@@ -37,17 +38,23 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.usethesource.vallang.ISourceLocation;
 
 public class ColumnMaps {
-    private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
+    private final LoadingCache<ISourceLocation, Optional<LineColumnOffsetMap>> currentEntries;
 
     public ColumnMaps(Function<ISourceLocation, String> getContents) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .build(l -> ArrayLineOffsetMap.build(getContents.apply(l)));
+            .build(l -> {
+                String contents = getContents.apply(l); 
+                if (contents == null) {
+                    return Optional.empty();
+                }
+                return Optional.of(ArrayLineOffsetMap.build(contents));
+            });
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
-        return currentEntries.get(sloc.top());
+        return currentEntries.get(sloc.top()).orElse(null);
     }
 
     public void clear(ISourceLocation sloc) {
