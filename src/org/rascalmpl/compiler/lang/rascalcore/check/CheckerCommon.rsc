@@ -87,7 +87,7 @@ data MStatus =
 data ModuleStatus =
     moduleStatus(
       rel[str, PathRole, str] strPaths,
-      rel[loc, PathRole, loc] paths,
+      //rel[loc, PathRole, loc] paths,
       map[str, Module] parseTrees,
       list[str] parseTreeLIFO,
       map[str, TModel] tmodels,
@@ -100,7 +100,7 @@ data ModuleStatus =
       RascalCompilerConfig compilerConfig
    );
 
-ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
+ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, /*{},*/ (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
 
 bool isModuleLocationInLibs(str mname, loc l, PathConfig pcfg){
     res = l.extension == "tpl" || !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
@@ -216,7 +216,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             try {
                 pt = parseModuleWithSpaces(mloc).top;
                 ms.parseTrees[qualifiedModuleName] = pt;
-                ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
+                ms.moduleLocs[qualifiedModuleName] = getLoc(pt).top;
                 ms.status[qualifiedModuleName] += parsed();
                 return <true, pt, ms>;
             } catch _: {//ParseError(loc src): {
@@ -363,7 +363,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
-                tm.usesPhysicalLocs = false; // temporary
+                //tm.usesPhysicalLocs = false; // temporary
                 if(convert){
                     tm = convertTModel2PhysicalLocs(tm);
                 }
@@ -385,6 +385,30 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         throw rascalTplVersionError(msg);
     }
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
+}
+
+rel[str from, PathRole r, str to] getStrPaths(rel[loc from, PathRole r, loc to] paths, PathConfig pcfg){
+    strPaths = {};
+    for(<loc from, PathRole r, loc to> <- paths){
+        try {
+            mfrom = getRascalModuleName(from, pcfg);
+            mto = getRascalModuleName(to, pcfg);
+            strPaths += <mfrom, r, mto>;
+        } catch _: println("getStrPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+    }
+    return strPaths;
+}
+
+rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] strPaths, ModuleStatus ms){
+    paths = {};
+    for(<str from, PathRole r, str to> <- strPaths){
+        try {
+            mfrom = ms.moduleLocs[from] ? getRascalModuleLocation(from, ms.pathConfig);
+            mto = ms.moduleLocs[to] ? getRascalModuleLocation(to, ms.pathConfig);;
+            paths += <mfrom, r, mto>;
+        } catch _: println("getPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+    }
+    return paths;
 }
 
 int closureCounter = 0;

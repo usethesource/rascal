@@ -117,36 +117,36 @@ rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] str
     return paths;
 }
 
-bool PathsAreEquivalent(ModuleStatus ms){
-    if(size(ms.paths) == size(ms.strPaths)) return true;
-    if(size(ms.paths) != size(ms.strPaths)) {
-        println("PathsAreEquivalent: unequal length");
-        iprintln(ms.paths); iprintln(ms.strPaths);
-        return false;
-    }
-    if(getStrPaths(ms.paths, ms.pathConfig) != ms.strPaths) {
-        println("PathsAreEquivalent: unequal strPaths");
-        println("Missing: <getStrPaths(ms.paths, ms.pathConfig) - ms.strPaths>");
-        return false;
-    }
-    if(getPaths(ms.strPaths, ms) != ms.paths){
-        println("PathsAreEquivalent: unequal paths");
-        println("getPaths: <getPaths(ms.
-        strPaths, ms)>");
-        println("ms.paths: <ms.paths>");
-        println("ms.strPaths: <ms.strPaths>");
-        println("Missing: < ms.paths - getPaths(ms.strPaths, ms)>");
-        return false;
-    }
-    return true;
-}
+// bool PathsAreEquivalent(ModuleStatus ms){
+//     if(size(ms.paths) == size(ms.strPaths)) return true;
+//     if(size(ms.paths) != size(ms.strPaths)) {
+//         println("PathsAreEquivalent: unequal length");
+//         iprintln(ms.paths); iprintln(ms.strPaths);
+//         return false;
+//     }
+//     if(getStrPaths(ms.paths, ms.pathConfig) != ms.strPaths) {
+//         println("PathsAreEquivalent: unequal strPaths");
+//         println("Missing: <getStrPaths(ms.paths, ms.pathConfig) - ms.strPaths>");
+//         return false;
+//     }
+//     if(getPaths(ms.strPaths, ms) != ms.paths){
+//         println("PathsAreEquivalent: unequal paths");
+//         println("getPaths: <getPaths(ms.
+//         strPaths, ms)>");
+//         println("ms.paths: <ms.paths>");
+//         println("ms.strPaths: <ms.strPaths>");
+//         println("Missing: < ms.paths - getPaths(ms.strPaths, ms)>");
+//         return false;
+//     }
+//     return true;
+// }
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
     
     // Create strPaths from ms.paths
-    strPaths = getStrPaths(ms.paths, pcfg);
+    strPaths = ms.strPaths; //getStrPaths(ms.paths, pcfg);
 
     ms = reportSelfImport(strPaths, ms);
 
@@ -160,7 +160,8 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
     ms.strPaths = strPaths;
 
     // sync ms.paths back with ms.strPaths
-    ms.paths = getPaths(strPaths, ms);
+    //ms.paths = getPaths(strPaths, ms);
+    println("completeModuleStatus:"); iprintln(strPaths);
     return ms;
 }
 
@@ -192,8 +193,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-        ms.paths += tm.paths;
-        ms.strPaths += getStrPaths(tm.paths, pcfg);
+        //ms.paths += tm.paths;
+        //ms.strPaths += getStrPaths(tm.paths, pcfg); //<<<<
         //assert PathsAreEquivalent(ms);
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
@@ -268,7 +269,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(allImportsAndExtendsValid){
             ms.status[qualifiedModuleName] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
             ms.moduleLocs += tm.moduleLocs;
-            ms.paths += tm.paths;
+            //ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             //assert PathsAreEquivalent(ms);
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
@@ -277,7 +278,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                 ms.status[imp] -= tpl_saved();
                 ms = getImportAndExtendGraph(imp, ms);
             }
-            return ms;
+            return completeModuleStatus(ms);
          }
     }
 
@@ -305,7 +306,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     visit(pt){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
-            ms.moduleLocs[qualifiedModuleName] = getLoc(m);
+            ms.moduleLocs[qualifiedModuleName] = getLoc(m).top;
             <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
         }
     }
@@ -391,14 +392,14 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         iname = unescape("<imod.\module.name>");
         imports_and_extends += <moduleName, imod is \default ? importPath() : extendPath(), iname>;
         ms.status[iname] = ms.status[iname] ? {};
-        try {
-            mloc = getRascalModuleLocation(iname, ms.pathConfig);
-            ms.paths += {<m@\loc, imod is \default ? importPath() : extendPath(), mloc>};
-         } catch str msg: {
-            err = error("Cannot get location for <iname>: <msg>", imod@\loc);
-            ms.messages[moduleName] ? {} += { err };
-            ms.status[iname] += { rsc_not_found() };
-         }
+        // try {
+        //     mloc = getRascalModuleLocation(iname, ms.pathConfig);
+        //     ms.paths += {<m@\loc, imod is \default ? importPath() : extendPath(), mloc>};
+        //  } catch str msg: {
+        //     err = error("Cannot get location for <iname>: <msg>", imod@\loc);
+        //     ms.messages[moduleName] ? {} += { err };
+        //     ms.status[iname] += { rsc_not_found() };
+        //  }
     }
     ms.strPaths += imports_and_extends;
     //assert PathsAreEquivalent(ms);
@@ -408,7 +409,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc _, str id, str _orgId, moduleId(),  loc defined, DefInfo _> <- tm.defines);
+    = (id: defined.top | <loc _, str id, str _orgId, moduleId(),  loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -501,7 +502,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         TModel m1 = tmodel();
         m1.rascalTplVersion = compilerConfig.rascalTplVersion;
         m1.modelName = qualifiedModuleName;
-        m1.moduleLocs = (qualifiedModuleName : mscope);
+        m1.moduleLocs = (qualifiedModuleName : mscope.top);
 
         m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key));
 
@@ -567,6 +568,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.usesPhysicalLocs = true;
         ms.status[qualifiedModuleName] -= {tpl_saved()};
         ms = addTModel(qualifiedModuleName, m1, ms);
+        //println("added tmodel for <qualifiedModuleName>:"); iprintln(m1);
     }
     return ms;
 }

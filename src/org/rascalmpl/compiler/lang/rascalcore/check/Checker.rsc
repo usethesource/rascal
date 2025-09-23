@@ -130,7 +130,7 @@ ModuleStatus rascalTModelForLocs(
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
-    mlocs = [m.top | m <- mlocs];
+    mlocs = [m.top | loc m <- mlocs];
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
@@ -187,11 +187,10 @@ ModuleStatus rascalTModelForLocs(
     topModuleNames = toSet(mnames);
     try {
         ms = getImportAndExtendGraph(topModuleNames, ms);
+        // if(/error(_,_) := ms.messages){
 
-        if(/error(_,_) := ms.messages){
-
-            return clearTModelCache(ms);
-        }
+        //     return clearTModelCache(ms);
+        // }
 
         imports_and_extends = ms.strPaths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
@@ -479,7 +478,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         }
         tm = c.run();
 
-        tm.paths =  ms.paths;
+        tm.paths =  getPaths(ms.strPaths, ms);
 
         if(!isEmpty(namedTrees)){
             s = newSolver(namedTrees, tm);
@@ -565,9 +564,6 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
 
     return reportModuleMessages(ms);
-    // moduleNames = domain(ms.moduleLocs);
-    // messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, mname notin moduleNames} + toSet(ms.pathConfig.messages);
-    // return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
 }
 
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
@@ -650,7 +646,6 @@ int main(
 list[ModuleMessages] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
     ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     return reportModuleMessages(ms);
-    //return  (mname : toList(msgs) | mname <- ms.messages, msgs := ms.messages[mname], !isEmpty(msgs));
 }
 
 // -- calculate rename changes

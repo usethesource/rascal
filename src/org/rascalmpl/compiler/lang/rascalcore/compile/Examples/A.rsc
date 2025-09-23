@@ -25,7 +25,5 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
-                                               
-import lang::rascalcore::compile::Examples::B;
-
-void f() throws EmptyList {}
+                                                  
+data D = d1();
