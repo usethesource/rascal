@@ -51,11 +51,11 @@ public class ColumnMaps {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .<ISourceLocation, LineColumnOffsetMap>removalListener((k, ignored1, ignored2) -> {
-                if (ignored2 != RemovalCause.REPLACED) {
+            .<ISourceLocation, LineColumnOffsetMap>removalListener((loc, ignored, cause) -> {
+                if (cause != RemovalCause.REPLACED) {
                     // this does not create a race because removals are only reported 
                     // after a while
-                    unwatch(k);
+                    unwatch(loc);
                 }
             })
             .build(l -> {
