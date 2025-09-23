@@ -112,8 +112,7 @@ public class MavenParser {
 
     public Artifact parseProject() throws ModelResolutionError {
         var request = new DefaultModelBuildingRequest()
-            .setPomFile(projectPom.toFile())
-            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
+            .setPomFile(projectPom.toFile());
 
         var resolver = rootResolver.createChildResolver();
 
@@ -214,6 +213,8 @@ public class MavenParser {
     private ModelBuildingResult buildModel(ModelBuildingRequest request, ModelResolver resolver) throws ModelBuildingException {
         request.setModelResolver(resolver)
             .setModelCache(modelCache)
+            .setLocationTracking(true)
+            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL)
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }
