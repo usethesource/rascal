@@ -39,6 +39,7 @@ import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -46,34 +47,39 @@ public class ColumnMaps {
     private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
     private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> activeWatches = new ConcurrentHashMap<>();
 
-    public ColumnMaps(Function<ISourceLocation, String> getContents, boolean clearOnFileModification) {
+    public ColumnMaps(Function<ISourceLocation, String> getContents) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
             .<ISourceLocation, LineColumnOffsetMap>removalListener((k, ignored1, ignored2) -> {
-                if (clearOnFileModification && k != null) {
-                    cleanupWatch(k);
+                if (ignored2 != RemovalCause.REPLACED) {
+                    // this does not create a race because removals are only reported 
+                    // after a while
+                    unwatch(k);
                 }
             })
             .build(l -> {
                 var result = ArrayLineOffsetMap.build(getContents.apply(l));
-                if (clearOnFileModification) {
-                    registerWatch(l);
-                }
+                watch(l);
                 return result;
             });
     }
 
-    private void registerWatch(ISourceLocation l) throws IOException {
+    private void watch(ISourceLocation l) {
         // in URI Resolver the callback is the "id" of the watch
-        // so we have to keep it around to be able to cleanup the watch later
+        // so we have to keep it around to be able to remove the watch later
         Consumer<ISourceLocationChanged> clearEntry = c -> clear(l);
         if (activeWatches.putIfAbsent(l, clearEntry) == null) {
-            URIResolverRegistry.getInstance().watch(l, false, clearEntry);
+            // we won the race, so lets register the watch now
+            try {
+                URIResolverRegistry.getInstance().watch(l, false, clearEntry);
+            } catch (IOException e) {
+                // swallowed since we don't want the column maps to break on unsupported watches
+            }
         }
     }
 
-    private void cleanupWatch(ISourceLocation k) {
+    private void unwatch(ISourceLocation k) {
         var callback = activeWatches.remove(k);
         if (callback != null) {
             try {
