@@ -58,8 +58,14 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertEquals("Vallang should be of right version", "1.0.0-RC15", vallang.getCoordinate().getVersion());
         assertNotNull("Vallang should be found/downloaded in the repo", vallang.getResolved());
 
+        var capsuleDep = locateDependency(vallang.getDependencies(), "capsule");
+        assertTrue("Capsule should be a dependency of vallang", capsuleDep.isPresent());
+        assertEquals(191, capsuleDep.get().getLine());
+        assertEquals(14, capsuleDep.get().getColumn());
+
         var maybeCapsule = locate(resolved, "capsule");
         assertTrue("Vallang should depend on capsule", maybeCapsule.isPresent());
+
 
         Path artifactPath = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15"));
         Path sha1Path = artifactPath.resolve("vallang-1.0.0-RC15.jar.sha1");
@@ -84,6 +90,12 @@ public class MavenResolverTest extends AbstractMavenTest {
 
     private static Optional<Artifact> locate(List<Artifact> resolved, String artifactId) {
         return resolved.stream()
+            .filter(d -> d.getCoordinate().getArtifactId().equals(artifactId))
+            .findFirst();
+    }
+
+    private static Optional<Dependency> locateDependency(List<Dependency> dependencies, String artifactId) {
+        return dependencies.stream()
             .filter(d -> d.getCoordinate().getArtifactId().equals(artifactId))
             .findFirst();
     }

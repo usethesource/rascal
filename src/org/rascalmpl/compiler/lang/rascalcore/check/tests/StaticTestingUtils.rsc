@@ -371,7 +371,8 @@ bool argumentMismatch(str stmts) =
 
 list[str] redeclaredVariableMsgs = [
 	"Undefined _ due to double declaration",
-	"Double declaration of _ _"
+	"Double declaration of _",
+	"Multiple declarations of _ are applicable here"
 ];
 
 bool redeclaredVariableInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
@@ -412,6 +413,7 @@ list[str] unexpectedDeclarationMsgs = [
 	"Invalid initialization of _",
 	"Undefined _",
 	"Double declaration of _",
+	"Multiple declarations of _ are applicable here",
 	"Constructor _ overlaps with other declaration for type _, see _",
 	"Incompatible field _ in _: _ in constructor _ clashes with _ in constructor _",
 	"Constructor _ is used without qualifier and overlaps with other declaration, _",

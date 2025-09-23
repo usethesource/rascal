@@ -28,7 +28,7 @@ module lang::rascalcore::compile::ShowTPL
 
 import IO;
 import ValueIO;
-extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::CheckerCommon;
 
 loc tplLoc = |unknown:///|;
 TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
