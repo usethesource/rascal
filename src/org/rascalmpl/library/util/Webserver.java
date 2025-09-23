@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -61,7 +62,7 @@ public class Webserver {
     private final PrintWriter out;
 
     private final Map<ISourceLocation, NanoHTTPD> servers;
-    private final Map<IConstructor,Status> statusValues = io.usethesource.capsule.Map.Transient.of();
+    private final Map<IConstructor,Status> statusValues = new HashMap<>();
     private final IRascalMonitor monitor;
     private Type requestType;
     private Type post;
@@ -76,7 +77,7 @@ public class Webserver {
         this.store = store;
         this.out = out;
         this.monitor = monitor;
-        this.servers = io.usethesource.capsule.Map.Transient.of();
+        this.servers = new HashMap<>();
     }
 
 
@@ -148,7 +149,7 @@ public class Webserver {
 
             private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
                 Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
-                Map<String,IValue> kws = io.usethesource.capsule.Map.Transient.of();
+                Map<String,IValue> kws = new HashMap<>();
                 kws.put("parameters", makeMap(parms));
                 kws.put("uploads", makeMap(files));
                 kws.put("headers", makeMap(headers));
