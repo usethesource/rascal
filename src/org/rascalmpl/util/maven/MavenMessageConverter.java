@@ -22,7 +22,7 @@ public class MavenMessageConverter {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
     private final ColumnMaps columnMaps;
-    private IOException pomReadException;
+    private boolean errorReadingPom;
 
     public MavenMessageConverter() {
         columnMaps = new ColumnMaps(l -> {
@@ -30,18 +30,19 @@ public class MavenMessageConverter {
                 return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
             }
             catch (IOException e) {
-                pomReadException = e;
+                errorReadingPom = true;
                 return "";
             }
         });
     }
 
     private IValue message(Type type, String message, ISourceLocation pomLocation, int line, int column) {
-        pomReadException = null;
+        errorReadingPom = false;
         LineColumnOffsetMap map = columnMaps.get(pomLocation);
 
-        if (pomReadException != null) {
-            return Messages.error("Could not read " + pomLocation + ": " + pomReadException.getMessage() + " while resolving message '" + message + "'", pomLocation);
+        if (errorReadingPom) {
+            // Maybe log some warning here?
+            return pomLocation;
         }
 
         Pair<Integer, Integer> offsets = map.calculateInverseOffsetLength(0, 0, line, column);
