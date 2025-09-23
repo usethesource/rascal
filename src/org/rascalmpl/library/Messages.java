@@ -39,9 +39,9 @@ public class Messages {
 
     // These declarations mirror the data definition in the `Message` root module of the standard library.
     public static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
-    public static final io.usethesource.vallang.type.Type Message_info = tf.constructor(ts, Message, "info", tf.stringType(), "msg", tf.sourceLocationType(), "at");
-    public static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
-    public static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
+    private static final io.usethesource.vallang.type.Type Message_info = tf.constructor(ts, Message, "info", tf.stringType(), "msg", tf.sourceLocationType(), "at");
+    private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
+    private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
 
     public static IConstructor info(String message, ISourceLocation loc) {
         return message(Message_info, message, loc);
@@ -55,7 +55,7 @@ public class Messages {
         return message(Message_error, message, loc);
     }
 
-    public static IConstructor message(io.usethesource.vallang.type.Type type, String message, ISourceLocation loc) {
+    private static IConstructor message(io.usethesource.vallang.type.Type type, String message, ISourceLocation loc) {
         return vf.constructor(type, vf.string(message), loc);
     }
 

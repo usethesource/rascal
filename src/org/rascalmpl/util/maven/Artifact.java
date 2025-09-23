@@ -67,13 +67,11 @@ public class Artifact {
     private IList messages;
     private final boolean anyError;
     private final @Nullable Dependency origin; // Only null for main project artifact
-    private final MavenMessageConverter messageFactory;
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver, MavenMessageConverter messageFactory) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
         this.origin = origin;
-        this.messageFactory = messageFactory;
         this.resolved = resolved;
         this.dependencies = dependencies;
         this.messages = messages;
@@ -86,7 +84,6 @@ public class Artifact {
         this.coordinate = new ArtifactCoordinate(coord.getGroupId(), coord.getArtifactId(), version, coord.getClassifier());
         this.parentCoordinate = original.parentCoordinate;
         this.origin = original.origin;
-        this.messageFactory = original.messageFactory;
         this.resolved = original.resolved;
         this.dependencies = original.dependencies;
         this.messages = original.messages;
@@ -135,7 +132,7 @@ public class Artifact {
         var result = new ArrayList<Artifact>(dependencies.size());
         Queue<ResolveState> resolveQueue = new LinkedList<>();
         resolveQueue.add(new ResolveState(this, Collections.emptySet()));
-        calculateClassPath(forScope, resolveQueue, result, parser, messageFactory);
+        calculateClassPath(forScope, resolveQueue, result, parser);
         return result;
     }
 
@@ -207,7 +204,7 @@ public class Artifact {
      *
      * This method is intentionally static so we can be sure we do not use instance variables by mistake.
      */
-    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser, MavenMessageConverter messageFactory) {
+    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
         Set<ResolveKey> alreadyResolved = new HashSet<>();
         Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
         Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
@@ -227,14 +224,14 @@ public class Artifact {
                         coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                     }
                     catch (UnresolvableModelException e) {
-                        artifact.messages = artifact.messages.append(messageFactory.error("Version range error: " + e.getMessage(), d));
+                        artifact.messages = artifact.messages.append(MavenMessageConverter.error("Version range error: " + e.getMessage(), d));
                         continue;
                     }
 
                     var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
                     if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                         String effectiveVersion = versions.first();
-                        artifact.messages = artifact.messages.append(messageFactory.warning("Multiple version ranges found for " + versionLess + " are used. "
+                        artifact.messages = artifact.messages.append(MavenMessageConverter.warning("Multiple version ranges found for " + versionLess + " are used. "
                             + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
                             + effectiveVersion + "]</version>", d));
                     }
@@ -265,7 +262,7 @@ public class Artifact {
 
                 if (d.getScope() == Scope.SYSTEM) {
                     if (!resolved) {
-                        result.add(createSystemArtifact(d, messageFactory));
+                        result.add(createSystemArtifact(d));
                     }
                     continue;
                 }
@@ -297,30 +294,30 @@ public class Artifact {
         }
     }
 
-    private static Artifact createSystemArtifact(Dependency d, MavenMessageConverter messageFactory) {
+    private static Artifact createSystemArtifact(Dependency d) {
         var messages = IRascalValueFactory.getInstance().listWriter();
 
         String systemPath = d.getSystemPath();
         Path path = null;
         if (systemPath == null) {
-            messages.append(messageFactory.error("system dependency " + d + " without a systemPath property", d));
+            messages.append(MavenMessageConverter.error("system dependency " + d + " without a systemPath property", d));
         } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
-                messages.append(messageFactory.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
+                messages.append(MavenMessageConverter.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
                 path = null;
             }
         }
 
-        return new Artifact(d.getCoordinate(), null, d, path, Collections.emptyList(), messages.done(), null, messageFactory);
+        return new Artifact(d.getCoordinate(), null, d, path, Collections.emptyList(), messages.done(), null);
     }
 
     private static boolean isJarPackaging(String packaging) {
         return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
     }
 
-    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver, MavenMessageConverter messageFactory) {
+    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
         String packaging = m.getPackaging();
         if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
@@ -343,23 +340,23 @@ public class Artifact {
                     if (d.getVersion() == null) {
                         // while rare, this happens when a user has an incomplete dependencyManagement section
                         InputLocation depLoc = d.getLocation("");
-                        messages.append(messageFactory.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
+                        messages.append(MavenMessageConverter.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
                     }
                     return Dependency.build(d, pomLocation);
                 })
                 .collect(Collectors.toUnmodifiableList())
                 ;
             }
-            return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver, messageFactory);
+            return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver);
         } catch (UnresolvableModelException e) {
-            messages.append(messageFactory.error("Could not download corresponding jar", origin));
-            return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver, messageFactory);
+            messages.append(MavenMessageConverter.error("Could not download corresponding jar", origin));
+            return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver);
         }
 
     }
 
-    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages, MavenMessageConverter messageFactory) {
-        return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null, messageFactory);
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages) {
+        return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null);
     }
 
     @Override
