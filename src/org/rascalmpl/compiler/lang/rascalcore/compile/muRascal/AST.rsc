@@ -1702,7 +1702,7 @@ MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp 
     <b2, auxVars2, pre2, flatArgs2> = flattenArgs(kwargs<1>);
    
     if((b1 || b2) && !(isEmpty(pre1) && isEmpty(pre2))){
-        kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
+        kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | int i <- index(kwargs)];
         return muValueBlock(getResult(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src));
     } else {
         fail;
