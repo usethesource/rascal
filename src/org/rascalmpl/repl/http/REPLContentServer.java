@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.function.Function;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -184,7 +185,6 @@ public class REPLContentServer extends NanoHTTPD {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-
             
             writer.write(out, data);
             out.flush();
