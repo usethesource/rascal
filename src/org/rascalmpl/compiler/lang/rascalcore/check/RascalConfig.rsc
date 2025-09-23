@@ -374,31 +374,21 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-private void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
-    println(header);
-    for(<loc from, PathRole r, loc to> <- tuples){
-        fname = from.path[findLast(from.path, "/")+1 ..];
-        fname = fname[.. findLast(fname, ".")];
-
-        tname = to.path[findLast(to.path, "/")+1 ..];
-        tname = tname[.. findLast(tname, ".")];
-        println("<fname> <r == importPath() ? "imports" : "extends"> <tname>");
-    }
-}
-
 // Enhance TModel before running Solver by 
 // - adding transitive edges for extend
 // - adding imports via these extends
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
+    paths = visit(m.paths) { case loc l => l.top };
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
     delta = { <from, importPath(), to2> 
             | <loc from, loc to1> <- extendPlus, 
-              <loc to1, importPath(), loc to2> <- m.paths,
-              <from, extendPath(), to2> notin m.paths
+              <loc to1, importPath(), loc to2> <- paths,
+              <from, extendPath(), to2> notin paths, 
+              from != to2
             };
-    m.paths += delta;
+    m.paths = paths + delta;
     return m;
 }
 
