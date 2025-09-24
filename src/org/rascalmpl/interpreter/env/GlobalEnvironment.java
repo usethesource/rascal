@@ -146,7 +146,11 @@ public class GlobalEnvironment {
 	}
 
 	public void removeModule(ModuleEnvironment env) {
-		moduleEnvironment.remove(env.getName());
+		var name = env.getName();
+		moduleEnvironment.remove(name);
+		for (var mod : moduleEnvironment.values()) {
+			mod.deleteImport(name);
+		}
 	}
 
 	public void setModuleURI(String name, URI location) {
