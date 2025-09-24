@@ -117,30 +117,6 @@ rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] str
     return paths;
 }
 
-// bool PathsAreEquivalent(ModuleStatus ms){
-//     if(size(ms.paths) == size(ms.strPaths)) return true;
-//     if(size(ms.paths) != size(ms.strPaths)) {
-//         println("PathsAreEquivalent: unequal length");
-//         iprintln(ms.paths); iprintln(ms.strPaths);
-//         return false;
-//     }
-//     if(getStrPaths(ms.paths, ms.pathConfig) != ms.strPaths) {
-//         println("PathsAreEquivalent: unequal strPaths");
-//         println("Missing: <getStrPaths(ms.paths, ms.pathConfig) - ms.strPaths>");
-//         return false;
-//     }
-//     if(getPaths(ms.strPaths, ms) != ms.paths){
-//         println("PathsAreEquivalent: unequal paths");
-//         println("getPaths: <getPaths(ms.
-//         strPaths, ms)>");
-//         println("ms.paths: <ms.paths>");
-//         println("ms.strPaths: <ms.strPaths>");
-//         println("Missing: < ms.paths - getPaths(ms.strPaths, ms)>");
-//         return false;
-//     }
-//     return true;
-// }
-
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
@@ -409,7 +385,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined.top | <loc _, str id, str _orgId, moduleId(),  loc defined, DefInfo _> <- tm.defines);
+    = (id: defined | <loc _, str id, str _orgId, moduleId(),  loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -444,7 +420,7 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
             return <(m: tmodel(modelName=m,messages=toList(ms.messages[m]))), ms>;
         }
     }
-    tm.paths = visit(tm.paths){ case loc l => l.top };
+    tm.paths = visit(tm.paths){ case loc l => l.top }; // redundant?
     transient_tms = (m : tm | m <- component);
     org_tm = tm;
     for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
@@ -568,7 +544,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.usesPhysicalLocs = true;
         ms.status[qualifiedModuleName] -= {tpl_saved()};
         ms = addTModel(qualifiedModuleName, m1, ms);
-        //println("added tmodel for <qualifiedModuleName>:"); iprintln(m1);
+        println("added tmodel for <qualifiedModuleName>:"); iprintln(m1);
     }
     return ms;
 }
