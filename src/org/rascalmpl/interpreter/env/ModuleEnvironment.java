@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ public class ModuleEnvironment extends Environment {
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
 	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	protected Map<String, List<AbstractFunction>> cachedPublicFunctions;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -101,6 +103,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	/**
@@ -397,11 +400,13 @@ public class ModuleEnvironment extends Environment {
 			typeStore.unimportStores(old.get().getStore());
 		}
 		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 	
 	public void unExtend(String moduleName) {
 		extended.remove(moduleName);
 		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 
 	@Override
@@ -531,29 +536,35 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
-		super.getAllFunctions(name, collection);
-		
-		for (ModuleEnvironment mod : importedModulesResolved) {
-			
-			if (mod != null) {
-			  mod.getLocalPublicFunctions(name, collection);
-			}
+		collection.addAll(lookupCachedFunctions(name));
+	}
+
+	private List<AbstractFunction> lookupCachedFunctions(String name) {
+		if (cachedPublicFunctions == null) {
+			cachedPublicFunctions = io.usethesource.capsule.Map.Transient.of();
 		}
+		return cachedPublicFunctions.computeIfAbsent(name, n -> {
+			var result = new ArrayList<AbstractFunction>();
+			super.getAllFunctions(name, result);
+			
+			for (ModuleEnvironment mod : importedModulesResolved) {
+				
+				if (mod != null) {
+				mod.getLocalPublicFunctions(name, result);
+				}
+			}
+			return result;
+		});
 	}
 	
 	@Override
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		super.getAllFunctions(returnType, name, collection);
-		
-		for (ModuleEnvironment mod : importedModulesResolved) {
-			
-			if (mod != null) {
-			  mod.getLocalPublicFunctions(returnType, name, collection);
+		for (var function: lookupCachedFunctions(name)) {
+			if (function.getReturnType().comparable(returnType)) {
+				collection.add(function);
 			}
 		}
 	}
-	
-
 	
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
@@ -576,20 +587,6 @@ public class ModuleEnvironment extends Environment {
 			if (lst != null) {
 				if (!isNamePrivate(name)) {
 					collection.addAll(lst);
-				}
-			}
-		}
-	}
-	
-	private void getLocalPublicFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		if (functionEnvironment != null && !isNamePrivate(name)) {
-			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
-			
-			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (returnType.isSubtypeOf(func.getReturnType())) {
-						collection.add(func);
-					}
 				}
 			}
 		}
