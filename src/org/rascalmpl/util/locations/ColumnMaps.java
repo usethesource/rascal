@@ -60,7 +60,7 @@ public class ColumnMaps {
                 }
             })
             .build(l -> {
-                String content = getContents.apply(l);
+                String contents = getContents.apply(l);
                 Optional<LineColumnOffsetMap> result = content == null ? Optional.empty() :  Optional.of(ArrayLineOffsetMap.build(contents));
                 watch(l);
                 return result;
