@@ -380,7 +380,7 @@ bool rascalReportUnused(loc def, TModel tm){
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     paths = visit(m.paths) { case loc l => l.top };
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
-    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
     delta = { <from, importPath(), to2> 
             | <loc from, loc to1> <- extendPlus, 
