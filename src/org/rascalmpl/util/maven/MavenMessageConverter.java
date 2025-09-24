@@ -23,12 +23,7 @@ public class MavenMessageConverter {
 
     private static ColumnMaps initColumnMaps() {
         return new ColumnMaps(l -> {
-            try {
-                return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
-            }
-            catch (IOException e) {
-                return null;
-            }
+            return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
         });
     }
 

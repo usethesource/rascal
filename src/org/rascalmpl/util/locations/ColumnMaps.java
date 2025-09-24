@@ -32,10 +32,10 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.util.Func;
 import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -45,14 +45,14 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import io.usethesource.vallang.ISourceLocation;
 
 public class ColumnMaps {
-    private final LoadingCache<ISourceLocation, Optional<LineColumnOffsetMap>> currentEntries;
+    private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
     private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> activeWatches = new ConcurrentHashMap<>();
 
-    public ColumnMaps(Function<ISourceLocation, String> getContents) {
+    public ColumnMaps(Func<ISourceLocation, String, IOException> getContents) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
-            .<ISourceLocation, Optional<LineColumnOffsetMap>>removalListener((loc, ignored, cause) -> {
+            .<ISourceLocation, LineColumnOffsetMap>removalListener((loc, ignored, cause) -> {
                 if (cause != RemovalCause.REPLACED) {
                     // this does not create a race because removals are only reported 
                     // after a while
@@ -61,9 +61,8 @@ public class ColumnMaps {
             })
             .build(l -> {
                 String contents = getContents.apply(l);
-                Optional<LineColumnOffsetMap> result = contents == null ? Optional.empty() :  Optional.of(ArrayLineOffsetMap.build(contents));
                 watch(l);
-                return result;
+                return ArrayLineOffsetMap.build(contents);
             });
     }
 
@@ -93,7 +92,11 @@ public class ColumnMaps {
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
-        return currentEntries.get(sloc.top()).orElse(null);
+        LineColumnOffsetMap map = currentEntries.get(sloc.top());
+        if (map == null) {
+            throw new RuntimeException("Location could not be read: " + sloc);
+        }
+        return map;
     }
 
     public void clear(ISourceLocation sloc) {
