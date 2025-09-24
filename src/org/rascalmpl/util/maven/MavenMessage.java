@@ -1,7 +1,5 @@
 package org.rascalmpl.util.maven;
 
-import java.io.IOException;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.Prelude;
@@ -16,7 +14,7 @@ import io.usethesource.vallang.IValue;
 /**
  * This class is responsible for mapping dependency pom and position information to an ISourceLocation of the declaration of the dependency.
  */
-public class MavenMessageConverter {
+public class MavenMessage {
 	private static final IRascalValueFactory VF = IRascalValueFactory.getInstance();
 
     private static final ColumnMaps columnMaps = initColumnMaps();
@@ -26,8 +24,6 @@ public class MavenMessageConverter {
             return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
         });
     }
-
-    private MavenMessageConverter() {}
 
     private static ISourceLocation calcMessageLocation(ISourceLocation pomLocation, int line, int column) {
         LineColumnOffsetMap map = columnMaps.get(pomLocation);
