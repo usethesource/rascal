@@ -1,10 +1,9 @@
 package org.rascalmpl.util.maven;
 
-import static org.rascalmpl.util.maven.XmlReader.createXmlReader;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.locations.ColumnMaps;
 import org.rascalmpl.util.locations.LineColumnOffsetMap;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -21,8 +20,8 @@ public class MavenMessage {
     private static final ColumnMaps columnMaps = initColumnMaps();
 
     private static ColumnMaps initColumnMaps() {
-        return new ColumnMaps(loc -> {
-            return Prelude.consumeInputStream(createXmlReader(loc));
+        return new ColumnMaps(l -> {
+            return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
         });
     }
 
