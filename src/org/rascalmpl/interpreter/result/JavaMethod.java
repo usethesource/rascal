@@ -207,9 +207,10 @@ public class JavaMethod extends NamedFunction {
 			Map<Type, Type> staticBindings = new HashMap<>();
 			
 			try {
-				boolean matched = false;
-				for (int i =0; i< actuals.length; i++) {
-					matched |= formals.getFieldType(i).match(actualStaticTypes[i], staticBindings);
+				boolean matched = true;
+				// we have to go reverse since we infer from right to left
+				for (int i = actuals.length -1; i >= 0; i--) {
+					matched &= formals.getFieldType(i).match(actualStaticTypes[i], staticBindings);
 				}
 			    if (matched) {
 			        env.storeStaticTypeBindings(staticBindings);
