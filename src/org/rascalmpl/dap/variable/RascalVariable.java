@@ -85,7 +85,7 @@ public class RascalVariable {
             return false;
         }
 
-        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime();
+        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime() || type.isExternalType();
     }
 
     public int getNamedVariables() {
