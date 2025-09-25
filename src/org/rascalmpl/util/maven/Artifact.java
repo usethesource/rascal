@@ -42,6 +42,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -65,10 +66,12 @@ public class Artifact {
     private final @Nullable SimpleResolver ourResolver;
     private IList messages;
     private final boolean anyError;
+    private final @Nullable Dependency origin; // Only null for main project artifact
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
+        this.origin = origin;
         this.resolved = resolved;
         this.dependencies = dependencies;
         this.messages = messages;
@@ -80,6 +83,7 @@ public class Artifact {
         var coord = original.coordinate;
         this.coordinate = new ArtifactCoordinate(coord.getGroupId(), coord.getArtifactId(), version, coord.getClassifier());
         this.parentCoordinate = original.parentCoordinate;
+        this.origin = original.origin;
         this.resolved = original.resolved;
         this.dependencies = original.dependencies;
         this.messages = original.messages;
@@ -101,6 +105,10 @@ public class Artifact {
 
     public IList getMessages() {
         return messages;
+    }
+
+    public Dependency getOrigin() {
+        return origin;
     }
 
     /**
@@ -216,16 +224,16 @@ public class Artifact {
                         coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                     }
                     catch (UnresolvableModelException e) {
-                        artifact.messages = artifact.messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+                        artifact.messages = artifact.messages.append(MavenMessages.error("Version range error: " + e.getMessage(), d));
                         continue;
                     }
 
                     var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
                     if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                         String effectiveVersion = versions.first();
-                        artifact.messages = artifact.messages.append(Messages.warning("Multiple version ranges found for " + versionLess + " are used. "
+                        artifact.messages = artifact.messages.append(MavenMessages.warning("Multiple version ranges found for " + versionLess + " are used. "
                             + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
-                            + effectiveVersion + "]</version>", d.getPomLocation()));
+                            + effectiveVersion + "]</version>", d));
                     }
                 }
 
@@ -270,7 +278,7 @@ public class Artifact {
                 }
                 newExclusions = Set.copyOf(newExclusions); // Turn the set into an immutable set (if it is not already)
 
-                var art = parser.parseArtifact(coordinate, newExclusions, artifact.ourResolver);
+                var art = parser.parseArtifact(coordinate, newExclusions, d, artifact.ourResolver);
                 if (art != null) {
                     if (!resolved) {
                         result.add(art);
@@ -292,24 +300,24 @@ public class Artifact {
         String systemPath = d.getSystemPath();
         Path path = null;
         if (systemPath == null) {
-            messages.append(Messages.error("system dependency " + d + " without a systemPath property", d.getPomLocation()));
+            messages.append(MavenMessages.error("system dependency " + d + " without a systemPath property", d));
         } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
-                messages.append(Messages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d.getPomLocation()));
+                messages.append(MavenMessages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
                 path = null;
             }
         }
 
-        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
+        return new Artifact(d.getCoordinate(), null, d, path, Collections.emptyList(), messages.done(), null);
     }
 
     private static boolean isJarPackaging(String packaging) {
         return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
     }
 
-    /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
+    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
         String packaging = m.getPackaging();
         if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
@@ -328,20 +336,27 @@ public class Artifact {
                 dependencies = m.getDependencies().stream()
                 .filter(d -> !"import".equals(d.getScope()))
                 .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
-                .map(d -> Dependency.build(d, messages, pomLocation))
+                .map(d -> {
+                    if (d.getVersion() == null) {
+                        // while rare, this happens when a user has an incomplete dependencyManagement section
+                        InputLocation depLoc = d.getLocation("");
+                        messages.append(MavenMessages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
+                    }
+                    return Dependency.build(d, pomLocation);
+                })
                 .collect(Collectors.toUnmodifiableList())
                 ;
             }
-            return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
+            return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver);
         } catch (UnresolvableModelException e) {
-            messages.append(Messages.error("Could not download corresponding jar", pomLocation));
-            return new Artifact(coordinate, parentCoordinate, null, Collections.emptyList(), messages.done(), resolver);
+            messages.append(MavenMessages.error("Could not download corresponding jar", origin));
+            return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver);
         }
 
     }
 
-    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, IListWriter messages) {
-        return new Artifact(coordinate, null, null, Collections.emptyList(), messages.done(), null);
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages) {
+        return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null);
     }
 
     @Override
