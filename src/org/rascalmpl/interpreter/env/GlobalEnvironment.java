@@ -149,7 +149,7 @@ public class GlobalEnvironment {
 		var name = env.getName();
 		moduleEnvironment.remove(name);
 		for (var mod : moduleEnvironment.values()) {
-			mod.deleteImport(name);
+			mod.removeModule(name);
 		}
 	}
 
@@ -240,5 +240,11 @@ public class GlobalEnvironment {
 
 	public List<String> getExtendCycle() {
         return Collections.unmodifiableList(extendStack.stream().collect(Collectors.toList()));
+	}
+
+	public void clearLookupChaches() {
+		for (var mod: moduleEnvironment.values()) {
+			mod.clearLookupCaches();
+		}
 	}
 }
