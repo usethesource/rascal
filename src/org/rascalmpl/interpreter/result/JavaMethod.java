@@ -46,6 +46,7 @@ public class JavaMethod extends NamedFunction {
 	private final Method method;
 	private final boolean hasReflectiveAccess;
 	private final JavaBridge javaBridge;
+	private final Type formals;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
 		this(eval, 
@@ -62,22 +63,7 @@ public class JavaMethod extends NamedFunction {
 	
 	@Override
 	public Type getFormals() {
-		// get formals is overridden because we can provide labeled parameters for JavaMethods (no pattern matching)
-		FunctionDeclaration func = (FunctionDeclaration) getAst();
-		
-		List<Expression> formals = func.getSignature().getParameters().getFormals().getFormals();
-		int arity = formals.size();
-		Type[] types = new Type[arity];
-		String[] labels = new String[arity];
-		Type ft = getFunctionType();
-		
-		for (int i = 0; i < arity; i++) {
-			types[i] = ft.getFieldType(i);
-			assert formals.get(i).isTypedVariable(); // Java methods only have normal parameters as in `int i, int j`
-			labels[i] = Names.name(formals.get(i).getName());
-		}
-		
-		return TF.tupleType(types, labels);
+		return this.formals;
 	}
 	
 	/*
@@ -93,6 +79,22 @@ public class JavaMethod extends NamedFunction {
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getInput(), eval);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
+		this.formals = calculateFormals(func, staticType);
+	}
+
+	private static Type calculateFormals(FunctionDeclaration func, Type ft) {
+		List<Expression> formals = func.getSignature().getParameters().getFormals().getFormals();
+		int arity = formals.size();
+		Type[] types = new Type[arity];
+		String[] labels = new String[arity];
+		
+		for (int i = 0; i < arity; i++) {
+			types[i] = ft.getFieldType(i);
+			assert formals.get(i).isTypedVariable(); // Java methods only have normal parameters as in `int i, int j`
+			labels[i] = Names.name(formals.get(i).getName());
+		}
+		
+		return TF.tupleType(types, labels);
 	}
 
 	@Override
@@ -122,8 +124,6 @@ public class JavaMethod extends NamedFunction {
 			return resultValue;
 		}
 		Type actualTypesTuple;
-		Type formals = getFormals();
-
 		
 		if (hasVarArgs) {
             actuals = computeVarArgsActuals(actuals, formals);
