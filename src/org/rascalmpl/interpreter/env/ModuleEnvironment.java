@@ -123,6 +123,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
 		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 		this.deprecated = env.deprecated;
 	}
 
@@ -140,6 +141,13 @@ public class ModuleEnvironment extends Environment {
 		this.deprecated = null;
 		this.generalKeywordParameters = new HashMap<>();
 		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
+	}
+
+	public void clearLookupCaches() {
+		importedModules.replaceAll((k, v) -> Optional.empty());
+		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -338,8 +346,10 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 	}
 
-	void deleteImport(String name) {
+	void removeModule(String name) {
 		importedModules.computeIfPresent(name, (k, v) -> Optional.empty());
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	public void addExtend(String name) {
@@ -1097,4 +1107,5 @@ public class ModuleEnvironment extends Environment {
 	public Set<IValue> getProductions() {
 		return productions;
 	}
+
 }
