@@ -37,7 +37,7 @@ import io.usethesource.vallang.ISourceLocation;
 /**
  * Identifies a listed dependency, not resolved to an artifact yet.
  */
-/* package */ class Dependency {
+/*package*/ class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
     private final @Nullable String systemPath;
