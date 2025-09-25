@@ -27,6 +27,7 @@
 package org.rascalmpl.dap.variable;
 
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -85,7 +86,7 @@ public class RascalVariable {
             return false;
         }
 
-        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime() || type.isExternalType();
+        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime() || (type.isExternalType() && type.equals(RascalValueFactory.Tree));
     }
 
     public int getNamedVariables() {
