@@ -34,10 +34,10 @@ import org.apache.commons.lang3.tuple.Pair;
  * vallang uses UTF-32-bit codepoints, while lsp uses UTF-16, so in cases where a codepoint wouldn't fit inside 16bit char, it takes up two chars. Implementations of this class translate these efficiently.
  */
 public interface LineColumnOffsetMap {
-    // Translate UTF-32 column to UTF-16
+    /** Translate UTF-32 column to UTF-16 */
     int translateColumn(int line, int column, boolean isEnd);
-    // Translate UTF-16 column to UTF-32
+    /** Translate UTF-16 column to UTF-32 */
     int translateInverseColumn(int line, int column, boolean isEnd);
-    // Calculate offset and length from UTF-16 range
+    /** Translate UTF-16 range to UTF-32 offset and length */
     Pair<Integer, Integer> calculateInverseOffsetLength(int beginLine, int beginColumn, int endLine, int endColumn);
 }
