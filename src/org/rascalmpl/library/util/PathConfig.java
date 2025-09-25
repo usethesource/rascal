@@ -29,6 +29,7 @@ import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.ArtifactCoordinate;
+import org.rascalmpl.util.maven.MavenMessages;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
@@ -603,12 +604,13 @@ public class PathConfig {
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", art.getCoordinate().getArtifactId(), "");
                 if (reg.exists(projectLoc)) {
                     if (mode == RascalConfigMode.INTERPRETER) {
-                        messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                        // Note that this is not the main project pom so art.getOrigin() should not be null
+                        messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                     }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
                 }
                 else {
-                    messages.append(Messages.error("Declared dependency does not exist: " + art.getCoordinate(), getPomXmlLocation(manifestRoot)));
+                    messages.append(MavenMessages.error("Declared dependency does not exist: " + art.getCoordinate(), art));
                 }
                 return;
             }
@@ -625,7 +627,7 @@ public class PathConfig {
                 return; 
             }
             if (libProjectName.equals("rascal-lsp")) {
-                checkLSPVersionsMatch(manifestRoot, messages, dep);
+                checkLSPVersionsMatch(manifestRoot, messages, dep, art);
                 // we'll be adding the rascal-lsp by hand later
                 // so we ignore the rascal-lsp dependency
                 return;
@@ -636,7 +638,7 @@ public class PathConfig {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 if (mode == RascalConfigMode.INTERPRETER) {
-                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                 }
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
@@ -648,7 +650,7 @@ public class PathConfig {
                 }
             }
         } catch (URISyntaxException e) {
-            messages.append(Messages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, manifestRoot));
+            messages.append(MavenMessages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art));
         } 
     }
 
@@ -659,19 +661,19 @@ public class PathConfig {
         buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
     }
 
-    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation dep) throws IOException {
+    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation jarLocation, Artifact artifact) throws IOException {
         // Rascal LSP is special because the VScode extension pre-loads it into the parametric DSL VM.
         // If the version is different, then the debugger may point to the wrong code, and also the Rascal
         // IDE features like "jump-to-definition" could be off.
         try {
             var loadedRascalLsp = resolveProjectOnClasspath("rascal-lsp");
             var reg = URIResolverRegistry.getInstance();
-            try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(dep)) {
+            try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(jarLocation)) {
                 var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", getPomXmlLocation(manifestRoot)));
+                    messages.append(MavenMessages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", artifact));
                 }
             }
         }

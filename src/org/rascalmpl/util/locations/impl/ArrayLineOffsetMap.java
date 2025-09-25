@@ -214,5 +214,4 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
         }
     }
 
-
 }
