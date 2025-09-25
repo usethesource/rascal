@@ -157,7 +157,7 @@ public class MavenParser {
 
             return Artifact.build(model, origin, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
-            messages.append(MavenMessage.error("Could not resolve " + coordinate + ". " + e.getMessage(), origin));
+            messages.append(MavenMessages.error("Could not resolve " + coordinate + ". " + e.getMessage(), origin));
             return Artifact.unresolved(coordinate, origin, messages);
         }
     }
@@ -198,8 +198,8 @@ public class MavenParser {
             int column = Math.max(0, problem.getColumnNumber());
             switch (problem.getSeverity()) {
                 case ERROR: // fall through
-                case FATAL: messages.append(MavenMessage.error(message, loc, line, column)); break;
-                case WARNING: messages.append(MavenMessage.warning(message, loc, line, column)); break;
+                case FATAL: messages.append(MavenMessages.error(message, loc, line, column)); break;
+                case WARNING: messages.append(MavenMessages.warning(message, loc, line, column)); break;
                 default: throw new UnsupportedOperationException("Missing case: " + problem.getSeverity());
             }
         }

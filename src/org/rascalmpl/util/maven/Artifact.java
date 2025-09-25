@@ -224,14 +224,14 @@ public class Artifact {
                         coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
                     }
                     catch (UnresolvableModelException e) {
-                        artifact.messages = artifact.messages.append(MavenMessage.error("Version range error: " + e.getMessage(), d));
+                        artifact.messages = artifact.messages.append(MavenMessages.error("Version range error: " + e.getMessage(), d));
                         continue;
                     }
 
                     var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
                     if (versions.add(version) && versions.size() == 2) { // Only add a warning once
                         String effectiveVersion = versions.first();
-                        artifact.messages = artifact.messages.append(MavenMessage.warning("Multiple version ranges found for " + versionLess + " are used. "
+                        artifact.messages = artifact.messages.append(MavenMessages.warning("Multiple version ranges found for " + versionLess + " are used. "
                             + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
                             + effectiveVersion + "]</version>", d));
                     }
@@ -300,12 +300,12 @@ public class Artifact {
         String systemPath = d.getSystemPath();
         Path path = null;
         if (systemPath == null) {
-            messages.append(MavenMessage.error("system dependency " + d + " without a systemPath property", d));
+            messages.append(MavenMessages.error("system dependency " + d + " without a systemPath property", d));
         } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
-                messages.append(MavenMessage.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
+                messages.append(MavenMessages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
                 path = null;
             }
         }
@@ -340,7 +340,7 @@ public class Artifact {
                     if (d.getVersion() == null) {
                         // while rare, this happens when a user has an incomplete dependencyManagement section
                         InputLocation depLoc = d.getLocation("");
-                        messages.append(MavenMessage.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
+                        messages.append(MavenMessages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
                     }
                     return Dependency.build(d, pomLocation);
                 })
@@ -349,7 +349,7 @@ public class Artifact {
             }
             return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver);
         } catch (UnresolvableModelException e) {
-            messages.append(MavenMessage.error("Could not download corresponding jar", origin));
+            messages.append(MavenMessages.error("Could not download corresponding jar", origin));
             return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver);
         }
 
