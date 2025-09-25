@@ -29,7 +29,7 @@ import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.ArtifactCoordinate;
-import org.rascalmpl.util.maven.MavenMessage;
+import org.rascalmpl.util.maven.MavenMessages;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
@@ -605,12 +605,12 @@ public class PathConfig {
                 if (reg.exists(projectLoc)) {
                     if (mode == RascalConfigMode.INTERPRETER) {
                         // Note that this is not the main project pom so art.getOrigin() should not be null
-                        messages.append(MavenMessage.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
+                        messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                     }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
                 }
                 else {
-                    messages.append(MavenMessage.error("Declared dependency does not exist: " + art.getCoordinate(), art));
+                    messages.append(MavenMessages.error("Declared dependency does not exist: " + art.getCoordinate(), art));
                 }
                 return;
             }
@@ -638,7 +638,7 @@ public class PathConfig {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
                 if (mode == RascalConfigMode.INTERPRETER) {
-                    messages.append(MavenMessage.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
+                    messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                 }
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
@@ -650,7 +650,7 @@ public class PathConfig {
                 }
             }
         } catch (URISyntaxException e) {
-            messages.append(MavenMessage.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art));
+            messages.append(MavenMessages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art));
         } 
     }
 
@@ -673,7 +673,7 @@ public class PathConfig {
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(MavenMessage.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", artifact));
+                    messages.append(MavenMessages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", artifact));
                 }
             }
         }
