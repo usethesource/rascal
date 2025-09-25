@@ -246,6 +246,7 @@ public class REPLContentServer extends NanoHTTPD {
     private static InputStream toInputStream(IString data, Charset encoding) throws IOException {
         return new ReaderInputStream.Builder()
             .setReader(data.asReader())
+            .setBufferSize(32 * 1024)
             .setCharset(encoding)
             .get();
     }
