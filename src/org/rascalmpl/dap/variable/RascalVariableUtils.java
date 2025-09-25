@@ -32,6 +32,8 @@ import java.io.Writer;
 import org.rascalmpl.dap.RascalDebugAdapter;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -44,6 +46,9 @@ public class RascalVariableUtils {
     public static String getDisplayString(IValue value, IDEServices services) {
         if(value == null) {
             return "null";
+        }
+        if (value instanceof ITree) {
+            return "(" + value.getType() + ")`" + TreeAdapter.yield((ITree)value) + "`";
         }
         Writer w = new LimitedResultWriter(MAX_SIZE_STRING_NAME);
         try {
