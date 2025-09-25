@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.util.locations.LineColumnOffsetMap;
 
 public class ArrayLineOffsetMap implements LineColumnOffsetMap {
@@ -91,7 +90,7 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
     }
 
     @SuppressWarnings("java:S3776") // parsing tends to be complex
-    public static LineColumnOffsetMap build(@Nullable String contents) {
+    public static LineColumnOffsetMap build(String contents) {
         int line = 0;
         int column = 0;
         char prev = '\0';
