@@ -1,7 +1,9 @@
 package org.rascalmpl.library.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,7 +14,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -322,11 +327,20 @@ public class Webserver {
             }
 
             private InputStream toInputStream(IString data, Charset encoding) throws IOException {
-                return new ReaderInputStream.Builder()
-                    .setReader(data.asReader())
-                    .setBufferSize(32 * 1024)
-                    .setCharset(encoding)
-                    .get();
+                // get the characters on the line with the least amount of copying
+                CharArrayWriter w = new CharArrayWriter(data.length());
+
+                // that's the single copy
+                data.write(w);
+
+                // this just wraps the array from the CharArrayWriter
+                ByteBuffer byteBuffer = StandardCharsets
+                    .UTF_8.newEncoder()
+                    .encode(CharBuffer.wrap(w.toCharArray()));
+
+                // here we stream directly from the encoded bytebuffer's result, but we buffer it at the 
+                // buffer size that NanoHTTPD likes
+                return new BufferedInputStream(new ByteArrayInputStream(byteBuffer.array(), 0, byteBuffer.limit()), 32 * 1024);
             }
 
             private void addHeaders(Response response, IMap header) {
