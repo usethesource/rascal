@@ -130,7 +130,6 @@ ModuleStatus rascalTModelForLocs(
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
-    mlocs = [m.top | loc m <- mlocs];
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
@@ -187,6 +186,7 @@ ModuleStatus rascalTModelForLocs(
     topModuleNames = toSet(mnames);
     try {
         ms = getImportAndExtendGraph(topModuleNames, ms);
+
         // if(/error(_,_) := ms.messages){
 
         //     return clearTModelCache(ms);
@@ -478,7 +478,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         }
         tm = c.run();
 
-        tm.paths =  getPaths(ms.strPaths, ms);
+        tm.paths =  ms.paths;
 
         if(!isEmpty(namedTrees)){
             s = newSolver(namedTrees, tm);
@@ -539,13 +539,13 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
     for(candidate <- candidates){
         mname = getRascalModuleName(candidate, pcfg);
         <found, tm, ms> = getTModelForModule(mname, ms, convert=false);
-        if(found){
+        //if(found){
             imports_and_extends = ms.strPaths<0,2>[mname];
             <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
             if(!compatible){
                 return <false, ms>;
             }
-        }
+        //}
     }
     return <true, ms>;
 }
