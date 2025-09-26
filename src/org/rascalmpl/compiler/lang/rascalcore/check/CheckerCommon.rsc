@@ -87,7 +87,7 @@ data MStatus =
 data ModuleStatus =
     moduleStatus(
       rel[str, PathRole, str] strPaths,
-      //rel[loc, PathRole, loc] paths,
+      rel[loc, PathRole, loc] paths,
       map[str, Module] parseTrees,
       list[str] parseTreeLIFO,
       map[str, TModel] tmodels,
@@ -100,7 +100,7 @@ data ModuleStatus =
       RascalCompilerConfig compilerConfig
    );
 
-ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, /*{},*/ (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
+ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
 
 bool isModuleLocationInLibs(str mname, loc l, PathConfig pcfg){
     res = l.extension == "tpl" || !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
@@ -216,7 +216,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             try {
                 pt = parseModuleWithSpaces(mloc).top;
                 ms.parseTrees[qualifiedModuleName] = pt;
-                ms.moduleLocs[qualifiedModuleName] = getLoc(pt).top;
+                ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
                 ms.status[qualifiedModuleName] += parsed();
                 return <true, pt, ms>;
             } catch _: {//ParseError(loc src): {
@@ -230,6 +230,12 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
         ms.parseTrees[qualifiedModuleName] = mpt;
         return <false, mpt, ms>;
    }
+}
+
+loc getRascalModuleLocation(str qualifiedModuleName, ModuleStatus ms){
+    return qualifiedModuleName in ms.moduleLocs 
+           ? ms.moduleLocs[qualifiedModuleName] 
+           : getRascalModuleLocation(qualifiedModuleName, ms.pathConfig);
 }
 
 /*
@@ -349,6 +355,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         tm = ms.tmodels[qualifiedModuleName];
         if(convert && !tm.usesPhysicalLocs){
             tm = convertTModel2PhysicalLocs(tm);
+            ms.moduleLocs += tm.moduleLocs;
             ms.tmodels[qualifiedModuleName] = tm;
         }
         return <true, tm, ms>;
@@ -363,7 +370,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
-                //tm.usesPhysicalLocs = false; // temporary
+                tm.usesPhysicalLocs = false; // temporary
                 if(convert){
                     tm = convertTModel2PhysicalLocs(tm);
                 }
@@ -403,12 +410,48 @@ rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] str
     paths = {};
     for(<str from, PathRole r, str to> <- strPaths){
         try {
-            mfrom = ms.moduleLocs[from] ? getRascalModuleLocation(from, ms.pathConfig);
-            mto = ms.moduleLocs[to] ? getRascalModuleLocation(to, ms.pathConfig);;
+            mfrom = getRascalModuleLocation(from, ms);
+            mto = getRascalModuleLocation(to, ms);
             paths += <mfrom, r, mto>;
         } catch _: println("getPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
     }
     return paths;
+}
+
+void validateModuleStatus(ModuleStatus ms){
+    validateModuleLocations(ms);
+    validatePaths(ms);
+    // more to come ...
+}
+
+void validateModuleLocations(ModuleStatus ms){
+    for(mname <- domain(ms.moduleLocs)){
+        l = ms.moduleLocs[mname];
+        if(!(l.length?)){
+            throw "ms.moduleLocs[<mname>] = <l> has no length info";
+        }
+    }
+}
+
+void validatePaths(ModuleStatus ms){
+    locs = {l | /loc l := ms.paths};
+    lprops = ();
+    for(l <- locs){
+        if(!(l.begin?)){
+            throw "*** <l> has no begin";
+        }
+        if(l.top in lprops && lprops[l.top] != l){
+            throw "*** Different locs versions: <l>, <lprops[l.top]>";
+        }
+        lprops[l.top] = l;
+    }
+
+    strPaths = getStrPaths(ms.paths, ms.pathConfig);
+    if(strPaths != ms.strPaths){
+        println("ms.strPaths:"); iprintln(ms.strPath);
+        println("ms.paths:"); iprintln(ms.paths);
+        throw "ms.strPaths and ms.paths are incompatible";
+    }
 }
 
 int closureCounter = 0;
