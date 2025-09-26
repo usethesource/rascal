@@ -95,6 +95,7 @@ public class GlobalEnvironment {
 	 */
 	public ModuleEnvironment addModule(ModuleEnvironment mod) {
 		assert mod != null;
+		clearLookupChaches();
 		ModuleEnvironment env = moduleEnvironment.get(mod.getName());
 		if (env == null) {
 			moduleEnvironment.put(mod.getName(), mod);
@@ -111,6 +112,7 @@ public class GlobalEnvironment {
 	public ModuleEnvironment resetModule(String name) {
 		ModuleEnvironment mod = moduleEnvironment.get(name);
 		mod.reset();
+		clearLookupChaches();
 		return mod;
 	}
 		
@@ -243,8 +245,6 @@ public class GlobalEnvironment {
 	}
 
 	public void clearLookupChaches() {
-		for (var mod: moduleEnvironment.values()) {
-			mod.clearLookupCaches();
-		}
+		moduleEnvironment.values().forEach(ModuleEnvironment::clearLookupCaches);
 	}
 }

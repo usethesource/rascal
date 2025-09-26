@@ -344,6 +344,8 @@ public class ModuleEnvironment extends Environment {
 		assert heap.getModule(name).equals(env);
 		importedModules.put(name, Optional.ofNullable(env));
 		typeStore.importStore(env.typeStore);
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 
 	void removeModule(String name) {
@@ -357,6 +359,8 @@ public class ModuleEnvironment extends Environment {
 			extended = new HashSet<String>();
 		}
 		extended.add(name);
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	public List<AbstractFunction> getTests() {
@@ -555,12 +559,12 @@ public class ModuleEnvironment extends Environment {
 		}
 		return cachedPublicFunctions.computeIfAbsent(name, n -> {
 			var result = new ArrayList<AbstractFunction>();
-			super.getAllFunctions(name, result);
+			super.getAllFunctions(n, result);
 			
 			for (ModuleEnvironment mod : importedModulesResolved) {
 				
 				if (mod != null) {
-				mod.getLocalPublicFunctions(name, result);
+					mod.getLocalPublicFunctions(n, result);
 				}
 			}
 			return result;
