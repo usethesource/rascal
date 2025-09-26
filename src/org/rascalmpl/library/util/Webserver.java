@@ -1,9 +1,7 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,12 +10,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -57,6 +56,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -326,21 +326,55 @@ public class Webserver {
                 }
             }
 
+            final class EncodedWriter extends Writer {
+                ByteBuffer buf;
+                private final CharsetEncoder enc;
+
+                public EncodedWriter(Charset cs, int strLength) {
+                    enc = cs.newEncoder();
+                    buf = ByteBuffer.allocate((int)(strLength * enc.averageBytesPerChar()));
+                }
+
+                private void writeBuffer(CharBuffer chars, boolean endOfInput) {
+                    while ((chars.hasRemaining() || endOfInput) && enc.encode(chars, buf, endOfInput) == CoderResult.OVERFLOW) {
+                        // grow the buffer to make some room
+                        var newBuf = ByteBuffer.allocate(buf.capacity() * 2);
+                        buf.flip();
+                        // copy the already written bytes
+                        newBuf.put(buf);
+                        buf = newBuf;
+                    }
+                }
+
+                @Override
+                public void write(char[] cbuf, int off, int len) throws IOException {
+                    writeBuffer(CharBuffer.wrap(cbuf, off, len), false);
+                }
+
+                @Override
+                public void write(String str, int off, int len) throws IOException {
+                    writeBuffer(CharBuffer.wrap(str, off, len), false);
+                }
+
+                @Override
+                public void flush() throws IOException {
+                }
+
+                @Override
+                public void close() throws IOException {
+                    writeBuffer(CharBuffer.allocate(0), true);
+                }
+            }
+
             private InputStream toInputStream(IString data, Charset encoding) throws IOException {
                 // get the characters on the line with the least amount of copying
-                CharArrayWriter w = new CharArrayWriter(data.length());
-
-                // that's the single copy
-                data.write(w);
-
-                // this just wraps the array from the CharArrayWriter
-                ByteBuffer byteBuffer = StandardCharsets
-                    .UTF_8.newEncoder()
-                    .encode(CharBuffer.wrap(w.toCharArray()));
-
-                // here we stream directly from the encoded bytebuffer's result, but we buffer it at the 
-                // buffer size that NanoHTTPD likes
-                return new BufferedInputStream(new ByteArrayInputStream(byteBuffer.array(), 0, byteBuffer.limit()), 32 * 1024);
+                var writer = new EncodedWriter(encoding, data.length());
+                try {
+                    data.write(writer);
+                } finally {
+                    writer.close();
+                }
+                return new ByteBufferInputStream(writer.buf.flip());
             }
 
             private void addHeaders(Response response, IMap header) {
