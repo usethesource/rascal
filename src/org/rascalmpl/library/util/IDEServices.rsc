@@ -11,7 +11,7 @@ java void browse(loc uri, str title = "<uri>", int viewColumn=1);
 
 @synopsis{Open an editor for file at a given location.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void edit(loc uri);
+java void edit(loc uri, int viewColumn = 1);
 
 @synopsis{Let the IDE apply a list of document edits.}
 @description{
