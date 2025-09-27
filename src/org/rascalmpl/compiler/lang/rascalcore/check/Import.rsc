@@ -54,53 +54,90 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-// private str getRascalModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
-//     if(moduleStrs[mloc]? ){
-//         return moduleStrs[mloc];
-//     }
-//     return getRascalModuleName(mloc, pcfg);
-// }
+ModuleStatus reportSelfImport(rel[str from, PathRole r, str to] strPaths, ModuleStatus ms){
+    for(<from, importPath(), from> <- strPaths){
+        mloc = getRascalModuleLocation(from, ms.pathConfig);
+        ms.messages[from] = (ms.messages[from] ? {}) + error("Self import not allowed", mloc);
+        ms.status[from] += check_error();
+    }
+    return ms;
+}
+
+ModuleStatus reportCycles(rel[str from,PathRole r, str to] strPaths, rel[str,str] extendPlus, ModuleStatus ms){
+    extendCycle = { m | <m, m> <- extendPlus };
+    if(size(extendCycle) > 0){
+        for(mname <- extendCycle){
+            mloc = getRascalModuleLocation(mname, ms.pathConfig);
+            ms.messages[mname] = (ms.messages[mname] ? {}) + error("Extend cycle not allowed: {<intercalate(", ", toList(extendCycle))>}", mloc);
+            ms.status[mname] += check_error();
+        }
+    }       
+    strPathsPlus = {<from, to> | <from, _, to> <- strPaths}+;
+    
+    cyclicMixed = { m1, m2 
+                  | <m1, m2> <- strPathsPlus,
+                    (  <m1, importPath(), m2> in strPaths && <m2, extendPath(), m1> in strPaths
+                    || <m1, extendPath(), m2> in strPaths && <m2, importPath(), m1> in strPaths
+                    )
+                  };
+
+    for(mname <- cyclicMixed){
+        set[str] cycle = { m2 |  <m1, m2> <- strPathsPlus, m1 == mname, m2 in cyclicMixed } +
+                         { m1 |  <m1, m2> <- strPathsPlus, m2 == mname , m1 in cyclicMixed };
+        if(size(cycle) > 1){
+            mloc = getRascalModuleLocation(mname, ms.pathConfig);
+            ms.messages[mname] = (ms.messages[mname] ? {}) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+            ms.status[mname] += check_error();
+        }
+    }
+    return ms;
+}
+
+rel[str from, PathRole r, str to] getStrPaths(rel[loc from, PathRole r, loc to] paths, PathConfig pcfg){
+    strPaths = {};
+    for(<loc from, PathRole r, loc to> <- paths){
+        try {
+            mfrom = getRascalModuleName(from, pcfg);
+            mto = getRascalModuleName(to, pcfg);
+            strPaths += <mfrom, r, mto>;
+        } catch _: println("getStrPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+    }
+    return strPaths;
+}
+
+rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] strPaths, ModuleStatus ms){
+    paths = {};
+    for(<str from, PathRole r, str to> <- strPaths){
+        try {
+            mfrom = ms.moduleLocs[from] ? getRascalModuleLocation(from, ms.pathConfig);
+            mto = ms.moduleLocs[to] ? getRascalModuleLocation(to, ms.pathConfig);;
+            paths += <mfrom, r, mto>;
+        } catch _: println("getPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+    }
+    return paths;
+}
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
-    //moduleStrs = invertUnique(ms.moduleLocs);
-    paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
-    extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
+    
+    // Create strPaths from ms.paths
+    strPaths = ms.strPaths; //getStrPaths(ms.paths, pcfg);
 
-    paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
+    ms = reportSelfImport(strPaths, ms);
 
-    pathsPlus = {<from, to> | <from, _, to> <- paths}+;
+    extendPlus = {<from, to> | <from, extendPath(), to> <- strPaths}+;
+    strPaths += { <from, extendPath(), to> | <from, to> <- extendPlus };
 
-    cyclicMixed = { mloc1, mloc2 
-                  | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
-                    (  <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
-                    || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths
-                    )
-                  };
+    ms = reportCycles(strPaths, extendPlus, ms);
+    
+    strPaths += { *{<c, importPath(), a>| a <- extendPlus[b]} | < c, importPath(), b> <- strPaths };
 
-    for(mloc <- cyclicMixed){
-        set[str] cycle = { getRascalModuleName(mloc2, /*moduleStrs,*/ pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
-                         { getRascalModuleName(mloc1, /*moduleStrs,*/ pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
-        if(size(cycle) > 1){
-            mname = getRascalModuleName(mloc, /*moduleStrs,*/ pcfg);
-            ms.messages[mname] = (ms.messages[mname] ? {}) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
-        }
-    }
-     paths += { *{<c, importPath(), a>| a <- extendPlus[b]} | < c, importPath(), b> <- paths };
-    //paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
-
-    ms.paths = paths;
-
-   strPaths = {};
-    for(<loc from, PathRole r, loc to> <- paths){
-        try {
-            mfrom = getRascalModuleName(from, /*moduleStrs,*/ pcfg);
-            mto = getRascalModuleName(to, /*moduleStrs,*/ pcfg);
-            strPaths += <mfrom, r, mto >;
-        } catch _: ;/* ignore non-existing module */
-    }
     ms.strPaths = strPaths;
+
+    // sync ms.paths back with ms.strPaths
+    //ms.paths = getPaths(strPaths, ms);
+    println("completeModuleStatus:"); iprintln(strPaths);
     return ms;
 }
 
@@ -117,7 +154,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConf
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
-//println("getImportAndExtendGraph: <qualifiedModuleName>");
+    //println("getImportAndExtendGraph: <qualifiedModuleName>"); 
     pcfg = ms.pathConfig;
     qualifiedModuleName = unescape(qualifiedModuleName);
 
@@ -132,7 +169,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-        ms.paths = tm.paths;
+        //ms.paths += tm.paths;
+        //ms.strPaths += getStrPaths(tm.paths, pcfg); //<<<<
+        //assert PathsAreEquivalent(ms);
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -206,15 +245,16 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(allImportsAndExtendsValid){
             ms.status[qualifiedModuleName] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
             ms.moduleLocs += tm.moduleLocs;
-            ms.paths += tm.paths;
+            //ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
+            //assert PathsAreEquivalent(ms);
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
             ms.messages[qualifiedModuleName] ? {} += toSet(tm.messages);
             for(<imp, pr> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
                 ms.status[imp] -= tpl_saved();
                 ms = getImportAndExtendGraph(imp, ms);
             }
-            return ms;
+            return completeModuleStatus(ms);
          }
     }
 
@@ -242,7 +282,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     visit(pt){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
-            ms.moduleLocs[qualifiedModuleName] = getLoc(m);
+            ms.moduleLocs[qualifiedModuleName] = getLoc(m).top;
             <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
         }
     }
@@ -328,15 +368,17 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         iname = unescape("<imod.\module.name>");
         imports_and_extends += <moduleName, imod is \default ? importPath() : extendPath(), iname>;
         ms.status[iname] = ms.status[iname] ? {};
-        try {
-            mloc = getRascalModuleLocation(iname, ms.pathConfig);
-         } catch str msg: {
-            err = error("Cannot get location for <iname>: <msg>", imod@\loc);
-            ms.messages[moduleName] ? {} += { err };
-            ms.status[iname] += { rsc_not_found() };
-         }
+        // try {
+        //     mloc = getRascalModuleLocation(iname, ms.pathConfig);
+        //     ms.paths += {<m@\loc, imod is \default ? importPath() : extendPath(), mloc>};
+        //  } catch str msg: {
+        //     err = error("Cannot get location for <iname>: <msg>", imod@\loc);
+        //     ms.messages[moduleName] ? {} += { err };
+        //     ms.status[iname] += { rsc_not_found() };
+        //  }
     }
     ms.strPaths += imports_and_extends;
+    //assert PathsAreEquivalent(ms);
     return <ms, imports_and_extends>;
 }
 
@@ -378,6 +420,7 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
             return <(m: tmodel(modelName=m,messages=toList(ms.messages[m]))), ms>;
         }
     }
+    tm.paths = visit(tm.paths){ case loc l => l.top }; // redundant?
     transient_tms = (m : tm | m <- component);
     org_tm = tm;
     for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
@@ -435,7 +478,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         TModel m1 = tmodel();
         m1.rascalTplVersion = compilerConfig.rascalTplVersion;
         m1.modelName = qualifiedModuleName;
-        m1.moduleLocs = (qualifiedModuleName : mscope);
+        m1.moduleLocs = (qualifiedModuleName : mscope.top);
 
         m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key));
 
@@ -501,6 +544,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.usesPhysicalLocs = true;
         ms.status[qualifiedModuleName] -= {tpl_saved()};
         ms = addTModel(qualifiedModuleName, m1, ms);
+        println("added tmodel for <qualifiedModuleName>:"); iprintln(m1);
     }
     return ms;
 }
