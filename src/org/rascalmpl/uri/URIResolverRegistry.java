@@ -26,8 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;

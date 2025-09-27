@@ -220,3 +220,9 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 
 private bool same(Symbol x, Symbol ref) = striprec(x) == striprec(ref);
+
+private Symbol striprec(Symbol x) = visit(x) { case Symbol s => strip(s) };
+
+private Symbol strip(label(_, Symbol s)) = strip(s);
+private Symbol strip(conditional(Symbol s, _)) = strip(s);
+default Symbol strip(Symbol s) = s;
