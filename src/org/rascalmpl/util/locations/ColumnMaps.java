@@ -31,10 +31,10 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.util.Func;
 import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -47,7 +47,7 @@ public class ColumnMaps {
     private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
     private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> activeWatches = new ConcurrentHashMap<>();
 
-    public ColumnMaps(Function<ISourceLocation, String> getContents) {
+    public ColumnMaps(Func<ISourceLocation, String, IOException> getContents) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()
@@ -59,9 +59,9 @@ public class ColumnMaps {
                 }
             })
             .build(l -> {
-                var result = ArrayLineOffsetMap.build(getContents.apply(l));
+                String contents = getContents.apply(l);
                 watch(l);
-                return result;
+                return ArrayLineOffsetMap.build(contents);
             });
     }
 
@@ -91,7 +91,11 @@ public class ColumnMaps {
     }
 
     public LineColumnOffsetMap get(ISourceLocation sloc) {
-        return currentEntries.get(sloc.top());
+        LineColumnOffsetMap map = currentEntries.get(sloc.top());
+        if (map == null) {
+            throw new RuntimeException("Location could not be read: " + sloc);
+        }
+        return map;
     }
 
     public void clear(ISourceLocation sloc) {
