@@ -83,7 +83,7 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
-  public void edit(ISourceLocation loc) {
+  public void edit(ISourceLocation loc, int viewColumn) {
     try {
       loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
       
