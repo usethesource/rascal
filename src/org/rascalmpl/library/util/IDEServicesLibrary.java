@@ -41,8 +41,8 @@ public class IDEServicesLibrary {
         services.browse(uri.getURI(), title.getValue(), viewColumn.intValue());
     }
 
-    public void edit(ISourceLocation path) {
-        services.edit(path);
+    public void edit(ISourceLocation path, IInteger viewColumn) {
+        services.edit(path, viewColumn.intValue());
     }
 
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
