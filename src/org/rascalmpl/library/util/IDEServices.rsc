@@ -12,7 +12,7 @@ However, this depends on the current IDE context. Some editors do not support th
 A browser window for the OS default browser will be started instead.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void browse(loc uri, str title = "<uri>", ViewColumn viewColumn = activeViewColumn());
+java void browse(loc uri, str title = "<uri>", ViewColumn viewColumn = normalViewColumn(1));
 
 @synopsis{Open an editor for file at a given location.}
 @description{
