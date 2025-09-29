@@ -372,6 +372,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         constructorDeclaredListeners.clear();
+        getHeap().clearLookupChaches();
     }
 
     @Override
