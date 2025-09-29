@@ -86,7 +86,7 @@ ModuleStatus reportCycles(rel[loc from,PathRole r, loc to] paths, rel[loc,loc] e
         if(size(cycle) > 0){
             mname = getRascalModuleName(mloc, ms.pathConfig);
             ms.messages[mname] ? {} += { error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc) };
-            ms.status[mname] += check_error();
+            ms.status[mname] ? {} += {check_error()};
         }
     }
     return ms;
