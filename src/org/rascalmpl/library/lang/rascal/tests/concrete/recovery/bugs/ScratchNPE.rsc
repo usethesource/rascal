@@ -2,6 +2,7 @@ module lang::rascal::tests::concrete::recovery::bugs::ScratchNPE
 
 import ParseTree;
 import util::ParseErrorRecovery;
+import Exception;
 
 start syntax Ambiguous
     = "foo"
@@ -22,6 +23,5 @@ void testFoo() {
     assert ambExceptionThrown : "Ambiguity exception should have been thrown";
 
     Tree t = parse(#Ambiguous, "foo", allowRecovery=true, allowAmbiguity=true);
-    assert amb({t1,t2}) := t;
+    assert amb({_,_}) := t;
 }
-
