@@ -372,6 +372,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         constructorDeclaredListeners.clear();
+        getHeap().clearLookupChaches();
     }
 
     @Override
@@ -1852,9 +1853,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void edit(ISourceLocation path) {
+        public void edit(ISourceLocation path, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).edit(path);
+                ((IDEServices) monitor).edit(path, viewColumn);
             }
             else {
                 return;
