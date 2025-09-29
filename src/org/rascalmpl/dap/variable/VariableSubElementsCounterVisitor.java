@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.dap.variable;
 
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.*;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
@@ -96,6 +99,10 @@ public class VariableSubElementsCounterVisitor implements IValueVisitor<Variable
 
     @Override
     public VariableSubElementsCounter visitExternal(IExternalValue externalValue) throws RuntimeException {
+        if (externalValue.getType() instanceof NonTerminalType) {
+            return new VariableSubElementsCounter(0, ((ITree)externalValue).arity());
+
+        }
         return new VariableSubElementsCounter(0, 0);
     }
 
