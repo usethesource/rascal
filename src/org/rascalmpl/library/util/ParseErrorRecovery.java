@@ -177,7 +177,7 @@ public class ParseErrorRecovery {
 
         if (altsWithoutErrorsCount > 1 && !allowAmbiguity) {
             // We have an ambiguity between non-error trees
-            ITree resultTree = buildTree ? resultTree = rascalValues.amb(alternativesWithoutErrors.done()) : amb;
+            ITree resultTree = buildTree ? rascalValues.amb(alternativesWithoutErrors.done()) : amb;
             throw new Ambiguous(resultTree);
         }
 
