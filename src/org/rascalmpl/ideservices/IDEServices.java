@@ -49,7 +49,7 @@ public interface IDEServices extends IRascalMonitor {
   void edit(ISourceLocation path, int viewColumn);
 
   default void edit(ISourceLocation path) {
-    edit(path, 1);
+    edit(path, -1 /* should be the same as the default in IDEServices.rsc::edit */);
   }
 
   /**
