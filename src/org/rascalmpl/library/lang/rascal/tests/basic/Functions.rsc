@@ -612,3 +612,15 @@ int fun_with_clone(int n){
 }
 
 test bool noCodeClone() = fun_with_clone(3) == 6;
+
+
+
+test bool javaFunctionsKeepLabels() {
+    lrel[int a, int b] abs = [<3,4>,<1,2>];
+    return sort(abs).a == [1,3];
+}
+
+alias Entry = tuple[int a, int b];
+test bool javaFunctionsLaterBindings() {
+    return sort([<3,4>,<1,2>], bool (Entry left, Entry right) { return left.a < right.a; }).a == [1,3];
+}
