@@ -47,6 +47,7 @@ import org.rascalmpl.dap.variable.RascalVariable;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -64,6 +65,7 @@ import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
@@ -151,25 +153,37 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
             SetBreakpointsResponse response = new SetBreakpointsResponse();
+            response.setBreakpoints(new Breakpoint[0]);
             String extension = args.getSource().getName().substring(args.getSource().getName().lastIndexOf('.') + 1);
             if (!extension.equals("rsc")) {
-                response.setBreakpoints(new Breakpoint[0]);
                 return response;
             }
             ISourceLocation loc = getLocationFromPath(args.getSource().getPath());
             if(loc == null){
-                response.setBreakpoints(new Breakpoint[0]);
                 return response;
             }
+
+            var reg = URIResolverRegistry.getInstance();
+            if (!reg.exists(loc)) {
+                return response;
+            }
+
+            var cannotSetMsg = String.format("Cannot set breakpoint%s", args.getBreakpoints().length > 1 ? "s" : "");
 
             ITree parseTree;
             try {
                 parseTree = Reflective.parseModuleWithSpaces(loc);
             } catch (Throw t) {
-                services.warning("Cannot set breakpoint(s): " + t.getMessage(), loc);
+                if (t.getException().getType().isConstructor()) {
+                    var e = (IConstructor) t.getException();
+                    var et = e.getConstructorType();
+                    if (et != RuntimeExceptionFactory.IO) {
+                        services.warning(String.format("%s: %s", cannotSetMsg, t.getMessage()), loc);
+                    }
+                }
                 return response;
             } catch (ParseError e) {
-                services.warning("Cannot set breakpoint(s): " + e.toString(), loc);
+                services.warning(String.format("%s: %s", cannotSetMsg, e.getMessage()), loc);
                 return response;
             }
             breakpointsCollection.clearBreakpointsOfFile(loc.getPath());
