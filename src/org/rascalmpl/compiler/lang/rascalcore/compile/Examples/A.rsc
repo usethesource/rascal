@@ -26,4 +26,4 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
  
-import   lang::rascalcore::compile::Examples::A;                
+extend   lang::rascalcore::compile::Examples::B;                

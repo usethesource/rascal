@@ -24,6 +24,4 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module  lang::rascalcore::compile::Examples::C      
-import lang::rascalcore::compile::Examples::B;		
-D x = d1();
+module  lang::rascalcore::compile::Examples::C
