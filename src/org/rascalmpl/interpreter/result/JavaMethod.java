@@ -128,7 +128,7 @@ public class JavaMethod extends NamedFunction {
 			return resultValue;
 		}
 		if (hasVarArgs) {
-            actuals = computeVarArgsActuals(actuals, formals);
+			actuals = computeVarArgsActuals(actuals, formals);
 			actualStaticTypes = computeVarArgsStaticTypes(actualStaticTypes);
 		}
 
@@ -226,9 +226,9 @@ public class JavaMethod extends NamedFunction {
 	}
 
 	private Type[] fastRenameType(Type[] actualStaticTypes, Map<Type, Type> renamings, ISourceLocation uniquePrefix) {
-		var result = Arrays.copyOf(actualStaticTypes, actualStaticTypes.length);
+		var result = new Type[actualStaticTypes.length];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = renameType(result[i], renamings, uniquePrefix);
+			result[i] = renameType(actualStaticTypes[i], renamings, uniquePrefix);
 		}
 		return result;
 	}
