@@ -149,6 +149,7 @@ public class ParseErrorRecovery {
         ISetWriter alternativesWithoutErrors = null;
 
         ScoredTree errorAltWithBestScore = null;
+        int altsWithoutErrorsCount  = 0;
         for (IValue alt : originalAlts) {
             ScoredTree disambiguatedAlt = disambiguate((IConstructor) alt, allowAmbiguity, buildTree, processedTrees);
             if (disambiguatedAlt.hasErrors) {
@@ -158,30 +159,40 @@ public class ParseErrorRecovery {
                 }
             } else {
                 // Non-error tree
-                if (alternativesWithoutErrors == null) {
-                    alternativesWithoutErrors = rascalValues.setWriter();
+                altsWithoutErrorsCount++;
+                if (buildTree) {
+                    if (alternativesWithoutErrors == null) {
+                        alternativesWithoutErrors = rascalValues.setWriter();
+                    }
+                    if (disambiguatedAlt.tree == null) {
+                        throw new RuntimeException("null alt");
+                    }
+                    alternativesWithoutErrors.insert(disambiguatedAlt.tree);
                 }
-                alternativesWithoutErrors.insert(disambiguatedAlt.tree);
             }
         }
 
-        if (alternativesWithoutErrors == null) {
+        if (altsWithoutErrorsCount == 0) {
             assert errorAltWithBestScore != null : "No trees with and no trees without errors?";
             processedTrees.put(amb, errorAltWithBestScore);
             return errorAltWithBestScore;
         }
 
-        ISet remainingAlts = alternativesWithoutErrors.done();
-
-        ITree resultTree = null;
-
-        if (remainingAlts.size() > 1 && !allowAmbiguity) {
+        if (altsWithoutErrorsCount > 1 && !allowAmbiguity) {
             // We have an ambiguity between non-error trees
-            resultTree = rascalValues.amb(remainingAlts);
+            ITree resultTree = null;
+            if (buildTree) {
+                ISet remainingAlts = alternativesWithoutErrors.done();
+                resultTree = rascalValues.amb(remainingAlts);
+            } else {
+                resultTree = amb; // Tree is not needed, just reuse the input amb
+            }
             throw new Ambiguous(resultTree);
         }
 
+        ITree resultTree = null;
         if (buildTree) {
+            ISet remainingAlts = alternativesWithoutErrors.done();
             if (remainingAlts.size() == originalAlts.size()) {
                 // All children are without errors, return the original tree
                 resultTree = amb;
