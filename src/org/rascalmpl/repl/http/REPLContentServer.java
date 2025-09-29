@@ -253,20 +253,7 @@ public class REPLContentServer extends NanoHTTPD {
     }
 
     private static InputStream toInputStream(IString data, Charset encoding) throws IOException {
-        // get the characters on the line with the least amount of copying
-        CharArrayWriter w = new CharArrayWriter(data.length());
-
-        // that's the single copy
-        data.write(w);
-
-        // this just wraps the array from the CharArrayWriter
-        ByteBuffer byteBuffer = StandardCharsets
-            .UTF_8.newEncoder()
-            .encode(CharBuffer.wrap(w.toCharArray()));
-
-        // here we stream directly from the encoded bytebuffer's result, but we buffer it at the 
-        // buffer size that NanoHTTPD likes
-        return new BufferedInputStream(new ByteArrayInputStream(byteBuffer.array(), 0, byteBuffer.limit()), 32 * 1024);
+        return new ByteArrayInputStream(data.getValue().getBytes(encoding));
     }
 
     private static void addHeaders(Response response, IMap header) {
