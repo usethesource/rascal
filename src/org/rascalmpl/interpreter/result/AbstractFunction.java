@@ -402,8 +402,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
             Type key = entry.getKey();
             renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + uniquePrefix, key.getBound()));
         }
-        actualTypes = actualTypes.instantiate(renamings);
-        return actualTypes;
+        return actualTypes.instantiate(renamings);
     }	
 	
 	protected IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
