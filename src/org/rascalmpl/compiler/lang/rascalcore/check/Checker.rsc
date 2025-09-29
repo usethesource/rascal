@@ -426,11 +426,11 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     map[str, Module] namedTrees = ();
     for(str nm <- moduleNames){
         ms.status[nm] = {};
-        ms.messages[nm] = {};
+        //ms.messages[nm] = {};
         ms = removeTModel(nm, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
-            mloc = getRascalModuleLocation(nm, pcfg);
+            mloc = getRascalModuleLocation(nm, ms);
         } catch e: {
             err = error("Cannot get location for <nm>: <e>", mloc);
             ms.messages[nm] = { err };
@@ -486,7 +486,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         }
         tm.usesPhysicalLocs = true;
         for(mname <- moduleNames){
-            ms.messages[mname] = toSet(tm.messages);
+            ms.messages[mname] ? {} += toSet(tm.messages);
         }
         //iprintln(tm.messages);
 
@@ -500,6 +500,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         return <tm, ms>;
     }
 }
+
+
 
 // ---- rascalTModelForName a checker version that works on module names
 
@@ -568,7 +570,7 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
 
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
     moduleNames = domain(ms.moduleLocs);
-    messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, mname notin moduleNames} + toSet(ms.pathConfig.messages);
+    messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, (mname notin moduleNames || mname notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
     return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
 }
 

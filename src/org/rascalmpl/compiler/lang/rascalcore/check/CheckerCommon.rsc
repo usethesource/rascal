@@ -199,7 +199,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
-                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, ms);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
@@ -214,10 +214,14 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             }
             if(traceParseTreeCache) println("*** parsing <qualifiedModuleName> from <mloc>");
             try {
-                pt = parseModuleWithSpaces(mloc).top;
+                pt = parseModuleWithSpaces(mloc.top).top;
                 ms.parseTrees[qualifiedModuleName] = pt;
-                ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
-                ms.status[qualifiedModuleName] += parsed();
+                newLoc = getLoc(pt);
+                if(qualifiedModuleName in ms.moduleLocs){
+                    ms = updatePaths(ms.moduleLocs[qualifiedModuleName], newLoc, ms);
+                }
+                ms.moduleLocs[qualifiedModuleName] = newLoc;
+                ms.status[qualifiedModuleName] ? {} += {parsed()};
                 return <true, pt, ms>;
             } catch _: {//ParseError(loc src): {
                 ms.messages[qualifiedModuleName] ? {} = {error("Parse error in <qualifiedModuleName>", mloc)};
@@ -375,7 +379,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                     tm = convertTModel2PhysicalLocs(tm);
                 }
                 ms.tmodels[qualifiedModuleName] = tm;
-                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, ms);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
                     ms.status[qualifiedModuleName] ? {} += {rsc_not_found()};
                 }
@@ -401,7 +405,7 @@ rel[str from, PathRole r, str to] getStrPaths(rel[loc from, PathRole r, loc to] 
             mfrom = getRascalModuleName(from, pcfg);
             mto = getRascalModuleName(to, pcfg);
             strPaths += <mfrom, r, mto>;
-        } catch _: println("getStrPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+        } catch _: ;/* ignore non-existing module */
     }
     return strPaths;
 }
@@ -413,45 +417,51 @@ rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] str
             mfrom = getRascalModuleLocation(from, ms);
             mto = getRascalModuleLocation(to, ms);
             paths += <mfrom, r, mto>;
-        } catch _: println("getPaths: PROBLEM WITH <from> or <to>");/* ignore non-existing module */
+        } catch e: ;/* ignore non-existing module */
     }
     return paths;
 }
 
-void validateModuleStatus(ModuleStatus ms){
-    validateModuleLocations(ms);
-    validatePaths(ms);
+// Update locations in paths when new module locations is known
+ModuleStatus updatePaths(loc oldModuleLoc, newModuleLoc, ModuleStatus ms){
+    if(oldModuleLoc == newModuleLoc) return ms;
+    ms.paths = visit(ms.paths){ case oldModuleLoc => newModuleLoc };
+    return ms;
+}
+
+ModuleStatus validateModuleStatus(ModuleStatus ms){
+    ms = validatePaths(ms);
     // more to come ...
+    return ms;
 }
 
-void validateModuleLocations(ModuleStatus ms){
-    for(mname <- domain(ms.moduleLocs)){
-        l = ms.moduleLocs[mname];
-        if(!(l.length?)){
-            throw "ms.moduleLocs[<mname>] = <l> has no length info";
-        }
-    }
-}
-
-void validatePaths(ModuleStatus ms){
+ModuleStatus validatePaths(ModuleStatus ms){
     locs = {l | /loc l := ms.paths};
     lprops = ();
+    paths = ms.paths;
     for(l <- locs){
-        if(!(l.begin?)){
-            throw "*** <l> has no begin";
-        }
-        if(l.top in lprops && lprops[l.top] != l){
-            throw "*** Different locs versions: <l>, <lprops[l.top]>";
+        if(l.top in lprops && r := lprops[l.top] &&r != l){
+            if(l.length? && !r.length?){
+                paths = visit(paths) { case r => l };
+            } else if(!l.length? && r.length?){
+                paths = visit(paths) { case l => r };
+            } else {
+                mname = getRascalModuleName(l, ms.pathConfig);
+                causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];
+                ms.messages[mname] += error("Conflicting module locations found: <l> and <r>", l, causes=causes);
+            }
         }
         lprops[l.top] = l;
     }
+    ms.paths = paths;
 
-    strPaths = getStrPaths(ms.paths, ms.pathConfig);
-    if(strPaths != ms.strPaths){
-        println("ms.strPaths:"); iprintln(ms.strPath);
-        println("ms.paths:"); iprintln(ms.paths);
-        throw "ms.strPaths and ms.paths are incompatible";
-    }
+    // strPaths = getStrPaths(ms.paths, ms.pathConfig);
+    // if(strPaths != ms.strPaths){
+    //     println("ms.strPaths:"); iprintln(ms.strPaths);
+    //     println("ms.paths:"); iprintln(ms.paths);
+    //     throw "ms.strPaths and ms.paths are incompatible";
+    // }
+    return ms;
 }
 
 int closureCounter = 0;
