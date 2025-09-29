@@ -67,8 +67,9 @@ ModuleStatus reportCycles(rel[loc from,PathRole r, loc to] paths, rel[loc,loc] e
     if(size(extendCycle) > 0){
         for(mloc <- extendCycle){
             mname = getRascalModuleName(mloc, ms.pathConfig);
-        ms.messages[mname] ? {} += {error("Extend cycle not allowed: {<intercalate(", ", toList(extendCycle))>}", mloc)};
-            ms.status[mname] += check_error();
+            causes = [ info("Part of extend cycle <getRascalModuleName(eloc, ms.pathConfig)>", eloc) | eloc <- extendCycle ];
+            ms.messages[mname] ? {} += {error("Extend cycle not allowed", mloc, causes=causes)};
+            ms.status[mname] ? {} += {check_error()};
         }
     }       
     pathsPlus = {<from, to> | <from, _, to> <- paths}+;
@@ -85,7 +86,9 @@ ModuleStatus reportCycles(rel[loc from,PathRole r, loc to] paths, rel[loc,loc] e
                          { mloc1 |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
         if(size(cycle) > 0){
             mname = getRascalModuleName(mloc, ms.pathConfig);
-            ms.messages[mname] ? {} += { error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc) };
+            causes = [ info("Part of mixed import/extend cycle <getRascalModuleName(eloc, ms.pathConfig)>", eloc) | eloc <- cycle ];
+
+            ms.messages[mname] ? {} += { error("Mixed import/extend cycle not allowed", mloc, causes=causes) };
             ms.status[mname] ? {} += {check_error()};
         }
     }
@@ -192,18 +195,20 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 <incompatible, ms> = isCompatibleBinaryLibrary(tm, ms);
                 if(!isEmpty(incompatible)){
+                    causes = [ info("Module <iname> is incompatible with <qualifiedModuleName>",  getRascalModuleLocation(iname, ms)) | iname <- incompatible ];
                     txt = "Review of dependencies, reconfiguration or recompilation needed: binary module `<qualifiedModuleName>` depends (indirectly) on incompatible module(s) <intercalateAnd(incompatible)>";
-                    msg = error(txt, mloc);
+                    msg = error(txt, mloc, causes=causes);
                     
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? {} += { msg };
-                    txt2 = "Review of dependencies, reconfiguration or recompilation needed: imported/extended binary module `<qualifiedModuleName>` depends (indirectly) on incompatible module(s) <intercalateAnd(incompatible)>";
+
+                    txt2 = "Review of dependencies, reconfiguration or recompilation needed: imported/extended binary module `<qualifiedModuleName>` depends (indirectly) on incompatible module(s)";
 
                     usingModules = {user | <user, qualifiedModuleName> <- ms.strPaths<0,2>*};
                     for(user <- usingModules){
                             mloc = getRascalModuleLocation(user, ms);
                             if(!isModuleLocationInLibs(user, mloc, pcfg)){
-                                msg2 = error(txt2, mloc);
+                                msg2 = error(txt2, mloc, causes=causes);
                                 ms.messages[user] ? {} += { msg2 };
                             }
                     }
