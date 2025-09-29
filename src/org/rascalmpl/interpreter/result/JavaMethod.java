@@ -161,9 +161,7 @@ public class JavaMethod extends NamedFunction {
 			Map<Type, Type> renamings = Collections.emptyMap();
 
 			if (formals.isOpen() || anyOpen(actualStaticTypes)) {
-				Map<Type, Type> dynamicRenamings = new HashMap<>();
-				renamings = new HashMap<>();
-				fastBindTypeParameters(actualStaticTypes, actuals, renamings, dynamicRenamings, env); 
+				renamings = fastBindTypeParameters(actualStaticTypes, actuals, env); 
 			}
 			
 			IValue result = invoke(oActuals);
@@ -197,17 +195,22 @@ public class JavaMethod extends NamedFunction {
 		}
 	}
 
-	private Type[] fastBindTypeParameters(Type[] actualStaticTypes, IValue[] actuals, Map<Type, Type> renamings, Map<Type, Type> dynamicRenamings, Environment env) {
+	private Map<Type, Type> fastBindTypeParameters(Type[] actualStaticTypes, IValue[] actuals,  Environment env) {
 		try {
+			Map<Type, Type> renamings;
 			if (anyOpen(actualStaticTypes)) {
 				// we have to make the environment hygenic now, because the caller scope
 				// may have the same type variable names as the current scope
+				renamings = new HashMap<>();
 				actualStaticTypes = fastRenameType(actualStaticTypes, renamings, env.getLocation());
 			}
-			Map<Type, Type> staticBindings = new HashMap<>();
+			else {
+ 				renamings = Collections.emptyMap();
+			}
 			
 			try {
 				boolean matched = true;
+				Map<Type, Type> staticBindings = new HashMap<>();
 				// we have to go reverse since we infer from right to left
 				for (int i = actuals.length -1; i >= 0; i--) {
 					matched &= formals.getFieldType(i).match(actualStaticTypes[i], staticBindings);
@@ -218,7 +221,7 @@ public class JavaMethod extends NamedFunction {
 			} catch (FactTypeUseException e) {
 			    // this can happen if static types collide
 			}
-			return actualStaticTypes;
+			return renamings;
 		}
 		catch (FactTypeUseException e) {
 			throw new UnexpectedType(formals, TF.tupleType(actualStaticTypes), ast);
