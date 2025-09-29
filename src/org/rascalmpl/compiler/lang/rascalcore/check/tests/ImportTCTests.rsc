@@ -336,7 +336,7 @@ test bool cyclic3MixedNotOk3(){
 test bool indirectExtendOk(){
 	writeModule("module A int f() = 42;");
 	writeModule("module B extend A;");
-	return unexpectedDeclarationInModule("module C extend B; int main() = f();");
+	return checkModuleOK("module C extend B; int main() = f();");
 }
 
 test bool extendWithImportCycleOK(){
