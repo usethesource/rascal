@@ -164,9 +164,6 @@ public class ParseErrorRecovery {
                     if (alternativesWithoutErrors == null) {
                         alternativesWithoutErrors = rascalValues.setWriter();
                     }
-                    if (disambiguatedAlt.tree == null) {
-                        throw new RuntimeException("null alt");
-                    }
                     alternativesWithoutErrors.insert(disambiguatedAlt.tree);
                 }
             }
@@ -180,13 +177,7 @@ public class ParseErrorRecovery {
 
         if (altsWithoutErrorsCount > 1 && !allowAmbiguity) {
             // We have an ambiguity between non-error trees
-            ITree resultTree = null;
-            if (buildTree) {
-                ISet remainingAlts = alternativesWithoutErrors.done();
-                resultTree = rascalValues.amb(remainingAlts);
-            } else {
-                resultTree = amb; // Tree is not needed, just reuse the input amb
-            }
+            ITree resultTree = buildTree ? resultTree = rascalValues.amb(alternativesWithoutErrors.done()) : amb;
             throw new Ambiguous(resultTree);
         }
 
