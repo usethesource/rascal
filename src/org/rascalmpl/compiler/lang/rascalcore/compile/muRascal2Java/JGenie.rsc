@@ -117,8 +117,6 @@ JGenie makeJGenie(MuModule m,
     TModel currentTModel = tmodels[moduleName];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
     loc currentModuleScope = moduleLocs[moduleName];
-    set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
-    rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
     str functionName = "$UNKNOWN";
     MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     

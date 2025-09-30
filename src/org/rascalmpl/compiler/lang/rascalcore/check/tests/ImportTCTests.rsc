@@ -280,13 +280,68 @@ test bool QualifiedOverloadedModuleVarOk(){
 		");
 }
 
-test bool cyclicImportOk(){
+test bool selfImportNotOK(){
+	return unexpectedDeclarationInModule("module A import A;");
+}
+
+test bool selfExtendNotOK(){
+	return unexpectedDeclarationInModule("module A extend A;");
+}
+
+test bool cyclic2ImportOk(){
 	writeModule("module A import B;");
 	return checkModuleOK("module B import A;");
 }
 
-@ignore{TODO}
-test bool cyclicExtendNotOk(){
+test bool cyclic3ImportOk(){
+	writeModule("module A import B;");
+	writeModule("module B import C;");
+	return checkModuleOK("module C import A;");
+}
+
+test bool cyclic2ExtendNotOk(){
 	writeModule("module A extend B;");
 	return unexpectedDeclarationInModule("module B extend A;");
+}
+
+test bool cyclic2MixedOk(){
+	writeModule("module A extend B;");
+	return unexpectedDeclarationInModule("module B import A;");
+}
+
+test bool cyclic3ExtendNotOk(){
+	writeModule("module A extend B;");
+	writeModule("module B extend C;");
+	return unexpectedDeclarationInModule("module C extend A;");
+}
+
+test bool cyclic3MixedNotOk1(){
+	writeModule("module A import B;");
+	writeModule("module B extend C;");
+	return unexpectedDeclarationInModule("module C extend A;");
+}
+
+test bool cyclic3MixedNotOk2(){
+	writeModule("module A extend B;");
+	writeModule("module B import C;");
+	return unexpectedDeclarationInModule("module C extend A;");
+}
+
+test bool cyclic3MixedNotOk3(){
+	writeModule("module A extend B;");
+	writeModule("module B extend C;");
+	return unexpectedDeclarationInModule("module C import A;");
+}
+
+test bool indirectExtendOk(){
+	writeModule("module A int f() = 42;");
+	writeModule("module B extend A;");
+	return checkModuleOK("module C extend B; int main() = f();");
+}
+
+test bool extendWithImportCycleOK(){
+	writeModule("module Base alias INTEGER = int;");
+	writeModule("module BaseExtended extend Base;");
+	writeModule("module A2 extend BaseExtended; import A1; INTEGER N = 0;");
+	return checkModuleOK("module A1 extend Base; import A2; INTEGER M = 1;");
 }
