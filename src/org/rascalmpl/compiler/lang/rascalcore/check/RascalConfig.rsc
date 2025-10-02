@@ -374,27 +374,6 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-private void printTuples(str header, rel[loc from, PathRole r, loc to] tuples){
-    println(header);
-    for(<loc from, PathRole r, loc to> <- tuples){
-        fname = from.path[findLast(from.path, "/")+1 ..];
-        fname = fname[.. findLast(fname, ".")];
-
-        tname = to.path[findLast(to.path, "/")+1 ..];
-        tname = tname[.. findLast(tname, ".")];
-        println("<fname> <r == importPath() ? "imports" : "extends"> <tname>");
-    }
-}
-
-private rel[loc,PathRole,loc] select(rel[loc,PathRole,loc] given){
-    lres =for(tup:<loc from, PathRole r, loc to> <- given){
-            if(contains("<tup>", "Tst1")){
-                append tup;
-            }
-        };
-    return toSet(lres);
-}
-
 // Enhance TModel before running Solver by 
 // - adding transitive edges for extend
 // - adding imports via these extends
@@ -403,9 +382,10 @@ TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
     delta = { <from, importPath(), to2> 
-            | <loc from, loc to1> <- extendPlus, 
-              <loc to1, importPath(), loc to2> <- m.paths,
-              <from, extendPath(), to2> notin m.paths
+            | <loc from, loc _to1> <- extendPlus, 
+              <loc _to1, importPath(), loc to2> <- m.paths,
+              <from, extendPath(), to2> notin m.paths, 
+              from != to2
             };
     m.paths += delta;
     return m;
@@ -416,7 +396,6 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    set[loc] actuallyUsedDefs = range(s.getUseDef());
     moduleScopes = { t@\loc | t <- range(namedTrees) };
 
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
@@ -443,7 +422,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                     r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     if(!comparable(r1, r2)){
-                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments at <d2.defined>", d1.defined) ];
+                        causes = [ info("ther declaration with comparable arguments", d2.defined) ];
+                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined, causes=causes) ];
                         s.addMessages(msgs);
                     }
 

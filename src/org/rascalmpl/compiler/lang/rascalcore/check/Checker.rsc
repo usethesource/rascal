@@ -426,11 +426,11 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     map[str, Module] namedTrees = ();
     for(str nm <- moduleNames){
         ms.status[nm] = {};
-        ms.messages[nm] = {};
+        //ms.messages[nm] = {};
         ms = removeTModel(nm, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
-            mloc = getRascalModuleLocation(nm, pcfg);
+            mloc = getRascalModuleLocation(nm, ms);
         } catch e: {
             err = error("Cannot get location for <nm>: <e>", mloc);
             ms.messages[nm] = { err };
@@ -486,7 +486,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         }
         tm.usesPhysicalLocs = true;
         for(mname <- moduleNames){
-            ms.messages[mname] = toSet(tm.messages);
+            ms.messages[mname] ? {} += toSet(tm.messages);
         }
         //iprintln(tm.messages);
 
@@ -500,6 +500,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         return <tm, ms>;
     }
 }
+
+
 
 // ---- rascalTModelForName a checker version that works on module names
 
@@ -539,11 +541,13 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
     for(candidate <- candidates){
         mname = getRascalModuleName(candidate, pcfg);
         <found, tm, ms> = getTModelForModule(mname, ms, convert=false);
-        imports_and_extends = ms.strPaths<0,2>[mname];
-        <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
-        if(!compatible){
-            return <false, ms>;
-        }
+        //if(found){
+            imports_and_extends = ms.strPaths<0,2>[mname];
+            <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
+            if(!compatible){
+                return <false, ms>;
+            }
+        //}
     }
     return <true, ms>;
 }
@@ -562,14 +566,11 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
 
     return reportModuleMessages(ms);
-    // moduleNames = domain(ms.moduleLocs);
-    // messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, mname notin moduleNames} + toSet(ms.pathConfig.messages);
-    // return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
 }
 
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
     moduleNames = domain(ms.moduleLocs);
-    messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, mname notin moduleNames} + toSet(ms.pathConfig.messages);
+    messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, (mname notin moduleNames || mname notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
     return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
 }
 
@@ -647,7 +648,6 @@ int main(
 list[ModuleMessages] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
     ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     return reportModuleMessages(ms);
-    //return  (mname : toList(msgs) | mname <- ms.messages, msgs := ms.messages[mname], !isEmpty(msgs));
 }
 
 // -- calculate rename changes

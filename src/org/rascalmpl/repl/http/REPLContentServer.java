@@ -33,15 +33,11 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.PipedReader;
-import java.io.PipedWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +45,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.function.Function;
 
-import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -253,20 +248,7 @@ public class REPLContentServer extends NanoHTTPD {
     }
 
     private static InputStream toInputStream(IString data, Charset encoding) throws IOException {
-        // get the characters on the line with the least amount of copying
-        CharArrayWriter w = new CharArrayWriter(data.length());
-
-        // that's the single copy
-        data.write(w);
-
-        // this just wraps the array from the CharArrayWriter
-        ByteBuffer byteBuffer = StandardCharsets
-            .UTF_8.newEncoder()
-            .encode(CharBuffer.wrap(w.toCharArray()));
-
-        // here we stream directly from the encoded bytebuffer's result, but we buffer it at the 
-        // buffer size that NanoHTTPD likes
-        return new BufferedInputStream(new ByteArrayInputStream(byteBuffer.array(), 0, byteBuffer.limit()), 32 * 1024);
+        return new ByteArrayInputStream(data.getValue().getBytes(encoding));
     }
 
     private static void addHeaders(Response response, IMap header) {

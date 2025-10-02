@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC67-SNAPSHOT</version>
+    <version>0.41.0-RC69-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -33,7 +33,7 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.30.0-RC29</rascal-maven.version>
-        <jline.version>3.30.6</jline.version>
+        <jline.version>3.29.0</jline.version> <!-- do not upgrade unless https://github.com/jline/jline3/issues/1445 is solved-->
     </properties>
 
     <licenses>

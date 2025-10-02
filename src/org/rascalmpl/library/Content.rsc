@@ -35,8 +35,8 @@ garbage collected after 30 minutes, you can consider wrapping the same callback 
 a webserver using the ((util::Webserver::serve)) function.
 }
 data Content 
-  = content(str id, Response (Request) callback, str title=id, int viewColumn=1)
-  | content(Response response, str title="*static content*", int viewColumn=1)
+  = content(str id, Response (Request) callback, str title = id, ViewColumn viewColumn = normalViewColumn(1))
+  | content(Response response, str title="*static content*", ViewColumn viewColumn = normalViewColumn(1))
   ;
 
 
@@ -157,3 +157,23 @@ public map[str extension, str mimeType] mimeTypes = (
         "exe" : "application/octet-stream",
         "class" : "application/octet-stream"
    );  
+
+@synopsis{Hint the IDE where to open the next web view or editor}
+@description{
+The `viewColumn`  decides where in the IDE a web client or editor is opened,
+_if_ the current IDE honors this parameter. 
+
+There are _9_ possible
+view columns: 1, 2, 3, 4, 5, 6, 7, 8, 9. 
+
+Next to this:
+* view column `-1` is converted to the _currently active_ view column before the editor is opened.
+* view column `-2` is chosen to be a view column _beside_ (to the right) of the currently active view column.
+
+All other view column integers are ignored and interpreted as `-1`.
+}
+alias ViewColumn=int;
+
+ViewColumn activeViewColumn() = -1;
+ViewColumn besideViewColumn() = -2;
+ViewColumn normalViewColumn(int v) = v when v >= 1 && v <= 9;
