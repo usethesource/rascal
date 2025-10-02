@@ -1,4 +1,5 @@
 module  lang::rascalcore::compile::Examples::D
- 
-data RuntimeException
-    = TypePalUsage(str reason)  ;
+
+import lang::rascalcore::compile::Examples::A;
+import lang::rascalcore::compile::Examples::B;
+// Foooooooooooooo

@@ -108,37 +108,47 @@ test bool fixMissingExtend(){
 
 test bool fixErrorInImport(){
     clearMemory();
-    assert checkModuleOK("module A public bool b = false;");
-    B = "module B import A; int n = b + 1;";
+    assert checkModuleOK("module A public bool a = false;");
+    B = "module B import A; int b = a + 1;";
     assert unexpectedTypeInModule(B);
-    assert checkModuleOK("module A public int b = 0;"); // change b to type int
+    assert checkModuleOK("module A public int a = 0;"); // change a to type int
     return checkModuleOK(B);
 }
 
 test bool fixErrorInExtend(){
     clearMemory();
-    assert checkModuleOK("module A bool b = false;");
-    B = "module B extend A; int n = b + 1;";
+    assert checkModuleOK("module A bool a = false;");
+    B = "module B extend A; int b = a + 1;";
     assert unexpectedTypeInModule(B);
-    assert checkModuleOK("module A int b = 0;"); // change b to type int
+    assert checkModuleOK("module A int a = 0;"); // change a to type int
     return checkModuleOK(B);
+}
+
+test bool fixErrorInIndirectExtend(){
+    clearMemory();
+    assert checkModuleOK("module A public bool a = false;");
+    assert checkModuleOK("module B extend A;");
+    C = "module C import B; int c = a + 1;";
+    assert unexpectedTypeInModule(C);
+    assert checkModuleOK("module A public int a = 0;"); // change a to type int
+    return checkModuleOK(C);
 }
 
 test bool introduceErrorInImport(){
     clearMemory();
-    assert checkModuleOK("module A public int b = 0;");
-    B = "module B import A; int n = b + 1;";
+    assert checkModuleOK("module A public int a = 0;");
+    B = "module B import A; int b = a + 1;";
     assert checkModuleOK(B);
-    assert checkModuleOK("module A public bool b = false;");
+    assert checkModuleOK("module A public bool a = false;");
     return unexpectedTypeInModule(B);
 }
 
 test bool introduceErrorInExtend(){
     clearMemory();
-    assert checkModuleOK("module A int b = 0;");
-    B = "module B extend A; int n = b + 1;";
+    assert checkModuleOK("module A int a = 0;");
+    B = "module B extend A; int b = a + 1;";
     assert checkModuleOK(B);
-    assert checkModuleOK("module A bool b = false;");
+    assert checkModuleOK("module A bool a = false;");
     return unexpectedTypeInModule(B);
 }
 
@@ -542,6 +552,22 @@ test bool onlyChangedModulesAreReChecked0(){
 
     assert changeAndCheck(topLoc, ["Exception"], pcfg);
     return changeAndCheck(topLoc, ["Map"], pcfg);
+}
+
+test bool simpleChange(){
+    pcfg = pathConfigForTesting();
+    A = "module A import B; void f() throws EmptyList {}";
+    B = "module B data RuntimeException = EmptyList();";
+    writeModules(A, B);
+    ALoc = getRascalModuleLocation("A", pcfg);
+    BLoc = getRascalModuleLocation("B", pcfg);
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    A1 = "module A import B; void f() throws EmptyList {} public int n = 0;";
+    writeModule(A1);
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    return true;
 }
 @ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){

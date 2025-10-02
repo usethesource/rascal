@@ -6,12 +6,23 @@ extend Content;
 extend Message;
 
 @synopsis{Open a browser for a given location.}
+@description{
+Starts an _interactive_ browser for a given URI, typically in a tab embedded in the IDE.
+However, this depends on the current IDE context. Some editors do not support this feature.
+A browser window for the OS default browser will be started instead.
+}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void browse(loc uri, str title = "<uri>", int viewColumn=1);
+java void browse(loc uri, str title = "<uri>", ViewColumn viewColumn = normalViewColumn(1));
 
 @synopsis{Open an editor for file at a given location.}
+@description{
+Based on the current IDE context an editor will be "opened". This means
+for most IDEs that the language services associated with the file extension
+will be activated. However, this depends entirely on the IDE and the currently
+registered languages. 
+}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void edit(loc uri);
+java void edit(loc uri, ViewColumn viewColumn = activeViewColumn());
 
 @synopsis{Let the IDE apply a list of document edits.}
 @description{
@@ -33,8 +44,21 @@ void applyFileSystemEdits(list[FileSystemChange] edits) {
 
 
 @synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
+@description{
+Just like ((browse)), with the important distinction that this starts both
+a web _client_ and a web _server_.
+}
+@benefits{
+* quickly spin-up and manage interactive visuals without worrying about garbage collection and memory leaks, or port numbers
+* shows visuals _inside_ the current IDE. Combines very well with ((edit)) to show visuals side-by-side with code.
+}
+@pitfalls{
+* the web servers will remain active until 30 minutes after
+the last interaction. After that a `404` (not found) http error will be produced and 
+((showInteractiveContent)) has to be called again to re-activate the visual.
+}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
-java void showInteractiveContent(Content content, str title=content.title, int viewColumn=content.viewColumn);
+java void showInteractiveContent(Content content, str title=content.title, ViewColumn viewColumn=content.viewColumn);
 
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 java void showMessage(Message message);
