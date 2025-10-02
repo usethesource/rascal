@@ -351,7 +351,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
             mloc = getRascalModuleLocation(iname, ms);
             ms.paths += {<m@\loc, imod is \default ? importPath() : extendPath(), mloc>};
          } catch Message err: {
-            err.src = imod@\loc;
+            err.at = imod@\loc;
             ms.messages[moduleName] ? {} += { err };
             ms.status[iname] += { rsc_not_found() };
          }
