@@ -36,6 +36,7 @@ extend analysis::typepal::TypePal;
 import lang::rascal::\syntax::Rascal;
 import Location;
 import util::SemVer;
+import String;
 
 data IdRole
     = moduleId()
