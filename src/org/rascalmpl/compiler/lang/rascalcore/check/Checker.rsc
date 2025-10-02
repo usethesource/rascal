@@ -183,7 +183,7 @@ ModuleStatus rascalTModelForLocs(
 
     str jobName = "";
 
-    topModuleNames = toSet(mnames);
+    ms.changedModules = topModuleNames = toSet(mnames);
     try {
         ms = getImportAndExtendGraph(topModuleNames, ms);
 
@@ -431,8 +431,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
             mloc = getRascalModuleLocation(nm, ms);
-        } catch e: {
-            err = error("Cannot get location for <nm>: <e>", mloc);
+        } catch Message err: {
             ms.messages[nm] = { err };
             ms.status[nm] += { rsc_not_found() };
             tm = tmodel(modelName=nm, messages=[ err ]);
@@ -514,9 +513,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
     for(moduleName <- moduleNames){
         try {
             mlocs += [ getRascalModuleLocation(moduleName, pcfg) ];
-        } catch value e: {
-            mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-            err = error("Cannot get location for <moduleName>: <e>", mloc);
+        } catch Message err: {
             ms = newModuleStatus(compilerConfig);
             ms.messages[moduleName] = { err };
             return ms;
@@ -571,7 +568,11 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
     moduleNames = domain(ms.moduleLocs);
     messagesNoModule = {*ms.messages[mname] | mname <- ms.messages, (mname notin moduleNames || mname notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
-    return [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
+    msgs = [ program(ms.moduleLocs[mname], (ms.messages[mname] ? {}) + messagesNoModule) | mname <- moduleNames ];
+    if(isEmpty(msgs) && !isEmpty(messagesNoModule)){
+        msgs = [ program(|unknown:///|, messagesNoModule) ];
+    }
+    return msgs;
 }
 
 list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
