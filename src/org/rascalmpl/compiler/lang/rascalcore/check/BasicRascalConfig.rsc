@@ -31,12 +31,13 @@ module lang::rascalcore::check::BasicRascalConfig
     Basic configuration information as required by TypePal, including IdRole, PathRole, ScopeRole, DefInfo and the like.
     The checker itself is configure in RascalConfig.
 */
-extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
 import Location;
 import util::SemVer;
 import String;
+
+extend analysis::typepal::TypePal;
 
 data IdRole
     = moduleId()
