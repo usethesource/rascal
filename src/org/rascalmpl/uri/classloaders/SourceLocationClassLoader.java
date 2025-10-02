@@ -15,11 +15,16 @@ package org.rascalmpl.uri.classloaders;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -33,6 +38,7 @@ import io.usethesource.vallang.IValue;
  * for more information on how we transform ISourceLocations to Classloaders. 
  */
 public class SourceLocationClassLoader extends ClassLoader {
+    private final Map<String, Class<?>> cache = new ConcurrentHashMap<>();
     private final List<ClassLoader> path;
     private final Stack<SearchItem> stack = new Stack<>();
 
@@ -88,53 +94,44 @@ public class SourceLocationClassLoader extends ClassLoader {
         return result;
     }
     
+    /**
+     * Is called by loadClass but not before searching in the parent classloader.
+     */
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        for (ClassLoader l : path) {
-            SearchItem item = new SearchItem(l, name);
+        var cached = cache.computeIfAbsent(name, (n) -> {
+            var fileName = n.replace('.', '/') + ".class";
 
-            try {
-                if (stack.contains(item)) {
-                    // we fix an infinite recursion here; if we are already
-                    continue;
+            for (ClassLoader l : path) {
+                try (var stream = l.getResourceAsStream(fileName)) {
+                    if (stream == null) {
+                        continue;
+                    }
+                    return defineClass(n, ByteBuffer.wrap(stream.readAllBytes()), null);
                 }
-                else {
-                    try {
-                        stack.push(item);
-                        return l.loadClass(name);
-                    }
-                    finally {
-                        stack.pop();
-                    }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            catch (ClassNotFoundException e) {
-                // this is normal, try next loader
-                continue;
-            }
+
+            return null;
+        });
+
+        if (cached == null) {
+            // is caught by the parent.loadClass(name, resolve) method
+            throw new ClassNotFoundException(name);
         }
-        
-        throw new ClassNotFoundException(name);
-    }
-    
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        for (ClassLoader l : path) {
-            try {
-                return l.loadClass(name);
-            }
-            catch (ClassNotFoundException e) {
-                // this is normal, try next loader
-                continue;
-            }
-        }
-        
-        // is caught by the parent.loadClass(name, resolve) method
-        throw new ClassNotFoundException(name);
+
+        return cached;
     }
     
     @Override
     public URL getResource(String name) {
+        URL parent = super.getResource(name);
+        if (parent != null) {
+            return parent;
+        }
+
         if (stack.contains(new SearchItem(this, name))) {
             return null;
         }
@@ -159,7 +156,8 @@ public class SourceLocationClassLoader extends ClassLoader {
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         List<URL> result = new ArrayList<>(path.size());
-        
+
+        result.addAll(Collections.list(super.getResources(name)));
 
         for (ClassLoader l : path) {
             SearchItem item = new SearchItem(l, name);
@@ -170,29 +168,14 @@ public class SourceLocationClassLoader extends ClassLoader {
             try {
                 stack.push(item);
                 
-                Enumeration<URL> e = l.getResources(name);
-                while (e.hasMoreElements()) {
-                    result.add(e.nextElement());
-                }
+                result.addAll(Collections.list(l.getResources(name)));
             }
             finally {
                 stack.pop();
             }
         }
         
-        return new Enumeration<URL>() {
-            final Iterator<URL> it = result.iterator();
-            
-            @Override
-            public boolean hasMoreElements() {
-                return it.hasNext();
-            }
-
-            @Override
-            public URL nextElement() {
-                return it.next();
-            }
-        };
+        return Collections.enumeration(result);
     }
 
     private static class SearchItem {
