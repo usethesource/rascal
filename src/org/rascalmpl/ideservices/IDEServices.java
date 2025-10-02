@@ -46,7 +46,11 @@ public interface IDEServices extends IRascalMonitor {
    * Open an editor for file at given path.
    * @param path
    */
-  void edit(ISourceLocation path);
+  void edit(ISourceLocation path, int viewColumn);
+
+  default void edit(ISourceLocation path) {
+    edit(path, -1 /* should be the same as the default in IDEServices.rsc::edit */);
+  }
 
   /**
    * Implements the project scheme by deferring to the IDEservices 

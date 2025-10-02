@@ -699,8 +699,7 @@ test bool LU4(){
 test bool LU5() {
 	writeModule("module A int twice(int n) = 2 * n;");
     writeModule("module B
-            		import A;
-            		import B;");
+            		import A;");
     return checkModuleOK("        
         module LU5
            	import A;
