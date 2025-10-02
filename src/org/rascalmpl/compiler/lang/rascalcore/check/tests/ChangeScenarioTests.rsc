@@ -569,6 +569,25 @@ test bool simpleChange(){
     assert checkModuleOK(BLoc);
     return true;
 }
+
+test bool changedExtendedModule(){
+    pcfg = pathConfigForTesting();
+    A = "module A extend B;";
+    B = "module B extend C;";
+    C = "module C";
+    Scratch = "module Scratch import A; import B;";
+    writeModules(A, B, C, Scratch);
+    ALoc = getRascalModuleLocation("A", pcfg);
+    BLoc = getRascalModuleLocation("B", pcfg);
+    CLoc = getRascalModuleLocation("C", pcfg);
+    ScratchLoc = getRascalModuleLocation("Scratch", pcfg);
+    assert checkModuleOK(ScratchLoc);
+    writeModule("module B extend C; int b = 0;");
+    assert checkModuleOK(BLoc);
+    touch(ScratchLoc);
+    return checkModuleOK(ScratchLoc);
+}
+
 @ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){
     clearMemory();
