@@ -555,32 +555,23 @@ test bool onlyChangedModulesAreReChecked0(){
 }
 
 test bool simpleChange(){
-    pcfg = pathConfigForTesting();
-    A = "module A import B; void f() throws EmptyList {}";
-    B = "module B data RuntimeException = EmptyList();";
-    writeModules(A, B);
-    ALoc = getRascalModuleLocation("A", pcfg);
-    BLoc = getRascalModuleLocation("B", pcfg);
+    ALoc = writeModule("module A import B; void f() throws EmptyList {}");
+    BLoc = writeModule("module B data RuntimeException = EmptyList();");
+
     assert checkModuleOK(ALoc);
     assert checkModuleOK(BLoc);
-    A1 = "module A import B; void f() throws EmptyList {} public int n = 0;";
-    writeModule(A1);
+    writeModule("module A import B; void f() throws EmptyList {} public int n = 0;");
     assert checkModuleOK(ALoc);
     assert checkModuleOK(BLoc);
     return true;
 }
 
 test bool changedExtendedModule(){
-    pcfg = pathConfigForTesting();
-    A = "module A extend B;";
-    B = "module B extend C;";
-    C = "module C";
-    Scratch = "module Scratch import A; import B;";
-    writeModules(A, B, C, Scratch);
-    ALoc = getRascalModuleLocation("A", pcfg);
-    BLoc = getRascalModuleLocation("B", pcfg);
-    CLoc = getRascalModuleLocation("C", pcfg);
-    ScratchLoc = getRascalModuleLocation("Scratch", pcfg);
+    ALoc = writeModule("module A extend B;");
+    BLoc = writeModule("module B extend C;");
+    CLoc = writeModule("module C");
+    ScratchLoc = writeModule("module Scratch import A; import B;");
+
     assert checkModuleOK(ScratchLoc);
     writeModule("module B extend C; int b = 0;");
     assert checkModuleOK(BLoc);
