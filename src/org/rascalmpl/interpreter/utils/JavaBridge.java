@@ -379,8 +379,9 @@ public class JavaBridge {
 		int writers = 0;
 
 		try {
-			for(ClassLoader loader : loaders){
-				try{
+			// TODO: this could also be a single classloader
+			for (ClassLoader loader : loaders) {
+				try {
 					Class<?> clazz = loader.loadClass(className);
 
 					Object instance = instanceCache.get(clazz);
@@ -470,7 +471,7 @@ public class JavaBridge {
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
-				catch(ClassNotFoundException e){
+				catch (ClassNotFoundException e) {
 					continue;
 				} 
 			}
