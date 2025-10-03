@@ -115,7 +115,12 @@ set[Message] getAllMessages(ModuleStatus r)
 ModuleStatus checkStatements(str stmts) {
 	clearMemory();
 	mloc = composeModule(stmts);
-   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
+  return  	rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
+}
+
+ModuleStatus checkModule(str moduleText){
+	mloc = writeModule(moduleText);
+	return  rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
 
 bool checkStatementsAndFilter(str stmts, list[str] expected) {
