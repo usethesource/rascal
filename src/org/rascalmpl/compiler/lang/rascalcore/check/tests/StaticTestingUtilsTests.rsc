@@ -28,6 +28,8 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::check::tests::StaticTestingUtilsTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
+import lang::rascalcore::check::CheckerCommon;
+import Set;
 
 // Sanity check on the testing utilities themselves
 
@@ -111,3 +113,20 @@ test bool TestUtils12() = checkModuleOK("
         int main() = size([1,2,3]);
     ");
 
+test bool tmodelWrittenWhenNoErrors() {
+	ms = checkModule("module A");
+	<found, tm, ms> = getTModelForModule("A", ms);
+	assert found : "A not found: <tm.messages>";
+	errors = getErrorMessages(ms);
+	assert isEmpty(errors) : "<errors>";
+	return true;
+}
+
+test bool tmodelWrittenWhenErrors() {
+	ms = checkModule("module A int a = x;");
+	<found, tm, ms> = getTModelForModule("A", ms);
+	assert found : "A not found: <tm.messages>";
+	errors = getErrorMessages(ms);
+	assert !isEmpty(errors) : "<errors>";
+	return true;
+}
