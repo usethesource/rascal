@@ -430,13 +430,7 @@ ModuleStatus updatePaths(loc oldModuleLoc, loc newModuleLoc, ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus validateModuleStatus(ModuleStatus ms){
-    ms = validatePaths(ms);
-    // more to come ...
-    return ms;
-}
-
-ModuleStatus validatePaths(ModuleStatus ms){
+ModuleStatus consolidatePaths(ModuleStatus ms){
     set[loc] locs = {l | /loc l := ms.paths};
     map[loc,loc] lprops = ();
     rel[loc,PathRole,loc] paths = ms.paths;
