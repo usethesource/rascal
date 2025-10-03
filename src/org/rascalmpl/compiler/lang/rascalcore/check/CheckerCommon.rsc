@@ -92,6 +92,7 @@ data ModuleStatus =
       list[str] parseTreeLIFO,
       map[str, TModel] tmodels,
       list[str] tmodelLIFO,
+      set[str] changedModules,
       map[str,loc] moduleLocs,
       map[str,datetime] moduleLastModified,
       map[str, set[Message]] messages,
@@ -100,7 +101,7 @@ data ModuleStatus =
       RascalCompilerConfig compilerConfig
    );
 
-ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
+ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], {}, (), (), (), (), ccfg.typepalPathConfig, ccfg);
 
 bool isModuleLocationInLibs(str mname, loc l, PathConfig pcfg){
     res = l.extension == "tpl" || !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
@@ -423,7 +424,7 @@ rel[loc from, PathRole r, loc to] getPaths(rel[str from, PathRole r, str to] str
 }
 
 // Update locations in paths when new module locations is known
-ModuleStatus updatePaths(loc oldModuleLoc, newModuleLoc, ModuleStatus ms){
+ModuleStatus updatePaths(loc oldModuleLoc, loc newModuleLoc, ModuleStatus ms){
     if(oldModuleLoc == newModuleLoc) return ms;
     ms.paths = visit(ms.paths){ case oldModuleLoc => newModuleLoc };
     return ms;
@@ -436,15 +437,15 @@ ModuleStatus validateModuleStatus(ModuleStatus ms){
 }
 
 ModuleStatus validatePaths(ModuleStatus ms){
-    locs = {l | /loc l := ms.paths};
-    lprops = ();
-    paths = ms.paths;
-    for(l <- locs){
-        if(l.top in lprops && r := lprops[l.top] &&r != l){
+    set[loc] locs = {l | /loc l := ms.paths};
+    map[loc,loc] lprops = ();
+    rel[loc,PathRole,loc] paths = ms.paths;
+    for(loc l <- locs){
+        if(l.top in lprops && r := lprops[l.top] && r != l){
             if(l.length? && !r.length?){
-                paths = visit(paths) { case r => l };
+                paths = visit(paths) { case r: { insert l; }};
             } else if(!l.length? && r.length?){
-                paths = visit(paths) { case l => r };
+                paths = visit(paths) { case l: { insert r; }};
             } else {
                 mname = getRascalModuleName(l, ms.pathConfig);
                 causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];

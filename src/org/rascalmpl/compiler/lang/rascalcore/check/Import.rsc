@@ -62,7 +62,7 @@ ModuleStatus reportSelfImport(rel[loc from, PathRole r, loc to] paths, ModuleSta
     return ms;
 }
 
-ModuleStatus reportCycles(rel[loc from,PathRole r, loc to] paths, rel[loc,loc] extendPlus, ModuleStatus ms){
+ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] extendPlus, ModuleStatus ms){
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
         for(mloc <- extendCycle){
@@ -146,8 +146,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-         ms.paths += tm.paths;
-         ms.strPaths = getStrPaths(ms.paths, pcfg); //<<<<
+        ms.paths += tm.paths;
+        ms.strPaths = getStrPaths(ms.paths, pcfg); //<<<<
+
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -163,7 +164,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                if(m != qualifiedModuleName){
                     localImportsAndExtends += <m, pathRole>;
                }
-               if(isModuleModified(m, timestampInBom, pcfg)){
+               dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
+               if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
+               if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
@@ -183,8 +186,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             try {
                 try {
                     mloc = getRascalModuleLocation(qualifiedModuleName, ms);
-                } catch e: {
-                    err = error("Cannot get location for <qualifiedModuleName>: <e>", mloc);
+                } catch Message err: {
                     ms.messages[qualifiedModuleName] = { err };
                     tm = tmodel(modelName=qualifiedModuleName, messages=[ err ]);
                     ms = addTModel(qualifiedModuleName, tm, ms);
@@ -348,8 +350,8 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         try {
             mloc = getRascalModuleLocation(iname, ms);
             ms.paths += {<m@\loc, imod is \default ? importPath() : extendPath(), mloc>};
-         } catch str msg: {
-            err = error("Cannot get location for <iname>: <msg>", imod@\loc);
+         } catch Message err: {
+            err.at = imod@\loc;
             ms.messages[moduleName] ? {} += { err };
             ms.status[iname] += { rsc_not_found() };
          }
@@ -520,6 +522,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.usesPhysicalLocs = true;
         ms.status[qualifiedModuleName] -= {tpl_saved()};
         ms = addTModel(qualifiedModuleName, m1, ms);
+    // println("TModel for <qualifiedModuleName>:"); iprintln(m1);
     }
     return ms;
 }
