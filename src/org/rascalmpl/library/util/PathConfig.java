@@ -640,6 +640,7 @@ public class PathConfig {
                 if (mode == RascalConfigMode.INTERPRETER) {
                     messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
                 }
+                libs.append(URIUtil.correctLocation("target", libProjectName, ""));
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
             else {
