@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC69-SNAPSHOT</version>
+    <version>0.41.0-RC70-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC60</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC68</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -456,7 +456,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.15.2-RC11</version>
+            <version>0.15.2-RC12</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
