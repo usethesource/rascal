@@ -97,7 +97,7 @@ ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] 
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
 ModuleStatus completeModuleStatus(ModuleStatus ms){
-    ms = validateModuleStatus(ms);
+    ms = consolidatePaths(ms);
     pcfg = ms.pathConfig;
 
     paths = ms.paths + getPaths(ms.strPaths, ms);
@@ -164,6 +164,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                if(m != qualifiedModuleName){
                     localImportsAndExtends += <m, pathRole>;
                }
+                    
                dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
                if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
                if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
@@ -417,13 +418,7 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
 }
 
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
-    ms = validateModuleStatus(ms);
-    map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
-
-    if(any(c <- component, !isEmpty({parse_error(), check_error(), rsc_not_found(), code_generation_error(), MStatus::ignored()} & ms.status[c]))){
-        return ms;
-    }
 
     //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
