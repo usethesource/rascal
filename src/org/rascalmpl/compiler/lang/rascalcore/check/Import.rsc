@@ -165,9 +165,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                     
-               dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
-               if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
-               if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
+            //    dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
+            //    if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
+               if(/*dependencyChanged || */isModuleModified(m, timestampInBom, pcfg)){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
