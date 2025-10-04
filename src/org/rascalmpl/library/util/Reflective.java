@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -64,11 +65,13 @@ import io.usethesource.vallang.type.Type;
 public class Reflective {
 	protected final IValueFactory values;
 	private final IRascalMonitor monitor;
+	private RascalSearchPath resolver;
 
-	public Reflective(IValueFactory values, IRascalMonitor monitor) {
+	public Reflective(IValueFactory values, IRascalMonitor monitor, RascalSearchPath resolver) {
 		super();
 		this.values = values;
 		this.monitor = monitor;
+		this.resolver = resolver;
 	}
 	
 	public IString getRascalVersion() {
@@ -82,6 +85,16 @@ public class Reflective {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
+	}
+
+	public ISourceLocation resolveModuleOnCurrentInterpreterSearchPath(IString moduleName) {
+		var result = resolver.resolveModule(moduleName.getValue());
+
+		if (result == null) {
+			throw RuntimeExceptionFactory.moduleNotFound(moduleName);
+		}
+
+		return result;
 	}
 
 	public IString getLineSeparator() {
@@ -239,11 +252,6 @@ public class Reflective {
 	// Note -- copy in ReflectiveCompiled
 	
 	public IBool inCompiledMode() { return values.bool(false); }
-	
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name){
-		return watch(tp, val, name, values.string(""));
-	}
 	
 	protected String stripQuotes(IValue suffixVal){
 		String s1 = suffixVal.toString();
@@ -411,22 +419,6 @@ public class Reflective {
 		}
 		return indent + "old " + sOld + ", new " + sNew;
 		
-	}
-
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal){
-		ISourceLocation watchLoc;
-		String suffix = stripQuotes(suffixVal);
-		String name1 = stripQuotes(name);
-
-		String path = "watchpoints/" + (suffix.length() == 0 ? name1 : (name1 + "-" + suffix)) + ".txt";
-		try {
-			watchLoc = values.sourceLocation("home", null, path, null, null);
-		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
-		}
-		Prelude.writeTextValueFile(values, false, watchLoc, val);
-		return val;
 	}
 
 	public IInteger getFingerprint(IValue val, IBool concretePatterns){

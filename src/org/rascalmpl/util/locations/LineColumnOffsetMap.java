@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+ * Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,10 +24,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.runtime;
+package org.rascalmpl.util.locations;
 
-import io.usethesource.vallang.IValue;
+import org.apache.commons.lang3.tuple.Pair;
 
-public interface Block {
-	 public IValue compute();
+/**
+ * Translate ISourceLocation columns to LSP columns
+ *
+ * vallang uses UTF-32-bit codepoints, while lsp uses UTF-16, so in cases where a codepoint wouldn't fit inside 16bit char, it takes up two chars. Implementations of this class translate these efficiently.
+ */
+public interface LineColumnOffsetMap {
+    /** Translate UTF-32 column to UTF-16 */
+    int translateColumn(int line, int column, boolean isEnd);
+    /** Translate UTF-16 column to UTF-32 */
+    int translateInverseColumn(int line, int column, boolean isEnd);
+    /** Translate UTF-16 range to UTF-32 offset and length */
+    Pair<Integer, Integer> calculateInverseOffsetLength(int beginLine, int beginColumn, int endLine, int endColumn);
 }

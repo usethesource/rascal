@@ -32,6 +32,8 @@ import List;
 import String;
 import util::Reflective;
 import util::FileSystem;
+//import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -53,6 +55,14 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
+list[Message] getCausesFromPathConfig(PathConfig pcfg){
+    causes = [ info("In srcs", src) | src <- pcfg.srcs ];
+    if(!isEmpty(pcfg.libs)){
+        causes += [ info("In libs", lib) | lib <- pcfg.libs ];
+    }
+    return causes;
+}
+
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
@@ -70,7 +80,7 @@ loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
+    throw error("Module `<qualifiedModuleName>` not found", |unknown:///|, causes=getCausesFromPathConfig(pcfg));
 }
 
 tuple[str,str] splitFileExtension(str path){
@@ -96,16 +106,22 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-
-@synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
+@memo{expireAfter(minutes=5),maximumSize(500)}
+@synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    
+    if(isLogicalLoc(moduleLoc)){
+        path = moduleLoc.path;
+        if(path[0] == "/"){
+            path = path[1..];
+        }
+        return replaceAll(path, "/", "::");
+    }
     if(!( rscFile || tplFile )){
-        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories

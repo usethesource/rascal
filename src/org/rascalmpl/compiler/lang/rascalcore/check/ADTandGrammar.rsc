@@ -32,12 +32,11 @@ module lang::rascalcore::check::ADTandGrammar
     as well as a grammar using the key key_grammar. While doing so it also performs some consistency checks.
 */
 
-extend lang::rascalcore::check::CheckerCommon;
+
+import lang::rascalcore::check::ModuleLocations;
 
 import lang::rascalcore::agrammar::definition::Layout;
 import lang::rascalcore::agrammar::definition::Keywords;
-
-import lang::rascal::\syntax::Rascal;
 
 import IO;
 import Node;
@@ -48,6 +47,8 @@ import Relation;
 import Message;
 import Map;
 import util::Reflective;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 void addADTsAndCommonKeywordFields(Solver s){
     addADTs(s);

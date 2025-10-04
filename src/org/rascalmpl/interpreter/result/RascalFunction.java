@@ -272,6 +272,9 @@ public class RascalFunction extends NamedFunction {
 
             Type actualStaticTypesTuple = TF.tupleType(actualStaticTypes);
             if (hasVarArgs) {
+                if (!mayMatch(actualStaticTypesTuple)) {
+                    throw new MatchFailed();
+                }
                 actuals = computeVarArgsActuals(actuals, getFormals());
                 actualStaticTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
             }

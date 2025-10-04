@@ -25,22 +25,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
+import IO;
+data PathRole = extendPath();
 
-/*
-    Perform a path analysis on the Rascal source code of a function.
-    On the fly it will report dead code.
-*/
-
-extend lang::rascalcore::check::CheckerCommon;
- 
-import lang::rascal::\syntax::Rascal;
-
-// import String;
-
-/********************************************************************/
-/*       Return path analysis                                       */
-/********************************************************************/
-
-
-bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
-    = true;
+void main() {
+    x = <|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>),extendPath(),|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>)>;
+    iprintln({x, x});
+  }

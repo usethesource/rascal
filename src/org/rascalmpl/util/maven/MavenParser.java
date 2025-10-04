@@ -53,7 +53,6 @@ import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -107,13 +106,12 @@ public class MavenParser {
 
         modelCache = new CaffeineModelCache();
 
-        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors());
+        rootResolver = SimpleResolver.createRootResolver(rootMavenRepo, httpClient, settings.getMirrors(), settings.getServerSettings());
     }
 
     public Artifact parseProject() throws ModelResolutionError {
         var request = new DefaultModelBuildingRequest()
-            .setPomFile(projectPom.toFile())
-            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
+            .setPomFile(projectPom.toFile());
 
         var resolver = rootResolver.createChildResolver();
 
@@ -127,16 +125,16 @@ public class MavenParser {
 
         Artifact result = null;
         if (model.getGroupId() != null && model.getVersion() != null) {
-            result = Artifact.build(model, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
+            result = Artifact.build(model, null, true, projectPom, projectPomLocation, "", Collections.emptySet(), messages, resolver);
         }
 
         if (result == null) {
-            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), messages);
+            return Artifact.unresolved(new ArtifactCoordinate(Objects.requireNonNullElse(model.getGroupId(), ""), model.getArtifactId(), Objects.requireNonNullElse(model.getVersion(), ""), ""), null, messages);
         }
         return result;
     }
 
-    /*package*/ @Nullable Artifact parseArtifact(ArtifactCoordinate coordinate, Set<ArtifactCoordinate.WithoutVersion> exclusions, SimpleResolver originalResolver) {
+    /*package*/ @Nullable Artifact parseArtifact(ArtifactCoordinate coordinate, Set<ArtifactCoordinate.WithoutVersion> exclusions, Dependency origin, SimpleResolver originalResolver) {
         var messages = VF.listWriter();
         try {
             var modelSource = originalResolver.resolveModel(coordinate);
@@ -154,13 +152,13 @@ public class MavenParser {
 
             var model = getBestModel(pomLocation, request, resolver, messages);
             if (model == null) {
-                return Artifact.unresolved(coordinate, messages);
+                return Artifact.unresolved(coordinate, origin, messages);
             }
 
-
-            return Artifact.build(model, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
+            return Artifact.build(model, origin, false, pomPath, pomLocation, coordinate.getClassifier(), exclusions, messages, resolver);
         } catch (UnresolvableModelException e) {
-            return Artifact.unresolved(coordinate, messages);
+            messages.append(MavenMessages.error("Could not resolve " + coordinate + ". " + e.getMessage(), origin));
+            return Artifact.unresolved(coordinate, origin, messages);
         }
     }
 
@@ -192,14 +190,16 @@ public class MavenParser {
         } 
     }
 
-    private static void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
+    private void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
         for (var problem : problems) {
-            // TODO: figure out how we can get correct offset & length from the xml parser (right now it has line & column, but they're always 0)
             String message = problem.getMessage();
+            // If maven has no coordinates to report, it uses -1, -1 for line and column
+            int line = Math.max(0, problem.getLineNumber());
+            int column = Math.max(0, problem.getColumnNumber());
             switch (problem.getSeverity()) {
                 case ERROR: // fall through
-                case FATAL: messages.append(Messages.error(message, loc)); break;
-                case WARNING: messages.append(Messages.warning(message, loc)); break;
+                case FATAL: messages.append(MavenMessages.error(message, loc, line, column)); break;
+                case WARNING: messages.append(MavenMessages.warning(message, loc, line, column)); break;
                 default: throw new UnsupportedOperationException("Missing case: " + problem.getSeverity());
             }
         }
@@ -213,6 +213,8 @@ public class MavenParser {
     private ModelBuildingResult buildModel(ModelBuildingRequest request, ModelResolver resolver) throws ModelBuildingException {
         request.setModelResolver(resolver)
             .setModelCache(modelCache)
+            .setLocationTracking(true)
+            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL)
             .setSystemProperties(System.getProperties());
         return builder.build(request);
     }

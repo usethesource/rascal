@@ -37,6 +37,7 @@ import org.rascalmpl.dap.variable.VariableSubElementsCounter;
 import org.rascalmpl.dap.variable.VariableSubElementsCounterVisitor;
 import org.rascalmpl.dap.variable.VariableSubfieldsVisitor;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.uri.URIUtil;
@@ -47,8 +48,8 @@ import io.usethesource.vallang.ISourceLocation;
  * Class used to store the state of the Rascal Evaluator when it is suspended
  */
 public class SuspendedState {
-
     private final Evaluator evaluator;
+    private final IDEServices services;
     private volatile IRascalFrame[] currentStackFrames;
     private final Map<Integer, RascalVariable> variables;
     private final Map<Integer, IRascalFrame> scopes;
@@ -56,8 +57,9 @@ public class SuspendedState {
     private volatile boolean isSuspended;
 
 
-    public SuspendedState(Evaluator evaluator){
+    public SuspendedState(Evaluator evaluator, IDEServices services) {
         this.evaluator = evaluator;
+        this.services = services;
         this.variables = new ConcurrentHashMap<>();
         this.scopes = new ConcurrentHashMap<>();
     }
@@ -113,7 +115,7 @@ public class SuspendedState {
             int endIndex = maxCount == -1 ? frameVariables.size() : Math.min(frameVariables.size(), startIndex + maxCount);
             for (String varname : frameVariables.subList(startIndex, endIndex)) {
                 IRascalResult result = frame.getFrameVariable(varname);
-                RascalVariable refResult = new RascalVariable(result.getDynamicType(), varname, result.getValue());
+                RascalVariable refResult = new RascalVariable(result.getDynamicType(), varname, result.getValue(), services);
                 if(refResult.hasSubFields()){
                     addVariable(refResult);
                     VariableSubElementsCounter counter = result.getValue().accept(new VariableSubElementsCounterVisitor());
@@ -131,7 +133,7 @@ public class SuspendedState {
 
         // referenceID is a variable ID
         RascalVariable var = variables.get(referenceID);
-        return var.getValue().accept(new VariableSubfieldsVisitor(this, var.getType(), startIndex, maxCount));
+        return var.getValue().accept(new VariableSubfieldsVisitor(this, var.getType(), startIndex, maxCount, services));
     }
 
     public void addVariable(RascalVariable variable){

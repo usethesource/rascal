@@ -39,8 +39,7 @@ import util::Maybe;
 
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
-
-import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ATypeBase; // seemingly redundant
 
 // ---- syntax definition -----------------------------------------------------
 
@@ -77,7 +76,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType,closed=true)| tp <- typeParameters ]];
         }
 
-        dt = defType(current is language && current.\start is present ? \start(nonterminalType) : nonterminalType);
+        dt = defType(/*current is language && current.\start is present ? \start(nonterminalType) : */nonterminalType);
         dt.vis = vis;
         dt.md5 = md5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
         syndefCounter += 1;
@@ -121,7 +120,7 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
-    args = [s.getType(sym) | sym <- symbols];
+    args = [s.getType(sym) | sym <- symbols, !(sym is empty)];
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args/*, src=src*/) : prod(adtType, args, attributes=m2a/*, src=src*/);
@@ -141,6 +140,16 @@ private bool isTerminalSym((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTermin
 private bool isTerminalSym((Sym) `<Sym symbol> $`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `^ <Sym symbol>`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol>  \>\> <Sym _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol>  !\>\> <Sym _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym _>  \<\< <Sym symbol>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym _>  !\<\< <Sym symbol>`) = isTerminalSym(symbol);
+
+private bool isTerminalSym((Sym) `<Sym symbol>?`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`)
+    = isTerminalSym(first) && all(alt <- alternatives, isTerminalSym(alt));
+private bool isTerminalSym((Sym) `(<Sym symbol1> <Sym symbol2>)`) = isTerminalSym(symbol1) && isTerminalSym(symbol2);
+
 private bool isTerminalSym((Sym) `()`) = true;
 private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
 
@@ -148,7 +157,7 @@ private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when 
 private default AType removeChainRule(AType t) = t;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
-    symbols = [sym | sym <- syms];
+    symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, loc adtParentScope> := c.top(currentAdt)){
         // Compute the production type
@@ -178,9 +187,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ inLexicalAdt && isLexicalAType(stp) ? astr() : stp
-                             |
-                               sym <- symbols,
+                    fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<unescape("<name>")>"] 
+                             | sym <- symbols,
                                !isTerminalSym(sym),
                                tsym := s.getType(sym),
                                isNonTerminalAType(tsym),
@@ -203,7 +211,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 }
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
-    symbols = [sym | sym <- syms];
+    symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
@@ -225,12 +233,12 @@ private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(AAssociativity a), AProduction p) = associativity(nt, a, {p});
 
 void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
-    asc = AAssociativity::aleft();
+    asc = aleft();
     switch("<ass>"){
-    case "assoc":       asc = AAssociativity::aleft();
-    case "left":        asc = AAssociativity::aleft();
-    case "non-assoc":   asc = AAssociativity::\a-non-assoc();
-    case "right":       asc = AAssociativity::aright();
+    case "assoc":       asc = aleft();
+    case "left":        asc = aleft();
+    case "non-assoc":   asc = \a-non-assoc();
+    case "right":       asc = aright();
     }
 
     if(<Tree adt, _, _, _> := c.top(currentAdt)){

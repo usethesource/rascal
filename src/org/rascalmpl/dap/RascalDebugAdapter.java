@@ -27,6 +27,7 @@
 package org.rascalmpl.dap;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -37,8 +38,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.Thread;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
@@ -48,15 +47,25 @@ import org.rascalmpl.dap.variable.RascalVariable;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.utils.StringUtils;
+import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
+import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.locations.ColumnMaps;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
@@ -75,23 +84,38 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final DebugHandler debugHandler;
     private final Evaluator evaluator;
     private final SuspendedState suspendedState;
-    private final Logger logger;
     private final BreakpointsCollection breakpointsCollection;
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
+    private final IDEServices services;
     private final ExecutorService ownExecutor;
+    private final ColumnMaps columns;
+    private int lineBase = 1;   // Default in DAP
+    private int columnBase = 1; // Default in DAP
+
+    public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
 
-    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, ExecutorService threadPool) {
+    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool) {
         this.debugHandler = debugHandler;
         this.evaluator = evaluator;
+        this.services = services;
         this.ownExecutor = threadPool;
 
-        this.suspendedState = new SuspendedState(evaluator);
-        this.logger = LogManager.getLogger(RascalDebugAdapter.class);
+        this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
         debugHandler.setEventTrigger(eventTrigger);
+
+        columns = new ColumnMaps(l -> {
+            try {
+                return Prelude.consumeInputStream(URIResolverRegistry.getInstance().getCharacterReader(l.top()));
+            }
+            catch (IOException e) {
+                services.warning("Could not read contents of " + l.top(), l);
+                return "";
+            }
+        });
     }
 
     public void connect(IDebugProtocolClient client) {
@@ -101,6 +125,15 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
+        var linesStartAt1 = args.getLinesStartAt1();
+        var columnsStartAt1 = args.getColumnsStartAt1();
+        if (linesStartAt1 != null && !linesStartAt1.booleanValue()) {
+            lineBase = 0;
+        }
+        if (columnsStartAt1 != null && !columnsStartAt1.booleanValue()) {
+            columnBase = 0;
+        }
+        
         return CompletableFuture.supplyAsync(() -> {
             Capabilities capabilities = new Capabilities();
 
@@ -120,18 +153,39 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
             SetBreakpointsResponse response = new SetBreakpointsResponse();
+            response.setBreakpoints(new Breakpoint[0]);
             String extension = args.getSource().getName().substring(args.getSource().getName().lastIndexOf('.') + 1);
             if (!extension.equals("rsc")) {
-                response.setBreakpoints(new Breakpoint[0]);
                 return response;
             }
             ISourceLocation loc = getLocationFromPath(args.getSource().getPath());
             if(loc == null){
-                response.setBreakpoints(new Breakpoint[0]);
                 return response;
             }
 
-            ITree parseTree = Reflective.parseModuleWithSpaces(loc);
+            var reg = URIResolverRegistry.getInstance();
+            if (!reg.exists(loc)) {
+                return response;
+            }
+
+            var cannotSetMsg = String.format("Cannot set breakpoint%s", args.getBreakpoints().length > 1 ? "s" : "");
+
+            ITree parseTree;
+            try {
+                parseTree = Reflective.parseModuleWithSpaces(loc);
+            } catch (Throw t) {
+                if (t.getException().getType().isConstructor()) {
+                    var e = (IConstructor) t.getException();
+                    var et = e.getConstructorType();
+                    if (et != RuntimeExceptionFactory.IO) {
+                        services.warning(String.format("%s: %s", cannotSetMsg, t.getMessage()), loc);
+                    }
+                }
+                return response;
+            } catch (ParseError e) {
+                services.warning(String.format("%s: %s", cannotSetMsg, e.getMessage()), loc);
+                return response;
+            }
             breakpointsCollection.clearBreakpointsOfFile(loc.getPath());
             Breakpoint[] breakpoints = new Breakpoint[args.getBreakpoints().length];
             for(int i = 0; i<args.getBreakpoints().length; i++){
@@ -158,7 +212,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             try {
                 return URIUtil.createFileLocation(path);
             } catch (URISyntaxException e) {
-                logger.error(e.getMessage(), e);
+                services.warning(e.getMessage(), DEBUGGER_LOC);
                 return null;
             }
         } else {
@@ -171,7 +225,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 }
                 return URIUtil.createFromURI(finalUri);
             } catch (URISyntaxException e) {
-                logger.error(e.getMessage(), e);
+                services.warning(e.getMessage(), DEBUGGER_LOC);
                 return null;
             }
         }
@@ -286,13 +340,26 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
+    private int shiftLine(int line) {
+        // Rascal locations use 1 as line base. If DAP is configured to expect base 0, we shift the line number
+        return line + lineBase - 1;
+    }
+
+    private int shiftColumn(int column) {
+        // Rascal locations use 0 as column base. If DAP is configured to expect base 1, we shift the column
+        return column + columnBase;
+    }
+
     private StackFrame createStackFrame(int id, ISourceLocation loc, String name){
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
         if(loc != null){
-            frame.setLine(loc.getBeginLine());
-            frame.setColumn(loc.getBeginColumn());
+            var offsets = columns.get(loc);
+            var line = shiftLine(loc.getBeginLine());
+            var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
+            frame.setLine(line);
+            frame.setColumn(column);
             frame.setSource(getSourceFromISourceLocation(loc));
         }
         return frame;
@@ -438,5 +505,49 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             return null;
         }, ownExecutor);
     }
+
+    @Override
+    public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            EvaluateResponse response = new EvaluateResponse();
+
+            String expr = args.getExpression();
+            switch (args.getContext()) {
+                case "hover": // Not called until we set the supportsEvaluateForHovers capability to true
+                case "clipboard": // Not called until we set the supportsClipboardContext capability to true
+                case "repl": // Called from the debugger repl
+                case "watch": // Called from watched expressions. Only singular variable references are supported.
+                    response.setResult("Only singular variable references are supported");
+                    OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
+                    if (identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
+                        // The entire expression is a valid identifier
+                        response.setResult("Undefined variable");
+                        List<RascalVariable> variables = suspendedState.getVariables(args.getFrameId(), 0, -1);
+                        for (RascalVariable var : variables) {
+                            if (var.getName().equals(expr)) {
+                                response.setResult(var.getDisplayValue());
+                                response.setType(var.getType().toString());
+                                response.setVariablesReference(var.getReferenceID());
+                                response.setNamedVariables(var.getNamedVariables());
+                                response.setIndexedVariables(var.getIndexedVariables());
+                                break;
+                            }
+                        }   
+                    }
+                    break;
+
+                case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
+                    // In this case the expression already contains the value of the variable. We just return it.
+                    response.setResult(expr);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return response;
+        }, ownExecutor);
+    }
+    
 }
 

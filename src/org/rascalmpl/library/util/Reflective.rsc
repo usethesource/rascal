@@ -85,6 +85,18 @@ in making configuration issues tractable.
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
+@javaClass{org.rascalmpl.library.util.Reflective}
+@synopsis{Search a module name in the interpreter's search path}
+@description{
+This exists to help debugging interactive loading and reloading of Rascal modules
+by the REPL and the interpreter. It does not work in a compiled context.
+}
+@pitfalls{
+This is internal information for the interpreter and should not be used by client code.
+Only for debugging purposes of the interpreter and the REPL.
+}
+java loc resolveModuleOnCurrentInterpreterSearchPath(str moduleName);
+
 @synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
@@ -368,15 +380,6 @@ public java bool inCompiledMode();
 @synopsis{Give a textual diff between two values.}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str diff(value old, value new);
-
-@synopsis{Watch value val: 
-- running in interpreted mode: write val to a file, 
-- running in compiled mode: compare val with previously written value}
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name, value suffix);
 
 @synopsis{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}

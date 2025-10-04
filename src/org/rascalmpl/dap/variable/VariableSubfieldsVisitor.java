@@ -39,18 +39,20 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.rascalmpl.dap.SuspendedState;
+import org.rascalmpl.ideservices.IDEServices;
 
 /**
  *  Visitor that collects a specific amount of variables from starting index that are subfields of a given variable
  */
 public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariable>, RuntimeException> {
-
+    private final IDEServices services;
     private final SuspendedState stateManager;
     private final Type visitedType;
     private final int startIndex;
     private final int count;
 
-    public VariableSubfieldsVisitor(SuspendedState stateManager, Type visitedType, int startIndex, int count){
+    public VariableSubfieldsVisitor(SuspendedState stateManager, Type visitedType, int startIndex, int count, IDEServices services) {
+        this.services = services;
         this.stateManager = stateManager;
         this.visitedType = visitedType;
         this.startIndex = startIndex;
@@ -77,7 +79,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
         List<RascalVariable> result = new ArrayList<>();
         int max = count == -1 ? o.length() : Math.min(o.length(), startIndex+count);
         for (int i = startIndex; i < max; i++) {
-            RascalVariable newVar = new RascalVariable(visitedType.isList() ? visitedType.getElementType() : o.getElementType(),Integer.toString(i), o.get(i));
+            RascalVariable newVar = new RascalVariable(visitedType.isList() ? visitedType.getElementType() : o.getElementType(),Integer.toString(i), o.get(i), services);
             addVariableToResult(newVar, result);
         }
         return result;
@@ -89,7 +91,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
 
         AtomicInteger i = new AtomicInteger(startIndex);
         o.stream().skip(startIndex).limit(count == -1 ? o.size()-startIndex : count).forEach(value -> {
-            RascalVariable newVar = new RascalVariable(visitedType.isSet() ? visitedType.getElementType() : o.getElementType(),Integer.toString(i.get()), value);
+            RascalVariable newVar = new RascalVariable(visitedType.isSet() ? visitedType.getElementType() : o.getElementType(),Integer.toString(i.get()), value, services);
             addVariableToResult(newVar, result);
             i.getAndIncrement();
         });
@@ -108,7 +110,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
         Type type = visitedType.isTuple() ? visitedType : o.getType();
         int max = count == -1 ? o.arity() : Math.min(o.arity(), startIndex+count);
         for (int i = startIndex; i < max; i++) {
-            RascalVariable newVar = new RascalVariable(type.getFieldType(i), type.hasFieldNames() ? type.getFieldName(i) : Integer.toString(i), o.get(i));
+            RascalVariable newVar = new RascalVariable(type.getFieldType(i), type.hasFieldNames() ? type.getFieldName(i) : Integer.toString(i), o.get(i), services);
             addVariableToResult(newVar, result);
         }
         return result;
@@ -120,7 +122,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
 
         int max = count == -1 ? o.arity() : Math.min(o.arity(), startIndex+count);
         for (int i = startIndex; i < max; i++) {
-            RascalVariable newVar = new RascalVariable(o.get(i).getType(), Integer.toString(i), o.get(i));
+            RascalVariable newVar = new RascalVariable(o.get(i).getType(), Integer.toString(i), o.get(i), services);
             addVariableToResult(newVar, result);
         }
         return result;
@@ -133,7 +135,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
         if(startIndex<o.arity()) {
             int max = count == -1 ? o.arity() : Math.min(o.arity(), startIndex+count);
             for (int i = startIndex; i < max; i++) {
-                RascalVariable newVar = new RascalVariable(o.getConstructorType().getFieldType(i), o.getConstructorType().hasFieldNames() ? o.getConstructorType().getFieldName(i) : Integer.toString(i), o.get(i));
+                RascalVariable newVar = new RascalVariable(o.getConstructorType().getFieldType(i), o.getConstructorType().hasFieldNames() ? o.getConstructorType().getFieldName(i) : Integer.toString(i), o.get(i), services);
                 addVariableToResult(newVar, result);
             }
         }
@@ -144,7 +146,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
             int startParametersIndex = startIndex<o.arity() ? 0 : startIndex-o.arity();
             parameters.keySet().stream().skip(startParametersIndex).limit(remaining).forEach(name -> {
                 IValue value = parameters.get(name);
-                RascalVariable newVar = new RascalVariable(value.getType(), '['+name+']', value);
+                RascalVariable newVar = new RascalVariable(value.getType(), '['+name+']', value, services);
                 addVariableToResult(newVar, result);
             });
         }
@@ -163,7 +165,7 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
 
         o.stream().skip(startIndex).limit(count == -1 ? o.size()-startIndex : count).forEach(pair -> {
             ITuple tuple = (ITuple) pair;
-            RascalVariable newVar = new RascalVariable(visitedType.isMap() ? visitedType.getValueType() : o.getValueType(), RascalVariableUtils.getDisplayString(tuple.get(0)), tuple.get(1));
+            RascalVariable newVar = new RascalVariable(visitedType.isMap() ? visitedType.getValueType() : o.getValueType(), RascalVariableUtils.getDisplayString(tuple.get(0), services), tuple.get(1), services);
             addVariableToResult(newVar, result);
         });
 
@@ -185,18 +187,18 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
         List<RascalVariable> result = new ArrayList<>();
 
         if(o.isDate() || o.isDateTime()){
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "year", ValueFactory.getInstance().integer(o.getYear())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "month", ValueFactory.getInstance().integer(o.getMonthOfYear())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "day", ValueFactory.getInstance().integer(o.getDayOfMonth())));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "year", ValueFactory.getInstance().integer(o.getYear()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "month", ValueFactory.getInstance().integer(o.getMonthOfYear()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "day", ValueFactory.getInstance().integer(o.getDayOfMonth()), services));
         }
 
         if(o.isTime() || o.isDateTime()){
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "hour", ValueFactory.getInstance().integer(o.getHourOfDay())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "minute", ValueFactory.getInstance().integer(o.getMinuteOfHour())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "second", ValueFactory.getInstance().integer(o.getSecondOfMinute())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "millisecond", ValueFactory.getInstance().integer(o.getMillisecondsOfSecond())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "timezoneOffsetHours", ValueFactory.getInstance().integer(o.getTimezoneOffsetHours())));
-            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "timezoneOffsetMinutes", ValueFactory.getInstance().integer(o.getTimezoneOffsetMinutes())));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "hour", ValueFactory.getInstance().integer(o.getHourOfDay()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "minute", ValueFactory.getInstance().integer(o.getMinuteOfHour()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "second", ValueFactory.getInstance().integer(o.getSecondOfMinute()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "millisecond", ValueFactory.getInstance().integer(o.getMillisecondsOfSecond()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "timezoneOffsetHours", ValueFactory.getInstance().integer(o.getTimezoneOffsetHours()), services));
+            result.add(new RascalVariable(TypeFactory.getInstance().integerType(), "timezoneOffsetMinutes", ValueFactory.getInstance().integer(o.getTimezoneOffsetMinutes()), services));
         }
 
         return result;
