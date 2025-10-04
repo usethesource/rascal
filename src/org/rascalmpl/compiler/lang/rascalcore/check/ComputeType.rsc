@@ -396,15 +396,8 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            }
         }
-        availableKws = intercalateOr(["`<prettyAType(kw.fieldType)> <kw.fieldName>`" | Keyword kw <- kwFormals]);
-        switch(size(kwFormals)){
-        case 0: availableKws ="; no other keyword parameters available";
-        case 1: availableKws = "; available keyword parameter: <availableKws>";
-        default:
-            availableKws = "; available keyword parameters: <availableKws>";
-        }
-
-       msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
+        availableKws = [ info("Available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>`", getLoc(kw)) | Keyword kw <- kwFormals ];
+        msgs += error(kwa, "Undefined keyword argument %q", kwName, causes=availableKws);
     }
     s.reports(msgs);
 }
