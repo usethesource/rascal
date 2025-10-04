@@ -67,7 +67,7 @@ module lang::box::util::Tree2Box
 import ParseTree;
 import lang::box::\syntax::Box;
 import String;
-import IO;
+
 
 @synopsis{Configuration options for toBox}
 data FormatOptions = formatOptions(
@@ -82,6 +82,8 @@ data CaseInsensitivity
     | asIs()
     ;
 
+private Symbol notNl = #![\n].symbol;
+
 @synopsis{This is the generic default formatter}
 @description{
 This generic formatter is to be overridden by someone constructing a formatter tools
@@ -92,8 +94,7 @@ by the user is necessary.
 default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
-    Symbol nl = #[\n].symbol;
-    Symbol notNl = #![\n].symbol;
+    
     
     switch (<delabel(p), args>) {
         // nothing should not produce additional spaces
@@ -101,16 +102,23 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return NULL();
 
         // literals are printed as-is
-        case <prod(lit(_), _, _), _>: 
-            return L("<t>");
+        case <prod(lit(_), _, _), _>: {
+            str yield =  "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
         
         // case-insensitive literals are optionally normalized
-        case <prod(cilit(_), _, _), _>: 
-            return L(ci("<t>", opts.ci));
+        case <prod(cilit(_), _, _), _>: {
+            str yield =  "<t>"; 
+            return yield != "" ?  L(ci("<t>", opts.ci)) : NULL();
+        }
         
         // non-existing content should not generate accidental spaces
         case <regular(opt(_)), []>: 
-            return NULL();
+            return NULL(); 
+
+        case <regular(opt(_)), [Tree present]>: 
+            return U([toBox(present)]); 
         
         // non-separated lists should stick without spacing (probably lexical)
         case <regular(iter(_)), list[Tree] elements>:
@@ -174,22 +182,22 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             ]);
 
         case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, op=H([], hs=0))], hs=1);
 
         case <regular(\iter-star-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, op=H([], hs=0))], hs=1);
           
         // with only one separator it's probably a lexical
         case <regular(\iter-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, op=H([], hs=0))], hs=0);
 
         case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, op=H([], hs=0))], hs=0);
 
         // We remove all layout node positions to make the number of children predictable
         // Comments can be recovered by `layoutDiff`. By not recursing into layout
         // positions `toBox` becomes more than twice as fast.
-        case <prod(layouts(_), _, _), list[Tree] content>:
+        case <prod(layouts(_), _, _), list[Tree] _>:
             return NULL();
 
         // if we are given a comment node, then we can format it here for use by layoutDiff
@@ -216,8 +224,10 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                     ], hs=1);
 
         // lexicals are never split in pieces, unless it's comments but those are handled above.
-        case <prod(lex(_), _, _), _> :
-            return L("<t>");
+        case <prod(lex(_), _, _), _> : {
+            str yield = "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
@@ -238,10 +248,13 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
+        case <prod(_,[_],_), [Tree single]>:
+            return toBox(single);
+
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
-        case <prod(sort(/[stm]/), [*Symbol pre, op:lit(_), *Symbol bl, cl:lit(_)], _), list[Tree] elements>:
+        case <prod(sort(/[stm]/), [*Symbol pre, lit(_), *Symbol _, lit(_)], _), list[Tree] elements>:
             return V([
                 H([*[toBox(p, opts=opts) | Tree p <- elements[0..size(pre)]], toBox(elements[size(pre)], opts=opts)]),
                 I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),
@@ -265,14 +278,13 @@ default Box toBox(cycle(_, _), FO opts=fo()) = NULL();
 private alias FO = FormatOptions;
 
 @synopsis{Removing production labels removes similar patterns in the main toBox function.}
-private Production delabel(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs))
-    = prod(s, delabel(syms), attrs);
+private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs))
+    = prod(delabel(s), [delabel(x) | x <- syms], attrs);
 
-private default Production delabel(Production p) = p;
+private Production delabel(regular(Symbol s)) = regular(delabel(s));
 
-private list[Symbol] delabel(list[Symbol] syms) = [delabel(s) | s <- syms];
-
-private Symbol delabel(label(_, Symbol s)) = s;
+private Symbol delabel(label(_, Symbol s)) = delabel(s);
+private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;
 
 @synopsis{This is a short-hand for legibility's sake}
