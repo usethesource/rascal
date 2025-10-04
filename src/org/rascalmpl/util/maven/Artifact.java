@@ -33,15 +33,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
@@ -62,10 +66,12 @@ public class Artifact {
     private final @Nullable SimpleResolver ourResolver;
     private IList messages;
     private final boolean anyError;
+    private final @Nullable Dependency origin; // Only null for main project artifact
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, Dependency origin, @Nullable Path resolved, List<Dependency> dependencies, IList messages, @Nullable SimpleResolver originalResolver) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
+        this.origin = origin;
         this.resolved = resolved;
         this.dependencies = dependencies;
         this.messages = messages;
@@ -77,6 +83,7 @@ public class Artifact {
         var coord = original.coordinate;
         this.coordinate = new ArtifactCoordinate(coord.getGroupId(), coord.getArtifactId(), version, coord.getClassifier());
         this.parentCoordinate = original.parentCoordinate;
+        this.origin = original.origin;
         this.resolved = original.resolved;
         this.dependencies = original.dependencies;
         this.messages = original.messages;
@@ -100,6 +107,10 @@ public class Artifact {
         return messages;
     }
 
+    public Dependency getOrigin() {
+        return origin;
+    }
+
     /**
      * The path where the jar is located, can be null in case we couldn't resolve it
      * Note, for the root project, it's will always be null, as we won't resolve it to a location in the repository.
@@ -118,10 +129,10 @@ public class Artifact {
      * @return
      */
     public List<Artifact> resolveDependencies(Scope forScope, MavenParser parser) {
-        Set<WithoutVersion> alreadyIncluded = new HashSet<>();
         var result = new ArrayList<Artifact>(dependencies.size());
-        var rangedDeps = new HashMap<WithoutVersion, SortedSet<String>>();
-        calculateClassPath(forScope, alreadyIncluded, rangedDeps, result, parser);
+        Queue<ResolveState> resolveQueue = new LinkedList<>();
+        resolveQueue.add(new ResolveState(this, Collections.emptySet()));
+        calculateClassPath(forScope, resolveQueue, result, parser);
         return result;
     }
 
@@ -130,70 +141,156 @@ public class Artifact {
     }
 
     /**
-     * For unrestricted versions (just simple version numbers), we will use the first version
-     * it encounters. This means top-level versions take preference.
-     * For version ranges maven uses the latest version that matches all ranges. If no such version
-     * exists, resolution fails.
+     * A key used to identify artifacts that have already been resolved.
+     * The key is based on the groupId, artifactId, and the transtive set of exclusions.
      */
-    private void calculateClassPath(Scope forScope, Set<WithoutVersion> alreadyIncluded, Map<WithoutVersion, SortedSet<String>> rangedDeps, ArrayList<Artifact> result, MavenParser parser) {
-        var nextLevel = new ArrayList<Artifact>(dependencies.size());
-        for (var d : dependencies) {
-            var coordinate = d.getCoordinate();
-            var withoutVersion = coordinate.versionLess();
+    static private class ResolveKey {
+        @NonNull
+        private final String groupId;
+        @NonNull
+        private final String artifactId;
+        @NonNull
+        private final Set<WithoutVersion> excludes;
 
-            var version = coordinate.getVersion();
-            if (isVersionRange(version)) {
-                try {
-                    version = ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
-                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
+        public ResolveKey(ArtifactCoordinate coordinate, Set<WithoutVersion> excludes) {
+            this.groupId = coordinate.getGroupId();
+            this.artifactId = coordinate.getArtifactId();
+            this.excludes = excludes;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + groupId.hashCode();
+            result = prime * result + artifactId.hashCode();
+            result = prime * result + excludes.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof ResolveKey)) {
+                return false;
+            }
+            ResolveKey other = (ResolveKey) obj;
+
+            return groupId.equals(other.groupId) && artifactId.equals(other.artifactId)
+                && excludes.equals(other.excludes);
+        }
+    }
+
+
+    /**
+     * The state of the resolver. It contains the artifact and the transitive set of exclusions.
+     */
+    static private class ResolveState {
+        private final Artifact artifact;
+        private final Set<WithoutVersion> exclusions;
+
+        public ResolveState(Artifact artifact, Set<WithoutVersion> exclusions) {
+            this.artifact = artifact;
+            this.exclusions = exclusions;
+        }
+    }
+
+    /**
+     * We will use the first version we encounter (breadth-first) and cache it.
+     * Note that caching is done modulo transitive exclusions.
+     * For ranged versions we just use the first suitable version for the first range we encounter.
+     *
+     * This method is intentionally static so we can be sure we do not use instance variables by mistake.
+     */
+    private static void calculateClassPath(Scope forScope, Queue<ResolveState> resolveQueue, ArrayList<Artifact> result, MavenParser parser) {
+        Set<ResolveKey> alreadyResolved = new HashSet<>();
+        Map<WithoutVersion, String> resolvedVersions = new HashMap<>();
+        Map<WithoutVersion, SortedSet<String>> rangedDeps = new HashMap<>();
+
+        boolean topLevel = true;
+        while (!resolveQueue.isEmpty()) {
+            var state = resolveQueue.poll();
+            var artifact = state.artifact;
+            for (var d : artifact.dependencies) {
+                var coordinate = d.getCoordinate();
+                var versionLess = coordinate.versionLess();
+
+                var version = coordinate.getVersion();
+                if (isVersionRange(version)) {
+                    try {
+                        version = artifact.ourResolver.findLatestMatchingVersion(coordinate.getGroupId(), coordinate.getArtifactId(), version);
+                        coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), version, coordinate.getClassifier());
+                    }
+                    catch (UnresolvableModelException e) {
+                        artifact.messages = artifact.messages.append(MavenMessages.error("Version range error: " + e.getMessage(), d));
+                        continue;
+                    }
+
+                    var versions = rangedDeps.computeIfAbsent(versionLess, k -> new TreeSet<>());
+                    if (versions.add(version) && versions.size() == 2) { // Only add a warning once
+                        String effectiveVersion = versions.first();
+                        artifact.messages = artifact.messages.append(MavenMessages.warning("Multiple version ranges found for " + versionLess + " are used. "
+                            + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["
+                            + effectiveVersion + "]</version>", d));
+                    }
                 }
-                catch (UnresolvableModelException e) {
-                    messages = messages.append(Messages.error("Version range error: " + e.getMessage(), d.getPomLocation()));
+
+                if (!d.shouldInclude(forScope)) {
                     continue;
                 }
 
-                var versions = rangedDeps.computeIfAbsent(withoutVersion, k -> new TreeSet<>());
-                if (versions.add(version) && versions.size() == 2) { // Only add a warning once
-                    String effectiveVersion = versions.first();
-                    messages = messages.append(Messages.warning("Multiple version ranges found for " + withoutVersion + " are used. " 
-                        + "It is better to lock the desired version in your own pom to a specifick version, for example <version>["+ effectiveVersion + "]</version>", d.getPomLocation()));
-                }
-            }
-
-            if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
-                continue;
-            }
-            if (d.getScope() == Scope.PROVIDED) {
-                // current maven behavior seems to be:
-                // - do not download provided dependencies
-                // - if a provided dependency is present in the maven repository it's considered "provided"
-                var pomDep = ourResolver.calculatePomPath(d.getCoordinate());
-                if (!Files.notExists(pomDep)) {
-                    // ok, doesn't exist yet. so don't download it to calculate dependencies
-                    // and don't add it to the list since somewhere else somebody might depend on it 
+                if (!topLevel && d.getScope() == Scope.PROVIDED) {
                     continue;
                 }
-            }
-            if (d.getScope() == Scope.SYSTEM) {
-                result.add(createSystemArtifact(d));                
-                continue;
-            }
 
-            var art = parser.parseArtifact(coordinate, d.getExclusions(), ourResolver);
-            if (art != null) {
-                result.add(art);
-                nextLevel.add(art);
+                String resolvedVersion = resolvedVersions.get(versionLess);
+
+                boolean resolved = resolvedVersion != null;
+                if (resolved) {
+                    coordinate = new ArtifactCoordinate(coordinate.getGroupId(), coordinate.getArtifactId(), resolvedVersion, coordinate.getClassifier());
+                } else {
+                    resolvedVersions.put(versionLess, version);
+                }
+
+                var key = new ResolveKey(coordinate, state.exclusions);
+                if (alreadyResolved.contains(key)) {
+                    continue;
+                }
+                alreadyResolved.add(key);
+
+                if (d.getScope() == Scope.SYSTEM) {
+                    if (!resolved) {
+                        result.add(createSystemArtifact(d));
+                    }
+                    continue;
+                }
+
+                Set<WithoutVersion> newExclusions = state.exclusions;
+                if (!d.getExclusions().isEmpty()) {
+                    if (state.exclusions.isEmpty()) {
+                        newExclusions = d.getExclusions();
+                    } else {
+                        newExclusions = new HashSet<>(newExclusions);
+                        newExclusions.addAll(d.getExclusions());
+                    }
+                }
+                newExclusions = Set.copyOf(newExclusions); // Turn the set into an immutable set (if it is not already)
+
+                var art = parser.parseArtifact(coordinate, newExclusions, d, artifact.ourResolver);
+                if (art != null) {
+                    if (!resolved) {
+                        result.add(art);
+                    }
+                    resolveQueue.add(new ResolveState(art, newExclusions));
+                }
             }
-            alreadyIncluded.add(withoutVersion);
-        }
-        if (forScope == Scope.TEST) {
-            // only do test scope for top level, switch to compile after that
-            forScope = Scope.COMPILE;
-        }
-        // now we go through the new artifacts and make sure we add their dependencies if needed 
-        // but now in their context (their resolver etc)
-        for (var a: nextLevel) {
-            a.calculateClassPath(forScope, alreadyIncluded, rangedDeps, result, parser);
+            topLevel = false;
+            if (forScope == Scope.TEST) {
+                // only do test scope for top level, switch to compile after that
+                forScope = Scope.COMPILE;
+            }
         }
     }
 
@@ -203,21 +300,26 @@ public class Artifact {
         String systemPath = d.getSystemPath();
         Path path = null;
         if (systemPath == null) {
-            messages.append(Messages.error("system dependency " + d + " without a systemPath property", d.getPomLocation()));
+            messages.append(MavenMessages.error("system dependency " + d + " without a systemPath property", d));
         } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
-                messages.append(Messages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d.getPomLocation()));
+                messages.append(MavenMessages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d));
                 path = null;
             }
         }
 
-        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
+        return new Artifact(d.getCoordinate(), null, d, path, Collections.emptyList(), messages.done(), null);
     }
 
-    /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
-        if (m.getPackaging() != null && !("jar".equals(m.getPackaging()) || "eclipse-plugin".equals(m.getPackaging()))) {
+    private static boolean isJarPackaging(String packaging) {
+        return packaging.equals("jar") || packaging.equals("eclipse-plugin") || packaging.equals("maven-plugin") || packaging.equals("bundle");
+    }
+
+    /*package*/ static @Nullable Artifact build(Model m, Dependency origin, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
+        String packaging = m.getPackaging();
+        if (packaging != null && !isJarPackaging(packaging)) {
             // we do not support non-jar artifacts right now
             return null;
         }
@@ -227,22 +329,34 @@ public class Artifact {
         var parentCoordinate = parent == null ? null : new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
         try {
             var loc = isRoot ? null : resolver.resolveJar(coordinate); // download jar if needed
-            var dependencies = m.getDependencies().stream()
+            List<Dependency> dependencies;
+            if (packaging != null && packaging.equals("bundle")) {
+                dependencies = Collections.emptyList();
+            } else {
+                dependencies = m.getDependencies().stream()
                 .filter(d -> !"import".equals(d.getScope()))
                 .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
-                .map(d -> Dependency.build(d, messages, pomLocation))
+                .map(d -> {
+                    if (d.getVersion() == null) {
+                        // while rare, this happens when a user has an incomplete dependencyManagement section
+                        InputLocation depLoc = d.getLocation("");
+                        messages.append(MavenMessages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a version", pomLocation, depLoc.getLineNumber(), depLoc.getColumnNumber()));
+                    }
+                    return Dependency.build(d, pomLocation);
+                })
                 .collect(Collectors.toUnmodifiableList())
                 ;
-            return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
+            }
+            return new Artifact(coordinate, parentCoordinate, origin, loc, dependencies, messages.done(), resolver);
         } catch (UnresolvableModelException e) {
-            messages.append(Messages.error("Could not download corresponding jar", pomLocation));
-            return new Artifact(coordinate, parentCoordinate, null, Collections.emptyList(), messages.done(), resolver);
+            messages.append(MavenMessages.error("Could not download corresponding jar", origin));
+            return new Artifact(coordinate, parentCoordinate, origin, null, Collections.emptyList(), messages.done(), resolver);
         }
 
     }
 
-    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, IListWriter messages) {
-        return new Artifact(coordinate, null, null, Collections.emptyList(), messages.done(), null);
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, Dependency origin, IListWriter messages) {
+        return new Artifact(coordinate, null, origin, null, Collections.emptyList(), messages.done(), null);
     }
 
     @Override

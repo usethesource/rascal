@@ -159,7 +159,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <4> A single character.
 }
 
-data Tree //(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
+data Tree(loc parseError = |unknown:///|(0,0,<0,0>,<0,0>)) //loc src = |unknown:///|(0,0,<0,0>,<0,0>)
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
@@ -786,30 +786,6 @@ data Exp = add(Exp, Exp);
 ```
 }
 java &T<:value implode(type[&T<:value] t, Tree tree);
-
-@synopsis{Annotate a parse tree node with an (error) message.}
-anno Message Tree@message;
-
-@synopsis{Annotate a parse tree node with a list of (error) messages.}
-anno set[Message] Tree@messages;
-
-@synopsis{Annotate a parse tree node with a documentation string.}
-anno str Tree@doc;
-
-@synopsis{Annotate a parse tree node with documentation strings for several locations.}
-anno map[loc,str] Tree@docs;
-
-@synopsis{Annotate a parse tree node with the target of a reference.}
-anno loc Tree@link;
-
-@synopsis{Annotate a parse tree node with multiple targets for a reference.}
-anno set[loc] Tree@links;
-
-@synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)}
-@description{
-This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
-}
-anno rel[loc,loc] Tree@hyperlinks;
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();

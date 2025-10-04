@@ -54,6 +54,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
@@ -378,8 +379,9 @@ public class JavaBridge {
 		int writers = 0;
 
 		try {
-			for(ClassLoader loader : loaders){
-				try{
+			// TODO: this could also be a single classloader
+			for (ClassLoader loader : loaders) {
+				try {
 					Class<?> clazz = loader.loadClass(className);
 
 					Object instance = instanceCache.get(clazz);
@@ -409,6 +411,10 @@ public class JavaBridge {
 					    if (formals[i].isAssignableFrom(IValueFactory.class)) {
 					        args[i] = vf;
 					    }
+						// TODO this is for interpreter debugging purposes. The compiled runtime can produce `null` for this.
+						else if (formals[i].isAssignableFrom(RascalSearchPath.class)) {
+							args[i] = ctx.getEvaluator().getRascalResolver();
+						}
 					    else if (formals[i].isAssignableFrom(TypeStore.class)) {
 					        args[i] = store;
 					    }
@@ -465,7 +471,7 @@ public class JavaBridge {
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
-				catch(ClassNotFoundException e){
+				catch (ClassNotFoundException e) {
 					continue;
 				} 
 			}

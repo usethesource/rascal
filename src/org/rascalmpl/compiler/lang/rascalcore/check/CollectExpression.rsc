@@ -31,14 +31,8 @@ module lang::rascalcore::check::CollectExpression
     Check all expressions
 */
 
-extend lang::rascalcore::check::CheckerCommon;
-extend lang::rascalcore::check::PathAnalysis;
-extend lang::rascalcore::check::CollectLiteral;
-
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectStatement;
-
-import lang::rascal::\syntax::Rascal;
 
 import Map;
 import Node;
@@ -46,6 +40,10 @@ import Set;
 import String;
 import util::Math;
 import IO;
+
+extend lang::rascalcore::check::CheckerCommon;
+extend lang::rascalcore::check::PathAnalysis;
+extend lang::rascalcore::check::CollectLiteral;
 
 // ---- Rascal literals, also see CollectLiteral
 
@@ -575,7 +573,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  checkNonVoid(x, s, "Argument");
             }
 
-            texp = s.getType(expression);
+            AType texp = s.getType(expression);
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -621,13 +619,12 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
+                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
                             if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-
-                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                             continue next_fun;
                          catch NoBinding():
@@ -656,21 +653,22 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
-                    checkOverloadedConstructors(expression, validOverloads, s);
+                    //checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
-                    //s.report(error(current, "Unresolved call to overloaded function defined as %t",  expression));
+                    // overloading of constructors is checked afterwards by checkOverloadedConstructors,
+                    // maybe introduce a list of these overloaded cases for efficiency?
                     return overloadedAType(validReturnTypeOverloads);
                  }
                }
             }
 
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
-               // TODO; texp can get type value and then texp.deprecationMessage does not exist
-               if(texp.deprecationMessage?){
-                   s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+                res = checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               if(ft.deprecationMessage?){
+                   s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "": ": " + ft.deprecationMessage));
                }
-                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
+               return res;
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
                res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
@@ -733,26 +731,27 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     }
 }
 
-private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
-    if(current is qualifiedName){
-        return;
-    }
-    coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
-    if(size(coverloads) > 1){
-        ovl1 = coverloads[0];
-        adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
-        qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v",
-                             ovl1.atype.alabel,
-                             qualifyHint,
-                             argHint));
-                             }
-}
+// private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
+//     return;
+//     if((Expression) `<QualifiedName qn>` := current, size([nm | nm <- qn.names]) > 1){
+//         return;
+//     }
+//     coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
+//     if(size(coverloads) > 1){
+//         ovl1 = coverloads[0];
+//         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
+//         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+//         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+//         s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v",
+//                              ovl1.atype.alabel,
+//                              qualifyHint,
+//                              argHint));
+//                              }
+// }
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     rel[loc, IdRole, AType] filteredOverloads = {};
-    prevFormals = [];
+    list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
 
     for(ovl:<_, _, tp> <- overloads){
@@ -926,7 +925,7 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, Collec
     elms = [ e | Expression e <- elements1 ];
     c.calculate("tuple expression", current, elms,
         AType(Solver s) {
-                for(elm <- elms) checkNonVoid(elm, s, "Element of tuple");
+                for(Expression elm <- elms) checkNonVoid(elm, s, "Element of tuple");
                 return atuple(atypeList([ s.getType(elm) | elm <- elms ]));
         });
     collect(elements1, c);
@@ -1001,7 +1000,7 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     if(!isEmpty(qualifier)){
        c.useQualified([qualifier, base], name, {moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
-        if(!isEmpty(c.getStack(currentAdt))){
+        if(c.isAlreadyDefined("<name>", name) || !isEmpty(c.getStack(currentAdt))){
             c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
         } else {
             c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
@@ -1071,7 +1070,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
     c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
-    c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
+    c.require("non void or overloaded", expression, [], makeNonVoidNonOverloadedRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);
 }
@@ -1170,7 +1169,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     list[str] fieldNames = [ ];
     bool maintainFieldNames = tupleHasFieldNames(rt);
 
-    for (f <- fields) {
+    for (Field f <- fields) {
         if ((Field)`<IntegerLiteral il>` := f) {
             int offset = toInt("<il>");
             if (!tupleHasField(rt, offset))

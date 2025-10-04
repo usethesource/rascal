@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.dap.variable;
 
+import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -38,12 +41,12 @@ public class RascalVariable {
     private int namedVariables = 0;
     private int indexedVariables = 0;
 
-    public RascalVariable(Type type, String name, IValue value){
+    public RascalVariable(Type type, String name, IValue value, IDEServices services) {
         this.referenceID = -1;
         this.type = type;
         this.name = name;
         this.value = value;
-        this.displayValue = RascalVariableUtils.getDisplayString(value);
+        this.displayValue = RascalVariableUtils.getDisplayString(value, services);
     }
 
     public void setNamedVariables(int namedVariables) {
@@ -83,7 +86,7 @@ public class RascalVariable {
             return false;
         }
 
-        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime();
+        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime() || (type.isExternalType() && type.equals(RascalValueFactory.Tree));
     }
 
     public int getNamedVariables() {

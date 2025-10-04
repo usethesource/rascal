@@ -26,23 +26,29 @@
  */
 package org.rascalmpl.dap.variable;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.io.StandardTextWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-
 import java.io.IOException;
 import java.io.Writer;
+
+import org.rascalmpl.dap.RascalDebugAdapter;
+import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalVariableUtils {
 
     private static final int MAX_SIZE_STRING_NAME = 128;
 
     // copied from Rascal Eclipse debug.core.model.RascalValue
-    public static String getDisplayString(IValue value) {
+    public static String getDisplayString(IValue value, IDEServices services) {
         if(value == null) {
             return "null";
+        }
+        if (value instanceof ITree) {
+            return "(" + value.getType() + ")`" + TreeAdapter.yield((ITree)value) + "`";
         }
         Writer w = new LimitedResultWriter(MAX_SIZE_STRING_NAME);
         try {
@@ -51,8 +57,7 @@ public class RascalVariableUtils {
         } catch (LimitedResultWriter.IOLimitReachedException e) {
             return w.toString();
         } catch (IOException e) {
-            final Logger logger = LogManager.getLogger(RascalVariableUtils.class);
-            logger.error(e.getMessage(), e);
+            services.warning(e.getMessage(), RascalDebugAdapter.DEBUGGER_LOC);
             return "error during serialization...";
         }
     }

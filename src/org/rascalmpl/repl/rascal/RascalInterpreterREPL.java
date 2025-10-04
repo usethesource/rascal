@@ -150,15 +150,14 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 reg.watch(p, true, d -> sourceLocationChanged(p, d));
             }
             catch (IOException e) {
-                stderr.println("Failed to register watch for " + p);
-                e.printStackTrace(stderr);
+                monitor.warning("Not watching " + p + " for changes because: " + e.getMessage(), p);
             }
         });
         return services;
     }
 
     private boolean isWatchable(ISourceLocation loc) {
-        return reg.exists(loc) && (reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc));
+        return reg.isDirectory(loc) && (reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc));
     }
 
     private final Pattern debuggingCommandPattern = Pattern.compile("^\\s*:set\\s+debugging\\s+(true|false)");

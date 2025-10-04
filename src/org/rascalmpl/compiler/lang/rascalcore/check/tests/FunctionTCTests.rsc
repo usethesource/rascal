@@ -91,3 +91,24 @@ test bool matchNotOK1() = unexpectedType("bool f(&A \<: str a, &B \<:int b) = &A
       }
       return n;
   }");
+
+
+test bool ADTConstructorAsArgNotOk(){
+   return argumentMismatchInModule("
+      module ADTConstructorAsArgNotOk
+         data A = a(int i);
+
+         void f(void(A) _) { }
+
+      void main(){ f(a);  }");
+}
+
+test bool SyntaxConstructorAsArgNotOk(){
+   return argumentMismatchInModule("
+      module SyntaxConstructorAsArgNotOk
+         syntax A = a: \"a\";
+
+         void f(void(A) _) { }
+
+      void main(){ f(a);  }");
+}

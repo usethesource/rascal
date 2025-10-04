@@ -31,10 +31,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,8 +58,14 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertEquals("Vallang should be of right version", "1.0.0-RC15", vallang.getCoordinate().getVersion());
         assertNotNull("Vallang should be found/downloaded in the repo", vallang.getResolved());
 
+        var capsuleDep = locateDependency(vallang.getDependencies(), "capsule");
+        assertTrue("Capsule should be a dependency of vallang", capsuleDep.isPresent());
+        assertEquals(191, capsuleDep.get().getLine());
+        assertEquals(14, capsuleDep.get().getColumn());
+
         var maybeCapsule = locate(resolved, "capsule");
         assertTrue("Vallang should depend on capsule", maybeCapsule.isPresent());
+
 
         Path artifactPath = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15"));
         Path sha1Path = artifactPath.resolve("vallang-1.0.0-RC15.jar.sha1");
@@ -81,6 +90,12 @@ public class MavenResolverTest extends AbstractMavenTest {
 
     private static Optional<Artifact> locate(List<Artifact> resolved, String artifactId) {
         return resolved.stream()
+            .filter(d -> d.getCoordinate().getArtifactId().equals(artifactId))
+            .findFirst();
+    }
+
+    private static Optional<Dependency> locateDependency(List<Dependency> dependencies, String artifactId) {
+        return dependencies.stream()
             .filter(d -> d.getCoordinate().getArtifactId().equals(artifactId))
             .findFirst();
     }
@@ -112,6 +127,9 @@ public class MavenResolverTest extends AbstractMavenTest {
 
         assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
         assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
+        String message = maybeCoreLink.get().getMessages().get(0).toString();
+        assertTrue("example-core should have a warning message", message.contains("No downloading & updating logic of SNAPSHOTs yet"));
+        assertTrue("example-core message should have origin information", message.contains("<20,17>"));
     }
 
     @Test
@@ -194,4 +212,24 @@ public class MavenResolverTest extends AbstractMavenTest {
         assertTrue(msgs.get(0).toString().contains("\\'version\\' is missing"));
     }
 
+    @Test
+    public void checkRascalPaths() throws ModelResolutionError, IOException {
+        var parser = createParser("rascal/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        List<Path> paths = resolved.stream()
+            .map(artifact -> artifact.getResolved())
+            .map(path -> tempRepo.relativize(path))
+            .sorted()
+            .collect(Collectors.toList());
+
+        List<Path> expected = Files.lines(getPomsPath("rascal/expected-path-list.txt"))
+            .map(line -> Path.of(line))
+            .sorted()
+            .collect(Collectors.toList());
+
+        Assert.assertEquals(expected, paths);
+
+        printMessages(project, resolved);
+    }
 }

@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -21,12 +22,14 @@ import org.jline.utils.OSUtils;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.ArtifactCoordinate;
+import org.rascalmpl.util.maven.MavenMessages;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
@@ -63,7 +66,14 @@ public class PathConfig {
         "messages", tf.listType(Messages.Message),
         "generatedSources", tf.sourceLocationType() // deprecated!
     );
-    private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+    private static final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+
+    static {
+        store.extendStore(Messages.ts);
+        PathConfigFields.forEach((n, t) -> {
+            store.declareKeywordParameter(pathConfigConstructor, n, t);
+        });
+    }
     
     private final ISourceLocation projectRoot;
     private final List<ISourceLocation> srcs;		
@@ -137,6 +147,28 @@ public class PathConfig {
         this.libs = libs.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
         this.resources = resources.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());;
         this.messages = messages.stream().map(IConstructor.class::cast).collect(Collectors.toList());;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectRoot, srcs, libs, bin, ignores, resources, messages);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof PathConfig)) {
+            return false;
+        }
+        PathConfig other = (PathConfig) obj;
+        return Objects.equals(projectRoot, other.projectRoot)
+            && Objects.equals(srcs, other.srcs)
+            && Objects.equals(ignores, other.ignores)
+            && Objects.equals(bin, other.bin)
+            && Objects.equals(libs, other.libs)
+            && Objects.equals(resources, other.resources)
+            && Objects.equals(messages, other.messages);
     }
 
     private static IList messages(IConstructor pcfg) {
@@ -336,6 +368,22 @@ public class PathConfig {
         return resolveProjectOnClasspath("rascal");
     }
 
+    public static ISourceLocation inferProjectRoot(Class<?> clazz) throws IOException {
+        var url = clazz.getProtectionDomain().getCodeSource().getLocation();
+        
+        if (url.getProtocol().equals("file")) {
+            try {
+                return inferProjectRoot(vf.sourceLocation(URIUtil.fromURL(url)));
+            }
+            catch (URISyntaxException e) {
+                throw new IOException(e);
+            }
+        }
+        else {
+            throw new FileNotFoundException();
+        }
+    }
+
     public static ISourceLocation inferProjectRoot(ISourceLocation member) {
         ISourceLocation current = member;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -355,7 +403,7 @@ public class PathConfig {
         return current;
     }
 
-    public PathConfig parse(String pathConfigString) throws IOException {
+    public static PathConfig parse(String pathConfigString) throws IOException {
         try {
             IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
             IWithKeywordParameters<?> kwp = cons.asWithKeywordParameters();
@@ -391,8 +439,12 @@ public class PathConfig {
         if (mode == RascalConfigMode.INTERPRETER) {
             // if you want to test rascal changes, use RascalShell class and run it as a java process
             srcs.append(URIUtil.rootLocation("std"));
+            
+            messages.append(Messages.info("Bootstrap |std:///| = " + StandardLibraryURIResolver.getDebugBootstrapLocation(), workspaceRascal));
             // add our own jar to the lib path to make sure rascal classes are found 
-            libs.append(resolveCurrentRascalRuntimeJar());
+            var runtime = resolveCurrentRascalRuntimeJar();
+            libs.append(runtime);
+            messages.append(Messages.info("Bootstrap runtime   = " + runtime, workspaceRascal));
         }
         else {
             // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
@@ -529,7 +581,9 @@ public class PathConfig {
         // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
         try {
             var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
-            srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
+            if (mode == RascalConfigMode.INTERPRETER) {
+                srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
+            }
             // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
             addLibraryToLibPath(libs, mode, lsp);
         }
@@ -549,11 +603,14 @@ public class PathConfig {
                 // unless this is a local project (that never got added to m2 repo)
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", art.getCoordinate().getArtifactId(), "");
                 if (reg.exists(projectLoc)) {
-                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    if (mode == RascalConfigMode.INTERPRETER) {
+                        // Note that this is not the main project pom so art.getOrigin() should not be null
+                        messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
+                    }
                     addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
                 }
                 else {
-                    messages.append(Messages.error("Declared dependency does not exist: " + art.getCoordinate(), getPomXmlLocation(manifestRoot)));
+                    messages.append(MavenMessages.error("Declared dependency does not exist: " + art.getCoordinate(), art));
                 }
                 return;
             }
@@ -570,7 +627,7 @@ public class PathConfig {
                 return; 
             }
             if (libProjectName.equals("rascal-lsp")) {
-                checkLSPVersionsMatch(manifestRoot, messages, dep);
+                checkLSPVersionsMatch(manifestRoot, messages, dep, art);
                 // we'll be adding the rascal-lsp by hand later
                 // so we ignore the rascal-lsp dependency
                 return;
@@ -580,7 +637,10 @@ public class PathConfig {
             if (reg.exists(projectLoc)) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
-                messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                if (mode == RascalConfigMode.INTERPRETER) {
+                    messages.append(MavenMessages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, art));
+                }
+                libs.append(URIUtil.correctLocation("target", libProjectName, ""));
                 addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
             else {
@@ -591,7 +651,7 @@ public class PathConfig {
                 }
             }
         } catch (URISyntaxException e) {
-            messages.append(Messages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, manifestRoot));
+            messages.append(MavenMessages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, art));
         } 
     }
 
@@ -602,19 +662,19 @@ public class PathConfig {
         buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
     }
 
-    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation dep) throws IOException {
+    private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation jarLocation, Artifact artifact) throws IOException {
         // Rascal LSP is special because the VScode extension pre-loads it into the parametric DSL VM.
         // If the version is different, then the debugger may point to the wrong code, and also the Rascal
         // IDE features like "jump-to-definition" could be off.
         try {
             var loadedRascalLsp = resolveProjectOnClasspath("rascal-lsp");
             var reg = URIResolverRegistry.getInstance();
-            try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(dep)) {
+            try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(jarLocation)) {
                 var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
                 var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                 if (version != null && !version.equals(otherVersion)) {
-                    messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", getPomXmlLocation(manifestRoot)));
+                    messages.append(MavenMessages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing, for that reason we've replaced it with the effective one, please update your pom.xml.", artifact));
                 }
             }
         }
@@ -671,7 +731,7 @@ public class PathConfig {
         IListWriter resourcesWriter = (IListWriter) vf.listWriter().unique();
         IListWriter messages = vf.listWriter();
         
-        if (isRoot) {
+        if (isRoot && mode == RascalConfigMode.INTERPRETER) {
             messages.append(Messages.info("Rascal version is " + RascalManifest.getRascalVersionNumber(), getPomXmlLocation(manifestRoot)));
         }
 

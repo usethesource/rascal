@@ -35,7 +35,6 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::agrammar::definition::Attributes;
-import lang::rascal::\syntax::Rascal;
 import IO;
 import Map;
 
@@ -119,8 +118,6 @@ AType(Solver) makeKeywordFieldType(str fieldName, KeywordFormal kwf)
   
         return fldType[alabel=fieldName]; 
       };
-         
-int variantCounter = 0;
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
     
@@ -170,7 +167,6 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
                 })[md5 = md5Hash(md5Contrib)]);
-            variantCounter += 1;
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);
                  // The standard rules would declare arguments and kwFormals as variableId();

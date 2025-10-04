@@ -17,13 +17,18 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -66,7 +71,8 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
-	protected Set<String> importedModules;
+	/** Map of imported modules to resolved ModuleEnvironments, will only be empty in case of a module was in a cycle or got reloaded and failed during the reload. use {@link #importedModulesResolved} to lazily resolve the modules. */
+	protected Map<String, Optional<ModuleEnvironment>> importedModules;
 	protected Set<String> extended;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
@@ -77,15 +83,17 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
+	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	protected Map<String, List<AbstractFunction>> cachedPublicFunctions;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	public final static String SHELL_MODULE = "$shell$";
+	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
-		this.importedModules = new HashSet<String>();
+		this.importedModules = new HashMap<>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.generalKeywordParameters = new HashMap<Type,List<KeywordFormal>>();
@@ -94,6 +102,8 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	/**
@@ -112,14 +122,16 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = env.syntaxDefined;
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 		this.deprecated = env.deprecated;
 	}
 
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashSet<String>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.importedModules = new HashMap<>();
+		this.concreteSyntaxTypes = new HashMap<>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
@@ -127,19 +139,27 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.generalKeywordParameters = new HashMap<>();
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
+	}
+
+	public void clearLookupCaches() {
+		importedModules.replaceAll((k, v) -> Optional.empty());
+		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 	
 	public void extend(ModuleEnvironment other) {
-//	  super.extend(other);
 		extendNameFlags(other);
 		  
 	  // First extend the imports before functions and variables
       // so that types become available
 	  if (other.importedModules != null) {
 	    if (this.importedModules == null) {
-	      this.importedModules = new HashSet<String>();
+	      this.importedModules = new HashMap<>();
 	    }
-	    this.importedModules.addAll(other.importedModules);
+	    this.importedModules.putAll(other.importedModules);
 	  }
 	  
 	  if (other.concreteSyntaxTypes != null) {
@@ -289,7 +309,7 @@ public class ModuleEnvironment extends Environment {
 				result.put(VF.string(m), t);
 			}else if(m.equals(getName())) { // This is the root scope.
 				ISetWriter importWriter = VF.setWriter();
-				for(String impname : importedModules){
+				for(String impname : importedModules.keySet()){
 					if(!done.contains(impname)) todo.add(impname);
 					
 					importWriter.insert(VF.string(impname));
@@ -322,8 +342,16 @@ public class ModuleEnvironment extends Environment {
 	
 	public void addImport(String name, ModuleEnvironment env) {
 		assert heap.getModule(name).equals(env);
-		importedModules.add(name);
+		importedModules.put(name, Optional.ofNullable(env));
 		typeStore.importStore(env.typeStore);
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
+	}
+
+	void removeModule(String name) {
+		importedModules.computeIfPresent(name, (k, v) -> Optional.empty());
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	public void addExtend(String name) {
@@ -331,13 +359,15 @@ public class ModuleEnvironment extends Environment {
 			extended = new HashSet<String>();
 		}
 		extended.add(name);
+		this.cachedGeneralKeywordParameters = null;
+		this.cachedPublicFunctions = null;
 	}
 	
 	public List<AbstractFunction> getTests() {
 		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
 		
 		if (functionEnvironment != null) {
-			for (List<AbstractFunction> f : functionEnvironment.values()) {
+			for (LinkedHashSet<AbstractFunction> f : functionEnvironment.values()) {
 				for (AbstractFunction c : f) {
 					if (c.isTest()) {
 						result.add(c);
@@ -351,7 +381,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<String> getImports() {
-		return Collections.unmodifiableSet(importedModules);
+		return Collections.unmodifiableSet(importedModules.keySet());
 	}
 	
 	public Set<String> getImportsTransitive() {
@@ -379,16 +409,18 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		if (importedModules.remove(moduleName)) {
-			ModuleEnvironment old = heap.getModule(moduleName);
-			if (old != null) {
-				typeStore.unimportStores(new TypeStore[] { old.getStore() });
-			}
+		var old = importedModules.remove(moduleName);
+		if (old != null && old.isPresent()) {
+			typeStore.unimportStores(old.get().getStore());
 		}
+		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 	
 	public void unExtend(String moduleName) {
 		extended.remove(moduleName);
+		cachedGeneralKeywordParameters = null;
+		cachedPublicFunctions = null;
 	}
 
 	@Override
@@ -440,6 +472,7 @@ public class ModuleEnvironment extends Environment {
 		
 		return getFrameVariable(cons);
 	}
+
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
@@ -454,8 +487,7 @@ public class ModuleEnvironment extends Environment {
 			super.storeVariable(name, value);
 		}
 		else {
-			for (String i : importedModules) {
-				ModuleEnvironment module = heap.getModule(i);
+			for (ModuleEnvironment module : importedModulesResolved) {
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -476,8 +508,7 @@ public class ModuleEnvironment extends Environment {
 			return var;
 		}
 		
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
+		for (ModuleEnvironment mod : importedModulesResolved) {
 			
 			if (mod != null) { 
 			  var = mod.getLocalPublicVariable(name);
@@ -504,8 +535,7 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
+		for (ModuleEnvironment mod : importedModulesResolved) {
 			Result<IValue> r = null;
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
@@ -520,31 +550,35 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
-		super.getAllFunctions(name, collection);
-		
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
-			
-			if (mod != null) {
-			  mod.getLocalPublicFunctions(name, collection);
-			}
+		collection.addAll(lookupCachedFunctions(name));
+	}
+
+	private List<AbstractFunction> lookupCachedFunctions(String name) {
+		if (cachedPublicFunctions == null) {
+			cachedPublicFunctions = io.usethesource.capsule.Map.Transient.of();
 		}
+		return cachedPublicFunctions.computeIfAbsent(name, n -> {
+			var result = new ArrayList<AbstractFunction>();
+			super.getAllFunctions(n, result);
+			
+			for (ModuleEnvironment mod : importedModulesResolved) {
+				
+				if (mod != null) {
+					mod.getLocalPublicFunctions(n, result);
+				}
+			}
+			return result;
+		});
 	}
 	
 	@Override
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		super.getAllFunctions(returnType, name, collection);
-		
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
-			
-			if (mod != null) {
-			  mod.getLocalPublicFunctions(returnType, name, collection);
+		for (var function: lookupCachedFunctions(name)) {
+			if (function.getReturnType().comparable(returnType)) {
+				collection.add(function);
 			}
 		}
 	}
-	
-
 	
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
@@ -563,24 +597,10 @@ public class ModuleEnvironment extends Environment {
 	
 	private void getLocalPublicFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			List<AbstractFunction> lst = functionEnvironment.get(name);
+			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
 				if (!isNamePrivate(name)) {
 					collection.addAll(lst);
-				}
-			}
-		}
-	}
-	
-	private void getLocalPublicFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		if (functionEnvironment != null && !isNamePrivate(name)) {
-			List<AbstractFunction> lst = functionEnvironment.get(name);
-			
-			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (returnType.isSubtypeOf(func.getReturnType())) {
-						collection.add(func);
-					}
 				}
 			}
 		}
@@ -709,14 +729,23 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Set<GenericKeywordParameters> lookupGenericKeywordParameters(Type adt) {
+		if (cachedGeneralKeywordParameters != null) {
+			var result = cachedGeneralKeywordParameters.get(adt);
+			if (result != null) {
+				return result;
+			}
+		}
+		else {
+			cachedGeneralKeywordParameters = io.usethesource.capsule.Map.Transient.of();
+		}
+
 		Set<GenericKeywordParameters> result = new HashSet<>();
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list != null) {
 			result.add(new GenericKeywordParameters(this, list, getStore().getKeywordParameters(adt)));
 		}
 		
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
+		for (ModuleEnvironment mod : importedModulesResolved) {
 			
 			list = mod.generalKeywordParameters.get(adt);
 			if (list != null) {
@@ -724,6 +753,9 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 		
+		// save the result for next time
+		cachedGeneralKeywordParameters.put(adt, result);
+
 		return result;
 	}
 	
@@ -805,13 +837,33 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public ModuleEnvironment getImport(String moduleName) {
-		if(importedModules.contains(moduleName)) {
-			return heap.getModule(moduleName);
+		var result = importedModules.computeIfPresent(moduleName,
+			(m, c) -> c.isPresent() ? c : Optional.ofNullable(heap.getModule(m))
+		);
+		if (result == null || result.isEmpty()) {
+			return null;
 		}
-		else {
-			return null;    
-		}
+		return result.get();
 	}
+
+	private Iterable<ModuleEnvironment> importedModulesResolved = 
+		() -> new Iterator<ModuleEnvironment>() {
+			Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
+			@Override
+			public boolean hasNext() {
+				return iterator.hasNext();
+			}
+			@Override
+			public ModuleEnvironment next() {
+				var entry = iterator.next();
+				var result = entry.getValue();
+				if (result.isEmpty()) {
+					result = Optional.ofNullable(heap.getModule(entry.getKey()));
+					entry.setValue(result);
+				}
+				return result.orElse(null);
+			}
+		};
 	
 	@Override
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
@@ -850,8 +902,7 @@ public class ModuleEnvironment extends Environment {
 		Type type = concreteSyntaxTypes.get(name);
 		
 		if (type == null) {
-			for (String i : importedModules) {
-				ModuleEnvironment mod = getImport(i);
+			for (ModuleEnvironment mod : importedModulesResolved) {
 				
 				if (mod == null) {
 				  continue;
@@ -969,8 +1020,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (String moduleName : importedModules) {
-			ModuleEnvironment mod = getImport(moduleName);
+		for (ModuleEnvironment mod : importedModulesResolved) {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
@@ -1061,4 +1111,5 @@ public class ModuleEnvironment extends Environment {
 	public Set<IValue> getProductions() {
 		return productions;
 	}
+
 }

@@ -274,14 +274,41 @@ test bool UseVariableInConcreteSyntax() {
 		");
 }
 
-
-test bool RedeclareConstructorError(){ 
+test bool RedeclaredConstructorViaImportOk(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
-	return unexpectedDeclarationInModule("
-		module RedeclareConstructorError
+	return checkModuleOK("
+		module RedeclaredConstructorViaImportOk
 			import MMM;
 			data DATA = d(int m);
-			DATA x = d(3);
+		");
+}
+
+test bool RedeclaredConstructorInSameModuleNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedDeclarationInModule("
+		module RedeclaredConstructorInSameModuleNotOk
+			data DATA = d(int n);
+			data DATA = d(int m);
+		");
+}
+
+test bool OverloadedConstructorDifferentADTOnUseNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedTypeInModule("
+		module OverloadedConstructorDifferentADTOnUseNotOk
+			import MMM;
+			data DATA2 = d(int m);
+			value main() = d(4);
+		");
+}
+
+test bool OverloadedConstructorSameADTOnUseNotOk(){ 
+	writeModule("module MMM data DATA = d(int n);"); 
+	return unexpectedTypeInModule("
+		module OverloadedConstructorSameADTOnUseNotOk
+			import MMM;
+			data DATA = d(int m);
+			value main() = d(4);
 		");
 }
 
@@ -672,8 +699,7 @@ test bool LU4(){
 test bool LU5() {
 	writeModule("module A int twice(int n) = 2 * n;");
     writeModule("module B
-            		import A;
-            		import B;");
+            		import A;");
     return checkModuleOK("        
         module LU5
            	import A;

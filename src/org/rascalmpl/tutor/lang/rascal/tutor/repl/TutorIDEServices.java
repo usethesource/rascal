@@ -56,7 +56,7 @@ public class TutorIDEServices implements IDEServices {
     }
 
     @Override
-    public void edit(ISourceLocation path) {
+    public void edit(ISourceLocation path, int viewColumn) {
         
     }
 
