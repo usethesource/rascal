@@ -403,7 +403,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                    s.addMessages(msgs);
                 }
                 if(isVoidAType(t1.ret) && !isVoidAType(t2.ret)){
-                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                   causes = [ info("Clashing declaration of `<id>`", d2.defined) ];
+                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d1.defined, causes=causes) ];
                    s.addMessages(msgs);
                 }
                 if(comparableList(t1.formals, t2.formals)){
