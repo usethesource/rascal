@@ -109,7 +109,9 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
 
     ms = reportCycles(paths, extendPlus, ms);
     
-    paths += { *{<c, importPath(), a>| a <- extendPlus[b], c != a} | < c, importPath(), b> <- paths };
+    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
+             | < c, importPath(), b> <- paths 
+             };
 
     ms.paths = paths;
     // sync ms.strPaths with ms.paths
@@ -165,7 +167,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                     
-               dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
+               dependencyChanged = (m != qualifiedModuleName) && !isEmpty(ms.changedModules & range(ms.strPaths[m]));
                if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
                if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
                     allImportsAndExtendsValid = false;
