@@ -47,6 +47,7 @@ data Box(int hs=1, int vs=0, int is=4)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
+    | G(list[Box] boxes, int gs=2, Box op = H([]))
     | NULL()
     ;
 
@@ -90,13 +91,7 @@ into their context.
 Box SL(list[Box] boxes, Box sep, Box op = H([], hs=0))
   = G([b, sep | b <- boxes][..-1], op=op, gs=2);
 
-@synopsis{G boxes implement a group-by feature.}
-Box G([], Box op = H([]), int gs=2)
-  = U([]);
-
-Box G(list[Box] boxes:[Box head, *_], Box op=H([]), int gs=2)
-  = U([op[boxes=boxes[..gs]], *G(boxes[gs..], op=op, gs=gs).boxes]);
-
+// TODO: move this into box2text to deal with flattening of U boxes
 @synopsis{AG boxes implement a group-by feature for A rows, with optional row separators}
 Box AG([], int gs=2, list[Alignment] columns=[], Box rs=NULL())
   = A([], columns=columns, rs=rs);

@@ -207,6 +207,32 @@ private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     return r;
 }
 
+// empty lists do not need grouping
+private Text GG([], Box op, int gs, Box c, Options opts, int m)
+    = \continue(U([]), c, opts, m);
+
+// the last elements are smaller than the group size, just wrap them up and finish
+private Text GG([*Box last], Box op, int gs, Box c, Options opts, int m) 
+    = \continue(op[boxes=u(last)][hs=opts.hs][vs=opts.vs][is=opts.is], c, opts, m)
+    when size(last) < gs;
+
+// we pick the head of (size group size) and then continue with the rest
+private Text GG([*Box heads, *Box tail], Box op, int gs, Box c, Options opts, int m) 
+    = \continue(op[boxes=heads][hs=opts.hs][vs=opts.vs][is=opts.is], NULL(), opts, m)
+    + \continue(G(tail, op=op, hs=opts.hs, vs=opts.vs, is=opts.is, gs=gs), c, opts, m)
+    when size(heads) == gs;
+
+// private Text GG(list[Box] boxes, V(_), Options opts, int m, int gs, Box op)
+//     = \continue(V([groupBy(boxes, gs, op)]), c, opts, m);
+
+// private Text GG(list[Box] boxes, H(_), Options opts, int m, int gs, Box op)
+//     = \continue(H([groupBy(boxes, gs, op)]), c, opts, m);
+
+// public Box groupBy([], int _gs, Box _op) = U([]);
+
+// public Box groupBy(list[Box] boxes:[Box _, *_], int gs, Box op)
+//     = U([op[boxes=boxes[..gs]], *groupBy(boxes[gs..], gs, op).boxes]);
+
 private Text VV([], Box _c, Options _opts, int _m) = [];
 
 private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
@@ -307,6 +333,9 @@ private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) =
 
 // This is a degenerate case, an outermost U-Box without a wrapper around it.
 private Text continueWith(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
+
+private Text continueWith(Box b:G(list[Box] bl), Box c, Options opts, int m)
+    = GG(u(bl), b.op, b.gs, c, opts, m);
 
 private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, b.rs, opts, m);
@@ -547,11 +576,13 @@ test bool WDtest() {
            '";
 }
 
-test bool groupBy() {
+test bool groupByTest() {
     lst  = [L("<i>") | i <- [0..10]];
-    g1   = G(lst, op=H, gs=3);
+    g1   = G(lst, op=H([]), gs=3);
     lst2 = [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [0,3..7]] + [H([L("9")])];
 
+println(format(V([g1])));
+println(format(V(lst2)));
     return format(V([g1])) == format(V(lst2));
 }
 
