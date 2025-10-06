@@ -262,7 +262,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     ms = newModuleStatus(ccfg);
     visit(pt){
-        case  m: (Module) `<Header header> <Body _>`: {
+        case  Module m: {
+            header = m.header;
+            body = m.body;
             qualifiedModuleName = prettyPrintName(header.name);
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
             <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
