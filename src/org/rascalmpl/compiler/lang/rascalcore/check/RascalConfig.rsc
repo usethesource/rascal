@@ -374,21 +374,27 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-// Enhance TModel before running Solver by 
+// Extend the path relation by
 // - adding transitive edges for extend
 // - adding imports via these extends
-TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths){
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
+    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
-    imports = {<from, to> | <loc from, importPath(), loc to> <- m.paths};
+    imports = {<from, to> | <loc from, importPath(), loc to> <- paths};
     delta = { <from, importPath(), to2> 
             | <loc from, loc to2> <- extendPlus o imports, 
-              <from, extendPath(), to2> notin m.paths, 
+              <from, extendPath(), to2> notin paths, 
               from != to2
             };
-    m.paths += delta;
-    return m;
+    paths += delta;
+    return paths;
+}
+
+// Enhance TModel before running Solver by 
+
+TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
+    return m[paths = enhancePathRelation(m.paths)];
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
