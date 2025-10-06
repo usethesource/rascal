@@ -381,9 +381,9 @@ TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
+    imports = {<from, to> | <loc from, importPath(), loc to> <- m.paths};
     delta = { <from, importPath(), to2> 
-            | <loc from, loc to1> <- extendPlus, 
-              <to1, importPath(), loc to2> <- m.paths,
+            | <loc from, loc to2> <- extendPlus o imports, 
               <from, extendPath(), to2> notin m.paths, 
               from != to2
             };
