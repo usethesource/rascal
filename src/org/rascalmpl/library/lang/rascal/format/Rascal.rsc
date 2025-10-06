@@ -204,6 +204,7 @@ Box toBox((Range) `<Char s> - <Char e>`)
 
 /* Declarations */
 
+// TODO: this doesn't fire for some reason
 Box toBox((QualifiedName) `<{Name "::"}+ names>`)
     = L("<names>");
 
