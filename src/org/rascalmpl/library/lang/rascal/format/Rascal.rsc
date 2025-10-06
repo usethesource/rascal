@@ -136,11 +136,7 @@ Box toBox((Prod) `<ProdModifier* modifiers> <Sym* syms>`)
     = H([toBox(modifiers), HV([toBox(s) | s <- syms])]);
 
 Box toBox((Prod) `<Assoc a> (<Prod g>)`)
-    = V([
-        H([toBox(a), L("(")]), 
-        I([toBox(g)]),
-        L(")")
-    ]);
+    = H([toBox(a), V([G([L("("), U([toBox(g)])], gs=2, op=H([]))]), L(")")]);
 
 /* symbols */
 Box toBox((Sym) `{<Sym e> <Sym sep>}*`) = H0([L("{"), H1([toBox(e), toBox(sep)]), L("}"), L("*")]);
