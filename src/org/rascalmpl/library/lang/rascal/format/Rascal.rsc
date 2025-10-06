@@ -63,10 +63,10 @@ str formatRascalString(str \module)
 list[TextEdit] formatRascalModule(start[Module] \module) {
     try {
         b = \toBox(\module);
-        b = innermost visit(b) {
-            case [*pre, U([*mid]), *post ] => [*pre,*mid,*post]
-        };
-        iprintln(b);
+        // b = innermost visit(b) {
+        //     case [*pre, U([*mid]), *post ] => [*pre,*mid,*post]
+        // };
+        // iprintln(b);
         // println(format(toBox(\module)));
         return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
     }
@@ -112,13 +112,57 @@ Box toBox((Visibility) ``) = NULL();
 // 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production>;`)
-    = V([
-        H([toBox(st), L("syntax"), toBox(defined)]),
-        I([
-            V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
-            L(";")
+    = (production is \all || production is \first)
+        ? V([ // multiple rule case
+            H([toBox(st), L("syntax"), toBox(defined)]),
+            I([
+                V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
+                L(";")
+            ])
         ])
-    ]);
+        :  // single rule case
+          H([toBox(st), L("syntax"), toBox(defined), L("="), H0([toBox(production), L(";")])])
+        ;
+
+Box toBox((SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`)
+    = (production is \all || production is \first)
+        ? V([ // multiple rule case
+            H([L("lexical"), toBox(defined)]),
+            I([
+                V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
+                L(";")
+            ])
+        ])
+        :  // single rule case
+          H([L("lexical"), toBox(defined), L("="), H0([toBox(production), L(";")])])
+        ;
+
+Box toBox((SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`)
+    = (production is \all || production is \first)
+        ? V([ // multiple rule case
+            H([L("keyword"), toBox(defined)]),
+            I([
+                V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
+                L(";")
+            ])
+        ])
+        :  // single rule case
+          H([L("keyword"), toBox(defined), L("="), H0([toBox(production), L(";")])])
+        ;
+
+Box toBox((SyntaxDefinition) `<Visibility v> layout <Sym defined> = <Prod production>;`)
+    = (production is \all || production is \first)
+        ? V([ // multiple rule case
+            H([toBox(v), L("layout"), toBox(defined)]),
+            I([
+                V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
+                L(";")
+            ])
+        ])
+        :  // single rule case
+          H([toBox(v), L("layout"), toBox(defined), L("="), H0([toBox(production), L(";")])])
+        ;
+
 
 Box toBox((Prod) `<Prod lhs> | <Prod rhs>`) 
     = U([toBox(lhs), L("|"), toBox(rhs)]);
@@ -136,7 +180,7 @@ Box toBox((Prod) `<ProdModifier* modifiers> <Sym* syms>`)
     = H([toBox(modifiers), HV([toBox(s) | s <- syms])]);
 
 Box toBox((Prod) `<Assoc a> (<Prod g>)`)
-    = H([toBox(a), V([G([L("("), U([toBox(g)])], gs=2, op=H([]))]), L(")")]);
+    = H([toBox(a), V([G([L("("), U([toBox(g)]), L(")")], gs=2, op=H([]))])]);
 
 /* symbols */
 Box toBox((Sym) `{<Sym e> <Sym sep>}*`) = H0([L("{"), H1([toBox(e), toBox(sep)]), L("}"), L("*")]);
@@ -147,10 +191,30 @@ Box toBox((Sym) `<Sym e>?`) = H0([toBox(e), L("?")]);
 Box toBox((Sym) `(<Sym first> <Sym+ sequence>)`) 
     = H0([L("("), H1([toBox(first), *[toBox(e) | Sym e <- sequence]]),L(")")]);
 
+Box toBox((Sym) `start[<Nonterminal s>]`) = H0([L("start"), L("["), toBox(s), L("]")]);
+
 Box toBox((Sym) `(<Sym first> | <{Sym "|"}+ alternatives>)`) 
     = H0([L("("), H1([toBox(first), *[L("|"), toBox(e) | Sym e <- alternatives]]),L(")")]);
 
+Box toBox((Class) `[<Range* ranges>]`)
+    = H0([L("["), *[toBox(r) | r <- ranges], L("]")]);
+
+Box toBox((Range) `<Char s> - <Char e>`)
+    = H0([toBox(s), L("-"), toBox(e)]);
+
 /* Declarations */
+
+Box toBox((QualifiedName) `<{Name "::"}+ names>`)
+    = L("<names>");
+
+Box toBox((Tag) `@<Name n> <TagString contents>`)
+    = H0([L("@"), toBox(n), toBox(contents)]);
+
+Box toBox((Tag) `@<Name n> = <Expression exp>`)
+    = H0([L("@"), toBox(n), L("="), toBox(exp)]);
+
+Box toBox((Tag) `@<Name n>`)
+    = H0([L("@"), toBox(n)]);
 
 Box toBox(QualifiedName n) = L("<n>");
 
@@ -398,6 +462,8 @@ Box indentedBlock((Statement) `{<Statement+ st>}`)
 default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 /* Expressions / Patterns */
+
+Box toBox((Expression) `#<Type t>`) = H0([L("#"), toBox(t)]);
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>..<OptionalExpression optLast>]`)
     = H0([toBox(e), L("["),toBox(optFirst), L(".."), toBox(optLast), L("]")]);
@@ -720,6 +786,6 @@ Box HV([U([])]) = U([]);
 
 // helpful short-hands might end up in box::syntax::Box 
 Box H0(list[Box] boxes) = H(boxes, hs=0);
-Box H1(list[Box] boxes) = H(boxes, hs=0);
+Box H1(list[Box] boxes) = H(boxes, hs=1);
 Box V0(list[Box] boxes) = V(boxes, hs=0);
-Box V1(list[Box] boxes) = V(boxes, hs=0);
+Box V1(list[Box] boxes) = V(boxes, vs=1);
