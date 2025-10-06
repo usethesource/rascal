@@ -53,8 +53,8 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-ModuleStatus reportSelfImport(rel[loc from, PathRole r, loc to] paths, ModuleStatus ms){
-    for(<from, importPath(), from> <- paths){
+ModuleStatus reportSelfImport(ModuleStatus ms){
+    for(<from, importPath(), from> <- ms.paths){
         mname = getRascalModuleName(from, ms.pathConfig);
         ms.messages[mname] ? {} += {error("Self import not allowed", from)};
         ms.status[mname] ? {} += {check_error()};
@@ -62,7 +62,9 @@ ModuleStatus reportSelfImport(rel[loc from, PathRole r, loc to] paths, ModuleSta
     return ms;
 }
 
-ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] extendPlus, ModuleStatus ms){
+ModuleStatus reportCycles(ModuleStatus ms){
+    path = ms.paths.
+    extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
         for(mloc <- extendCycle){
@@ -95,28 +97,14 @@ ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] 
     return ms;
 }
 
-// Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
+// Complete a ModuleStatus 
+//- by adding transitive edges for extend paths
+//- by checking circular dependencies
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     ms = consolidatePaths(ms);
-    pcfg = ms.pathConfig;
-
-    paths = ms.paths + getPaths(ms.strPaths, ms);
-
-    ms = reportSelfImport(paths, ms);
-
-    extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
-    paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
-
-    ms = reportCycles(paths, extendPlus, ms);
-    
-    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
-             | < c, importPath(), b> <- paths 
-             };
-
-    ms.paths = paths;
-    // sync ms.strPaths with ms.paths
-    ms.strPaths = getStrPaths(paths, pcfg);
-
+    ms.paths = enhancePathRelation(ms.paths + getPaths(ms.strPaths, ms));
+    ms = reportCycles(reportSelfImport(ms));
+    ms.strPaths = getStrPaths(ms.paths, ms.pathConfig); // sync ms.strPaths with ms.paths
     return ms;
 }
 
