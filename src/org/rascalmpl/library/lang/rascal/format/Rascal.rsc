@@ -62,8 +62,12 @@ str formatRascalString(str \module)
 }
 list[TextEdit] formatRascalModule(start[Module] \module) {
     try {
-        iprintln(toBox(\module));
-        println(format(toBox(\module)));
+        b = \toBox(\module);
+        b = innermost visit(b) {
+            case [*pre, U([*mid]), *post ] => [*pre,*mid,*post]
+        };
+        iprintln(b);
+        // println(format(toBox(\module)));
         return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
     }
     catch e:ParseError(loc place): { 
@@ -99,8 +103,60 @@ Box toBox((QualifiedName) `<{Name "::"}+ names>`)
     
 Box toBox((Visibility) ``) = NULL();
 
+/* Syntax definitions */
+
+// syntax SyntaxDefinition
+// 	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
+// 	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
+// 	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
+// 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
+
+Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production>;`)
+    = V([
+        H([toBox(st), L("syntax"), toBox(defined)]),
+        I([
+            V([G([L("="), U([toBox(production)])], gs=2, op=H([]))]),
+            L(";")
+        ])
+    ]);
+
+Box toBox((Prod) `<Prod lhs> | <Prod rhs>`) 
+    = U([toBox(lhs), L("|"), toBox(rhs)]);
+
+Box toBox((Prod) `<Prod lhs> \> <Prod rhs>`) 
+    = U([toBox(lhs), L("\>"), toBox(rhs)]);
+
+Box toBox((Prod) `:<Name n>`) 
+    = H0([L(":"), toBox(n)]);
+
+Box toBox((Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`)
+    = H([toBox(modifiers), H0([toBox(name), L(":")]), HV([toBox(s) | s <- syms])]);
+
+Box toBox((Prod) `<ProdModifier* modifiers> <Sym* syms>`)
+    = H([toBox(modifiers), HV([toBox(s) | s <- syms])]);
+
+Box toBox((Prod) `<Assoc a> (<Prod g>)`)
+    = V([
+        H([toBox(a), L("(")]), 
+        I([toBox(g)]),
+        L(")")
+    ]);
+
+/* symbols */
+Box toBox((Sym) `{<Sym e> <Sym sep>}*`) = H0([L("{"), H1([toBox(e), toBox(sep)]), L("}"), L("*")]);
+Box toBox((Sym) `{<Sym e> <Sym sep>}+`) = H0([L("{"), H1([toBox(e), toBox(sep)]), L("}"), L("+")]);
+Box toBox((Sym) `<Sym e>*`) = H0([toBox(e), L("*")]);
+Box toBox((Sym) `<Sym e>+`) = H0([toBox(e), L("+")]);
+Box toBox((Sym) `<Sym e>?`) = H0([toBox(e), L("?")]);
+Box toBox((Sym) `(<Sym first> <Sym+ sequence>)`) 
+    = H0([L("("), H1([toBox(first), *[toBox(e) | Sym e <- sequence]]),L(")")]);
+
+Box toBox((Sym) `(<Sym first> | <{Sym "|"}+ alternatives>)`) 
+    = H0([L("("), H1([toBox(first), *[L("|"), toBox(e) | Sym e <- alternatives]]),L(")")]);
+
 /* Declarations */
 
+Box toBox(QualifiedName n) = L("<n>");
 
 Box toBox((Declaration) `<Tags t> <Visibility v> alias  <UserType user> = <Type base>;`)
     = V([
@@ -124,7 +180,7 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
         H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
         I([H([HOV([G([
                 L("="),
-                *[L("|"), toBox(va) | va <- vs][1..] // host the bars `|` up to the same level of `=`
+                *[L("|"), toBox(va) | va <- vs][1..] // hoist the bars `|` up to the same level of `=`
             ])])
         ]), L(";")], hs=0)
     ]);
