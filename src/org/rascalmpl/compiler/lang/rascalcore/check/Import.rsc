@@ -63,7 +63,7 @@ ModuleStatus reportSelfImport(ModuleStatus ms){
 }
 
 ModuleStatus reportCycles(ModuleStatus ms){
-    paths = ms.paths.
+    paths = ms.paths;
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
