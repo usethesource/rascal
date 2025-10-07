@@ -306,7 +306,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { 
     = V([
         toBox(tags),
         H([toBox(vis), toBox(sig), L("{")]),
-        I([toBox(stats)]),
+        I([toClusterBox(stats)]),
         L("}")
     ]);
     
