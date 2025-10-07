@@ -229,6 +229,12 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
         ]), L(";")], hs=0)
     ]);
 
+Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <{Variable ","}+ variables>;`)
+    = H1([toBox(tags), toBox(visibility), toBox(typ), HV([SL([toBox(v) | v <- variables], L(","))]), L(";")]);
+
+Box toBox((Declarator) `<Type typ> <{Variable ","}+ variables>`) 
+    = H1([toBox(typ), SL([toBox(v) | v <- variables], L(","))]);
+
 Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
     = H0([L("("), HOV([toBox(fs)]), L(")")]);
 
@@ -332,8 +338,18 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
-// TODO retain original grouping
-Box toBox(Statement* stmts) = V([toBox(st) | st <- stmts]);
+Box toBox((Statement) `<LocalVariableDeclaration declaration>;`)
+    = H0([toBox(declaration), L(";")]);
+
+Box toBox((Statement) `solve(<{QualifiedName ","}+ vars> <Bound bound>) <Statement body>`) 
+    = V([
+        H0([L("solve"), L("("), toBox(vars), toBox(bound), H1([L(")"), blockOpen(body)])]),
+        indentedBlock(body),
+        blockClose(body)
+    ]);
+
+Box toBox(Statement* stmts) = toClusterBox(stmts);
+Box toBox(Statement+ stmts) = toClusterBox(stmts);
 
 Box toBox((Statement) `return <Expression e>;`)
     = HV([L("return"), I([H([toBox(e), L(";")], hs=0)])]);
@@ -441,9 +457,40 @@ Box blockOpen(Statement s) = s is nonEmptyBlock ? L("{") : NULL();
 Box blockClose(Statement s) = s is nonEmptyBlock ? L("}") : NULL();
 
 Box indentedBlock((Statement) `{<Statement+ st>}`)
-    = I([V([toBox(st)])]);
+    = I([toClusterBox([s | s <- st])]);
 
 default Box indentedBlock(Statement s) = I([toBox(s)]);
+
+Box toBox((Statement) `<Assignable able> <Assignment operator> <Statement s>`)
+    = H([
+        H([toBox(able), toBox(operator), blockOpen(s)]), 
+        indentedBlock(s), 
+        blockClose(s)
+    ]);
+
+Box toBox((Assignable) `<Assignable rec>.<Name field>`)
+    = H0([toBox(rec), L("."), toBox(field)]);
+
+Box toBox((Assignable) `<Assignable rec>?<Expression def>`)
+    = H1([toBox(rec), L("?"), toBox(def)]);
+
+Box toBox((Assignable) `<Name name> (<{Assignable ","}+ args>)`)
+    = H0([toBox(name), L("("), SL([toBox(a) | a <- args], L(",")), L(")")]);
+
+Box toBox((Assignable) `\< <{Assignable ","}+ args> \>`)
+    = H0([L("\<"), SL([toBox(a) | a <- args], L(",")), L("\>")]);
+
+Box toBox((Assignable) `<Assignable rec>[<Expression sub>]`)
+    = H0([toBox(rec), L("["), toBox(sub), L("]")]);
+
+Box toBox((Assignable) `<Assignable rec>[<Expression from>..<Expression to>]`)
+    = H0([toBox(rec), L("["), toBox(from), L(".."), toBox(to), L("]")]);
+
+Box toBox((Assignable) `<Assignable rec>[<Expression from>, <Expression second>..<Expression to>]`)
+    = H0([toBox(rec), L("["), toBox(from), H1([L(","), toBox(second)]), L(".."), toBox(to), L("]")]);
+
+Box toBox((Variable) `<Name name> = <Expression initial>`)
+    = H1([toBox(name), L("="), toBox(initial)]);
 
 /* Expressions / Patterns */
 
@@ -641,8 +688,8 @@ Box toBox((Expression) `{<{Expression ","}+ results> | <{Expression ","}+ gens>}
 
 Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}+ gens>)`)
     = HV([
-        H0([L("{"), HOV([toBox(from), H([L(":"), toBox(to)])])]),
-        H0([H([L("|"), HOV([toBox(gens)])]), L("}")])
+        H0([L("("), HOV([toBox(from), H([L(":"), toBox(to)])])]),
+        H0([H([L("|"), HOV([toBox(gens)])]), L(")")])
     ]);
 
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
