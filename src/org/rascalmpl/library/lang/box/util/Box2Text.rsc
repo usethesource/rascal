@@ -337,8 +337,8 @@ private Text continueWith(Box b:G(list[Box] bl), Box c, Options opts, int m)
 private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, b.rs, opts, m);
 
-@synopsis{General shape of a Box operator, as a parameter to `G`}
-private alias BoxOp = Box(list[Box]);
+private Text continueWith(Box b:AG(list[Box] boxes), Box c, Options opts, int m) 
+    = AAG(u(boxes), b.gs, b.columns, b.rs, c, opts, m);
 
 @synopsis{Option inheritance layer; then continue with the next box.}
 @description{
@@ -422,6 +422,16 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
         throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
     }
 }
+
+private Text AAG([], int _gs, list[Alignment] _columns, Box _rs, Box _c, Options _opts, int _m) = [];
+
+private Text AAG(list[Box] boxes:[Box _, *_], int gs, list[Alignment] columns, Box rs, Box c, Options opts, int m)
+    = \continue(A(groupRows(boxes, gs), columns=columns, rs=rs), c, opts, m);
+
+private list[Row] groupRows([], int _gs) = [];
+
+private list[Row] groupRows(list[Box] boxes:[Box _, *_], int gs)
+    = [R(boxes[..gs]), *groupRows(boxes[gs..], gs)];
 
 @synopsis{Cuts off and extends the alignment spec to the width of the table}
 @description{
