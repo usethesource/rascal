@@ -62,12 +62,6 @@ str formatRascalString(str \module)
 }
 list[TextEdit] formatRascalModule(start[Module] \module) {
     try {
-        b = \toBox(\module);
-        // b = innermost visit(b) {
-        //     case [*pre, U([*mid]), *post ] => [*pre,*mid,*post]
-        // };
-        // iprintln(b);
-        // println(format(toBox(\module)));
         return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
     }
     catch e:ParseError(loc place): { 

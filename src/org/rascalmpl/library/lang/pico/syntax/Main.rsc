@@ -19,6 +19,7 @@ syntax Declarations
   = "declare" {IdType ","}* decls ";" ;  
  
 syntax IdType = idtype: Id id ":" Type t;
+
 syntax Statement 
   = assign: Id var ":="  Expression val 
   | cond: "if" Expression cond "then" {Statement ";"}*  thenPart "else" {Statement ";"}* elsePart "fi"
@@ -57,5 +58,5 @@ lexical WhitespaceAndComment
    ;
 
 public start[Program] program(str s) {
-  return parse(#start[Program], s, {<1,2,3>,1,<1, 4>});
+  return parse(#start[Program], s);
 } 
