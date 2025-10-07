@@ -274,6 +274,30 @@ default Box toBox(c:char(_), FormatOptions opts=fo() ) = L("<c>");
 @synopsis{Cycles are invisible and zero length}
 default Box toBox(cycle(_, _), FO opts=fo()) = NULL();
 
+@synopsis{Create a V box of V boxes where the inner boxes are connected and the outer boxes are separated by am empty line.}
+@description{
+This function learns from the input trees how vertical clusters were layout in the original tree.
+The resulting box maintains the original clustering.
+}
+Box toClusterBox(list[Tree] lst) {
+    list[Box] cluster([])  = [];
+
+    list[Box] cluster([Tree e]) = [V([toBox(e)], vs=0)];
+
+    list[Box] cluster([*Tree pre, Tree last, Tree first, *Tree post])
+        = [V([*[toBox(p) | p <- pre], toBox(last)], vs=0), *cluster([first, *post])]
+        when first@\loc.begin.line - last@\loc.end.line > 1
+        ;
+
+    default list[Box] cluster(list[Tree] l) = [V([toBox(e) | e <- l], vs=0)];
+
+    return V(cluster(lst), vs=1);
+}
+
+Box toClusterBox(&T* lst) = toClusterBox([e | e <- lst]);
+Box toClusterBox(&T+ lst) = toClusterBox([e | e <- lst]);
+
+
 @synopsis{Private type alias for legibility's sake}
 private alias FO = FormatOptions;
 
