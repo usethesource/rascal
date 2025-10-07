@@ -94,3 +94,36 @@ into their context.
 }
 Box SL(list[Box] boxes, Box sep, Box op = H([], hs=0))
   = G([b, sep | b <- boxes][..-1], op=op, gs=2);
+
+@synopsis{Flatten and fold U and G boxes to simplify the Box structure}
+@description{
+U and G and AG boxes greatly simplify the Box tree before it is formatted. This
+happens "just-in-time" for efficiency reasons. However, from a Box tree
+with many U and G boxes it can become hard to see what the actual formatting
+constraints are going to be. 
+
+This function applies the semantics of G and U and returns a Box that renders
+exactly the same output, but with a lot less nested structure. 
+}
+@benefits{
+* useful to debug complex `toBox` mappings
+* formatting semantics preserving transformation
+}
+@pitfalls{
+* only useful for debugging purposes, because it becomes a pipeline bottleneck otherwise.
+}
+Box debUG(Box b) {
+    list[Box] groupBy([], int _gs, Box _op) = [];
+    list[Box] groupBy(list[Box] boxes:[Box _, *_], int gs, Box op)
+        = [op[boxes=boxes[..gs]], *groupBy(boxes[gs..], gs, op)];
+
+    list[Row] groupRows([], int _gs) = [];
+    list[Row] groupRows(list[Box] boxes:[Box _, *_], int gs)
+        = [R(boxes[..gs]), *groupRows(boxes[gs..], gs)];
+
+    return innermost visit(b) {
+        case [*Box pre, U([*Box mid]), *Box post]          => [*pre, *mid, *post]
+        case G(list[Box] boxes, gs=gs, op=op)              => U(groupBy(boxes, gs, op))
+        case AG(list[Box] boxes, gs=gs, columns=cs, rs=rs) => A(groupRows(boxes, gs), columns=cs, rs=rs)
+    }
+}
