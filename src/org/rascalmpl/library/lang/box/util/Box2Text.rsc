@@ -588,8 +588,6 @@ test bool groupByTest() {
     g1   = G(lst, op=H([]), gs=3);
     lst2 = [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [0,3..7]] + [H([L("9")])];
 
-println(format(V([g1])));
-println(format(V(lst2)));
     return format(V([g1])) == format(V(lst2));
 }
 

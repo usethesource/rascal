@@ -72,7 +72,7 @@ list[TextEdit] formatRascalModule(start[Module] \module) {
     }
     catch e:ParseError(loc place): { 
         writeFile(|tmp:///temporary.rsc|, format(toBox(\module)));
-        println("Formatted module contains a parse error here: <place>");
+        println("Formatted module contains a parse error here: <|tmp:///temporary.rsc|(place.offset, place.length)>");
         throw e;
     }
 }
@@ -495,7 +495,7 @@ Box toBox((Pattern) `{ }`)
 Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
     = H0([
         L("{"),
-        AG([L("\<"), SL([toBox(f) | f <- e.elements ], L(",")), L("\>")  | e <- elems], gs=3, rs=L(",")),
+        A([toRow(e) | e <- elems], rs=L(",")),
         L("}")
     ]) when elems[0] is \tuple;
 
@@ -509,9 +509,21 @@ Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
     = H0([
         L("{"),
-        AG([L("\<"), SL([toBox(f) | f <- e.elements ], L(",")), L("\>")  | e <- elems], gs=3, rs=L(",")),
+        A([toRow(e) | e <- elems], rs=L(",")),
         L("}")
     ]) when elems[0] is \tuple;
+
+Row toRow((Expression) `\< <Expression a>, <{Expression ","}* m>, <Expression b> \>`)
+    = R([
+        SL([H0([L("\<"), toBox(a)]), *[toBox(e) | e <- m], H0([toBox(b), L("\>")])], L(","))  
+    ]);
+
+Row toRow((Pattern) `\< <Pattern a>, <{Pattern ","}* m>, <Pattern b> \>`)
+    = R([
+        SL([H0([L("\<"), toBox(a)]), *[toBox(e) | e <- m], H0([toBox(b), L("\>")])], L(","))  
+    ]);
+
+default Row toRow(Expression e) = R([toBox(e)]);
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
     = H0([
