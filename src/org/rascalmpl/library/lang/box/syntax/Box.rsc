@@ -22,7 +22,10 @@ module lang::box::\syntax::Box
 * `SPACE` produces `space` spaces
 * `L` produces A literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
-* `G` is an additional group-by feature that reduces tot the above core features
+* `G` is an additional group-by feature for `list[Box]` that reduces tot the above core features. You can use it to wrap another
+box around every `gs` elements.
+* `AG` is an additional group-by feature for array `Row`s that reduces tot the above core features. You can use it to wrap a `R` row
+around every `gs` elements and then construct an `A` around those rows.
 * `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
 }
 @benefits{
@@ -44,6 +47,7 @@ data Box(int hs=1, int vs=0, int is=4)
     | I(list[Box] boxes)
     | WD(list[Box] boxes)
     | A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
+    | AG(list[Box] boxes, int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]], Box rs=NULL())
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
@@ -90,12 +94,3 @@ into their context.
 }
 Box SL(list[Box] boxes, Box sep, Box op = H([], hs=0))
   = G([b, sep | b <- boxes][..-1], op=op, gs=2);
-
-// TODO: move this into box2text to deal with flattening of U boxes
-@synopsis{AG boxes implement a group-by feature for A rows, with optional row separators}
-Box AG([], int gs=2, list[Alignment] columns=[], Box rs=NULL())
-  = A([], columns=columns, rs=rs);
-
-Box AG(list[Box] boxes:[Box _, *_], int gs=2, list[Alignment] columns=[l() | _ <- [0..gs]], Box rs=NULL())
-  = A([R(boxes[..gs]), *AG(boxes[gs..], gs=gs, rs=rs).rows], columns=columns, rs=rs);
-
