@@ -77,16 +77,15 @@ list[TextEdit] formatRascalModule(start[Module] \module) {
     }
 }
 
-
 /* Modules */
 
-Box toBox(Toplevel* toplevels) = V([toBox(t) | t <- toplevels], vs=1);
+Box toBox(Toplevel* toplevels) = toClusterBox(toplevels);
 
 Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <Body body>`)
     = V([
         toBox(tags),
         H([L("module"), toBox(name)]),
-        toBox(imports),
+        toClusterBox(imports),
         toBox(body)
     ], vs=1);
 
@@ -97,19 +96,10 @@ Box toBox((Import) `import <ImportedModule m>;`)
 
 Box toBox((Import) `extend <ImportedModule m>;`)
     = H([L("extend"), H0([toBox(m), L(";")])]);
-
-Box toBox((QualifiedName) `<{Name "::"}+ names>`)
-    = H0([SL([toBox(n) | n <- names], L("::"), op=H([]))]);
     
 Box toBox((Visibility) ``) = NULL();
 
 /* Syntax definitions */
-
-// syntax SyntaxDefinition
-// 	=  @Foldable \layout  : Visibility vis "layout"  Sym defined "=" Prod production ";" 
-// 	|  @Foldable \lexical : "lexical" Sym defined "=" Prod production ";" 
-// 	|  @Foldable \keyword : "keyword" Sym defined "=" Prod production ";"
-// 	|  @Foldable language: Start start "syntax" Sym defined "=" Prod production ";" ;
 
 Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
@@ -204,7 +194,6 @@ Box toBox((Range) `<Char s> - <Char e>`)
 
 /* Declarations */
 
-// TODO: this doesn't fire for some reason
 Box toBox((QualifiedName) `<{Name "::"}+ names>`)
     = L("<names>");
 
