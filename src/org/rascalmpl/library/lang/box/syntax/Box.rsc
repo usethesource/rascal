@@ -10,6 +10,8 @@
 @synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
 
+import List;
+
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
 * `H` puts their elements next to each other one the same line separated by `hs` spaces.
@@ -117,13 +119,17 @@ Box debUG(Box b) {
     list[Box] groupBy(list[Box] boxes:[Box _, *_], int gs, Box op)
         = [op[boxes=boxes[..gs]], *groupBy(boxes[gs..], gs, op)];
 
+    list[Box] groupByBackward([], int _gs, Box _op) = [];
+    list[Box] groupByBackward(list[Box] boxes:[Box _, *_], int gs, Box op)
+        = [op[boxes=boxes[..size(boxes) mod gs]], *groupBy(boxes[size(boxes) mod gs..], gs, op)];
+        
     list[Row] groupRows([], int _gs) = [];
     list[Row] groupRows(list[Box] boxes:[Box _, *_], int gs)
         = [R(boxes[..gs]), *groupRows(boxes[gs..], gs)];
 
     return innermost visit(b) {
-        case [*Box pre, U([*Box mid]), *Box post]          => [*pre, *mid, *post]
-        case G(list[Box] boxes, gs=gs, op=op)              => U(groupBy(boxes, gs, op))
-        case AG(list[Box] boxes, gs=gs, columns=cs, rs=rs) => A(groupRows(boxes, gs), columns=cs, rs=rs)
+        case [*Box pre, U([*Box mid]), *Box post]           => [*pre, *mid, *post]
+        case G(list[Box] boxes, gs=gs, op=op, backwards=bw) => U(bw ? groupByBackward(boxes, gs, op) : groupBy(boxes, gs, op))
+        case AG(list[Box] boxes, gs=gs, columns=cs, rs=rs)  => A(groupRows(boxes, gs), columns=cs, rs=rs)
     }
 }
