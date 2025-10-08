@@ -214,7 +214,7 @@ public list[Box] groupBy(list[Box] boxes, int gs, Box op, false) = groupBy(boxes
 
 @synopsis{simulates grouping as-if done from the back, by starting to peel off the rest instead of grouping the rest at the end}
 public list[Box] groupBy(list[Box] boxes, int gs, Box op, true) 
-    = [op[boxes=*boxes[..size(boxes) mod gs]], *groupBy(boxes[size(boxes) mod gs..], gs, op)];
+    = [op[boxes=boxes[..size(boxes) mod gs]], *groupBy(boxes[size(boxes) mod gs..], gs, op)];
 
 public list[Box] groupBy([], int _gs, Box _op) = [];
 
@@ -578,6 +578,14 @@ test bool groupByTest() {
     lst  = [L("<i>") | i <- [0..10]];
     g1   = G(lst, op=H([]), gs=3);
     lst2 = [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [0,3..7]] + [H([L("9")])];
+
+    return format(V([g1])) == format(V(lst2));
+}
+
+test bool groupByBackwardsTest() {
+    lst  = [L("<i>") | i <- [0..10]];
+    g1   = G(lst, op=H([]), gs=3, backwards=true);
+    lst2 = [H([L("0")])] + [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [1, 4..10]];
 
     return format(V([g1])) == format(V(lst2));
 }
