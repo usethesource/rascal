@@ -425,6 +425,9 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
     pcfg = ms.pathConfig;
 
+    component = { m | m <- component, MStatus::ignored() notin ms.status[m] };
+    if(isEmpty(component)) return ms;
+
     //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
     set[loc] filteredModuleScopes = {};
