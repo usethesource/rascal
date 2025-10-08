@@ -347,6 +347,35 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
+/*
+\fail: "fail" Target target ";" 
+	| @breakable \break: "break" Target target ";" 
+	| @breakable \continue: "continue" Target target ";" 
+    | @breakable \filter: "filter" ";"
+    */
+
+Box toBox((Statement) `fail;`)
+    = H0([L("fail"), L(";")]);
+
+Box toBox((Statement) `fail <Name n>;`)
+    = H1([L("fail"),H0([toBox(n), L(";")])]);
+
+Box toBox((Statement) `break;`)
+    = H0([L("break"), L(";")]);
+
+Box toBox((Statement) `break <Name n>;`)
+    = H1([L("break"),H0([toBox(n), L(";")])]);
+
+Box toBox((Statement) `continue;`)
+    = H0([L("continue"), L(";")]);
+
+Box toBox((Statement) `continue <Name n>;`)
+    = H1([L("continue"), H0([toBox(n), L(";")])]);
+
+Box toBox((Statement) `filter;`)
+    = H0([L("filter"), L(";")]);
+
+
 Box toBox((Statement) `<LocalVariableDeclaration declaration>;`)
     = H0([toBox(declaration), L(";")]);
 
@@ -395,6 +424,18 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
         H([L("else"), blockOpen(ests)]),
         indentedBlock(ests),
         blockClose(ests)
+    ]);
+
+Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)
+                      '  <Statement sts>`)
+    = V([
+        H([
+            H0([toBox(label), L("while")]), 
+            H0([L("("), toBox(cs), L(")")]),
+            blockOpen(sts)
+        ]),
+        indentedBlock(sts),
+        blockClose(sts)
     ]);
 
 Box toBox((Statement) `<Expression exp>;`)
@@ -521,6 +562,12 @@ Box toBox((Visit) `visit(<Expression subject>) { <Case+ cases> }`)
     ]);
 
 /* Expressions / Patterns */
+
+Box toBox((Expression) `[ <Type typ> ] <Expression e>`)
+    = H1([H0([L("["), toBox(typ), L("]")]), HV([toBox(e)])]);
+
+Box toBox((Pattern) `[ <Type typ> ] <Pattern e>`)
+    = H1([H0([L("["), toBox(typ), L("]")]), HV([toBox(e)])]);
 
 Box toBox((Expression) `#<Type t>`) = H0([L("#"), toBox(t)]);
 
@@ -683,8 +730,9 @@ Box toBox((Expression) `<Expression exp>\<<{Field ","}+ fields>\>`)
 
 Box toBox((Expression) `(<Expression init> | <Expression result> | <{Expression ","}+ gs>)`)
     = HOV([
-        L("("),
-        H([toBox(init), I([H([L("|"), toBox(result)])]), H([L("|"), HV([toBox(gs)])])]),
+        H1([L("("), HV([toBox(init)])]),
+        H1([L("|"), HV([toBox(result)])]),
+        H1([L("|"), HV([toBox(gs)])]),
         L(")")
     ]);
 
@@ -711,13 +759,15 @@ Box toBox((Expression) `[<{Expression ","}+ results> | <{Expression ","}+ gens>]
 Box toBox((Expression) `{<{Expression ","}+ results> | <{Expression ","}+ gens>}`)
     = HOV([
         H0([L("{"), HV([toBox(results)])]),
-        H0([H([L("|"), HOV([toBox(gens)])]), L("}")])
+        H0([H([L("|"), HOV([toBox(gens)])])]),
+        L("}")
     ]);
 
 Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}+ gens>)`)
-    = HV([
-        H0([L("("), HOV([toBox(from), H([L(":"), toBox(to)])])]),
-        H0([H([L("|"), HOV([toBox(gens)])]), L(")")])
+    = HOV([
+        H0([L("("), HOV([H0([HV([toBox(from)]), L(":")]), I([HV([toBox(to)])])])]),
+        H1([L("|"), HOV([toBox(gens)])]),
+        L(")")
     ]);
 
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
