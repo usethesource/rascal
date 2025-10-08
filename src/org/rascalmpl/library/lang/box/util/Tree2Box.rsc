@@ -131,7 +131,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-seps(_, [_, lit(","), _])), list[Tree] elements>:
             return HOV([
                 H([
-                    toBox(elements[i], opts=opts),
+                    HV([toBox(elements[i], opts=opts)]),
                     *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
@@ -140,7 +140,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star-seps(_, [_, lit(","), _])), list[Tree] elements>:
             return HOV([
                 H([
-                    toBox(elements[i], opts=opts),
+                    HV([toBox(elements[i], opts=opts)]),
                     *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
