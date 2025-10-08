@@ -53,8 +53,8 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-ModuleStatus reportSelfImport(ModuleStatus ms){
-    for(<from, importPath(), from> <- ms.paths){
+ModuleStatus reportSelfImport(rel[loc, PathRole, loc] paths, ModuleStatus ms){
+    for(<from, importPath(), from> <- paths){
         mname = getRascalModuleName(from, ms.pathConfig);
         ms.messages[mname] ? {} += {error("Self import not allowed", from)};
         ms.status[mname] ? {} += {check_error()};
@@ -62,9 +62,7 @@ ModuleStatus reportSelfImport(ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus reportCycles(ModuleStatus ms){
-    paths = ms.paths;
-    extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
+ModuleStatus reportCycles(rel[loc, PathRole, loc]paths, rel[loc,loc] extendPlus, ModuleStatus ms){
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
         for(mloc <- extendCycle){
@@ -100,11 +98,26 @@ ModuleStatus reportCycles(ModuleStatus ms){
 // Complete a ModuleStatus 
 //- by adding transitive edges for extend paths
 //- by checking circular dependencies
+// TODO: reuse enhancePathRelation from RascalConfig here
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     ms = consolidatePaths(ms);
-    ms.paths = enhancePathRelation(ms.paths + getPaths(ms.strPaths, ms));
-    ms = reportCycles(reportSelfImport(ms));
+    paths = ms.paths + getPaths(ms.strPaths, ms);
+
+    ms = reportSelfImport(paths, ms);
+    
+    imports = {<from, to> | <loc from, importPath(), loc to> <- paths};
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
+    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus };
+
+    ms = reportCycles(paths, extendPlus, ms);
+
+    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
+             | < loc c, loc b> <- imports 
+             };
+
+    ms.paths = paths;                                   // sync ms.paths with paths
     ms.strPaths = getStrPaths(ms.paths, ms.pathConfig); // sync ms.strPaths with ms.paths
+
     return ms;
 }
 
