@@ -561,6 +561,15 @@ Box toBox((Visit) `visit(<Expression subject>) { <Case+ cases> }`)
         L("}")
     ]);
 
+Box toBox((Visit) `<Strategy strategy> visit(<Expression subject>) { <Case+ cases> }`)
+    = V([
+        H1([toBox(strategy), H0([L("visit"), L("("), toBox(subject), L(")")]), L("{")]),
+        I([
+            toClusterBox(cases)
+        ]),
+        L("}")
+    ]);
+
 /* Expressions / Patterns */
 
 Box toBox((Expression) `[ <Type typ> ] <Expression e>`)
