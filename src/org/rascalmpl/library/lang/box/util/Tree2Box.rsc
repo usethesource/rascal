@@ -231,22 +231,23 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
-        // from their pre-decessors. Watching out not to loose any comments...
+        // from their pre-decessors.
 
-        case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
-            return HOV([toBox(elements[0], opts=opts), H([toBox(e, opts=opts) | e <- elements[1..]])]);
+        // binary operators become flat lists
+        case <prod(sort(str x),[sort(x),layouts(_),lit(str op),layouts(_),sort(x)], _), list[Tree] elements>:
+            return U([toBox(elements[0]), H1([L(op), toBox(elements[-1])])]);
 
         // postfix operators stick
-        case <prod(sort(x),[sort(x),_,lit(_)], _), list[Tree] elements>:
+        case <prod(sort(str x),[sort(x),_,lit(_)], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // prefix operators stick
-        case <prod(sort(x),[lit(_), _, sort(x)], _), list[Tree] elements>:
+        case <prod(sort(str x),[lit(_), _, sort(x)], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // brackets stick
-        case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+        case <prod(sort(str x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
+            return HOV([I([toBox(e, opts=opts)]) | e <- elements], hs=0);
 
         case <prod(_,[_],_), [Tree single]>:
             return toBox(single);
