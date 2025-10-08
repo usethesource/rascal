@@ -612,10 +612,10 @@ Box toBox((Pattern) `( <{Mapping[Pattern] ","}* mappings>)`)
 
 
 Box toBox((Expression) `{ }`)
-    = H([L("{"), L("}")]);
+    = H0([L("{"), L("}")]);
 
 Box toBox((Pattern) `{ }`)
-    = H([L("{"), L("}")]);
+    = H0([L("{"), L("}")]);
 
 Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
     = H0([
@@ -910,9 +910,9 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
     ]);
 
 // this should not be necessary
-Box HV([H([])]) = U([]);
-Box HV([V([])]) = U([]);
-Box HV([U([])]) = U([]);
+// Box HV([H([])]) = U([]);
+// Box HV([V([])]) = U([]);
+// Box HV([U([])]) = U([]);
 
 // helpful short-hands might end up in box::syntax::Box 
 Box H0(list[Box] boxes) = H(boxes, hs=0);
