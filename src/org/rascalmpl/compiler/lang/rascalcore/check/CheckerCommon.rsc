@@ -443,7 +443,7 @@ ModuleStatus consolidatePaths(ModuleStatus ms){
             } else {
                 mname = getRascalModuleName(l, ms.pathConfig);
                 causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];
-                ms.messages[mname] += error("Conflicting module locations found: <l> and <r>", l, causes=causes);
+                ms.messages[mname] ? {} += { error("Conflicting module locations found: <l> and <r>", l, causes=causes) };
             }
         }
         lprops[l.top] = l;
