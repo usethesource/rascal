@@ -51,7 +51,7 @@ data Box(int hs=1, int vs=0, int is=4)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
-    | G(list[Box] boxes, int gs=2, Box op = H([]))
+    | G(list[Box] boxes, bool backwards=false, int gs=2, Box op = H([]))
     | NULL()
     ;
 
