@@ -465,12 +465,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 
         rascalPreCollectInitialization(namedTrees, c);
 
-        added = {};
-        // for(str nm <- domain(namedTrees)){
-        //     <a, ms> = loadImportsAndExtends(nm, ms, c, added);
-        //     added += a;
-        // }
-
         <added, ms> = loadImportsAndExtends(moduleNames, ms, c, {});
         for(str nm <- namedTrees){
             collect(namedTrees[nm], c);
