@@ -162,8 +162,8 @@ private str learnComments(Tree original, Tree replacement) {
 
     // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
     return replString + indent(replacementIndent,
-            "<for (c <- originalComments, bool endWithNl := (/.*\n$/ := c), str line <- split("\n", c)) {><indent(replacementIndent, trim(line) + (endWithNl ? "\n" : ""), indentFirstLine=true)>
-           '<}>"[..-1], indentFirstLine=false) + replString;
+            "<for (c <- originalComments, bool endWithNl := (/.*\n$/ := c), str line <- split("\n", c)) {><trim(line) + (endWithNl ? "\n" : "")>
+           '<}>"[..-1], indentFirstLine=true) + replString;
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
