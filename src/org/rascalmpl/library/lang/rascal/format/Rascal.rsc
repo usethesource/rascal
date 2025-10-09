@@ -210,11 +210,11 @@ Box toBox((Declaration) `<Tags t> <Visibility v> alias  <UserType user> = <Type 
         ])
     ]);
 
-Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType t> <CommonKeywordParameters ps>;`)
+Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKeywordParameters ps>;`)
     = V([
-        toBox(t),
+        toBox(tg),
         H([
-            toBox(v), L("data"), H0([toBox(t), <toBox(ps)>, L(";")])
+            toBox(v), L("data"), H0([toBox(typ), toBox(ps), L(";")])
         ])
     ]);
 
@@ -390,10 +390,23 @@ Box toBox((Statement) `return <Statement e>`)
         when !(e is expression);
 
 // if with a block statement is formatted differently then without the block
-Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>) 
+Box toBox(s:(Statement) `<Label label> if (<{Expression ","}+ cs>) 
                       '  <Statement sts>`)
-    = V([
-        H([
+    = (Statement) `if (<Expression cond>) println(<Expression log>);` := s ? 
+    H1([
+        H0([H1([L("if"), L("(")]), toBox(cond), L(")")]),
+        H0([L("println"), L("("), toBox(log), L(")"), L(";")])
+    ])
+    : (Statement) `if (<Expression cond>) { println(<Expression log>); }` := s ?
+     H1([
+        H0([H0([H1([L("if"), L("(")]), toBox(cond), L(")")])]),
+        L("{"),
+        H0([L("println"), L("("), toBox(log), L(")"), L(";")]),
+        L("}")
+    ])
+    :
+    V([
+        H1([
             H0([toBox(label), L("if")]), 
             H0([L("("), toBox(cs), L(")")]),
             blockOpen(sts)
@@ -401,6 +414,7 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
         indentedBlock(sts),
         blockClose(sts)
     ]);
+
 
 Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
                       '  <Statement sts>
