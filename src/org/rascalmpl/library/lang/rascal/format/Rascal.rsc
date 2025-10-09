@@ -347,13 +347,6 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
-/*
-\fail: "fail" Target target ";" 
-	| @breakable \break: "break" Target target ";" 
-	| @breakable \continue: "continue" Target target ";" 
-    | @breakable \filter: "filter" ";"
-    */
-
 Box toBox((Statement) `fail;`)
     = H0([L("fail"), L(";")]);
 
@@ -548,7 +541,7 @@ Box toBox((Assignable) `<Assignable rec>[<Expression from>, <Expression second>.
     = H0([toBox(rec), L("["), toBox(from), H1([L(","), toBox(second)]), L(".."), toBox(to), L("]")]);
 
 Box toBox((Variable) `<Name name> = <Expression initial>`)
-    = H1([toBox(name), L("="), toBox(initial)]);
+    = H1([toBox(name), L("="), HV([toBox(initial)])]);
 
 /* Visit */
 
@@ -910,9 +903,9 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
     ]);
 
 // this should not be necessary
-// Box HV([H([])]) = U([]);
-// Box HV([V([])]) = U([]);
-// Box HV([U([])]) = U([]);
+Box HV([H([])]) = U([]);
+Box HV([V([])]) = U([]);
+Box HV([U([])]) = U([]);
 
 // helpful short-hands might end up in box::syntax::Box 
 Box H0(list[Box] boxes) = H(boxes, hs=0);

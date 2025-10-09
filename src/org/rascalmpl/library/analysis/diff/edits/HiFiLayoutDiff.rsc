@@ -27,6 +27,8 @@ module analysis::diff::edits::HiFiLayoutDiff
 extend analysis::diff::edits::HiFiTreeDiff;
 import ParseTree; // this should not be necessary because imported by HiFiTreeDiff
 import String; // this should not be be necessary because imported by HiFiTreeDiff
+import lang::rascal::grammar::definition::Characters;
+import IO;
 
 @synopsis{Normalization choices for case-insensitive literals.}
 data CaseInsensitivity
@@ -121,8 +123,14 @@ This algorithm uses the `@category(/[cC]omments/)` tag to detect source code com
 layout contains comments, we re-introduce the comments at the expected level of indentation. New comments present in the 
 replacement are kept and will overwrite any original comments. 
 
-This trick is complicated by the syntax of multiline comments and single line comments that have
-to end with a newline.
+There are corner cases with respect to the original comments:
+* the single line comment that does not end with a newline itself, yet it must always end with a newline after it.
+* multiple single line comments after each other
+
+Then there are corner cases with respect to the replacement whitespace:
+* the last line of the replacement whitespace is special. This is the indentation to use for all comments.
+* but there could be no newlines in the replacement whitespace; and still there is a single line comment to be included.
+Now we need to infer an indentation level for what follows the comment from "thin air". 
 }
 @benefits{
 * if comments are kepts and formatted by tools like Tree2Box, then this algorithm does not overwrite these.
@@ -133,7 +141,14 @@ to end with a newline.
 * if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
 }
 private str learnComments(Tree original, Tree replacement) {
-    originalComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"(/^[Cc]omment$/)), *_}), _) := original];
+    bool mustEndWithNewline(lit("\n"))                     = true;
+    bool mustEndWithNewline(conditional(Symbol s, _))      = mustEndWithNewline(s);
+    // if a comment can not contain newline characters, but everything else, then it must be followed by one:
+    bool mustEndWithNewline(\iter(cc:\char-class(_)))      = intersection(cc, #[\n].symbol) != #[\n].symbol;
+    bool mustEndWithNewline(\iter-star(cc:\char-class(_))) = intersection(cc, #[\n].symbol) != #[\n].symbol;
+    default  bool mustEndWithNewline(_)                    = false;
+
+    originalComments = [<s, s[-1] == "\n" || mustEndWithNewline(lastSym)> | /c:appl(prod(_,[*_,Symbol lastSym],{\tag("category"(/^[Cc]omment$/)), *_}), _) := original, str s := "<c>"];
 
     if (originalComments == []) {
         // if the original did not contain comments, stick with the replacements
@@ -162,17 +177,24 @@ private str learnComments(Tree original, Tree replacement) {
     str replString = "<replacement>";
     str newIndent  = split("\n", replString)[-1] ? "";
 
+    if (/\n/ !:= replString) {
+        // no newline in the repl string, so no indentation available for what follows the comment...
+        newIndent = "<for (_ <- [0..replacement@\loc.begin.column]) {> <}>";
+    }
+
     // we always place sequential comments vertically, because we don't know if we are dealing
     // we a single line comment that has to end with newline by follow restriction or by a literal "\n".
     // TODO: a deeper analysis of the comment rule that's in use could also be used to discover this.
-    str trimmedOriginals = "<for (c <- originalComments) {><c>
-                           '<}>"[..-1]; // drop the final newline
+    str trimmedOriginals = "<for (<c, newLine> <- originalComments[..-1]) {><trim(c)>
+                           '<}><if (<c, newLine> := originalComments[-1]) {><trim(c)><if (newLine) {>
+                           '<}><}>"[..-1];
     
     // we wrap the comment with the formatted whitespace to assure the proper indentation
     // of its first line, and the proper indentation of what comes after this layout node
     return replString 
         + indent(newIndent, trimmedOriginals, indentFirstLine=false) 
-        + replString;
+        + "\n<newIndent>"
+        ;
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
