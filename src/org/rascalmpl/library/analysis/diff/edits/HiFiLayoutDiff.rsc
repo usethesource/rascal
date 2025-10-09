@@ -141,11 +141,13 @@ Now we need to infer an indentation level for what follows the comment from "thi
 * if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
 }
 private str learnComments(Tree original, Tree replacement) {
+    newlineClass = \char-class([range(10,10)]);
+
     bool mustEndWithNewline(lit("\n"))                     = true;
     bool mustEndWithNewline(conditional(Symbol s, _))      = mustEndWithNewline(s);
     // if a comment can not contain newline characters, but everything else, then it must be followed by one:
-    bool mustEndWithNewline(\iter(cc:\char-class(_)))      = intersection(cc, #[\n].symbol) != #[\n].symbol;
-    bool mustEndWithNewline(\iter-star(cc:\char-class(_))) = intersection(cc, #[\n].symbol) != #[\n].symbol;
+    bool mustEndWithNewline(\iter(Symbol cc:\char-class(_)))      = intersection(cc, newlineClass) != newlineClass;
+    bool mustEndWithNewline(\iter-star(Symbol cc:\char-class(_))) = intersection(cc, newlineClass) != newlineClass;
     default  bool mustEndWithNewline(_)                    = false;
 
     originalComments = [<s, s[-1] == "\n" || mustEndWithNewline(lastSym)> | /c:appl(prod(_,[*_,Symbol lastSym],{\tag("category"(/^[Cc]omment$/)), *_}), _) := original, str s := "<c>"];
