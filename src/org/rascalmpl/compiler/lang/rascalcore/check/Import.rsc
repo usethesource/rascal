@@ -169,7 +169,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                }
                     
                dependencyChanged = (m != qualifiedModuleName) && !isEmpty(ms.changedModules & range(ms.strPaths[m]));
-               if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
+               //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
                if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
