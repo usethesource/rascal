@@ -235,7 +235,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // binary operators become flat lists
         case <prod(sort(str x),[sort(x),layouts(_),lit(str op),layouts(_),sort(x)], _), list[Tree] elements>:
-            return U([toBox(elements[0]), H1([L(op), toBox(elements[-1])])]);
+            return U([toBox(elements[0]), H([L(op), toBox(elements[-1])])]);
 
         // postfix operators stick
         case <prod(sort(str x),[sort(x),_,lit(_)], _), list[Tree] elements>:
