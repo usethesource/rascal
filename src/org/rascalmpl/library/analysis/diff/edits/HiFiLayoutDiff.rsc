@@ -117,7 +117,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
 
 @synopsis{Make sure the new layout still contains all the source code comments of the original layout}
 @description{
-This algorithm uses the @category("Comments") tag to detect source code comments inside layout substrings. If the original
+This algorithm uses the `@category(/[cC]omments/)` tag to detect source code comments inside layout substrings. If the original
 layout contains comments, we re-introduce the comments at the expected level of indentation. New comments present in the 
 replacement are kept and will overwrite any original comments. 
 
@@ -147,23 +147,32 @@ private str learnComments(Tree original, Tree replacement) {
         return "<replacement>";
     }
 
-    // At this point, we know that: (a) comments are not present in the replacement and (b) they used to be there in the original.
-    // So the old comments are going to be the new output. however, we want to learn indentation from the replacement.
+    // At this point, we know that: 
+    //   (a) comments are not present in the replacement and 
+    //   (b) they used to be there in the original.
+    // So the old comments are going to be copied to the new output.
+    // But, we want to indent them using the style of the replacement.
 
-    // Drop the last newline of single-line comments, because we don't want two newlines in the output for every comment:
-    str dropEndNl(str line:/^.*\n$/) = (line[..-1]);
-    default str dropEndNl(str line)  = line;
-
-    // the first line of the replacement ,is the indentation to use.
+    // The last line of the replacement string always has the indentation for the construct that follows:
+    //   |    // a comment 
+    //   |    if (true) {
+    //    ^^^^
+    //      newIndent
+    
     str replString = "<replacement>";
-    str replacementIndent = /^\n+$/ !:= replString
-        ? split("\n", replString)[0]
-        : "";
+    str newIndent  = split("\n", replString)[-1] ? "";
 
-    // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
-    return replString + indent(replacementIndent,
-            "<for (c <- originalComments, bool endWithNl := (/.*\n$/ := c), str line <- split("\n", c)) {><trim(line) + (endWithNl ? "\n" : "")>
-           '<}>"[..-1], indentFirstLine=true) + replString;
+    // we always place sequential comments vertically, because we don't know if we are dealing
+    // we a single line comment that has to end with newline by follow restriction or by a literal "\n".
+    // TODO: a deeper analysis of the comment rule that's in use could also be used to discover this.
+    str trimmedOriginals = "<for (c <- originalComments) {><c>
+                           '<}>"[..-1]; // drop the final newline
+    
+    // we wrap the comment with the formatted whitespace to assure the proper indentation
+    // of its first line, and the proper indentation of what comes after this layout node
+    return replString 
+        + indent(newIndent, trimmedOriginals, indentFirstLine=false) 
+        + replString;
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
