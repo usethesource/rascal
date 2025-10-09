@@ -509,7 +509,7 @@ Box indentedBlock((Statement) `{<Statement+ st>}`)
 default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Expression s>;`)
-    = H([toBox(able), HOV([G([toBox(operator), toBox(s)], gs=2, op=H([])), L(";")])]);
+    = H([toBox(able), H0([HOV([G([toBox(operator), toBox(s)], gs=2, op=H([]))]), L(";")])]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Statement s>`)
     = H([
@@ -763,7 +763,7 @@ Box toBox((Expression) `{<{Expression ","}+ results> | <{Expression ","}+ gens>}
         H0([L("{"), HV([toBox(results)])]),
         H0([H([L("|"), HOV([toBox(gens)])])]),
         L("}")
-    ]);
+    ], hs=0);
 
 Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}+ gens>)`)
     = HOV([
