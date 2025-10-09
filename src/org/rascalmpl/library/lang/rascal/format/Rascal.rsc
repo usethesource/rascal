@@ -347,6 +347,13 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
+//  "assert" Expression expression ":" Expression message ";"
+Box toBox((Statement) `assert <Expression expression>;`)
+    = H1([L("assert"), H0([HV([toBox(expression)]), L(";")])]);
+
+Box toBox((Statement) `assert <Expression expression> : <Expression msg>;`)
+    = HOV([L("assert"), HV([toBox(expression), H0([H([L(":"), HV([toBox(msg)])])], L(";"))])]);
+
 Box toBox((Statement) `fail;`)
     = H0([L("fail"), L(";")]);
 
@@ -685,7 +692,7 @@ Box toBox((LocationLiteral) `<ProtocolPart protocolPart><PathPart pathPart>`)
 
 Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`)
     = HOV([
-        toBox(condition),
+        H([toBox(condition)]),
         I([H([L("?"), toBox(thenExp)])]),
         I([H([L(":"), toBox(elseExp)])])
     ]);
