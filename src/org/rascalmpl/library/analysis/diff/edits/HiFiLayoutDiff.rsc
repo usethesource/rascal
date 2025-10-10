@@ -170,11 +170,15 @@ private str learnComments(Tree original, Tree replacement) {
     // So the old comments are going to be copied to the new output.
     // But, we want to indent them using the style of the replacement.
 
-    // The last line of the replacement string always has the indentation for the construct that follows:
+    // The last line of the replacement string typically has the indentation for the construct that follows:
     //   |    // a comment 
     //   |    if (true) {
     //    ^^^^
     //      newIndent
+    //
+    // However, if the replacement string is on a single line, then we don't have the indentation
+    // for the string on the next line readily available. In this case we indent the next line
+    // to the start column of the replacement layout, as a proxy.
     
     str replString = "<replacement>";
     str newIndent  = split("\n", replString)[-1] ? "";

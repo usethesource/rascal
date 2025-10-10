@@ -219,11 +219,10 @@ Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKey
     ]);
 
 Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va>;`)
-    = H([
-        toBox(t),
-        H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])]),
-        L("="),
-        H0([toBox(va), L(";")])
+    = HV([
+        V([toBox(t),
+        H([toBox(v), L("data"), H0([toBox(typ), toBox(ps)])])]),
+        I([H([L("="), H0([toBox(va), L(";")])])])
     ]);
 
 Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant v> | <{Variant "|"}+ vs>;`)
@@ -248,33 +247,28 @@ Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
     = H0([L("("), HOV([toBox(fs)]), L(")")]);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
-    = H0([
-        toBox(n),
-        L("("),
-        HOV([toBox(args)]),
-        H([
-            L(","),
-            HOV([toBox(kws)])
-        ]),
+    = HV([
+        H0([toBox(n), L("(")]),
+        I([H0([HOV([toBox(args)])], L(","))]),
+        I([HOV([toBox(kws)])]),
         L(")")
-    ]);
+    ], hs=0);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>)`)
-    = H0([
-        toBox(n),
-        L("("),
-        HOV([toBox(args)]),
+    = HV([
+        H0([toBox(n), L("(")]),
+        I([HOV([toBox(args)])]),
         L(")")
     ]);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
                     '<{KeywordFormal ","}+ kws>)`)
-    = H0([
+    = HV([
         H0([toBox(n), L("(")]),
-        H0([toBox(args)]),
-        HOV([toBox(kws)]),
+        I([H0([toBox(args)])]),
+        I([HOV([toBox(kws)])]),
         L(")")
-    ]);
+    ], hs=0);
 
 Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
@@ -347,7 +341,6 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 
 /* Statements */
 
-//  "assert" Expression expression ":" Expression message ";"
 Box toBox((Statement) `assert <Expression expression>;`)
     = H1([L("assert"), H0([HV([toBox(expression)]), L(";")])]);
 
