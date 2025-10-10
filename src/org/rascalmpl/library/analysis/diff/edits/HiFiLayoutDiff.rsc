@@ -191,15 +191,14 @@ private str learnComments(Tree original, Tree replacement) {
     // we always place sequential comments vertically, because we don't know if we are dealing
     // we a single line comment that has to end with newline by follow restriction or by a literal "\n".
     // TODO: a deeper analysis of the comment rule that's in use could also be used to discover this.
-    str trimmedOriginals = "<for (<c, newLine> <- originalComments[..-1]) {><trim(c)>
-                           '<}><if (<c, newLine> := originalComments[-1]) {><trim(c)><if (newLine) {>
-                           '<}><}>"[..-1];
+    str trimmedOriginals = "<for (<c, newLine> <- originalComments) {><trim(c)><if (newLine) {>
+                           '<}><}>";
     
     // we wrap the comment with the formatted whitespace to assure the proper indentation
     // of its first line, and the proper indentation of what comes after this layout node
     return replString 
         + indent(newIndent, trimmedOriginals, indentFirstLine=false) 
-        + "\n<newIndent>"
+        + newIndent
         ;
 }
 

@@ -102,8 +102,10 @@ public DoNotNest doNotNest(Grammar g) {
         + {<f,size(pre),c> | <f:prod(Symbol ss, [*pre, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
                            , same(ss, rr), same(t, lr), same(ss, t)}
+                           /* source code comment */
         ; 
         
+        /* source code comment */
     // and we warn about recursive productions which have been left ambiguous:
     // TODO: this analysis can be done statically in the type-checker
     // allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
