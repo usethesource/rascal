@@ -355,7 +355,7 @@ bool undefinedField(str stmts) =
 // ---- argumentMismatch ------------------------------------------------------
 
 list[str] argumentMismatchMsgs = [
-	"Undefined keyword argument _;",
+	"Undefined keyword argument _",
 	"Expected _ argument(s),",
 	"Expected _ type parameter(s)",
 	"Argument _ should have type _, found _",
