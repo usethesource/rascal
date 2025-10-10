@@ -117,6 +117,8 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     return rec(original, formatted);
 }
 
+private Symbol newlineClass = \char-class([range(10,10)]);
+
 @synopsis{Make sure the new layout still contains all the source code comments of the original layout}
 @description{
 This algorithm uses the `@category(/[cC]omments/)` tag to detect source code comments inside layout substrings. If the original
@@ -141,8 +143,6 @@ Now we need to infer an indentation level for what follows the comment from "thi
 * if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
 }
 private str learnComments(Tree original, Tree replacement) {
-    newlineClass = \char-class([range(10,10)]);
-
     bool mustEndWithNewline(lit("\n"))                     = true;
     bool mustEndWithNewline(conditional(Symbol s, _))      = mustEndWithNewline(s);
     // if a comment can not contain newline characters, but everything else, then it must be followed by one:
