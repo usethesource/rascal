@@ -240,8 +240,14 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
 Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <{Variable ","}+ variables>;`)
     = H1([toBox(tags), toBox(visibility), toBox(typ), HV([SL([toBox(v) | v <- variables], L(","))]), L(";")]);
 
-Box toBox((Declarator) `<Type typ> <{Variable ","}+ variables>`) 
-    = H1([toBox(typ), SL([toBox(v) | v <- variables], L(","))]);
+Box toBox((Declarator) `<Type typ> <Name name>`) 
+    = H([toBox(typ), toBox(name)]);
+
+Box toBox((Declarator) `<Type typ> <Name name> = <Expression initial>`) 
+    = HV([H([toBox(typ), toBox(name), L("=")]), I([HOV([toBox(initial)])])]);
+
+Box toBox((Declarator) `<Type typ> <Variable first>, <{Variable ","}+ variables>`) 
+    = HV([toBox(typ), I([HOV([toBox(first), L(","), SL([toBox(v) | v <- variables], L(","))])])]);
 
 Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
     = H0([L("("), HOV([toBox(fs)]), L(")")]);
@@ -523,7 +529,7 @@ Box indentedBlock((Statement) `{<Statement+ st>}`)
 default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Expression s>;`)
-    = H([toBox(able), H0([HOV([G([toBox(operator), toBox(s)], gs=2, op=H([]))]), L(";")])]);
+    = HV([toBox(able), I([H0([HOV([G([toBox(operator), toBox(s)], gs=2, op=H([]))]), L(";")])])]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Statement s>`)
     = H([
@@ -555,7 +561,7 @@ Box toBox((Assignable) `<Assignable rec>[<Expression from>, <Expression second>.
     = H0([toBox(rec), L("["), toBox(from), H1([L(","), toBox(second)]), L(".."), toBox(to), L("]")]);
 
 Box toBox((Variable) `<Name name> = <Expression initial>`)
-    = H1([toBox(name), L("="), HV([toBox(initial)])]);
+    = HV([H([toBox(name), L("=")]), HOV([toBox(initial)])]);
 
 /* Visit */
 
