@@ -138,22 +138,19 @@ private bool isDegenerate(Box b) = b has boxes && b.boxes == [];
 private Text vv(Text a, Text b) = [*a, *b];
 
 @synopsis{Create a string of spaces just as wide as the parameter a}
-private str blank(str a) = right("", width(a));
+private str blank(str a) = right("", size(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
 Text wd([])             = [];
 Text wd([*_, str x])    = [blank(x)];
-
-@synopsis{Computes the length of unescaped string s}
-private int width(str s) = size(s); 
      
 @synopsis{Computes the maximum width of text t}
 private int twidth([]) = 0;
-private default int twidth(Text t) = max([width(line) | line <- t]);
+private default int twidth(Text t) = max([size(line) | line <- t]);
      
 @synopsis{Computes the length of the last line of t}
 private int hwidth([])             = 0;
-private int hwidth([*_, str last]) = width(last);
+private int hwidth([*_, str last]) = size(last);
 
 @synopsis{Prepends str a before text b, all lines of b will be shifted}
 private Text bar(str a, [])                = [a];
@@ -256,7 +253,7 @@ private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
 
 private Text ifHOV(Text t:[str head], Box b,  Box c, Options opts, int m) 
-    = width(head) <= m ? t : \continue(b, c, opts, m);
+    = size(head) <= m ? t : \continue(b, c, opts, m);
 
 private Text ifHOV(Text t:[str head, str _, *str_], Box b,  Box c, Options opts, int m)
     = \continue(b, c, opts, m);
@@ -280,7 +277,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
         return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
     }
     else {
-        n -= h; // n == width(a)
+        n -= h; // n == size(a)
         if  (i + n < m) { // Fits in the next line, not in current line
             Text T1 =\continue(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
