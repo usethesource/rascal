@@ -431,11 +431,11 @@ ModuleStatus updatePaths(loc oldModuleLoc, loc newModuleLoc, ModuleStatus ms){
 }
 
 ModuleStatus consolidatePaths(ModuleStatus ms){
-    set[loc] locs = {l | /loc l := ms.paths};
+    set[loc] locs = {lc| /loc lc := ms.paths};
     map[loc,loc] lprops = ();
     rel[loc,PathRole,loc] paths = ms.paths;
     for(loc l <- locs){
-        if(l.top in lprops && r := lprops[l.top] && r != l){
+        if(l.top in lprops && loc r := lprops[l.top] && r != l){
             if(l.length? && !r.length?){
                 paths = visit(paths) { case r: { insert l; }};
             } else if(!l.length? && r.length?){
@@ -443,7 +443,7 @@ ModuleStatus consolidatePaths(ModuleStatus ms){
             } else {
                 mname = getRascalModuleName(l, ms.pathConfig);
                 causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];
-                ms.messages[mname] += error("Conflicting module locations found: <l> and <r>", l, causes=causes);
+                ms.messages[mname] ? {} += { error("Conflicting module locations found: <l> and <r>", l, causes=causes) };
             }
         }
         lprops[l.top] = l;
