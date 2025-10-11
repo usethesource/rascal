@@ -26,7 +26,7 @@ import List;
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
 * `G` is an additional group-by feature for `list[Box]` that reduces tot the above core features. You can use it to wrap another
 box around every `gs` elements.
-* `AG` is an additional group-by feature for array `Row`s that reduces tot the above core features. You can use it to wrap a `R` row
+* `AG` is an additional group-by feature for array `Row`s that reduces to the above core features. You can use it to wrap a `R` row
 around every `gs` elements and then construct an `A` around those rows.
 * `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
 }
@@ -42,20 +42,34 @@ set on every `I` Box according to the current preferences of the user.
 * `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
 data Box(int hs=1, int vs=0, int is=4)
-    = H(list[Box] boxes)
-    | V(list[Box] boxes)
-    | HOV(list[Box] boxes)
-    | HV(list[Box] boxes)
-    | I(list[Box] boxes)
-    | WD(list[Box] boxes)
-    | A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[])
-    | AG(list[Box] boxes, int gs=2, list[Alignment] columns=[], Box rs=NULL())
+    = _H(list[Box] boxes)
+    | _V(list[Box] boxes)
+    | _HOV(list[Box] boxes)
+    | _HV(list[Box] boxes)
+    | _I(list[Box] boxes) 
+    | _WD(list[Box] boxes)
+    | _A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[])
+    | _AG(list[Box] boxes, int gs=2, list[Alignment] columns=[], Box rs=NULL())
     | SPACE(int space)
     | L(str word)
-    | U(list[Box] boxes)
-    | G(list[Box] boxes, bool backwards=false, int gs=2, Box op = H([]))
+    | _U(list[Box] boxes)
+    | _G(list[Box] boxes, bool backwards=false, int gs=2, Box op = H([]))
     | NULL()
     ;
+
+Box H(Box boxes..., int hs=1) = _H(boxes, hs=hs);
+Box V(Box boxes..., int vs=0) = _V(boxes, vs=vs);
+Box HOV(Box boxes..., int hs=1, int vs=0) = _HOV(boxes, hs=hs, vs=vs);
+Box HV(Box boxes..., int hs=1, int vs=0) = _HV(boxes, hs=hs, vs=vs);
+Box I(Box boxes...) = _I(boxes);
+Box WD(Box boxes...) = _WD(boxes);
+Box A(Row rows..., Box rs=NULL(), list[Alignment] columns=[])
+    = _A(rows, rs=rs, columns=columns);
+Box AG(Box boxes..., int gs=2, list[Alignment] columns=[], Box rs=NULL())
+    = _AG(boxes, gs=gs, columns=columns, rs=rs);
+Box U(Box boxes...) = _U(boxes);
+Box G(Box boxes..., bool backwards=false, int gs=2, Box op = H([]))
+    = _G(boxes, backwards=backwards, gs=gs, op=op);
 
 @synopsis{A row is a list of boxes that go into an `A` array/table.}
 @description{
