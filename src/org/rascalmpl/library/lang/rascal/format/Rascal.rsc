@@ -847,10 +847,10 @@ void cleanMeUp() {
         case (Expression) `U([<{Expression ","}+ exps12>])`=> (Expression) `U(<{Expression ","}+ exps12>)`
 
         // singleton H, HV, HOV and V have no effect, but the others do!
-        case (Expression) `H(<Expression singleton1>)`   => singleton1
-        case (Expression) `V(<Expression singleton2>)`   => singleton2
-        case (Expression) `HV(<Expression singleton3>)`  => singleton3
-        case (Expression) `HOV(<Expression singleton4>)` => singleton4
+        case (Expression) `H(<Expression singleton1>)`   => singleton1 when !(singleton is \list) && !(singleton is comprehension)
+        case (Expression) `V(<Expression singleton2>)`   => singleton2 when !(singleton is \list) && !(singleton is comprehension)
+        case (Expression) `HV(<Expression singleton3>)`  => singleton3 when !(singleton is \list) && !(singleton is comprehension)
+        case (Expression) `HOV(<Expression singleton4>)` => singleton4 when !(singleton is \list) && !(singleton is comprehension)
     }
 
     writeFile(me, "<m>");
