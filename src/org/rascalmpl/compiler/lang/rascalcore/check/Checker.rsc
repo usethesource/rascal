@@ -131,6 +131,8 @@ ModuleStatus rascalTModelForLocs(
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
 
+    if(isEmpty(mlocs)) return ms;
+
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
     mnames = 
