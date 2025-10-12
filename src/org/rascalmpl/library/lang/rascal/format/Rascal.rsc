@@ -96,7 +96,7 @@ Box toBox((Visibility) ``) = NULL();
 Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(toBox(st), L("syntax"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=[]),
+            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(toBox(st), L("syntax"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -105,7 +105,7 @@ Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production
 Box toBox((SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(L("lexical"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=[]),
+            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(L("lexical"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -114,7 +114,7 @@ Box toBox((SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`)
 Box toBox((SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(L("keyword"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=[]),
+            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(L("keyword"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -123,7 +123,7 @@ Box toBox((SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`)
 Box toBox((SyntaxDefinition) `<Visibility v> layout <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(toBox(v), L("layout"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=[]),
+            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(toBox(v), L("layout"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -146,7 +146,7 @@ Box toBox((Prod) `<ProdModifier* modifiers> <Sym* syms>`)
     = H(toBox(modifiers), [toBox(s) | s <- syms]);
 
 Box toBox((Prod) `<Assoc a> (<Prod g>)`)
-    = H(toBox(a), G(L("("), U(toBox(g)), L(")"), gs=2, op=[]));
+    = H(toBox(a), G(L("("), U(toBox(g)), L(")"), gs=2, op=H([])));
 
 /* symbols */
 Box toBox((Sym) `{<Sym e> <Sym sep>}*`) = H0(L("{"), H1(toBox(e), toBox(sep)), L("}"), L("*"));
@@ -155,15 +155,15 @@ Box toBox((Sym) `<Sym e>*`) = H0(toBox(e), L("*"));
 Box toBox((Sym) `<Sym e>+`) = H0(toBox(e), L("+"));
 Box toBox((Sym) `<Sym e>?`) = H0(toBox(e), L("?"));
 Box toBox((Sym) `(<Sym first> <Sym+ sequence>)`) 
-    = H0(L("("), H1(toBox(first), *[toBox(e) | Sym e <- sequence]),L(")"));
+    = H0(L("("), H1([toBox(first), *[toBox(e) | Sym e <- sequence]]),L(")"));
 
 Box toBox((Sym) `start[<Nonterminal s>]`) = H0(L("start"), L("["), toBox(s), L("]"));
 
 Box toBox((Sym) `(<Sym first> | <{Sym "|"}+ alternatives>)`) 
-    = H0(L("("), H1(toBox(first), *[L("|"), toBox(e) | Sym e <- alternatives]),L(")"));
+    = H0(L("("), H1([toBox(first), *[L("|"), toBox(e) | Sym e <- alternatives]]),L(")"));
 
 Box toBox((Class) `[<Range* ranges>]`)
-    = H0(L("["), *[toBox(r) | r <- ranges], L("]"));
+    = H0([L("["), *[toBox(r) | r <- ranges], L("]")]);
 
 Box toBox((Range) `<Char s> - <Char e>`)
     = H0(toBox(s), L("-"), toBox(e));
@@ -243,7 +243,7 @@ Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
         L(")")
     ], hs=0);
 
-Box toBox(FunctionModifier* modifiers) = [toBox(b) | b <- modifiers];
+Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters> throws <{Type ","}+ exs>`)
     = HOV([
@@ -260,7 +260,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
         HOV(H(toBox(vis), toBox(sig)),
-            I(HOV(G(L("="), toBox(exp), gs=2, op=[]), L(";"))))) when !(exp is \visit);
+            I(HOV(G(L("="), toBox(exp), gs=2, op=H([])), L(";"))))) when !(exp is \visit);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Label l> <Visit vst>;`)
     = V(toBox(tags),
@@ -270,7 +270,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`)
     = V(toBox(tags),
         HOV(H(toBox(vis), toBox(sig)),
-            I(G(L("="), toBox(exp), gs=2, op=[]))),
+            I(G(L("="), toBox(exp), gs=2, op=H([])))),
         I(H(L("when"), H0(toBox(conds), L(";")))));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { <Statement* stats> }`)
@@ -279,7 +279,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { 
         I(toClusterBox(stats)),
         L("}"));
     
-Box toBox(Tag* tags) = [toBox(t) | Tag t <- tags];
+Box toBox(Tag* tags) = V([toBox(t) | Tag t <- tags]);
 
 Box toBox((Tag) `@synopsis<TagString c>`) 
     = H0(L("@"), L("synopsis"), 
@@ -707,8 +707,7 @@ Box toBox(StringLiteral l) {
     lines = group(flatString(l));
    
     // every vertically positioned line, except the first one, starts with the continuation character
-    return V(H0(lines[0]),
-        *[H0(L("\'"), *line) | line <- lines[1..]]);
+    return V([H0(lines[0]), *[H0([L("\'"), *line]) | line <- lines[1..]]]);
 }
 
 list[Box] flatString((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
