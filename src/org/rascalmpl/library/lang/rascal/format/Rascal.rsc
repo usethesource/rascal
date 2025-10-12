@@ -195,7 +195,7 @@ Box toBox((Tag) `@<Name n> <TagString contents>`)
     = H0([L("@"), toBox(n), toBox(contents)]);
 
 Box toBox((Tag) `@<Name n> = <Expression exp>`)
-    = H0([L("@"), toBox(n), L("="), toBox(exp)]);
+    = H0([L("@"), toBox(n), L("="), HOV(toBox(exp))]);
 
 Box toBox((Tag) `@<Name n>`)
     = H0([L("@"), toBox(n)]);
@@ -244,7 +244,7 @@ Box toBox((Declarator) `<Type typ> <Name name>`)
     = H([toBox(typ), toBox(name)]);
 
 Box toBox((Declarator) `<Type typ> <Name name> = <Expression initial>`) 
-    = HV([H([toBox(typ), toBox(name), L("=")]), I([HOV([toBox(initial)])])]);
+    = HV([H([toBox(typ), toBox(name)]), I(toExpBox(L("="), initial))]);
 
 Box toBox((Declarator) `<Type typ> <Variable first>, <{Variable ","}+ variables>`) 
     = HV([toBox(typ), I([HOV([toBox(first), L(","), SL([toBox(v) | v <- variables], L(","))])])]);
@@ -297,8 +297,15 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
         toBox(tags),
         HOV([
             H([toBox(vis), toBox(sig)]),
-            I([H([L("="), H0([HV([toBox(exp)]), L(";")])])])
+            I([H([HOV([G([L("="), toBox(exp)], gs=2, op=H([])), L(";")])])])
         ])
+    ]) when !(exp is \visit);
+
+Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Label l> <Visit vst>;`)
+    = V([
+        toBox(tags),
+        H([toBox(vis), toBox(sig)]),
+        I([H([L("="), H0([toBox(l), toBox(vst), L(";")])])])
     ]);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`)
@@ -306,7 +313,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
         toBox(tags),
         HOV([
             H([toBox(vis), toBox(sig)]),
-            I([H([L("="), HV([toBox(exp)])])])
+            I(HOV(G([L("="), toBox(exp)], gs=2, op=H([]))))
         ]),
         I([H([L("when"), H0([HOV([toBox(conds)]), L(";")])])])
     ]);
@@ -389,7 +396,7 @@ Box toBox(Statement* stmts) = toClusterBox(stmts);
 Box toBox(Statement+ stmts) = toClusterBox(stmts);
 
 Box toBox((Statement) `return <Expression e>;`)
-    = HV([HV([L("return"), I([toBox(e)])],hs=1), L(";")], hs=0);
+    = HV([HV([L("return"), I(HOV(toBox(e)))],hs=1), L(";")], hs=0);
 
 Box toBox((Statement) `return <Statement e>`)
     = HV([L("return"), I([toBox(e)])], hs=1)
@@ -400,21 +407,21 @@ Box toBox(s:(Statement) `<Label label> if (<{Expression ","}+ cs>)
                       '  <Statement sts>`)
     = (Statement) `if (<Expression cond>) println(<Expression log>);` := s ? 
     H1([
-        H0([H1([L("if"), L("(")]), toBox(cond), L(")")]),
-        H0([L("println"), L("("), toBox(log), L(")"), L(";")])
+        HB([H1([L("if"), L("(")]), toExpBox(cond), L(")")]),
+        H0([L("println"), L("("), toExpBox(log), L(")"), L(";")])
     ])
     : (Statement) `if (<Expression cond>) { println(<Expression log>); }` := s ?
      H1([
-        H0([H0([H1([L("if"), L("(")]), toBox(cond), L(")")])]),
+        H0([H0([H1([L("if"), L("(")]), HV(toBox(cond)), L(")")])]),
         L("{"),
         H0([L("println"), L("("), toBox(log), L(")"), L(";")]),
         L("}")
     ])
     :
     V([
-        H1([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")]),
+        HV([
+            H0([toBox(label), H(L("if"), L("("))]), 
+            H0(toBox(cs), L(")")),
             blockOpen(sts)
         ]),
         indentedBlock(sts),
@@ -428,8 +435,8 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
                       ' <Statement ests>`)
     = V([
         H([
-            H0([toBox(label), L("if")]), 
-            H0([L("("), toBox(cs), L(")")]),
+            H0([toBox(label), H(L("if"), L("("))]), 
+            H0(toBox(cs), L(")")),
             blockOpen(sts)
         ]),
         indentedBlock(sts),
@@ -438,6 +445,9 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
         indentedBlock(ests),
         blockClose(ests)
     ]);
+
+Box toBox({Expression ","}+ cs)
+    = SL([toExpBox(c) | Expression c <- cs], L(","));
 
 Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)
                       '  <Statement sts>`)
@@ -459,7 +469,7 @@ Box toBox((Statement) `throw <Statement e>`)
 
 Box toBox((Statement) `<Label label> for(<{Expression ","}+ gs> ) <Statement block>`) 
     = V([
-        H0([toBox(label), H([L("for"), L("(")]), HV([toBox(gs)]), H([L(")"), blockOpen(block)])]),
+        H0([toBox(label), H([L("for"), L("(")]), toBox(gs), H([L(")"), blockOpen(block)])]),
         indentedBlock(block),
         blockClose(block)
     ]);
@@ -472,13 +482,13 @@ Box toBox((Statement) `<Label label> for(<{Expression ","}+ gs> ) <Statement blo
     ]);
 
 Box toBox((Case) `case <Pattern p>:  <Statement block>`)
-    = HOV([H([L("case"), H0([toBox(p), L(":")]), blockOpen(block)]), indentedBlock(block), blockClose(block)]);
+    = V([H([L("case"), H0([toBox(p), L(":")]), blockOpen(block)]), indentedBlock(block), blockClose(block)]);
 
 Box toBox((Case) `case <Pattern p> =\> <Expression repl>`)
     = H([L("case"), toBox(p), HV([I([L("=\>"), toBox(repl)])])]);
 
 Box toBox((Case) `default: <Statement block>`)
-    = HOV([H([L("default:"), blockOpen(block)]), I([indentedBlock(block)]), blockClose(block)]);
+    = V([H([L("default:"), blockOpen(block)]), indentedBlock(block), blockClose(block)]);
 
 
 Box toBox((Statement) `try <Statement body> <Catch+ handlers>`)
@@ -529,7 +539,7 @@ Box indentedBlock((Statement) `{<Statement+ st>}`)
 default Box indentedBlock(Statement s) = I([toBox(s)]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Expression s>;`)
-    = HV([toBox(able), I([H0([HOV([G([toBox(operator), toBox(s)], gs=2, op=H([]))]), L(";")])])]);
+    = HV([toBox(able), I([H0([toExpBox(toBox(operator), s), L(";")])])]);
 
 Box toBox((Statement) `<Assignable able> <Assignment operator> <Statement s>`)
     = H([
@@ -543,7 +553,7 @@ Box toBox((Assignable) `<Assignable rec>.<Name field>`)
     = H0([toBox(rec), L("."), toBox(field)]);
 
 Box toBox((Assignable) `<Assignable rec>?<Expression def>`)
-    = H1([toBox(rec), L("?"), toBox(def)]);
+    = H1([toBox(rec), L("?"), toExpBox(def)]);
 
 Box toBox((Assignable) `<Name name> (<{Assignable ","}+ args>)`)
     = H0([toBox(name), L("("), SL([toBox(a) | a <- args], L(",")), L(")")]);
@@ -552,22 +562,22 @@ Box toBox((Assignable) `\< <{Assignable ","}+ args> \>`)
     = H0([L("\<"), SL([toBox(a) | a <- args], L(",")), L("\>")]);
 
 Box toBox((Assignable) `<Assignable rec>[<Expression sub>]`)
-    = H0([toBox(rec), L("["), toBox(sub), L("]")]);
+    = H0([toBox(rec), L("["), toExpBox(sub), L("]")]);
 
 Box toBox((Assignable) `<Assignable rec>[<Expression from>..<Expression to>]`)
-    = H0([toBox(rec), L("["), toBox(from), L(".."), toBox(to), L("]")]);
+    = H0([toBox(rec), L("["), H1([toBox(from)]), L(".."), H1([toBox(to)]), L("]")]);
 
 Box toBox((Assignable) `<Assignable rec>[<Expression from>, <Expression second>..<Expression to>]`)
-    = H0([toBox(rec), L("["), toBox(from), H1([L(","), toBox(second)]), L(".."), toBox(to), L("]")]);
+    = H0([toBox(rec), L("["), H1([toBox(from)]), H1([L(","), H1([toBox(second)])]), L(".."), H1([toBox(to)]), L("]")]);
 
 Box toBox((Variable) `<Name name> = <Expression initial>`)
-    = HV([H([toBox(name), L("=")]), HOV([toBox(initial)])]);
+    = HV([toBox(name), I(toExpBox(L("="), initial))]);
 
 /* Visit */
 
 Box toBox((Visit) `visit(<Expression subject>) { <Case+ cases> }`)
     = V([
-        H1([H0([L("visit"), L("("), toBox(subject), L(")")]), L("{")]),
+        H1([H0([L("visit"), L("("), HV([toExpBox(subject)]), L(")")]), L("{")]),
         I([
             toClusterBox(cases)
         ]),
@@ -576,7 +586,7 @@ Box toBox((Visit) `visit(<Expression subject>) { <Case+ cases> }`)
 
 Box toBox((Visit) `<Strategy strategy> visit(<Expression subject>) { <Case+ cases> }`)
     = V([
-        H1([toBox(strategy), H0([L("visit"), L("("), toBox(subject), L(")")]), L("{")]),
+        H1([toBox(strategy), H0([L("visit"), L("("), toExpBox(subject), L(")")]), L("{")]),
         I([
             toClusterBox(cases)
         ]),
@@ -586,24 +596,24 @@ Box toBox((Visit) `<Strategy strategy> visit(<Expression subject>) { <Case+ case
 /* Expressions / Patterns */
 
 Box toBox((Expression) `[ <Type typ> ] <Expression e>`)
-    = H1([H0([L("["), toBox(typ), L("]")]), HV([toBox(e)])]);
+    = H1([H0([L("["), toBox(typ), L("]")]), toExpBox(e)]);
 
 Box toBox((Pattern) `[ <Type typ> ] <Pattern e>`)
-    = H1([H0([L("["), toBox(typ), L("]")]), HV([toBox(e)])]);
+    = H1([H0([L("["), toBox(typ), L("]")]), toExpBox(e)]);
 
 Box toBox((Expression) `#<Type t>`) = H0([L("#"), toBox(t)]);
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>..<OptionalExpression optLast>]`)
-    = H0([toBox(e), L("["),toBox(optFirst), L(".."), toBox(optLast), L("]")]);
+    = H0([HV([toBox(e)]), L("["), HV([toBox(optFirst)]), L(".."), HV([toBox(optLast)]), L("]")]);
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>, <Expression second>..<OptionalExpression optLast>]`)
-    = H0([toBox(e), L("["),toBox(optFirst), H1([L(","), toBox(second)]), L(".."), toBox(optLast), L("]")]);
+    = H0([HV([toBox(e)]), L("["), HV([toBox(optFirst)]), H1([L(","), HV([toBox(second)])]), L(".."), HV([toBox(optLast)]), L("]")]);
 
 Box toBox((Expression) `\< <{Expression ","}+ elems> \>`) 
     = H0([L("\<"), HV([toBox(elems)]), L("\>")]);
 
 Box toBox((Expression) `type(<Expression sym>, <Expression grammar>)`)
-    = H0([L("type"), L("("), toBox(sym), H1([L(","), toBox(grammar)]), L(")")]);
+    = H0([L("type"), L("("), toExpBox(sym), H1([L(","), toExpBox(grammar)]), L(")")]);
 
 Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
     = HOV([L("("),
@@ -653,7 +663,7 @@ Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
 
 Row toRow((Expression) `\< <Expression a>, <{Expression ","}* m>, <Expression b> \>`)
     = R([
-        SL([H0([L("\<"), toBox(a)]), *[toBox(e) | e <- m], H0([toBox(b), L("\>")])], L(","))  
+        SL([H0([L("\<"), H(toBox(a))]), *[toBox(e) | e <- m], H0([H(toBox(b)), L("\>")])], L(","))  
     ]);
 
 Row toRow((Pattern) `\< <Pattern a>, <{Pattern ","}* m>, <Pattern b> \>`)
@@ -678,13 +688,13 @@ Box toBox((Pattern) `[<{Pattern ","}* elems>]`)
     ]);
 
 Box toBox((Expression) `<Expression exp>@<Name name>`)
-    = H0([toBox(exp), L("@"), toBox(name)]);
+    = H0([H(toExpBox(exp)), L("@"), toBox(name)]);
 
 Box toBox((ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`)
-    = H0([toBox(pre),toBox(expression),toBox(tail)]);
+    = H0([toBox(pre),toExpBox(expression),toBox(tail)]);
 
 Box toBox((ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`)
-    = H0([toBox(mid),toBox(expression),toBox(tail)]);
+    = H0([toBox(mid),toExpBox(expression),toBox(tail)]);
 
 Box toBox((LocationLiteral) `<ProtocolPart protocolPart><PathPart pathPart>`)
     = H0([toBox(protocolPart), toBox(pathPart)]);
@@ -692,21 +702,21 @@ Box toBox((LocationLiteral) `<ProtocolPart protocolPart><PathPart pathPart>`)
 Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`)
     = HOV([
         H([toBox(condition)]),
-        I([H([L("?"), toBox(thenExp)])]),
-        I([H([L(":"), toBox(elseExp)])])
+        I([H([L("?"), toExpBox(thenExp)])]),
+        I([H([L(":"), toExpBox(elseExp)])])
     ]);
 
 // call without kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
-    = HOV([H0([toBox(caller), L("(")]), I([toBox(arguments)]), L(")")], hs=0);
+    = HOV([H0([H(toBox(caller)), L("(")]), I(HOV(toBox(arguments))), L(")")], hs=0);
 
 // call with kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HOV([H([HOV([H0([toBox(caller), L("(")]), I([toBox(arguments)])], hs=0), L(",")]), toBox(kwargs), L(")")], hs=0);
+    = HOV([H([HOV([H0([toBox(caller), L("(")]), I(HOV(toBox(arguments)))], hs=0), L(",")]), I(HOV(toBox(kwargs))), L(")")], hs=0);
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HOV([H0([toBox(caller), L("(")]), I([toBox(arguments)]), I([toBox(kwargs)]), L(")")], hs=0);
+    = HOV([H0([H0(toBox(caller)), L("(")]), I([toBox(arguments)]), I(HOV(toBox(kwargs))), L(")")], hs=0);
 
 Box toBox({KeywordArgument[&T] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","));
@@ -733,28 +743,28 @@ Box toBox((Expression) `[<{Expression ","}* elements>]`)
     ], hs=0);
 
 Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
-    = H0([toBox(cont), L("["), HV([toBox(subscripts)]), L("]")]);
+    = H0([H(toBox(cont)), L("["), HV([toBox(subscripts)]), L("]")]);
 
 Box toBox((Expression)`[<Expression first>..<Expression last>]`)
-    = H0([L("["), toBox(first),L(".."),toBox(last), L("]")]);
+    = H0([L("["), H(toBox(first)),L(".."),H(toBox(last)), L("]")]);
 
 Box toBox((Expression)`[<Expression first>,<Expression second>..<Expression last>]`)
-    = H0([L("["), toBox(first), H([L(","), toBox(second)]), L(".."), toBox(last), L("]")]);
+    = H0([L("["), H(toBox(first)), H([L(","), H(toBox(second))]), L(".."), H(toBox(last)), L("]")]);
 
 Box toBox((Expression) `<Expression exp>.<Name field>`)
-    = H0([toBox(exp), L("."), toBox(field)]);
+    = H0([H(toBox(exp)), L("."), toBox(field)]);
 
 Box toBox((Expression)`<Expression exp>[<Name key> = <Expression repl>]`)
-    = H0([toBox(exp), L("["),H([toBox(key), L("="), toBox(repl)]), L("]")]);
+    = H0([toBox(exp), L("["),H([H(toBox(key)), L("="), HOV(toBox(repl))]), L("]")]);
 
 Box toBox((Expression) `<Expression exp>\<<{Field ","}+ fields>\>`)
-    = H0([toBox(exp),L("\<"), HV([toBox(fields)]), L("\>")]);
+    = H0([H(toBox(exp)),L("\<"), HV([toBox(fields)]), L("\>")]);
 
 Box toBox((Expression) `(<Expression init> | <Expression result> | <{Expression ","}+ gs>)`)
     = HOV([
-        H1([L("("), HV([toBox(init)])]),
-        H1([L("|"), HV([toBox(result)])]),
-        H1([L("|"), HV([toBox(gs)])]),
+        toExpBox(L("("), init),
+        toExpBox(L("|"), result),
+        toExpBox(L("|"), gs),
         L(")")
     ]);
 
@@ -793,7 +803,7 @@ Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}
     ]);
 
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
-    = H0([toBox(exp), L("["), L("@"), H([toBox(name), L("="), toBox(val)]), L("]")]);
+    = H0([toBox(exp), L("["), L("@"), H([toBox(name), L("="), HV(toBox(val))]), L("]")]);
 
 /* String templates and string literals */
 
@@ -818,7 +828,7 @@ Box toBox(StringLiteral l) {
 }
 
 list[Box] flatString((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
-    = [*flatString(mid), toBox(e), *flatString(tail)];
+    = [*flatString(mid), HV(toBox(e)), *flatString(tail)];
 
 list[Box] flatString((StringTail) `<MidStringChars mid><StringTemplate e><StringTail tail>`)
     = [*flatString(mid), *flatString(e), *flatString(tail)];
@@ -826,7 +836,7 @@ list[Box] flatString((StringTail) `<MidStringChars mid><StringTemplate e><String
 list[Box] flatString((StringTail) `<PostStringChars ch>`) = flatString(ch);
 
 list[Box] flatString((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
-    = [*flatString(pre), toBox(template), *flatString(tail)];
+    = [*flatString(pre), HV(toBox(template)), *flatString(tail)];
 
 list[Box] flatString((StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`) 
     = [*flatString(pre), *flatString(template), *flatString(tail)];
@@ -854,7 +864,7 @@ list[Box] flatString((StringMiddle) `<MidStringChars mid><StringTemplate templat
     = [*flatString(mid), *flatString(template), *flatString(tail)];
 
 list[Box] flatString((StringMiddle) `<MidStringChars mid><Expression e><StringMiddle tail>`) 
-    = [*flatString(mid), toBox(e), *flatString(tail)];
+    = [*flatString(mid), HV(toBox(e)), *flatString(tail)];
 
 
 default list[Box] flatString(StringCharacter c) = [L("<c>")];
@@ -923,12 +933,41 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
     ]);
 
 // this should not be necessary
-Box HV([H([])]) = U([]);
-Box HV([V([])]) = U([]);
-Box HV([U([])]) = U([]);
+Box _HV([_H([])]) = U([]);
+Box _HV([_V([])]) = U([]);
+Box _HV([_U([])]) = U([]);
 
 // helpful short-hands might end up in box::syntax::Box 
-Box H0(list[Box] boxes) = H(boxes, hs=0);
-Box H1(list[Box] boxes) = H(boxes, hs=1);
-Box V0(list[Box] boxes) = V(boxes, hs=0);
-Box V1(list[Box] boxes) = V(boxes, vs=1);
+Box H0(Box boxes...) = _H(boxes, hs=0);
+Box H1(Box boxes...) = _H(boxes, hs=1);
+Box V0(Box boxes...) = _V(boxes, hs=0);
+Box V1(Box boxes...) = _V(boxes, vs=1);
+
+// TODO: finish this 
+void cleanMeUp() {
+    loc me = |project://rascal/src/org/rascalmpl/library/lang/rascal/format/Rascal.rsc|;
+    m = parse(#start[Module], me);
+
+    m = innermost visit(m) {
+        // we remove the nested [brackets] which are now taken care of by varargs overloads
+        case (Expression) `H([<{Expression ","}+ exps>])`   => (Expression) `H(<{Expression ","}+ exps>)`
+        case (Expression) `H([<{Expression ","}+ exps>], hs=0)`   => (Expression) `H0(<{Expression ","}+ exps>)`
+        case (Expression) `H([<{Expression ","}+ exps>], hs=1)`   => (Expression) `H1(<{Expression ","}+ exps>)`
+        case (Expression) `V([<{Expression ","}+ exps>])`   => (Expression) `V(<{Expression ","}+ exps>)`
+        case (Expression) `V([<{Expression ","}+ exps>], vs=<Expression v>)`   => (Expression) `V(<{Expression ","}+ exps>, vs=<Expression v>)`
+        case (Expression) `HV([<{Expression ","}+ exps>])`  => (Expression) `HV(<{Expression ","}+ exps>)`
+        case (Expression) `HOV([<{Expression ","}+ exps>])` => (Expression) `HOV(<{Expression ","}+ exps>)`
+        case (Expression) `I([<{Expression ","}+ exps>])`   => (Expression) `I(<{Expression ","}+ exps>)`
+        case (Expression) `I([<{Expression ","}+ exps>], is=<Expression i>)`   => (Expression) `I(<{Expression ","}+ exps>, is=<Expression i>)`
+        case (Expression) `G([<{Expression ","}+ exps>], gs=<Expression g>, op=<Expression op>)` => (Expression) `G(<{Expression ","}+ exps>, gs=<Expression g>, op=<Expression op>)`
+        case (Expression) `G([<{Expression ","}+ exps>], op=<Expression op>, gs=<Expression gs>)`=> (Expression) `G(<{Expression ","}+ exps>, gs=<Expression g>, op=<Expression op>)`
+
+        // singleton H, HV, HOV and V have no effect, but the others do!
+        case (Expression) `H(<Expression singleton>)`   => singleton
+        case (Expression) `V(<Expression singleton>)`   => singleton
+        case (Expression) `HV(<Expression singleton>)`  => singleton
+        case (Expression) `HOV(<Expression singleton>)` => singleton
+    }
+
+    writeFile("<r>", me);
+}

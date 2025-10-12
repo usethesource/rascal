@@ -142,8 +142,8 @@ Box debUG(Box b) {
         = [R(boxes[..gs]), *groupRows(boxes[gs..], gs)];
 
     return innermost visit(b) {
-        case [*Box pre, U([*Box mid]), *Box post]           => [*pre, *mid, *post]
-        case G(list[Box] boxes, gs=gs, op=op, backwards=bw) => U(bw ? groupByBackward(boxes, gs, op) : groupBy(boxes, gs, op))
-        case AG(list[Box] boxes, gs=gs, columns=cs, rs=rs)  => A(groupRows(boxes, gs), columns=cs, rs=rs)
+        case [*Box pre, _U([*Box mid]), *Box post]           => [*pre, *mid, *post]
+        case _G(list[Box] boxes, gs=gs, op=op, backwards=bw) => _U(bw ? groupByBackward(boxes, gs, op) : groupBy(boxes, gs, op))
+        case _AG(list[Box] boxes, gs=gs, columns=cs, rs=rs)  => A(groupRows(boxes, gs), columns=cs, rs=rs)
     }
 }
