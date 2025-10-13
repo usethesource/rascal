@@ -149,9 +149,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-        ms.paths += tm.paths;
-        ms.strPaths = getStrPaths(ms.paths, pcfg); //<<<<
-
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
