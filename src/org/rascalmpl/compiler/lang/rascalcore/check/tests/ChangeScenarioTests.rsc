@@ -236,6 +236,23 @@ test bool removeConstructorAndRestoreIt(){
     return checkModuleOK(B);
 }
 
+test bool correctToIncorrectModuleOK(){
+    clearMemory();
+    Aloc = writeModule("module A 
+                    'import B; 
+                    'int x = y;");
+    Bloc = writeModule("module B 
+                    'public int y = 123;");
+    assert checkModuleOK(Aloc);
+    Aloc = writeModule("module A 
+                       'import B; 
+                       'int x = y; // foo");
+    Bloc = writeModule("module B 
+                       'public str y = \"foo\";");
+    assert checkModuleOK(Bloc); 
+    return unexpectedDeclarationInModule(Aloc);
+}
+
 // ---- incremental type checking ---------------------------------------------
 
 // Legend:
