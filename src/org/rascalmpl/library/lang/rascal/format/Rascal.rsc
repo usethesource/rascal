@@ -346,7 +346,7 @@ Box toBox(Statement* stmts) = toClusterBox(stmts);
 Box toBox(Statement+ stmts) = toClusterBox(stmts);
 
 Box toBox((Statement) `return <Expression e>;`)
-    = HV([HV([L("return"), I(toBox(e))],hs=1), L(";")], hs=0);
+    = HV([HV([L("return"), I(toExpBox(e))],hs=1), L(";")], hs=0);
 
 Box toBox((Statement) `return <Statement e>`)
     = HV([L("return"), I(toBox(e))], hs=1)
@@ -356,7 +356,7 @@ Box toBox((Statement) `return <Statement e>`)
 Box toBox(s:(Statement) `<Label label> if (<{Expression ","}+ cs>) 
                       '  <Statement sts>`)
     = (Statement) `if (<Expression cond>) println(<Expression log>);` := s ? 
-    H1(HB([H1(L("if"), L("(")), toExpBox(cond), L(")")]),
+    H1(H0([H1(L("if"), L("(")), toExpBox(cond), L(")")]),
         H0(L("println"), L("("), toExpBox(log), L(")"), L(";")))
     : (Statement) `if (<Expression cond>) { println(<Expression log>); }` := s ?
      H1(H0(H0(H1(L("if"), L("(")), toBox(cond), L(")"))),
