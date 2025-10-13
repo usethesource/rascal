@@ -762,7 +762,10 @@ default list[Box] flatString(StringCharacter c) = [L("<c>")];
 // We never change whitespace inside of the string literals!
 list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
-        H0(H1(L("if"), L("(")), toBox(conds), H1(L(")"), L("{")), I(toBox(pre))), 
+        HV(
+            H0(H1(L("if"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
+            I(toBox(pre))
+        ), 
         *flatString(body),
         I(toBox(post)),
         L("}")
@@ -770,7 +773,10 @@ list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statemen
 
 list[Box] flatString((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
-        H0(H1(L("for"), L("(")), toBox(conds), H1(L(")"), L("{")), I(toBox(pre))), 
+        V( 
+            H0(H1(L("for"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
+            I(toBox(pre))
+        ), 
         *flatString(body),
         I(toBox(post)),
         L("}")
@@ -778,13 +784,15 @@ list[Box] flatString((StringTemplate) `for(<{Expression ","}+ conds>) { <Stateme
 
 list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>} else { <Statement* preE> <StringMiddle elseS>  <Statement* postE>}`)
     = [
-        H0(H1(L("if"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
-        I(toBox(pre)), 
+        HV(
+            H0(H1(L("if"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
+            I(toBox(pre))
+        ), 
         *flatString(body), 
         I(toBox(post)), 
         L("}"),
-        H1(L("else"), L("{")),
-        I(toBox(preE)), 
+        HV(H1(L("else"), L("{")),
+        I(toBox(preE))), 
         *flatString(elseS), 
         I(toBox(postE)), 
         L("}")
