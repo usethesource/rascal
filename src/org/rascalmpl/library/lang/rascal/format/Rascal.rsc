@@ -206,17 +206,22 @@ Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeyw
                 *[L("|"), toBox(va) | Variant va <- vs] // hoist the bars `|` up to the same level of `=`
             ]), L(";")], hs=0));
 
-Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <{Variable ","}+ variables>;`)
-    = H1(toBox(tags), toBox(visibility), toBox(typ), SL([toBox(v) | v <- variables], L(",")), L(";"));
+Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Name name> = <Expression initial>;`)
+    = HV(
+        H1(toBox(tags), toBox(visibility), toBox(typ), toBox(name)), 
+        I(HOV(G(L("="), U([toBox(initial)])))), L(";"));
+
+Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Variable first>, <{Variable ","}+ variables>;`)
+    = HV(H1(toBox(tags), toBox(visibility), toBox(typ)), I(HOV(H0(toBox(first), L(",")), SL([toBox(v) | v <- variables], L(",")))), L(";"));
 
 Box toBox((Declarator) `<Type typ> <Name name>`) 
-    = H(toBox(typ), toBox(name));
+    = H1(toBox(typ), toBox(name));
 
 Box toBox((Declarator) `<Type typ> <Name name> = <Expression initial>`) 
     = HV(H(toBox(typ), toBox(name)), I(toExpBox(L("="), initial)));
 
 Box toBox((Declarator) `<Type typ> <Variable first>, <{Variable ","}+ variables>`) 
-    = HV(toBox(typ), I(HOV(toBox(first), L(","), SL([toBox(v) | v <- variables], L(",")))));
+    = HV(I(HOV(H(toBox(typ), toBox(first)), L(","), SL([toBox(v) | v <- variables], L(",")))));
 
 Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
     = H0(L("("), toBox(fs), L(")"));
@@ -794,13 +799,13 @@ Box toBox((Sym) `&<Nonterminal n>`)
     = H0(L("&"), toBox(n));
 
 Box toBox((Sym) `<Nonterminal n>[<{Sym ","}+ ps>]`)
-    = H0(toBox(n),L("["),toBox(ps),L("]"));
+    = H0(toBox(n),L("["), H1(toBox(ps)), L("]"));
 
 Box toBox((StructuredType)`<BasicType bt>[<{TypeArg ","}+ args>]`)
-    = H0(toBox(bt),L("["), toBox(args), L("]"));
+    = H0(toBox(bt),L("["), H1(toBox(args)), L("]"));
 
 Box toBox((UserType)`<QualifiedName bt>[<{Type ","}+ args>]`)
-    = H0(toBox(bt),L("["), toBox(args), L("]"));
+    = H0(toBox(bt),L("["), H1(toBox(args)), L("]"));
 
 Box toBox((TypeVar) `&<Name n>`)
     = H0(L("&"), toBox(n));
