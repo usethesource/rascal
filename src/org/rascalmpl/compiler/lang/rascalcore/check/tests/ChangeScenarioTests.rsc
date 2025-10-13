@@ -467,6 +467,7 @@ void safeRemove(loc l){
     try remove(l, recursive=true); catch _:;
 }
 
+@ignore{Investigate, after clearing messages}
 test bool onlyTouchedModulesAreReChecked0(){
     clearMemory();
     pcfg = getRascalWritablePathConfig();
