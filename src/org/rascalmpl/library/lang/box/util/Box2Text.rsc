@@ -497,13 +497,13 @@ test bool emptyBoxesNoExtraSpacing3()
     == "A B
        '";
 
-test bool emptyBoxesNoExtraSpacing3()
+test bool emptyBoxesNoExtraSpacing4()
     = format(V(L("A"), H(), L("B")))
     == "A
        'B
        '";
 
-test bool emptyBoxesNoExtraSpacing4()
+test bool emptyBoxesNoExtraSpacing5()
     = format(V(L("A"), V(), L("B")))
     == "A
        'B
