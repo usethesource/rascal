@@ -754,7 +754,8 @@ void largeBenchmarkRechecking(){
 
 void allBenchmarks(){
     beginTime = cpuTime();
-    miniBenchmarkRechecking();
+    miniBenchmarkRechecking1();
+    miniBenchmarkRechecking2();
     mediumBenchmarkRechecking();
     //largeBenchmarkRechecking();
     println("Total time: <(cpuTime() - beginTime)/1000000> ms");
