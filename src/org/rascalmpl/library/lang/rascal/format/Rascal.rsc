@@ -823,7 +823,7 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
             toBox(n)),
         L("\<:"), 
         toBox(bound));
-
+ 
 // this should not be necessary
 Box _HV([_H([])]) = U([]);
 Box _HV([_V([])]) = U([]);
