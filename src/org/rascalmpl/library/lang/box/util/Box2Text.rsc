@@ -467,6 +467,48 @@ test bool horizontalPlacement3()
     == "A   B   C
        '";
 
+test bool horizontalIndentIsNoop1() 
+    = format(H(L("A"), I(L("B"))))
+    == "A B
+       '";
+
+test bool horizontalIndentIsNoop2() 
+    = format(HV(L("A"), I(L("B"))))
+    == "A B
+       '";
+
+test bool horizontalIndentIsNoop3() 
+    = format(HOV(L("A"), I(L("B"))))
+    == "A B
+       '";
+
+test bool emptyBoxesNoExtraSpacing1()
+    = format(H(L("A"), H([]), L("B")))
+    == "A B
+       '";
+
+test bool emptyBoxesNoExtraSpacing2()
+    = format(H(L("A"), V([]), L("B")))
+    == "A B
+       '";
+
+test bool emptyBoxesNoExtraSpacing3()
+    = format(H(L("A"), I([]), L("B")))
+    == "A B
+       '";
+
+test bool emptyBoxesNoExtraSpacing3()
+    = format(V(L("A"), H([]), L("B")))
+    == "A
+       'B
+       '";
+
+test bool emptyBoxesNoExtraSpacing4()
+    = format(V(L("A"), V([]), L("B")))
+    == "A
+       'B
+       '";
+
 test bool verticalPlacement0()
     = format(V([L("A"), L("B"), L("C")], vs=0))
     == "A
