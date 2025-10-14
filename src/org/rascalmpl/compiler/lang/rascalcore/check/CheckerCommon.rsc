@@ -396,7 +396,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         println("INFO: <msg>)");
         throw rascalTplVersionError(msg);
     }
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
 }
 
 rel[str from, PathRole r, str to] getStrPaths(rel[loc from, PathRole r, loc to] paths, PathConfig pcfg){
