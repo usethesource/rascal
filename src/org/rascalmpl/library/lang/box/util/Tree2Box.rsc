@@ -337,8 +337,8 @@ or in horizontal mode:
 By default ((toExpBox)) wraps it result in a HOV context, but you can pass
 in a different `wrapper` if you like.
 }
-Box toExpBox(Box prefix, Tree expression, Box wrapper=HOV([]))
-    = wrapper[boxes=[G(prefix, toBox(expression), gs=2, op=H([]))]];
+Box toExpBox(Box prefix, Tree expression, Box wrapper=HOV())
+    = wrapper[boxes=[G(prefix, toBox(expression), gs=2, op=H())]];
 
 @synopsis{Reusable way of dealing with large binary expression trees}
 @description{
@@ -358,8 +358,8 @@ By default ((toExpBox)) wraps it result in a HV context, but you can pass
 in a different `wrapper` if you like.
 
 }
-Box toExpBox(Tree expression, Box wrapper=HV([]))
-    = wrapper[boxes=[G(toBox(expression), gs=2, backwards=true, op=H([]))]];
+Box toExpBox(Tree expression, Box wrapper=HV())
+    = wrapper[boxes=[G(toBox(expression), gs=2, backwards=true, op=H())]];
 
 @synopsis{Private type alias for legibility's sake}
 private alias FO = FormatOptions;
