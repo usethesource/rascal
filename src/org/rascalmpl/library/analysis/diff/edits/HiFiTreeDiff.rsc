@@ -226,6 +226,43 @@ list[TextEdit] treeDiff(
     = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))]
     when t != r;
 
+// Several ways of changing recursive expressions can be exploited to create very small diffs.
+// This is comparable to finding large common sublists in the case of lists. If you look at 
+// unary and binary associative operators as a kind of operator-separated lists, this makes sense.
+
+// remove a unary prefix operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [lit(_), _, sort(exp)], _), [Tree l, _, Tree r]), 
+    r)
+    = [delete(fromUntil(l@\loc, r@\loc))];
+
+// remove a unary postfix operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [sort(str exp), _, lit(_)], _), [Tree l, _, Tree r]), 
+    r)
+    = [delete(cover([endOf(l@\loc), r@\loc]))];
+
+// remove the left hand side of a binary operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [Tree l, _, _, _, Tree r]), 
+    r)
+    = [delete(fromUntil(l@\loc, r@\loc))];
+
+// remove the right hand side of a binary operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [Tree l, _, _, _, Tree r]), 
+    l)
+    = [delete(cover([endOf(l@\loc), r@\loc]))];
+
+// remove brackets
+list[TextEdit] treeDiff(
+    t:appl(prod(sort(str exp), [lit(_), _, sort(exp), _, lit(_)], {*_, \bracket()}), [_, _, Tree e, _, _]), 
+    e)
+    = [
+        delete(fromUntil(beginOf(t@\loc), e@\loc)),
+        delete(fromUntil(endOf(e@\loc), endOf(t@\loc)))
+    ];
+
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
 default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
@@ -382,6 +419,9 @@ up to `until`.
 }
 private loc fromUntil(loc from, loc until) = from.top(from.offset, until.offset - from.offset);
 private int end(loc src) = src.offset + src.length;
+
+private loc endOf(loc src) = src.top[offset=src.offset + src.length][length=0];
+private loc beginOf(loc src) = src.top[offset=src.offset][length=0];
 
 private loc after(loc src) = src(end(src), 0);
 
