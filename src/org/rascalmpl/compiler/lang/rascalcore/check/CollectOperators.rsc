@@ -150,7 +150,7 @@ void collect(current: (Expression) `<Expression arg> ?`, Collector c){
     c.fact(current, abool());
     checkIsDefinedArg(arg, c);
     collect(arg, c); 
-    c.require("non void", arg, [], makeNonVoidRequirement(arg, "Argument of is-defined operator _ ?)"));
+    c.require("non void", arg, [], makeNonVoidRequirement(arg, "Argument of is-defined operator _ ?"));
 }
 
 // ---- negation
