@@ -32,15 +32,15 @@ This demonstrates the semantics of the main hard constraints:
 ```rascal-shell
 import lang::box::util::Box2Text;
 import lang::box::\syntax::Box;
-format(H([L("A"), L("B"), L("C")], hs=2))
-format(H([L("A"), L("B"), L("C")], hs=1))
-format(H([L("A"), L("B"), L("C")], hs=0))
-format(V([L("A"), L("B"), L("C")], vs=2))
-format(V([L("A"), L("B"), L("C")], vs=1))
-format(V([L("A"), L("B"), L("C")], vs=0))
-format(H([L("A"), V([L("B"), L("C")])]))
-format(H([L("A"), I([L("B")]), L("C")]))
-format(H([L("A"), V([L("B"), H([L("C"), L("D")])])]))
+format(H(L("A"), L("B"), L("C"), hs=2))
+format(H(L("A"), L("B"), L("C"), hs=1))
+format(H(L("A"), L("B"), L("C"), hs=0))
+format(V(L("A"), L("B"), L("C"), vs=2))
+format(V(L("A"), L("B"), L("C"), vs=1))
+format(V(L("A"), L("B"), L("C"), vs=0))
+format(H(L("A"), V(L("B"), L("C"))))
+format(H(L("A"), I(L("B")]), L("C")]))
+format(H(L("A"), V(L("B"), H(L("C"), L("D")))))
 ```
 
 The "soft" constraints change their behavior based on available horizontal room:
@@ -57,9 +57,9 @@ format(HOV([L("W<i>") | i <- [0..30]]));
 
 By cleverly combining constraints, a specifically desired behavior is easy to achieve:
 ```rascal-shell,continue
-format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("doSomething")])]))
-format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("W<i>") | i <- [0..30]])]))
-format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0..30]])]))
+format(H(L("if"), H(L("("), L("true"), L(")"), hs=0), HOV(L("doSomething"))))
+format(H(L("if"), H(L("("), L("true"), L(")"), hs=0), HOV([L("W<i>") | i <- [0..30]])))
+format(H(L("if"), H(L("("), L("true"), L(")"), hs=0), HV([L("W<i>") | i <- [0..30]])))
 ```
 }
 @pitfalls{
@@ -458,12 +458,12 @@ private Text box2data(Box b, Options opts) {
 ///////////////// regression tests ////////////////////////////////
 
 test bool horizontalPlacement2()
-    = format(H([L("A"), L("B"), L("C")], hs=2))
+    = format(H(L("A"), L("B"), L("C"), hs=2))
     == "A  B  C
        '";
 
 test bool horizontalPlacement3()
-    = format(H([L("A"), L("B"), L("C")], hs=3))
+    = format(H(L("A"), L("B"), L("C"), hs=3))
     == "A   B   C
        '";
 
@@ -483,41 +483,41 @@ test bool horizontalIndentIsNoop3()
        '";
 
 test bool emptyBoxesNoExtraSpacing1()
-    = format(H(L("A"), H([]), L("B")))
+    = format(H(L("A"), H(), L("B")))
     == "A B
        '";
 
 test bool emptyBoxesNoExtraSpacing2()
-    = format(H(L("A"), V([]), L("B")))
+    = format(H(L("A"), V(), L("B")))
     == "A B
        '";
 
 test bool emptyBoxesNoExtraSpacing3()
-    = format(H(L("A"), I([]), L("B")))
+    = format(H(L("A"), I(), L("B")))
     == "A B
        '";
 
 test bool emptyBoxesNoExtraSpacing3()
-    = format(V(L("A"), H([]), L("B")))
+    = format(V(L("A"), H(), L("B")))
     == "A
        'B
        '";
 
 test bool emptyBoxesNoExtraSpacing4()
-    = format(V(L("A"), V([]), L("B")))
+    = format(V(L("A"), V(), L("B")))
     == "A
        'B
        '";
 
 test bool verticalPlacement0()
-    = format(V([L("A"), L("B"), L("C")], vs=0))
+    = format(V(L("A"), L("B"), L("C"), vs=0))
     == "A
        'B
        'C
        '";
 
 test bool verticalPlacement1()
-    = format(V([L("A"), L("B"), L("C")], vs=1))
+    = format(V(L("A"), L("B"), L("C"), vs=1))
     == "A
        '
        'B
@@ -526,14 +526,14 @@ test bool verticalPlacement1()
        '";
 
 test bool verticalIndentation2()
-    = format(V([L("A"), I([L("B")]), L("C")]))
+    = format(V(L("A"), I(L("B")), L("C")))
     == "A
        '    B
        'C
        '";
 
 test bool blockIndent()
-    = format(V([L("A"), I([V([L("B"), L("C")])]), L("D")]))
+    = format(V(L("A"), I(V(L("B"), L("C"))), L("D")))
     == "A
        '    B
        '    C
@@ -541,52 +541,52 @@ test bool blockIndent()
        '";
 
 test bool wrappingIgnoreIndent()
-    = format(HV([L("A"), I([L("B")]), L("C")], hs=0), maxWidth=2, wrapAfter=2)
+    = format(HV(L("A"), I(L("B")), L("C"), hs=0), maxWidth=2, wrapAfter=2)
     == "AB
        'C
        '";
 
 test bool wrappingWithIndent()
-    = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), maxWidth=2, wrapAfter=2)
+    = format(HV(L("A"), I(L("B")), I(L("C")), hs=0), maxWidth=2, wrapAfter=2)
     == "AB
        '    C
        '";
 
 test bool multiBoxIndentIsVertical()
-    = format(I([L("A"), L("B")]))
+    = format(I(L("A"), L("B")))
     == "    A
        '    B
        '";
 
 test bool flipping1NoIndent()
-    = format(HOV([L("A"), L("B"), L("C")], hs=0, vs=0), maxWidth=2, wrapAfter=2)
+    = format(HOV(L("A"), L("B"), L("C"), hs=0, vs=0), maxWidth=2, wrapAfter=2)
     == "A
        'B
        'C
        '";
 
 test bool horizontalOfOneVertical()
-    = format(H([L("A"), V([L("B"), L("C")])]))
+    = format(H(L("A"), V(L("B"), L("C"))))
     == "A B
        '  C
        '";
 
 test bool stairCase()
-    = format(H([L("A"), V([L("B"), H([L("C"), V([L("D"), H([L("E"), L("F")])])])])]))
+    = format(H(L("A"), V(L("B"), H(L("C"), V(L("D"), H(L("E"), L("F")))))))
     == "A B
        '  C D
        '    E F
        '";
 
 test bool simpleTable() 
-    = format(A([R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])]))
+    = format(A(R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])))
     == "1 2 3
        '4 5 6
        '7 8 9
        '";
 
 test bool simpleAlignedTable() 
-    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], 
+    = format(A(R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")]), 
                 columns=[l(),c(),r()]))
     == "1    2    3
        '44  55   66
@@ -594,7 +594,7 @@ test bool simpleAlignedTable()
        '";
 
 test bool simpleAlignedTableDifferentAlignment() 
-    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], 
+    = format(A(R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")]), 
                 columns=[r(),c(),l()]))
     == "  1  2  3  
        ' 44 55  66 
@@ -602,11 +602,11 @@ test bool simpleAlignedTableDifferentAlignment()
        '";
 
 test bool WDtest() {
-    L1 = H([L("aap")]           , hs=0);
-    L2 = H([WD([L1]), L("noot")], hs=0);
-    L3 = H([WD([L2]), L("mies")], hs=0);
+    L1 = H(L("aap")         , hs=0);
+    L2 = H(WD(L1), L("noot"), hs=0);
+    L3 = H(WD(L2), L("mies"), hs=0);
 
-    return format(V([L1, L2, L3]))
+    return format(V(L1, L2, L3))
         == "aap
            '   noot
            '       mies
@@ -615,49 +615,38 @@ test bool WDtest() {
 
 test bool groupByTest() {
     lst  = [L("<i>") | i <- [0..10]];
-    g1   = G(lst, op=H([]), gs=3);
-    lst2 = [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [0,3..7]] + [H([L("9")])];
+    g1   = G(lst, op=H(), gs=3);
+    lst2 = [H(L("<i>"), L("<i+1>"), L("<i+2>")) | i <- [0,3..7]] + [H(L("9"))];
 
-    return format(V([g1])) == format(V(lst2));
+    return format(V(g1)) == format(V(lst2));
 }
 
 test bool groupByBackwardsTest() {
     lst  = [L("<i>") | i <- [0..10]];
-    g1   = G(lst, op=H([]), gs=3, backwards=true);
-    lst2 = [H([L("0")])] + [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [1, 4..10]];
+    g1   = G(lst, op=H(), gs=3, backwards=true);
+    lst2 = [H(L("0"))] + [H(L("<i>"), L("<i+1>"), L("<i+2>")) | i <- [1, 4..10]];
 
     return format(V([g1])) == format(V(lst2));
 }
 
-test bool noDegenerateHSeparators()
-    = format(H([L("a"),H([]),L("b")])) 
-    == "a b
-       '";
-
-test bool noDegenerateVSeparators()
-    = format(V([L("a"),H([]),L("b")])) 
-    == "a
-       'b
-       '";
-
 test bool noDegenerateHVSeparators1()
-    = format(HV([L("a"),V([]),L("b")])) 
+    = format(HV(L("a"),V(),L("b"))) 
     == "a b
        '";
 
 test bool noDegenerateHVSeparators2()
-    = format(HV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    = format(HV(L("a"),V(),L("b")), maxWidth=1, wrapAfter=1) 
     == "a
        'b
        '";
 
 test bool noDegenerateHOVSeparators1()
-    = format(HOV([L("a"),V([]),L("b")])) 
+    = format(HOV(L("a"),V(),L("b"))) 
     == "a b
        '";
 
 test bool noDegenerateHOVSeparators2()
-    = format(HOV([L("a"),V([]),L("b")]), maxWidth=1, wrapAfter=1) 
+    = format(HOV(L("a"),V(),L("b")), maxWidth=1, wrapAfter=1) 
     == "a
        'b
        '";
