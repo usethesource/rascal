@@ -199,10 +199,10 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	}
 	for(str v <- usedefs){
 		 <def, uses> = usedefs[v];
-		 occ = [];
+		 list[loc] occ = [];
 		 if(names[v]?) occ = names[v]; else throw "<v> not found in tree";
 		 if(!occ[def]?) throw "Missing define <def> for <v>";
-		 for(u <- uses){
+		 for(int u <- uses){
 			println("u = <u>");
 			if(!occ[u]?){
 				throw "Missing use <u> for <v>";
