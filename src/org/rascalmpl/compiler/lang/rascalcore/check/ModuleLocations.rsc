@@ -55,14 +55,6 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
-list[Message] getCausesFromPathConfig(PathConfig pcfg){
-    causes = [ info("In srcs", src) | src <- pcfg.srcs ];
-    if(!isEmpty(pcfg.libs)){
-        causes += [ info("In libs", lib) | lib <- pcfg.libs ];
-    }
-    return causes;
-}
-
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
@@ -80,7 +72,8 @@ loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw error("Module `<qualifiedModuleName>` not found", |unknown:///|, causes=getCausesFromPathConfig(pcfg));
+    mloc = |unknown:///|;
+    throw error("Module `<qualifiedModuleName>` not found", mloc, causes=[info("Using PathConfig: <iprintToString(pcfg)>", mloc)] );
 }
 
 tuple[str,str] splitFileExtension(str path){
