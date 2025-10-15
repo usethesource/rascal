@@ -70,28 +70,28 @@ import io.usethesource.vallang.type.TypeStore;
  * 
  */
 public class ModuleEnvironment extends Environment {
-	protected final GlobalEnvironment heap;
+	private final GlobalEnvironment heap;
 	/** Map of imported modules to resolved ModuleEnvironments, will only be empty in case of a module was in a cycle or got reloaded and failed during the reload. use {@link #importedModulesResolved} to lazily resolve the modules. */
-	protected Map<String, Optional<ModuleEnvironment>> importedModules;
-	protected Set<String> extended;
-	protected TypeStore typeStore;
-	protected Set<IValue> productions;
-	protected Map<Type, List<KeywordFormal>> generalKeywordParameters;
-	protected Map<String, NonTerminalType> concreteSyntaxTypes;
+	private Map<String, Optional<ModuleEnvironment>> importedModules;
+	private Set<String> extended;
+	private TypeStore typeStore;
+	private Set<IValue> productions;
+	private Map<Type, List<KeywordFormal>> generalKeywordParameters;
+	private Map<String, NonTerminalType> concreteSyntaxTypes;
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String deprecated;
-	protected Map<String, AbstractFunction> resourceImporters;
-	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
-	protected Map<String, List<AbstractFunction>> cachedPublicFunctions;
+	private Map<String, AbstractFunction> resourceImporters;
+	private Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	private Map<String, List<AbstractFunction>> cachedPublicFunctions;
 	
-	protected static final TypeFactory TF = TypeFactory.getInstance();
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
+		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", "", "/" + name.replaceAll("::", "/").replaceAll("\\$", "_dollar_"))), name);
 		this.heap = heap;
 		this.importedModules = new HashMap<>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
@@ -104,27 +104,6 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
-	}
-	
-	/**
-	 * This constructor creates a shallow copy of the given environment
-	 * 
-	 * @param env
-	 */
-	protected ModuleEnvironment(ModuleEnvironment env) {
-		super(env);
-		this.heap = env.heap;
-		this.importedModules = env.importedModules;
-		this.concreteSyntaxTypes = env.concreteSyntaxTypes;
-		this.productions = env.productions;
-		this.typeStore = env.typeStore;
-		this.initialized = env.initialized;
-		this.syntaxDefined = env.syntaxDefined;
-		this.bootstrap = env.bootstrap;
-		this.resourceImporters = env.resourceImporters;
-		this.cachedGeneralKeywordParameters = null;
-		this.cachedPublicFunctions = null;
-		this.deprecated = env.deprecated;
 	}
 
 	@Override
@@ -195,7 +174,18 @@ public class ModuleEnvironment extends Environment {
 		  if (this.generalKeywordParameters == null) {
 			  this.generalKeywordParameters = new HashMap<>();
 		  }
-		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
+
+		  for (Entry<Type, List<KeywordFormal>> e : other.generalKeywordParameters.entrySet()) {
+			this.generalKeywordParameters.compute(e.getKey(), (k, current) -> {
+				if (current == null) {
+					// only a new copy is needed
+					return new ArrayList<>(e.getValue());
+				}
+				else {
+					return mergeKeywords(e.getValue(), current);
+				}
+			});
+		  }
 	  }
 	  
 	  extendTypeParams(other);
@@ -208,7 +198,17 @@ public class ModuleEnvironment extends Environment {
 	  
 	  addExtend(other.getName());
 	}
-	
+
+	private List<KeywordFormal> mergeKeywords(List<KeywordFormal> a, List<KeywordFormal> b) {
+		ArrayList<KeywordFormal> result = new ArrayList<>(a.size() + b.size());
+		result.addAll(a);
+		for (var k : b) {
+			if (!keywordFormalExists(result, k)) {
+				result.add(k);
+			}
+		}
+		return result;
+	}
 	
 	
 	@Override
@@ -540,7 +540,7 @@ public class ModuleEnvironment extends Environment {
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
-			if (r != null && !mod.isNamePrivate(name)) {
+			if (r != null && !mod.isVariablePrivate(name)) {
 				return mod.variableEnvironment;
 			}
 		}
@@ -588,7 +588,7 @@ public class ModuleEnvironment extends Environment {
 			var = variableEnvironment.get(name);
 		}
 		
-		if (var != null && !isNamePrivate(name)) {
+		if (var != null && !isVariablePrivate(name)) {
 			return var;
 		}
 		
@@ -599,7 +599,7 @@ public class ModuleEnvironment extends Environment {
 		if (functionEnvironment != null) {
 			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
-				if (!isNamePrivate(name)) {
+				if (!isFunctionPrivate(name)) {
 					collection.addAll(lst);
 				}
 			}
@@ -632,8 +632,8 @@ public class ModuleEnvironment extends Environment {
 		Type cons = makeTupleType(adt, name, tupleType);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
-		markNameFinal(name);
-		markNameOverloadable(name);
+		markFunctionNameFinal(name);
+		markFunctionNameOverloadable(name);
 		return function;
 	}
 	
@@ -678,7 +678,7 @@ public class ModuleEnvironment extends Environment {
 	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list == null) {
-			list = new LinkedList<KeywordFormal>();
+			list = new ArrayList<KeywordFormal>();
 			generalKeywordParameters.put(adt, list);
 		}
 
@@ -710,7 +710,7 @@ public class ModuleEnvironment extends Environment {
 		
 		public GenericKeywordParameters(ModuleEnvironment env, List<KeywordFormal> formals, Map<String,Type> types) {
 			this.env = env;
-			this.formals = formals;
+			this.formals = Collections.unmodifiableList(formals);
 			this.types = types;
 		}
 		
@@ -971,12 +971,12 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	@Override
-	protected boolean isNameFlagged(QualifiedName name, Predicate<NameFlags> tester) {
+	protected boolean isVariableFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return isNameFlagged(cons, tester);
+				return isVariableFlagged(cons, tester);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -986,19 +986,41 @@ public class ModuleEnvironment extends Environment {
 				return false;
 			}
 			
-			return imported.isNameFlagged(cons, tester);
+			return imported.isVariableFlagged(cons, tester);
 		}
 		
-		return isNameFlagged(cons, tester);
+		return isVariableFlagged(cons, tester);
 	}
 
 	@Override
-	protected void flagName(QualifiedName name, NameFlags flags) {
+	protected boolean isFunctionFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				flagName(cons, flags);
+				return isFunctionFlagged(cons, tester);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				// this might happen if the name is actually a type name instead of a module name
+				// when we replace the :: notation for . this issue should dissappear
+				return false;
+			}
+			
+			return imported.isFunctionFlagged(cons, tester);
+		}
+		
+		return isFunctionFlagged(cons, tester);
+	}
+
+	@Override
+	protected void flagVariableName(QualifiedName name, NameFlags flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				flagVariableName(cons, flags);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -1006,15 +1028,35 @@ public class ModuleEnvironment extends Environment {
 				throw new UndeclaredModule(modulename, name);
 			}
 			
-			imported.flagName(cons, flags);
+			imported.flagVariableName(cons, flags);
 		}
 		
-		flagName(cons, flags);
+		flagVariableName(cons, flags);
 	}
 
 	@Override
-	protected Environment getFlagsEnvironment(String name) {
-		Environment env = super.getFlagsEnvironment(name);
+	protected void flagFunctionName(QualifiedName name, NameFlags flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				flagFunctionName(cons, flags);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new UndeclaredModule(modulename, name);
+			}
+			
+			imported.flagFunctionName(cons, flags);
+		}
+		
+		flagFunctionName(cons, flags);
+	}
+
+	@Override
+	protected Environment getVariableFlagsEnvironment(String name) {
+		Environment env = super.getVariableFlagsEnvironment(name);
 		
 		if (env != null) {
 			return env;
@@ -1024,7 +1066,7 @@ public class ModuleEnvironment extends Environment {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
-			env = mod.getLocalFlagsEnvironment(name);
+			env = mod.getLocalVariableFlagsEnvironment(name);
 			
 			if (env != null) {
 				return env;
@@ -1034,8 +1076,36 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 
-	private Environment getLocalFlagsEnvironment(String name) {
-		if (this.nameFlags != null && nameFlags.get(name) != null)
+	@Override
+	protected Environment getFunctionFlagsEnvironment(String name) {
+		Environment env = super.getFunctionFlagsEnvironment(name);
+		
+		if (env != null) {
+			return env;
+		}
+		
+		for (ModuleEnvironment mod : importedModulesResolved) {
+			if(mod == null)	{
+				throw new RuntimeException("getFlagsEnvironment");
+			}
+			env = mod.getLocalFunctionFlagsEnvironment(name);
+			
+			if (env != null) {
+				return env;
+			}
+		}
+
+		return null;
+	}
+
+	private Environment getLocalVariableFlagsEnvironment(String name) {
+		if (this.variableFlags != null && variableFlags.get(name) != null)
+			return this;
+		return null;
+	}
+
+	private Environment getLocalFunctionFlagsEnvironment(String name) {
+		if (this.functionFlags != null && functionFlags.get(name) != null)
 			return this;
 		return null;
 	}

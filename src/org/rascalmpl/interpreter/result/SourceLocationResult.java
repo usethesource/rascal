@@ -337,7 +337,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				return makeResult(result.getType(), result, ctx);
 				
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.io(e, ctx.getCurrentAST(), ctx.getStackTrace());
 			}
 			
 		}
