@@ -104,6 +104,7 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -1253,6 +1254,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
+            getOutPrinter().println("[INFO] reloading module: " + name);
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
         }
@@ -1579,7 +1581,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void notifyAboutSuspension(AbstractAST currentAST) {
         if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
         }
     }
@@ -1679,7 +1681,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && env.isNamePrivate(f.getName())) {
+                if (skipPrivate && env.isFunctionPrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1691,7 +1693,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
+                if (skipPrivate && env.isVariablePrivate(entry.getKey())) {
                     continue;
                 }
                 addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
@@ -1813,16 +1815,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void registerLanguage(IConstructor language) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerLanguage(language);
-            }
-            else {
-                IDEServices.super.registerLanguage(language);
-            }
-        }
-
-        @Override
         public ISourceLocation resolveProjectLocation(ISourceLocation input) {
             if (monitor instanceof IDEServices) {
                 return ((IDEServices) monitor).resolveProjectLocation(input);
@@ -1843,7 +1835,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri, String title, int viewColumn) {
+        public void browse(URI uri, IString title, IInteger viewColumn) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
