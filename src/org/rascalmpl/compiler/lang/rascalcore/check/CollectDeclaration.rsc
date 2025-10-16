@@ -66,12 +66,15 @@ extend lang::rascalcore::check::Fingerprint;
 
 int localFunctionCounter = 0;
 
-void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
+void collect(Module current, Collector c){
 
     dataCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
     localFunctionCounter = 0;
+
+    header = current.header;
+    body = current.body;
 
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -120,7 +123,7 @@ void collect(Header header, Collector c){
     collect(header.imports, c);
 }
 
-void collect(Body body, Collector c){
+void collect(lang::rascal::\syntax::Rascal::Body body, Collector c){
     // First collect all variable declarations to ensure that forward references to
     // variables are available during type unference inside function bodies
     for(toplevel <- body.toplevels){
