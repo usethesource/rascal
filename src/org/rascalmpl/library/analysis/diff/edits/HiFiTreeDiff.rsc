@@ -232,9 +232,15 @@ list[TextEdit] treeDiff(
 
 // remove a unary prefix operator
 list[TextEdit] treeDiff(
-    appl(prod(sort(str exp), [lit(_), _, sort(exp)], _), [Tree l, _, Tree r]), 
+    appl(prod(sort(str exp), [lit(_), _, sort(exp)], _), [Tree op, _, Tree r]), 
     r)
-    = [delete(fromUntil(l@\loc, r@\loc))];
+    = [delete(fromUntil(op@\loc, r@\loc))];
+
+// add a unary prefix operator
+list[TextEdit] treeDiff(
+    Tree r,
+    appl(prod(sort(str exp), [lit(_), _, sort(exp)], _), [Tree op, Tree sp, r]))
+    = [replace(beginOf(r@\loc), "<op><sp>")];
 
 // remove a unary postfix operator
 list[TextEdit] treeDiff(
@@ -242,17 +248,53 @@ list[TextEdit] treeDiff(
     r)
     = [delete(cover([endOf(l@\loc), r@\loc]))];
 
+// add a unary postfix operator
+list[TextEdit] treeDiff(
+    Tree l,
+    appl(prod(sort(str exp), [sort(str exp), _, lit(_)], _), [l, Tree sp, Tree op]))
+    = [replace(endOf(l), "<sp><op>")];
+
 // remove the left hand side of a binary operator
 list[TextEdit] treeDiff(
     appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [Tree l, _, _, _, Tree r]), 
     r)
     = [delete(fromUntil(l@\loc, r@\loc))];
 
+// add the left hand side of a binary operator
+list[TextEdit] treeDiff(
+    Tree r,
+    appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [Tree l, Tree sp1, Tree op, Tree sp2, r]))
+    = [replace(beginOf(r@\loc), "<l><sp1><op><sp2>")];
+
 // remove the right hand side of a binary operator
 list[TextEdit] treeDiff(
     appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [Tree l, _, _, _, Tree r]), 
     l)
     = [delete(cover([endOf(l@\loc), r@\loc]))];
+
+// add the right hand side of a binary operator
+list[TextEdit] treeDiff(
+    Tree l,
+    appl(prod(sort(str exp), [sort(exp), _, lit(_), _, sort(exp)], _), [l, Tree sp1, Tree op, Tree sp2, Tree r]))
+    = [replace(endOf(l@\loc), "<sp1><op><sp2><r>")];
+
+// change a binary operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [sort(exp), _, lit(str x), _, sort(exp)], _), [Tree l, _, Tree op, _, Tree r]), 
+    appl(prod(sort(str exp), [sort(exp), _, lit(str y), _, sort(exp)], _), [l, _, Tree newOp, _, r]))
+    = [replace(op@\loc, "<newOp>")] when x != y;
+
+// change a prefix operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [lit(str x), _, sort(exp)], _), [Tree op, _, Tree r]), 
+    appl(prod(sort(str exp), [lit(str y), _, sort(exp)], _), [Tree newOp, _, r]))
+    = [replace(op@\loc, "<newOp>")] when x != y;
+
+// change a postfix operator
+list[TextEdit] treeDiff(
+    appl(prod(sort(str exp), [sort(exp), _, lit(str x)], _), [Tree l, _, Tree op]), 
+    appl(prod(sort(str exp), [sort(exp), _, lit(str y)], _), [l, _, Tree newOp]))
+    = [replace(op@\loc, "<newOp>")] when x != y;
 
 // remove brackets
 list[TextEdit] treeDiff(
@@ -261,6 +303,15 @@ list[TextEdit] treeDiff(
     = [
         delete(fromUntil(beginOf(t@\loc), e@\loc)),
         delete(fromUntil(endOf(e@\loc), endOf(t@\loc)))
+    ];
+
+// add brackets
+list[TextEdit] treeDiff(
+    Tree e,
+    t:appl(prod(sort(str exp), [lit(_), _, sort(exp), _, lit(_)], {*_, \bracket()}), [Tree open, Tree sp1, Tree e, Tree sp2, Tree close]))
+    = [
+        replace(beginOf(e@\loc), "<open><sp1>"),
+        replace(endOf(e@\loc), "<sp2><close>")
     ];
 
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
