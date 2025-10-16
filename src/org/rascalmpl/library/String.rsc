@@ -527,7 +527,7 @@ squeeze("hello", "el") == squeeze("hello", #[el]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Use the other squeence function that accepts Rascal character class syntax.}
+@deprecated{Use the other squeeze function that accepts Rascal character class syntax.}
 public java str squeeze(str src, str charSet);
 
 @synopsis{Squeeze repeated occurrences of characters.}

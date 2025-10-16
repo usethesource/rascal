@@ -130,3 +130,13 @@ test bool tmodelWrittenWhenErrors() {
 	assert !isEmpty(errors) : "<errors>";
 	return true;
 }
+
+test bool tmodelClearedAfterChanges() {
+	ms = checkModule("module A int a = \"a\";");
+	errors = getErrorMessages(ms);
+	assert !isEmpty(errors) : "<errors>";
+	ms = checkModule("module A int a = 1;");
+	errors = getErrorMessages(ms);
+	assert isEmpty(errors) : "<errors>";
+	return true;
+}

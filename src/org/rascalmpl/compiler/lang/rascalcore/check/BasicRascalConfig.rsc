@@ -96,10 +96,10 @@ public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
      keywordFormalId():     variableOrFunctionRoles,
      patternVariableId():   variableOrFunctionRoles,
 
-     nonterminalId():       syntaxRoles - nonterminalId(),
-     lexicalId():           syntaxRoles - lexicalId(),
-     layoutId():            syntaxRoles - layoutId(),
-     keywordId():           syntaxRoles - keywordId(),
+     nonterminalId():       baseSyntaxRoles - nonterminalId(),
+     lexicalId():           baseSyntaxRoles - lexicalId(),
+     layoutId():            baseSyntaxRoles - layoutId(),
+     keywordId():           baseSyntaxRoles - keywordId(),
 
      fieldId():             { },
      keywordFieldId():      { },
