@@ -34,6 +34,9 @@ import String;
 import IO;
 import util::IDEServices;
 import Location;
+import util::Monitor;
+import Set;
+import util::FileSystem;
 
 @synopsis{Format an entire Rascal file, in-place.}
 void formatRascalFile(loc \module) {
@@ -49,6 +52,25 @@ void debugFormatRascalFile(loc \module) {
     writeFile(newLoc, newFile);
     edit(newLoc);
     return;
+}
+
+void testOnLibrary() {
+    rootFolder = |project://rascal/src/org/rascalmpl/library/|;
+    targetFolder = |project://rascal/src/org/rascalmpl/formattedLibrary/|;
+
+    // &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
+    mods = sort(find(rootFolder, "rsc"));
+
+    job("formatting", bool (void (str message, int worked) step) {
+        for (loc m <- mods) {
+            step("formatting <m>", 1);
+            println(m);
+            newFile = executeTextEdits(readFile(m), formatRascalModule(parse(#start[Module], m)));
+            writeFile(targetFolder + relativize(rootFolder, m).path, newFile);
+        }
+
+        return true;
+    }, totalWork=size(mods));   
 }
 
 @synopsis{Format a Rascal module string}
@@ -192,19 +214,19 @@ Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKey
     = V(toBox(tg),
         H(toBox(v), L("data"), H0(toBox(typ), toBox(ps), L(";"))));
 
-Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va>;`)
-    = HV(V(toBox(t),
+Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va>;`)
+    = HV(V(toBox(tg),
         H(toBox(v), L("data"), H0(toBox(typ), toBox(ps)))),
         I(H(L("="), H0(toBox(va), L(";")))));
 
-Box toBox((Declaration) `<Tags t> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant v> | <{Variant "|"}+ vs>;`)
-    = V(toBox(t),
+Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va> | <{Variant "|"}+ vs>;`)
+    = V(toBox(tg),
         H(toBox(v), L("data"), H0(toBox(typ), toBox(ps))),
         I([G([
                 L("="),
-                toBox(v),
-                *[L("|"), toBox(va) | Variant va <- vs] // hoist the bars `|` up to the same level of `=`
-            ]), L(";")], hs=0));
+                toBox(va),
+                *[L("|"), toBox(vax) | Variant vax <- vs] // hoist the bars `|` up to the same level of `=`
+            ]), L(";")]));
 
 Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Name name> = <Expression initial>;`)
     = HV(
@@ -227,12 +249,11 @@ Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
     = H0(L("("), toBox(fs), L(")"));
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
-    = HV([
+    = HV(
         H0(toBox(n), L("(")),
-        I(H0([toBox(args)], L(","))),
+        I(H0(toBox(args), L(","))),
         I(toBox(kws)),
-        L(")")
-    ], hs=0);
+        L(")"), hs=0);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>)`)
     = HV(H0(toBox(n), L("(")),
@@ -244,7 +265,7 @@ Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
     = HV([
         H0(toBox(n), L("(")),
         I(H0(toBox(args))),
-        I(toBox(kws)),
+        I(toBox(kws)), 
         L(")")
     ], hs=0);
 
@@ -253,7 +274,7 @@ Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters> throws <{Type ","}+ exs>`)
     = HOV([
         H(toBox(modifiers), toBox(typ), H0(toBox(name), toBox(parameters))), 
-        H(L("throws"), [toBox(e) | e <- exs])], hs=1);
+        H([L("throws"), SL([toBox(e) | e <- exs], L(","))], hs=1)]);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters>`)
     = H(toBox(modifiers), toBox(typ), H0(toBox(name), toBox(parameters)));
@@ -307,10 +328,10 @@ Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)
 /* Statements */
 
 Box toBox((Statement) `assert <Expression expression>;`)
-    = H1(L("assert"), H0(toBox(expression), L(";")));
+    = H1(L("assert"), H0(HOV(toBox(expression)), L(";")));
 
 Box toBox((Statement) `assert <Expression expression> : <Expression msg>;`)
-    = HOV(L("assert"), HV(toBox(expression), H0([H(L(":"), toBox(msg))], L(";"))));
+    = HOV(L("assert"), HV(HOV(toBox(expression)), H0(H(L(":"), HV(toBox(msg))), L(";"))));
 
 Box toBox((Statement) `fail;`)
     = H0(L("fail"), L(";"));
@@ -529,7 +550,7 @@ Box toBox((Expression) `type(<Expression sym>, <Expression grammar>)`)
 
 Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
     = HOV([L("("),
-        AG([toBox(m.from), L(":"), toBox(m.to) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
+        AG([HOV(toBox(m.from)), L(":"), HOV(toBox(m.to)) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
         L(")")
     ], hs=0);
 
