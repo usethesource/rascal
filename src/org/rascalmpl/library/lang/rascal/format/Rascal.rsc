@@ -162,7 +162,7 @@ Box toBox((Prod) `:<Name n>`)
     = H0(L(":"), toBox(n));
 
 Box toBox((Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`)
-    = H(toBox(modifiers), H0(toBox(name), L(":")), [toBox(s) | s <- syms]);
+    = H([toBox(modifiers), H0(toBox(name), L(":")), *[toBox(s) | s <- syms]]);
 
 Box toBox((Prod) `<ProdModifier* modifiers> <Sym* syms>`)
     = H(toBox(modifiers), [toBox(s) | s <- syms]);
@@ -537,10 +537,10 @@ Box toBox((Pattern) `[ <Type typ> ] <Pattern e>`)
 Box toBox((Expression) `#<Type t>`) = H0(L("#"), toBox(t));
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>..<OptionalExpression optLast>]`)
-    = H0(toBox(e), L("["), toBox(optFirst), L(".."), toBox(optLast), L("]"));
+    = H0(toBox(e), L("["), HV(toBox(optFirst)), L(".."), HV(toBox(optLast)), L("]"));
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>, <Expression second>..<OptionalExpression optLast>]`)
-    = H0(toBox(e), L("["), toBox(optFirst), H1(L(","), toBox(second)), L(".."), toBox(optLast), L("]"));
+    = H0(toBox(e), L("["), HV(toBox(optFirst)), H1(L(","), HV(toBox(second))), L(".."), HV(toBox(optLast)), L("]"));
 
 Box toBox((Expression) `\< <{Expression ","}+ elems> \>`) 
     = H0(L("\<"), toBox(elems), L("\>"));
@@ -667,10 +667,10 @@ Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
     = H0(toBox(cont), L("["), toBox(subscripts), L("]"));
 
 Box toBox((Expression)`[<Expression first>..<Expression last>]`)
-    = H0(L("["), toBox(first),L(".."),toBox(last), L("]"));
+    = H0(L("["), HV(toBox(first)), L(".."), HV(toBox(last)), L("]"));
 
 Box toBox((Expression)`[<Expression first>,<Expression second>..<Expression last>]`)
-    = H0(L("["), toBox(first), H(L(","), toBox(second)), L(".."), toBox(last), L("]"));
+    = H0(L("["), HV(toBox(first)), H(L(","), HV(toBox(second))), L(".."), HV(toBox(last)), L("]"));
 
 Box toBox((Expression) `<Expression exp>.<Name field>`)
     = H0(toBox(exp), L("."), toBox(field));
