@@ -103,7 +103,7 @@ Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <B
         toClusterBox(imports),
         toBox(body), vs=1);
 
-Box toBox(Import* imports) = [toBox(i) | i <- imports];
+Box toBox(Import* imports) = toClusterBox(imports);
 
 Box toBox((Import) `import <ImportedModule m>;`)
     = H(L("import"), H0(toBox(m), L(";")));
@@ -315,9 +315,6 @@ Box toBox((Tag) `@<Name n> <TagString c>`)
     = HOV(H0(L("@"), L("<n>")),
         toBox(c))
     when "<n>" != "synopsis";
-
-Box toBox((Tag) `@<Name n>`) 
-    = H0(L("@"), L("<n>"));
 
 Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
     = H0(L("("), HV(toBox(formals), toBox(keywordFormals)), L(")"));
@@ -590,12 +587,12 @@ Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
 
 Row toRow((Expression) `\< <Expression a>, <{Expression ","}* m>, <Expression b> \>`)
     = R([
-        SL([H0(L("\<"), toBox(a)), *[toBox(e) | e <- m], H0(toBox(b), L("\>"))], L(","))  
+        SL([H0(L("\<"), H(toBox(a))), *[H(toBox(e)) | e <- m], H0(H(toBox(b)), L("\>"))], L(","))  
     ]);
 
 Row toRow((Pattern) `\< <Pattern a>, <{Pattern ","}* m>, <Pattern b> \>`)
     = R([
-        SL([H0(L("\<"), toBox(a)), *[toBox(e) | e <- m], H0(toBox(b), L("\>"))], L(","))  
+        SL([H0(L("\<"), H(toBox(a))), *[H(toBox(e)) | e <- m], H0(H(toBox(b)), L("\>"))], L(","))  
     ]);
 
 default Row toRow(Expression e) = R([toBox(e)]);
