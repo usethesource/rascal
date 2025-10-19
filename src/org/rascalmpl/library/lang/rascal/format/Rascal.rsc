@@ -595,7 +595,7 @@ Row toRow((Pattern) `\< <Pattern a>, <{Pattern ","}* m>, <Pattern b> \>`)
         SL([H0(L("\<"), H(toBox(a))), *[H(toBox(e)) | e <- m], H0(H(toBox(b)), L("\>"))], L(","))  
     ]);
 
-default Row toRow(Expression e) = R([toBox(e)]);
+default Row toRow(Expression e) = R([H(toBox(e))]);
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
     = H0(L("{"),
