@@ -224,7 +224,7 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
-        if (V(_) !:= c || L("") !:= a) {
+        if (_V(_) !:= c || L("") !:= a) {
             Text t = \continue(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.vs), r));
         }
