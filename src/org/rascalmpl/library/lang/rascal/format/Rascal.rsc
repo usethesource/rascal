@@ -52,6 +52,7 @@ void debugFormatRascalFile(loc \module) {
     writeFile(newLoc, newFile);
     edit(newLoc);
     return;
+    // |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/DataType.rsc| is really slow
 }
 
 void testOnLibrary() {
@@ -550,10 +551,9 @@ Box toBox((Expression) `type(<Expression sym>, <Expression grammar>)`)
     = H0(L("type"), L("("), toExpBox(sym), H1(L(","), toExpBox(grammar)), L(")"));
 
 Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
-    = HOV([L("("),
+    = HOV(L("("),
         AG([HOV(toBox(m.from)), L(":"), HOV(toBox(m.to)) |  m <- mappings], gs=3, columns=[l(), c(), l()], rs=L(",")),
-        L(")")
-    ], hs=0);
+        L(")"), hs=0);
 
 Box toBox((Pattern) `\< <{Pattern ","}+ elems> \>`) 
     = H0(L("\<"), toBox(elems), L("\>"));
@@ -811,10 +811,10 @@ list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statemen
         L("}")
     ];
 
-list[Box] flatString((StringTemplate) `while(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+list[Box] flatString((StringTemplate) `while(<Expression cond>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
         HV(
-            H0(H1(L("while"), L("(")), HV(toBox(conds)), H1(L(")"), L("{"))), 
+            H0(H1(L("while"), L("(")), HV(toBox(cond)), H1(L(")"), L("{"))), 
             I(HOV(toBox(pre)))
         ), 
         *flatString(body),
@@ -822,6 +822,17 @@ list[Box] flatString((StringTemplate) `while(<{Expression ","}+ conds>) { <State
         L("}")
     ];
 
+list[Box] flatString((StringTemplate) `do { <Statement* pre> <StringMiddle body> <Statement* post>} while(<Expression cond>)`)
+    = [
+        HV(
+            H0(H1(L("do"), L("{"))), 
+            I(HOV(toBox(pre)))
+        ), 
+        *flatString(body),
+        I(HOV(toBox(post))),
+        L("}"),
+        H1(L("while"), H0(L("("), HV(toBox(cond)), L(")")))
+    ];
 
 list[Box] flatString((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
