@@ -299,23 +299,32 @@ int b1 = 3;
 int b2 = 4;
 ```
 }
-Box toClusterBox(list[Tree] lst) {
+@benefits{
+* many programmers use vertical clustering, or "grouping statements", to indicate meaning or intent, by not throwing this
+away we are not throwing away the documentative value of their grouping efforts.
+}
+@pitfalls{
+* ((toClusterBox)) is one of the (very) few Box functions that use layout information from the input tree to 
+influence the layout of the output formatted code. It replaces a call to ((toBox)) for that reason.
+* ((toClusterBox)) does not work on separated lists, yet.
+}
+Box toClusterBox(list[Tree] lst, FO opts=fo()) {
     list[Box] cluster([])  = [];
 
     list[Box] cluster([Tree e]) = [V([toBox(e)], vs=0)];
 
     list[Box] cluster([*Tree pre, Tree last, Tree first, *Tree post])
-        = [V([*[toBox(p) | p <- pre], toBox(last)], vs=0), *cluster([first, *post])]
+        = [V([*[toBox(p, opts=opts) | p <- pre], toBox(last, opts=opts)], vs=0), *cluster([first, *post])]
         when first@\loc.begin.line - last@\loc.end.line > 1
         ;
 
-    default list[Box] cluster(list[Tree] l) = [V([toBox(e) | e <- l], vs=0)];
+    default list[Box] cluster(list[Tree] l) = [V([toBox(e, opts=opts) | e <- l], vs=0)];
 
     return V(cluster(lst), vs=1);
 }
 
-Box toClusterBox(&T* lst) = toClusterBox([e | e <- lst]);
-Box toClusterBox(&T+ lst) = toClusterBox([e | e <- lst]);
+Box toClusterBox(&T* lst, FO opts=fo()) = toClusterBox([e | e <- lst], opts=opts);
+Box toClusterBox(&T+ lst, FO opts=fo()) = toClusterBox([e | e <- lst], opts=opts);
 
 @synopsis{Reusable way of dealing with large binary expression trees}
 @description{

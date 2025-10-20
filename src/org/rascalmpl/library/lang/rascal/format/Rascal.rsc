@@ -118,7 +118,7 @@ Box toBox((Visibility) ``) = NULL();
 Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(toBox(st), L("syntax"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
+            I(G(L("="), toBox(production), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(toBox(st), L("syntax"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -127,7 +127,7 @@ Box toBox((SyntaxDefinition) `<Start st> syntax <Sym defined> = <Prod production
 Box toBox((SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(L("lexical"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
+            I(G(L("="), toBox(production), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(L("lexical"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -136,7 +136,7 @@ Box toBox((SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`)
 Box toBox((SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(L("keyword"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
+            I(G(L("="), toBox(production), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(L("keyword"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -145,7 +145,7 @@ Box toBox((SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`)
 Box toBox((SyntaxDefinition) `<Visibility v> layout <Sym defined> = <Prod production>;`)
     = (production is \all || production is \first)
         ? V(H(toBox(v), L("layout"), toBox(defined)),
-            I(G(L("="), U(toBox(production)), gs=2, op=H([])),
+            I(G(L("="), toBox(production), gs=2, op=H([])),
                 L(";")))
         :  // single rule case
           H(toBox(v), L("layout"), toBox(defined), L("="), H0(toBox(production), L(";")))
@@ -176,6 +176,8 @@ Box toBox((Sym) `{<Sym e> <Sym sep>}+`) = H0(L("{"), H1(toBox(e), toBox(sep)), L
 Box toBox((Sym) `<Sym e>*`) = H0(toBox(e), L("*"));
 Box toBox((Sym) `<Sym e>+`) = H0(toBox(e), L("+"));
 Box toBox((Sym) `<Sym e>?`) = H0(toBox(e), L("?"));
+Box toBox((Sym) `()`) = H0(L("("), L(")"));
+
 Box toBox((Sym) `(<Sym first> <Sym+ sequence>)`) 
     = H0(L("("), H1([toBox(first), *[toBox(e) | Sym e <- sequence]]),L(")"));
 
@@ -251,23 +253,25 @@ Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
     = HV(
         H0(toBox(n), L("(")),
-        I(H0(toBox(args), L(","))),
-        I(toBox(kws)),
+        HOV(
+            I(H0(toBox(args), L(","))),
+            I(toBox(kws)), hs=1),
         L(")"), hs=0);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>)`)
     = HV(H0(toBox(n), L("(")),
         I(toBox(args)),
-        L(")"));
+        L(")"), hs=0);
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
                     '<{KeywordFormal ","}+ kws>)`)
-    = HV([
+    = HV(
         H0(toBox(n), L("(")),
-        I(H0(toBox(args))),
-        I(toBox(kws)), 
-        L(")")
-    ], hs=0);
+        HOV(
+            I(H0(toBox(args))),
+            I(toBox(kws)), hs=1
+        ), 
+        L(")"), hs=0);
 
 Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
@@ -595,6 +599,7 @@ Row toRow((Pattern) `\< <Pattern a>, <{Pattern ","}* m>, <Pattern b> \>`)
         SL([H0(L("\<"), H(toBox(a))), *[H(toBox(e)) | e <- m], H0(H(toBox(b)), L("\>"))], L(","))  
     ]);
 
+default Row toRow(Pattern e) = R([H(toBox(e))]);
 default Row toRow(Expression e) = R([H(toBox(e))]);
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
@@ -602,10 +607,18 @@ Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
         toBox(elems),
         L("}")) when !(elems[0] is \tuple); 
 
-Box toBox((Pattern) `[<{Pattern ","}* elems>]`)
+Box toBox((Pattern) `[ <{Pattern ","}+ elems>]`)
+    = H0(L("["),
+        A([toRow(e) | e <- elems], rs=L(",")),
+        L("]")) when elems[0] is \tuple;
+
+Box toBox((Pattern) `[]`)
+    = H0(L("["), L("]"));
+
+Box toBox((Pattern) `[<{Pattern ","}+ elems>]`)
     = H0(L("["),
         toBox(elems),
-        L("]"));
+        L("]")) when !(elems[0] is \tuple);
 
 Box toBox((Expression) `<Expression exp>@<Name name>`)
     = H0(toExpBox(exp), L("@"), toBox(name));
@@ -653,12 +666,21 @@ Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgume
 
 /* continue with expressions */
 
-Box toBox((Expression) `[<{Expression ","}* elements>]`)
+Box toBox((Expression) `[ ]`)
+    = H0(L("["), L("]"));
+
+// list relations become tables
+Box toBox((Expression) `[ <{Expression ","}+ elems>]`)
+    = H0(L("["),
+        A([toRow(e) | e <- elems], rs=L(",")),
+        L("]")) when elems[0] is \tuple;
+
+Box toBox((Expression) `[<{Expression ","}+ elements>]`)
     = HOV([
         L("["),
         I(toBox(elements)),
         L("]")
-    ], hs=0);
+    ], hs=0) when !(elements[0] is \tuple);
 
 Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
     = H0(toBox(cont), L("["), toBox(subscripts), L("]"));
@@ -734,7 +756,7 @@ Box toBox(StringLiteral l) {
 }
 
 list[Box] flatString((StringTail) `<MidStringChars mid><Expression e><StringTail tail>`)
-    = [*flatString(mid), toBox(e), *flatString(tail)];
+    = [*flatString(mid), HV(toBox(e)), *flatString(tail)];
 
 list[Box] flatString((StringTail) `<MidStringChars mid><StringTemplate e><StringTail tail>`)
     = [*flatString(mid), *flatString(e), *flatString(tail)];
@@ -742,7 +764,7 @@ list[Box] flatString((StringTail) `<MidStringChars mid><StringTemplate e><String
 list[Box] flatString((StringTail) `<PostStringChars ch>`) = flatString(ch);
 
 list[Box] flatString((StringLiteral) `<PreStringChars pre><Expression template><StringTail tail>`)
-    = [*flatString(pre), toBox(template), *flatString(tail)];
+    = [*flatString(pre), HV(toBox(template)), *flatString(tail)];
 
 list[Box] flatString((StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`) 
     = [*flatString(pre), *flatString(template), *flatString(tail)];
@@ -770,7 +792,7 @@ list[Box] flatString((StringMiddle) `<MidStringChars mid><StringTemplate templat
     = [*flatString(mid), *flatString(template), *flatString(tail)];
 
 list[Box] flatString((StringMiddle) `<MidStringChars mid><Expression e><StringMiddle tail>`) 
-    = [*flatString(mid), toBox(e), *flatString(tail)];
+    = [*flatString(mid), HV(toBox(e)), *flatString(tail)];
 
 
 default list[Box] flatString(StringCharacter c) = [L("<c>")];
@@ -781,22 +803,34 @@ default list[Box] flatString(StringCharacter c) = [L("<c>")];
 list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
         HV(
-            H0(H1(L("if"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
-            I(toBox(pre))
+            H0(H1(L("if"), L("(")), HV(toBox(conds)), H1(L(")"), L("{"))), 
+            I(HOV(toBox(pre)))
         ), 
         *flatString(body),
-        I(toBox(post)),
+        I(HOV(toBox(post))),
         L("}")
     ];
+
+list[Box] flatString((StringTemplate) `while(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
+    = [
+        HV(
+            H0(H1(L("while"), L("(")), HV(toBox(conds)), H1(L(")"), L("{"))), 
+            I(HOV(toBox(pre)))
+        ), 
+        *flatString(body),
+        I(HOV(toBox(post))),
+        L("}")
+    ];
+
 
 list[Box] flatString((StringTemplate) `for(<{Expression ","}+ conds>) { <Statement* pre> <StringMiddle body> <Statement* post>}`)
     = [
         V( 
-            H0(H1(L("for"), L("(")), toBox(conds), H1(L(")"), L("{"))), 
-            I(toBox(pre))
+            H0(H1(L("for"), L("(")), HV(toBox(conds)), H1(L(")"), L("{"))), 
+            I(HOV(toBox(pre)))
         ), 
         *flatString(body),
-        I(toBox(post)),
+        I(HOV(toBox(post))),
         L("}")
     ];
 
@@ -815,6 +849,25 @@ list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statemen
         I(toBox(postE)), 
         L("}")
     ];
+
+/* Concrete fragments*/
+
+// "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
+// Box toBox((Concrete) `(<LAYOUTLIST _><Sym symbol><LAYOUTLIST _>)<LAYOUTLIST _>\`<ConcretePart* parts>\`)`)
+//     = V();
+
+
+/*
+lexical ConcretePart
+  = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
+  | @category="variable" hole : ConcreteHole hole
+  | @category="string" lt: "\\\<"
+  | @category="string" gt: "\\\>"
+  | @category="string" bq: "\\`"
+  | @category="string" bs: "\\\\"
+  ;
+*/
 
 /* Types */
 
@@ -852,37 +905,3 @@ Box H0(Box boxes...) = _H(boxes, hs=0);
 Box H1(Box boxes...) = _H(boxes, hs=1);
 Box V0(Box boxes...) = _V(boxes, hs=0);
 Box V1(Box boxes...) = _V(boxes, vs=1);
-
-// TODO: finish this 
-void cleanMeUp() {
-    loc me = |project://rascal/src/org/rascalmpl/library/lang/rascal/format/Rascal.rsc|;
-    m = parse(#start[Module], me);
-
-    m = innermost visit(m) {
-        // we remove the nested [brackets] which are now taken care of by varargs overloads
-        case (Expression) `H([<{Expression ","}+ exps1>])`   => (Expression) `H(<{Expression ","}+ exps1>)`
-        case (Expression) `H0([<{Expression ","}+ exps1>])`   => (Expression) `H0(<{Expression ","}+ exps1>)`
-        case (Expression) `H1([<{Expression ","}+ exps1>])`   => (Expression) `H1(<{Expression ","}+ exps1>)`
-        case (Expression) `H([<{Expression ","}+ exps2>], hs=0)`   => (Expression) `H0(<{Expression ","}+ exps2>)`
-        case (Expression) `H([<{Expression ","}+ exps3>], hs=1)`   => (Expression) `H1(<{Expression ","}+ exps3>)`
-        case (Expression) `V([<{Expression ","}+ exps4>])`   => (Expression) `V(<{Expression ","}+ exps4>)`
-        case (Expression) `V0([<{Expression ","}+ exps4>])`   => (Expression) `V0(<{Expression ","}+ exps4>)`
-        case (Expression) `V1([<{Expression ","}+ exps4>])`   => (Expression) `V1(<{Expression ","}+ exps4>)`
-        case (Expression) `V([<{Expression ","}+ exps5>], vs=<Expression v>)`   => (Expression) `V(<{Expression ","}+ exps5>, vs=<Expression v>)`
-        case (Expression) `HV([<{Expression ","}+ exps6>])`  => (Expression) `HV(<{Expression ","}+ exps6>)`
-        case (Expression) `HOV([<{Expression ","}+ exps7>])` => (Expression) `HOV(<{Expression ","}+ exps7>)`
-        case (Expression) `I([<{Expression ","}+ exps8>])`   => (Expression) `I(<{Expression ","}+ exps8>)`
-        case (Expression) `I([<{Expression ","}+ exps9>], is=<Expression i>)`   => (Expression) `I(<{Expression ","}+ exps9>, is=<Expression i>)`
-        case (Expression) `G([<{Expression ","}+ exps10>], gs=<Expression g>, op=<Expression op>)` => (Expression) `G(<{Expression ","}+ exps10>, gs=<Expression g>, op=<Expression op>)`
-        case (Expression) `G([<{Expression ","}+ exps11>], op=<Expression op>, gs=<Expression gs>)`=> (Expression) `G(<{Expression ","}+ exps11>, gs=<Expression g>, op=<Expression op>)`
-        case (Expression) `U([<{Expression ","}+ exps12>])`=> (Expression) `U(<{Expression ","}+ exps12>)`
-
-        // singleton H, HV, HOV and V have no effect, but the others do!
-        case (Expression) `H(<Expression singleton1>)`   => singleton1 when !(singleton is \list) && !(singleton is comprehension)
-        case (Expression) `V(<Expression singleton2>)`   => singleton2 when !(singleton is \list) && !(singleton is comprehension)
-        case (Expression) `HV(<Expression singleton3>)`  => singleton3 when !(singleton is \list) && !(singleton is comprehension)
-        case (Expression) `HOV(<Expression singleton4>)` => singleton4 when !(singleton is \list) && !(singleton is comprehension)
-    }
-
-    writeFile(me, "<m>");
-}
