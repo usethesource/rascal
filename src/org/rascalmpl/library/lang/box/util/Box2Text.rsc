@@ -436,14 +436,14 @@ private bool noWidthOverflow(list[Box] hv, Options opts)
 
 @synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
 private Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
-    case _HV(boxes, hs=h, is=i, vs=v) => _H(boxes, hs=h, is=i, vs=v) 
+    case _HV(list[Box] boxes, hs=h, is=i, vs=v) => _H(boxes, hs=h, is=i, vs=v) 
         when noWidthOverflow(boxes, opts)
 };
 
 @synopsis{Changes all HOV boxes that do fit horizontally into hard H boxes,
 and the others into hard V boxes.}
 private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
-    case _HOV(boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
+    case _HOV(list[Box] boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
         ? _H(boxes, hs=h, is=i, vs=v)
         : _V(boxes, hs=h, is=i, vs=v)      
 };
