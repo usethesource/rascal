@@ -138,7 +138,7 @@ data Modifier
     | defaultModifier()
     ;
 
-data DefInfo(str md5 = "", datetime timestamp = $0000-01-01T00:00:00.000+00:00$)
+data DefInfo(str md5 = "", datetime timestamp = $0000-01-01T00:00:00.000+00:00$);
 
 // Visibility information
 data DefInfo(Vis vis = publicVis());
