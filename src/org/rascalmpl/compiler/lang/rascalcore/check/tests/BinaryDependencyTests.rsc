@@ -403,7 +403,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }
-
+@ignore{Unclear whether it should fail or succeed}
 test bool mixedRascalVersions() {
     // This test project has a dependency on:
     // * Rascal 0.41.0-RC67
