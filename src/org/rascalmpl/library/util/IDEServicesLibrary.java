@@ -66,12 +66,12 @@ public class IDEServicesLibrary {
             try {
                 switch (c.getName()) {
                     case "removed": {
-                        var file = (ISourceLocation) (c.get("file"));
+                        var file = (ISourceLocation) c.get("file");
                         registry.remove(file.top(), false);
                         break;
                     }
                     case "created": {
-                        var file = (ISourceLocation) (c.get("file"));
+                        var file = (ISourceLocation) c.get("file");
                         if (registry.exists(file)) {
                             registry.setLastModified(file, System.currentTimeMillis());
                         } else {
@@ -82,21 +82,21 @@ public class IDEServicesLibrary {
                         break;
                     }
                     case "renamed": {
-                        var from = (ISourceLocation) (c.get("from"));
-                        var to = (ISourceLocation) (c.get("to"));
+                        var from = (ISourceLocation) c.get("from");
+                        var to = (ISourceLocation) c.get("to");
                         registry.rename(from.top(), to.top(), true);
                         break;
                     }
                     case "changed": {
-                        var file = ((ISourceLocation) (c.get("file")));
+                        var file = (ISourceLocation) c.get("file");
                         if (c.has("edits")) {
-                            var textEdits = (IList) (c.get("edits"));
-                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) (c.get("file"))).top(), null, true);
+                            var textEdits = (IList) c.get("edits");
+                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), null, true);
                             for (var e : textEdits.reverse()) {
                                 var edit = (IConstructor) e;
-                                var range = (ISourceLocation) (edit.get("range"));
+                                var range = (ISourceLocation) edit.get("range");
                                 var prefix = contents.substring(0, range.getOffset());
-                                var replacement = ((IString) edit.get("replacement"));
+                                var replacement = (IString) edit.get("replacement");
                                 var postfix = contents.substring(range.getOffset() + range.getLength());
                                 contents = prefix.concat(replacement).concat(postfix);
                             };
