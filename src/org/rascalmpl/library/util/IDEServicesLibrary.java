@@ -75,9 +75,9 @@ public class IDEServicesLibrary {
                         if (registry.exists(file)) {
                             registry.setLastModified(file, System.currentTimeMillis());
                         } else {
-                            var out = registry.getCharacterWriter(file.top(), "UTF-8", false);
-                            out.write("");
-                            out.close();
+                            try (var out = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                                out.write("");
+                            }
                         }
                         break;
                     }
@@ -91,18 +91,18 @@ public class IDEServicesLibrary {
                         var file = ((ISourceLocation) (c.get("file")));
                         if (c.has("edits")) {
                             var textEdits = (IList) (c.get("edits"));
-                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) (c.get("file"))).top(), "UTF-8", false).getValue();
+                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) (c.get("file"))).top(), null, true);
                             for (var e : textEdits.reverse()) {
                                 var edit = (IConstructor) e;
                                 var range = (ISourceLocation) (edit.get("range"));
                                 var prefix = contents.substring(0, range.getOffset());
-                                var replacement = ((IString) edit.get("replacement")).getValue();
+                                var replacement = ((IString) edit.get("replacement"));
                                 var postfix = contents.substring(range.getOffset() + range.getLength());
-                                contents = prefix + replacement + postfix;
+                                contents = prefix.concat(replacement).concat(postfix);
                             };
-                            var writer = registry.getCharacterWriter(file.top(), "UTF-8", false);
-                            writer.write(contents);
-                            writer.close();
+                            try (var writer = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                                writer.write(contents.getValue());
+                            }
                         } else {
                             registry.setLastModified(file, System.currentTimeMillis());
                         }
