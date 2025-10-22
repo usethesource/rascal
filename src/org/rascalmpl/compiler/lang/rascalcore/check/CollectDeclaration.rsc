@@ -42,7 +42,7 @@ import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;
 
 import lang::rascalcore::check::ATypeBase; // seemingly redundant
-import lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::BasicRascalConfig;
 
 import IO;
 import List;

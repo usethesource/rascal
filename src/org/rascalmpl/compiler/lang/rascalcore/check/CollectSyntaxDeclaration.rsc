@@ -40,7 +40,7 @@ import util::Maybe;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::ATypeBase; // seemingly redundant
-import lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::BasicRascalConfig;
 
 // ---- syntax definition -----------------------------------------------------
 
