@@ -529,19 +529,19 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 // bool isLogicalLoc(loc l)
 //     = startsWith(l.scheme, "rascal+");
 
-loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+tuple[bool, loc] rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        if(isLogicalLoc(def.defined)) return def.defined;
        moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
        if(def.idRole == moduleId()){
-            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
+            return <true, |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|>;
        } else {
-            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|;
+            return <true, |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|>;
        }
      }
-     return def.defined;
+     return <false, def.defined>;
 }
 
 @memo{expireAfter(minutes=5),maximumSize(1000)}
