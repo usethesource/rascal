@@ -91,7 +91,8 @@ public class IDEServicesLibrary {
                         var file = (ISourceLocation) c.get("file");
                         if (c.has("edits")) {
                             var textEdits = (IList) c.get("edits");
-                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), null, true);
+                            var charset = registry.detectCharset(file).name();
+                            var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), charset, false);
                             for (var e : textEdits.reverse()) {
                                 var edit = (IConstructor) e;
                                 var range = (ISourceLocation) edit.get("range");
@@ -100,7 +101,7 @@ public class IDEServicesLibrary {
                                 var postfix = contents.substring(range.getOffset() + range.getLength());
                                 contents = prefix.concat(replacement).concat(postfix);
                             };
-                            try (var writer = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                            try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
                                 writer.write(contents.getValue());
                             }
                         } else {
