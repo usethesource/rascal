@@ -12,6 +12,7 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -96,10 +97,11 @@ public class IDEServicesLibrary {
                             for (var e : textEdits.reverse()) {
                                 var edit = (IConstructor) e;
                                 var range = (ISourceLocation) edit.get("range");
-                                var prefix = contents.substring(0, range.getOffset());
-                                var replacement = (IString) edit.get("replacement");
-                                var postfix = contents.substring(range.getOffset() + range.getLength());
-                                contents = prefix.concat(replacement).concat(postfix);
+                                var sw = new StringWriter();
+                                contents.substring(0, range.getOffset()).write(sw);
+                                ((IString) edit.get("replacement")).write(sw);
+                                contents.substring(range.getOffset() + range.getLength()).write(sw);
+                                contents = vf.string(sw.toString());
                             };
                             try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
                                 writer.write(contents.getValue());
