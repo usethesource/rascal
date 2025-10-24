@@ -142,8 +142,9 @@ data Modifier
 data DefInfo(str md5 = "");
 data DefInfo(datetime timestamp = $0000-01-01T00:00:00.000+00:00$);
 
+public Vis pubVis = publicVis();
 // Visibility information
-data DefInfo(Vis vis = publicVis());
+data DefInfo(Vis vis = pubVis);
 
 data DefInfo(bool canFail = false);
 
