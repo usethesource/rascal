@@ -12,7 +12,6 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
