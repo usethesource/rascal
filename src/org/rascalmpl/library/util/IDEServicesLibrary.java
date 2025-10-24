@@ -97,11 +97,10 @@ public class IDEServicesLibrary {
                             for (var e : textEdits.reverse()) {
                                 var edit = (IConstructor) e;
                                 var range = (ISourceLocation) edit.get("range");
-                                var sw = new StringWriter();
-                                contents.substring(0, range.getOffset()).write(sw);
-                                ((IString) edit.get("replacement")).write(sw);
-                                contents.substring(range.getOffset() + range.getLength()).write(sw);
-                                contents = vf.string(sw.toString());
+                                var prefix = contents.substring(0, range.getOffset());
+                                var replacement = (IString) edit.get("replacement");
+                                var postfix = contents.substring(range.getOffset() + range.getLength());
+                                contents = prefix.concat(replacement).concat(postfix);
                             };
                             try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
                                 contents.write(writer);
