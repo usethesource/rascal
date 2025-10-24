@@ -104,7 +104,7 @@ public class IDEServicesLibrary {
                                 contents = vf.string(sw.toString());
                             };
                             try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
-                                writer.write(contents.getValue());
+                                contents.write(writer);
                             }
                         } else {
                             registry.setLastModified(file, System.currentTimeMillis());
