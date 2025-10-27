@@ -73,8 +73,6 @@ default bool asubtype(AType l, AType r){
             return l is aint || l is areal || l is arat || l is anum;
         case aalias(str _, list[AType] _, AType aliased):
             return asubtype(l, aliased);
-        case \start(AType t):
-            return asubtype(l, t);
         case aprod(p):
             return asubtype(l, p.def);
         case \iter(AType t):
@@ -192,8 +190,6 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
              return true;
         case afunc(AType b, list[AType] bp, list[Keyword] _):
              return asubtype(a, b) && comparableList(ap, bp);
-        case \start(AType t):
-            return asubtype(ac, t);
         case avalue():
             return true;
     }
@@ -204,8 +200,6 @@ bool asubtype(ap: aprod(AProduction p), AType b){
     switch(b){
         case aprod(AProduction q):
             return asubtype(p.def, q.def);
-        case \start(AType t):
-            return asubtype(ap, t);
         case conditional(AType t, _):
             return asubtype(ap, t);
         case AType t:
@@ -228,8 +222,6 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
             if(isConcreteSyntaxRole(sr)) return true;
-        case \start(AType t):
-            if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
         case avalue():
             return true;
         case p:aparameter(_, AType bnd):
@@ -238,7 +230,10 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     fail;
 }
 
-bool asubtype(\start(AType a), AType b) = asubtype(a, b);
+// start non-terminals behave just like parameterized non-terminals
+bool asubtype(\start(AType a), \start(AType b)) = asubtype(a, b);
+bool asubtype(\start(AType a), aadt("Tree", [], dataSyntax())) = true;
+bool asubtype(\start(AType a), anode(_)) = true;
 
 bool asubtype(i:\iter(AType s), AType b){
     switch(b){
@@ -254,8 +249,6 @@ bool asubtype(i:\iter(AType s), AType b){
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case \iter-star-seps(AType t, list[AType] seps):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
-        case \start(AType t):
-            return asubtype(i, t);
         case avalue():
             return true;
     }
@@ -276,8 +269,6 @@ bool asubtype(i:\iter-seps(AType s, list[AType] seps), AType b){
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case \iter-star-seps(AType t, list[AType] seps2):
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
-        case \start(AType t):
-            return asubtype(i, t);
         case avalue():
             return true;
     }
@@ -294,8 +285,6 @@ bool asubtype(i:\iter-star(AType s), AType b){
             return asubtype(s, t);
         case \iter-star-seps(AType t, list[AType] seps):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
-        case \start(AType t):
-            return asubtype(i, t);
         case avalue():
             return true;
     }
@@ -310,8 +299,6 @@ bool asubtype(i:\iter-star-seps(AType s, list[AType] seps), AType b){
             return true;
         case \iter-star-seps(AType t, list[AType] seps2):
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
-        case \start(AType t):
-            return asubtype(i, t);
         case avalue():
             return true;
     }
@@ -440,8 +427,6 @@ bool asubtype(a:anode(list[AType] l), AType b){
             return true;
         case anode(list[AType] r):
             return l <= r;
-        case \start(t):
-            return asubtype(a, t);
         case avalue():
             return true;
     }
@@ -464,8 +449,6 @@ bool asubtype(l:\achar-class(_), AType r){
         }
         case aadt("Tree", _, _):
             return true; // characters are Tree instances
-        case \start(t):
-            return asubtype(l, t);
         case avalue():
             return true;
     }
@@ -496,7 +479,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(\start(AType ss)) = isLayoutAType(ss);
+bool isLayoutAType(\start(AType ss)) = false; // only syntax (non-layout) non-terminals can be start``
 bool isLayoutAType(\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
@@ -707,8 +690,11 @@ AType alub(l:aadt("Tree", _, _), AType r) = l
 AType alub(AType l, r:aadt("Tree", _, _)) = r
     when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
 
-AType alub(\start(AType l) , AType r) = alub(l, r);
-AType alub(AType l, \start(AType r)) = alub(l, r);
+AType alub(\start(AType l) , \start(AType r)) = \start(alub(l, r));
+AType alub(\start(AType l) , aadt("Tree", [], dataSyntax())) = aadt("Tree", [], dataSyntax());
+AType alub(aadt("Tree", [], dataSyntax()), \start(AType l)) = aadt("Tree", [], dataSyntax());
+AType alub(anode(list[AType] ps), \start(AType l)) = anode(ps);
+AType alub(\start(AType l), anode(list[AType] ps)) = anode(ps);
 
 AType alub(conditional(AType l, _), AType r) = alub(l, r);
 AType alub(AType l, conditional(AType r, _)) = alub(l, r);
@@ -780,6 +766,8 @@ public AType aglb(anum(), areal())   = areal();
 public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
 public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
+
+AType aglb(\start(AType a), \start(AType b)) = \start(glb(a, b));
 
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 
