@@ -6,33 +6,26 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 module analysis::formalconcepts::CXTIO
+
 import IO;
 import String;
 import List;
 import Set;
 import analysis::formalconcepts::FCA;
 
-@synopsis{Read object attribute in .cxt format.}   
-public FormalContext[str, str] readCxt(loc input)  {
+@synopsis{Read object attribute in .cxt format.}
+public FormalContext[str, str] readCxt(loc input) {
     list[str] d = readFileLines(input);
     int nRows = toInt(d[2]);
     int nCols = toInt(d[3]);
-    int theStart = 5+nRows+nCols;
-    list[str] e = tail(d, size(d)-theStart);
+    int theStart = 5 + nRows + nCols;
+    list[str] e = tail(d, size(d) - theStart);
     int idx = 5;
-    map [str, set[str]] vb = ();
+    map[str, set[str]] vb = ();
     for (str f <- e) {
-         set[str] b = {d[5+nRows+i]|int i<-[0, 1..size(f)], charAt(f,i)==88};
-         vb[d[idx]] = b;
-         idx = idx+1;
-         }
-    return toFormalContext(vb);
+        set[str] b = {d[5 + nRows + i]| int i <- [0, 1..size(f)], charAt(f, i) == 88};
+        vb[d[idx]] = b;
+        idx = idx + 1;
     }
-
-loc input = |file:///ufs/bertl/cxt/digits.cxt|;
-
-public void main() {
-     FormalContext[str, str] d = readCxt(input);
-     ConceptLattice[str, str] e = fca(d);
-     println(toDotString(e));
-     }  
+    return toFormalContext(vb);
+}
