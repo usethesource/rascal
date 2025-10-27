@@ -219,12 +219,12 @@ Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKey
 
 Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va>;`)
     = HV(V(toBox(tg),
-        H(toBox(v), L("data"), H0(toBox(typ), toBox(ps)))),
+        H(toBox(v), L("data"), H0(toBox(typ)), toBox(ps))),
         I(H(L("="), H0(toBox(va), L(";")))));
 
 Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKeywordParameters ps> = <Variant va> | <{Variant "|"}+ vs>;`)
     = V(toBox(tg),
-        H(toBox(v), L("data"), H0(toBox(typ), toBox(ps))),
+        H(toBox(v), L("data"), H0(toBox(typ)), toBox(ps)),
         I([G([
                 L("="),
                 toBox(va),
@@ -285,8 +285,10 @@ Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Pa
     = H(toBox(modifiers), toBox(typ), H0(toBox(name), toBox(parameters)));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`)
-    = V(toBox(tags),
-        H(toBox(vis), H0(toBox(sig), L(";"))));
+    = V(
+        toBox(tags),
+        H(toBox(vis), H0(toBox(sig), L(";")))
+    );
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
@@ -545,7 +547,7 @@ Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>, <Expressio
     = H0(toBox(e), L("["), HV(toBox(optFirst)), H1(L(","), HV(toBox(second))), L(".."), HV(toBox(optLast)), L("]"));
 
 Box toBox((Expression) `\< <{Expression ","}+ elems> \>`) 
-    = H0(L("\<"), toBox(elems), L("\>"));
+    = H0(L("\<"), HV(toBox(elems)), L("\>"));
 
 Box toBox((Expression) `type(<Expression sym>, <Expression grammar>)`)
     = H0(L("type"), L("("), toExpBox(sym), H1(L(","), toExpBox(grammar)), L(")"));
@@ -556,7 +558,7 @@ Box toBox((Expression) `( <{Mapping[Expression] ","}* mappings>)`)
         L(")"), hs=0);
 
 Box toBox((Pattern) `\< <{Pattern ","}+ elems> \>`) 
-    = H0(L("\<"), toBox(elems), L("\>"));
+    = H0(L("\<"), H(toBox(elems)), L("\>"));
 
 Box toBox((Pattern) `type(<Pattern sym>, <Pattern grammar>)`)
     = H0(L("type"), L("("), toBox(sym), H1(L(","), toBox(grammar)), L(")"));
@@ -581,7 +583,7 @@ Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
 
 Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
     = H0(L("{"),
-        toBox(elems),
+        HV(toBox(elems)),
         L("}")) when !(elems[0] is \tuple); 
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
@@ -604,7 +606,7 @@ default Row toRow(Expression e) = R([H(toBox(e))]);
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
     = H0(L("{"),
-        toBox(elems),
+        HV(toBox(elems)),
         L("}")) when !(elems[0] is \tuple); 
 
 Box toBox((Pattern) `[ <{Pattern ","}+ elems>]`)
@@ -617,7 +619,7 @@ Box toBox((Pattern) `[]`)
 
 Box toBox((Pattern) `[<{Pattern ","}+ elems>]`)
     = H0(L("["),
-        toBox(elems),
+        HV(toBox(elems)),
         L("]")) when !(elems[0] is \tuple);
 
 Box toBox((Expression) `<Expression exp>@<Name name>`)
