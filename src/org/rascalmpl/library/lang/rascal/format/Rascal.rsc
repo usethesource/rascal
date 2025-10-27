@@ -687,11 +687,17 @@ Box toBox((Expression) `[<{Expression ","}+ elements>]`)
 Box toBox((Expression) `<Expression cont>[<{Expression ","}+ subscripts>]`)
     = H0(toBox(cont), L("["), toBox(subscripts), L("]"));
 
+// watch out, .. can't have H0 due to real literals that start with a .1
 Box toBox((Expression)`[<Expression first>..<Expression last>]`)
-    = H0(L("["), HV(toBox(first)), L(".."), HV(toBox(last)), L("]"));
+    = H0(L("["), HV(toBox(first)), H(L(".."), HV(toBox(last)), hs=dotSpace(last)), L("]"));
 
+@synopsis{Find the left-most char and check if it's a `.`}
+private int dotSpace(Tree x) = (/char(int first) := x) ? ((first == 46) ? 1 : 0) : 0;
+private default int dotSpace(Tree x) = 0;
+
+// watch out, .. can't have H0 due to real literals that start with a .1
 Box toBox((Expression)`[<Expression first>,<Expression second>..<Expression last>]`)
-    = H0(L("["), HV(toBox(first)), H(L(","), HV(toBox(second))), L(".."), HV(toBox(last)), L("]"));
+    = H0(L("["), HV(toBox(first)), H(L(","), H1(HV(toBox(second))), H(L(".."), HV(toBox(last))), hs=dotSpace(last)), L("]"));
 
 Box toBox((Expression) `<Expression exp>.<Name field>`)
     = H0(toBox(exp), L("."), toBox(field));
