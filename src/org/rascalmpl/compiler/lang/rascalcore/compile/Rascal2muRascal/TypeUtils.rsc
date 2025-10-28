@@ -541,11 +541,11 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     //println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
     assert isADTAType(adtType) : "getConstructorInfo: <adtType>";
     adtType = unsetRec(adtType);
-    is_start = false;
-    if(isStartNonTerminalType(adtType)){
-        adtType = getStartNonTerminalType(adtType);
-        is_start = true;
-    }
+    // is_start = false;
+    // if(isStartNonTerminalType(adtType)){
+    //     adtType = getStartNonTerminalType(adtType);
+    //     is_start = true;
+    // }
     adtType1 = adtType;  // TODO: this is to ensure that adType is a constant inside visit below
     fieldType = fieldType[alabel=fieldName];
     if(adtType1 in domain(getBuiltinFieldMap())){
@@ -603,7 +603,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         productions = getGrammar().rules[adtType1].alternatives;
         for(prod(AType _, list[AType] atypes) <- productions){
             for(a <- atypes, a.alabel?, a.alabel == fieldName){
-                return <"", is_start ? \start(a) : a, false>;
+                return <"", a, false>;
             }
         }
     }
