@@ -195,8 +195,14 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
 
+        
         allProductions = visit(allProductions){
+            // TODO JV: this is strange, the rule for start(A) should not be rewritten to a rule for A. 
+            // Also syntactically we can't write `syntax start[X] = ...` so this can not happen in reality.
             case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
+            // Same here, \start(a) and a are not grammatically equivalent (one has more whitespace than the other!).
+            // Someone could use `start[X]` as a non-terminal on the right-hand side and that would be fine and should
+            // not be rewritten.
             case \start(a:aadt(_,_,_)) => a
         }
 
@@ -205,6 +211,8 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         map[AType,AProduction] syntaxDefinitions = ();
 
         for(AType adtType <- domain(allProductions)){
+            // TODO JV: this is again strange. Why would a replace the role of start(a)? This is a different nonterminal alltogether.
+            // maybe a left-over from when the checker thought that `A <: start[A]` ?
             if(\start(adtType2) := adtType){
                 adtType = adtType2;
             }
@@ -365,6 +373,8 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
             }
         }
     }
+
+    // JV TODO: \start is only possible around context-free syntax definitions (syntactically) so it always has the same role.
     for(AType adtType <- domain(allProductions), ((\start(t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
         for(p:prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){

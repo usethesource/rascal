@@ -767,7 +767,11 @@ public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
 public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
-AType aglb(\start(AType a), \start(AType b)) = \start(glb(a, b));
+AType aglb(\start(AType a), \start(AType b)) = \start(aglb(a, b));
+AType aglb(aadt("Tree", [], dataSyntax()), \start(AType b)) = \start(b);
+AType aglb(\start(AType a), aadt("Tree", [], dataSyntax())) = \start(a);
+AType aglb(\anode(_), \start(AType b)) = \start(b);
+AType aglb(\start(AType a), \anode(_)) = \start(a);
 
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 
