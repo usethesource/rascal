@@ -574,6 +574,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             AType texp = s.getType(expression);
+            
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -592,6 +593,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
             if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
                 <qualifier, base> = splitQualifiedName(expression.qualifiedName);
+                // TODO JV: we have the definitions in ParseTree for checking char constructors? And what about amb, appl and cycle then?
                 if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
                     nactuals = size(actuals);
                     if(nactuals != 1){
@@ -617,6 +619,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validOverloads = {};
                 next_fun:
                 for(ovl: <key, idRole, tp> <- overloads){
+                    println("checking ovl <ovl>");
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
