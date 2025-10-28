@@ -1074,7 +1074,7 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 str getADTName(AType t) {
     if (aadt(n,_,_) := unwrapAType(t)) return n;
     if (acons(a,_,_) := unwrapAType(t)) return getADTName(a);
-    if (\start(ss) := unwrapAType(t)) return getADTName(ss);
+    if (\start(ss) := unwrapAType(t)) return "start[<getADTName(ss)>]";
     if (areified(_) := unwrapAType(t)) return "type";
      if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTName(def);
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyAType(t)>");
@@ -1084,7 +1084,8 @@ str getADTName(AType t) {
 list[AType] getADTTypeParameters(AType t) {
     if (aadt(_,ps,_) := unwrapAType(t)) return ps;
     if (acons(a,_,_) := unwrapAType(t)) return getADTTypeParameters(a);
-    if (\start(ss) := unwrapAType(t)) return getADTTypeParameters(ss);
+    // TODO JV: this is not really true yet. start[S] is an opaque name. not a parameterized non-terminal.
+    if (\start(ss) := unwrapAType(t)) return [ss];
     if (areified(_) := unwrapAType(t)) return [];
     if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTTypeParameters(def);
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
@@ -1524,9 +1525,9 @@ default list[AType] getSeqTypes(AType t){
 
 //AType getSyntaxType(AType t, Solver _) = t;
 
-AType getSyntaxType(AType t, Solver _) = stripStart(removeConditional(t));
+AType getSyntaxType(AType t, Solver _) = removeConditional(t);
 
-AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
+AType getSyntaxType(Tree tree, Solver s) = removeConditional(s.getType(tree));
 
 AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
 

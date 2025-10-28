@@ -572,7 +572,8 @@ test bool StartNotSuperType() = unexpectedDeclarationInModule("
     start syntax A = \"A\";
 
     void main() {
-        start[A] a = [A] \"A\";
+        A x = [A] \"A\";
+        start[A] a = x;
     }
 ");
 
