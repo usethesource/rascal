@@ -258,6 +258,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         // Add start symbols
 
         for(AType adtType <- allStarts){
+            // TODO JV: there are more places where layout is added to the start non-terminal...
             syntaxDefinitions[\start(adtType)] = achoice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
 
