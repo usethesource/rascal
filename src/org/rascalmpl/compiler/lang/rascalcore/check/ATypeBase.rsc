@@ -337,9 +337,6 @@ data AType
      | \start(AType atype)
      ;
 
-//public AType \iter-seps(AType atype, [])  = \iter(atype);
-//public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
-
 // flattening rules
 public AType seq([*AType a, seq(list[AType] b), *AType c]) = AType::seq(a + b + c);
 
