@@ -65,6 +65,12 @@ public int syndefCounter = 0;
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
     // println("declareSyntax: <current>");
     Sym defined = current.defined;
+
+    if (defined is \start) {
+        c.report(error(defined, "Can not manually define a start non-terminal, because its syntax rule is already generated automatically."));
+        return;
+    }
+
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
 
