@@ -38,7 +38,6 @@ import util::SemVer;
 import String;
 
 extend analysis::typepal::TypePal;
-extend analysis::typepal::TModel; // This should be unnessary
 
 data IdRole
     = moduleId()
@@ -139,13 +138,8 @@ data Modifier
     | defaultModifier()
     ;
 
-// // Duplicate of declaration in 
-// data DefInfo(str md5 = "");
-// data DefInfo(datetime timestamp = $0000-01-01T00:00:00.000+00:00$);
-
-public Vis pubVis = publicVis();
 // Visibility information
-data DefInfo(Vis vis = pubVis);
+data DefInfo(Vis vis = publicVis());
 
 data DefInfo(bool canFail = false);
 
