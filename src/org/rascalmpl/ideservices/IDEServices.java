@@ -145,16 +145,17 @@ public interface IDEServices extends IRascalMonitor {
               var textEdits = (IList) c.get("edits");
               var charset = registry.detectCharset(file).name();
               var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), charset, false);
-              for (var e : textEdits.reverse()) {
-                var edit = (IConstructor) e;
-                var range = (ISourceLocation) edit.get("range");
-                var prefix = contents.substring(0, range.getOffset());
-                var replacement = (IString) edit.get("replacement");
-                var postfix = contents.substring(range.getOffset() + range.getLength());
-                contents = prefix.concat(replacement).concat(postfix);
-              };
+              int cursor = 0;
               try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
-                contents.write(writer);
+                for (var e : textEdits) {
+                  var edit = (IConstructor) e;
+                  var range = (ISourceLocation) edit.get("range");
+                  var replacement = (IString) edit.get("replacement");
+                  contents.substring(cursor, range.getOffset()).write(writer);
+                  replacement.write(writer);
+                  cursor = range.getOffset() + range.getLength();
+                }
+                contents.substring(cursor).write(writer);
               }
             } else {
               registry.setLastModified(file, System.currentTimeMillis());
