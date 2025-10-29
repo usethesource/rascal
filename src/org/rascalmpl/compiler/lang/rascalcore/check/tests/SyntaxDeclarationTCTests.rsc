@@ -624,7 +624,7 @@ test bool Issue465b(){
 test bool Issue465c(){			                                     								
 	writeModule("module MMM
                     lexical IntegerLiteral = [0-9]+;           
-					syntax Exp = con: IntegerLiteral;");
+					start syntax Exp = con: IntegerLiteral;");
 	return checkModuleOK("
         module Issue465c
             import MMM;
