@@ -619,9 +619,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validOverloads = {};
                 next_fun:
                 for(ovl: <key, idRole, tp> <- overloads){
-                    println("checking ovl <ovl>");
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
+                        println("checking.. <ft>.");
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
@@ -637,7 +637,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
+                    println("checking ovl against conses <ovl>");
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
+                        println("ret <ret>");
                        try {
                             validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;

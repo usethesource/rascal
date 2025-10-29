@@ -245,7 +245,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
 }
 
 AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
-    //println("---- <current>, identicalFormals: <identicalFormals>");
+    println("---- <current>, identicalFormals: <identicalFormals>");
     requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
@@ -321,6 +321,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
             } else
                 continue;
         }
+        println("require: <i>, <formalTypesU[i]> -- <aiU>");
         s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
