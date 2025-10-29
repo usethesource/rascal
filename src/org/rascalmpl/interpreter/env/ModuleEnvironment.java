@@ -197,7 +197,7 @@ public class ModuleEnvironment extends Environment {
 		  }
 
 		  for (Entry<Type, List<KeywordFormal>> e : other.generalKeywordParameters.entrySet()) {
-			 List<KeywordFormal> here = Collections.unmodifiableList(this.generalKeywordParameters.get(e.getKey()));
+			 List<KeywordFormal> here = this.generalKeywordParameters.get(e.getKey());
 			 List<KeywordFormal>  concat = new LinkedList<>();
 
 			 if (here != null) {
