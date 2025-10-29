@@ -7,11 +7,11 @@ data Vis = publicVis();
 data DefInfo(Vis vis = publicVis());
 
 // issue 2497
-bool extendedCommonKeyParamNotOverwritten()
+test bool extendedCommonKeyParamNotOverwritten()
     = noDefInfo().x == 42;
 
 // issue 2497
-bool extendingCommonKeyParamNotOverwritten()
+test bool extendingCommonKeyParamNotOverwritten()
     = noDefInfo().vis == publicVis();
 
 
