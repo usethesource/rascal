@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -195,7 +197,10 @@ public class ModuleEnvironment extends Environment {
 		  if (this.generalKeywordParameters == null) {
 			  this.generalKeywordParameters = new HashMap<>();
 		  }
-		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
+
+		  for (Entry<Type, List<KeywordFormal>> e : other.generalKeywordParameters.entrySet()) {
+			this.generalKeywordParameters.merge(e.getKey(), e.getValue(), ModuleEnvironment::concatLinkedList);
+		  }
 	  }
 	  
 	  extendTypeParams(other);
@@ -209,6 +214,9 @@ public class ModuleEnvironment extends Environment {
 	  addExtend(other.getName());
 	}
 	
+	private static <T> List<T> concatLinkedList(List<T> a, List<T> b) {
+		return Stream.concat(a.stream(), b.stream()).collect(Collectors.toCollection(LinkedList::new));
+	}
 	
 	
 	@Override
