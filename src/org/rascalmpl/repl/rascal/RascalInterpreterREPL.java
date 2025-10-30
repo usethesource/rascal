@@ -34,6 +34,7 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +48,8 @@ import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.OSUtils;
 import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
@@ -54,6 +57,7 @@ import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.ideservices.RemoteIDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -61,10 +65,12 @@ import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
+import org.rascalmpl.shell.REPLRunner;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -92,6 +98,9 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     protected DebugSocketServer debugServer;
 
+    protected final int ideServicesPort;
+    protected final int replInterfacePort;
+
     @Override
     public ITree parseCommand(String command) {
         Objects.requireNonNull(eval, "Not initialized yet");
@@ -100,7 +109,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
     }
 
-    public RascalInterpreterREPL() {
+    public RascalInterpreterREPL(int ideServicesPort, int replInterfacePort) {
+        this.ideServicesPort = ideServicesPort;
+        this.replInterfacePort = replInterfacePort;
+
         this.printer = new RascalValuePrinter() {
             @Override
             protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
@@ -320,6 +332,38 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             modName = modName.replace("/", "::");
             modName = modName.replace("\\", "::");
             dirtyModules.add(modName);
+        }
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        int ideServicesPort = -1;
+        int replInterfacePort = -1;
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("--ideServicesPort")) {
+                ideServicesPort = Integer.parseInt(args[++i]);
+            } else if (args[i].equals("--replInterfacePort")) {
+                replInterfacePort = Integer.parseInt(args[++i]);
+            }
+        }
+
+        var terminalBuilder = TerminalBuilder.builder()
+            .dumb(true) // enable fallback
+            .system(true);
+        
+        if (OSUtils.IS_WINDOWS) {
+            terminalBuilder.encoding(StandardCharsets.UTF_8);
+        }
+
+        try {
+            var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(ideServicesPort, replInterfacePort), REPLRunner.getHistoryFile()), terminalBuilder.build());
+            repl.run();
+            System.exit(0); // kill the other threads
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Rascal terminal terminated exceptionally; press any key to exit process.");
+            System.in.read();
+            System.exit(1);
         }
     }
 
