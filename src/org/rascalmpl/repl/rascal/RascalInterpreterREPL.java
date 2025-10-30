@@ -98,7 +98,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     protected DebugSocketServer debugServer;
 
-    protected final int ideServicesPort;
     protected final int replInterfacePort;
 
     @Override
@@ -109,8 +108,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
     }
 
-    public RascalInterpreterREPL(int ideServicesPort, int replInterfacePort) {
-        this.ideServicesPort = ideServicesPort;
+    public RascalInterpreterREPL(int replInterfacePort) {
         this.replInterfacePort = replInterfacePort;
 
         this.printer = new RascalValuePrinter() {
@@ -339,13 +337,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int ideServicesPort = -1;
         int replInterfacePort = -1;
 
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("--ideServicesPort")) {
-                ideServicesPort = Integer.parseInt(args[++i]);
-            } else if (args[i].equals("--replInterfacePort")) {
+            if (args[i].equals("--remoteIDEServicesPort")) {
                 replInterfacePort = Integer.parseInt(args[++i]);
             }
         }
@@ -359,7 +354,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
 
         try {
-            var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(ideServicesPort, replInterfacePort), REPLRunner.getHistoryFile()), terminalBuilder.build());
+            var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(replInterfacePort), REPLRunner.getHistoryFile()), terminalBuilder.build());
             repl.run();
             System.exit(0); // kill the other threads
         } catch (IOException e) {
