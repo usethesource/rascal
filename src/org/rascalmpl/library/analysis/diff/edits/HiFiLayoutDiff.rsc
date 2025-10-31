@@ -27,6 +27,8 @@ module analysis::diff::edits::HiFiLayoutDiff
 extend analysis::diff::edits::HiFiTreeDiff;
 import ParseTree; // this should not be necessary because imported by HiFiTreeDiff
 import String; // this should not be be necessary because imported by HiFiTreeDiff
+import lang::rascal::grammar::definition::Characters;
+import IO;
 
 @synopsis{Normalization choices for case-insensitive literals.}
 data CaseInsensitivity
@@ -106,22 +108,31 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     default list[TextEdit] rec(
         Tree t:appl(Production p, list[Tree] argsA),
         appl(p /* must be the same by the above assert */, list[Tree] argsB)) 
-        = [*rec(a, b) | <a, b> <- zip2(argsA, argsB)]; 
+        = [*rec(argsA[i], argsB[i]) | i <- [0..size(argsA)]]; 
 
     // first add required locations to layout nodes
-    original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
+    // TODO: check if indeed repositioning is never needed
+    // original = reposition(original, markLit=true, markLayout=true, markSubLayout=true);
 
     return rec(original, formatted);
 }
 
+private Symbol newlineClass = \char-class([range(10,10)]);
+
 @synopsis{Make sure the new layout still contains all the source code comments of the original layout}
 @description{
-This algorithm uses the @category("Comments") tag to detect source code comments inside layout substrings. If the original
+This algorithm uses the `@category(/[cC]omments/)` tag to detect source code comments inside layout substrings. If the original
 layout contains comments, we re-introduce the comments at the expected level of indentation. New comments present in the 
 replacement are kept and will overwrite any original comments. 
 
-This trick is complicated by the syntax of multiline comments and single line comments that have
-to end with a newline.
+There are corner cases with respect to the original comments:
+* the single line comment that does not end with a newline itself, yet it must always end with a newline after it.
+* multiple single line comments after each other
+
+Then there are corner cases with respect to the replacement whitespace:
+* the last line of the replacement whitespace is special. This is the indentation to use for all comments.
+* but there could be no newlines in the replacement whitespace; and still there is a single line comment to be included.
+Now we need to infer an indentation level for what follows the comment from "thin air". 
 }
 @benefits{
 * if comments are kepts and formatted by tools like Tree2Box, then this algorithm does not overwrite these.
@@ -132,7 +143,14 @@ to end with a newline.
 * if comments are not marked with `@category("Comment")` in the original grammar, then this algorithm recovers nothing.
 }
 private str learnComments(Tree original, Tree replacement) {
-    originalComments = ["<c>" | /c:appl(prod(_,_,{\tag("category"(/^[Cc]omment$/)), *_}), _) := original];
+    bool mustEndWithNewline(lit("\n"))                     = true;
+    bool mustEndWithNewline(conditional(Symbol s, _))      = mustEndWithNewline(s);
+    // if a comment can not contain newline characters, but everything else, then it must be followed by one:
+    bool mustEndWithNewline(\iter(Symbol cc:\char-class(_)))      = intersection(cc, newlineClass) != newlineClass;
+    bool mustEndWithNewline(\iter-star(Symbol cc:\char-class(_))) = intersection(cc, newlineClass) != newlineClass;
+    default  bool mustEndWithNewline(_)                    = false;
+
+    originalComments = [<s, s[-1] == "\n" || mustEndWithNewline(lastSym)> | /c:appl(prod(_,[*_,Symbol lastSym],{\tag("category"(/^[Cc]omment$/)), *_}), _) := original, str s := "<c>"];
 
     if (originalComments == []) {
         // if the original did not contain comments, stick with the replacements
@@ -146,23 +164,42 @@ private str learnComments(Tree original, Tree replacement) {
         return "<replacement>";
     }
 
-    // At this point, we know that: (a) comments are not present in the replacement and (b) they used to be there in the original.
-    // So the old comments are going to be the new output. however, we want to learn indentation from the replacement.
+    // At this point, we know that: 
+    //   (a) comments are not present in the replacement and 
+    //   (b) they used to be there in the original.
+    // So the old comments are going to be copied to the new output.
+    // But, we want to indent them using the style of the replacement.
 
-    // Drop the last newline of single-line comments, because we don't want two newlines in the output for every comment:
-    str dropEndNl(str line:/^.*\n$/) = (line[..-1]);
-    default str dropEndNl(str line)  = line;
-
-    // the first line of the replacement ,is the indentation to use.
+    // The last line of the replacement string typically has the indentation for the construct that follows:
+    //   |    // a comment 
+    //   |    if (true) {
+    //    ^^^^
+    //      newIndent
+    //
+    // However, if the replacement string is on a single line, then we don't have the indentation
+    // for the string on the next line readily available. In this case we indent the next line
+    // to the start column of the replacement layout, as a proxy.
+    
     str replString = "<replacement>";
-    str replacementIndent = /^\n+$/ !:= replString
-        ? split("\n", replString)[0]
-        : "";
+    str newIndent  = split("\n", replString)[-1] ? "";
 
-    // trimming each line makes sure we forget about the original indentation, and drop accidental spaces after comment lines
-    return replString + indent(replacementIndent,
-            "<for (c <- originalComments, str line <- split("\n", dropEndNl(c))) {><indent(replacementIndent, trim(line), indentFirstLine=true)>
-           '<}>"[..-1], indentFirstLine=false) + replString;
+    if (/\n/ !:= replString) {
+        // no newline in the repl string, so no indentation available for what follows the comment...
+        newIndent = "<for (_ <- [0..replacement@\loc.begin.column]) {> <}>";
+    }
+
+    // we always place sequential comments vertically, because we don't know if we are dealing
+    // we a single line comment that has to end with newline by follow restriction or by a literal "\n".
+    // TODO: a deeper analysis of the comment rule that's in use could also be used to discover this.
+    str trimmedOriginals = "<for (<c, newLine> <- originalComments) {><trim(c)><if (newLine) {>
+                           '<}><}>";
+    
+    // we wrap the comment with the formatted whitespace to assure the proper indentation
+    // of its first line, and the proper indentation of what comes after this layout node
+    return replString 
+        + indent(newIndent, trimmedOriginals, indentFirstLine=false) 
+        + newIndent
+        ;
 }
 
 private Symbol delabel(label(_, Symbol t)) = t;
