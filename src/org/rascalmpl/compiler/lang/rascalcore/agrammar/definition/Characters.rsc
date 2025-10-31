@@ -38,7 +38,6 @@ extend lang::rascalcore::check::ATypeBase;
 import String;
 import List;
 
-//data AType;
 data ACharRange = \empty-range();
 
 ACharRange \new-range(int from, int to) = from <= to ? arange(from, to) : \empty-range();

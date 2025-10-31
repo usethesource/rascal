@@ -193,17 +193,17 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	println("names:"); iprintln(names);
 	<found, tm, ms> = getTModelForModule(moduleName, ms);
 	foundUseDefs = tm.useDef;
-	println("foundUseDefs:");
-	for(<u, d> <- foundUseDefs){
-		println("<readFile(u)>:<u> ==\> <d>");
-	}
+	// println("foundUseDefs:");
+	// for(<u, d> <- foundUseDefs){
+	// 	println("<readFile(u)>:<u> ==\> <d>");
+	// }
 	for(str v <- usedefs){
 		 <def, uses> = usedefs[v];
 		 list[loc] occ = [];
 		 if(names[v]?) occ = names[v]; else throw "<v> not found in tree";
 		 if(!occ[def]?) throw "Missing define <def> for <v>";
 		 for(int u <- uses){
-			println("u = <u>");
+			//println("u = <u>");
 			if(!occ[u]?){
 				throw "Missing use <u> for <v>";
 			}

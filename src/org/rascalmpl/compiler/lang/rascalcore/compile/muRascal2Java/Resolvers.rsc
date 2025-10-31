@@ -151,8 +151,8 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
     module_scope = module2loc[moduleName];
 
-    loc2module = invertUnique(module2loc);
-    module_scopes = domain(loc2module);
+    map[loc,str] loc2module = invertUnique(module2loc);
+    set[loc] module_scopes = domain(loc2module);
     extend_scopes = { module2loc[ext] | ext <- extends, ext in module2loc};
     import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
@@ -376,7 +376,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     map[int, lrel[str,str]] overload_table = ();
     lrel[str,str] defaults_and_constructors = [];
 
-    physical2logical = invertUnique(tm.logical2physical);
+    map[loc,loc] physical2logical = invertUnique(tm.logical2physical);
 
     // Handle a function or constructor defintion
 

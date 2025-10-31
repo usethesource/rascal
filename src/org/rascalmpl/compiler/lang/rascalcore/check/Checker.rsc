@@ -462,7 +462,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 
         start_check = cpuTime();
         resetClosureCounter();
-        c = newCollector(modelName, namedTrees, compilerConfig);
+        c = newCollector(modelName, namedTrees, compilerConfig, timestamp = getLastModified(modelName, ms.moduleLastModified, pcfg));
         c.push(key_pathconfig, pcfg);
 
         rascalPreCollectInitialization(namedTrees, c);
