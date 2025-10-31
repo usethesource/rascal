@@ -20,11 +20,11 @@ public class REPLRunner implements ShellRunner {
 
     @Override
     public void run(String[] args) throws IOException {
-        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(), getHistoryFile()), term);
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(-1), getHistoryFile()), term);
         repl.run();
     }
 
-    private static Path getHistoryFile() throws IOException {
+    public static Path getHistoryFile() throws IOException {
         var home = FileSystems.getDefault().getPath(System.getProperty("user.home"));
         var rascalDir = home.resolve(".rascal");
         if (!Files.isDirectory(rascalDir)) {
