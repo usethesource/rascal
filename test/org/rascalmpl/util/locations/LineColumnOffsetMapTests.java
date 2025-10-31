@@ -66,6 +66,15 @@ public class LineColumnOffsetMapTests {
     }
 
     @Test
+    public void noUnicodeCharsWindowsInverse() {
+        LineColumnOffsetMap map = ArrayLineOffsetMap.build("1234\r\n1234\r\n\r\n  \r\n");
+        assertEquals(2, map.translateInverseColumn(0, 2, false));
+        assertEquals(Pair.of(0, 2), map.calculateInverseOffsetLength(0, 0, 0, 2));
+        assertEquals(Pair.of(0, 10), map.calculateInverseOffsetLength(0, 0, 1, 4));
+        assertEquals(Pair.of(9, 9), map.calculateInverseOffsetLength(1, 3, 4, 0));
+    }
+
+    @Test
     public void singleWideCharInverse() {
         LineColumnOffsetMap map = ArrayLineOffsetMap.build("12🎉45\n1234🎉");
         assertEquals(3, map.translateInverseColumn(0, 3, false));
