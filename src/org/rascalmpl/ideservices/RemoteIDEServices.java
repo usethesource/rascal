@@ -26,7 +26,6 @@
  */
 package org.rascalmpl.ideservices;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -38,23 +37,11 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.LanguageParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.SourceLocationParameter;
-import org.rascalmpl.interpreter.NullRascalMonitor;
-import org.rascalmpl.library.lang.json.internal.JsonValueReader;
-import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.IRascalValueFactory;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 public class RemoteIDEServices extends BasicIDEServices {
     private IRemoteIDEServices server;
@@ -71,7 +58,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setLocalService(this)
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
-                .configureGson(RemoteIDEServices::configureGson)
+                .configureGson(GsonConfigurator::configureGson)
                 // .setExecutorService(?)
                 .create();
 
@@ -82,24 +69,6 @@ public class RemoteIDEServices extends BasicIDEServices {
             warning("Error setting up Remote IDE Services connection " + e.getMessage(), URIUtil.rootLocation("unknown"));
         }
 
-    }
-
-    public static void configureGson(GsonBuilder builder) {
-        JsonValueWriter writer = new JsonValueWriter();
-        JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), new TypeStore(), new NullRascalMonitor(), null);
-        writer.setDatesAsInt(true);
-
-        builder.registerTypeHierarchyAdapter(IValue.class, new TypeAdapter<IValue>() {
-            @Override
-            public IValue read(JsonReader source) throws IOException {
-                return reader.read(source, TypeFactory.getInstance().valueType());
-            }
-
-            @Override
-            public void write(JsonWriter target, IValue value) throws IOException {
-                writer.write(target, value);
-            }
-        });
     }
 
     @Override
