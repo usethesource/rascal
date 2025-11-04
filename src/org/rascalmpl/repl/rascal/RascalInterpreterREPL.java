@@ -339,34 +339,4 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             dirtyModules.add(modName);
         }
     }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        int replInterfacePort = -1;
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("--remoteIDEServicesPort")) {
-                replInterfacePort = Integer.parseInt(args[++i]);
-            }
-        }
-
-        var terminalBuilder = TerminalBuilder.builder()
-            .dumb(true) // enable fallback
-            .system(true);
-        
-        if (OSUtils.IS_WINDOWS) {
-            terminalBuilder.encoding(StandardCharsets.UTF_8);
-        }
-
-        try {
-            var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(replInterfacePort), REPLRunner.getHistoryFile()), terminalBuilder.build());
-            repl.run();
-            System.exit(0); // kill the other threads
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Rascal terminal terminated exceptionally; press any key to exit process.");
-            System.in.read();
-            System.exit(1);
-        }
-    }
-
 }
