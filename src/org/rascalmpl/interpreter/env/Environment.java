@@ -925,6 +925,7 @@ public class Environment implements IRascalFrame {
 		this.functionEnvironment = null;
 		this.staticTypeParameters = null;
 		this.nameFlags = null;
+		this.myRoot = null;
 	}
 	
 	protected void extendNameFlags(Environment other) {
