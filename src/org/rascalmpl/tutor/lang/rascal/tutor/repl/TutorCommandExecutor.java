@@ -52,7 +52,7 @@ public class TutorCommandExecutor {
     private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
-        interpreter = new RascalInterpreterREPL(-1) {
+        interpreter = new RascalInterpreterREPL() {
             @Override
             protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
