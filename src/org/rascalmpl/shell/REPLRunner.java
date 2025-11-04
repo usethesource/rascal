@@ -13,18 +13,20 @@ import org.rascalmpl.repl.rascal.RascalReplServices;
 public class REPLRunner implements ShellRunner {
 
     private final Terminal term;
+    private final int remoteIDEServicesPort;
     
-    public REPLRunner(Terminal term) {
+    public REPLRunner(Terminal term, int remoteIDEServicesPort) {
         this.term = term;
+        this.remoteIDEServicesPort = remoteIDEServicesPort;
     }
 
     @Override
     public void run(String[] args) throws IOException {
-        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(), getHistoryFile()), term);
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(remoteIDEServicesPort), getHistoryFile()), term);
         repl.run();
     }
 
-    public static Path getHistoryFile() throws IOException {
+    private static Path getHistoryFile() throws IOException {
         var home = FileSystems.getDefault().getPath(System.getProperty("user.home"));
         var rascalDir = home.resolve(".rascal");
         if (!Files.isDirectory(rascalDir)) {

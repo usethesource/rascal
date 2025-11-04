@@ -28,12 +28,27 @@ import org.rascalmpl.repl.streams.StreamUtil;
 public class RascalShell  {
 
     public static void main(String[] args) throws IOException {
+        int replInterfacePort = -1;
         checkIfHelp(args);
 
         var term = connectToTerminal();
 
+        int i = 0;
+        for (; i < args.length; i++) {
+            if (args[i].equals("--remoteIDEServicesPort")) {
+                replInterfacePort = Integer.parseInt(args[++i]);
+            } else if (args[i].equals("--vfsPort")) {
+                i++; // skip the argument
+            } else if (args[i].startsWith("--")) {
+                // Currently unknown named argument, skipping over this
+            } else {
+                // End of named arguments
+                break;
+            }
+        }
+
         ShellRunner runner; 
-        if (args.length > 0) {
+        if (args.length > i) {
             var monitor = IRascalMonitor.buildConsoleMonitor(term);
             var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
             var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
@@ -41,21 +56,25 @@ public class RascalShell  {
             runner = new ModuleRunner(term.reader(), out, err, monitor);
         } 
         else {
-            runner = new REPLRunner(term);
+            runner = new REPLRunner(term, replInterfacePort);
         }
-        runner.run(args);
+        
+        String[] rascalArgs = new String[args.length - i];
+        System.arraycopy(args, i, rascalArgs, 0, args.length - i);
+        runner.run(rascalArgs);
     }
 
     public static Terminal connectToTerminal() throws IOException {
         setupJavaProcessForREPL();
       
-        var termBuilder = TerminalBuilder.builder();
+        var termBuilder = TerminalBuilder.builder()
+            .dumb(true) // fallback to dumb terminal if detected terminal is not supported
+            .system(true);
+
         if (OSUtils.IS_WINDOWS) {
             termBuilder.encoding(StandardCharsets.UTF_8);
         }
-        termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
-        var term = termBuilder.build();
-        return term;
+        return termBuilder.build();
     }
 
     private static void checkIfHelp(String[] args) {
