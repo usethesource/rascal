@@ -31,8 +31,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -199,7 +197,15 @@ public class ModuleEnvironment extends Environment {
 		  }
 
 		  for (Entry<Type, List<KeywordFormal>> e : other.generalKeywordParameters.entrySet()) {
-			this.generalKeywordParameters.merge(e.getKey(), e.getValue(), ModuleEnvironment::concatLinkedList);
+			this.generalKeywordParameters.compute(e.getKey(), (k, current) -> {
+				if (current == null) {
+					// only a new copy is needed
+					return new ArrayList<>(e.getValue());
+				}
+				else {
+					return mergeKeywords(e.getValue(), current);
+				}
+			});
 		  }
 	  }
 	  
@@ -213,9 +219,16 @@ public class ModuleEnvironment extends Environment {
 	  
 	  addExtend(other.getName());
 	}
-	
-	private static <T> List<T> concatLinkedList(List<T> a, List<T> b) {
-		return Stream.concat(a.stream(), b.stream()).collect(Collectors.toCollection(LinkedList::new));
+
+	private List<KeywordFormal> mergeKeywords(List<KeywordFormal> a, List<KeywordFormal> b) {
+		ArrayList<KeywordFormal> result = new ArrayList<>(a.size() + b.size());
+		result.addAll(a);
+		for (var k : b) {
+			if (!keywordFormalExists(result, k)) {
+				result.add(k);
+			}
+		}
+		return result;
 	}
 	
 	
@@ -686,7 +699,7 @@ public class ModuleEnvironment extends Environment {
 	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list == null) {
-			list = new LinkedList<KeywordFormal>();
+			list = new ArrayList<KeywordFormal>();
 			generalKeywordParameters.put(adt, list);
 		}
 
@@ -718,7 +731,7 @@ public class ModuleEnvironment extends Environment {
 		
 		public GenericKeywordParameters(ModuleEnvironment env, List<KeywordFormal> formals, Map<String,Type> types) {
 			this.env = env;
-			this.formals = formals;
+			this.formals = Collections.unmodifiableList(formals);
 			this.types = types;
 		}
 		
