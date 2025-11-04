@@ -20,7 +20,7 @@ public class REPLRunner implements ShellRunner {
 
     @Override
     public void run(String[] args) throws IOException {
-        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(-1), getHistoryFile()), term);
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(), getHistoryFile()), term);
         repl.run();
     }
 
