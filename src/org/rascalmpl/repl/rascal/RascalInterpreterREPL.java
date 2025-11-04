@@ -108,6 +108,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
     }
 
+    public RascalInterpreterREPL() {
+        this(-1);
+    }
+
     public RascalInterpreterREPL(int replInterfacePort) {
         this.replInterfacePort = replInterfacePort;
 
