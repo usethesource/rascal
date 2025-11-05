@@ -389,20 +389,17 @@ Box toBox(s:(Statement) `<Label label> if (<{Expression ","}+ cs>)
         H0(L("println"), L("("), toBox(log), L(")"), L(";")),
         L("}"))
     :
-    V(HV(H0(toBox(label), H(L("if"), L("("))), 
-            H0(toBox(cs), L(")")),
-            blockOpen(sts)),
+    V(HV(H0(toBox(label), H(L("if"), L("(")), toBox(cs), L(")")),
+        blockOpen(sts)),
         indentedBlock(sts),
         blockClose(sts));
-
 
 Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
                       '  <Statement sts>
                       'else
                       ' <Statement ests>`)
-    = V(H(H0(toBox(label), H(L("if"), L("("))), 
-            H0(toBox(cs), L(")")),
-            blockOpen(sts)),
+    = V(HV(H0(toBox(label), H(L("if"), L("(")), toBox(cs), L(")")),
+        blockOpen(sts)),
         indentedBlock(sts),
         blockClose(sts),
         H(L("else"), blockOpen(ests)),
@@ -641,15 +638,31 @@ Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Express
 
 // call without kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
-    = HOV([H0(toBox(caller), L("(")), I(toBox(arguments)), L(")")], hs=0);
+    = HV(
+        H0(toBox(caller), L("(")), 
+        H0(toBox(arguments)), 
+        L(")"), 
+        hs=0);
 
 // call with kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HOV([H(HOV([H0(toBox(caller), L("(")), I(toBox(arguments))], hs=0), L(",")), I(toBox(kwargs)), L(")")], hs=0);
+    = HV(
+        H0(toBox(caller), L("(")), 
+        HOV(
+            I(H0(toBox(arguments), L(","))), 
+            I(toBox(kwargs)), 
+        hs=1),
+        L(")"), hs=0);
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HOV([H0(H0(toBox(caller)), L("(")), I(toBox(arguments)), I(toBox(kwargs)), L(")")], hs=0);
+    = HV(
+        H0(toBox(caller), L("(")), 
+        HOV(
+            I(toBox(arguments)), 
+            I(toBox(kwargs)), 
+        hs=1),
+        L(")"), hs=0);
 
 Box toBox({KeywordArgument[&T] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","));
