@@ -529,6 +529,18 @@ Box toBox((Visit) `<Strategy strategy> visit(<Expression subject>) { <Case+ case
 
 /* Expressions / Patterns */
 
+// <=, <, ==, >, >= are not associative so we override the default flattening here
+Box toBox((Expression) `<Expression a> \<= <Expression b>`)
+    = H1(HOV(toBox(a)), L("\<="), HOV(toBox(b)));
+Box toBox((Expression) `<Expression a> \< <Expression b>`)
+    = H1(HOV(toBox(a)), L("\<"), HOV(toBox(b)));
+Box toBox((Expression) `<Expression a> == <Expression b>`)
+    = H1(HOV(toBox(a)), L("=="), HOV(toBox(b)));
+Box toBox((Expression) `<Expression a> \>= <Expression b>`)
+    = H1(HOV(toBox(a)), L("\>="), HOV(toBox(b)));
+Box toBox((Expression) `<Expression a> \> <Expression b>`)
+    = H1(HOV(toBox(a)), L("\>"), HOV(toBox(b)));
+
 Box toBox((Expression) `[ <Type typ> ] <Expression e>`)
     = H1(H0(L("["), toBox(typ), L("]")), toExpBox(e));
 
