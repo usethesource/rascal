@@ -105,27 +105,6 @@ public class ModuleEnvironment extends Environment {
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
 	}
-	
-	/**
-	 * This constructor creates a shallow copy of the given environment
-	 * 
-	 * @param env
-	 */
-	protected ModuleEnvironment(ModuleEnvironment env) {
-		super(env);
-		this.heap = env.heap;
-		this.importedModules = env.importedModules;
-		this.concreteSyntaxTypes = env.concreteSyntaxTypes;
-		this.productions = env.productions;
-		this.typeStore = env.typeStore;
-		this.initialized = env.initialized;
-		this.syntaxDefined = env.syntaxDefined;
-		this.bootstrap = env.bootstrap;
-		this.resourceImporters = env.resourceImporters;
-		this.cachedGeneralKeywordParameters = null;
-		this.cachedPublicFunctions = null;
-		this.deprecated = env.deprecated;
-	}
 
 	@Override
 	public void reset() {
