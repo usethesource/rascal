@@ -391,7 +391,3 @@ private str ci(str word, toLower()) = toLowerCase(word);
 private str ci(str word, toUpper()) = toUpperCase(word);
 private str ci(str word, toCapitalized()) = capitalize(word);
 private str ci(str word, asIs())    = word;
-
-@synopsis{Split a text by the supported whitespace characters}
-private list[str] words(str text)
-    = [ x | /<x:[^\ \t\n]+>/ := text];
