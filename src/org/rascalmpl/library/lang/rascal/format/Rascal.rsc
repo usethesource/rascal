@@ -293,7 +293,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
         HOV(H(toBox(vis), toBox(sig)),
-            I(HOV(G(L("="), toBox(exp), gs=2, op=H([])), L(";"))))) when !(exp is \visit);
+            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H([]))), L(";"), hs=0)))) when !(exp is \visit);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Label l> <Visit vst>;`)
     = V(toBox(tags),
