@@ -70,23 +70,23 @@ import io.usethesource.vallang.type.TypeStore;
  * 
  */
 public class ModuleEnvironment extends Environment {
-	protected final GlobalEnvironment heap;
+	private final GlobalEnvironment heap;
 	/** Map of imported modules to resolved ModuleEnvironments, will only be empty in case of a module was in a cycle or got reloaded and failed during the reload. use {@link #importedModulesResolved} to lazily resolve the modules. */
-	protected Map<String, Optional<ModuleEnvironment>> importedModules;
-	protected Set<String> extended;
-	protected TypeStore typeStore;
-	protected Set<IValue> productions;
-	protected Map<Type, List<KeywordFormal>> generalKeywordParameters;
-	protected Map<String, NonTerminalType> concreteSyntaxTypes;
+	private Map<String, Optional<ModuleEnvironment>> importedModules;
+	private Set<String> extended;
+	private TypeStore typeStore;
+	private Set<IValue> productions;
+	private Map<Type, List<KeywordFormal>> generalKeywordParameters;
+	private Map<String, NonTerminalType> concreteSyntaxTypes;
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String deprecated;
-	protected Map<String, AbstractFunction> resourceImporters;
-	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
-	protected Map<String, List<AbstractFunction>> cachedPublicFunctions;
+	private Map<String, AbstractFunction> resourceImporters;
+	private Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	private Map<String, List<AbstractFunction>> cachedPublicFunctions;
 	
-	protected static final TypeFactory TF = TypeFactory.getInstance();
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public final static String SHELL_MODULE = "$";
 	
