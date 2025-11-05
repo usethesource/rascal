@@ -249,7 +249,7 @@ Box toBox((Declarator) `<Type typ> <Variable first>, <{Variable ","}+ variables>
     = HV(I(HOV(H(toBox(typ), toBox(first)), L(","), SL([toBox(v) | v <- variables], L(",")))));
 
 Box toBox((CommonKeywordParameters) `(<{KeywordFormal ","}+ fs>)`)
-    = H0(L("("), toBox(fs), L(")"));
+    = H0(L("("), HOV(toBox(fs)), L(")"));
 
 Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>, <{KeywordFormal ","}+ kws>)`)
     = HV(
