@@ -254,7 +254,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // brackets stick
         case <prod(sort(str x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return HOV([I([toBox(e, opts=opts)]) | e <- elements], hs=0);
+            return H(L("("), I(HOV(toBox(elements[2], opts=opts))), L(")"), hs=0);
 
         case <prod(_,[_],_), [Tree single]>:
             return toBox(single);
