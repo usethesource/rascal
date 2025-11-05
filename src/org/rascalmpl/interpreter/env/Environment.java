@@ -908,6 +908,9 @@ public class Environment implements IRascalFrame {
 	}
 
 	public void reset() {
+		System.err.println("Environment.reset was invoked!");
+		new RuntimeException().printStackTrace();
+
 		this.variableEnvironment = null;
 		this.functionEnvironment = null;
 		this.staticTypeParameters = null;
