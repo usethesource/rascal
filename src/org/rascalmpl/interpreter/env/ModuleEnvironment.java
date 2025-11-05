@@ -195,7 +195,18 @@ public class ModuleEnvironment extends Environment {
 		  if (this.generalKeywordParameters == null) {
 			  this.generalKeywordParameters = new HashMap<>();
 		  }
-		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
+
+		  for (Entry<Type, List<KeywordFormal>> e : other.generalKeywordParameters.entrySet()) {
+			this.generalKeywordParameters.compute(e.getKey(), (k, current) -> {
+				if (current == null) {
+					// only a new copy is needed
+					return new ArrayList<>(e.getValue());
+				}
+				else {
+					return mergeKeywords(e.getValue(), current);
+				}
+			});
+		  }
 	  }
 	  
 	  extendTypeParams(other);
@@ -208,7 +219,17 @@ public class ModuleEnvironment extends Environment {
 	  
 	  addExtend(other.getName());
 	}
-	
+
+	private List<KeywordFormal> mergeKeywords(List<KeywordFormal> a, List<KeywordFormal> b) {
+		ArrayList<KeywordFormal> result = new ArrayList<>(a.size() + b.size());
+		result.addAll(a);
+		for (var k : b) {
+			if (!keywordFormalExists(result, k)) {
+				result.add(k);
+			}
+		}
+		return result;
+	}
 	
 	
 	@Override
@@ -678,7 +699,7 @@ public class ModuleEnvironment extends Environment {
 	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list == null) {
-			list = new LinkedList<KeywordFormal>();
+			list = new ArrayList<KeywordFormal>();
 			generalKeywordParameters.put(adt, list);
 		}
 
@@ -710,7 +731,7 @@ public class ModuleEnvironment extends Environment {
 		
 		public GenericKeywordParameters(ModuleEnvironment env, List<KeywordFormal> formals, Map<String,Type> types) {
 			this.env = env;
-			this.formals = formals;
+			this.formals = Collections.unmodifiableList(formals);
 			this.types = types;
 		}
 		
