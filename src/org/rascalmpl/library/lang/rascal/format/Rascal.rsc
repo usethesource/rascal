@@ -33,6 +33,7 @@ import lang::box::util::Box2Text;
 import String;
 import IO;
 import util::IDEServices;
+import util::Highlight;
 import Location;
 import util::Monitor;
 import Set;
@@ -68,7 +69,7 @@ void testOnLibrary() {
             println(m);
             newFile = executeTextEdits(readFile(m), formatRascalModule(parse(#start[Module], m)));
             writeFile(targetFolder + relativize(rootFolder, m).path, newFile);
-            appendToFile(targetFolder + "ALL.rsc", newFile);
+            appendToFile(targetFolder + "ALL.rsc", toANSI(parse(#start[Module], newFile)));
         }
 
         return true;
