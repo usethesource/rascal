@@ -967,12 +967,7 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
         toBox(bound));
  
 // this should not be necessary
-Box _HV([_H([])]) = U([]);
-Box _HV([_V([])]) = U([]);
-Box _HV([_U([])]) = U([]);
+Box HV_([H_([])]) = U_([]);
+Box HV_([V_([])]) = U_([]);
+Box HV_([U_([])]) = U_([]);
 
-// helpful short-hands might end up in box::syntax::Box 
-Box H0(Box boxes...) = _H(boxes, hs=0);
-Box H1(Box boxes...) = _H(boxes, hs=1);
-Box V0(Box boxes...) = _V(boxes, hs=0);
-Box V1(Box boxes...) = _V(boxes, vs=1);

@@ -128,7 +128,7 @@ data Options = options(
 
 @synopsis{Quickly splice in any nested U boxes, and empty H, V, HV, I or HOV boxes}
 list[Box] u(list[Box] boxes) {
-    return [*((_U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, !isDegenerate(b)];
+    return [*((U_(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes, !isDegenerate(b)];
 }
 
 @synopsis{Empty H, V, HOV, HV, I boxes should not lead to accidental extra separators in their context}
@@ -224,7 +224,7 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
-        if (_V(_) !:= c || L("") !:= a) {
+        if (V_(_) !:= c || L("") !:= a) {
             Text t = \continue(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.vs), r));
         }
@@ -234,10 +234,10 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
 
 private Text II([], Box _c, Options _opts, int _m) = [];
 
-private Text II(list[Box] b:[_, *_]              , c:_H(list[Box] _), Options opts, int m) 
+private Text II(list[Box] b:[_, *_]              , c:H_(list[Box] _), Options opts, int m) 
     = HH(b, c, opts, m);
 
-private Text II(list[Box] b:[Box _, *Box _], c:_V(list[Box] _), Options opts, int m) 
+private Text II(list[Box] b:[Box _, *Box _], c:V_(list[Box] _), Options opts, int m) 
     = rhh(hskip(opts.is), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
 
 private Text WDWD([], Box _c , Options _opts, int _m) 
@@ -270,21 +270,21 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
 
     if (size(a) > 1) { // Multiple lines 
         Text T1 = \continue(A, V([]), opts, m-i);
-        return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, _H([]))));
+        return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H_([]))));
     }
 
     if (n <= s) {  // Box A fits in current line
-        return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, _H([]));
+        return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H_([]));
     }
     else {
         n -= h; // n == size(a)
         if  (i + n < m) { // Fits in the next line, not in current line
             Text T1 =\continue(A, V([]), opts, m-i);
-            return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, _H([]))));
+            return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H_([]))));
         }
         else { // Doesn't fit in either lines
             Text T1 = \continue(A, V([]), opts, m-i);
-            return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, _H([]))));
+            return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H_([]))));
         }
     }
 }
@@ -300,32 +300,32 @@ private Text HVHV([], Box _, Options opts, int m)
     = [];
 
 private Text HVHV(list[Box] b:[Box head], Box _, Options opts, int m) 
-    = \continue(head, _V([]), opts, m);
+    = \continue(head, V_([]), opts, m);
 
 private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options opts, int m) {
-    Text T =  \continue(head, _V([]), opts, m);  
-    return HVHV(T, m - hwidth(T), [next, *tail], opts, m, _H([]));
+    Text T =  \continue(head, V_([]), opts, m);  
+    return HVHV(T, m - hwidth(T), [next, *tail], opts, m, H_([]));
 }
 
 private Text continueWith(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
-private Text continueWith(Box b:_H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
-private Text continueWith(Box b:_V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
-private Text continueWith(Box b:_I(list[Box] bl)  , Box c, Options opts, int m) = II(u(bl), c, opts, m);
-private Text continueWith(Box b:_WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
-private Text continueWith(Box b:_HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
-private Text continueWith(Box b:_HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
+private Text continueWith(Box b:H_(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
+private Text continueWith(Box b:V_(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
+private Text continueWith(Box b:I_(list[Box] bl)  , Box c, Options opts, int m) = II(u(bl), c, opts, m);
+private Text continueWith(Box b:WD_(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
+private Text continueWith(Box b:HOV_(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
+private Text continueWith(Box b:HV_(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
 private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
 // This is a degenerate case, an outermost U-Box without a wrapper around it.
-private Text continueWith(Box b:_U(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
+private Text continueWith(Box b:U_(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
 
-private Text continueWith(Box b:_G(list[Box] bl), Box c, Options opts, int m)
+private Text continueWith(Box b:G_(list[Box] bl), Box c, Options opts, int m)
     = GG(u(bl), c, opts, m,  b.gs, b.op, b.backwards);
 
-private Text continueWith(Box b:_A(list[Row] rows), Box c, Options opts, int m) 
+private Text continueWith(Box b:A_(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, b.rs, opts, m);
 
-private Text continueWith(Box b:_AG(list[Box] boxes), Box c, Options opts, int m) 
+private Text continueWith(Box b:AG_(list[Box] boxes), Box c, Options opts, int m) 
     = AAG(u(boxes), b.gs, b.columns, b.rs, c, opts, m);
 
 @synopsis{Option inheritance layer; then continue with the next box.}
@@ -363,20 +363,20 @@ private list[int] Awidth(list[list[Box]] rows)
 
 @synopsis{Adds empty cells to every row until every row has the same amount of columns.}
 list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows), Box rs=NULL())
-    = [ R(u([*row.cells[..-1], _H([row.cells[-1], rs],hs=0), *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows[..-1]]
+    = [ R(u([*row.cells[..-1], H_([row.cells[-1], rs],hs=0), *[SPACE(1) | _ <- [0..columns - size(row.cells)]]])) | row <- rows[..-1]]
     + [ R(u([*rows[-1].cells, *[SPACE(1) | _ <- [0..columns - size(rows[-1].cells)]]]))] ;
 
 @synopsis{Helper function for aligning Text inside an array cell}
 private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
-    ? _H([cell, SPACE(maxWidth - cell.width)], hs=0)
+    ? H_([cell, SPACE(maxWidth - cell.width)], hs=0)
     : cell;
 
 private Box align(r(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
-    ? _H([SPACE(maxWidth - cell.width), cell], hs=0)
+    ? H_([SPACE(maxWidth - cell.width), cell], hs=0)
     : cell;
 
 private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
-    ? _H([SPACE((maxWidth - cell.width) / 2),  cell, SPACE((maxWidth - cell.width) / 2)], hs=0)
+    ? H_([SPACE((maxWidth - cell.width) / 2),  cell, SPACE((maxWidth - cell.width) / 2)], hs=0)
     : maxWidth - cell.width == 1 ?
         align(l(), cell, maxWidth)
         : cell;
@@ -403,8 +403,8 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     
     try {
         // A row is simply an H box where each cell is filled with enough spaces to align for the next column
-        return \continue(_V([ 
-            _H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
+        return \continue(V_([ 
+            H_([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) | row <- rows]), c, opts, m);
     }
     catch IllegalArgument(_, "List size mismatch"): {
         throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
@@ -436,23 +436,23 @@ private bool noWidthOverflow(list[Box] hv, Options opts)
 
 @synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
 private Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
-    case _HV(list[Box] boxes, hs=h, is=i, vs=v) => _H(boxes, hs=h, is=i, vs=v) 
+    case HV_(list[Box] boxes, hs=h, is=i, vs=v) => H_(boxes, hs=h, is=i, vs=v) 
         when noWidthOverflow(boxes, opts)
 };
 
 @synopsis{Changes all HOV boxes that do fit horizontally into hard H boxes,
 and the others into hard V boxes.}
 private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
-    case _HOV(list[Box] boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
-        ? _H(boxes, hs=h, is=i, vs=v)
-        : _V(boxes, hs=h, is=i, vs=v)      
+    case HOV_(list[Box] boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
+        ? H_(boxes, hs=h, is=i, vs=v)
+        : V_(boxes, hs=h, is=i, vs=v)      
 };
 
 @synopsis{Workhorse, that first applies hard HV and HOV limits and then starts the general algorithm}
 private Text box2data(Box b, Options opts) {
     b = applyHVconstraints(b, opts);
     b = applyHOVconstraints(b, opts);
-    return \continue(b, _V([]), options(), opts.maxWidth);
+    return \continue(b, V_([]), options(), opts.maxWidth);
 }
     
 ///////////////// regression tests ////////////////////////////////
