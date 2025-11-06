@@ -68,7 +68,7 @@ void testOnLibrary() {
             println(m);
             newFile = executeTextEdits(readFile(m), formatRascalModule(parse(#start[Module], m)));
             writeFile(targetFolder + relativize(rootFolder, m).path, newFile);
-            edit(targetFolder + relativize(rootFolder, m).path);
+            appendToFile(targetFolder + "ALL.rsc", newFile);
         }
 
         return true;
@@ -327,11 +327,38 @@ Box toBox((Tag) `@<Name n> <TagString c>`)
         toBox(c))
     when "<n>" != "synopsis";
 
-Box toBox((Parameters) `( <Formals formals> <KeywordFormals keywordFormals>)`)
-    = H0(L("("), HV(toBox(formals), toBox(keywordFormals)), L(")"));
+// no keyword parameters
+Box toBox((Parameters) `( <{Pattern ","}* formals> )`)
+    = H0(L("("), HOV(toBox(formals)), L(")"));
 
-Box toBox((Parameters) `( <Formals formals> ... <KeywordFormals keywordFormals>)`)
-    = H0(L("("), H(H0(toBox(formals), L("...")), toBox(keywordFormals)), L(")"));
+// with comma, we try horizontal if both formals and kw formals fit on one line
+Box toBox((Parameters) `( <{Pattern ","}* formals>, <{KeywordFormal ","}+ keywordFormals>)`)
+    = HOV(
+        I(H0(L("("), HOV(toBox(formals)), L(","))),
+        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    );
+
+// no comma, use vertical to separate the formals from the keyword formals
+Box toBox((Parameters) `( <{Pattern ","}* formals> <{KeywordFormal ","}+ keywordFormals>)`)
+    = V(
+        I(H0(L("("), HOV(toBox(formals)))),
+        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    );
+
+// varags, with comma, we try horizontal if both formals and kw formals fit on one line
+Box toBox((Parameters) `( <{Pattern ","}* formals> ..., <{KeywordFormal ","}+ keywordFormals>)`)
+    = HOV(
+        I(H0(L("("), HOV(toBox(formals)), L("..."), L(","))),
+        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    );
+
+// varargs, no comma, use vertical to separate the formals from the keyword formals
+Box toBox((Parameters) `( <{Pattern ","}* formals> ... <{KeywordFormal ","}+ keywordFormals>)`)
+    = V(
+        I(H0(L("("), HOV(toBox(formals)), L("..."))),
+        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    );
+
 
 /* Statements */
 
@@ -375,7 +402,7 @@ Box toBox(Statement* stmts) = toClusterBox(stmts);
 Box toBox(Statement+ stmts) = toClusterBox(stmts);
 
 Box toBox((Statement) `return <Expression e>;`)
-    = HV([HV([L("return"), I(toExpBox(e))],hs=1), L(";")], hs=0);
+    = HV([HV([L("return"), I(H0(toExpBox(e, wrapper=HOV([])), L(";")))],hs=1)], hs=0);
 
 Box toBox((Statement) `return <Statement e>`)
     = HV([L("return"), I(toBox(e))], hs=1)
@@ -452,12 +479,12 @@ Box toBox((Case) `case <Pattern p>:  <Statement block>`)
     = V(H(L("case"), H0(toBox(p), L(":")), blockOpen(block)), indentedBlock(block), blockClose(block));
 
 Box toBox((Case) `case <Pattern p> =\> <Expression repl>`)
-    = HOV(H(L("case"), toBox(p)), I(L("=\>"), toBox(repl)));
+    = HOV(H(L("case"), toBox(p)), I(H(SPACE(2), L("=\>"), toBox(repl))));
 
 Box toBox((Case) `case <Pattern p> =\> <Expression repl> when <{Expression ","}+ conditions>`)
     = HOV(
         H(L("case"), toBox(p)), 
-        I(H(L("=\>"), toBox(repl))), 
+        I(H(SPACE(2), L("=\>"), toBox(repl))), 
         I(H(L("when"), HOV(toBox(conditions)))));
 
 Box toBox((Case) `default: <Statement block>`)
@@ -967,7 +994,7 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
         toBox(bound));
  
 // this should not be necessary
-Box HV_([H_([])]) = U_([]);
-Box HV_([V_([])]) = U_([]);
-Box HV_([U_([])]) = U_([]);
+// Box HV_([H_([])]) = U_([]);
+// Box HV_([V_([])]) = U_([]);
+// Box HV_([U_([])]) = U_([]);
 
