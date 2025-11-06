@@ -389,6 +389,16 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     // first flatten any nested U cell lists into the Rows
     table = [R(u(r.cells)) | Row r <- table];
 
+    // we remove any H-V backtracking because table cells are too small anyway, generally.
+    // so we prefer the less wide V over HOV and HV. This boosts efficiency radically, because
+    // later, ever cell will be formatted individually to an optimal width, and measured, before we even start
+    // to format the table. Then the same cells will be formatted again from scratch. By removing the
+    // backtracking, larger tables (like reified grammars) become doable.
+    table = visit (table) {
+        case Box b:HOV_(list[Box] boxes) => V_(boxes, vs=b.vs)
+        case Box b:HV_(list[Box] boxes)  => V_(boxes, vs=b.vs)
+    }
+
     // then we can know the number of columns
     int maxColumns = Acolumns(table);
 
@@ -398,9 +408,12 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     // and we infer alignments where not provided
     alignments = AcompleteAlignments(alignments, maxColumns);
 
+    
     // finally we compute alignment information
     list[int] maxWidths  = Awidth(rows);
     
+    println("maxWidths computed: <maxWidths>");
+
     try {
         // A row is simply an H box where each cell is filled with enough spaces to align for the next column
         return \continue(V_([ 
@@ -408,6 +421,9 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     }
     catch IllegalArgument(_, "List size mismatch"): {
         throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
+    }
+    finally {
+        println("table formatted");
     }
 }
 
