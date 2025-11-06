@@ -19,7 +19,7 @@ module List
 
 import Exception;
 import Map;
-
+import String;
 
 @synopsis{Concatenate a list of lists.}
 @examples{
@@ -259,8 +259,7 @@ intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 ```
 }
 str intercalate(str sep, list[value] l) = 
-  "<for(int i <- index(l)){><i == 0 ? "" : sep><l[i]><}>";
-
+  "<for (value e <- l) {><e><sep><}>"[..-size(sep)];
 
 @synopsis{Intersperses a list of values with a separator.}
 @examples{
@@ -272,9 +271,8 @@ intersperse(1, []);
 intersperse([], [1]);
 ```
 }
-list[&T] intersperse(&T sep, list[&T] xs) = 
-  (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
-
+list[&T] intersperse(&T sep, list[&T] xs) =
+  [x, sep | &T x <- xs][..-1];
 
 @synopsis{Test whether a list is empty.}
 @description{
