@@ -58,7 +58,7 @@ void debugFormatRascalFile(loc \module) {
 void testOnLibrary() {
     rootFolder = |project://rascal/src/org/rascalmpl/library/|;
     targetFolder = |project://rascal/src/org/rascalmpl/formattedLibrary/|;
-
+    remove(targetFolder, recursive=true);
     // &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
     mods = sort(find(rootFolder, "rsc"));
 
@@ -68,6 +68,7 @@ void testOnLibrary() {
             println(m);
             newFile = executeTextEdits(readFile(m), formatRascalModule(parse(#start[Module], m)));
             writeFile(targetFolder + relativize(rootFolder, m).path, newFile);
+            edit(targetFolder + relativize(rootFolder, m).path);
         }
 
         return true;
@@ -99,8 +100,8 @@ list[TextEdit] formatRascalModule(start[Module] \module) {
 Box toBox(Toplevel* toplevels) = toClusterBox(toplevels);
 
 Box toBox((Module) `<Tags tags> module <QualifiedName name> <Import* imports> <Body body>`)
-    = V(toBox(tags),
-        H(L("module"), toBox(name)),
+    = V(V(toBox(tags),
+        H(L("module"), toBox(name))),
         toClusterBox(imports),
         toBox(body), vs=1);
 
@@ -233,11 +234,14 @@ Box toBox((Declaration) `<Tags tg> <Visibility v> data <UserType typ> <CommonKey
 
 Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Name name> = <Expression initial>;`)
     = HV(
-        H1(toBox(tags), toBox(visibility), toBox(typ), toBox(name)), 
+        V(
+            toBox(tags), 
+            H1(toBox(visibility), toBox(typ), toBox(name))
+        ), 
         I(HOV(G(L("="), U([toBox(initial)])))), L(";"));
 
 Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Variable first>, <{Variable ","}+ variables>;`)
-    = HV(H1(toBox(tags), toBox(visibility), toBox(typ)), I(HOV(H0(toBox(first), L(",")), SL([toBox(v) | v <- variables], L(",")))), L(";"));
+    = HV(V(toBox(tags), H1(toBox(visibility), toBox(typ))), I(HOV(H0(toBox(first), L(",")), SL([toBox(v) | v <- variables], L(",")))), L(";"));
 
 Box toBox((Declarator) `<Type typ> <Name name>`) 
     = H1(toBox(typ), toBox(name));
@@ -404,7 +408,18 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
         blockClose(sts),
         H(L("else"), blockOpen(ests)),
         indentedBlock(ests),
-        blockClose(ests));
+        blockClose(ests)) when !(ests is \ifThenElse);
+
+// this rule unfolds nested if-then-else to a flatter list, like `if-else if-else if-else`
+Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
+                      '  <Statement sts>
+                      'else
+                      ' <Statement ests>`)
+    = V([HV(H0(toBox(label), H(L("if"), L("(")), toBox(cs), L(")")),
+        blockOpen(sts)),
+        indentedBlock(sts),
+        blockClose(sts),
+        H(L("else"), nested[0]), *nested[1..]]) when ests is \ifThenElse || ests is \ifThen, nested := toBox(ests).boxes;
 
 Box toBox({Expression ","}+ cs)
     = SL([toExpBox(c) | Expression c <- cs], L(","));
@@ -652,7 +667,7 @@ Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Express
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
     = HV(
         H0(toBox(caller), L("(")), 
-        H0(toBox(arguments)), 
+        I(HOV(toBox(arguments))), 
         L(")"), 
         hs=0);
 
@@ -660,20 +675,20 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HV(
         H0(toBox(caller), L("(")), 
-        HOV(
-            I(H0(toBox(arguments), L(","))), 
-            I(toBox(kwargs)), 
-        hs=1),
+        I(HOV(
+            H0(toBox(arguments), L(",")), 
+            toBox(kwargs), 
+        hs=1)),
         L(")"), hs=0);
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HV(
         H0(toBox(caller), L("(")), 
-        HOV(
-            I(toBox(arguments)), 
-            I(toBox(kwargs)), 
-        hs=1),
+        I(HOV(
+            toBox(arguments), 
+            toBox(kwargs), 
+        hs=1)),
         L(")"), hs=0);
 
 Box toBox({KeywordArgument[&T] ","}+ args) 
@@ -763,7 +778,7 @@ Box toBox((Expression) `{<{Expression ","}+ results> | <{Expression ","}+ gens>}
 Box toBox((Expression) `(<Expression from> : <Expression to> | <{Expression ","}+ gens>)`)
     = HOV(H0(L("("), HOV(H0(toBox(from), L(":")), I(toBox(to)))),
         H1(L("|"), toBox(gens)),
-        L(")"));
+        L(")"), hs=0);
 
 Box toBox((Expression) `<Expression exp>[@ <Name name> = <Expression val>]`)
     = H0(toBox(exp), L("["), L("@"), H(toBox(name), L("="), toBox(val)), L("]"));
