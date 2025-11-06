@@ -42,34 +42,34 @@ set on every `I` Box according to the current preferences of the user.
 * `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
 data Box(int hs=1, int vs=0, int is=4)
-    = _H(list[Box] boxes)
-    | _V(list[Box] boxes)
-    | _HOV(list[Box] boxes)
-    | _HV(list[Box] boxes)
-    | _I(list[Box] boxes) 
-    | _WD(list[Box] boxes)
-    | _A(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[])
-    | _AG(list[Box] boxes, int gs=2, list[Alignment] columns=[], Box rs=NULL())
+    = H_(list[Box] boxes)
+    | V_(list[Box] boxes)
+    | HOV_(list[Box] boxes)
+    | HV_(list[Box] boxes)
+    | I_(list[Box] boxes) 
+    | WD_(list[Box] boxes)
+    | A_(list[Row] rows, Box rs=NULL(), list[Alignment] columns=[])
+    | AG_(list[Box] boxes, int gs=2, list[Alignment] columns=[], Box rs=NULL())
     | SPACE(int space)
     | L(str word)
-    | _U(list[Box] boxes)
-    | _G(list[Box] boxes, bool backwards=false, int gs=2, Box op = H([]))
+    | U_(list[Box] boxes)
+    | G_(list[Box] boxes, bool backwards=false, int gs=2, Box op = H([]))
     | NULL()
     ;
 
-Box H(Box boxes..., int hs=1) = _H(boxes, hs=hs);
-Box V(Box boxes..., int vs=0) = _V(boxes, vs=vs);
-Box HOV(Box boxes..., int hs=1, int vs=0) = _HOV(boxes, hs=hs, vs=vs);
-Box HV(Box boxes..., int hs=1, int vs=0) = _HV(boxes, hs=hs, vs=vs);
-Box I(Box boxes...) = _I(boxes);
-Box WD(Box boxes...) = _WD(boxes);
+Box H(Box boxes..., int hs=1) = H_(boxes, hs=hs);
+Box V(Box boxes..., int vs=0) = V_(boxes, vs=vs);
+Box HOV(Box boxes..., int hs=1, int vs=0) = HOV_(boxes, hs=hs, vs=vs);
+Box HV(Box boxes..., int hs=1, int vs=0) = HV_(boxes, hs=hs, vs=vs);
+Box I(Box boxes...) = I_(boxes);
+Box WD(Box boxes...) = WD_(boxes);
 Box A(Row rows..., Box rs=NULL(), list[Alignment] columns=[])
-    = _A(rows, rs=rs, columns=columns);
+    = A_(rows, rs=rs, columns=columns);
 Box AG(Box boxes..., int gs=2, list[Alignment] columns=[], Box rs=NULL())
-    = _AG(boxes, gs=gs, columns=columns, rs=rs);
-Box U(Box boxes...) = _U(boxes);
+    = AG_(boxes, gs=gs, columns=columns, rs=rs);
+Box U(Box boxes...) = U_(boxes);
 Box G(Box boxes..., bool backwards=false, int gs=2, Box op = H([]))
-    = _G(boxes, backwards=backwards, gs=gs, op=op);
+    = G_(boxes, backwards=backwards, gs=gs, op=op);
 
 @synopsis{A row is a list of boxes that go into an `A` array/table.}
 @description{
@@ -144,8 +144,20 @@ Box debUG(Box b) {
         = [R(boxes[..gs]), *groupRows(boxes[gs..], gs)];
 
     return innermost visit(b) {
-        case [*Box pre, _U([*Box mid]), *Box post]           => [*pre, *mid, *post]
-        case _G(list[Box] boxes, gs=gs, op=op, backwards=bw) => _U(bw ? groupByBackward(boxes, gs, op) : groupBy(boxes, gs, op))
-        case _AG(list[Box] boxes, gs=gs, columns=cs, rs=rs)  => A(groupRows(boxes, gs), columns=cs, rs=rs)
+        case [*Box pre, U_([*Box mid]), *Box post]           => [*pre, *mid, *post]
+        case G_(list[Box] boxes, gs=gs, op=op, backwards=bw) => U_(bw ? groupByBackward(boxes, gs, op) : groupBy(boxes, gs, op))
+        case AG_(list[Box] boxes, gs=gs, columns=cs, rs=rs)  => A(groupRows(boxes, gs), columns=cs, rs=rs)
     }
 }
+
+@synopsis{Short-hand for H(hs=0)}
+Box H0(Box boxes...) = H_(boxes, hs=0);
+
+@synopsis{Short-hand for H(hs=1)}
+Box H1(Box boxes...) = H_(boxes, hs=1);
+
+@synopsis{Short-hand for V(vs=0)}
+Box V0(Box boxes...) = V_(boxes, vs=0);
+
+@synopsis{Short-hand for V(vs=1)}
+Box V1(Box boxes...) = V_(boxes, vs=1);
