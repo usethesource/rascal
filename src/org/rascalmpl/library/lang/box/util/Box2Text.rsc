@@ -408,11 +408,8 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     // and we infer alignments where not provided
     alignments = AcompleteAlignments(alignments, maxColumns);
 
-    
     // finally we compute alignment information
     list[int] maxWidths  = Awidth(rows);
-    
-    println("maxWidths computed: <maxWidths>");
 
     try {
         // A row is simply an H box where each cell is filled with enough spaces to align for the next column
@@ -421,9 +418,6 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     }
     catch IllegalArgument(_, "List size mismatch"): {
         throw IllegalArgument("Array alignments size is <size(alignments)> while there are <size(rows[0])> columns.");
-    }
-    finally {
-        println("table formatted");
     }
 }
 
