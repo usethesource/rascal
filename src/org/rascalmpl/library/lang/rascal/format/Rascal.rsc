@@ -596,6 +596,12 @@ Box toBox((Expression) `[ <Type typ> ] <Expression e>`)
 Box toBox((Pattern) `[ <Type typ> ] <Pattern e>`)
     = H1(H0(L("["), toBox(typ), L("]")), toExpBox(e));
 
+Box toBox((Pattern) `<Name n>:<Pattern p>`)
+    = H(H0(toBox(n), L(":")), HV(toBox(p)));
+
+Box toBox((Pattern) `<Type t> <Name n>:<Pattern p>`)
+    = H(H0(H(toBox(t), toBox(n)), L(":")), HV(toBox(p)));
+
 Box toBox((Expression) `#<Type t>`) = H0(L("#"), toBox(t));
 
 Box toBox((Expression) `<Expression e>[<OptionalExpression optFirst>..<OptionalExpression optLast>]`)
@@ -736,15 +742,15 @@ Box toBox({KeywordArgument[&T] ","}+ args)
 
 // call without kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>)`)
-    = HOV([H0(toBox(caller), L("(")), toBox(arguments), L(")")], hs=0);
+    = HOV([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), L(")")], hs=0);
 
 // call with kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>, <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = HOV([H(HOV([H0(toBox(caller), L("(")), I(toBox(arguments))], hs=0), L(",")), toBox(kwargs), L(")")], hs=0);
+    = HOV([H(HOV([H0(toBox(caller), L("(")), I(H0(HV(toBox(arguments)), L(",")))], hs=0)), HOV(toBox(kwargs)), L(")")], hs=0);
 
 // call with kwargs no-comma
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = HOV([H0(toBox(caller), L("(")), I(toBox(arguments)), I(toBox(kwargs)), L(")")], hs=0);
+    = V([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), I(HOV(toBox(kwargs))), L(")")], hs=0);
 
 /* continue with expressions */
 
