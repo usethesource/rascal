@@ -912,7 +912,7 @@ public class Prelude {
 			}
 		}
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
 		finally {
 			currentOutStream.flush();
@@ -955,7 +955,7 @@ public class Prelude {
 			w.write(arg, sw);
 			writeFile(sloc, values.list(values.string(sw.toString())), charset);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+			throw RuntimeExceptionFactory.io(e);		
 		}
 	}
 
@@ -967,7 +967,7 @@ public class Prelude {
 			w.write(arg, sw);
 			return values.string(sw.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+			throw RuntimeExceptionFactory.io(e);		
 		}
 	}
 	
@@ -1004,7 +1004,7 @@ public class Prelude {
 			currentOutStream.println();
 		}
 		catch (IOException e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		    throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			currentOutStream.flush();
@@ -1051,7 +1051,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1064,7 +1064,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -1077,7 +1077,7 @@ public class Prelude {
             REGISTRY.setLastModified(sloc, timestamp);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 	
@@ -1094,7 +1094,7 @@ public class Prelude {
 			return values.bool(REGISTRY.isReadable(sloc));
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1104,7 +1104,7 @@ public class Prelude {
 			return values.bool(REGISTRY.isWritable(sloc));
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1114,7 +1114,7 @@ public class Prelude {
 			REGISTRY.remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1123,7 +1123,7 @@ public class Prelude {
 			REGISTRY.rename(from, to, overwrite.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -1132,7 +1132,7 @@ public class Prelude {
 	    REGISTRY.mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	    throw RuntimeExceptionFactory.io(e);
 	  }
 	}
 	
@@ -1152,7 +1152,7 @@ public class Prelude {
 		} catch (UnsupportedSchemeException e) {
 		    throw RuntimeExceptionFactory.schemeNotSupported(sloc);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		} 
 	}
 	
@@ -1180,7 +1180,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1243,9 +1243,9 @@ public class Prelude {
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		} catch (NoSuchAlgorithmException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"));
+			throw RuntimeExceptionFactory.io("Cannot load MD5 digest algorithm");
 		}
 	}
 
@@ -1286,7 +1286,7 @@ public class Prelude {
 			return translateHash(md);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("no such algorithm: " + e.getMessage()));
@@ -1298,7 +1298,7 @@ public class Prelude {
 			REGISTRY.copy(source, target, recursive.getValue(), overwrite.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1307,7 +1307,7 @@ public class Prelude {
 			REGISTRY.rename(source, target, overwrite.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1402,10 +1402,10 @@ public class Prelude {
 		} 
 		catch (UnsupportedOperationException e) {
 			assert false; // we tested for offset length above
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		} 
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
 		finally {
 			try {
@@ -1416,7 +1416,7 @@ public class Prelude {
 					postfix.close();
 				}
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+				throw RuntimeExceptionFactory.io(e);
 			}
 		}
 		
@@ -1435,7 +1435,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		return;
 	}
@@ -1456,7 +1456,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		} 
 	}
 	
@@ -1489,7 +1489,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 
 		return w.done();
@@ -1521,7 +1521,7 @@ public class Prelude {
             return values.string(result.toString());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -1533,7 +1533,7 @@ public class Prelude {
 			output.write(decoder.decode(base64content.getValue()));
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 	
@@ -1546,7 +1546,7 @@ public class Prelude {
 			}
 			return values.string(encoded);
 		} catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
 		}
     }
 
@@ -1557,7 +1557,7 @@ public class Prelude {
 			output.write(decoder.decode(base32Content.getValue()));
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -2458,7 +2458,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.javaCompilerException(e);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -2466,7 +2466,10 @@ public class Prelude {
 		try {
 			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
-		catch (IOException | ClassNotFoundException e) {
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		catch (ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
@@ -2476,7 +2479,10 @@ public class Prelude {
 		try {
 			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
-		catch (IOException | ClassNotFoundException e) {
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		catch (ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
@@ -3469,7 +3475,7 @@ public class Prelude {
 	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
 	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
 	  } catch (IOException e) {
-	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	      throw RuntimeExceptionFactory.io(e);
 	  }
 	}
 
@@ -3488,7 +3494,7 @@ public class Prelude {
 	        fromBase64(in.getValue(), result);
 	        return values.string(result.toString(charset.getValue()));
 	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	        throw RuntimeExceptionFactory.io(e);
 	    }
 	}
 
@@ -3705,7 +3711,7 @@ public class Prelude {
 				return values.integer(total);
 			}
 			catch (IOException e) {
-				throw RuntimeExceptionFactory.io(e.getMessage());
+				throw RuntimeExceptionFactory.io(e);
 			}
 		}
 	}
@@ -3771,11 +3777,11 @@ public class Prelude {
 		}
 		catch (IOException e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
@@ -3821,13 +3827,13 @@ public class Prelude {
 			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
 		}
 		catch (FactTypeUseException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e.getMessage());
         } 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		    throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 	
@@ -3842,13 +3848,13 @@ public class Prelude {
 			throw RuntimeExceptionFactory.parseError(values.sourceLocation(URIUtil.rootLocation("unknown"), e.getOffset(), 1));
 		} 
 		catch (FactTypeUseException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e.getMessage());
         }
 	}
 
@@ -3858,7 +3864,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
     }
 
@@ -3881,7 +3887,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
 	}
 
@@ -3906,7 +3912,7 @@ public class Prelude {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -4079,7 +4085,7 @@ public class Prelude {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -4097,7 +4103,7 @@ public class Prelude {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
