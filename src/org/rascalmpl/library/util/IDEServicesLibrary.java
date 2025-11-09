@@ -83,7 +83,7 @@ public class IDEServicesLibrary {
                 viewColumn);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

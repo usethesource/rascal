@@ -57,7 +57,7 @@ public class Benchmark {
 	        HeapDumper.dumpHeap(loc.getPath(), live.getValue());
 	    }
 	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	        throw RuntimeExceptionFactory.io(e);
 	    }
 	}
 	
