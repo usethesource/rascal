@@ -95,8 +95,11 @@ public class Eval {
 				buildSetTimeOutFunction(runtime)
 			);
 		}
-		catch (IOException | URISyntaxException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		catch (URISyntaxException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
@@ -188,7 +191,7 @@ public class Eval {
 				throw RuntimeExceptionFactory.timeout(null, null);
 			}
 			catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+				throw RuntimeExceptionFactory.io(e);
 			}
 			finally {
 				// very necessary to clean up the timer thread

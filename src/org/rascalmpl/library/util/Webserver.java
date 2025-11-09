@@ -192,8 +192,10 @@ public class Webserver {
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
-                    } catch (IOException | URISyntaxException e) {
-                        throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+                    } catch (IOException e) {
+                        throw RuntimeExceptionFactory.io(e);
+                    } catch ( URISyntaxException e) {
+                        throw RuntimeExceptionFactory.io(e.getMessage());
                     }
                 });
             }
@@ -377,7 +379,7 @@ public class Webserver {
                 servers.remove(url);
             }
         } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
