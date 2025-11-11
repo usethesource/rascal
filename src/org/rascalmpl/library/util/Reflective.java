@@ -83,7 +83,7 @@ public class Reflective {
 			return PathConfig.resolveProjectOnClasspath(projectName.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class Reflective {
 	        }
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 	
@@ -245,7 +245,7 @@ public class Reflective {
 		try {
 			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
