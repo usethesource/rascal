@@ -35,11 +35,8 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
-import org.rascalmpl.ideservices.IRemoteIDEServices.LanguageParameter;
-import org.rascalmpl.ideservices.IRemoteIDEServices.SourceLocationParameter;
 import org.rascalmpl.uri.URIUtil;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
@@ -89,11 +86,6 @@ public class RemoteIDEServices extends BasicIDEServices {
         catch (Throwable e) {
             return input;
         }
-    }
-
-    @Override
-    public void registerLanguage(IConstructor language) {
-        server.registerLanguage(LanguageParameter.fromRascalValue(language));
     }
 
     @Override
