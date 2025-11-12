@@ -76,8 +76,8 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
               when t@\loc?, loc Top := t@\loc.top, Top in paths
 
           // remove infos and warnings
-          case set[Message] msgs => {msg | msg <- msgs, msg is error}
-          case list[Message] msgs => [msg | msg <- msgs, msg is error]
+          case {Message _, *_} => {}
+          case [Message _, *_] => []
     };
 
 loc inheritPosition(loc new, loc original) {
