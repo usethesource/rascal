@@ -1,9 +1,7 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,10 +12,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -192,8 +187,10 @@ public class Webserver {
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
-                    } catch (IOException | URISyntaxException e) {
-                        throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+                    } catch (IOException e) {
+                        throw RuntimeExceptionFactory.io(e);
+                    } catch ( URISyntaxException e) {
+                        throw RuntimeExceptionFactory.io(e.getMessage());
                     }
                 });
             }
@@ -377,7 +374,7 @@ public class Webserver {
                 servers.remove(url);
             }
         } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
