@@ -49,10 +49,6 @@ public class IDEServicesLibrary {
         return services.resolveProjectLocation(input);
     }
 
-    public void registerLanguage(IConstructor language) {
-        services.registerLanguage(language);
-    }
-
     public void applyDocumentsEdits(IList edits) {
         applyFileSystemEdits(edits);
     }
