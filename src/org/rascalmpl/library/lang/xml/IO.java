@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.jsoup.Jsoup;
-import org.jsoup.helper.DataUtil;
 import org.jsoup.internal.SimpleStreamReader;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;

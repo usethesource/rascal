@@ -100,7 +100,8 @@ public class Environment implements IRascalFrame {
 	
 	protected Map<String, Result<IValue>> variableEnvironment;
 	protected Map<String, LinkedHashSet<AbstractFunction>> functionEnvironment;
-	protected Map<String, NameFlags> nameFlags;
+	protected Map<String, NameFlags> variableFlags;
+	protected Map<String, NameFlags> functionFlags;
 	protected Map<Type, Type> staticTypeParameters;
 	protected Map<Type, Type> dynamicTypeParameters;
 	protected final Environment parent;
@@ -204,7 +205,8 @@ public class Environment implements IRascalFrame {
 		this.functionEnvironment = old.functionEnvironment;
 		this.staticTypeParameters = old.staticTypeParameters;
 		this.dynamicTypeParameters = old.dynamicTypeParameters;
-		this.nameFlags = old.nameFlags;
+		this.variableFlags = old.variableFlags;
+		this.functionFlags = old.functionFlags;
 	}
 
 	/**
@@ -409,104 +411,204 @@ public class Environment implements IRascalFrame {
 		}
 	}
 
-	protected boolean isNameFlagged(QualifiedName name, Predicate<NameFlags> tester) {
+	protected boolean isVariableFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
 				current = current.parent;
 			}
 			
-			return current.isNameFlagged(name, tester);
+			return current.isVariableFlagged(name, tester);
 		}
 		
 		String simpleName = Names.name(Names.lastName(name));
-		return isNameFlagged(simpleName, tester);
+		return isVariableFlagged(simpleName, tester);
+		
+	}
+
+	protected boolean isFunctionFlagged(QualifiedName name, Predicate<NameFlags> tester) {
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRootScope()) {
+				current = current.parent;
+			}
+			
+			return current.isVariableFlagged(name, tester);
+		}
+		
+		String simpleName = Names.name(Names.lastName(name));
+		return isFunctionFlagged(simpleName, tester);
 		
 	}
 	
-	protected boolean isNameFlagged(String name, Predicate<NameFlags> tester) {
-		Environment flaggingEnvironment = getFlagsEnvironment(name);
+	protected boolean isFunctionFlagged(String name, Predicate<NameFlags> tester) {
+		Environment flaggingEnvironment = getFunctionFlagsEnvironment(name);
 		if (flaggingEnvironment == null) {
 			return false;
 		}
 
-		return flaggingEnvironment.nameFlags.containsKey(name) 
-			&& tester.test(flaggingEnvironment.nameFlags.get(name));
+		return flaggingEnvironment.functionFlags.containsKey(name) 
+			&& tester.test(flaggingEnvironment.functionFlags.get(name));
 	}
 
-	public boolean isNameFinal(QualifiedName name) {
-		return isNameFlagged(name, NameFlags::isFinal);
+	public boolean isFunctionFinal(QualifiedName name) {
+		return isFunctionFlagged(name, NameFlags::isFinal);
 	}
 
-	public boolean isNamePrivate(String name) {
-		return isNameFlagged(name, NameFlags::isPrivate);
+	public boolean isFunctionPrivate(String name) {
+		return isFunctionFlagged(name, NameFlags::isPrivate);
 	}
 
-	public boolean isNamePrivate(QualifiedName name) {
-		return isNameFlagged(name, NameFlags::isPrivate);
+	public boolean isFunctionPrivate(QualifiedName name) {
+		return isFunctionFlagged(name, NameFlags::isPrivate);
 	}
 
-	public boolean isNameOverloadable(String name) {
-		return isNameFlagged(name, NameFlags::isOverloadable);
+	public boolean isFunctionOverloadable(String name) {
+		return isFunctionFlagged(name, NameFlags::isOverloadable);
 	}
 
-	public boolean isNameOverloadable(QualifiedName name) {
-		return isNameFlagged(name, NameFlags::isOverloadable);
+	public boolean isFunctionOverloadable(QualifiedName name) {
+		return isFunctionFlagged(name, NameFlags::isOverloadable);
 	}
 
-	protected void flagName(QualifiedName name, NameFlags flags) {
+	protected boolean isVariableFlagged(String name, Predicate<NameFlags> tester) {
+		Environment flaggingEnvironment = getVariableFlagsEnvironment(name);
+		if (flaggingEnvironment == null) {
+			return false;
+		}
+
+		return flaggingEnvironment.variableFlags.containsKey(name) 
+			&& tester.test(flaggingEnvironment.variableFlags.get(name));
+	}
+
+	public boolean isVariableFinal(QualifiedName name) {
+		return isVariableFlagged(name, NameFlags::isFinal);
+	}
+
+	public boolean isVariablePrivate(String name) {
+		return isVariableFlagged(name, NameFlags::isPrivate);
+	}
+
+	public boolean isVariablePrivate(QualifiedName name) {
+		return isVariableFlagged(name, NameFlags::isPrivate);
+	}
+
+	public boolean isVariableOverloadable(String name) {
+		return isVariableFlagged(name, NameFlags::isOverloadable);
+	}
+
+	public boolean isVariableOverloadable(QualifiedName name) {
+		return isVariableFlagged(name, NameFlags::isOverloadable);
+	}
+
+	protected void flagVariableName(QualifiedName name, NameFlags flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
 				current = current.parent;
 			}
 			
-			current.flagName(name, flags);
+			current.flagVariableName(name, flags);
 		}
 		
 		String simpleName = Names.name(Names.lastName(name));
-		flagName(simpleName, flags);
+		flagVariableName(simpleName, flags);
+	}
+
+	protected void flagFunctionName(QualifiedName name, NameFlags flags) {
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRootScope()) {
+				current = current.parent;
+			}
+			
+			current.flagFunctionName(name, flags);
+		}
+		
+		String simpleName = Names.name(Names.lastName(name));
+		flagFunctionName(simpleName, flags);
 	}
 
 	/** 
 	 * The assumption is that the environment level is already correct, i.e.,
      * we are not requested to mark a name that is higher up in the hierarchy.
      */
-	protected void flagName(String name, NameFlags flags) {
-		if (nameFlags == null) {
-			nameFlags = new HashMap<String,NameFlags>();
+	protected void flagVariableName(String name, NameFlags flags) {
+		if (variableFlags == null) {
+			variableFlags = new HashMap<String,NameFlags>();
 		}
 		
-		if (nameFlags.containsKey(name)) {
-			nameFlags.put(name, nameFlags.get(name).merge(flags));
+		if (variableFlags.containsKey(name)) {
+			variableFlags.put(name, variableFlags.get(name).merge(flags));
 		}
 		else {
-			nameFlags.put(name, flags);
+			variableFlags.put(name, flags);
+		}
+	}
+
+	/** 
+	 * The assumption is that the environment level is already correct, i.e.,
+     * we are not requested to mark a name that is higher up in the hierarchy.
+     */
+	protected void flagFunctionName(String name, NameFlags flags) {
+		if (functionFlags == null) {
+			functionFlags = new HashMap<String,NameFlags>();
+		}
+		
+		if (functionFlags.containsKey(name)) {
+			functionFlags.put(name, functionFlags.get(name).merge(flags));
+		}
+		else {
+			functionFlags.put(name, flags);
 		}
 	}
 	
-	public void markNameFinal(QualifiedName name) {
-		flagName(name, new NameFlags().makeFinal());
-	}
-	
-	public void markNameFinal(String name) {
-		flagName(name, new NameFlags().makeFinal());
+	public void markVariableNameFinal(QualifiedName name) {
+		flagVariableName(name, new NameFlags().makeFinal());
 	}
 
-	public void markNamePrivate(QualifiedName name) {
-		flagName(name, new NameFlags().makePrivate());
-	}
-	
-	public void markNamePrivate(String name) {
-		flagName(name, new NameFlags().makePrivate());
+	public void markFunctionNameFinal(String name) {
+		flagFunctionName(name, new NameFlags().makeFinal());
 	}
 
-	public void markNameOverloadable(QualifiedName name) {
-		flagName(name, new NameFlags().makeOverloadable());
+	public void markFunctionNameFinal(QualifiedName name) {
+		flagFunctionName(name, new NameFlags().makeFinal());
+	}
+
+	public void markVariableNamePrivate(QualifiedName name) {
+		flagVariableName(name, new NameFlags().makePrivate());
+	}
+	
+	public void markVariableNamePrivate(String name) {
+		flagVariableName(name, new NameFlags().makePrivate());
+	}
+
+	public void markFunctionNamePrivate(QualifiedName name) {
+		flagVariableName(name, new NameFlags().makePrivate());
+	}
+	
+	public void markFunctionNamePrivate(String name) {
+		flagFunctionName(name, new NameFlags().makePrivate());
+	}
+
+	public void markVariableNameOverloadable(QualifiedName name) {
+		flagVariableName(name, new NameFlags().makeOverloadable());
+	}
+
+	public void markVariableNameOverloadable(String name) {
+		flagVariableName(name, new NameFlags().makeOverloadable());
+	}
+
+	public void markFunctionNameOverloadable(String name) {
+		flagFunctionName(name, new NameFlags().makeOverloadable());
+	}
+
+	public void markFunctionNameOverloadable(QualifiedName name) {
+		flagFunctionName(name, new NameFlags().makeOverloadable());
 	}
 
 	public void markNameOverloadable(String name) {
-		flagName(name, new NameFlags().makeOverloadable());
+		flagFunctionName(name, new NameFlags().makeOverloadable());
 	}
 	
 	public void storeStaticParameterType(Type par, Type type) {
@@ -639,7 +741,7 @@ public class Environment implements IRascalFrame {
 			list = functionEnvironment.get(name);
 		}
 		
-		if (list == null || !this.isNameOverloadable(name)) {
+		if (list == null || !this.isFunctionOverloadable(name)) {
 			list = new LinkedHashSet<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
 			
 			if (functionEnvironment == null) {
@@ -924,26 +1026,44 @@ public class Environment implements IRascalFrame {
 		this.variableEnvironment = null;
 		this.functionEnvironment = null;
 		this.staticTypeParameters = null;
-		this.nameFlags = null;
+		this.functionFlags = null;
+		this.variableFlags = null;
 		this.myRoot = null;
 	}
 	
 	protected void extendNameFlags(Environment other) {
 		// note that the flags need to be extended before other things, since
 		// they govern how overloading is handled in functions.
-		if (other.nameFlags != null) {
-			if (this.nameFlags == null) {
-				this.nameFlags = new HashMap<String, NameFlags>();
+		if (other.variableFlags != null) {
+			if (this.variableFlags == null) {
+				this.variableFlags = new HashMap<String, NameFlags>();
 			}
 
-			for (String name : other.nameFlags.keySet()) {
-				NameFlags flags = this.nameFlags.get(name);
+			for (String name : other.variableFlags.keySet()) {
+				NameFlags flags = this.variableFlags.get(name);
 
 				if (flags != null) {
-					this.nameFlags.put(name, flags.merge(other.nameFlags.get(name)));
+					this.variableFlags.put(name, flags.merge(other.variableFlags.get(name)));
 				}
 				else {
-					this.nameFlags.put(name, other.nameFlags.get(name));
+					this.variableFlags.put(name, other.variableFlags.get(name));
+				}
+			}
+		}
+
+		if (other.functionFlags != null) {
+			if (this.functionFlags == null) {
+				this.functionFlags = new HashMap<String, NameFlags>();
+			}
+
+			for (String name : other.functionFlags.keySet()) {
+				NameFlags flags = this.functionFlags.get(name);
+
+				if (flags != null) {
+					this.functionFlags.put(name, flags.merge(other.functionFlags.get(name)));
+				}
+				else {
+					this.functionFlags.put(name, other.functionFlags.get(name));
 				}
 			}
 		}
@@ -997,22 +1117,11 @@ public class Environment implements IRascalFrame {
 	// TODO: We should have an extensible environment model that doesn't
 	// require this type of checking, but instead stores all the info on
 	// a name in one location...
-	protected Environment getFlagsEnvironment(String name) {
+	protected Environment getVariableFlagsEnvironment(String name) {
 		if (this.variableEnvironment != null) {
 			if (this.variableEnvironment.get(name) != null) {
-				if (this.nameFlags != null) {
-					if (nameFlags.get(name) != null) {
-						return this; // Found it at this level, return the environment
-					}
-				}
-				return null; // Found the name, but no flags, so return null
-			}
-		}
-		
-		if (this.functionEnvironment != null) {
-			if (this.functionEnvironment.get(name) != null) {
-				if (this.nameFlags != null) {
-					if (nameFlags.get(name) != null) {
+				if (this.variableFlags != null) {
+					if (variableFlags.get(name) != null) {
 						return this; // Found it at this level, return the environment
 					}
 				}
@@ -1021,7 +1130,26 @@ public class Environment implements IRascalFrame {
 		}
 		
 		if (!isRootScope()) {
-			return parent.getFlagsEnvironment(name);
+			return parent.getVariableFlagsEnvironment(name);
+		}
+
+		return null;
+	}
+
+	protected Environment getFunctionFlagsEnvironment(String name) {
+		if (this.functionEnvironment != null) {
+			if (this.functionEnvironment.get(name) != null) {
+				if (this.functionFlags != null) {
+					if (functionFlags.get(name) != null) {
+						return this; // Found it at this level, return the environment
+					}
+				}
+				return null; // Found the name, but no flags, so return null
+			}
+		}
+		
+		if (!isRootScope()) {
+			return parent.getFunctionFlagsEnvironment(name);
 		}
 
 		return null;
