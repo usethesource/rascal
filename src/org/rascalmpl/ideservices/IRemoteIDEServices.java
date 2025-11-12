@@ -318,11 +318,11 @@ public interface IRemoteIDEServices {
         private String messages;
 
         public RegisterDiagnosticsParameters(IList messages) {
-            this.messages = value2string(messages);
+            this.messages = GsonUtils.value2string(messages);
         }
 
         public IList getMessages() {
-            return (IList) string2value(messages);
+            return (IList) GsonUtils.string2value(messages);
         }
     }
 
@@ -330,11 +330,11 @@ public interface IRemoteIDEServices {
         private String locations;
 
         public UnRegisterDiagnosticsParameters(IList locs) {
-            this.locations = value2string(locs);
+            this.locations = GsonUtils.value2string(locs);
         }
 
         public IList getLocations() {
-            return (IList) string2value(locations);
+            return (IList) GsonUtils.string2value(locations);
         }
     }
 
@@ -343,11 +343,11 @@ public interface IRemoteIDEServices {
         private String edits;
 
         public DocumentEditsParameter(IList edits) {
-            this.edits = value2string(edits);
+            this.edits = GsonUtils.value2string(edits);
         }
 
         public IList getEdits() {
-            return (IList) string2value(edits);
+            return (IList) GsonUtils.string2value(edits);
         }
     }
 
@@ -359,7 +359,7 @@ public interface IRemoteIDEServices {
         public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
             this.scheme = scheme.getValue();
             this.authority = authority.getValue();
-            this.mapping = value2string(mapping);
+            this.mapping = GsonUtils.value2string(mapping);
         }
 
         public IString getScheme() {
@@ -371,7 +371,7 @@ public interface IRemoteIDEServices {
         }
 
         public IMap getMapping() {
-            return (IMap) string2value(mapping);
+            return (IMap) GsonUtils.string2value(mapping);
         }
 
         public String getRawScheme() {
@@ -381,33 +381,4 @@ public interface IRemoteIDEServices {
             return authority;
         }
     }
-
-
-    public static String value2string(IValue value) {
-        final Encoder encoder = Base64.getEncoder();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream(512);
-
-        try (IValueOutputStream out = new IValueOutputStream(stream, IRascalValueFactory.getInstance());) {
-            out.write(value);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return encoder.encodeToString(stream.toByteArray());
-    }
-
-    public static IValue string2value(String string) {
-        final Decoder decoder = Base64.getDecoder();
-
-        try (
-            ByteArrayInputStream stream = new ByteArrayInputStream(decoder.decode(string));
-            IValueInputStream in = new IValueInputStream(stream, IRascalValueFactory.getInstance(), () -> new TypeStore());
-        ) {
-            return in.read();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }
