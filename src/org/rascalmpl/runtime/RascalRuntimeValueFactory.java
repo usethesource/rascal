@@ -512,7 +512,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 return parseObject(startSort, location, input, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, filters);
             }
             catch (IOException e) {
-                throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+                throw RuntimeExceptionFactory.io(e);
             }
         }
 
