@@ -39,19 +39,19 @@ import io.usethesource.vallang.IString;
 public interface IRemoteIDEServices {
 
     @JsonRequest
-    CompletableFuture<Void> edit(SourceLocationParameter param);
+    CompletableFuture<Void> edit(ISourceLocation param);
 
     @JsonRequest
     CompletableFuture<Void> browse(BrowseParameter param);
 
     @JsonRequest
-    CompletableFuture<SourceLocationParameter> resolveProjectLocation(SourceLocationParameter param);
+    CompletableFuture<ISourceLocation> resolveProjectLocation(ISourceLocation param);
 
     @JsonRequest
     CompletableFuture<Void> applyDocumentsEdits(DocumentEditsParameter edits);
 
     @JsonRequest
-    CompletableFuture<Void> warning(String message, SourceLocationParameter src);
+    CompletableFuture<Void> warning(String message, ISourceLocation src);
 
     @JsonRequest
     CompletableFuture<Void> registerLocations(RegisterLocationsParameters param);
