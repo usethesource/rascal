@@ -334,7 +334,7 @@ data AType
      | \iter-star-seps(AType atype, list[AType] separators, bool isLexical = false) // <16>
      | \alt(set[AType] alternatives) // <17>
      | \seq(list[AType] atypes)     // <18>
-     | \start(AType atype)
+     | \start(AType atype, SyntaxRole syntaxRole)
      ;
 
 // flattening rules

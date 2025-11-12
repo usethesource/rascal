@@ -198,11 +198,14 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
 
 bool asubtype(ap: aprod(AProduction p), AType b){
     switch(b){
-        case aprod(AProduction q):
+        // JV: this looks strange, that productions could replace one another if their defined type is comparable...
+        // in fact different production rules are always _incomparable_ in Rascal.
+        case aprod(AProduction q): 
             return asubtype(p.def, q.def);
         case conditional(AType t, _):
             return asubtype(ap, t);
         case AType t:
+            // JV: this looks strange as well, in Rascal the rules are not interchangeable with the types they produce.
             return asubtype(p.def, t);
         case avalue():
             return true;
@@ -230,10 +233,11 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     fail;
 }
 
-// start non-terminals behave just like parameterized non-terminals
-bool asubtype(\start(AType a), \start(AType b)) = asubtype(a, b);
-bool asubtype(\start(AType a), aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\start(AType a), anode(_)) = true;
+// start non-terminals behave just like parameterized non-terminals.
+// but note that this code is currently unreachable since we can't type `start[&T]`
+bool asubtype(\start(AType a, SyntaxRole sr), \start(AType b, sr)) = asubtype(a, b);
+bool asubtype(\start(AType a, SyntaxRole _sr), aadt("Tree", [], dataSyntax())) = true;
+bool asubtype(\start(AType a, SyntaxRole _sr), anode(_)) = true;
 
 bool asubtype(i:\iter(AType s), AType b){
     switch(b){
@@ -455,6 +459,9 @@ bool asubtype(l:\achar-class(_), AType r){
     fail;
 }
 
+// TODO JV: in Rascal a character is not a type, only character classes are types. By introducing
+// an alias, which must go both ways we introduce many places later where we have to do case distinction.
+// propose to use \char-class directly when we move from a value to AType representation.
 bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
 
 bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges))
@@ -479,7 +486,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(\start(AType ss)) = false; // only syntax (non-layout) non-terminals can be start``
+bool isLayoutAType(\start(AType ss, SyntaxRole sr)) = sf == layoutSyntax(); // only syntax (non-layout) non-terminals can be start``
 bool isLayoutAType(\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
@@ -690,11 +697,11 @@ AType alub(l:aadt("Tree", _, _), AType r) = l
 AType alub(AType l, r:aadt("Tree", _, _)) = r
     when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
 
-AType alub(\start(AType l) , \start(AType r)) = \start(alub(l, r));
-AType alub(\start(AType l) , aadt("Tree", [], dataSyntax())) = aadt("Tree", [], dataSyntax());
-AType alub(aadt("Tree", [], dataSyntax()), \start(AType l)) = aadt("Tree", [], dataSyntax());
+AType alub(\start(AType l, SyntaxRole sr) , \start(AType r, sr)) = \start(alub(l, r), sr);
+AType alub(\start(AType l, SyntaxRole _sr) , aadt("Tree", [], dataSyntax())) = aadt("Tree", [], dataSyntax());
+AType alub(aadt("Tree", [], dataSyntax()), \start(AType l, SyntaxRole _sr)) = aadt("Tree", [], dataSyntax());
 AType alub(anode(list[AType] ps), \start(AType l)) = anode(ps);
-AType alub(\start(AType l), anode(list[AType] ps)) = anode(ps);
+AType alub(\start(AType l, SyntaxRole _sr), anode(list[AType] ps)) = anode(ps);
 
 AType alub(conditional(AType l, _), AType r) = alub(l, r);
 AType alub(AType l, conditional(AType r, _)) = alub(l, r);
@@ -767,11 +774,11 @@ public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
 public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
-AType aglb(\start(AType a), \start(AType b)) = \start(aglb(a, b));
-AType aglb(aadt("Tree", [], dataSyntax()), \start(AType b)) = \start(b);
-AType aglb(\start(AType a), aadt("Tree", [], dataSyntax())) = \start(a);
-AType aglb(\anode(_), \start(AType b)) = \start(b);
-AType aglb(\start(AType a), \anode(_)) = \start(a);
+AType aglb(\start(AType a), \start(AType b, sr)) = \start(aglb(a, b), sr);
+AType aglb(aadt("Tree", [], dataSyntax()), \start(AType b, SyntaxRole sr)) = \start(b, sr);
+AType aglb(\start(AType a, SyntaxRole sr), aadt("Tree", [], dataSyntax())) = \start(a, sr);
+AType aglb(\anode(_), \start(AType b, SyntaxRole sr)) = \start(b, sr);
+AType aglb(\start(AType a, SyntaxRole sr), \anode(_)) = \start(a, sr);
 
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 

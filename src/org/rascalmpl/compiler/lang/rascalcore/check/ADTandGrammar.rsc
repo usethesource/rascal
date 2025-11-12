@@ -195,27 +195,23 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
 
-        
-        allProductions = visit(allProductions){
-            // TODO JV: this is strange, the rule for start(A) should not be rewritten to a rule for A. 
-            // Also syntactically we can't write `syntax start[X] = ...` so this can not happen in reality.
-            case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
-            // Same here, \start(a) and a are not grammatically equivalent (one has more whitespace than the other!).
-            // Someone could use `start[X]` as a non-terminal on the right-hand side and that would be fine and should
-            // not be rewritten.
-            case \start(a:aadt(_,_,_)) => a
-        }
+        // Commented out by JV: this is strange, the rule for start(A) should not be rewritten to a rule for A. 
+        // Also syntactically we can't write `syntax start[X] = ...` so this can not happen in reality.    
+        // allProductions = visit(allProductions){
+        //     case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
+        //     case \start(a:aadt(_,_,_)) => a
+        // }
 
         set[AType] allLayouts = {};
         set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
 
         for(AType adtType <- domain(allProductions)){
-            // TODO JV: this is again strange. Why would a replace the role of start(a)? This is a different nonterminal alltogether.
+            // Commented out JV: this is again strange. Why would a replace the role of start(a)? This is a different nonterminal alltogether.
             // maybe a left-over from when the checker thought that `A <: start[A]` ?
-            if(\start(adtType2) := adtType){
-                adtType = adtType2;
-            }
+            // if(\start(adtType2) := adtType){
+            //     adtType = adtType2;
+            // }
             productions = allProductions[adtType];
             syntaxDefinitions[adtType] = achoice(adtType, productions);
             //println("syntaxDefinitions, for <adtType> add <achoice(adtType, productions)>");
@@ -375,8 +371,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
         }
     }
 
-    // JV TODO: \start is only possible around context-free syntax definitions (syntactically) so it always has the same role.
-    for(AType adtType <- domain(allProductions), ((\start(t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
+    for(AType adtType <- domain(allProductions), adtType.syntaxRole == keywordSyntax()){
         for(p:prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];
