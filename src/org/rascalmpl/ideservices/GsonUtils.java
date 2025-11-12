@@ -193,5 +193,30 @@ public class GsonUtils {
         });
     }
 
+    public static String value2string(IValue value) {
+        final Encoder encoder = Base64.getEncoder();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream(512);
 
+        try (IValueOutputStream out = new IValueOutputStream(stream, IRascalValueFactory.getInstance())) {
+            out.write(value);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return encoder.encodeToString(stream.toByteArray());
+    }
+
+    public static IValue string2value(String string) {
+        final Decoder decoder = Base64.getDecoder();
+
+        try (
+            ByteArrayInputStream stream = new ByteArrayInputStream(decoder.decode(string));
+            IValueInputStream in = new IValueInputStream(stream, IRascalValueFactory.getInstance(), () -> new TypeStore());
+        ) {
+            return in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
