@@ -69,8 +69,8 @@ public class RemoteIDEServices extends BasicIDEServices {
     }
 
     @Override
-    public void edit(ISourceLocation loc) {
-        server.edit(new SourceLocationParameter(loc));
+    public void edit(ISourceLocation loc, int viewColumn) {
+        server.edit(loc);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class RemoteIDEServices extends BasicIDEServices {
     @Override
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         try {
-            return server.resolveProjectLocation(new SourceLocationParameter(input)).get().getLocation();
+            return server.resolveProjectLocation(input).get();
         }
         catch (Throwable e) {
             return input;
