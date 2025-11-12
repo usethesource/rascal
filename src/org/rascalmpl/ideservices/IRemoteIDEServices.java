@@ -26,34 +26,15 @@
  */
 package org.rascalmpl.ideservices;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
 import java.util.concurrent.CompletableFuture;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.rascalmpl.values.IRascalValueFactory;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.io.binary.stream.IValueInputStream;
-import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 public interface IRemoteIDEServices {
 
@@ -65,12 +46,6 @@ public interface IRemoteIDEServices {
 
     @JsonRequest
     CompletableFuture<SourceLocationParameter> resolveProjectLocation(SourceLocationParameter param);
-
-    @JsonRequest
-    CompletableFuture<Void> registerLanguage(LanguageParameter language);
-
-    @JsonRequest
-    CompletableFuture<Void> unregisterLanguage(LanguageParameter language);
 
     @JsonRequest
     CompletableFuture<Void> applyDocumentsEdits(DocumentEditsParameter edits);
@@ -93,165 +68,6 @@ public interface IRemoteIDEServices {
     @JsonRequest
     CompletableFuture<Void> registerDebugServerPort(int processID, int serverPort);
 
-    public static class LanguageParameter {
-        private final String pathConfig;
-        private final String name; // name of the language
-        private final String[] extensions; // extension for files in this language
-        private final String mainModule; // main module to locate mainFunction in
-        private final String mainFunction; // main function which contributes the language implementation
-        private final @Nullable ParserSpecification precompiledParser;
-
-        public LanguageParameter(String pathConfig, String name, String[] extensions, String mainModule, String mainFunction, @Nullable ParserSpecification precompiledParser) {
-            this.pathConfig = pathConfig.toString();
-            this.name = name;
-            this.extensions = extensions;
-            this.mainModule = mainModule;
-            this.mainFunction = mainFunction;
-            this.precompiledParser = precompiledParser;
-        }
-
-        public String getPathConfig() {
-            return pathConfig;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String[] getExtensions() {
-            return extensions;
-        }
-
-        public String getMainFunction() {
-            return mainFunction;
-        }
-
-        public String getMainModule() {
-            return mainModule;
-        }
-
-        public @Nullable ParserSpecification getPrecompiledParser() {
-            return precompiledParser;
-        }
-
-        @Override
-        public String toString() {
-            return "LanguageParameter(pathConfig=" + pathConfig + ", name=" + name + ", extensions=" + Arrays.toString(extensions)
-                + ", mainModule=" + mainModule + ", mainFunction=" + mainFunction + ", precompiledParser=" + precompiledParser + ")";
-        }
-
-        public static LanguageParameter fromRascalValue(IConstructor language) {
-            return new LanguageParameter(
-                language.get(0).toString(),
-                getString(language, 1),
-                getArray(language, 2),
-                getString(language, 3),
-                getString(language, 4),
-                null
-            );
-        }
-        private static String[] getArray(IConstructor language, int position) {
-            return ((ISet) language.get(position))
-                .stream()
-                .map(v -> ((IString)v).getValue())
-                .toArray(String[]::new);
-        }
-
-        private static String getString(IConstructor language, int position) {
-            return ((IString) language.get(position)).getValue();
-        }
-    }
-
-    public static class ParserSpecification {
-        /** absolute path to the file containing the precompiled parsers */
-        private final String parserLocation;
-        /** terminal to use from the defined parsers */
-        private final String nonTerminalName;
-        /** is the terminal a `start` terminal, default: true */
-        private final @Nullable Boolean nonTerminalIsStart;
-        /** allowAmbiguity (default is false) */
-        private final @Nullable Boolean allowAmbiguity;
-        /** Max ambiguity level from the parser (default 2, only of interest when allowAmbiguity is true or allowRecovery is true) */
-        private final @Nullable Integer maxAmbDepth;
-
-        /** do we allow the parser to recover from parse errors (and thus possibly generating error trees) (default is false) */
-        private final @Nullable Boolean allowRecovery;
-        /** configure max recovery attempts parameter of the error recover (default: 50) */
-        private final @Nullable Integer maxRecoveryAttempts;
-        /** configure max recovery tokens parameter of the error recover (default: 3) */
-        private final @Nullable Integer maxRecoveryTokens;
-
-        /** apply the special case for highlighting syntax-in-syntax, default: true */
-        private final @Nullable Boolean specialCaseHighlighting;
-
-
-        public ParserSpecification(String parserLocation, String nonTerminalName,
-                @Nullable Boolean nonTerminalIsStart, @Nullable Boolean allowAmbiguity, @Nullable Integer maxAmbDepth,
-                @Nullable Boolean allowRecovery, @Nullable Integer maxRecoveryAttempts, @Nullable Integer maxRecoveryTokens,
-                @Nullable Boolean specialCaseHighlighting) {
-            this.parserLocation = parserLocation;
-            this.nonTerminalName = nonTerminalName;
-            this.nonTerminalIsStart = nonTerminalIsStart;
-            this.allowAmbiguity = allowAmbiguity;
-            this.maxAmbDepth = maxAmbDepth;
-            this.allowRecovery = allowRecovery;
-            this.maxRecoveryAttempts = maxRecoveryAttempts;
-            this.maxRecoveryTokens = maxRecoveryTokens;
-            this.specialCaseHighlighting = specialCaseHighlighting;
-        }
-
-        public ISourceLocation getParserLocation() throws FactTypeUseException {
-            return buildLocation(parserLocation);
-        }
-
-        public String getNonTerminalName() {
-            return nonTerminalName;
-        }
-
-        public boolean getNonTerminalIsStart() {
-            return nonTerminalIsStart == null || nonTerminalIsStart;
-        }
-
-        public boolean getAllowAmbiguity() {
-            return allowAmbiguity != null && allowAmbiguity;
-        }
-
-        public int getMaxAmbDepth() {
-            return maxAmbDepth != null ? maxAmbDepth : 2;
-        }
-
-        public boolean getAllowRecovery() {
-            return allowRecovery != null && allowRecovery;
-        }
-
-        public int getMaxRecoveryAttempts() {
-            return maxRecoveryAttempts != null ? maxRecoveryAttempts : 50;
-        }
-
-        public int getMaxRecoveryTokens() {
-            return maxRecoveryTokens != null ? maxRecoveryTokens : 3;
-        }
-
-        public boolean getSpecialCaseHighlighting() {
-            return specialCaseHighlighting == null || specialCaseHighlighting;
-        }
-
-        @Override
-        public String toString() {
-            return "ParserSpecification [parserLocation=" + parserLocation + ", nonTerminalName=" + nonTerminalName
-                + ", nonTerminalIsStart=" + nonTerminalIsStart + ", allowAmbiguity=" + allowAmbiguity + "]";
-        }
-
-        private static ISourceLocation buildLocation(String location) throws FactTypeUseException {
-            try {
-                return (ISourceLocation) new StandardTextReader().read(IRascalValueFactory.getInstance(), TypeFactory.getInstance().sourceLocationType(), new StringReader(location));
-            } catch (IOException e) {
-                throw new RuntimeException("this should never happen:", e);
-            }
-        }
-
-    }
-    
     public static class BrowseParameter {
         private String uri;
         private String title;

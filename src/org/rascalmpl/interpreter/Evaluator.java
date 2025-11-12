@@ -1813,16 +1813,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void registerLanguage(IConstructor language) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerLanguage(language);
-            }
-            else {
-                IDEServices.super.registerLanguage(language);
-            }
-        }
-
-        @Override
         public ISourceLocation resolveProjectLocation(ISourceLocation input) {
             if (monitor instanceof IDEServices) {
                 return ((IDEServices) monitor).resolveProjectLocation(input);
