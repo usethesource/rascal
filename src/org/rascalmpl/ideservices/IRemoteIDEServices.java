@@ -252,38 +252,6 @@ public interface IRemoteIDEServices {
 
     }
     
-    public static class SourceLocationParameter {
-        private String scheme;
-        private String authority;
-        private String path;
-        private @Nullable String query;
-        private @Nullable String fragment;
-
-        public SourceLocationParameter(ISourceLocation loc) {
-            this.scheme = loc.getScheme();
-            this.authority = loc.getAuthority();
-            this.path = loc.getPath();
-            this.query = loc.hasQuery() ? null : loc.getQuery();
-            this.fragment = loc.hasFragment() ? null : loc.getFragment();
-        }
-
-        public ISourceLocation getLocation() {
-            try {
-                return IRascalValueFactory.getInstance().sourceLocation(scheme, authority, path, query, fragment);
-            } catch (URISyntaxException e) {
-                // this should really never happen
-                assert false;
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "SourceLocationParameter [scheme=" + scheme + ", authority=" + authority + ", path=" + path
-                + ", query=" + query + ", fragment=" + fragment + "]";
-        }
-    }
-
     public static class BrowseParameter {
         private String uri;
         private String title;
