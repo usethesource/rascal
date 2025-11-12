@@ -55,7 +55,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setLocalService(this)
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
-                .configureGson(GsonConfigurator::configureGson)
+                .configureGson(GsonUtils::configureGson)
                 // .setExecutorService(?)
                 .create();
 
