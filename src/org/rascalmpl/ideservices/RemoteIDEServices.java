@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
+import java.util.concurrent.Executors;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
@@ -56,7 +57,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils::configureGson)
-                // .setExecutorService(?)
+                .setExecutorService(Executors.newCachedThreadPool())
                 .create();
 
                 clientLauncher.startListening();
