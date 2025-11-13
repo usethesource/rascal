@@ -62,11 +62,9 @@ public class RemoteIDEServices extends BasicIDEServices {
 
                 clientLauncher.startListening();
                 server = clientLauncher.getRemoteProxy();
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             warning("Error setting up Remote IDE Services connection " + e.getMessage(), URIUtil.rootLocation("unknown"));
         }
-
     }
 
     @Override
@@ -83,8 +81,7 @@ public class RemoteIDEServices extends BasicIDEServices {
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         try {
             return server.resolveProjectLocation(input).get();
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             return input;
         }
     }
@@ -98,5 +95,4 @@ public class RemoteIDEServices extends BasicIDEServices {
     public void applyFileSystemEdits(IList edits) {
         server.applyDocumentsEdits(new DocumentEditsParameter(edits));
     }
-    
 }

@@ -53,13 +53,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -82,7 +79,7 @@ public class GsonUtils {
         writer.setDatesAsInt(true);
         typeMappings = List.of(
             new TypeMapping(IBool.class, tf.boolType()),
-            new TypeMapping(ICollection.class), // IList, IMap, IRelation, ISet,
+            new TypeMapping(ICollection.class), // IList, IMap, IRelation, ISet
             new TypeMapping(IConstructor.class),
             new TypeMapping(IDateTime.class, tf.dateTimeType()),
             new TypeMapping(IExternalValue.class),
@@ -199,8 +196,7 @@ public class GsonUtils {
 
         try (IValueOutputStream out = new IValueOutputStream(stream, IRascalValueFactory.getInstance())) {
             out.write(value);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -212,7 +208,7 @@ public class GsonUtils {
 
         try (
             ByteArrayInputStream stream = new ByteArrayInputStream(decoder.decode(string));
-            IValueInputStream in = new IValueInputStream(stream, IRascalValueFactory.getInstance(), () -> new TypeStore());
+            IValueInputStream in = new IValueInputStream(stream, IRascalValueFactory.getInstance(), () -> new TypeStore())
         ) {
             return in.read();
         } catch (IOException e) {
