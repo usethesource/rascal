@@ -486,7 +486,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(\start(AType ss, SyntaxRole sr)) = sf == layoutSyntax(); // only syntax (non-layout) non-terminals can be start``
+bool isLayoutAType(\start(AType ss, SyntaxRole sr)) = sr == layoutSyntax(); // only syntax (non-layout) non-terminals can be start``
 bool isLayoutAType(\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
