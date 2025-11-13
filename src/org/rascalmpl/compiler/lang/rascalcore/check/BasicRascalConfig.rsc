@@ -148,9 +148,6 @@ data DefInfo(map[str,str] tags = ());
 // Function modifiers
 data DefInfo(list[str] modifiers = []);
 
-// Function md5Hash of source
-data DefInfo(str md5 = "");
-
 // Common Keyword fields for ADTs
 data DefInfo(list[KeywordFormal] commonKeywordFields = []);
 

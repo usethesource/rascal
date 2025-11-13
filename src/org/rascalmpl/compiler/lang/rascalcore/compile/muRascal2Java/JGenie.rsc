@@ -91,6 +91,7 @@ JGenie makeJGenie(MuModule m,
                   
     map[str,loc] allModuleLocs = moduleLocs;
     map[loc,str] allLocs2Module = invertUnique(moduleLocs);
+    allLocs2Module += (l.top : allLocs2Module[l] | l <- domain(allLocs2Module) );
     MuModule currentModule = m;
     str moduleName = m.name;
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
