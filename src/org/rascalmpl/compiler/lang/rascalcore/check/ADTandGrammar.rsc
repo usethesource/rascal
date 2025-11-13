@@ -242,7 +242,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         for(AType adtType <- allStarts){
             // TODO JV: there are more places where layout is added to the start non-terminal...
-            syntaxDefinitions[\start(adtType)] = achoice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
+            syntaxDefinitions[\start(adtType, contextFreeSyntax())] = achoice(\start(adtType, contextFreeSyntax()), { prod(\start(adtType, contextFreeSyntax()), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
 
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
