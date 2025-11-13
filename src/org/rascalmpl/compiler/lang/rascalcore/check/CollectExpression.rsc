@@ -574,6 +574,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             AType texp = s.getType(expression);
+            
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -592,6 +593,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
             if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
                 <qualifier, base> = splitQualifiedName(expression.qualifiedName);
+                // TODO JV: we have the definitions in ParseTree for checking char constructors? And what about amb, appl and cycle then?
                 if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
                     nactuals = size(actuals);
                     if(nactuals != 1){
@@ -619,6 +621,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
+                        println("checking.. <ft>.");
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
@@ -634,7 +637,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
+                    println("checking ovl against conses <ovl>");
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
+                        println("ret <ret>");
                        try {
                             validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;

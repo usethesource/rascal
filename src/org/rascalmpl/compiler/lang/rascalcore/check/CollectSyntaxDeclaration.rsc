@@ -65,6 +65,12 @@ public int syndefCounter = 0;
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
     // println("declareSyntax: <current>");
     Sym defined = current.defined;
+
+    if (defined is \start) {
+        c.report(error(defined, "Can not manually define a start non-terminal, because its syntax rule is already generated automatically."));
+        return;
+    }
+
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
 
@@ -195,6 +201,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                                stp := getSyntaxType(removeChainRule(tsym), s)
                              ];
 
+                    // TODO JV: we are not allowed to write `syntax start[X] = ...` because that breaks assumptions
+                    // later on the shape of the start rule. Are we checking this?
                     def = \start(sdef) := def ? sdef : def;
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
