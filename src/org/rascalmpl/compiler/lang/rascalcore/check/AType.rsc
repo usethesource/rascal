@@ -774,7 +774,7 @@ public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
 public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
-AType aglb(\start(AType a), \start(AType b, sr)) = \start(aglb(a, b), sr);
+AType aglb(\start(AType a, SyntaxRole sr), \start(AType b, sr)) = \start(aglb(a, b), sr);
 AType aglb(aadt("Tree", [], dataSyntax()), \start(AType b, SyntaxRole sr)) = \start(b, sr);
 AType aglb(\start(AType a, SyntaxRole sr), aadt("Tree", [], dataSyntax())) = \start(a, sr);
 AType aglb(\anode(_), \start(AType b, SyntaxRole sr)) = \start(b, sr);
