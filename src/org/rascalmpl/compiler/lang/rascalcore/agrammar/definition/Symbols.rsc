@@ -61,7 +61,7 @@ public AType sym2AType(Sym sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return AType::aadt("<n>", [], dataSyntax());
     case \start(Nonterminal n) : 
-        return \start(AType::aadt("<n>", [], contextFreeSyntax()));
+        return \start(AType::aadt("<n>", [], contextFreeSyntax()), contextFreeSyntax());
     case literal(StringConstant l): 
       return AType::alit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
