@@ -199,11 +199,6 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         map[AType,AProduction] syntaxDefinitions = ();
 
         for(AType adtType <- domain(allProductions)){
-            // Commented out JV: this is again strange. Why would a replace the role of start(a)? This is a different nonterminal alltogether.
-            // maybe a left-over from when the checker thought that `A <: start[A]` ?
-            // if(\start(adtType2) := adtType){
-            //     adtType = adtType2;
-            // }
             productions = allProductions[adtType];
             syntaxDefinitions[adtType] = achoice(adtType, productions);
             //println("syntaxDefinitions, for <adtType> add <achoice(adtType, productions)>");
