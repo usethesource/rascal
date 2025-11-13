@@ -217,7 +217,7 @@ public interface IDEServices extends IRascalMonitor {
    * 
    * @param serverPort
    */
-  default void startDebuggingSession(int serverPort){
+  default void startDebuggingSession(int serverPort) {
     
   }
 
@@ -227,7 +227,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param processID
    * @param serverPort
    */
-  default void registerDebugServerPort(int processID, int serverPort){
+  default void registerDebugServerPort(int processID, int serverPort) {
     
   }
 
