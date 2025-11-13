@@ -57,7 +57,6 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
@@ -87,7 +86,6 @@ public class GsonUtils {
             new TypeMapping(INode.class, tf.nodeType()),
             new TypeMapping(IRational.class, tf.rationalType()),
             new TypeMapping(IReal.class, tf.realType()),
-            new TypeMapping(ISet.class),
             new TypeMapping(ISourceLocation.class, tf.sourceLocationType()),
             new TypeMapping(IString.class, tf.stringType()),
             new TypeMapping(ITuple.class),
