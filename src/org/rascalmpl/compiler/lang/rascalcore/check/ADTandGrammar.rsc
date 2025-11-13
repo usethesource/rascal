@@ -194,14 +194,6 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         }
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
-
-        // Commented out by JV: this is strange, the rule for start(A) should not be rewritten to a rule for A. 
-        // Also syntactically we can't write `syntax start[X] = ...` so this can not happen in reality.    
-        // allProductions = visit(allProductions){
-        //     case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
-        //     case \start(a:aadt(_,_,_)) => a
-        // }
-
         set[AType] allLayouts = {};
         set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
