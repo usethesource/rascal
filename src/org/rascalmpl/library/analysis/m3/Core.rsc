@@ -60,7 +60,7 @@ these core features:
 | Ground truth fact kind about source code           | Description |                
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `set[Language]`                                    | describes the languages this model contains information about, including their version numbers for the sake of transparency |
-| `rel[loc name, loc src] declarations`              | maps qualified names of relations to their original source location in the current model, if any. |
+| `rel[loc name, loc src] declarations`              | maps qualified names of  declarations to their original source location in the current model, if any. |
 |	`rel[loc src, loc name] uses`                      | as the _inverse_ of `declarations` this maps every source location where a declared artefact is used to its fully qualified name.|
 | `set[loc] implicitDeclarations`                    | provides a set of qualified names of things that are present no matter what in a programming language, for completeness sake.|
 | `rel[loc from, loc to] containment`                | links the qualified name of the outer (from) declaration to the names of everything that is declared inside of it (to).|
