@@ -146,7 +146,7 @@ to collect the elements of all relations and lists.
 @pitfalls{
 * If the quality of the qualified names in the original models is lacking, than this is the moment that different
 declarations might be conflated with the same fully qualified name. All downstream analysis is broken then.
-* This function does not compose the extended facts for specific programming languages yet.
+* This function does compose the extended facts for specific programming languages as well but only if they have set, rel, list or lrel as types.
 * If extended M3 models use something other than sets, lists or relations, this composition function ignores them completely.
 * Composed models can be huge in memory. Make sure to allocate enough heap for the JVM. Real world programs of real world product
 can take gigabytes of memory, even when compressed and optimized as M3 models. 
