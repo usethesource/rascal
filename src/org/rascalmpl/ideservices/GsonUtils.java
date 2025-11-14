@@ -34,6 +34,7 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
@@ -103,7 +104,7 @@ public class GsonUtils {
 
     private static class TypeMapping {
         private final Class<?> clazz;
-        private final Type type;
+        private final @Nullable Type type;
         private final boolean isPrimitive;
 
         public TypeMapping(Class<?> clazz) {
