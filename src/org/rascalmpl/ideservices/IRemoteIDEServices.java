@@ -102,11 +102,11 @@ public interface IRemoteIDEServices {
         private String messages;
 
         public RegisterDiagnosticsParameters(IList messages) {
-            this.messages = GsonUtils.value2string(messages);
+            this.messages = GsonUtils.base64Encode(messages);
         }
 
         public IList getMessages() {
-            return (IList) GsonUtils.string2value(messages);
+            return (IList) GsonUtils.base64Decode(messages);
         }
     }
 
@@ -114,11 +114,11 @@ public interface IRemoteIDEServices {
         private String locations;
 
         public UnRegisterDiagnosticsParameters(IList locs) {
-            this.locations = GsonUtils.value2string(locs);
+            this.locations = GsonUtils.base64Encode(locs);
         }
 
         public IList getLocations() {
-            return (IList) GsonUtils.string2value(locations);
+            return (IList) GsonUtils.base64Decode(locations);
         }
     }
 
@@ -127,11 +127,11 @@ public interface IRemoteIDEServices {
         private String edits;
 
         public DocumentEditsParameter(IList edits) {
-            this.edits = GsonUtils.value2string(edits);
+            this.edits = GsonUtils.base64Encode(edits);
         }
 
         public IList getEdits() {
-            return (IList) GsonUtils.string2value(edits);
+            return (IList) GsonUtils.base64Decode(edits);
         }
     }
 
@@ -143,7 +143,7 @@ public interface IRemoteIDEServices {
         public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
             this.scheme = scheme.getValue();
             this.authority = authority.getValue();
-            this.mapping = GsonUtils.value2string(mapping);
+            this.mapping = GsonUtils.base64Encode(mapping);
         }
 
         public IString getScheme() {
@@ -155,7 +155,7 @@ public interface IRemoteIDEServices {
         }
 
         public IMap getMapping() {
-            return (IMap) GsonUtils.string2value(mapping);
+            return (IMap) GsonUtils.base64Decode(mapping);
         }
 
         public String getRawScheme() {
