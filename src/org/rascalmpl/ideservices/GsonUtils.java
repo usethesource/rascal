@@ -147,7 +147,7 @@ public class GsonUtils {
                             writer.write(out, (IValue) value);
                             break;
                         case ENCODE_AS_BASE64_STRING:
-                            out.value(value2string((IValue) value));
+                            out.value(base64Encode((IValue) value));
                             break;
                         case ENCODE_AS_STRING:
                             out.value(((IValue) value).toString());
@@ -188,7 +188,7 @@ public class GsonUtils {
         });
     }
 
-    public static String value2string(IValue value) {
+    public static String base64Encode(IValue value) {
         final Encoder encoder = Base64.getEncoder();
         ByteArrayOutputStream stream = new ByteArrayOutputStream(512);
 
@@ -201,7 +201,7 @@ public class GsonUtils {
         return encoder.encodeToString(stream.toByteArray());
     }
 
-    public static IValue string2value(String string) {
+    public static IValue base64Decode(String string) {
         final Decoder decoder = Base64.getDecoder();
 
         try (
