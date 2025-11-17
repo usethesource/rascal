@@ -529,7 +529,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 
 tuple[bool, loc] rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
-       if(isLogicalLoc(def.defined)) return def.defined;
+       if(isLogicalLoc(def.defined)) return <true, def.defined>;
        moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
