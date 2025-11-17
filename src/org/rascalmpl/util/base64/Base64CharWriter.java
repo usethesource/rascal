@@ -41,9 +41,8 @@ public interface Base64CharWriter extends AutoCloseable {
     static Base64CharWriter latinBytesTo(Writer target) {
         return (buffer, length) -> {
             // single char writes are translated to char array, so it's better 
-            // to also our own char array and pass that
-            // it's the fastest path that has the last amount of copies.
-            // for writer the fast path is to create a 
+            // to create our own char array and pass that in one go.
+            // it's the fastest path that has the least amount of copies.
             char[] copy = new char[length];
             for (int i = 0; i < length; i++) {
                 copy[i] = (char)(buffer[i] & 0xFF);
