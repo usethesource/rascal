@@ -595,7 +595,7 @@ private MuExp translateConcreteExpressionSeparatedList(Symbol eltType, list[Symb
 
     // first we compile all element except the final separators and the final element:
     while ([Tree first, *Tree sepTrees, Tree second, *Tree more] := elems && size(sepTypes) == size(sepTrees)) {
-      varExp = translateConcreteExpression(first);
+      MuExp varExp = translateConcreteExpression(first);
 
       // first we splice or add the first element:
       if (isListVar(eltType, first)) {
@@ -1432,11 +1432,12 @@ MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
         }
 
         // Determine set of constructors with the desired field
-        constructors = getConstructorsMap()[tp] ? {};
-        consesWithField = {c | c:acons(AType _adt, list[AType] fields, list[Keyword] kwFields) <- constructors,
-                               (!isEmpty(fields) && any(f <- fields, f.alabel == uname)) ||
-                               (!isEmpty(kwFields) && any(kwf <- kwFields, kwf.fieldType.alabel == uname))
-                           };
+        map[AType, set[AType]] constructors = getConstructorsMap()[tp] ? {};
+        set[AType] consesWithField = 
+                {c | c:acons(AType _adt, list[AType] fields, list[Keyword] kwFields) <- constructors,
+                     (!isEmpty(fields) && any(f <- fields, f.alabel == uname)) ||
+                     (!isEmpty(kwFields) && any(kwf <- kwFields, kwf.fieldType.alabel == uname))
+                };
         //if(isEmpty(consesWithField)){
         //    return muCon(false);    // It is statically known that there is no constructor with desired field
         //}
