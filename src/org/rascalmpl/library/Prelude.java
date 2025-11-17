@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -49,9 +50,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -72,6 +70,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -85,12 +84,13 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
-import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
-import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.util.base64.StreamingBase64;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -132,8 +132,8 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
+import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
@@ -1495,47 +1495,25 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString readBase64(ISourceLocation sloc, IBool includePadding) {
-        final int BUFFER_SIZE = 3 * 512;
-        Base64.Encoder encoder = Base64.getEncoder();
-		if (!includePadding.getValue()) {
-			encoder = encoder.withoutPadding();
+	public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+		StringBuilder result = new StringBuilder();
+		try (var source = REGISTRY.getInputStream(sloc)) {
+			StreamingBase64.encode(source, result, includePadding.getValue());
 		}
-        
-        try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
-            StringBuilder result = new StringBuilder();
-            byte[] chunk = new byte[BUFFER_SIZE];
-            int len = 0;
-            
-            // read multiples of 3 until not possible anymore
-            while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
-            }
-            
-            // read final chunk which is not a multiple of 3
-            if ( len > 0 ) {
-                 chunk = Arrays.copyOf(chunk,len);
-				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
-            }
-            
-            return values.string(result.toString());
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-    }
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return values.string(result.toString());
+	}
 
 	public void writeBase64(ISourceLocation sloc, IString base64content) {
-        final int BUFFER_SIZE = 3 * 512;
-        Base64.Decoder decoder = Base64.getDecoder();
-        
-        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			output.write(decoder.decode(base64content.getValue()));
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-    }
+		try (var output = REGISTRY.getOutputStream(sloc, false);) {
+			StreamingBase64.decode(base64content.asReader(), output);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
 	
 	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
 		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
@@ -3442,13 +3420,6 @@ public class Prelude {
 	  }
 	}	
 	
-	private static void copy(InputStream from, OutputStream to) throws IOException {
-	  final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-		int read;
-		while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-		  to.write(buffer, 0, read);
-		}
-	}
 	private void copy(Reader from, Writer to) throws IOException {
 		final char[] buffer = new char[FILE_BUFFER_SIZE / 2];
 		int read;
@@ -3457,45 +3428,38 @@ public class Prelude {
 		}
 	}
 
-	private String toBase64(InputStream src, int estimatedSize, boolean includePadding) throws IOException {
-	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  Encoder encoder = Base64.getEncoder();
-	  if (!includePadding) {
-	  	encoder = encoder.withoutPadding();
-	  }
-	  OutputStream dest = encoder.wrap(result);
-	  copy(src, dest);
-	  dest.close();
-	  return result.toString(StandardCharsets.ISO_8859_1.name());
-	}
-
 	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
-	  try {
-		Charset charset = Charset.forName(charsetName.getValue());
-	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
-	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
-	  } catch (IOException e) {
-	      throw RuntimeExceptionFactory.io(e);
-	  }
+		StringBuilder result = new StringBuilder();
+		try (var writer = WriterOutputStream.builder()
+			.setCharset(charsetName.getValue())
+			.setWriteImmediately(false)
+			.setOutputStream(StreamingBase64.encode(result, includePadding.getValue()))
+			.getWriter()) {
+			in.write(writer);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return values.string(result.toString());
 	}
 
 	public IString toBase64(ISourceLocation file, IBool includePadding) {
 		return readBase64(file, includePadding);
 	}
 
-	private void fromBase64(String src, OutputStream target) throws IOException {
-	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
-	  copy(Base64.getDecoder().wrap(bytes), target);
-	}
-
 	public IString fromBase64(IString in, IString charset) {
-	    try {
-	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
-	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(charset.getValue()));
-	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(e);
-	    }
+		var buffer = new char[3 * 1024];
+		var result = values.string("");
+		try (var source = new InputStreamReader(StreamingBase64.decode(in.asReader()), charset.getValue())) {
+			int read;
+			while ((read = source.read(buffer)) != -1) {
+				result = result.concat(values.string(new String(buffer, 0, read)));
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return result;
 	}
 
 	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
