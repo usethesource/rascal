@@ -90,7 +90,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
-import org.rascalmpl.util.StreamingBase64;
+import org.rascalmpl.util.base64.StreamingBase64;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
