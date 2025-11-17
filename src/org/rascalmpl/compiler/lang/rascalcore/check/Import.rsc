@@ -53,7 +53,7 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-ModuleStatus reportSelfImport(rel[loc from, PathRole r, loc to] paths, ModuleStatus ms){
+ModuleStatus reportSelfImport(rel[loc, PathRole, loc] paths, ModuleStatus ms){
     for(<from, importPath(), from> <- paths){
         mname = getRascalModuleName(from, ms.pathConfig);
         ms.messages[mname] ? {} += {error("Self import not allowed", from)};
@@ -62,7 +62,7 @@ ModuleStatus reportSelfImport(rel[loc from, PathRole r, loc to] paths, ModuleSta
     return ms;
 }
 
-ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] extendPlus, ModuleStatus ms){
+ModuleStatus reportCycles(rel[loc, PathRole, loc]paths, rel[loc,loc] extendPlus, ModuleStatus ms){
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
         for(mloc <- extendCycle){
@@ -95,25 +95,28 @@ ModuleStatus reportCycles(rel[loc from, PathRole r, loc to] paths, rel[loc,loc] 
     return ms;
 }
 
-// Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
+// Complete a ModuleStatus 
+//- by adding transitive edges for extend paths
+//- by checking circular dependencies
+// TODO: reuse enhancePathRelation from RascalConfig here
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     ms = consolidatePaths(ms);
-    pcfg = ms.pathConfig;
-
     paths = ms.paths + getPaths(ms.strPaths, ms);
 
     ms = reportSelfImport(paths, ms);
-
-    extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
-    paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
+    
+    imports = {<from, to> | <loc from, importPath(), loc to> <- paths};
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
+    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus };
 
     ms = reportCycles(paths, extendPlus, ms);
-    
-    paths += { *{<c, importPath(), a>| a <- extendPlus[b], c != a} | < c, importPath(), b> <- paths };
 
-    ms.paths = paths;
-    // sync ms.strPaths with ms.paths
-    ms.strPaths = getStrPaths(paths, pcfg);
+    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
+             | < loc c, loc b> <- imports 
+             };
+
+    ms.paths = paths;                                   // sync ms.paths with paths
+    ms.strPaths = getStrPaths(ms.paths, ms.pathConfig); // sync ms.strPaths with ms.paths
 
     return ms;
 }
@@ -146,9 +149,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
-        ms.paths += tm.paths;
-        ms.strPaths = getStrPaths(ms.paths, pcfg); //<<<<
-
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -165,13 +165,14 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                     
-               dependencyChanged = !isEmpty(ms.changedModules & range(ms.strPaths[m]));
-               if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
+               dependencyChanged = (m != qualifiedModuleName) && !isEmpty(ms.changedModules & range(ms.strPaths[m]));
+               //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
                if(dependencyChanged || isModuleModified(m, timestampInBom, pcfg)){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
                     ms.status[qualifiedModuleName] -= tpl_saved();
+                    ms.messages[qualifiedModuleName] = {};
                     if(ms.compilerConfig.verbose){
                         println("--- using <getLastModified(m,ms.moduleLastModified,pcfg)> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
@@ -260,7 +261,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     ms = newModuleStatus(ccfg);
     visit(pt){
-        case  m: (Module) `<Header header> <Body _>`: {
+        case  Module m: {
+            header = m.header;
+            body = m.body;
             qualifiedModuleName = prettyPrintName(header.name);
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
             <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
@@ -419,6 +422,9 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
 
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
     pcfg = ms.pathConfig;
+
+    component = { m | m <- component, MStatus::ignored() notin ms.status[m] };
+    if(isEmpty(component)) return ms;
 
     //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };

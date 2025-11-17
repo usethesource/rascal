@@ -64,11 +64,11 @@ public abstract class FunctionDeclaration extends
 			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
 
 			__eval.getCurrentEnvt().storeFunction(name, lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 
 			if (!isPublic) {
-				__eval.getCurrentEnvt().markNamePrivate(lambda.getName());
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
 			}
 
 			return lambda;
@@ -103,10 +103,10 @@ public abstract class FunctionDeclaration extends
             lambda = new RascalFunction(__eval, this, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 			if (!isPublic) {
-				__eval.getCurrentEnvt().markNamePrivate(lambda.getName());
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
 			}
 
 			return lambda;
@@ -143,12 +143,12 @@ public abstract class FunctionDeclaration extends
 
 			lambda = new RascalFunction(__eval, this, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 			
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			
 			if (!isPublic) {
-				__eval.getCurrentEnvt().markNamePrivate(lambda.getName());
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
 			}
 
 			return lambda;
@@ -189,11 +189,11 @@ public abstract class FunctionDeclaration extends
 			lambda = new RascalFunction(__eval, func, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 
 			if (!isPublic) {
-				__eval.getCurrentEnvt().markNamePrivate(lambda.getName());
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
 			}
 			
 			return lambda;

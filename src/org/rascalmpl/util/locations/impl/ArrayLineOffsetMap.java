@@ -89,7 +89,10 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
         return Pair.of(startOffset, endOffset - startOffset);
     }
 
-    @SuppressWarnings("java:S3776") // parsing tends to be complex
+    private static boolean isNewlineChar(char c) {
+        return c == '\r' || c == '\n';
+    }
+
     public static LineColumnOffsetMap build(String contents) {
         int line = 0;
         int column = 0;
@@ -100,38 +103,51 @@ public class ArrayLineOffsetMap implements LineColumnOffsetMap {
         GrowingIntArray currentLine = new GrowingIntArray();
         GrowingIntArray lineStartOffsets = new GrowingIntArray();
 
+        // first line starts at offset 0
         lineStartOffsets.add(0);
         for(int i = 0, n = contents.length() ; i < n ; i++) {
             char c = contents.charAt(i);
-            if (c == '\n' || c == '\r') {
-                if (c != prev && (prev == '\r' || prev == '\n')) {
+
+            if (isNewlineChar(prev)) {
+                if (c != prev && isNewlineChar(c)) {
                     continue; // multichar newline skip it
                 }
+
+                // at the start of a new line
+                // store data collected for the line that just ended
                 if (!currentLine.isEmpty()) {
                     linesWithSurrogate.add(line);
                     linesMap.add(currentLine.build());
                     inverseLinesMap.add(currentLine.buildInverse());
                     currentLine = new GrowingIntArray();
                 }
+
+                // prepare for this line
                 line++;
                 column = 0;
-                lineStartOffsets.add(i + 1);
+                lineStartOffsets.add(i);
             }
-            else {
-                column++;
-                if (Character.isHighSurrogate(c) && (i + 1) < n && Character.isLowSurrogate(contents.charAt(i + 1))) {
-                    // full surrogate pair, register it, and skip the next char
-                    currentLine.add(column);
-                    i++;
-                }
+
+            column++;
+
+            if (Character.isHighSurrogate(c) && (i + 1) < n && Character.isLowSurrogate(contents.charAt(i + 1))) {
+                // full surrogate pair, register it, and skip the next char
+                currentLine.add(column);
+                i++;
             }
             prev = c;
         }
+
+        // handle the last line
         if (!currentLine.isEmpty()) {
             // handle last line
             linesWithSurrogate.add(line);
             linesMap.add(currentLine.build());
             inverseLinesMap.add(currentLine.buildInverse());
+        }
+        if (isNewlineChar(prev)) {
+            // file ends with an empty line
+            lineStartOffsets.add(contents.length());
         }
         return new ArrayLineOffsetMap(linesWithSurrogate.build(), linesMap, inverseLinesMap, lineStartOffsets.build());
     }
