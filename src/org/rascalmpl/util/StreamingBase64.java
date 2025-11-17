@@ -18,13 +18,18 @@ import org.apache.commons.codec.binary.Base64OutputStream;
  */
 public class StreamingBase64 {
 
+    /*
+     * Note, in this class we use the fact that base64 chars are always ascii
+     * So a char can be cast to a byte. No need for charset encoders.
+     */
+
     private static InputStream stringToLatinBytes(String source) {
-        return stringToLatinBytes(CharBuffer.wrap(source), s -> s);
+        return streamCharsAsBytes(CharBuffer.wrap(source), s -> s);
     }
 
     private static InputStream stringToLatinBytes(Reader source) {
         var buffer = new char[1024];
-        return stringToLatinBytes(CharBuffer.wrap(buffer).flip() /*empty*/, cb -> {
+        return streamCharsAsBytes(CharBuffer.wrap(buffer).flip() /*empty*/, cb -> {
             try {
                 int read = source.read(buffer);
                 if (read == -1) {
@@ -40,9 +45,7 @@ public class StreamingBase64 {
         });
     }
 
-    // We know that base64 strings are not unicode, so we can just cast a char to a byte and be done
-    // no decoding of string/char to byte needed
-    private static InputStream stringToLatinBytes(CharBuffer initial, Function<CharBuffer, CharBuffer> refill) {
+    private static InputStream streamCharsAsBytes(CharBuffer initial, Function<CharBuffer, CharBuffer> refill) {
         return new InputStream() {
             private boolean eof = false;
             private CharBuffer currentSource = initial;
@@ -85,7 +88,8 @@ public class StreamingBase64 {
         };
     }
 
-    // we know this is only used for base64 chars, aka ascii/latin, so we're fine casting the byte to a char
+    // the Base64 class of apache commons does not support disabling the padding
+    // so instead we have to filter it out for now
     private static OutputStream latinBytesTo(Writer target, boolean padding) {
         return new OutputStream() {
             @Override
@@ -99,7 +103,7 @@ public class StreamingBase64 {
             public void write(byte[] b, int off, int len) throws IOException {
                 // single char writes are translated to char array, so it's better 
                 // to also our own char array and pass that
-                // it's the fastest path
+                // it's the fastest path that has the last amount of copies.
                 char[] copy = new char[len];
                 int p = 0;
                 for (int i = off; i < off + len; i++) {
@@ -114,7 +118,8 @@ public class StreamingBase64 {
         };
     }
 
-    // we know this is only used for base64 chars, aka ascii/latin, so we're fine casting the byte to a char
+    // the Base64 class of apache commons does not support disabling the padding
+    // so instead we have to filter it out for now
     private static OutputStream latinBytesTo(StringBuilder target, boolean padding) {
         return new OutputStream() {
             @Override
@@ -224,6 +229,8 @@ public class StreamingBase64 {
         copy(source, (buffer, len) -> {
             for (int i = 0; i < len; i++) {
                 char c = (char)buffer[i];
+                // the Base64 class of apache does not support disabling the padding
+                // so instead we have to filter it out for now
                 if (!padding && c == '=') {
                     continue;
                 }
@@ -242,6 +249,8 @@ public class StreamingBase64 {
             var written = 0;
             for (int i = 0; i < len; i++) {
                 char c = (char)buffer[i];
+                // the Base64 class of apache commons does not support disabling the padding
+                // so instead we have to filter it out for now
                 if (!padding && c == '=') {
                     continue;
                 }
