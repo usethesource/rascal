@@ -6,15 +6,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
-
-import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 
 
 /**
@@ -23,12 +19,12 @@ import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 public class StreamingBase64 {
 
     private static InputStream stringToLatinBytes(String source) {
-        return stringToLatinBytes2(CharBuffer.wrap(source), s -> s);
+        return stringToLatinBytes(CharBuffer.wrap(source), s -> s);
     }
 
     private static InputStream stringToLatinBytes(Reader source) {
         var buffer = new char[1024];
-        return stringToLatinBytes2(CharBuffer.wrap(buffer).flip() /*empty*/, cb -> {
+        return stringToLatinBytes(CharBuffer.wrap(buffer).flip() /*empty*/, cb -> {
             try {
                 int read = source.read(buffer);
                 if (read == -1) {
@@ -44,31 +40,50 @@ public class StreamingBase64 {
         });
     }
 
-    private static InputStream stringToLatinBytes2(CharBuffer initial, Function<CharBuffer, CharBuffer> refill) {
-        var stringToBytes = StandardCharsets.ISO_8859_1.newEncoder(); 
-        return new ByteBufferInputStream(ByteBuffer.allocate(1024).flip()) {
+    // We know that base64 strings are not unicode, so we can just cast a char to a byte and be done
+    // no decoding of string/char to byte needed
+    private static InputStream stringToLatinBytes(CharBuffer initial, Function<CharBuffer, CharBuffer> refill) {
+        return new InputStream() {
             private boolean eof = false;
             private CharBuffer currentSource = initial;
 
             @Override
-            protected ByteBuffer refill(ByteBuffer torefill) throws IOException {
+            public int available() throws IOException {
                 if (!currentSource.hasRemaining()) {
                     if (eof) {
-                        return torefill;
+                        return 0;
                     }
                     currentSource = refill.apply(currentSource);
                     if (!currentSource.hasRemaining()) {
                         eof = true;
-                        return torefill;
+                        return 0;
                     }
                 }
-                torefill.clear();
-                stringToBytes.encode(currentSource, torefill, false);
-                return torefill.flip();
+                return currentSource.remaining();
+            }
+
+            @Override
+            public int read() throws IOException {
+                if (available() == 0) {
+                    return -1;
+                }
+                return currentSource.get() & 0xFF;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                int remaining = available();
+                if (remaining == 0) {
+                    return -1;
+                }
+                int toRead = Math.min(remaining, len);
+                for (int i = 0; i < toRead; i++) {
+                    b[off + i] = (byte)(currentSource.get() & 0xFF);
+                }
+                return toRead;
             }
         };
     }
-
 
     // we know this is only used for base64 chars, aka ascii/latin, so we're fine casting the byte to a char
     private static OutputStream latinBytesTo(Writer target, boolean padding) {
