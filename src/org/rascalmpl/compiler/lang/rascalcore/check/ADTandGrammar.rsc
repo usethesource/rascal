@@ -240,7 +240,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts) || !isEmpty(allStarts)){
-            syntaxDefinitions += (AType::layouts("$default$"): achoice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
+            syntaxDefinitions += (layouts("$default$"): achoice(layouts("$default$"), {prod(layouts("$default$"), [])}));
         }
         
         if(size(allLayouts) >= 1){
@@ -312,7 +312,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         g = layouts(g, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
-        g.rules += (AType::aempty():achoice(AType::aempty(), {prod(AType::aempty(),[])}));
+        g.rules += (aempty():achoice(aempty(), {prod(aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         tm.store[key_grammar] = [g];

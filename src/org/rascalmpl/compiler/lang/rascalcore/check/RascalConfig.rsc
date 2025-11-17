@@ -374,9 +374,27 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
+// Extend the path relation by
+// - adding transitive edges for extend
+// - adding imports via these extends
+rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths){
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
+    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+
+    imports = {<from, to> | <loc from, importPath(), loc to> <- paths};
+    delta = { <from, importPath(), to2> 
+            | <loc from, loc to2> <- extendPlus o imports, 
+              <from, extendPath(), to2> notin paths, 
+              from != to2
+            };
+    paths += delta;
+    return paths;
+}
+
 // Enhance TModel before running Solver by 
+
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    return m;
+    return m[paths = enhancePathRelation(m.paths)];
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
@@ -403,7 +421,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                    s.addMessages(msgs);
                 }
                 if(isVoidAType(t1.ret) && !isVoidAType(t2.ret)){
-                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                   causes = [ info("Clashing declaration of `<id>`", d2.defined) ];
+                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d1.defined, causes=causes) ];
                    s.addMessages(msgs);
                 }
                 if(comparableList(t1.formals, t2.formals)){

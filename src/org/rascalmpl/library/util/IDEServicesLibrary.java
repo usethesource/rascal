@@ -56,6 +56,7 @@ public class IDEServicesLibrary {
     public void applyDocumentsEdits(IList edits) {
         applyFileSystemEdits(edits);
     }
+
     public void applyFileSystemEdits(IList edits) {
         services.applyFileSystemEdits(edits);
     }
@@ -82,7 +83,7 @@ public class IDEServicesLibrary {
                 viewColumn);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -93,7 +94,6 @@ public class IDEServicesLibrary {
     public void logMessage(IConstructor message) {
         services.logMessage(message);
     }
-
 
     public void registerDiagnostics(IList messages) {
         services.registerDiagnostics(messages);

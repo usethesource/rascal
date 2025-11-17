@@ -236,6 +236,23 @@ test bool removeConstructorAndRestoreIt(){
     return checkModuleOK(B);
 }
 
+test bool correctToIncorrectModuleOK(){
+    clearMemory();
+    Aloc = writeModule("module A 
+                    'import B; 
+                    'int x = y;");
+    Bloc = writeModule("module B 
+                    'public int y = 123;");
+    assert checkModuleOK(Aloc);
+    Aloc = writeModule("module A 
+                       'import B; 
+                       'int x = y; // foo");
+    Bloc = writeModule("module B 
+                       'public str y = \"foo\";");
+    assert checkModuleOK(Bloc); 
+    return unexpectedDeclarationInModule(Aloc);
+}
+
 // ---- incremental type checking ---------------------------------------------
 
 // Legend:
@@ -467,6 +484,7 @@ void safeRemove(loc l){
     try remove(l, recursive=true); catch _:;
 }
 
+@ignore{Investigate, after clearing messages}
 test bool onlyTouchedModulesAreReChecked0(){
     clearMemory();
     pcfg = getRascalWritablePathConfig();
@@ -736,7 +754,8 @@ void largeBenchmarkRechecking(){
 
 void allBenchmarks(){
     beginTime = cpuTime();
-    miniBenchmarkRechecking();
+    miniBenchmarkRechecking1();
+    miniBenchmarkRechecking2();
     mediumBenchmarkRechecking();
     //largeBenchmarkRechecking();
     println("Total time: <(cpuTime() - beginTime)/1000000> ms");

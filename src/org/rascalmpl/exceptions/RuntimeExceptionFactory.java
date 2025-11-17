@@ -16,9 +16,18 @@
 *******************************************************************************/
 package org.rascalmpl.exceptions;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
+
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -28,7 +37,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This class defines and implements all dynamic (run-time) exceptions that
@@ -432,10 +440,44 @@ public class RuntimeExceptionFactory {
 	public static Throw io(IString msg) {
         return new Throw(VF.constructor(IO, msg));
     }
+
 	
 	public static Throw io(String msg) {
-        return new Throw(VF.constructor(IO, VF.string(msg)));
+        return io(VF.string(msg));
     }
+
+	private static String mapIOException(IOException ex) {
+		var msg = ex.getMessage();
+		if (ex instanceof FileSystemException) {
+			// nio exceptions lack proper messages, they are encoded in the class name
+			if (ex instanceof DirectoryNotEmptyException) {
+				return "Directory is not empty: " + msg;
+			}
+			if (ex instanceof FileAlreadyExistsException) {
+				return "File already exists: " + msg;
+			}
+			if (ex instanceof NoSuchFileException) {
+				return "No such file: " + msg;
+			}
+			if (ex instanceof NotDirectoryException) {
+				return "Not a directory: " + msg;
+			}
+		}
+		if (ex instanceof FileNotFoundException) {
+			// not all paths throw a proper message, they often only have the path name
+			return "No such file: " + msg;
+		}
+		// otherwise fallback to the message
+		return msg;
+	}
+
+	public static Throw io(IOException ex) {
+		return io(mapIOException(ex));
+	}
+
+	public static Throw io(IOException ex, AbstractAST ast, StackTrace trace) {
+		return io(VF.string(mapIOException(ex)), ast, trace);
+	}
 	
 	public static Throw io(IString msg, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(IO, msg), ast != null ? ast.getLocation() : null, trace);

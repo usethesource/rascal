@@ -131,6 +131,8 @@ ModuleStatus rascalTModelForLocs(
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
 
+    if(isEmpty(mlocs)) return ms;
+
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
     mnames = 
@@ -464,12 +466,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         c.push(key_pathconfig, pcfg);
 
         rascalPreCollectInitialization(namedTrees, c);
-
-        added = {};
-        // for(str nm <- domain(namedTrees)){
-        //     <a, ms> = loadImportsAndExtends(nm, ms, c, added);
-        //     added += a;
-        // }
 
         <added, ms> = loadImportsAndExtends(moduleNames, ms, c, {});
         for(str nm <- namedTrees){

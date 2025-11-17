@@ -12,14 +12,17 @@
  */ 
 package org.rascalmpl.ideservices;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -109,7 +112,61 @@ public interface IDEServices extends IRascalMonitor {
    * @param edits list of DocumentEdits
    */
   default void applyFileSystemEdits(IList edits) {
-     throw new UnsupportedOperationException("applyFileSystemEdits is not implemented in this environment.");
+    var registry = URIResolverRegistry.getInstance();
+    var vf = IRascalValueFactory.getInstance();
+    edits.stream().map(IConstructor.class::cast).forEach(c -> {
+      try {
+        switch (c.getName()) {
+          case "removed": {
+            var file = (ISourceLocation) c.get("file");
+            registry.remove(file.top(), false);
+            break;
+          }
+          case "created": {
+            var file = (ISourceLocation) c.get("file");
+            if (registry.exists(file)) {
+              registry.setLastModified(file, System.currentTimeMillis());
+            } else {
+              try (var out = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                out.write("");
+              }
+            }
+            break;
+          }
+          case "renamed": {
+            var from = (ISourceLocation) c.get("from");
+            var to = (ISourceLocation) c.get("to");
+            registry.rename(from.top(), to.top(), true);
+            break;
+          }
+          case "changed": {
+            var file = (ISourceLocation) c.get("file");
+            if (c.has("edits")) {
+              var textEdits = (IList) c.get("edits");
+              var charset = registry.detectCharset(file).name();
+              var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), charset, false);
+              int cursor = 0;
+              try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
+                for (var e : textEdits) {
+                  var edit = (IConstructor) e;
+                  var range = (ISourceLocation) edit.get("range");
+                  var replacement = (IString) edit.get("replacement");
+                  contents.substring(cursor, range.getOffset()).write(writer);
+                  replacement.write(writer);
+                  cursor = range.getOffset() + range.getLength();
+                }
+                contents.substring(cursor).write(writer);
+              }
+            } else {
+              registry.setLastModified(file, System.currentTimeMillis());
+            }
+            break;
+          }
+        }
+      } catch (IOException e) {
+        warning("Could not execute FileSystemChange due to " + e.getMessage(), URIUtil.rootLocation("unknown"));
+      }
+    });
   }
 
   /**
