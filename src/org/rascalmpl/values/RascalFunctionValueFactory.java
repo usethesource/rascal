@@ -552,7 +552,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (IOException e) {
-                throw RuntimeExceptionFactory.io("IO error: " + e);
+                throw RuntimeExceptionFactory.io(e);
             }
             catch (Ambiguous e) {
                 return e.getTree();
