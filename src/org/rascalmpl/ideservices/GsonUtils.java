@@ -130,13 +130,30 @@ public class GsonUtils {
                 return new TypeAdapter<T>() {
                     @Override
                     public void write(JsonWriter out, T value) throws IOException {
+                        var needsWrapping = needsWrapping(type);
+                        if (needsWrapping) {
+                            out.beginObject();
+                            out.name("val");
+                        }
                         writer.write(out, (IValue) value);
+                        if (needsWrapping) {
+                            out.endObject();
+                        }
                     }
 
                     @SuppressWarnings("unchecked")
                     @Override
                     public T read(JsonReader in) throws IOException {
-                        return (T) reader.read(in, type);
+                        var needsWrapping = needsWrapping(type);
+                        if (needsWrapping) {
+                            in.beginObject();
+                            in.nextName();
+                        }
+                        var ret = (T) reader.read(in, type);
+                        if (needsWrapping) {
+                            in.endObject();
+                        }
+                        return ret;
                     }
                 };
             }
@@ -145,7 +162,15 @@ public class GsonUtils {
                 public void write(JsonWriter out, T value) throws IOException {
                     switch (complexTypeMode) {
                         case ENCODE_AS_JSON_OBJECT:
+                            var needsWrapping = needsWrapping(type);
+                            if (needsWrapping) {
+                                out.beginObject();
+                                out.name("val");
+                            }
                             writer.write(out, (IValue) value);
+                            if (needsWrapping) {
+                                out.endObject();
+                            }
                             break;
                         case ENCODE_AS_BASE64_STRING:
                             out.value(base64Encode((IValue) value));
@@ -166,6 +191,10 @@ public class GsonUtils {
                 }
             };
         }
+    }
+
+    private static boolean needsWrapping(Type type) {
+        return type == null || type.isSubtypeOf(tf.rationalType());
     }
 
     public static void configureGson(GsonBuilder builder) {
