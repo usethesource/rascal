@@ -79,7 +79,7 @@ public class GsonUtils {
         writer.setDatesAsInt(true);
         typeMappings = List.of(
             new TypeMapping(IBool.class, tf.boolType()),
-            new TypeMapping(ICollection.class), // IList, IMap, IRelation, ISet
+            new TypeMapping(ICollection.class), // IList, IMap, ISet
             new TypeMapping(IConstructor.class),
             new TypeMapping(IDateTime.class, tf.dateTimeType()),
             new TypeMapping(IExternalValue.class),
