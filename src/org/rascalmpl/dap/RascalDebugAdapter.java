@@ -519,7 +519,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 case "watch": // Called from watched expressions. Only singular variable references are supported.
                     response.setResult("Only singular variable references are supported");
                     OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
-                    if (identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
+                    if (args.getFrameId() != null && identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
                         // The entire expression is a valid identifier
                         response.setResult("Undefined variable");
                         List<RascalVariable> variables = suspendedState.getVariables(args.getFrameId(), 0, -1);
