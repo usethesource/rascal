@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
@@ -44,6 +46,7 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.rascalmpl.dap.breakpoint.BreakpointsCollection;
 import org.rascalmpl.dap.variable.RascalVariable;
+import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
@@ -51,6 +54,11 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.NamedFunction;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.library.Prelude;
@@ -69,6 +77,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
 /**
@@ -141,8 +150,9 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setExceptionBreakpointFilters(new ExceptionBreakpointsFilter[]{});
             capabilities.setSupportsStepBack(false);
             capabilities.setSupportsRestartFrame(false);
-            capabilities.setSupportsSetVariable(false);
+            capabilities.setSupportsSetVariable(true);
             capabilities.setSupportsRestartRequest(false);
+            capabilities.setSupportsCompletionsRequest(true);
 
             return capabilities;
         }, ownExecutor);
@@ -506,6 +516,26 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
+    private Result<IValue> evaluateExpression(String expression) {
+        Result<IValue> result;
+        AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
+        String expr = expression.endsWith(";") ? expression : expression + ";";
+        try {
+            evaluator.removeSuspendTriggerListener(debugHandler);
+            evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+            result = evaluator.eval(
+                evaluator.getMonitor(),
+                expr,
+                DEBUGGER_LOC
+            );
+        } finally {
+            evaluator.setEventTrigger(oldTrigger);
+            evaluator.addSuspendTriggerListener(debugHandler);
+        }
+        return result;
+    }
+        
+
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
         return CompletableFuture.supplyAsync(() -> {
@@ -533,8 +563,18 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                                 break;
                             }
                         }   
-                    }
-                    break;
+                    } else { // If not a singular identifier, try to evaluate the expression
+                        try {
+                            Result<IValue> result = evaluateExpression(expr);
+                            response.setResult(result.toString());
+                            response.setType(result.getValue().getType().toString());
+                        }
+                        catch (Throwable e) {
+                            response.setResult(e.getMessage() == null ? "" : e.getMessage());
+                            response.setType("error");
+                        }
+                        break;
+                    }                    
 
                 case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
                     // In this case the expression already contains the value of the variable. We just return it.
@@ -548,6 +588,141 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             return response;
         }, ownExecutor);
     }
+
+    @Override
+    public CompletableFuture<SetVariableResponse> setVariable(SetVariableArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            SetVariableResponse response = new SetVariableResponse();
+            int reference = args.getVariablesReference();
+
+            RascalVariable variable = suspendedState.setVariable(reference, args.getName(), args.getValue());
+            if(variable == null){
+                response.setValue("<<unable to set variable>>");
+                response.setType("error");
+                return response;
+            }
+            response.setValue(variable.getDisplayValue());
+            response.setType(variable.getType().toString());
+            response.setVariablesReference(variable.getReferenceID());
+            return response;
+        });
+	}
+
+    private String getFunctionDetail(AbstractFunction func) {
+        StringBuilder detail = new StringBuilder();
+        detail.append(func.toString());
+        if (func instanceof NamedFunction) {
+            NamedFunction nf = (NamedFunction) func;
+            if (nf.hasTag("synopsis")) {
+                IValue v = nf.getTag("synopsis");
+                if (v instanceof IString) {
+                    detail.append(((IString) v).getValue());
+                    detail.append("\n");
+                }
+            }
+        }
+        return detail.toString();
+    }
+
+    private List<CompletionItem> getVariablesCompletionsFromFrame(IRascalFrame frame, String text) {
+        List<CompletionItem> completions = new ArrayList<>();
+        Set<String> frameVariables = frame.getFrameVariables();
+        for(String var : frameVariables){
+            if(var.startsWith(text)){
+                CompletionItem completion = new CompletionItem();
+                completion.setLabel(var);
+                completion.setSortText(var);
+                if (text.length() < var.length()) { //remove the prefix
+                    completion.setText(var.substring(text.length()));
+                }
+                else { // exact match
+                    completion.setText("");
+                }
+                completion.setType(CompletionItemType.VARIABLE);
+                completions.add(completion);
+            }
+        }
+        return completions;
+    }
+
+    private List<CompletionItem> getFunctionsCompletionsFromEnvironment(Environment env, String text) {
+        List<CompletionItem> completions = new ArrayList<>();
+        for(Pair<String,LinkedHashSet<AbstractFunction>> functions : env.getFunctions()){
+            String funcName = functions.getFirst();
+            if(funcName.startsWith(text)){
+                for(AbstractFunction func : functions.getSecond()){
+                    CompletionItem completion = new CompletionItem();
+                    completion.setLabel(func.getHeader());
+                    completion.setSortText(funcName);
+                    if (text.length() < funcName.length()) { //remove the prefix
+                        completion.setText(funcName.substring(text.length()));
+                    }
+                    else { // exact match
+                        completion.setText("");
+                    }
+                    completion.setType(CompletionItemType.FUNCTION);
+                    completion.setDetail(getFunctionDetail(func));
+                    completions.add(completion);
+                }
+            }
+        }
+        return completions;
+    }
+
+    @Override
+    public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            CompletionsResponse response = new CompletionsResponse();
+            List<CompletionItem> completions = new ArrayList<>();
+            if(suspendedState.isSuspended()) {
+                Integer frameId = args.getFrameId();
+                assert frameId != null;
+                IRascalFrame frame = suspendedState.getCurrentStackFrames()[frameId];
+
+                // Variable names starting with the typed text
+                completions.addAll(getVariablesCompletionsFromFrame(frame, args.getText()));
+
+                // Add functions from current frame's module
+                if(frame instanceof Environment){
+                    Environment env = (Environment) frame;
+                    completions.addAll(getFunctionsCompletionsFromEnvironment(env, args.getText()));
+                }
+
+                // Add module for namespace calls
+                for(String importName : frame.getImports()){
+                    if(importName.startsWith(args.getText())){
+                        CompletionItem completion = new CompletionItem();
+                        completion.setLabel(importName);
+                        completion.setSortText(importName);
+                        if (args.getText().length() < importName.length()) { //remove the prefix
+                            completion.setText(importName.substring(args.getText().length()) + "::");
+                        }
+                        else { // exact match
+                            completion.setText("::");
+                        }
+                        completion.setType(CompletionItemType.MODULE);
+                        completions.add(completion);
+                    }
+                }
+
+                // Add functions from imported modules
+                // First check for prefix with ::
+                String[] parts = args.getText().split("::");
+                Set<String> importsToSearch = parts.length > 1 ? Set.of(parts[0]) : frame.getImports();
+                String functionToSearch = parts.length > 1 ? parts[1] : args.getText();
+                for(String importName : importsToSearch){
+                    IRascalFrame module = evaluator.getModule(importName);
+                    // Try to cast module IRascalFrame as an Environment to get its functions
+                    if(module != null && module instanceof Environment){
+                        Environment env = (Environment) module;
+                        completions.addAll(getFunctionsCompletionsFromEnvironment(env, functionToSearch));
+                    }
+                }                
+            }
+            response.setTargets(completions.toArray(new CompletionItem[completions.size()]));
+            return response;
+        });
+	}
     
 }
 
