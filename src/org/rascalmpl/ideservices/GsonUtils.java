@@ -130,7 +130,7 @@ public class GsonUtils {
                 return new TypeAdapter<T>() {
                     @Override
                     public void write(JsonWriter out, T value) throws IOException {
-                        var needsWrapping = needsWrapping(type);
+                        var needsWrapping = needsWrapping(type, complexTypeMode);
                         if (needsWrapping) {
                             out.beginObject();
                             out.name("val");
@@ -144,7 +144,7 @@ public class GsonUtils {
                     @SuppressWarnings("unchecked")
                     @Override
                     public T read(JsonReader in) throws IOException {
-                        var needsWrapping = needsWrapping(type);
+                        var needsWrapping = needsWrapping(type, complexTypeMode);
                         if (needsWrapping) {
                             in.beginObject();
                             in.nextName();
@@ -162,7 +162,7 @@ public class GsonUtils {
                 public void write(JsonWriter out, T value) throws IOException {
                     switch (complexTypeMode) {
                         case ENCODE_AS_JSON_OBJECT:
-                            var needsWrapping = needsWrapping(type);
+                            var needsWrapping = needsWrapping(type, complexTypeMode);
                             if (needsWrapping) {
                                 out.beginObject();
                                 out.name("val");
@@ -192,9 +192,9 @@ public class GsonUtils {
             };
         }
     }
-
-    private static boolean needsWrapping(Type type) {
-        return type == null || type.isSubtypeOf(tf.rationalType());
+    
+    private static boolean needsWrapping(Type type, ComplexTypeMode complexTypeMode) {
+        return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && (type == null || type.isSubtypeOf(tf.rationalType()));
     }
 
     public static void configureGson(GsonBuilder builder) {
