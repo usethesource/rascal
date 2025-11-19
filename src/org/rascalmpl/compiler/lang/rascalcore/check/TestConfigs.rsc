@@ -271,7 +271,7 @@ public RascalCompilerConfig getFlyBytesCompilerConfig(bool keep=true){
 // ---- salix -----------------------------------------------------------------
 
 public PathConfig getSalixPathConfig(bool keep = false) {
-    return makePathConfig([ REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
+    return makePathConfig([ REPO + "salix/src/", REPO + "salix-contrib/src/main/rascal" ],
                           [ RASCAL ], 
                           keep=keep);
 }
