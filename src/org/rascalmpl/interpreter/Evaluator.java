@@ -104,6 +104,7 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -1833,7 +1834,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri, String title, int viewColumn) {
+        public void browse(URI uri, IString title, IInteger viewColumn) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
