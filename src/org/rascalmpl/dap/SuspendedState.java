@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -148,7 +149,8 @@ public class SuspendedState {
 
     public RascalVariable setVariable(int referenceID, String name, String valueStr) {
         if(!scopes.containsKey(referenceID)){
-            return null;
+            // raise undeclared variable error
+            throw new UndeclaredVariable(name, null);
         }
         IRascalFrame frame = scopes.get(referenceID);
 
