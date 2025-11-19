@@ -65,6 +65,10 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
+/**
+ * This class can be used to configure Gson to automatically encode and decode IValues to/from JSON.
+ * Only primitive IValues are supported; collections, tuples, and nodes are not supported as these values cannot be decoded automatically
+ */
 public class GsonUtils {
     private static final JsonValueWriter writer = new JsonValueWriter();
     private static final JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), new TypeStore(), new NullRascalMonitor(), null);
@@ -72,6 +76,9 @@ public class GsonUtils {
     
     private static final List<TypeMapping> typeMappings;
 
+    /* Mappings from Java types to `vallang` types are declared here.
+     * Subtypes should be declared before their supertypes; e.g., `Number` and `Value` appear last.
+     */
     static {
         writer.setDatesAsInt(true);
         typeMappings = List.of(
@@ -81,7 +88,7 @@ public class GsonUtils {
             new TypeMapping(IDateTime.class, tf.dateTimeType()),
             new TypeMapping(IExternalValue.class),
             new TypeMapping(IInteger.class, tf.integerType()),
-            new TypeMapping(INode.class, tf.nodeType()),
+            new TypeMapping(INode.class),
             new TypeMapping(IRational.class, tf.rationalType()),
             new TypeMapping(IReal.class, tf.realType()),
             new TypeMapping(ISourceLocation.class, tf.sourceLocationType()),
@@ -190,6 +197,12 @@ public class GsonUtils {
         }
     }
     
+    /**
+     * IValues that are encoded as a (JSON) list need to be wrapped in an object to avoid Gson accidentally unpacking the list
+     * @param type
+     * @param complexTypeMode
+     * @return whether or not wrapping is required 
+     */
     private static boolean needsWrapping(Type type, ComplexTypeMode complexTypeMode) {
         return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && (type == null || type.isSubtypeOf(tf.rationalType()));
     }
