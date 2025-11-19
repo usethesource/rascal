@@ -37,6 +37,11 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
+/**
+ * This interface exposes functionality from `IDEServices` over IPC.
+ * It is a subset of `IDEServices`, as not all of its functionality lends
+ * itself to be run remotely in a nice way.
+ */
 public interface IRemoteIDEServices {
 
     @JsonRequest
