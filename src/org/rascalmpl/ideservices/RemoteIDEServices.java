@@ -40,7 +40,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
 import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterLocationsParameters;
-import org.rascalmpl.ideservices.IRemoteIDEServices.UnRegisterDiagnosticsParameters;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IInteger;
@@ -115,7 +114,7 @@ public class RemoteIDEServices extends BasicIDEServices {
     
     @Override
     public void unregisterDiagnostics(IList resources) {
-        server.unregisterDiagnostics(new UnRegisterDiagnosticsParameters(resources));
+        server.unregisterDiagnostics(resources.stream().map(ISourceLocation.class::cast).toArray(ISourceLocation[]::new));
     }
 
     @Override
