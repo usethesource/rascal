@@ -60,7 +60,7 @@ public class RascalShell  {
             runner = new REPLRunner(term, ideServicesPort);
         }
         
-        runner.run(Arrays.copyOfRange(args, i, args.length - 1));
+        runner.run(Arrays.copyOfRange(args, i, args.length));
     }
 
     public static Terminal connectToTerminal() throws IOException {
