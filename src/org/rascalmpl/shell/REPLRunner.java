@@ -14,6 +14,10 @@ public class REPLRunner implements ShellRunner {
 
     private final Terminal term;
     private final int remoteIDEServicesPort;
+
+    public REPLRunner(Terminal term) {
+        this(term, -1);
+    }
     
     public REPLRunner(Terminal term, int remoteIDEServicesPort) {
         this.term = term;
