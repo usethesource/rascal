@@ -638,7 +638,6 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
-                        println("ret <ret>");
                        try {
                             validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
