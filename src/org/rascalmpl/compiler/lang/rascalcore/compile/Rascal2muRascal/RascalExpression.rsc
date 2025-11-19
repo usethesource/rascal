@@ -573,7 +573,7 @@ private MuExp translateConcreteExpressionSeparatedList(Symbol eltType, list[Symb
     code = [muConInit(writer, muPrim("open_list_writer", avalue(), [], [], src))];
 
     if (isListVar(eltType, single)) {
-       varExp = muTreeGetArgs(translateConcreteExpression(single));
+       MuExp varExp = muTreeGetArgs(translateConcreteExpression(single));
        code += [muPrim("splice_list", avoid(), [avalue(), treeType], [writer, varExp], src)];
     }
     else {
@@ -1432,7 +1432,10 @@ MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
         }
 
         // Determine set of constructors with the desired field
-        map[AType, set[AType]] constructors = getConstructorsMap()[tp] ? {};
+        map[AType, set[AType]] constructors = ();
+        if(getConstructorsMap()[tp] ?){
+            constructors = getConstructorsMap()[tp];
+        }
         set[AType] consesWithField = 
                 {c | c:acons(AType _adt, list[AType] fields, list[Keyword] kwFields) <- constructors,
                      (!isEmpty(fields) && any(f <- fields, f.alabel == uname)) ||

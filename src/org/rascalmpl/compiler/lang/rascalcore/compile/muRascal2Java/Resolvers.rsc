@@ -220,7 +220,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, PathConfig pcfg, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
 
-    module_scopes = domain(loc2module);
+    set[loc] module_scopes = domain(loc2module);
 
     set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
 
