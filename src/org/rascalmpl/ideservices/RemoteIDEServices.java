@@ -49,6 +49,9 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
+/**
+ * This class enables interaction with an implementation of `IDEServices` that (potentially) runs in another thread or process
+ */
 public class RemoteIDEServices extends BasicIDEServices {
     private final IRemoteIDEServices server;
 
