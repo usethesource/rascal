@@ -548,6 +548,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 case "repl": // Called from the debugger repl
                 case "watch": // Called from watched expressions. Only singular variable references are supported.
                     response.setResult("Only singular variable references are supported");
+                    boolean variableFound = false;
                     OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
                     if (args.getFrameId() != null && identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
                         // The entire expression is a valid identifier
@@ -560,10 +561,13 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                                 response.setVariablesReference(var.getReferenceID());
                                 response.setNamedVariables(var.getNamedVariables());
                                 response.setIndexedVariables(var.getIndexedVariables());
+                                variableFound = true;
                                 break;
                             }
-                        }   
-                    } else { // If not a singular identifier, try to evaluate the expression
+                        }
+                        
+                    } 
+                    if (!variableFound) { // If not a singular identifier, try to evaluate the expression
                         try {
                             Result<IValue> result = evaluateExpression(expr);
                             response.setResult(result.toString());
@@ -573,9 +577,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                             response.setResult(e.getMessage() == null ? "" : e.getMessage());
                             response.setType("error");
                         }
-                        break;
                     }                    
-
+                    break;
                 case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
                     // In this case the expression already contains the value of the variable. We just return it.
                     response.setResult(expr);
