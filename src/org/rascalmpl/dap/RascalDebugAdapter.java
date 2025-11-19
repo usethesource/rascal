@@ -605,7 +605,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             response.setType(variable.getType().toString());
             response.setVariablesReference(variable.getReferenceID());
             return response;
-        });
+        }, ownExecutor);
 	}
 
     private String getFunctionDetail(AbstractFunction func) {
@@ -721,7 +721,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             }
             response.setTargets(completions.toArray(new CompletionItem[completions.size()]));
             return response;
-        });
+        }, ownExecutor);
 	}
     
 }
