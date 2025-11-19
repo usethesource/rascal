@@ -26,18 +26,15 @@
  */
 package org.rascalmpl.ideservices;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
+import java.io.StringWriter;
 import java.util.List;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
+import org.rascalmpl.util.base64.StreamingBase64;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import com.google.gson.Gson;
@@ -219,26 +216,20 @@ public class GsonUtils {
     }
 
     public static String base64Encode(IValue value) {
-        final Encoder encoder = Base64.getEncoder();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream(512);
-
-        try (IValueOutputStream out = new IValueOutputStream(stream, IRascalValueFactory.getInstance())) {
+        var writer = new StringWriter();
+        try (var encoder = StreamingBase64.encode(writer);
+             var out = new IValueOutputStream(encoder, IRascalValueFactory.getInstance())) {
             out.write(value);
+            return writer.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return encoder.encodeToString(stream.toByteArray());
     }
 
     public static IValue base64Decode(String string) {
-        final Decoder decoder = Base64.getDecoder();
-
-        try (
-            ByteArrayInputStream stream = new ByteArrayInputStream(decoder.decode(string));
-            IValueInputStream in = new IValueInputStream(stream, IRascalValueFactory.getInstance(), () -> new TypeStore())
-        ) {
-            return in.read();
+        try (var decoder = StreamingBase64.decode(string);
+             var in = new IValueInputStream(decoder, IRascalValueFactory.getInstance(), () -> new TypeStore())) {
+            return in.read();    
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
