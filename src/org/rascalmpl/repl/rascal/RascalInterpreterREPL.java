@@ -93,7 +93,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     protected DebugSocketServer debugServer;
 
-    protected final int replInterfacePort;
+    protected final int ideServicesPort;
 
     @Override
     public ITree parseCommand(String command) {
@@ -107,8 +107,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         this(-1);
     }
 
-    public RascalInterpreterREPL(int replInterfacePort) {
-        this.replInterfacePort = replInterfacePort;
+    public RascalInterpreterREPL(int ideServicesPort) {
+        this.ideServicesPort = ideServicesPort;
 
         this.printer = new RascalValuePrinter() {
             @Override
@@ -132,10 +132,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        if (replInterfacePort == -1) {
+        if (ideServicesPort == -1) {
             return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
         }
-        return new RemoteIDEServices(replInterfacePort, err, monitor, term, URIUtil.rootLocation("cwd"));
+        return new RemoteIDEServices(ideServicesPort, err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
