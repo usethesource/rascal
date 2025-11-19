@@ -26,10 +26,12 @@
  */
 package org.rascalmpl.ideservices;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -41,7 +43,7 @@ public interface IRemoteIDEServices {
     CompletableFuture<Void> edit(ISourceLocation param);
 
     @JsonRequest
-    CompletableFuture<Void> browse(BrowseParameter param);
+    CompletableFuture<Void> browse(URI uri, IString title, IInteger viewColumn);
 
     @JsonRequest
     CompletableFuture<ISourceLocation> resolveProjectLocation(ISourceLocation param);
@@ -63,36 +65,6 @@ public interface IRemoteIDEServices {
 
     @JsonRequest
     CompletableFuture<Void> registerDebugServerPort(int processID, int serverPort);
-
-    public static class BrowseParameter {
-        private String uri;
-        private String title;
-        private int viewColumn;
-
-        public BrowseParameter(String uri, String title, int viewColumn) {
-            this.uri = uri;
-            this.title = title;
-            this.viewColumn = viewColumn;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public int getViewColumn() {
-            return viewColumn;
-        }
-
-        @Override
-        public String toString() {
-            return "BrowseParameter:\n\tbrowseParameter:" + uri + "\n\ttitle: " + title + "\n\tviewColumn: "
-                + viewColumn;
-        }
-    }
 
     public static class RegisterDiagnosticsParameters {
         private String messages;
