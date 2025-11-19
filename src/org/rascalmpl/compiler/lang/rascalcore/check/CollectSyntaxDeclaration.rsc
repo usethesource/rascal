@@ -201,10 +201,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                                stp := getSyntaxType(removeChainRule(tsym), s)
                              ];
 
-                    // TODO JV: we are not allowed to write `syntax start[X] = ...` because that breaks assumptions
-                    // later on the shape of the start rule. Are we checking this?
-                    def = \start(sdef) := def ? sdef : def;
-                    //def = \start(sdef) := def ? sdef : unset(def, "alabel");
+                    def = \start(sdef, _) := def ? sdef : def;
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=md5Hash("<adt><unparseNoLayout(current)>")]);
