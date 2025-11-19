@@ -342,7 +342,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* _>/<RegExpModifier _
 
 tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
    str fuid = topFunctionScope();
-   fragmentCode = [];
+   list[MuExp] fragmentCode = [];
    vars = [];
    map[str,int] varnames = ();
    str fragment = "";
@@ -409,7 +409,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
        swriter = muTmpStrWriter("swriter", fuid);
        buildRegExp = muValueBlock(astr(),
                                   muConInit(swriter, muPrim("open_string_writer", astr(), [], [], e@\loc)) + 
-                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | exp <- fragmentCode ] +
+                                  [ muPrim("add_string_writer", astr(), [getType(e)], [swriter, e], e@\loc) | MuExp e <- fragmentCode ] +
                                   muPrim("close_string_writer", astr(), [astr()], [swriter], e@\loc));
        return  <buildRegExp, vars>; 
    }  

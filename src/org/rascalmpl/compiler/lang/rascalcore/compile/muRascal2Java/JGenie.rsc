@@ -91,6 +91,7 @@ JGenie makeJGenie(MuModule m,
                   
     map[str,loc] allModuleLocs = moduleLocs;
     map[loc,str] allLocs2Module = invertUnique(moduleLocs);
+    allLocs2Module += (l.top : allLocs2Module[l] | l <- domain(allLocs2Module) );
     MuModule currentModule = m;
     str moduleName = m.name;
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
@@ -359,7 +360,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     bool _isDefinedInCurrentFunction(MuExp var){
-        definitions = currentTModel.definitions;
+        map[loc, Define] definitions = currentTModel.definitions;
         for(d <- definitions, def := definitions[d], var.name == def.id, isContainedIn(def.scope, function.src), def.idRole in variableRoles){
             return true;
         }
@@ -368,20 +369,20 @@ JGenie makeJGenie(MuModule m,
     
     list[Keyword] _collectKwpFormals(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes my_scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
-        outer = scopes[fun.src];
+        outer = my_scopes[fun.src];
         while (muFunctionsByLoc[outer]?){
             fun1 = muFunctionsByLoc[outer];
             kwFormals += fun1.ftype.kwFormals;
-            outer = scopes[fun1.src];
+            outer = my_scopes[fun1.src];
         }
         return kwFormals;
     }
     
     lrel[str name, AType atype, MuExp defaultExp] _collectKwpDefaults(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes scopes = currentTModel.scopes;
         defaults = fun.kwpDefaults;
         funKwps =  fun.kwpDefaults<0>;
         outer = scopes[fun.src];
@@ -395,7 +396,7 @@ JGenie makeJGenie(MuModule m,
     
     list[str] _collectRedeclaredKwps(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         redeclared = [];
         outer = scopes[fun.src];
@@ -410,7 +411,7 @@ JGenie makeJGenie(MuModule m,
     
      list[str] _collectDeclaredKwps(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         declared = funKwps;
         outer = scopes[fun.src];

@@ -192,14 +192,14 @@ void main(
         warnUnusedPatternFormals = warnUnusedPatternFormals,
         infoModuleChecked        = infoModuleChecked
     );
-
+    list[Message] messages = [];
     if (\modules == []) {
         // the `compile` function throws EmptyList() on an empty list of modules
-        messages = info("No modules to compile.");
+        messages = [ info("No modules to compile.", pcfg.srcs[0]) ];
     }
     else {      
         messages = compile(\modules, rascalConfig);
     }
     
-    return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors); 
+    return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors); 
 }

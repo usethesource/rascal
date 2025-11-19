@@ -10,7 +10,7 @@ import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 import analysis::typepal::TModel;
 
-map[loc,loc] breaking(TModel old, TModel new){
+map[loc,loc] breakingTModel(TModel old, TModel new){
     missing = domain(old.logical2physical) - domain(new.logical2physical);
     return domainR(old.logical2physical, missing);
 }
@@ -53,7 +53,7 @@ void breaking(loc old, loc new, set[str] details = {}){
         tmOld = readBinaryValueFile(#TModel, old + oldPath);
         if(exists(new + oldPath)){
             tmNew = readBinaryValueFile(#TModel, new + oldPath);
-            b = breaking(tmOld, tmNew);
+            b = breakingTModel(tmOld, tmNew);
             if(!isEmpty(b)){
                 nchanges += size(b);
                 println("- <oldPath> <size(b)> changes");
