@@ -59,6 +59,7 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.NamedFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.library.Prelude;
@@ -570,12 +571,20 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                     if (!variableFound) { // If not a singular identifier, try to evaluate the expression
                         try {
                             Result<IValue> result = evaluateExpression(expr);
-                            response.setResult(result.toString());
-                            response.setType(result.getValue().getType().toString());
+                            if(result.isVoid()) { // avoid NPE in toString below
+                                response.setResult("void");
+                                response.setType("void");
+                            } else {
+                                response.setResult(result.toString());
+                                response.setType(result.getValue().getType().toString());
+                            }
                         }
-                        catch (Throwable e) {
-                            response.setResult(e.getMessage() == null ? "" : e.getMessage());
-                            response.setType("error");
+                        catch (RuntimeException e) {
+                            OutputEventArguments errorOutput = new OutputEventArguments();
+                            errorOutput.setCategory(OutputEventArgumentsCategory.STDERR);
+                            errorOutput.setOutput(e.getMessage());
+                            client.output(errorOutput);
+                            return null;
                         }
                     }                    
                     break;
@@ -597,17 +606,20 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         return CompletableFuture.supplyAsync(() -> {
             SetVariableResponse response = new SetVariableResponse();
             int reference = args.getVariablesReference();
+            try {
+                RascalVariable variable = suspendedState.setVariable(reference, args.getName(), args.getValue());
 
-            RascalVariable variable = suspendedState.setVariable(reference, args.getName(), args.getValue());
-            if(variable == null){
-                response.setValue("<<unable to set variable>>");
-                response.setType("error");
+                response.setValue(variable.getDisplayValue());
+                response.setType(variable.getType().toString());
+                response.setVariablesReference(variable.getReferenceID());
                 return response;
+            } catch (UndeclaredVariable e) {
+                OutputEventArguments errorOutput = new OutputEventArguments();
+                errorOutput.setCategory(OutputEventArgumentsCategory.STDERR);
+                errorOutput.setOutput(e.getMessage());
+                client.output(errorOutput);
+                return null;
             }
-            response.setValue(variable.getDisplayValue());
-            response.setType(variable.getType().toString());
-            response.setVariablesReference(variable.getReferenceID());
-            return response;
         }, ownExecutor);
 	}
 
