@@ -37,13 +37,13 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.ideservices.IRemoteIDEServices.BrowseParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
 import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterLocationsParameters;
 import org.rascalmpl.ideservices.IRemoteIDEServices.UnRegisterDiagnosticsParameters;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -84,8 +84,8 @@ public class RemoteIDEServices extends BasicIDEServices {
     }
 
     @Override
-    public void browse(URI uri, String title, int viewColumn) {
-        server.browse(new BrowseParameter(uri.toString(), title, viewColumn));
+    public void browse(URI uri, IString title, IInteger viewColumn) {
+        server.browse(uri, title, viewColumn);
     }
 
     @Override
