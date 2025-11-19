@@ -29,7 +29,6 @@ package org.rascalmpl.ideservices;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -136,33 +135,26 @@ public interface IRemoteIDEServices {
     }
 
     public static class RegisterLocationsParameters {
-        private final String scheme;
-        private final String authority;
+        private final IString scheme;
+        private final IString authority;
         private final String mapping;
 
         public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
-            this.scheme = scheme.getValue();
-            this.authority = authority.getValue();
+            this.scheme = scheme;
+            this.authority = authority;
             this.mapping = GsonUtils.base64Encode(mapping);
         }
 
         public IString getScheme() {
-            return IRascalValueFactory.getInstance().string(scheme);
+            return scheme;
         }
 
         public IString getAuthority() {
-            return IRascalValueFactory.getInstance().string(authority);
+            return authority;
         }
 
         public IMap getMapping() {
             return (IMap) GsonUtils.base64Decode(mapping);
-        }
-
-        public String getRawScheme() {
-            return scheme;
-        }
-        public String getRawAuthority() {
-            return authority;
         }
     }
 }

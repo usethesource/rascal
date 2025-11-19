@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -28,7 +29,7 @@ import org.rascalmpl.repl.streams.StreamUtil;
 public class RascalShell  {
 
     public static void main(String[] args) throws IOException {
-        int replInterfacePort = -1;
+        int ideServicesPort = -1;
         checkIfHelp(args);
 
         var term = connectToTerminal();
@@ -36,7 +37,7 @@ public class RascalShell  {
         int i = 0;
         for (; i < args.length; i++) {
             if (args[i].equals("--remoteIDEServicesPort")) {
-                replInterfacePort = Integer.parseInt(args[++i]);
+                ideServicesPort = Integer.parseInt(args[++i]);
             } else if (args[i].equals("--vfsPort")) {
                 i++; // skip the argument
             } else if (args[i].startsWith("--")) {
@@ -56,12 +57,10 @@ public class RascalShell  {
             runner = new ModuleRunner(term.reader(), out, err, monitor);
         } 
         else {
-            runner = new REPLRunner(term, replInterfacePort);
+            runner = new REPLRunner(term, ideServicesPort);
         }
         
-        String[] rascalArgs = new String[args.length - i];
-        System.arraycopy(args, i, rascalArgs, 0, args.length - i);
-        runner.run(rascalArgs);
+        runner.run(Arrays.copyOfRange(args, i, args.length - 1));
     }
 
     public static Terminal connectToTerminal() throws IOException {

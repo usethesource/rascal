@@ -31,10 +31,13 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.ideservices.IRemoteIDEServices.BrowseParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
 import org.rascalmpl.uri.URIUtil;
 
@@ -42,14 +45,14 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RemoteIDEServices extends BasicIDEServices {
-    private IRemoteIDEServices server;
+    private final IRemoteIDEServices server;
 
-    public RemoteIDEServices(int replInterfacePort, PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot) {
+    public RemoteIDEServices(int ideServicesPort, PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot) {
         super(stderr, monitor, terminal, projectRoot);
 
         try {
             @SuppressWarnings("resource")
-            var socket = new Socket(InetAddress.getLoopbackAddress(), replInterfacePort);
+            var socket = new Socket(InetAddress.getLoopbackAddress(), ideServicesPort);
             socket.setTcpNoDelay(true);
             Launcher<IRemoteIDEServices> clientLauncher = new Launcher.Builder<IRemoteIDEServices>()
                 .setRemoteInterface(IRemoteIDEServices.class)
@@ -63,7 +66,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 clientLauncher.startListening();
                 server = clientLauncher.getRemoteProxy();
         } catch (Throwable e) {
-            warning("Error setting up Remote IDE Services connection " + e.getMessage(), URIUtil.rootLocation("unknown"));
+            throw new RuntimeException("Error setting up Remote IDE Services connection", e);
         }
     }
 
@@ -74,16 +77,17 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void browse(URI uri, String title, int viewColumn) {
-        super.browse(uri, title, viewColumn);
+        server.browse(new BrowseParameter(uri.toString(), title, viewColumn));
     }
 
     @Override
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         try {
-            return server.resolveProjectLocation(input).get();
-        } catch (Throwable e) {
-            return input;
-        }
+            return server.resolveProjectLocation(input).get(1, TimeUnit.MINUTES);
+        } catch (TimeoutException e) {
+            warning("Error resolving project location", URIUtil.unknownLocation());
+        } catch (Throwable e) {}
+        return input;
     }
 
     @Override
