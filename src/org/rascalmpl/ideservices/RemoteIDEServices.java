@@ -39,10 +39,15 @@ import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IRemoteIDEServices.BrowseParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
+import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
+import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterLocationsParameters;
+import org.rascalmpl.ideservices.IRemoteIDEServices.UnRegisterDiagnosticsParameters;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 
 public class RemoteIDEServices extends BasicIDEServices {
     private final IRemoteIDEServices server;
@@ -98,5 +103,21 @@ public class RemoteIDEServices extends BasicIDEServices {
     @Override
     public void applyFileSystemEdits(IList edits) {
         server.applyDocumentsEdits(new DocumentEditsParameter(edits));
+    }
+
+    @Override
+    public void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+        server.registerDiagnostics(new RegisterDiagnosticsParameters(messages));
+    }
+    
+    @Override
+    public void unregisterDiagnostics(IList resources) {
+        server.unregisterDiagnostics(new UnRegisterDiagnosticsParameters(resources));
+    }
+
+    @Override
+    public void registerLocations(IString scheme, IString auth, IMap map) {
+        super.registerLocations(scheme, auth, map);
+        server.registerLocations(new RegisterLocationsParameters(scheme, auth, map));
     }
 }
