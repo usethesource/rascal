@@ -637,7 +637,6 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
-                    println("checking ovl against conses <ovl>");
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
                         println("ret <ret>");
                        try {
@@ -676,8 +675,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                return res;
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
-               return res;
+               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
             return avalue();
