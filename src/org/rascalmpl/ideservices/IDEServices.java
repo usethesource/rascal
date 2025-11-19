@@ -26,6 +26,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -43,7 +44,7 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri, String title, int viewColumn);
+  void browse(URI uri, IString title, IInteger viewColumn);
 
   /**
    * Open an editor for file at given path.

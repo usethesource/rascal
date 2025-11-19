@@ -28,8 +28,11 @@ package org.rascalmpl.repl.output;
 
 import java.net.URI;
 
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IString;
+
 public interface IWebContentOutput extends ICommandOutput {
     URI webUri();
-    String webTitle();
-    int webviewColumn();
+    IString webTitle();
+    IInteger webviewColumn();
 }

@@ -38,7 +38,7 @@ public class IDEServicesLibrary {
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
-        services.browse(uri.getURI(), title.getValue(), viewColumn.intValue());
+        services.browse(uri.getURI(), title, viewColumn);
     }
 
     public void edit(ISourceLocation path, IInteger viewColumn) {
