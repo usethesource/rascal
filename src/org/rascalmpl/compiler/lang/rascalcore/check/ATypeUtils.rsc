@@ -127,7 +127,7 @@ str prettyAType(cc: \achar-class(list[ACharRange] ranges)) {
     return cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 }
 
-str prettyAType(\start(AType symbol, _)) = "start[<prettyAType(symbol)>]";
+str prettyAType(\start(AType symbol, SyntaxRole _)) = "start[<prettyAType(symbol)>]";
 
 // regular symbols
 str prettyAType(\aempty()) = "()";
@@ -225,8 +225,7 @@ Symbol atype2symbol1(acilit(str string)) = Symbol::\cilit(string);
 //Symbol atype2symbol1("lit"(str string)) = Symbol::\lit(string);
 //Symbol atype2symbol1("cilit"(str string)) = Symbol::\cilit(string);
 Symbol atype2symbol1(\achar-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
-
-Symbol atype2symbol1(\start(AType symbol, _)) = Symbol::\start(atype2symbol(symbol));
+Symbol atype2symbol1(\start(AType symbol, SyntaxRole _)) = Symbol::\start(atype2symbol(symbol));
 
 // regular symbols
 Symbol atype2symbol1(\aempty()) = Symbol::\empty();

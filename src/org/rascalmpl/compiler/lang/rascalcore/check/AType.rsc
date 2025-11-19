@@ -700,7 +700,7 @@ AType alub(AType l, r:aadt("Tree", _, _)) = r
 AType alub(\start(AType l, SyntaxRole sr) , \start(AType r, sr)) = \start(alub(l, r), sr);
 AType alub(\start(AType l, SyntaxRole _sr) , aadt("Tree", [], dataSyntax())) = aadt("Tree", [], dataSyntax());
 AType alub(aadt("Tree", [], dataSyntax()), \start(AType l, SyntaxRole _sr)) = aadt("Tree", [], dataSyntax());
-AType alub(anode(list[AType] ps), \start(AType l)) = anode(ps);
+AType alub(anode(list[AType] ps), \start(AType l, SyntaxRole _sr)) = anode(ps);
 AType alub(\start(AType l, SyntaxRole _sr), anode(list[AType] ps)) = anode(ps);
 
 AType alub(conditional(AType l, _), AType r) = alub(l, r);
