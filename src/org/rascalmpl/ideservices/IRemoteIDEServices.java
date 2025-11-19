@@ -50,9 +50,6 @@ public interface IRemoteIDEServices {
     CompletableFuture<Void> applyDocumentsEdits(DocumentEditsParameter edits);
 
     @JsonRequest
-    CompletableFuture<Void> warning(String message, ISourceLocation src);
-
-    @JsonRequest
     CompletableFuture<Void> registerLocations(RegisterLocationsParameters param);
 
     @JsonRequest
