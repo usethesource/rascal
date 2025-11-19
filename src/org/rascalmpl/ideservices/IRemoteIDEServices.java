@@ -58,7 +58,7 @@ public interface IRemoteIDEServices {
     CompletableFuture<Void> registerDiagnostics(RegisterDiagnosticsParameters param);
 
     @JsonRequest
-    CompletableFuture<Void> unregisterDiagnostics(UnRegisterDiagnosticsParameters param);
+    CompletableFuture<Void> unregisterDiagnostics(ISourceLocation[] locs);
 
     @JsonRequest
     CompletableFuture<Void> startDebuggingSession(int serverPort);
@@ -75,18 +75,6 @@ public interface IRemoteIDEServices {
 
         public IList getMessages() {
             return (IList) GsonUtils.base64Decode(messages);
-        }
-    }
-
-    public static class UnRegisterDiagnosticsParameters {
-        private String locations;
-
-        public UnRegisterDiagnosticsParameters(IList locs) {
-            this.locations = GsonUtils.base64Encode(locs);
-        }
-
-        public IList getLocations() {
-            return (IList) GsonUtils.base64Decode(locations);
         }
     }
 
