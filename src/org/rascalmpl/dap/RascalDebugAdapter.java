@@ -624,8 +624,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         return detail.toString();
     }
 
-    private List<CompletionItem> getVariablesCompletionsFromFrame(IRascalFrame frame, String text) {
-        List<CompletionItem> completions = new ArrayList<>();
+    private void addVariablesCompletionsFromFrame(IRascalFrame frame, String text, List<CompletionItem> completions) {
         Set<String> frameVariables = frame.getFrameVariables();
         for(String var : frameVariables){
             if(var.startsWith(text)){
@@ -642,11 +641,9 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 completions.add(completion);
             }
         }
-        return completions;
     }
 
-    private List<CompletionItem> getFunctionsCompletionsFromEnvironment(Environment env, String text) {
-        List<CompletionItem> completions = new ArrayList<>();
+    private void addFunctionsCompletionsFromEnvironment(Environment env, String text, List<CompletionItem> completions) {
         for(Pair<String,LinkedHashSet<AbstractFunction>> functions : env.getFunctions()){
             String funcName = functions.getFirst();
             if(funcName.startsWith(text)){
@@ -666,7 +663,6 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 }
             }
         }
-        return completions;
     }
 
     @Override
@@ -680,12 +676,11 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 IRascalFrame frame = suspendedState.getCurrentStackFrames()[frameId];
 
                 // Variable names starting with the typed text
-                completions.addAll(getVariablesCompletionsFromFrame(frame, args.getText()));
+                addVariablesCompletionsFromFrame(frame, args.getText(), completions);
 
                 // Add functions from current frame's module
                 if(frame instanceof Environment){
-                    Environment env = (Environment) frame;
-                    completions.addAll(getFunctionsCompletionsFromEnvironment(env, args.getText()));
+                    addFunctionsCompletionsFromEnvironment((Environment) frame, args.getText(), completions);
                 }
 
                 // Add module for namespace calls
@@ -714,8 +709,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                     IRascalFrame module = evaluator.getModule(importName);
                     // Try to cast module IRascalFrame as an Environment to get its functions
                     if(module != null && module instanceof Environment){
-                        Environment env = (Environment) module;
-                        completions.addAll(getFunctionsCompletionsFromEnvironment(env, functionToSearch));
+                        addFunctionsCompletionsFromEnvironment((Environment) module, functionToSearch, completions);
                     }
                 }                
             }
