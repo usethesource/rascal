@@ -124,7 +124,7 @@ public AType defsym2AType(Sym sym, SyntaxRole sr) {
         return AType::aadt("<n>",separgs2ATypes(syms), sr); 
     
     case \start(Nonterminal n) : 
-        return \start(AType::aadt("<n>", [], sr));
+        return \start(AType::aadt("<n>", [], sr), contextFreeSyntax());
         
     default: {
       iprintln(sym);
