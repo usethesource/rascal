@@ -119,6 +119,7 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void registerLocations(IString scheme, IString auth, IMap map) {
+        // The mappings should be registered both in the REPL itself as well as in the IDE
         super.registerLocations(scheme, auth, map);
         server.registerLocations(new RegisterLocationsParameters(scheme, auth, map));
     }
