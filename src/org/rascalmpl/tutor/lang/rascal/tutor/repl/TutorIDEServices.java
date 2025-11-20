@@ -5,7 +5,9 @@ import java.net.URI;
 
 import org.rascalmpl.ideservices.IDEServices;
 
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 
 public class TutorIDEServices implements IDEServices {
 
@@ -51,7 +53,7 @@ public class TutorIDEServices implements IDEServices {
     }
 
     @Override
-    public void browse(URI uri, String title, int column) {
+    public void browse(URI uri, IString title, IInteger column) {
         
     }
 
