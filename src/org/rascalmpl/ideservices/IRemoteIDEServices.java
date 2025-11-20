@@ -79,7 +79,7 @@ public interface IRemoteIDEServices {
         }
 
         public IList getMessages() {
-            return (IList) GsonUtils.base64Decode(messages);
+            return GsonUtils.base64Decode(messages, new TypeStore());
         }
     }
 
@@ -92,7 +92,7 @@ public interface IRemoteIDEServices {
         }
 
         public IList getEdits() {
-            return (IList) GsonUtils.base64Decode(edits);
+            return GsonUtils.base64Decode(edits, new TypeStore());
         }
     }
 
