@@ -128,13 +128,13 @@ later in the compilatiojn pipeline with the other layout non-terminals.
 void collectStartRule(Start current, AType nonterminalType, Collector c) {    
     aStartSym = \start(nonterminalType, contextFreeSyntax());
     st = defType(aStartSym);
-    c.define("<aStartSym>", nonterminalId(), current, st);
+    c.define("<aStartSym>", nonterminalId(), current@\loc.top(current@\loc.offset,0), st);
     // prod(AType def, list[AType] atypes, set[AAttr] attributes={}, loc src=|unknown:///|, str alabel = "")
     startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-    c.define("", productionId(), current, startProd);
+    c.define("", productionId(), current@\loc.top(current@\loc.offset, 1), startProd);
         
     c.enterScope(current);        
-        c.define("top", fieldId(), current, defType(nonterminalType[alabel="top"]));
+        c.define("top", fieldId(), current@\loc.top(current@\loc.offset, 2), defType(nonterminalType[alabel="top"]));
     c.leaveScope(current);
 }
 
