@@ -134,9 +134,11 @@ void collectStartRule(Start current, AType nonterminalType, Collector c) {
     sPos = current@\loc.top(current@\loc.offset, 1);
     c.define("", productionId(), sPos, startProd);
 
-    fieldDef = defType(nonterminalType[alabel="top"]);
-    tPos = current@\loc.top(current@\loc.offset + 1, 1);
-    c.define("top", fieldId(), tPos, fieldDef);
+    // c.enterScope(current);
+        fieldDef = defType(nonterminalType[alabel="top"]);
+        tPos = current@\loc.top(current@\loc.offset + 1, 1);
+        c.define("top", fieldId(), tPos, fieldDef);
+    // c.leaveScope(current);
 }
 
 // ---- Prod ------------------------------------------------------------------
