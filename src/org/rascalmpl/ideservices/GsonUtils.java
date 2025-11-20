@@ -204,7 +204,7 @@ public class GsonUtils {
      * @return whether or not wrapping is required 
      */
     private static boolean needsWrapping(Type type, ComplexTypeMode complexTypeMode) {
-        return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && (type == null || type.isSubtypeOf(tf.rationalType()));
+        return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type == null || type.isSubtypeOf(tf.rationalType());
     }
 
     public static void configureGson(GsonBuilder builder) {
