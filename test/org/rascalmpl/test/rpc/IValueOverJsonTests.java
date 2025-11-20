@@ -227,6 +227,7 @@ public class IValueOverJsonTests {
         public TestThread(InputStream is, OutputStream os) {
             this.is = is;
             this.os = os;
+            this.setDaemon(true);
         }
 
         @Override
