@@ -250,6 +250,7 @@
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
+                        <include>**/org/rascalmpl/test/rpc/*Test.java</include>
                         <include>**/org/rascalmpl/util/**/*Test.java</include>
                         <include>**/org/rascalmpl/util/**/*Tests.java</include>
                         <include>**/org/rascalmpl/uri/**/*Test.java</include>
