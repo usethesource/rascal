@@ -229,11 +229,11 @@ public class GsonUtils {
     }
 
     public static String base64Encode(IValue value) {
-        var writer = new StringWriter();
-        try (var encoder = StreamingBase64.encode(writer);
+        var builder = new StringBuilder();
+        try (var encoder = StreamingBase64.encode(builder);
              var out = new IValueOutputStream(encoder, IRascalValueFactory.getInstance())) {
             out.write(value);
-            return writer.toString();
+            return builder.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
