@@ -467,10 +467,6 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     containerType = unwrapAType(containerType);
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
-    // TODO JV: this should be via a normal definition of the start rule which was collected earlier.
-    // if(fieldName == "top" && isNonTerminalAType(containerType) && fieldName == "top"){
-    //     return isStartNonTerminalType(containerType) ? getStartNonTerminalType(containerType) : containerType;
-    // }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
 }
 
