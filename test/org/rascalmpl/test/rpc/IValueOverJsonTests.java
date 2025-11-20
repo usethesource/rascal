@@ -405,7 +405,6 @@ public class IValueOverJsonTests {
             fail("ISet should not have round-tripped");
         } catch (InterruptedException | ExecutionException e) {
             //This is expected
-            System.out.println("WTF");
         }
     }
 
