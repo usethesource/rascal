@@ -39,9 +39,11 @@ public class RascalShell  {
             if (args[i].equals("--remoteIDEServicesPort")) {
                 ideServicesPort = Integer.parseInt(args[++i]);
             } else if (args[i].equals("--vfsPort")) {
+                System.err.println("Ignored parameter --vfsPort and its argument");
                 i++; // skip the argument
             } else if (args[i].startsWith("--")) {
                 // Currently unknown named argument, skipping over this
+                System.err.println("Ignored parameter " + args[i]);
             } else {
                 // End of named arguments
                 break;
