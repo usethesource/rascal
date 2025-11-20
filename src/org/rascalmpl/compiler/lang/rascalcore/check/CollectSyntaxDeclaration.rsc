@@ -91,7 +91,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         // Define the syntax symbol itself and all labelled alternatives as constructors
         c.define(adtName, idRole, current, dt);
 
-        if (current.\start is present) {
+        if (current is \language && current.\start is present) {
             collectStartRule(current.\start, nonterminalType, c);
         }
 
@@ -128,14 +128,15 @@ later in the compilatiojn pipeline with the other layout non-terminals.
 void collectStartRule(Start current, AType nonterminalType, Collector c) {    
     aStartSym = \start(nonterminalType, contextFreeSyntax());
     st = defType(aStartSym);
-    c.define("<aStartSym>", nonterminalId(), current@\loc.top(current@\loc.offset,0), st);
-    // prod(AType def, list[AType] atypes, set[AAttr] attributes={}, loc src=|unknown:///|, str alabel = "")
+    c.define("<aStartSym>", nonterminalId(), current, st);
+    
     startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-    c.define("", productionId(), current@\loc.top(current@\loc.offset, 1), startProd);
-        
-    c.enterScope(current);        
-        c.define("top", fieldId(), current@\loc.top(current@\loc.offset, 2), defType(nonterminalType[alabel="top"]));
-    c.leaveScope(current);
+    sPos = current@\loc.top(current@\loc.offset, 1);
+    c.define("", productionId(), sPos, startProd);
+
+    fieldDef = defType(nonterminalType[alabel="top"]);
+    tPos = current@\loc.top(current@\loc.offset + 1, 1);
+    c.define("top", fieldId(), tPos, fieldDef);
 }
 
 // ---- Prod ------------------------------------------------------------------
