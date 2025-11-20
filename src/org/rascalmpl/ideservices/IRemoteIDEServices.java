@@ -28,14 +28,18 @@ package org.rascalmpl.ideservices;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * This interface exposes functionality from `IDEServices` over IPC.
@@ -99,12 +103,18 @@ public interface IRemoteIDEServices {
     public static class RegisterLocationsParameters {
         private final IString scheme;
         private final IString authority;
-        private final String mapping;
+        private final ISourceLocation[][] mapping;
 
         public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
             this.scheme = scheme;
             this.authority = authority;
-            this.mapping = GsonUtils.base64Encode(mapping);
+            this.mapping = mapping.stream().map(ITuple.class::cast).map(e -> new ISourceLocation[] { (ISourceLocation) e.get(0), (ISourceLocation) e.get(1)}).toArray(n -> new ISourceLocation[n][2]);
+        }
+
+        public RegisterLocationsParameters(IString scheme, IString authority, ISourceLocation[][] mapping) {
+            this.scheme = scheme;
+            this.authority = authority;
+            this.mapping = mapping;
         }
 
         public IString getScheme() {
@@ -116,7 +126,12 @@ public interface IRemoteIDEServices {
         }
 
         public IMap getMapping() {
-            return (IMap) GsonUtils.base64Decode(mapping);
+            var vf = ValueFactoryFactory.getValueFactory();
+            return Stream.of(mapping).map(e -> vf.tuple(e[0], e[1])).collect(vf.mapWriter());
+        }
+
+        public ISourceLocation[][] getMappingAsArray() {
+            return mapping;
         }
     }
 }
