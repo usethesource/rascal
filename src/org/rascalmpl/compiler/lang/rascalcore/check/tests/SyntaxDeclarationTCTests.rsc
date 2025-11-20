@@ -558,6 +558,8 @@ test bool WrongNonterminal2() = unexpectedTypeInModule("
 test bool StartSymbolTop() = checkModuleOK("
     module StartSymbolTop
 
+    import ParseTree;
+    
     start syntax A = \"A\";
 
     void main() {

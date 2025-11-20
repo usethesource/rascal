@@ -621,7 +621,6 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
-                        println("checking.. <ft>.");
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library

@@ -1060,7 +1060,7 @@ Determine if the given type is an Abstract Data Type (ADT).
 bool isADTAType(aparameter(_,AType tvb)) = isADTAType(tvb);
 bool isADTAType(aadt(_,_,_)) = true;
 bool isADTAType(areified(_)) = true;
-bool isADTAType(\start(AType s)) = isADTAType(s);
+bool isADTAType(\start(AType s, SyntaxRole _)) = isADTAType(s);
 default bool isADTAType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}
@@ -1341,7 +1341,7 @@ bool isNonTerminalAType(aparameter(_,AType tvb)) = isNonTerminalAType(tvb);
 bool isNonTerminalAType(AType::\conditional(AType ss,_)) = isNonTerminalAType(ss);
 bool isNonTerminalAType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr);
 bool isNonTerminalAType(acons(AType adt, list[AType] _, list[Keyword] _)) = isNonTerminalAType(adt);
-bool isNonTerminalAType(AType::\start(AType ss)) = true;
+bool isNonTerminalAType(AType::\start(AType ss, SyntaxRole _)) = true;
 bool isNonTerminalAType(AType::aprod(AProduction p)) = isNonTerminalAType(p.def);
 
 bool isNonTerminalAType(AType::\iter(AType t)) = isNonTerminalAType(t);
