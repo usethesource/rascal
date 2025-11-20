@@ -239,10 +239,15 @@ public class GsonUtils {
         }
     }
 
-    public static IValue base64Decode(String string) {
+    public static <T extends IValue> T base64Decode(String string) {
+        return base64Decode(string, new TypeStore());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends IValue> T base64Decode(String string, TypeStore ts) {
         try (var decoder = StreamingBase64.decode(string);
-             var in = new IValueInputStream(decoder, IRascalValueFactory.getInstance(), () -> new TypeStore())) {
-            return in.read();    
+             var in = new IValueInputStream(decoder, IRascalValueFactory.getInstance(), () -> ts)) {
+            return (T) in.read();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
