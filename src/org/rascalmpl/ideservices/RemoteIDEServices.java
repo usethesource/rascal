@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -67,7 +66,6 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils::configureGson)
-                .setExecutorService(Executors.newCachedThreadPool())
                 .create();
 
                 clientLauncher.startListening();
