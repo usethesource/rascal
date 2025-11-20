@@ -108,7 +108,10 @@ public interface IRemoteIDEServices {
         public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
             this.scheme = scheme;
             this.authority = authority;
-            this.mapping = mapping.stream().map(ITuple.class::cast).map(e -> new ISourceLocation[] { (ISourceLocation) e.get(0), (ISourceLocation) e.get(1)}).toArray(n -> new ISourceLocation[n][2]);
+            this.mapping = mapping.stream()
+                .map(ITuple.class::cast)
+                .map(e -> new ISourceLocation[] { (ISourceLocation) e.get(0), (ISourceLocation) e.get(1)})
+                .toArray(n -> new ISourceLocation[n][2]);
         }
 
         public RegisterLocationsParameters(IString scheme, IString authority, ISourceLocation[][] mapping) {
