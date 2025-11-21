@@ -16,9 +16,6 @@ import Set;
 
 @synopsis{Given the name of a JDBC driver class, register it so it can be used in connections.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
-@reflect{
-uses information about class loaders from the evaluator context
-}
 public java void registerJDBCClass(str className);
 
 @synopsis{The JDBC driver name for MySQL}
