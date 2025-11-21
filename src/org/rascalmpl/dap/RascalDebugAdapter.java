@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
@@ -51,11 +53,19 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.interpreter.result.NamedFunction;
+
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import io.usethesource.vallang.io.StandardTextWriter;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.util.locations.ColumnMaps;
@@ -69,6 +79,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
 /**
@@ -91,6 +102,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final ColumnMaps columns;
     private int lineBase = 1;   // Default in DAP
     private int columnBase = 1; // Default in DAP
+    private final DebugReplExecutor replExecutor;
 
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
@@ -100,6 +112,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         this.evaluator = evaluator;
         this.services = services;
         this.ownExecutor = threadPool;
+
+        this.replExecutor = new DebugReplExecutor(evaluator, debugHandler);
 
         this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
@@ -143,6 +157,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setSupportsRestartFrame(false);
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
+            capabilities.setSupportsCompletionsRequest(true);
 
             return capabilities;
         }, ownExecutor);
@@ -506,36 +521,107 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 
+    private void outputErrorMessage(String message) {
+        OutputEventArguments errorOutput = new OutputEventArguments();
+        errorOutput.setCategory(OutputEventArgumentsCategory.STDERR);
+        errorOutput.setOutput(message);
+        client.output(errorOutput);
+    }
+
+    private DebugReplExecutor.EvalResult evaluateExpression(String expression, int frameId) throws ParseError, InterruptedException {
+        if (!suspendedState.isSuspended()) { // Unsuspended call to debug console, this could be considered not allowed
+            return evaluateExpression(expression, evaluator.getCurrentEnvt());
+        }
+        else if(frameId >= 0 
+            && frameId < suspendedState.getCurrentStackFrames().length 
+            && suspendedState.getCurrentStackFrames()[frameId] instanceof Environment){
+            return evaluateExpression(expression, (Environment) suspendedState.getCurrentStackFrames()[frameId]) ;
+        }
+        else {
+            return evaluateExpression(expression, evaluator.getCurrentEnvt());
+        }
+    }
+
+
+    private DebugReplExecutor.EvalResult evaluateExpression(String expression, Environment evalEnv) throws ParseError, InterruptedException {
+        // Delegate to the repl executor and do NOT directly emit DAP output events here.
+        // The caller (evaluate) will decide how to convert the ICommandOutput and Result into a DAP response.
+        return replExecutor.evaluate(expression, evalEnv);
+    }
+        
+
+
     @Override
     public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
         return CompletableFuture.supplyAsync(() -> {
             EvaluateResponse response = new EvaluateResponse();
-
+            Integer frameId = args.getFrameId(); // If null, the expression is evaluated in the global scope
             String expr = args.getExpression();
             switch (args.getContext()) {
                 case "hover": // Not called until we set the supportsEvaluateForHovers capability to true
                 case "clipboard": // Not called until we set the supportsClipboardContext capability to true
                 case "repl": // Called from the debugger repl
-                case "watch": // Called from watched expressions. Only singular variable references are supported.
-                    response.setResult("Only singular variable references are supported");
-                    OffsetLengthTerm identSearchResult = StringUtils.findRascalIdentifierAtOffset(expr, 0);
-                    if (identSearchResult != null && identSearchResult.offset == 0 && identSearchResult.length == expr.length()) {
-                        // The entire expression is a valid identifier
-                        response.setResult("Undefined variable");
-                        List<RascalVariable> variables = suspendedState.getVariables(args.getFrameId(), 0, -1);
-                        for (RascalVariable var : variables) {
-                            if (var.getName().equals(expr)) {
-                                response.setResult(var.getDisplayValue());
-                                response.setType(var.getType().toString());
-                                response.setVariablesReference(var.getReferenceID());
-                                response.setNamedVariables(var.getNamedVariables());
-                                response.setIndexedVariables(var.getIndexedVariables());
-                                break;
-                            }
-                        }   
+                case "watch": // Called from watched expressions.
+                    if(frameId == null){
+                        frameId = 0; // evaluate in the top frame = global scope
+                    }
+                    DebugReplExecutor.EvalResult er = null;
+                    try {
+                        er = evaluateExpression(expr, frameId);
+                    }
+                    catch (ParseError pe) {
+                        var perr = new StringWriter();
+                        var perrPw = new PrintWriter(perr, true);
+                        ReadEvalPrintDialogMessages.parseErrorMessage(perrPw, expr, DEBUGGER_LOC.getScheme(), pe, new StandardTextWriter(false));
+                        // We need to cancel the PROMPT shifted output (7 characters = "rascal>")
+                        String shiftedError = perr.toString().substring(7);
+                        if(args.getContext().equals("watch")){
+                            response.setResult("Parse Error: " + pe.getMessage().substring(0, Math.min(80, pe.getMessage().length())));
+                            response.setType("error");
+                        } else{
+                            outputErrorMessage(shiftedError);
+                            response.setResult("");
+                        }
+                        break;
+                    }
+                    catch (InterruptedException ie) {
+                        response.setResult("Interrupted");
+                        break;
+                    }
+
+                    if (er == null) {
+                        response.setResult("Error");
+                        break;
+                    }
+
+                    // If we have a raw Result, prefer that for the response; otherwise, use the printed ICommandOutput
+                    if (er.result != null) {
+                        if (er.result.isVoid()) {
+                            response.setResult("void");
+                            response.setType("void");
+                        }
+                        else {
+                            response.setResult(er.result.toString());
+                            response.setType(er.result.getValue().getType().toString());
+                        }
+                    }
+                    else if (er.output != null) { // Use output request to get red display of errors
+                        var sw = new StringWriter();
+                        var pw = new PrintWriter(sw, true);
+                        er.output.asPlain().write(pw, true);
+                        pw.flush();
+                        if(args.getContext().equals("watch")){
+                            response.setResult(sw.toString().substring(0, Math.min(80, sw.toString().length())));
+                            response.setType("error");
+                        } else{
+                            outputErrorMessage(sw.toString());
+                            response.setResult("");
+                        }
+                    }
+                    else {
+                        response.setResult("Error");
                     }
                     break;
-
                 case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
                     // In this case the expression already contains the value of the variable. We just return it.
                     response.setResult(expr);
@@ -548,6 +634,117 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             return response;
         }, ownExecutor);
     }
+
+    private String getFunctionDetail(AbstractFunction func) {
+        StringBuilder detail = new StringBuilder();
+        detail.append(func.toString());
+        if (func instanceof NamedFunction) {
+            NamedFunction nf = (NamedFunction) func;
+            if (nf.hasTag("synopsis")) {
+                IValue v = nf.getTag("synopsis");
+                if (v instanceof IString) {
+                    detail.append(((IString) v).getValue());
+                    detail.append("\n");
+                }
+            }
+        }
+        return detail.toString();
+    }
+
+    private void addVariablesCompletionsFromFrame(IRascalFrame frame, String text, List<CompletionItem> completions) {
+        Set<String> frameVariables = frame.getFrameVariables();
+        for(String var : frameVariables){
+            if(var.startsWith(text)){
+                CompletionItem completion = new CompletionItem();
+                IRascalResult varInFrame = frame.getFrameVariable(var);
+                completion.setLabel(var+" : " + varInFrame.getDynamicType().toString());
+                completion.setSortText(var);
+                if (text.length() < var.length()) { //remove the prefix
+                    completion.setText(var.substring(text.length()));
+                }
+                else { // exact match
+                    completion.setText("");
+                }
+                completion.setType(CompletionItemType.VARIABLE);
+                completions.add(completion);
+            }
+        }
+    }
+
+    private void addFunctionsCompletionsFromEnvironment(Environment env, String text, List<CompletionItem> completions) {
+        for(Pair<String,LinkedHashSet<AbstractFunction>> functions : env.getFunctions()){
+            String funcName = functions.getFirst();
+            if(funcName.startsWith(text)){
+                for(AbstractFunction func : functions.getSecond()){
+                    CompletionItem completion = new CompletionItem();
+                    completion.setLabel(func.getHeader());
+                    completion.setSortText(funcName);
+                    if (text.length() < funcName.length()) { //remove the prefix
+                        completion.setText(funcName.substring(text.length()));
+                    }
+                    else { // exact match
+                        completion.setText("");
+                    }
+                    completion.setType(CompletionItemType.FUNCTION);
+                    completion.setDetail(getFunctionDetail(func));
+                    completions.add(completion);
+                }
+            }
+        }
+    }
+
+    @Override
+    public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            CompletionsResponse response = new CompletionsResponse();
+            List<CompletionItem> completions = new ArrayList<>();
+            if(suspendedState.isSuspended()) {
+                Integer frameId = args.getFrameId();
+                assert frameId != null;
+                IRascalFrame frame = suspendedState.getCurrentStackFrames()[frameId];
+
+                // Variable names starting with the typed text
+                addVariablesCompletionsFromFrame(frame, args.getText(), completions);
+
+                // Add functions from current frame's module
+                if(frame instanceof Environment){
+                    addFunctionsCompletionsFromEnvironment((Environment) frame, args.getText(), completions);
+                }
+
+                // Add module for namespace calls
+                for(String importName : frame.getImports()){
+                    if(importName.startsWith(args.getText())){
+                        CompletionItem completion = new CompletionItem();
+                        completion.setLabel(importName);
+                        completion.setSortText(importName);
+                        if (args.getText().length() < importName.length()) { //remove the prefix
+                            completion.setText(importName.substring(args.getText().length()) + "::");
+                        }
+                        else { // exact match
+                            completion.setText("::");
+                        }
+                        completion.setType(CompletionItemType.MODULE);
+                        completions.add(completion);
+                    }
+                }
+
+                // Add functions from imported modules
+                // First check for prefix with ::
+                String[] parts = args.getText().split("::");
+                Set<String> importsToSearch = parts.length > 1 ? Set.of(parts[0]) : frame.getImports();
+                String functionToSearch = parts.length > 1 ? parts[1] : args.getText();
+                for(String importName : importsToSearch){
+                    IRascalFrame module = evaluator.getModule(importName);
+                    // Try to cast module IRascalFrame as an Environment to get its functions
+                    if(module != null && module instanceof Environment){
+                        addFunctionsCompletionsFromEnvironment((Environment) module, functionToSearch, completions);
+                    }
+                }                
+            }
+            response.setTargets(completions.toArray(new CompletionItem[completions.size()]));
+            return response;
+        }, ownExecutor);
+	}
     
 }
 
