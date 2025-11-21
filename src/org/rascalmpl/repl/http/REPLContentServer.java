@@ -32,12 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.StringWriter;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -183,7 +179,6 @@ public class REPLContentServer extends NanoHTTPD {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-
             
             writer.write(out, data);
             out.flush();
@@ -235,63 +230,20 @@ public class REPLContentServer extends NanoHTTPD {
                     break;
             }
         }
-        var fixedContentType = new ContentType(mimeType.getValue()).tryUTF8();
-        Response response = newChunkedResponse(status, fixedContentType.getContentTypeHeader(), toInputStream(data, Charset.forName(fixedContentType.getEncoding())));
-        addHeaders(response, header);
-        return response;
+        
+        try {
+            var fixedContentType = new ContentType(mimeType.getValue()).tryUTF8();
+            Response response = newChunkedResponse(status, fixedContentType.getContentTypeHeader(), toInputStream(data, Charset.forName(fixedContentType.getEncoding())));
+            addHeaders(response, header);
+            return response;
+        }
+        catch (IOException e) {
+            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_HTML, e.getMessage());
+        }
     }
 
-    private static InputStream toInputStream(IString data, Charset encoding) {
-        return new InputStream() {
-            boolean finished = false;
-            final Reader source = data.asReader();
-            final CharBuffer toSend = CharBuffer.allocate(1024).flip();
-            final CharsetEncoder enc = encoding.newEncoder();
-
-            @Override
-            public int read(byte[] b, int off, int len) throws IOException {
-                if (finished) {
-                    return -1;
-                }
-                var target = ByteBuffer.wrap(b, off, len);
-                while (target.remaining() > 0) {
-                    if (!toSend.hasRemaining()) {
-                        if (!fillBuffer()) {
-                            break;
-                        }
-                    }
-                    enc.encode(toSend, target, finished);
-                }
-                // todo figure out how much is written!
-                int read = target.position() - off;
-                return read == 0 ? -1 : read;
-            }
-
-            @Override
-            public int read() throws IOException {
-                var result = new byte[1];
-                int read = read(result, 0, 1);
-                if (read == -1) {
-                    return -1;
-                }
-                return result[0] & 0xFF;
-            }
-
-            private boolean fillBuffer() throws IOException {
-                assert !toSend.hasRemaining();
-                toSend.clear();
-                int read = source.read(toSend);
-                toSend.flip();
-                if (read == -1) {
-                    finished = true;
-                    return false;
-                }
-                return true;
-            }
-            
-        };
-
-
+    private static InputStream toInputStream(IString data, Charset encoding) throws IOException {
+        return new ByteArrayInputStream(data.getValue().getBytes(encoding));
     }
 
     private static void addHeaders(Response response, IMap header) {

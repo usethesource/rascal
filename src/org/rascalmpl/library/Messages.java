@@ -44,15 +44,19 @@ public class Messages {
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
 
     public static IConstructor info(String message, ISourceLocation loc) {
-        return vf.constructor(Message_info, vf.string(message), loc);
+        return message(Message_info, message, loc);
     }
 
     public static IConstructor warning(String message, ISourceLocation loc) {
-        return vf.constructor(Message_warning, vf.string(message), loc);
+        return message(Message_warning, message, loc);
     }
 
     public static IConstructor error(String message, ISourceLocation loc) {
-        return vf.constructor(Message_error, vf.string(message), loc);
+        return message(Message_error, message, loc);
+    }
+
+    private static IConstructor message(io.usethesource.vallang.type.Type type, String message, ISourceLocation loc) {
+        return vf.constructor(type, vf.string(message), loc);
     }
 
     public static IConstructor addCause(IConstructor msg, String cause, ISourceLocation loc) {
@@ -93,7 +97,7 @@ public class Messages {
         }
         catch (IOException e) {
             // should never happen
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
     

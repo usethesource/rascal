@@ -236,6 +236,16 @@ public RascalCompilerConfig getRascalWritableCompilerConfig(bool keep=true){
     return rascalCompilerConfig(getRascalWritablePathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
 
+// ---- scratch --------------------------------------------------------------
+
+public PathConfig getScratchProjectPathConfig(bool keep = false) {
+   return makePathConfig([ REPO + "rascal-scratch/src/main/rascal/"  ], [ RASCAL ], keep=keep);
+}
+
+public RascalCompilerConfig getScratchCompilerConfig(bool keep=true){
+    return rascalCompilerConfig(getScratchProjectPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
+}
+
 // ---- typepal ---------------------------------------------------------------
 
 public PathConfig getTypePalProjectPathConfig(bool keep = false) {

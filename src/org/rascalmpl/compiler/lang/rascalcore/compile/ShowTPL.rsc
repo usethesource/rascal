@@ -28,14 +28,35 @@ module lang::rascalcore::compile::ShowTPL
 
 import IO;
 import ValueIO;
-extend lang::rascalcore::check::CheckerCommon;
+import String;
+import lang::rascalcore::check::CheckerCommon;
+loc tplLoc =  |file:///Users/paulklint/git/compiled-rascal/src/main/java/rascal/lang/rascalcore/compile/Examples/$C.tpl|;
+TModel tm = tmodel(); // {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
 
-loc tplLoc = |unknown:///|;
-TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
+void main() {
+    setTPL(tplLoc);
+}
 
 void setTPL(loc tpl){
     tplLoc = tpl;
     tm = readBinaryValueFile(#TModel, tplLoc);
+}
+
+void showAll(){
+    iprintln(tm, lineLimit=10000);
+}
+
+void saveAll(loc destination){
+    iprintToFile(destination, tm);   
+}
+
+void saveAll(loc tmLoc, loc destination){
+    if(endsWith(tmLoc.path, ".tpl")){
+    tm = readBinaryValueFile(#TModel, tmLoc);
+    iprintToFile(destination, tm);  
+    } else {
+        throw "Not a tpl file: <tmLoc>";
+    } 
 }
 
 void defines(str search = ""){

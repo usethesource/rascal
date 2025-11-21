@@ -115,7 +115,12 @@ set[Message] getAllMessages(ModuleStatus r)
 ModuleStatus checkStatements(str stmts) {
 	clearMemory();
 	mloc = composeModule(stmts);
-   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
+  return  	rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
+}
+
+ModuleStatus checkModule(str moduleText){
+	mloc = writeModule(moduleText);
+	return  rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
 
 bool checkStatementsAndFilter(str stmts, list[str] expected) {
@@ -194,10 +199,10 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	}
 	for(str v <- usedefs){
 		 <def, uses> = usedefs[v];
-		 occ = [];
+		 list[loc] occ = [];
 		 if(names[v]?) occ = names[v]; else throw "<v> not found in tree";
 		 if(!occ[def]?) throw "Missing define <def> for <v>";
-		 for(u <- uses){
+		 for(int u <- uses){
 			println("u = <u>");
 			if(!occ[u]?){
 				throw "Missing use <u> for <v>";
@@ -350,7 +355,7 @@ bool undefinedField(str stmts) =
 // ---- argumentMismatch ------------------------------------------------------
 
 list[str] argumentMismatchMsgs = [
-	"Undefined keyword argument _;",
+	"Undefined keyword argument _",
 	"Expected _ argument(s),",
 	"Expected _ type parameter(s)",
 	"Argument _ should have type _, found _",
@@ -371,7 +376,8 @@ bool argumentMismatch(str stmts) =
 
 list[str] redeclaredVariableMsgs = [
 	"Undefined _ due to double declaration",
-	"Double declaration of _ _"
+	"Double declaration of _",
+	"Multiple declarations of _ are applicable here"
 ];
 
 bool redeclaredVariableInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
@@ -412,6 +418,7 @@ list[str] unexpectedDeclarationMsgs = [
 	"Invalid initialization of _",
 	"Undefined _",
 	"Double declaration of _",
+	"Multiple declarations of _ are applicable here",
 	"Constructor _ overlaps with other declaration for type _, see _",
 	"Incompatible field _ in _: _ in constructor _ clashes with _ in constructor _",
 	"Constructor _ is used without qualifier and overlaps with other declaration, _",
@@ -429,6 +436,8 @@ list[str] unexpectedDeclarationMsgs = [
 	"Nested iteration",
 	"Element name _ ignored",
 	"Non-well-formed _ type, labels must be distinct",
+	"Self import not allowed",
+	"Extend cycle not allowed",
 	"Mixed import/extend cycle not allowed"
 ];
 
@@ -445,8 +454,8 @@ bool unexpectedDeclaration(str stmts) =
 
 list[str] missingModuleMsgs = [
 	"Reference to name _ cannot be resolved",
-	 "Undefined module _",
-	 "Module _ not found_"
+	"Undefined module _",
+	"Module _ not found_"
 ];
 bool missingModuleInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter(moduleText, missingModuleMsgs, pathConfig=pathConfig);
