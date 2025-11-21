@@ -582,10 +582,10 @@ public java str uncapitalize(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toBase64(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
 
-@synopsis{Decode a base-32 encoded string.}
+@synopsis{Decode a base-64 encoded string.}
 @description {
-  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
-  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+  Convert a base-64 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  The base-64 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str fromBase64(str src, str charset=DEFAULT_CHARSET);
