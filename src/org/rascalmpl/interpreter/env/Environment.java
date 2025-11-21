@@ -195,20 +195,6 @@ public class Environment implements IRascalFrame {
 		}
 	}
 
-	protected Environment(Environment old) {
-		this.parent = old.parent;
-		this.loc = old.loc;
-		this.name = old.name;
-		this.callerScope = old.callerScope;
-		this.callerLocation = old.callerLocation;
-		this.variableEnvironment = old.variableEnvironment;
-		this.functionEnvironment = old.functionEnvironment;
-		this.staticTypeParameters = old.staticTypeParameters;
-		this.dynamicTypeParameters = old.dynamicTypeParameters;
-		this.variableFlags = old.variableFlags;
-		this.functionFlags = old.functionFlags;
-	}
-
 	/**
 	 * @return the name of this environment/stack frame for use in tracing
 	 */
@@ -1011,7 +997,7 @@ public class Environment implements IRascalFrame {
 
 	public ISourceLocation getCallerLocation() {
 		if (callerLocation != null) {
-			return callerLocation;
+			return callerLocation;	
 		} else if (parent != null) {
 			return parent.getCallerLocation();
 		}
