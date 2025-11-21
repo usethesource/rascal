@@ -49,7 +49,7 @@ import io.usethesource.vallang.type.TypeStore;
 public interface IRemoteIDEServices {
 
     @JsonRequest
-    CompletableFuture<Void> edit(ISourceLocation param);
+    CompletableFuture<Void> edit(ISourceLocation param, int viewColumn);
 
     @JsonRequest
     CompletableFuture<Void> browse(URI uri, IString title, IInteger viewColumn);

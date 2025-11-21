@@ -77,7 +77,7 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void edit(ISourceLocation loc, int viewColumn) {
-        server.edit(loc);
+        server.edit(loc, viewColumn);
     }
 
     @Override
