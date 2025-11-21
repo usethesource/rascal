@@ -24,20 +24,21 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module  lang::rascalcore::compile::Examples::B
-           
+module  lang::rascalcore::compile::Examples::B        
+extend lang::rascalcore::compile::Examples::C;
 
+// int x = 1;
 // // data D = d(int n) | d(str s);
 
-// // void f(D x){
+// // void f(D x){  
 // //     d(arg) := x;
 // // }
 
-syntax Body = "body";
+// syntax Body = "body";
 
-alias Body = int;
+// alias Body = int;
 
-Body f(Body b) = b;
+// Body f(Body b) = b;
 
 // // data AType;
 

@@ -104,6 +104,7 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -372,6 +373,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         constructorDeclaredListeners.clear();
+        getHeap().clearLookupChaches();
     }
 
     @Override
@@ -1677,7 +1679,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && env.isNamePrivate(f.getName())) {
+                if (skipPrivate && env.isFunctionPrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1689,7 +1691,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
+                if (skipPrivate && env.isVariablePrivate(entry.getKey())) {
                     continue;
                 }
                 addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
@@ -1811,16 +1813,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void registerLanguage(IConstructor language) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerLanguage(language);
-            }
-            else {
-                IDEServices.super.registerLanguage(language);
-            }
-        }
-
-        @Override
         public ISourceLocation resolveProjectLocation(ISourceLocation input) {
             if (monitor instanceof IDEServices) {
                 return ((IDEServices) monitor).resolveProjectLocation(input);
@@ -1841,7 +1833,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri, String title, int viewColumn) {
+        public void browse(URI uri, IString title, IInteger viewColumn) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
@@ -1851,9 +1843,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void edit(ISourceLocation path) {
+        public void edit(ISourceLocation path, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).edit(path);
+                ((IDEServices) monitor).edit(path, viewColumn);
             }
             else {
                 return;

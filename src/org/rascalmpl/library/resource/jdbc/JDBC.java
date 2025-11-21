@@ -703,12 +703,13 @@ public class JDBC {
 
 			if(rs.getMetaData().isNullable(idx) != ResultSetMetaData.columnNoNulls) {
 				Type resType = jdbc2pdbType(jdbcColumnType, true);
+				Type notnullresType = resType.getTypeParameters().getFieldType(0);
 
 				if (rs.wasNull()) {
 					Type nullT = TF.constructor(TS,  resType, "NULL");
 					res = vf.constructor(nullT);
 				} else {
-					Type notnullT = TF.constructor(TS, resType, "notNULL", resType, "item");
+					Type notnullT = TF.constructor(TS, resType, "notNULL", notnullresType, "item");
 					res = vf.constructor(notnullT, res);
 				}
 			}

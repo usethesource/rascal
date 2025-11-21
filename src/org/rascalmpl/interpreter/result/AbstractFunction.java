@@ -226,17 +226,17 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
-		
+
+		if (arity - 1 > actuals.getArity()) {
+			return false;
+		}
+
 		for (i = 0; i < arity - 1; i++) {
 			if (!actuals.getFieldType(i).isSubtypeOf(getFormals().getFieldType(i))) {
 				return false;
 			}
 		}
 		
-		if (i > actuals.getArity()) {
-			return false;
-		}
-
 		Type elementType = getFormals().getFieldType(i).getElementType();
 
 		for (; i < actuals.getArity(); i++) {
@@ -402,27 +402,22 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
             Type key = entry.getKey();
             renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + uniquePrefix, key.getBound()));
         }
-        actualTypes = actualTypes.instantiate(renamings);
-        return actualTypes;
+        return actualTypes.instantiate(renamings);
     }	
 	
 	protected IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
 		int arity = formals.getArity();
-		IValue[] newActuals = new IValue[arity];
-		int i;
 		
 		if (formals.getArity() == actuals.length && actuals[actuals.length - 1].getType().isSubtypeOf(formals.getFieldType(formals.getArity() - 1))) {
 			// variable length argument is provided as a list
 			return actuals;
 		}
 
+		IValue[] newActuals = new IValue[arity];
+		int i;
+
 		for (i = 0; i < arity - 1; i++) {
 			newActuals[i] = actuals[i];
-		}
-		
-		Type lub = TF.voidType();
-		for (int j = i; j < actuals.length; j++) {
-			lub = lub.lub(actuals[j].getType());
 		}
 		
 		IListWriter list = vf.listWriter();

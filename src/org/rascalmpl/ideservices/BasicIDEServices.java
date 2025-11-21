@@ -26,8 +26,10 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -59,16 +61,11 @@ public class BasicIDEServices implements IDEServices {
     return terminal;
   }
 
-  
-  public void browse(ISourceLocation loc, String title, int viewColumn){
-      browse(loc.getURI(), title, viewColumn);
-  }
-
   /* (non-Javadoc)
    * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#browse(java.net.URI)
    */
   @Override
-  public void browse(URI uri, String _title, int _viewColumn) {
+  public void browse(URI uri, IString title, IInteger viewColumn) {
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
       try {
@@ -82,7 +79,7 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
-  public void edit(ISourceLocation loc) {
+  public void edit(ISourceLocation loc, int viewColumn) {
     try {
       loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
       

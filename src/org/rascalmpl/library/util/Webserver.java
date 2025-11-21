@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -186,8 +187,10 @@ public class Webserver {
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
-                    } catch (IOException | URISyntaxException e) {
-                        throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+                    } catch (IOException e) {
+                        throw RuntimeExceptionFactory.io(e);
+                    } catch ( URISyntaxException e) {
+                        throw RuntimeExceptionFactory.io(e.getMessage());
                     }
                 });
             }
@@ -252,13 +255,15 @@ public class Webserver {
 
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
+                    // ToDO: with a PipedInputStream we can shave off 20% here, probably and save
+                    // a lot of memory if the JSON file is going to be big.
                     JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-
+                    
                     writer.write(out, data);
                     out.flush();
                     out.close();
 
+                    // TODO: this can be a chunkedResponse for larger objects
                     Response response = newFixedLengthResponse(status, "application/json", new ByteArrayInputStream(baos.toByteArray()), baos.size());
                     addHeaders(response, header);
                     return response;
@@ -305,9 +310,20 @@ public class Webserver {
                             break;
                     }
                 }
-                Response response = newFixedLengthResponse(status, mimeType.getValue(), data.getValue());
-                addHeaders(response, header);
-                return response;
+
+                try {
+                    var fixedContentType = new ContentType(mimeType.getValue()).tryUTF8();
+                    Response response = newChunkedResponse(status, fixedContentType.getContentTypeHeader(), toInputStream(data, Charset.forName(fixedContentType.getEncoding())));
+                    addHeaders(response, header);
+                    return response;
+                }
+                catch (IOException e) {
+                    return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_HTML, e.getMessage());
+                }
+            }
+
+            private InputStream toInputStream(IString data, Charset encoding) throws IOException {
+                return new ByteArrayInputStream(data.getValue().getBytes(encoding));
             }
 
             private void addHeaders(Response response, IMap header) {
@@ -358,7 +374,7 @@ public class Webserver {
                 servers.remove(url);
             }
         } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

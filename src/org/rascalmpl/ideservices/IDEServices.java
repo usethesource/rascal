@@ -12,17 +12,21 @@
  */ 
 package org.rascalmpl.ideservices;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -40,13 +44,17 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri, String title, int viewColumn);
+  void browse(URI uri, IString title, IInteger viewColumn);
 
   /**
    * Open an editor for file at given path.
    * @param path
    */
-  void edit(ISourceLocation path);
+  void edit(ISourceLocation path, int viewColumn);
+
+  default void edit(ISourceLocation path) {
+    edit(path, -1 /* should be the same as the default in IDEServices.rsc::edit */);
+  }
 
   /**
    * Implements the project scheme by deferring to the IDEservices 
@@ -57,22 +65,6 @@ public interface IDEServices extends IRascalMonitor {
    */
   default ISourceLocation resolveProjectLocation(ISourceLocation input) {
     return input;
-  }
-
-  /**
-   * Registers a new language definition with the surrounding IDE. Multiple registries for the same language are supported, registration order determines priority.
-   * @param language
-   */
-  default void registerLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
-  }
-
-  /**
-   * Unregisters a language definition with the surrounding IDE. Can be partial if module & function are not empty strings.
-   * @param language
-   */
-  default void unregisterLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
   /**
@@ -105,7 +97,61 @@ public interface IDEServices extends IRascalMonitor {
    * @param edits list of DocumentEdits
    */
   default void applyFileSystemEdits(IList edits) {
-     throw new UnsupportedOperationException("applyFileSystemEdits is not implemented in this environment.");
+    var registry = URIResolverRegistry.getInstance();
+    var vf = IRascalValueFactory.getInstance();
+    edits.stream().map(IConstructor.class::cast).forEach(c -> {
+      try {
+        switch (c.getName()) {
+          case "removed": {
+            var file = (ISourceLocation) c.get("file");
+            registry.remove(file.top(), false);
+            break;
+          }
+          case "created": {
+            var file = (ISourceLocation) c.get("file");
+            if (registry.exists(file)) {
+              registry.setLastModified(file, System.currentTimeMillis());
+            } else {
+              try (var out = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                out.write("");
+              }
+            }
+            break;
+          }
+          case "renamed": {
+            var from = (ISourceLocation) c.get("from");
+            var to = (ISourceLocation) c.get("to");
+            registry.rename(from.top(), to.top(), true);
+            break;
+          }
+          case "changed": {
+            var file = (ISourceLocation) c.get("file");
+            if (c.has("edits")) {
+              var textEdits = (IList) c.get("edits");
+              var charset = registry.detectCharset(file).name();
+              var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), charset, false);
+              int cursor = 0;
+              try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
+                for (var e : textEdits) {
+                  var edit = (IConstructor) e;
+                  var range = (ISourceLocation) edit.get("range");
+                  var replacement = (IString) edit.get("replacement");
+                  contents.substring(cursor, range.getOffset()).write(writer);
+                  replacement.write(writer);
+                  cursor = range.getOffset() + range.getLength();
+                }
+                contents.substring(cursor).write(writer);
+              }
+            } else {
+              registry.setLastModified(file, System.currentTimeMillis());
+            }
+            break;
+          }
+        }
+      } catch (IOException e) {
+        warning("Could not execute FileSystemChange due to " + e.getMessage(), URIUtil.rootLocation("unknown"));
+      }
+    });
   }
 
   /**
@@ -172,7 +218,7 @@ public interface IDEServices extends IRascalMonitor {
    * 
    * @param serverPort
    */
-  default void startDebuggingSession(int serverPort){
+  default void startDebuggingSession(int serverPort) {
     
   }
 
@@ -182,7 +228,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param processID
    * @param serverPort
    */
-  default void registerDebugServerPort(int processID, int serverPort){
+  default void registerDebugServerPort(int processID, int serverPort) {
     
   }
 
