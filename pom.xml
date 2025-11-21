@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC77-SNAPSHOT</version>
+    <version>0.41.0-RC78-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -250,7 +250,9 @@
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
-                        <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
+                        <include>**/org/rascalmpl/test/rpc/*Test.java</include>
+                        <include>**/org/rascalmpl/util/**/*Test.java</include>
+                        <include>**/org/rascalmpl/util/**/*Tests.java</include>
                         <include>**/org/rascalmpl/uri/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
@@ -470,7 +472,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.0-RC19</version>
+            <version>1.0.0-RC20</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
