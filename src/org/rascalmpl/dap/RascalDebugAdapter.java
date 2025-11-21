@@ -46,25 +46,26 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.rascalmpl.dap.breakpoint.BreakpointsCollection;
 import org.rascalmpl.dap.variable.RascalVariable;
-import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
-import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.NamedFunction;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
+
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import io.usethesource.vallang.io.StandardTextWriter;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.util.locations.ColumnMaps;
@@ -101,6 +102,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final ColumnMaps columns;
     private int lineBase = 1;   // Default in DAP
     private int columnBase = 1; // Default in DAP
+    private final DebugReplExecutor replExecutor;
 
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
@@ -110,6 +112,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         this.evaluator = evaluator;
         this.services = services;
         this.ownExecutor = threadPool;
+
+        this.replExecutor = new DebugReplExecutor(evaluator, debugHandler);
 
         this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
@@ -524,8 +528,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         client.output(errorOutput);
     }
 
-    private Result<IValue> evaluateExpression(String expression, int frameId) {
-        if (!suspendedState.isSuspended()) {
+    private DebugReplExecutor.EvalResult evaluateExpression(String expression, int frameId) throws ParseError, InterruptedException {
+        if (!suspendedState.isSuspended()) { // Unsuspended call to debug console, this could be considered not allowed
             return evaluateExpression(expression, evaluator.getCurrentEnvt());
         }
         else if(frameId >= 0 
@@ -539,50 +543,10 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     }
 
 
-    private Result<IValue> evaluateExpression(String expression, Environment evalEnv) {
-        Result<IValue> result = null;
-        String expr = expression.endsWith(";") ? expression : expression + ";";
-        synchronized(evaluator) {
-            // Save old state
-            AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
-            Environment oldEnvironment = evaluator.getCurrentEnvt();
-            try {
-                evaluator.removeSuspendTriggerListener(debugHandler);
-                evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
-                evaluator.setCurrentEnvt(evalEnv);
-
-                result = evaluator.eval(
-                    evaluator.getMonitor(),
-                    expr,
-                    DEBUGGER_LOC
-                );
-            } 
-            catch (InterruptException ex) {
-                outputErrorMessage(
-                    String.format("Interrupted\n%s", ex.getRascalStackTrace().toString())
-                );
-            }
-            catch (RascalStackOverflowError e) {
-                outputErrorMessage(e.makeThrow().toString());
-            }
-            catch (StaticError e) {
-                outputErrorMessage(
-                    String.format("%s: %s", e.getLocation(), e.getMessage()));
-            }
-            catch (Throw e) {
-                outputErrorMessage(e.toString());
-            }
-            catch (Throwable e) {
-                outputErrorMessage(e.toString());
-            }
-            finally {
-                // Restore old state
-                evaluator.setCurrentEnvt(oldEnvironment);
-                evaluator.setEventTrigger(oldTrigger);
-                evaluator.addSuspendTriggerListener(debugHandler);
-            }
-        }
-        return result;
+    private DebugReplExecutor.EvalResult evaluateExpression(String expression, Environment evalEnv) throws ParseError, InterruptedException {
+        // Delegate to the repl executor and do NOT directly emit DAP output events here.
+        // The caller (evaluate) will decide how to convert the ICommandOutput and Result into a DAP response.
+        return replExecutor.evaluate(expression, evalEnv);
     }
         
 
@@ -601,19 +565,52 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                     if(frameId == null){
                         frameId = 0; // evaluate in the top frame = global scope
                     }
-                    Result<IValue> result = evaluateExpression(expr, frameId);
-                    if (result == null) {
-                        response.setResult("Error"); // The expression generated an error that was already reported to the user
+                    DebugReplExecutor.EvalResult er = null;
+                    try {
+                        er = evaluateExpression(expr, frameId);
+                    }
+                    catch (ParseError pe) {
+                        var perr = new StringWriter();
+                        var perrPw = new PrintWriter(perr, true);
+                        ReadEvalPrintDialogMessages.parseErrorMessage(perrPw, expr, DEBUGGER_LOC.getScheme(), pe, new StandardTextWriter(false));
+                        // We need to cancel the PROMPT shifted output (7 characters = "rascal>")
+                        String shiftedError = perr.toString().substring(7);
+                        outputErrorMessage(shiftedError);
+                        response.setResult("");
                         break;
                     }
-                    else if(result.isVoid()) { // avoid NPE in toString below
-                        response.setResult("void");
+                    catch (InterruptedException ie) {
+                        response.setResult("Interrupted");
+                        break;
+                    }
+
+                    if (er == null) {
+                        response.setResult("Error");
+                        break;
+                    }
+
+                    // If we have a raw Result, prefer that for the response; otherwise, use the printed ICommandOutput
+                    if (er.result != null) {
+                        if (er.result.isVoid()) {
+                            response.setResult("void");
                             response.setType("void");
-                    } else {
-                        // Is there a way to find if the result of the evaluation is a variable in a Env ?
-                        response.setResult(result.toString());
-                        response.setType(result.getValue().getType().toString());
-                    }            
+                        }
+                        else {
+                            response.setResult(er.result.toString());
+                            response.setType(er.result.getValue().getType().toString());
+                        }
+                    }
+                    else if (er.output != null) { // Use output request to get red display of errors
+                        var sw = new StringWriter();
+                        var pw = new PrintWriter(sw, true);
+                        er.output.asPlain().write(pw, true);
+                        pw.flush();
+                        outputErrorMessage(sw.toString());
+                        response.setResult("");
+                    }
+                    else {
+                        response.setResult("Error");
+                    }
                     break;
                 case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
                     // In this case the expression already contains the value of the variable. We just return it.
@@ -649,7 +646,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         for(String var : frameVariables){
             if(var.startsWith(text)){
                 CompletionItem completion = new CompletionItem();
-                completion.setLabel(var);
+                IRascalResult varInFrame = frame.getFrameVariable(var);
+                completion.setLabel(var+" : " + varInFrame.getDynamicType().toString());
                 completion.setSortText(var);
                 if (text.length() < var.length()) { //remove the prefix
                     completion.setText(var.substring(text.length()));
