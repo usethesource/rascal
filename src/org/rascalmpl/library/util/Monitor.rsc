@@ -79,8 +79,9 @@ with a parameterized workload and the same label as the job name.
       jobStep(label, message, work=worked);
     });
   }
-  catch x: {
-     throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -110,8 +111,9 @@ with a parameterized workload and the same label as the job name.
       jobStep(label, label, work=worked);
     });
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -137,8 +139,9 @@ with workload `1` and the same label as the job name.
       jobStep(label, label, work=1);
     });
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -155,8 +158,9 @@ with workload `1` and the same label as the job name.
     jobStart(label, totalWork=totalWork);
     return block();
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);

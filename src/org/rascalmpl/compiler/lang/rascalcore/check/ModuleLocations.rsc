@@ -72,7 +72,8 @@ loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
+    mloc = |unknown:///|;
+    throw error("Module `<qualifiedModuleName>` not found", mloc, causes=[info("Using PathConfig: <iprintToString(pcfg)>", mloc)] );
 }
 
 tuple[str,str] splitFileExtension(str path){
