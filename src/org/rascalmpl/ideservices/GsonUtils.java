@@ -233,10 +233,10 @@ public class GsonUtils {
         try (var encoder = StreamingBase64.encode(builder);
              var out = new IValueOutputStream(encoder, IRascalValueFactory.getInstance())) {
             out.write(value);
-            return builder.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return builder.toString();
     }
 
     @SuppressWarnings("unchecked")

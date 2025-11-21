@@ -49,7 +49,7 @@ import io.usethesource.vallang.type.TypeStore;
 public interface IRemoteIDEServices {
 
     @JsonRequest
-    CompletableFuture<Void> edit(ISourceLocation param);
+    CompletableFuture<Void> edit(ISourceLocation param, int viewColumn);
 
     @JsonRequest
     CompletableFuture<Void> browse(URI uri, IString title, IInteger viewColumn);
@@ -61,7 +61,7 @@ public interface IRemoteIDEServices {
     CompletableFuture<Void> applyDocumentsEdits(DocumentEditsParameter edits);
 
     @JsonRequest
-    CompletableFuture<Void> registerLocations(RegisterLocationsParameters param);
+    CompletableFuture<Void> registerLocations(IString scheme, IString authority, ISourceLocation[][] mapping);
 
     @JsonRequest
     CompletableFuture<Void> registerDiagnostics(RegisterDiagnosticsParameters param);
@@ -100,41 +100,22 @@ public interface IRemoteIDEServices {
         }
     }
 
-    public static class RegisterLocationsParameters {
-        private final IString scheme;
-        private final IString authority;
-        private final ISourceLocation[][] mapping;
-
-        public RegisterLocationsParameters(IString scheme, IString authority, IMap mapping) {
-            this.scheme = scheme;
-            this.authority = authority;
-            this.mapping = mapping.stream()
+    /** 
+     * This function takes a map of type `map[loc, loc]` and converts it to a two-dimensional array of ISourceLocations
+     */
+    public static ISourceLocation[][] mapLocLocToLocArray(IMap mapping) {
+        return mapping.stream()
                 .map(ITuple.class::cast)
                 .map(e -> new ISourceLocation[] { (ISourceLocation) e.get(0), (ISourceLocation) e.get(1)})
                 .toArray(n -> new ISourceLocation[n][2]);
-        }
-
-        public RegisterLocationsParameters(IString scheme, IString authority, ISourceLocation[][] mapping) {
-            this.scheme = scheme;
-            this.authority = authority;
-            this.mapping = mapping;
-        }
-
-        public IString getScheme() {
-            return scheme;
-        }
-
-        public IString getAuthority() {
-            return authority;
-        }
-
-        public IMap getMapping() {
-            var vf = ValueFactoryFactory.getValueFactory();
-            return Stream.of(mapping).map(e -> vf.tuple(e[0], e[1])).collect(vf.mapWriter());
-        }
-
-        public ISourceLocation[][] getMappingAsArray() {
-            return mapping;
-        }
     }
+
+    /** 
+     * This function takes a two-dimensional array of ISourceLocations and converts it to a map of type `map[loc, loc]`
+     */
+    public static IMap locArrayToMapLocLoc(ISourceLocation[][] mapping) {
+        var vf = ValueFactoryFactory.getValueFactory();
+        return Stream.of(mapping).map(e -> vf.tuple(e[0], e[1])).collect(vf.mapWriter());
+    }
+
 }
