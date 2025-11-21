@@ -575,8 +575,13 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                         ReadEvalPrintDialogMessages.parseErrorMessage(perrPw, expr, DEBUGGER_LOC.getScheme(), pe, new StandardTextWriter(false));
                         // We need to cancel the PROMPT shifted output (7 characters = "rascal>")
                         String shiftedError = perr.toString().substring(7);
-                        outputErrorMessage(shiftedError);
-                        response.setResult("");
+                        if(args.getContext().equals("watch")){
+                            response.setResult("Parse Error: " + pe.getMessage().substring(0, Math.min(80, pe.getMessage().length())));
+                            response.setType("error");
+                        } else{
+                            outputErrorMessage(shiftedError);
+                            response.setResult("");
+                        }
                         break;
                     }
                     catch (InterruptedException ie) {
@@ -605,8 +610,13 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                         var pw = new PrintWriter(sw, true);
                         er.output.asPlain().write(pw, true);
                         pw.flush();
-                        outputErrorMessage(sw.toString());
-                        response.setResult("");
+                        if(args.getContext().equals("watch")){
+                            response.setResult(sw.toString().substring(0, Math.min(80, sw.toString().length())));
+                            response.setType("error");
+                        } else{
+                            outputErrorMessage(sw.toString());
+                            response.setResult("");
+                        }
                     }
                     else {
                         response.setResult("Error");
