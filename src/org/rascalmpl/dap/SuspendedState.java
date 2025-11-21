@@ -39,15 +39,10 @@ import org.rascalmpl.dap.variable.VariableSubfieldsVisitor;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 /**
  * Class used to store the state of the Rascal Evaluator when it is suspended
@@ -145,87 +140,6 @@ public class SuspendedState {
         int nextReferenceID = ++referenceIDCounter;
         variable.setReferenceID(nextReferenceID);
         variables.put(nextReferenceID, variable);
-    }
-
-    public RascalVariable setVariable(int referenceID, String name, String valueStr) {
-        if(!scopes.containsKey(referenceID)){
-            // raise undeclared variable error
-            throw new UndeclaredVariable(name, null);
-        }
-        IRascalFrame frame = scopes.get(referenceID);
-
-        // First: check that this variable exists in the suspended frame. If it
-        // doesn't, we don't create it silently; signal failure so the UI can
-        // report the error and avoid temporarily showing a value that will be
-        // rolled back later.
-        if (!frame.getFrameVariables().contains(name)) {
-            return null;
-        }
-
-        // Evaluate the new value in a fork to avoid touching the suspended evaluator's
-        // execution state. Then wrap the raw IValue into a Result bound to the
-        // suspended evaluator so it can be stored in its Environment.
-        Result<IValue> forkResult = evaluator.fork().eval(evaluator.getMonitor(), valueStr, URIUtil.rootLocation("internal"));
-        Result<IValue> newValue = ResultFactory.makeResult(forkResult.getDynamicType(), forkResult.getValue(), evaluator);
-
-        // Try to update the actual frame environment so the mutation affects
-        // the suspended evaluator. Many IRascalFrame implementations are backed
-        // by Environment (or ModuleEnvironment) which expose storeLocalVariable
-        // and declareVariable. If available, declare and store the new value.
-        boolean stored = false;
-        try {
-            if (frame instanceof Environment) {
-                Environment env = (Environment) frame;
-                // declare variable if necessary (some envs require declaration)
-                try {
-                    env.declareVariable(newValue.getDynamicType(), name);
-                } catch (Throwable t) {
-                    // ignore if not supported
-                }
-
-                try {
-                    env.storeLocalVariable(name, newValue);
-                    stored = true;
-                } catch (Throwable t) {
-                    // fallback: try generic storeVariable if available
-                    try {
-                        env.storeVariable(name, newValue);
-                        stored = true;
-                    } catch (Throwable t2) {
-                        stored = false;
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            stored = false;
-        }
-
-        // If storing into the runtime environment failed, signal failure so the
-        // UI doesn't optimistically display a value that won't persist.
-        if (!stored) {
-            return null;
-        }
-
-        // Update any cached RascalVariable (used for expanded complex variables)
-        // by replacing the old entry with a new one that preserves the reference id
-        // so the UI keeps working with the same reference.
-        for (Map.Entry<Integer, RascalVariable> entry : variables.entrySet()) {
-            RascalVariable rv = entry.getValue();
-            if (rv.getName().equals(name)) {
-                RascalVariable replacement = new RascalVariable(newValue.getDynamicType(), name, newValue.getValue(), services);
-                replacement.setReferenceID(rv.getReferenceID());
-                replacement.setIndexedVariables(rv.getIndexedVariables());
-                replacement.setNamedVariables(rv.getNamedVariables());
-                variables.put(entry.getKey(), replacement);
-            }
-        }
-
-        return new RascalVariable(
-            newValue.getDynamicType(), 
-            name, 
-            newValue.getValue(),
-            services
-        );
     }
 
 }
