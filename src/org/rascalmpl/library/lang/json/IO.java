@@ -73,10 +73,10 @@ public class IO {
                 .read(in, start);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
         catch (NullPointerException e) {
-            throw RuntimeExceptionFactory.io(values.string("NPE in error handling code"), null, null);
+            throw RuntimeExceptionFactory.io("NPE in error handling code");
         }
     }
 
@@ -103,10 +103,10 @@ public class IO {
                     .read(in, start);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
         catch (NullPointerException e) {
-            throw RuntimeExceptionFactory.io(values.string("NPE"));
+            throw RuntimeExceptionFactory.io("NPE");
         }
     }
 
@@ -131,7 +131,7 @@ public class IO {
                 .write(out, value);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -157,7 +157,7 @@ public class IO {
             return values.string(string.toString());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 }

@@ -83,7 +83,7 @@ public class Messages {
         }
         catch (IOException e) {
             // should never happen
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
     
