@@ -99,7 +99,7 @@ public class TermREPL {
                     baseRepl.run();
                 }
                 catch (IOException e) {
-                    throw RuntimeExceptionFactory.io(e.getMessage());
+                    throw RuntimeExceptionFactory.io(e);
                 }
                 return vf.tuple();
             }); 

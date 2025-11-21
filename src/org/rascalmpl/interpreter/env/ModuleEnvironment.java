@@ -91,7 +91,7 @@ public class ModuleEnvironment extends Environment {
 	public final static String SHELL_MODULE = "$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
-		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
+		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", "", "/" + name.replaceAll("::", "/").replaceAll("\\$", "_dollar_"))), name);
 		this.heap = heap;
 		this.importedModules = new HashMap<>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
@@ -540,7 +540,7 @@ public class ModuleEnvironment extends Environment {
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
-			if (r != null && !mod.isNamePrivate(name)) {
+			if (r != null && !mod.isVariablePrivate(name)) {
 				return mod.variableEnvironment;
 			}
 		}
@@ -588,7 +588,7 @@ public class ModuleEnvironment extends Environment {
 			var = variableEnvironment.get(name);
 		}
 		
-		if (var != null && !isNamePrivate(name)) {
+		if (var != null && !isVariablePrivate(name)) {
 			return var;
 		}
 		
@@ -599,7 +599,7 @@ public class ModuleEnvironment extends Environment {
 		if (functionEnvironment != null) {
 			LinkedHashSet<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
-				if (!isNamePrivate(name)) {
+				if (!isFunctionPrivate(name)) {
 					collection.addAll(lst);
 				}
 			}
@@ -632,8 +632,8 @@ public class ModuleEnvironment extends Environment {
 		Type cons = makeTupleType(adt, name, tupleType);
 		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons, initializers);
 		storeFunction(name, function);
-		markNameFinal(name);
-		markNameOverloadable(name);
+		markFunctionNameFinal(name);
+		markFunctionNameOverloadable(name);
 		return function;
 	}
 	
@@ -971,12 +971,12 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	@Override
-	protected boolean isNameFlagged(QualifiedName name, Predicate<NameFlags> tester) {
+	protected boolean isVariableFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return isNameFlagged(cons, tester);
+				return isVariableFlagged(cons, tester);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -986,19 +986,41 @@ public class ModuleEnvironment extends Environment {
 				return false;
 			}
 			
-			return imported.isNameFlagged(cons, tester);
+			return imported.isVariableFlagged(cons, tester);
 		}
 		
-		return isNameFlagged(cons, tester);
+		return isVariableFlagged(cons, tester);
 	}
 
 	@Override
-	protected void flagName(QualifiedName name, NameFlags flags) {
+	protected boolean isFunctionFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				flagName(cons, flags);
+				return isFunctionFlagged(cons, tester);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				// this might happen if the name is actually a type name instead of a module name
+				// when we replace the :: notation for . this issue should dissappear
+				return false;
+			}
+			
+			return imported.isFunctionFlagged(cons, tester);
+		}
+		
+		return isFunctionFlagged(cons, tester);
+	}
+
+	@Override
+	protected void flagVariableName(QualifiedName name, NameFlags flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				flagVariableName(cons, flags);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -1006,15 +1028,35 @@ public class ModuleEnvironment extends Environment {
 				throw new UndeclaredModule(modulename, name);
 			}
 			
-			imported.flagName(cons, flags);
+			imported.flagVariableName(cons, flags);
 		}
 		
-		flagName(cons, flags);
+		flagVariableName(cons, flags);
 	}
 
 	@Override
-	protected Environment getFlagsEnvironment(String name) {
-		Environment env = super.getFlagsEnvironment(name);
+	protected void flagFunctionName(QualifiedName name, NameFlags flags) {
+		String modulename = Names.moduleName(name);
+		String cons = Names.name(Names.lastName(name));
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				flagFunctionName(cons, flags);
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new UndeclaredModule(modulename, name);
+			}
+			
+			imported.flagFunctionName(cons, flags);
+		}
+		
+		flagFunctionName(cons, flags);
+	}
+
+	@Override
+	protected Environment getVariableFlagsEnvironment(String name) {
+		Environment env = super.getVariableFlagsEnvironment(name);
 		
 		if (env != null) {
 			return env;
@@ -1024,7 +1066,7 @@ public class ModuleEnvironment extends Environment {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
-			env = mod.getLocalFlagsEnvironment(name);
+			env = mod.getLocalVariableFlagsEnvironment(name);
 			
 			if (env != null) {
 				return env;
@@ -1034,8 +1076,36 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 
-	private Environment getLocalFlagsEnvironment(String name) {
-		if (this.nameFlags != null && nameFlags.get(name) != null)
+	@Override
+	protected Environment getFunctionFlagsEnvironment(String name) {
+		Environment env = super.getFunctionFlagsEnvironment(name);
+		
+		if (env != null) {
+			return env;
+		}
+		
+		for (ModuleEnvironment mod : importedModulesResolved) {
+			if(mod == null)	{
+				throw new RuntimeException("getFlagsEnvironment");
+			}
+			env = mod.getLocalFunctionFlagsEnvironment(name);
+			
+			if (env != null) {
+				return env;
+			}
+		}
+
+		return null;
+	}
+
+	private Environment getLocalVariableFlagsEnvironment(String name) {
+		if (this.variableFlags != null && variableFlags.get(name) != null)
+			return this;
+		return null;
+	}
+
+	private Environment getLocalFunctionFlagsEnvironment(String name) {
+		if (this.functionFlags != null && functionFlags.get(name) != null)
 			return this;
 		return null;
 	}
