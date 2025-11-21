@@ -54,6 +54,7 @@ import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.ideservices.RemoteIDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -92,6 +93,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     protected DebugSocketServer debugServer;
 
+    protected final int ideServicesPort;
+
     @Override
     public ITree parseCommand(String command) {
         Objects.requireNonNull(eval, "Not initialized yet");
@@ -101,6 +104,12 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     public RascalInterpreterREPL() {
+        this(-1);
+    }
+
+    public RascalInterpreterREPL(int ideServicesPort) {
+        this.ideServicesPort = ideServicesPort;
+
         this.printer = new RascalValuePrinter() {
             @Override
             protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
@@ -123,7 +132,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
+        if (ideServicesPort == -1) {
+            return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
+        }
+        return new RemoteIDEServices(ideServicesPort, err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
@@ -322,5 +334,4 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             dirtyModules.add(modName);
         }
     }
-
 }
