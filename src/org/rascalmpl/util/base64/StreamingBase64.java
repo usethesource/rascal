@@ -42,7 +42,7 @@ public class StreamingBase64 {
     /**
      * Create an OutputStream that on writing bytes, encodes them to the target writer
      * 
-     * The supplied Writer is written to when the OutputStream is closed
+     * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(Writer target) {
         return encode(target, true);
@@ -51,7 +51,7 @@ public class StreamingBase64 {
     /**
      * Create an OutputStream that on writing bytes, encodes them to the target writer, and you can disable the optional `=` padding characters
      * 
-     * The supplied Writer is written to when the OutputStream is closed
+     * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(Writer target, boolean padding) {
         return encode(Base64CharWriter.latinBytesTo(target), padding);
@@ -60,7 +60,7 @@ public class StreamingBase64 {
     /**
      * Create an OutputStream that on writing bytes, encodes them to the StringBuilder
      * 
-     * The supplied StringBuilder is written to when the OutputStream is closed
+     * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(StringBuilder target) {
         return encode(target, true);
@@ -69,7 +69,7 @@ public class StreamingBase64 {
     /**
      * Create an OutputStream that on writing bytes, encodes them to the StringBuilder, and you can disable the optional `=` padding characters
      * 
-     * The supplied StringBuilder is written to when the OutputStream is closed
+     * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(StringBuilder target, boolean padding) {
         return encode(Base64CharWriter.latinBytesTo(target), padding);

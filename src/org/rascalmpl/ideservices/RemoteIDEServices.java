@@ -38,7 +38,6 @@ import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
 import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
-import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterLocationsParameters;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IInteger;
@@ -119,6 +118,6 @@ public class RemoteIDEServices extends BasicIDEServices {
     public void registerLocations(IString scheme, IString auth, IMap map) {
         // The mappings should be registered both in the REPL itself as well as in the IDE
         super.registerLocations(scheme, auth, map);
-        server.registerLocations(new RegisterLocationsParameters(scheme, auth, map));
+        server.registerLocations(scheme, auth, IRemoteIDEServices.mapLocLocToLocArray(map));
     }
 }
