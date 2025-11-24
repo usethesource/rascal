@@ -70,7 +70,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       module_scope = M@\loc;
       setModuleScope(module_scope);
       //setModuleScope(convert2fuid(module_scope));
-      module_name = "<M.header.name>";
+      str module_name = "<M.header.name>";
       setModuleName(module_name);
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
@@ -139,7 +139,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
 //        return visit(tmodel) { case loc l => relocLoc(l, reloc, srcs) };
 //}
 
-void translateModule((Module) `<Header header> <Body body>`) {
+void translateModule(Module m) {
+    header = m.header;
+    body = m.body;
     for(imp <- header.imports) importModule(imp);
 	for( tl <- body.toplevels) translateToplevel(tl);
 }

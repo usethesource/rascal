@@ -44,7 +44,7 @@ void main() = checkTestSources([]);
 // otherwise only standard library and test files (~200 files) 
 void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs);
 
-loc REPO = |file:///Users/paulklint/git/|;
+loc GIT_REPO = |file:///Users/paulklint/git/|;
 
 list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
   = [ getModuleName(file, pcfg) 
@@ -63,20 +63,20 @@ void checkTestSources(list[str] cmdLineArgs) {
    list[str] modulesToCheck = [];
    pcfg = getAllSrcREPOPathConfig(keep=true);
    if("all" in cmdLineArgs){
-      modulesToCheck = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);         
+      modulesToCheck = getRascalModules(GIT_REPO + "rascal/src/org/rascalmpl/library", pcfg);         
    } else {         
       testFolders = [ //|std:///lang/rascal/tests|,
-                       //REPO + "/rascal-core/lang/rascalcore/check::tests",
-                       REPO + "/typepal/src/"
+                       //GIT_REPO + "/rascal-core/lang/rascalcore/check::tests",
+                       GIT_REPO + "/typepal/src/"
                     ];
       modulesToCheck = [ *getRascalModules(testFolder, pcfg)
                        | testFolder <- testFolders
                       ];
     }
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
+   ignoredFiles = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   modulesToCheck -= ignored; 
+   modulesToCheck -= ignoredFiles; 
    
    list[str] exceptions = [];
    int n = size(modulesToCheck);
@@ -91,7 +91,7 @@ void checkTestSources(list[str] cmdLineArgs) {
    }
    println("Checked <n> test modules");
    println("<size(exceptions)> failed to check: <exceptions>");
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredFiles)) { println("Ignored: <ignoredFiles>"); }
    secs = total/1000000000;
    println("Time: <secs> seconds");
 }

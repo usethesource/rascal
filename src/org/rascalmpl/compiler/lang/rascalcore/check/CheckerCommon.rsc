@@ -431,24 +431,26 @@ ModuleStatus updatePaths(loc oldModuleLoc, loc newModuleLoc, ModuleStatus ms){
 }
 
 ModuleStatus consolidatePaths(ModuleStatus ms){
-    set[loc] locs = {lc| /loc lc := ms.paths};
-    map[loc,loc] lprops = ();
-    rel[loc,PathRole,loc] paths = ms.paths;
-    for(loc l <- locs){
-        if(l.top in lprops && loc r := lprops[l.top] && r != l){
-            if(l.length? && !r.length?){
-                paths = visit(paths) { case r: { insert l; }};
-            } else if(!l.length? && r.length?){
-                paths = visit(paths) { case l: { insert r; }};
-            } else {
-                mname = getRascalModuleName(l, ms.pathConfig);
-                causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];
-                ms.messages[mname] ? {} += { error("Conflicting module locations found for <mname>", l, causes=causes) };
-            }
-        }
-        lprops[l.top] = l;
-    }
-    ms.paths = paths;
+    // set[loc] locs = {lc| /loc lc := ms.paths};
+    // map[loc,loc] lprops = ();
+    // rel[loc,PathRole,loc] paths = ms.paths;
+    // for(loc l <- locs){
+    //     if(l.top in lprops && loc r := lprops[l.top] && r != l){
+    //         if(l.length? && !r.length?){
+    //             paths = visit(paths) { case r: { insert l; }};
+    //         } else if(!l.length? && r.length?){
+    //             paths = visit(paths) { case l: { insert r; }};
+    //         } else {
+    //             paths = visit(paths) { case l: { insert l.top; }};
+    //             // mname = getRascalModuleName(l, ms.pathConfig);
+    //             // causes = [info("Module location for <mname>: <x>", x) | x <- [l, r]];
+    //             // ms.messages[mname] ? {} += { error("Conflicting module locations found for <mname>", l, causes=causes) };
+    //         }
+    //     }
+    //     lprops[l.top] = l;
+    // }
+    // ms.paths = paths;
+    //ms.paths = visit(ms.paths) { case loc l => l.top };
 
     // strPaths = getStrPaths(ms.paths, ms.pathConfig);
     // if(strPaths != ms.strPaths){

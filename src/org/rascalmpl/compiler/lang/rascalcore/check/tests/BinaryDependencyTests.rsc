@@ -403,6 +403,27 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }
+@ignore{Unclear whether it should fail or succeed}
+test bool mixedRascalVersions() {
+    // This test project has a dependency on:
+    // * Rascal 0.41.0-RC67
+    // * java-air 1.0.0-RC2, which was built using Rascal 0.41.0-RC35
+    // The test module imports:
+    // * a standard library module from 0.41.0-RC67
+    // * a library module of which the packaged tpl was built using 0.41.0-RC35
+    clearMemory();
+    project_name = "test-project";
+    test_project =
+        createProject(
+            project_name,
+            ("Test": "import IO;
+                     'import lang::java::m3::Core;"),
+            createPathConfig(project_name)
+                    [libs=[RASCAL_RC67, JAVA_AIR]]
+                    [srcs=[src(project_name)]]
+                );
+    return checkExpectNoErrors("Test", test_project.pcfg, remove = [test_project]);
+}
 
 test bool mixedRascalVersions() {
     // This test project has a dependency on:

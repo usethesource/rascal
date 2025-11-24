@@ -45,7 +45,7 @@ void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs);
 
 void main() = main([]);
 
-loc REPO = |file:///Users/paulklint/git/|;
+loc GIT_REPO = |file:///Users/paulklint/git/|;
 
 list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
   = [ getModuleName(file, pcfg) //replaceAll(file[extension=""].path[1..], "/", "::") 
@@ -66,12 +66,12 @@ void generateTestSources(list[str] cmdLineArgs) {
    list[str] modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-      modulesToCompile = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);     
+      modulesToCompile = getRascalModules(GIT_REPO + "rascal/src/org/rascalmpl/library", pcfg);     
    } else {              
-       testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
-                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
-                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
-                      // , REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
+       testFolders = [   GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
+                       , GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
+                       , GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
+                      // , GIT_REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
                      ];
        
        modulesToCompile = [ *getRascalModules(testFolder, pcfg)
@@ -79,12 +79,12 @@ void generateTestSources(list[str] cmdLineArgs) {
                           ];
    }  
 
-   ignored = ["lang::rascal::tests::concrete::Patterns3",
+   ignoredFiles = ["lang::rascal::tests::concrete::Patterns3",
                "lang::rascal::syntax::tests::ExpressionGrammars",
                "lang::sdf2::util::SDF2Grammar",
                "lang::sdf2::util::Importer"
               ];           
-   modulesToCompile -= ignored;    
+   modulesToCompile -= ignoredFiles;    
    
    list[str] exceptions = [];
    int n = size(modulesToCompile);
@@ -98,7 +98,7 @@ void generateTestSources(list[str] cmdLineArgs) {
    }
    println("Compiled <n> modules");
    println("<size(exceptions)> failed to compile:"); iprintln(exceptions);
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredFiles)) { println("Ignored: <ignoredFiles>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));

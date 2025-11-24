@@ -91,7 +91,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     loc2muFunction = (f.src : f | f <- m.functions);
     
     // Iteratively propagate external dependencies of functions
-    functions = m.functions;
+    list[MuFunction] functions = m.functions;
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
     }
@@ -107,7 +107,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, pcfg, jg);
     
-    facts = tm.facts;
+    map[loc,AType] facts = tm.facts;
     cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) }
                      + { t | loc k <- facts, /AType t:acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts[k],
                            !isEmpty(adt.parameters), any(p <- adt.parameters, !isTypeParameter(p))

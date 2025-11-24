@@ -31,8 +31,6 @@ module lang::rascalcore::check::RascalConfig
     High level configuration of the Rascal checker.
 */
 
-//import lang::rascalcore::check::CheckerCommon;
-
 import lang::rascalcore::check::ADTandGrammar;
 import lang::rascalcore::compile::muRascal::AST;
 
@@ -505,7 +503,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         ovl1 = coverloads[0];
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        argHint = "<isEmpty(qualifyHint) ? " " : " or ">make argument type(s) more precise";
         msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
                          current@\loc);
         s.addMessages([msg]);
@@ -529,19 +527,19 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 // bool isLogicalLoc(loc l)
 //     = startsWith(l.scheme, "rascal+");
 
-loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+tuple[bool, loc] rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
-       if(isLogicalLoc(def.defined)) return def.defined;
+       if(isLogicalLoc(def.defined)) return <true, def.defined>;
        moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
        if(def.idRole == moduleId()){
-            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
+            return <true, |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|>;
        } else {
-            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|;
+            return <true, |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|>;
        }
      }
-     return def.defined;
+     return <false, def.defined>;
 }
 
 @memo{expireAfter(minutes=5),maximumSize(1000)}
