@@ -385,9 +385,6 @@ public abstract class Import {
    * This tries to clearly warn about any module that ends up in an inconsistent state. The modules
    * are kept on the heap because they form a proper dependency graph that can be used to accurately
    * reload all dependent modules after a fix.
-   * 
-   * The side-effect of this method is that the prompt looses access to the fawlty modules, such
-   * that users can not start depending (easily) on their ill-defined behavior.
    */
   private static void handleLoadError(ModuleEnvironment m, String message, ISourceLocation error, String trace) {
       m.addLoadError(message, error, trace);
