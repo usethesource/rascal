@@ -1581,7 +1581,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void notifyAboutSuspension(AbstractAST currentAST) {
         if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
         }
     }
