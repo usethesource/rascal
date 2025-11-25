@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.interpreter.utils.Names;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -61,6 +62,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Append(ISourceLocation src, IConstructor node, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
 			super(src, node, __param2, __param3);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			return getStatement().getDebugStepScope();
 		}
 		
 		protected Accumulator getTarget(IEvaluator<Result<IValue>> __eval) {
@@ -197,6 +203,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
@@ -267,6 +278,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				org.rascalmpl.ast.Statement __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -417,6 +435,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -573,6 +598,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getThenStatement().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
@@ -645,6 +677,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				org.rascalmpl.ast.Statement __param4,
 				org.rascalmpl.ast.Statement __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getThenStatement().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -723,6 +762,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
@@ -741,6 +785,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public NonEmptyBlock(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Statement> __param3) {
 			super(__param1, tree, __param2, __param3);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getStatements().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -775,6 +826,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
@@ -791,6 +847,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Solve(ISourceLocation __param1, IConstructor tree, List<QualifiedName> __param2,
 				Bound __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -888,6 +951,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
@@ -913,6 +983,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			throw new org.rascalmpl.exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
@@ -926,6 +1001,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Try(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2,
 				List<Catch> __param3) {
 			super(__param1, tree, __param2, __param3);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -1013,6 +1095,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
@@ -1069,6 +1158,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
