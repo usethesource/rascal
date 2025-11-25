@@ -66,6 +66,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
 			return getStatement().getDebugStepScope();
 		}
 		
@@ -204,6 +207,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
 			return getStatement().getDebugStepScope();
 		}
 
@@ -763,6 +769,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
 			return getStatement().getDebugStepScope();
 		}
 
@@ -827,6 +836,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
 			return getStatement().getDebugStepScope();
 		}
 
@@ -984,6 +996,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
 			return getStatement().getDebugStepScope();
 		}
 
