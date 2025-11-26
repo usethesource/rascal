@@ -229,8 +229,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             try {
                 Set<String> changes = new HashSet<>();
                 changes.addAll(dirtyModules);
-                dirtyModules.removeAll(changes);
-                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                if (!changes.isEmpty()) {
+                    dirtyModules.removeAll(changes);
+                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                }
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {

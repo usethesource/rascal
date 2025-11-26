@@ -1257,6 +1257,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
+            getOutPrinter().println("[INFO] reloading module: " + name);
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
         }
@@ -1583,7 +1584,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void notifyAboutSuspension(AbstractAST currentAST) {
         if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
         }
     }

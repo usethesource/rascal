@@ -40,6 +40,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.rascalmpl.dap.SuspendedState;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 /**
  *  Visitor that collects a specific amount of variables from starting index that are subfields of a given variable
@@ -132,6 +136,11 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
     public List<RascalVariable> visitConstructor(IConstructor o) throws RuntimeException {
         List<RascalVariable> result = new ArrayList<>();
 
+        if(o.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+            // Special case for trees
+            return visitTree((ITree) o);
+        }
+
         if(startIndex<o.arity()) {
             int max = count == -1 ? o.arity() : Math.min(o.arity(), startIndex+count);
             for (int i = startIndex; i < max; i++) {
@@ -151,6 +160,24 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
             });
         }
 
+        return result;
+    }
+
+    public List<RascalVariable> visitTree(ITree o) throws RuntimeException {
+        List<RascalVariable> result = new ArrayList<>();
+        if (SymbolAdapter.isStartSort(TreeAdapter.getType(o))) { // skip the start symbol
+            IList skippedStarto = o.getArgs().delete(0).delete(1);
+            if(skippedStarto.length()>0 && skippedStarto.get(0) instanceof ITree){
+			    o = (ITree) skippedStarto.get(0);
+            }
+		}
+        IList args = TreeAdapter.getASTArgs(o);
+        int max = count == -1 ? args.length() : Math.min(args.length(), startIndex+count);
+        for (int i = startIndex; i < max; i++) {
+            IValue arg = args.get(i);
+            RascalVariable newVar = new RascalVariable(arg.getType(), Integer.toString(i), arg, services);
+            addVariableToResult(newVar, result);
+        }
         return result;
     }
 
