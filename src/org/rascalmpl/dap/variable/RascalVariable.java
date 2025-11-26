@@ -28,6 +28,8 @@ package org.rascalmpl.dap.variable;
 
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -85,8 +87,10 @@ public class RascalVariable {
         if(type == null) {
             return false;
         }
-
-        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime() || (type.isExternalType() && type.equals(RascalValueFactory.Tree));
+        if(type.isExternalType() && type.isSubtypeOf(RascalValueFactory.Tree)){ // DO not display lexical subfields
+            return !TreeAdapter.isLexical((ITree) value);
+        }
+        return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple() || type.isDateTime();
     }
 
     public int getNamedVariables() {
