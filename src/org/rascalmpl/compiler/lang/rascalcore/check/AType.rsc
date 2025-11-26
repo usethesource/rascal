@@ -472,11 +472,6 @@ bool asubtype(l:\achar-class(_), AType r){
     fail;
 }
 
-bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
-
-bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges))
-    = difference(ranges, [arange(c,c)]) == [arange(c,c)];
-
 bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtypeList(l, r);
 
 // asubtype on lists of atypes
