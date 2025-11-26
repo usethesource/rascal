@@ -593,7 +593,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
             if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
                 <qualifier, base> = splitQualifiedName(expression.qualifiedName);
-                // TODO JV: we have the definitions in ParseTree for checking char constructors? And what about amb, appl and cycle then?
+               
                 if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
                     nactuals = size(actuals);
                     if(nactuals != 1){
