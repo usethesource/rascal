@@ -374,10 +374,17 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
+bool isSourceFile(loc l, PathConfig pcfg){
+    for(src <- pcfg.srcs){
+        if(relativize(src, l) != l) return true;
+    }
+    return false;
+}
+
 // Extend the path relation by
 // - adding transitive edges for extend
 // - adding imports via these extends
-rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths){
+rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths, PathConfig pcfg){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
     paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
 
@@ -388,13 +395,22 @@ rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths){
               from != to2
             };
     paths += delta;
+
+    paths = {<isSourceFile(from, pcfg) ? from : getRascalModuleLocation(getRascalModuleName(from, pcfg), pcfg),
+              pathRole,
+              isSourceFile(to, pcfg) ? to : getRascalModuleLocation(getRascalModuleName(to, pcfg), pcfg)
+             >
+            | <from, pathRole, to> <- paths
+            };
+    iprintln(paths);
     return paths;
 }
 
 // Enhance TModel before running Solver by 
 
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    return m[paths = enhancePathRelation(m.paths)];
+    res = m[paths = enhancePathRelation(m.paths, m.config.typepalPathConfig)];
+    return res;
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
