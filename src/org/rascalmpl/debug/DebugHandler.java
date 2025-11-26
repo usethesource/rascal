@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Case;
 import org.rascalmpl.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -164,35 +163,11 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	                 * frame, positions are compared to ensure that the
 	                 * statement was finished executing.
 	                 */
-	                int referenceStart = getReferenceAST().getLocation().getOffset();
-	                int referenceAfter = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
+					ISourceLocation stepScope = getReferenceAST().getDebugStepScope();
+	                int referenceStart = stepScope.getOffset();
+	                int referenceAfter = stepScope.getOffset() + stepScope.getLength();
 	                int currentStart = location.getLocation().getOffset();
 	                int currentAfter = location.getLocation().getOffset() + location.getLocation().getLength();
-
-					// Special handling for For, While and Switch statements to step over inside their body
-					if(getReferenceAST() instanceof For){
-						For forStmt = (For) getReferenceAST();
-						referenceAfter = forStmt.getBody().getLocation().getOffset();
-					}
-					if(getReferenceAST() instanceof While){
-						While whileStmt = (While) getReferenceAST();
-						referenceAfter = whileStmt.getBody().getLocation().getOffset();
-					}
-					if(getReferenceAST() instanceof Switch){
-						Switch switchStmt = (Switch) getReferenceAST();
-						if (switchStmt.getCases().size() > 0) {
-							Case lastCase = switchStmt.getCases().get(0);
-							referenceAfter = lastCase.getLocation().getOffset();
-						}
-					}
-					if(getReferenceAST() instanceof Visit){
-						Visit visitStmt = (Visit) getReferenceAST();
-						org.rascalmpl.ast.Visit visit = visitStmt.getVisit();
-						if (visit.getCases().size() > 0) {
-							Case lastCase = visit.getCases().get(0);
-							referenceAfter = lastCase.getLocation().getOffset();
-						}
-					}
 
 	                if (currentStart < referenceStart
 	                        || currentStart >= referenceAfter
