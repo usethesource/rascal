@@ -198,14 +198,11 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
 
 bool asubtype(ap: aprod(AProduction p), AType b){
     switch(b){
-        // JV: this looks strange, that productions could replace one another if their defined type is comparable...
-        // in fact different production rules are always _incomparable_ in Rascal.
         case aprod(AProduction q): 
             return asubtype(p.def, q.def);
         case conditional(AType t, _):
             return asubtype(ap, t);
         case AType t:
-            // JV: this looks strange as well, in Rascal the rules are not interchangeable with the types they produce.
             return asubtype(p.def, t);
         case avalue():
             return true;
@@ -459,9 +456,6 @@ bool asubtype(l:\achar-class(_), AType r){
     fail;
 }
 
-// TODO JV: in Rascal a character is not a type, only character classes are types. By introducing
-// an alias, which must go both ways we introduce many places later where we have to do case distinction.
-// propose to use \char-class directly when we move from a value to AType representation.
 bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
 
 bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges))
@@ -486,7 +480,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(\start(AType ss, SyntaxRole sr)) = sr == layoutSyntax(); // only syntax (non-layout) non-terminals can be start``
+bool isLayoutAType(\start(AType _, SyntaxRole _)) = false;
 bool isLayoutAType(\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
