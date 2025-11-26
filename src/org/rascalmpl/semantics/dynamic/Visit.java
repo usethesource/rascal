@@ -46,6 +46,13 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
@@ -87,6 +94,13 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			blocks = new CaseBlockList(Cases.precompute(getCases(), true));
 		}
 
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> subject = this.getSubject().interpret(__eval);
