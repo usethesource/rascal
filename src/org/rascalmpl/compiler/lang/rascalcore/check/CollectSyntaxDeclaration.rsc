@@ -153,9 +153,6 @@ private bool isTerminalSym((Sym) `(<Sym symbol1> <Sym symbol2>)`) = isTerminalSy
 private bool isTerminalSym((Sym) `()`) = true;
 private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
 
-private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalAType(adt2);
-private default AType removeChainRule(AType t) = t;
-
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms, !(sym is empty)];
 
@@ -192,7 +189,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                                !isTerminalSym(sym),
                                tsym := s.getType(sym),
                                isNonTerminalAType(tsym),
-                               stp := getSyntaxType(removeChainRule(tsym), s)
+                               stp := getSyntaxType(tsym, s)
                              ];
 
                     def = \start(sdef) := def ? sdef : def;
