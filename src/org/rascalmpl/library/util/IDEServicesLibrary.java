@@ -38,7 +38,7 @@ public class IDEServicesLibrary {
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
-        services.browse(uri.getURI(), title.getValue(), viewColumn.intValue());
+        services.browse(uri.getURI(), title, viewColumn);
     }
 
     public void edit(ISourceLocation path, IInteger viewColumn) {
@@ -47,10 +47,6 @@ public class IDEServicesLibrary {
 
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         return services.resolveProjectLocation(input);
-    }
-
-    public void registerLanguage(IConstructor language) {
-        services.registerLanguage(language);
     }
 
     public void applyDocumentsEdits(IList edits) {
