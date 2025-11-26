@@ -46,6 +46,8 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.rascalmpl.dap.breakpoint.BreakpointsCollection;
 import org.rascalmpl.dap.variable.RascalVariable;
+import org.rascalmpl.dap.variable.VariableSubElementsCounter;
+import org.rascalmpl.dap.variable.VariableSubElementsCounterVisitor;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
@@ -569,8 +571,23 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                             response.setType("void");
                         }
                         else {
+                            RascalVariable tempVar = new RascalVariable(
+                                er.result.getValue().getType(),
+                                "???",
+                                er.result.getValue(),
+                                services);
+                            if(tempVar.hasSubFields()){
+                                suspendedState.addVariable(tempVar);
+                                VariableSubElementsCounter counter = er.result.getValue().accept(new VariableSubElementsCounterVisitor());
+                                tempVar.setIndexedVariables(counter.getIndexedVariables());
+                                tempVar.setNamedVariables(counter.getNamedVariables());
+                            }
+
                             response.setResult(er.result.toString());
                             response.setType(er.result.getValue().getType().toString());
+                            response.setVariablesReference(tempVar.getReferenceID());
+                            response.setNamedVariables(tempVar.getNamedVariables());
+                            response.setIndexedVariables(tempVar.getIndexedVariables());
                         }
                     }
                     else if (er.output != null) {
