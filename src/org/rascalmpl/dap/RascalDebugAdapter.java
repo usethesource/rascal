@@ -573,7 +573,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                         else {
                             RascalVariable tempVar = new RascalVariable(
                                 er.result.getValue().getType(),
-                                "???",
+                                "",
                                 er.result.getValue(),
                                 services);
                             if(tempVar.hasSubFields()){
