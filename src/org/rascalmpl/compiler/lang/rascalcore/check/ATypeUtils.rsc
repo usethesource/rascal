@@ -1527,10 +1527,6 @@ AType getSyntaxType(AType t, Solver _) = removeConditional(t);
 
 AType getSyntaxType(Tree tree, Solver s) = removeConditional(s.getType(tree));
 
-AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
-
-AType stripStart(aprod(AProduction production)) = production.def;
-
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.alabel? ? s[alabel=cnd.alabel] : s;
 default AType removeConditional(AType s) = s;
 
