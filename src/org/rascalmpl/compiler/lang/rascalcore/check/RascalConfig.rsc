@@ -396,13 +396,13 @@ rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths, PathCon
             };
     paths += delta;
 
-    paths = {<isSourceFile(from, pcfg) ? from : getRascalModuleLocation(getRascalModuleName(from, pcfg), pcfg),
-              pathRole,
-              isSourceFile(to, pcfg) ? to : getRascalModuleLocation(getRascalModuleName(to, pcfg), pcfg)
-             >
-            | <from, pathRole, to> <- paths
-            };
-    iprintln(paths);
+    // paths = {<isSourceFile(from, pcfg) ? from : getRascalModuleLocation(getRascalModuleName(from, pcfg), pcfg),
+    //           pathRole,
+    //           isSourceFile(to, pcfg) ? to : getRascalModuleLocation(getRascalModuleName(to, pcfg), pcfg)
+    //          >
+    //         | <from, pathRole, to> <- paths
+    //         };
+    //iprintln(paths);
     return paths;
 }
 
