@@ -134,11 +134,9 @@ void collectStartRule(Start current, AType nonterminalType, Collector c) {
     sPos = current@\loc.top(current@\loc.offset, 1);
     c.define("", productionId(), sPos, startProd);
 
-    // c.enterScope(current);
-        fieldDef = defType(nonterminalType[alabel="top"]);
-        tPos = current@\loc.top(current@\loc.offset + 1, 1);
-        c.define("top", fieldId(), tPos, fieldDef);
-    // c.leaveScope(current);
+    fieldDef = defType(nonterminalType[alabel="top"]);
+    tPos = current@\loc.top(current@\loc.offset + 1, 1);
+    c.define("top", fieldId(), tPos, fieldDef);
 }
 
 // ---- Prod ------------------------------------------------------------------
@@ -234,7 +232,6 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                                stp := getSyntaxType(removeChainRule(tsym), s)
                              ];
 
-                    def = \start(sdef, _) := def ? sdef : def;
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=md5Hash("<adt><unparseNoLayout(current)>")]);
