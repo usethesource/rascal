@@ -21,6 +21,7 @@ import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTr
 import java.util.Set;
 import java.util.function.IntSupplier;
 
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IDebugMessage.Detail;
 import io.usethesource.vallang.ISourceLocation;
 
@@ -49,7 +50,7 @@ public final class DebugHandler implements IDebugHandler {
 	/**
 	 * Referring to {@link ISourceLocation} responsible for last suspension.
 	 */
-	private ISourceLocation referenceAST = null;	
+	private AbstractAST referenceAST = null;	
 
 	/**
 	 * Referring to the stack depth at last suspension suspension.
@@ -88,7 +89,7 @@ public final class DebugHandler implements IDebugHandler {
 		setSuspended(false);
 	}
 	
-	protected void updateSuspensionState(int callStackSize, ISourceLocation currentAST) {
+	protected void updateSuspensionState(int callStackSize, AbstractAST currentAST) {
 		setReferenceAST(currentAST);
 		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
@@ -97,14 +98,14 @@ public final class DebugHandler implements IDebugHandler {
 	}
 	
 	@Override
-	public void suspended(Object runtime, IntSupplier getCallStackSize, ISourceLocation currentAST) {
+	public void suspended(Object runtime, IntSupplier getCallStackSize, AbstractAST currentAST) {
 	    if (isSuspendRequested()) {
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
 	        setSuspendRequested(false);
 	    } 
 	    else {
-	        ISourceLocation location = currentAST;
+	        AbstractAST location = currentAST;
 	        switch (getStepMode()) {
 
 	        case STEP_INTO:
@@ -130,10 +131,11 @@ public final class DebugHandler implements IDebugHandler {
 	                 * frame, positions are compared to ensure that the
 	                 * statement was finished executing.
 	                 */
-	                int referenceStart = getReferenceAST().getOffset();
-	                int referenceAfter = getReferenceAST().getOffset() + getReferenceAST().getLength();
-	                int currentStart = location.getOffset();
-	                int currentAfter = location.getOffset() + location.getLength();
+					ISourceLocation stepScope = getReferenceAST().getDebugStepScope();
+	                int referenceStart = stepScope.getOffset();
+	                int referenceAfter = stepScope.getOffset() + stepScope.getLength();
+	                int currentStart = location.getLocation().getOffset();
+	                int currentAfter = location.getLocation().getOffset() + location.getLocation().getLength();
 
 	                if (currentStart < referenceStart
 	                        || currentStart >= referenceAfter
@@ -171,9 +173,9 @@ public final class DebugHandler implements IDebugHandler {
 				break;
 
 	        case NO_STEP:
-	            if (hasBreakpoint(location)) {
+	            if (hasBreakpoint(location.getLocation())) {
 	                updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	                getEventTrigger().fireSuspendByBreakpointEvent(location);
+	                getEventTrigger().fireSuspendByBreakpointEvent(location.getLocation());
 	            }
 	            break;
 
@@ -192,11 +194,11 @@ public final class DebugHandler implements IDebugHandler {
 	    }
 	}
 
-	protected ISourceLocation getReferenceAST() {
+	protected AbstractAST getReferenceAST() {
 	  return referenceAST;
 	}
 
-	protected void setReferenceAST(ISourceLocation referenceAST) {
+	protected void setReferenceAST(AbstractAST referenceAST) {
 	  this.referenceAST = referenceAST;
 	}
 
