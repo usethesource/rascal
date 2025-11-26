@@ -49,6 +49,7 @@ import org.rascalmpl.dap.variable.RascalVariable;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.debug.IRascalRuntimeEvaluation.EvalResult;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
@@ -62,8 +63,6 @@ import org.rascalmpl.interpreter.result.NamedFunction;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
-import io.usethesource.vallang.io.StandardTextWriter;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -102,7 +101,6 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final ColumnMaps columns;
     private int lineBase = 1;   // Default in DAP
     private int columnBase = 1; // Default in DAP
-    private final DebugReplExecutor replExecutor;
 
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
@@ -112,14 +110,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         this.evaluator = evaluator;
         this.services = services;
         this.ownExecutor = threadPool;
-
-        this.replExecutor = new DebugReplExecutor(evaluator, debugHandler);
-
         this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
         debugHandler.setEventTrigger(eventTrigger);
+        this.debugHandler.setEvaluator(evaluator);
 
         columns = new ColumnMaps(l -> {
             try {
@@ -528,27 +524,19 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         client.output(errorOutput);
     }
 
-    private DebugReplExecutor.EvalResult evaluateExpression(String expression, int frameId) throws ParseError, InterruptedException {
+    private org.rascalmpl.debug.IRascalRuntimeEvaluation.EvalResult evaluateExpression(String expression, int frameId) {
         if (!suspendedState.isSuspended()) { // Unsuspended call to debug console, this could be considered not allowed
-            return evaluateExpression(expression, evaluator.getCurrentEnvt());
+            return this.debugHandler.evaluate(expression, evaluator.getCurrentEnvt());
         }
         else if(frameId >= 0 
             && frameId < suspendedState.getCurrentStackFrames().length 
             && suspendedState.getCurrentStackFrames()[frameId] instanceof Environment){
-            return evaluateExpression(expression, (Environment) suspendedState.getCurrentStackFrames()[frameId]) ;
+            return this.debugHandler.evaluate(expression, (Environment) suspendedState.getCurrentStackFrames()[frameId]) ;
         }
         else {
-            return evaluateExpression(expression, evaluator.getCurrentEnvt());
+            return this.debugHandler.evaluate(expression, evaluator.getCurrentEnvt());
         }
     }
-
-
-    private DebugReplExecutor.EvalResult evaluateExpression(String expression, Environment evalEnv) throws ParseError, InterruptedException {
-        // Delegate to the repl executor and do NOT directly emit DAP output events here.
-        // The caller (evaluate) will decide how to convert the ICommandOutput and Result into a DAP response.
-        return replExecutor.evaluate(expression, evalEnv);
-    }
-        
 
 
     @Override
@@ -565,38 +553,18 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                     if(frameId == null){
                         frameId = 0; // evaluate in the top frame = global scope
                     }
-                    DebugReplExecutor.EvalResult er = null;
-                    try {
-                        er = evaluateExpression(expr, frameId);
-                    }
-                    catch (ParseError pe) {
-                        var perr = new StringWriter();
-                        var perrPw = new PrintWriter(perr, true);
-                        ReadEvalPrintDialogMessages.parseErrorMessage(perrPw, expr, DEBUGGER_LOC.getScheme(), pe, new StandardTextWriter(false));
-                        // We need to cancel the PROMPT shifted output (7 characters = "rascal>")
-                        String shiftedError = perr.toString().substring(7);
-                        if(args.getContext().equals("watch")){
-                            response.setResult("Parse Error: " + pe.getMessage().substring(0, Math.min(80, pe.getMessage().length())));
-                            response.setType("error");
-                        } else{
-                            outputErrorMessage(shiftedError);
-                            response.setResult("");
-                        }
-                        break;
-                    }
-                    catch (InterruptedException ie) {
-                        response.setResult("Interrupted");
-                        break;
-                    }
+
+                    EvalResult er = evaluateExpression(expr, frameId);
+  
 
                     if (er == null) {
                         response.setResult("Error");
                         break;
                     }
 
-                    // If we have a raw Result, prefer that for the response; otherwise, use the printed ICommandOutput
                     if (er.result != null) {
-                        if (er.result.isVoid()) {
+                        // IRascalResult doesn't expose isVoid; check value==null as proxy for void
+                        if (er.result.getValue() == null) {
                             response.setResult("void");
                             response.setType("void");
                         }
@@ -605,16 +573,24 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                             response.setType(er.result.getValue().getType().toString());
                         }
                     }
-                    else if (er.output != null) { // Use output request to get red display of errors
+                    else if (er.output != null) {
+                        // Render the ICommandOutput to plain text for the DAP client
                         var sw = new StringWriter();
                         var pw = new PrintWriter(sw, true);
-                        er.output.asPlain().write(pw, true);
-                        pw.flush();
+                        try {
+                            er.output.asPlain().write(pw, true);
+                        } catch (Exception _e) {
+                            // fallback
+                            pw.print(er.output.toString());
+                        }
+                        String outText = sw.toString();
+                        
+                        // Dispatch error printing depending on context
                         if(args.getContext().equals("watch")){
-                            response.setResult(sw.toString().substring(0, Math.min(80, sw.toString().length())));
+                            response.setResult(outText.substring(0, Math.min(80, outText.length())));
                             response.setType("error");
                         } else{
-                            outputErrorMessage(sw.toString());
+                            outputErrorMessage(outText);
                             response.setResult("");
                         }
                     }
