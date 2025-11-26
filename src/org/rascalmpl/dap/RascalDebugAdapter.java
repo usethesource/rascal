@@ -527,10 +527,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     }
 
     private org.rascalmpl.debug.IRascalRuntimeEvaluation.EvalResult evaluateExpression(String expression, int frameId) {
-        if (!suspendedState.isSuspended()) { // Unsuspended call to debug console, this could be considered not allowed
-            return this.debugHandler.evaluate(expression, evaluator.getCurrentEnvt());
-        }
-        else if(frameId >= 0 
+        assert suspendedState.isSuspended(); // For race condition reason, call to evaluator is only allowrd on suspended state
+        if(frameId >= 0 
             && frameId < suspendedState.getCurrentStackFrames().length 
             && suspendedState.getCurrentStackFrames()[frameId] instanceof Environment){
             return this.debugHandler.evaluate(expression, (Environment) suspendedState.getCurrentStackFrames()[frameId]) ;
@@ -547,83 +545,72 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             EvaluateResponse response = new EvaluateResponse();
             Integer frameId = args.getFrameId(); // If null, the expression is evaluated in the global scope
             String expr = args.getExpression();
-            switch (args.getContext()) {
-                case "hover": // Not called until we set the supportsEvaluateForHovers capability to true
-                case "clipboard": // Not called until we set the supportsClipboardContext capability to true
-                case "repl": // Called from the debugger repl
-                case "watch": // Called from watched expressions.
-                    if(frameId == null){
-                        frameId = 0; // evaluate in the top frame = global scope
-                    }
-
-                    EvalResult er = evaluateExpression(expr, frameId);
-  
-
-                    if (er == null) {
-                        response.setResult("Error");
-                        break;
-                    }
-
-                    if (er.result != null) {
-                        // IRascalResult doesn't expose isVoid; check value==null as proxy for void
-                        if (er.result.getValue() == null) {
-                            response.setResult("void");
-                            response.setType("void");
-                        }
-                        else {
-                            RascalVariable tempVar = new RascalVariable(
-                                er.result.getValue().getType(),
-                                "",
-                                er.result.getValue(),
-                                services);
-                            if(tempVar.hasSubFields()){
-                                suspendedState.addVariable(tempVar);
-                                VariableSubElementsCounter counter = er.result.getValue().accept(new VariableSubElementsCounterVisitor());
-                                tempVar.setIndexedVariables(counter.getIndexedVariables());
-                                tempVar.setNamedVariables(counter.getNamedVariables());
-                            }
-
-                            response.setResult(er.result.toString());
-                            response.setType(er.result.getValue().getType().toString());
-                            response.setVariablesReference(tempVar.getReferenceID());
-                            response.setNamedVariables(tempVar.getNamedVariables());
-                            response.setIndexedVariables(tempVar.getIndexedVariables());
-                        }
-                    }
-                    else if (er.output != null) {
-                        // Render the ICommandOutput to plain text for the DAP client
-                        var sw = new StringWriter();
-                        var pw = new PrintWriter(sw, true);
-                        try {
-                            er.output.asPlain().write(pw, true);
-                        } catch (Exception _e) {
-                            // fallback
-                            pw.print(er.output.toString());
-                        }
-                        String outText = sw.toString();
-                        
-                        // Dispatch error printing depending on context
-                        if(args.getContext().equals("watch")){
-                            response.setResult(outText.substring(0, Math.min(80, outText.length())));
-                            response.setType("error");
-                        } else{
-                            outputErrorMessage(outText);
-                            response.setResult("");
-                        }
-                    }
-                    else {
-                        response.setResult("Error");
-                    }
-                    break;
-                case "variables": // Called from the "variables" view when copying the value of a variable (and maybe in other situations?)
-                    // In this case the expression already contains the value of the variable. We just return it.
-                    response.setResult(expr);
-                    break;
-
-                default:
-                    break;
+            if (args.getContext() == "variables") {
+                response.setResult(expr);
+                return response;
+            }
+            if(frameId == null){
+                response.setResult("Evaluation in global scope not supported");
+                return response;
             }
 
+            if(!suspendedState.isSuspended()){
+                response.setResult("Evaluation not possible when program is not suspended");
+                return response;
+            }
+
+            EvalResult er = evaluateExpression(expr, frameId);
+
+            if (er.result != null) { // Successful evaluation
+                // IRascalResult doesn't expose isVoid; check value==null as proxy for void
+                if (er.result.getValue() == null) {
+                    response.setResult("void");
+                    response.setType("void");
+                }
+                else {
+                    RascalVariable tempVar = new RascalVariable(
+                        er.result.getValue().getType(),
+                        "",
+                        er.result.getValue(),
+                        services);
+                    if(tempVar.hasSubFields()){
+                        suspendedState.addVariable(tempVar);
+                        VariableSubElementsCounter counter = er.result.getValue().accept(new VariableSubElementsCounterVisitor());
+                        tempVar.setIndexedVariables(counter.getIndexedVariables());
+                        tempVar.setNamedVariables(counter.getNamedVariables());
+                    }
+
+                    response.setResult(er.result.toString());
+                    response.setType(er.result.getValue().getType().toString());
+                    response.setVariablesReference(tempVar.getReferenceID());
+                    response.setNamedVariables(tempVar.getNamedVariables());
+                    response.setIndexedVariables(tempVar.getIndexedVariables());
+                }
+            }
+            else if (er.output != null) { // Evaluation resulted in error with output
+                // Render the ICommandOutput to plain text for the DAP client
+                var sw = new StringWriter();
+                var pw = new PrintWriter(sw, true);
+                try {
+                    er.output.asPlain().write(pw, true);
+                } catch (Exception _e) {
+                    // fallback
+                    pw.print(er.output.toString());
+                }
+                String outText = sw.toString();
+                
+                // Dispatch error printing depending on context
+                if(args.getContext().equals("watch")){
+                    response.setResult(outText.substring(0, Math.min(80, outText.length())));
+                    response.setType("error");
+                } else{
+                    outputErrorMessage(outText);
+                    response.setResult("");
+                }
+            }
+            else { // Evaluation resulted in error without output
+                response.setResult("Unknown error");
+            }
             return response;
         }, ownExecutor);
     }

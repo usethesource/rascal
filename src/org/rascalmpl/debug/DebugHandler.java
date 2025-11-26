@@ -252,8 +252,9 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 		if (evaluator == null) {
 			throw new IllegalStateException("DebugHandler was not initialized with an Evaluator");
 		}
-		String expr = command.endsWith(";") ? command : command + ";";
-
+		if (!suspended) {
+			throw new IllegalStateException("Evaluator must be suspended to evaluate expressions");
+		}
 		RascalValuePrinter printer = new RascalValuePrinter() {
 			@Override
 			protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
@@ -265,7 +266,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 			}
 		};
 
-		synchronized (evaluator) {
+		synchronized (evaluator) { // The evaluator is synchronized here, under the assumption that the evaluator is currently suspended by this thread
 			// Save old state
 			AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
 			Environment oldEnvironment = evaluator.getCurrentEnvt();
@@ -275,7 +276,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 				evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 				evaluator.setCurrentEnvt(evalEnv);
 
-				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), expr, DEBUGGER_PROMPT_LOCATION);
+				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
 
 				ICommandOutput out = printer.outputResult((org.rascalmpl.interpreter.result.IRascalResult) result);
 				return new EvalResult(result, out);
