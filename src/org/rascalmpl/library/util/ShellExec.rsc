@@ -26,7 +26,8 @@ in the underlying system's search path.
 
 The arguments to `args` given are all converted to strings before passing them into the command.
 Special treatment is given to `loc` arguments, which are first resolved to `file:///` schemes and
-then printed to OS-specific absolute path names.
+then printed to OS-specific absolute path names. Also `list[loc]` and set[loc] are treated by
+converting to OS-specific path strings, separated by Java's `File.pathSeparator`. 
 
 For environment variables in `envVars` the same treatment is given to convert values to strings.
 }

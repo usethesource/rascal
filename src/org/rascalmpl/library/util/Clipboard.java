@@ -61,7 +61,7 @@ public class Clipboard {
             throw RuntimeExceptionFactory.illegalArgument(vf.string("Unsupported clipboard mimetype: " + e.getMessage()));
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

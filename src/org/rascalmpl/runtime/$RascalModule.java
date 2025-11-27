@@ -464,7 +464,7 @@ public abstract class $RascalModule {
     	}
 		catch (IOException e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io($RVF.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
