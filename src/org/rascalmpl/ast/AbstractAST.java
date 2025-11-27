@@ -212,6 +212,15 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	public boolean isBreakable() {
 		return false;
 	}
+
+	/**
+	 * The debugger uses this to decide where to continue when you do "step-over".
+	 * By default this is beyond the current statement, but for block statements
+	 * we really want to go into the block (for example).
+	 */
+	public ISourceLocation getDebugStepScope() {
+		return getLocation();
+	}
 	
 	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 	    __eval.warning("INTERNAL WARNING: generic implementation of isDefined triggered", getLocation());
