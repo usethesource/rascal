@@ -125,7 +125,27 @@ public class RascalCompile extends AbstractCommandlineTool {
 			final var chunk = chunks.get(index);
 			final var chunkBin = bins.get(index);
 			final Map<String,IValue> chunkArgs = new HashMap<>(parsedArgs);
-			chunkArgs.put("modules", chunk);				
+			if (modulesArgFromFile) {
+				try {
+					var modulesFile = File.createTempFile("rascal-modules-" + i, ".txt");
+					modulesFile.deleteOnExit();
+
+					// Write all module paths to a file
+					try (IValueOutputStream w = new IValueOutputStream(new FileOutputStream(modulesFile), vf)) {
+						w.write(chunk);
+					}
+
+					var modulesFileLoc = URIUtil.assumeCorrectLocation(modulesFile.toURI().toString());
+					chunkArgs.remove("modules");
+					chunkArgs.put("modulesFileLoc", modulesFileLoc);
+					chunkArgs.put("readModulesFromFile", vf.bool(true));
+				} catch (IOException e) {
+					err.println("Could not write module locations to file; passing as arguments instead.");
+					chunkArgs.put("modules", chunk);
+				}
+			} else {
+				chunkArgs.put("modules", chunk);
+			}
 			chunkArgs.put("bin", chunkBin);
 
 			workers.add(exec.submit(() -> {

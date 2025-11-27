@@ -596,8 +596,18 @@ int main(
     bool warnUnusedPatternFormals = true,
     bool infoModuleChecked        = false,
     bool errorsAsWarnings         = false,
-    bool warningsAsErrors         = false
+    bool warningsAsErrors         = false,
+    bool readModulesFromFile      = false // if this is true, `modules` points to file(s) that we should read the module locations to compile from
 ) {
+
+    if (readModulesFromFile) {
+        list[loc] actualModules = [];
+        for (m <- modules) {
+            actualModules += readBinaryValueFile(#list[loc], m);
+        }
+        modules = actualModules;
+    }
+
     if (verbose) {
         println("PathConfig:");
         iprintln(pcfg);

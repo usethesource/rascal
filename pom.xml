@@ -132,6 +132,7 @@
                 <version>${rascal-maven.version}</version>
                 <configuration>
                     <bootstrapRascalVersion>0.41.0-RC70</bootstrapRascalVersion>
+                    <modulesFromFile>true</modulesFromFile>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
