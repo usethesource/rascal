@@ -150,9 +150,9 @@ void compileTestSources(PathConfig pcfg) {
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];  
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
+   ignoredModules = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   testModules -= ignored;
+   testModules -= ignoredModules;
    println("Compiling test modules:");
    println(testModules);   
    
@@ -169,7 +169,7 @@ void compileTestSources(PathConfig pcfg) {
    }
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredModules)) { println("Ignored: <ignoredModules>"); }
    secs = total/1000000000;
    println("Time: <secs> seconds");
 }
