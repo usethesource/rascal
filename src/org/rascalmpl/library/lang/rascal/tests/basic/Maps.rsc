@@ -13,14 +13,14 @@ module lang::rascal::tests::basic::Maps
 import Map;
 import Set;
 import List;
-import ListRelation;
 import util::Math;
 import Type;
 import Node;
+import Exception;
+import IO;
 
-private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
-private list[&T] emptyList(type[&T] _) = [];
-private set[&T] emptySet(type[&T] _) = {};
+private map[&K,&V] emptyMap(type[map[&K,&V]] _) { map[&K,&V] e = (); return e; }
+private list[&T] emptyList(type[&T] _) { list[&T] e = []; return e; }
 private map[value,value] up(map[&K,&V] m) = m;
 
 // composition
@@ -91,13 +91,14 @@ test bool notequal3(map[&K,&V] M1, map[&K,&V] M2)
 	(domain(M1) != domain(M2)
 	|| range(M1) != range(M2)
 	|| isEmpty(M1) 
-	|| any(x <- M1, M1[x] != M2[x]));
-test bool notequal4()
-{
+	|| any(x <- M1, !eq(M1[x],M2[x])));
+	
+test bool notequal4() {
 	map[value,value] iie = (1:1) - (1:1);
 	map[value,value] sse = ("x":"x") - ("x":"x");
 	return !(iie != sse);
 }
+
 test bool notequal5() = !((2:20,1:10) != (1:10,2:20));
 test bool notequal6()
 {
@@ -113,10 +114,10 @@ test bool notin1(&K k) = k notin ();
 test bool notin2(&K k, map[&K,&V] M) = k notin (M - (k:k));
 
 // pattern matching
-test bool pm1() { value n = 1; value s = "string"; return map[int, int] _ := ( n : n ); }
+test bool pm1() { value n = 1; return map[int, int] _ := ( n : n ); }
 test bool pm2() { value n = 1; value s = "string"; return map[str, int] _ := ( s : n ); }
 test bool pm3() { value n = 1; value s = "string"; return map[int, str] _ := ( n : s ); }
-test bool pm4() { value n = 1; value s = "string"; return map[str, str] _ := ( s : s ); }
+test bool pm4() { value s = "string"; return map[str, str] _ := ( s : s ); }
 
 // strictsubmap
 test bool strictsubmap1(map[&K,&V] M) = isEmpty(M) || () < M;
@@ -130,7 +131,7 @@ test bool strictsupermap2(map[&K,&V] M) = isEmpty(M) || M > delete(M,getOneFrom(
 test bool submap1(map[&K,&V] M) = () <= M;
 test bool submap2(map[&K,&V] M) = M <= M;
 test bool submap3(map[&K,&V] M) = isEmpty(M) || delete(M,getOneFrom(M)) <= M;
-test bool submap1(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
+test bool submap4(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
 
 // subscription
 @expected{NoSuchKey} test bool subscription1(&K k) {map[&K,bool] M = (); return M[k];}
@@ -150,26 +151,40 @@ test bool union2(map[&K,&V] M) = () + M == M;
 test bool union3(map[&K,&V] M) = M + () == M;
 test bool union4() = (1:10) + (2:20) == (1:10,2:20);
 
+// +=
+test bool increment1(){
+    map[int,rel[int,int]] M = (0 : {<1,10>});
+    M[0] += <10,20>;
+    return M ==  (0 : {<1,10>, <10,20>});
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // legacy
 
+bool keyIsInRange(&K x, map[&K, &V] A, map[&K, &V] B, map[&K, &V] C)
+    = (x in domain(B) && eq(C[x],B[x])) || (x in domain(A) && eq(C[x],A[x]));
+
+bool rightValIsUsedForKey(&K x, map[&K, &V] A, map[&K, &V] B, map[&K, &V] C)
+    =  (x in domain(B) && x in domain(A)) ==> eq(C[x],B[x]);
+    
 // is A + B == C?
 bool isUnion(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     ( domain(A) + domain(B) == domain(C) &&
-       range(C) <= range(A) + range(B) &&
-       all(x <- C,  x in domain(B) && eq(C[x],B[x]) || x in domain(A) && eq(C[x],A[x])) &&
-       all(x <- C,  (x in domain(B) && x in domain(A)) ==> eq(C[x],B[x]))
-     );
-    
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : ( domain(A) + domain(B) == domain(C) &&
+                                  range(C) <= range(A) + range(B) &&
+                                  all(x <- C, keyIsInRange(x,A,B,C)) &&
+                                  all(x <- C, rightValIsUsedForKey(x, A, B, C))
+     ));
+  
 test bool union(map[&K, &V] A, map[&K, &V] B) = isUnion(A,   B,  A + B);
 
 // is A - B == C?
 bool isDiff(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in domain(A) && x notin domain(B));
+     isEmpty(A) ? isEmpty(C)
+                : ( isEmpty(B) ? C == A
+                               : (isEmpty(C) ? domain(A) <= domain(B)
+                                             : all(x <- C, x in domain(A) && x notin domain(B))));
      
 test bool diff(map[&K, &V] A, map[&K, &V] B) = isDiff(A, B, A - B);
  

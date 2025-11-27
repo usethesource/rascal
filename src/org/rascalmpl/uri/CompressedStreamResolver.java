@@ -1,25 +1,18 @@
 package org.rascalmpl.uri;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
-import com.github.luben.zstd.ZstdInputStream;
-import com.github.luben.zstd.ZstdOutputStream;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
-    private static final String ZSTD_COMPRESSION = "ZSTD";
     private final URIResolverRegistry registry;
     
     public CompressedStreamResolver(URIResolverRegistry registry) {
@@ -45,9 +38,6 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 
 	private static final InputStream getInputStream(String compressionMethod, InputStream original) throws IOException, CompressorException {
-	    if (compressionMethod == ZSTD_COMPRESSION) {
-	        return new ZstdInputStream(original);
-	    }
 	    return new CompressorStreamFactory().createCompressorInputStream(compressionMethod, original);
 	}
 	
@@ -71,9 +61,6 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 	
 	private static final OutputStream getOutputStream(String compressionMethod, OutputStream original) throws IOException, CompressorException {
-	    if (compressionMethod == ZSTD_COMPRESSION) {
-	        return new ZstdOutputStream(original);
-	    }
 	    return new CompressorStreamFactory().createCompressorOutputStream(compressionMethod, original);
 	}
 	
@@ -123,7 +110,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 			case "lzma" : return CompressorStreamFactory.LZMA;
 			case "Z" : return CompressorStreamFactory.Z;
 			case "xz": return CompressorStreamFactory.XZ;
-			case "zst": return ZSTD_COMPRESSION;
+			case "zst": return CompressorStreamFactory.ZSTANDARD;
 			case "7z":
 			case "zip":
 			case "rar":
@@ -173,6 +160,20 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 	
 	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    registry.setLastModified(getActualURI(uri), timestamp);
+	}
+
+	@Override
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		return registry.isWritable(getActualURI(uri));
+	}
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return registry.isReadable(getActualURI(uri));
+	}
+	
+	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
 		return registry.listEntries(getActualURI(uri));
 	}
@@ -184,11 +185,22 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-	    registry.remove(getActualURI(uri));
+	    registry.remove(getActualURI(uri), false);
 	}
 	
 	@Override
 	public boolean supportsHost() {
 		return true;
 	}
+	
+	@Override
+	public FileAttributes stat(ISourceLocation uri) throws IOException {
+		return registry.stat(getActualURI(uri));
+	}
+
+	@Override
+	public long size(ISourceLocation uri) throws IOException {
+		return registry.size(getActualURI(uri));
+	}
+
 }

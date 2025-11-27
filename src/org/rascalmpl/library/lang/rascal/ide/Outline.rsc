@@ -3,9 +3,9 @@ module lang::rascal::ide::Outline
 
 import ParseTree;
 import lang::rascal::\syntax::Rascal;
-import Node;
 import Map;
 import List;
+import String;
  
 anno str node@label;
 anno loc node@\loc;
@@ -19,30 +19,29 @@ anno loc Prod@\loc;
 node outline(start[Module] m) = outline(m.top);
  
 node outline(Module m) {
-   n = "";
+   n = "<m.header.name>";
    aliases = [];
    annotations = [];
    functions = ();
    imports = [];
-   grammars = ();
+   map[str,list[node]] grammars = ();
    tags = [];
    tests = ();
-   adts = ();
+   map[str,list[node]] adts = ();
    variables = []; 
    list[node] e = [];
    
-   visit (m) {
-     case Header h : n = "<h.name>";
-     case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
+   top-down-break visit (m) {
+     case (Declaration) `<Tags _> <Visibility _> <Type t> <{Variable ","}+ vars>;`:
        variables   += [clean("<v.name> <t>")()[@\loc=v@\loc] | v <- vars]; 
-     case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
+     case (Declaration) `<Tags _> <Visibility _> anno <Type t> <Type ot>@<Name name>;`:  
        annotations += [clean("<name> <t> <ot>@<name>")()[@\loc=name@\loc]];
-     case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
+     case (Declaration) `<Tags _> <Visibility _> alias <UserType u> = <Type _>;`:
        aliases += [clean("<u.name>")()[@\loc=u.name@\loc]];  
-     case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
+     case (Declaration) `<Tags _> <Visibility _> tag <Kind _> <Name name> on <{Type ","}+ _>;`:
        tags += [clean("<name>")()[@\loc=name@\loc]];
        
-     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws>;`: {
+     case (Declaration) `<Tags _> <Visibility _> data <UserType u> <CommonKeywordParameters kws>;`: {
        f = "<u.name>";
        c = adts["<u.name>"]?e;
        
@@ -53,7 +52,7 @@ node outline(Module m) {
        adts[f] = c;
      }
      
-     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws> = <{Variant "|"}+ variants>;` : {
+     case (Declaration) `<Tags _> <Visibility _> data <UserType u> <CommonKeywordParameters kws> = <{Variant "|"}+ variants>;` : {
        f = "<u.name>";
        c = adts[f]?e;
        
@@ -83,7 +82,7 @@ node outline(Module m) {
      case (Import) `import <ImportedModule mm>;` :
        imports += ["<mm.name>"()[@\loc=mm@\loc]];
        
-     case (Import) `import <QualifiedName m2> = <LocationLiteral at>;` :
+     case (Import) `import <QualifiedName m2> = <LocationLiteral _>;` :
        imports += ["<m2>"()[@\loc=m2@\loc]];
        
      case SyntaxDefinition def : {
@@ -113,5 +112,14 @@ node outline(Module m) {
    );    
 }
 
-str clean(/\\<rest:.*>/) = rest;
+// remove leading backslash
+str clean(/\\<rest:.*>/) = clean(rest);
+
+// multi-line becomes single line
+str clean(str x:/\n/) = clean(visit(x) { case /\n/ => " " });
+
+// cut-off too long
+str clean(str x) = clean(x[..239]) when size(x) > 256;
+
+// done
 default str clean(str x) = x;

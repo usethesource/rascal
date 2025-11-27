@@ -16,22 +16,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalTypeFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class ConcreteOptPattern extends AbstractMatchingResult {
 	private enum Opt { Exist, NotExist, MayExist }
@@ -69,11 +71,11 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
 		
-		if (!subject.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+		if (!subject.getStaticType().isSubtypeOf(RascalValueFactory.Tree)) {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
+		org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) subject.getValue();
 		
 		if (tree.getConstructorType() != RascalValueFactory.Tree_Appl) {
 			hasNext = false;
@@ -81,7 +83,8 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		}
 		
 		IConstructor prod = TreeAdapter.getProduction(tree);
-		if (!prod.isEqual(production)) {
+		
+		if (!prod.equals(production)) {
 			hasNext = false;
 			return;
 		}

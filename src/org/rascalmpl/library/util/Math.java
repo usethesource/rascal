@@ -15,7 +15,8 @@ package org.rascalmpl.library.util;
 
 import java.util.Random;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
@@ -56,6 +57,24 @@ public class Math {
 	public void arbSeed(IInteger seed){
 		random.setSeed(seed.intValue());
 	}
+	
+	public IValue fitFloat(IReal r) {
+	    float x = r.floatValue();
+	    if (x == Float.NEGATIVE_INFINITY || x == Float.POSITIVE_INFINITY) {
+	        throw RuntimeExceptionFactory.arithmeticException("<r> is outside of float boundaries", null, null);
+	    }
+	    
+	    return values.real(x);
+	}
+	
+	public IValue fitDouble(IReal r) {
+        double x = r.doubleValue();
+        if (x == Double.NEGATIVE_INFINITY || x == Double.POSITIVE_INFINITY) {
+            throw RuntimeExceptionFactory.arithmeticException("<r> is outside of float boundaries", null, null);
+        }
+        
+        return values.real(x);
+    }
 	
 	public IValue cos(INumber x){
 		try {

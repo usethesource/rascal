@@ -1,163 +1,97 @@
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
+/*
+Copyright (c) 2024, Swat.engineering
+All rights reserved. 
+  
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+  
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+  
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+*/
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *******************************************************************************/
 package org.rascalmpl.shell;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.jar.Manifest;
 
-import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
-import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
-import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.shell.compiled.CompiledRascalShell;
-
-import jline.Terminal;
-import jline.TerminalFactory;
-import jline.TerminalSupport;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.OSUtils;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.repl.streams.StreamUtil;
 
 
 public class RascalShell  {
 
-    public static final String ECLIPSE_TERMINAL_CONNECTION_REPL_KEY = "__ECLIPSE_CONNECTION";
-
-    private static void printVersionNumber(){
-        System.err.println("Version: " + getVersionNumber());
-    }
-    
-    public static String getVersionNumber() {
-        try {
-            Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-            while (resources.hasMoreElements()) {
-                Manifest manifest = new Manifest(resources.nextElement().openStream());
-                String bundleName = manifest.getMainAttributes().getValue("Name");
-                if (bundleName != null && bundleName.equals("rascal")) {
-                    String result = manifest.getMainAttributes().getValue("Specification-Version");
-                    if (result != null) {
-                        return result;
-                    }
-                }
-            }
-            
-            return "not specified in META-INF/MANIFEST.MF";
-        } catch (IOException e) {
-            return "unknown (due to " + e.getMessage();
-        }
-    }
-
-
     public static void main(String[] args) throws IOException {
-        printVersionNumber();
-        RascalManifest mf = new RascalManifest();
+        int ideServicesPort = -1;
+        checkIfHelp(args);
 
-        try {
-            ShellRunner runner; 
-            if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
-                runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err, true));
-            } 
-            else if (args.length > 0) {            	
-            	if (args[0].equals("--help")) {
-                    System.err.println("Usage: java -jar rascal-version.jar [{--rascalc, --rascal, --rascalTests, --compiledREPL}] [Module]");
-                    System.err.println("\ttry also the --help options of the respective commands.");
-                    System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
-                    return;
-                }
-            	else if (args[0].equals("--rascalc")) {
-                    runner = new ShellRunner() {
-                        @Override
-                        public void run(String[] args) {
-                            RascalC.main(Arrays.copyOfRange(args, 1, args.length));
-                        }
-                    };
-                }
-                else if (args[0].equals("--rascal")) {
-                    runner = new ShellRunner() {
-                        @Override
-                        public void run(String[] args) throws IOException {
-                            Rascal.main(Arrays.copyOfRange(args, 1, args.length));
-                        }
-                    };
-                }
-                else if (args[0].equals("--rascalTests")) {
-                    runner = new ShellRunner() {
-                        @Override
-                        public void run(String[] args) throws IOException {
-                            try {
-                                RascalTests.main(Arrays.copyOfRange(args, 1, args.length));
-                            } catch (NoSuchRascalFunction | URISyntaxException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    };
-                }
-                else if (args[0].equals("--compiledREPL")) {
-                    runner = new ShellRunner() {
-                        @Override
-                        public void run(String[] args) throws IOException {
-                            CompiledRascalShell.main(Arrays.copyOfRange(args, 1, args.length));
-                        }
-                    };
-                    
-                }
-                else {
-                    runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
-                }
-            } 
-            else {
-                Terminal term = TerminalFactory.get();
-                String sneakyRepl = System.getProperty(ECLIPSE_TERMINAL_CONNECTION_REPL_KEY);
-                if (sneakyRepl != null) {
-                    if (System.getProperty("os.name").startsWith("Windows")) {
-                        // we are inside TM terminal in Windows, we need a special jline terminal that
-                        // doesn't try to convert TTY/vt100 stuff, as TM Terminal is already doing this.
-                        // having them both try to emulate windows and linux at the same time is causing a whole
-                        // bunch of problems
-                        term = new TMSimpleTerminal();
-                    }
-                    term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
-                }
-                runner = new REPLRunner(System.in, System.out, term);
+        var term = connectToTerminal();
+
+        int i = 0;
+        for (; i < args.length; i++) {
+            if (args[i].equals("--remoteIDEServicesPort")) {
+                ideServicesPort = Integer.parseInt(args[++i]);
+            } else if (args[i].equals("--vfsPort")) {
+                System.err.println("Ignored parameter --vfsPort and its argument");
+                i++; // skip the argument
+            } else if (args[i].startsWith("--")) {
+                // Currently unknown named argument, skipping over this
+                System.err.println("Ignored parameter " + args[i]);
+            } else {
+                // End of named arguments
+                break;
             }
-            runner.run(args);
+        }
 
+        ShellRunner runner; 
+        if (args.length > i) {
+            var monitor = IRascalMonitor.buildConsoleMonitor(term);
+            var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
+            var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
+
+            runner = new ModuleRunner(term.reader(), out, err, monitor);
+        } 
+        else {
+            runner = new REPLRunner(term, ideServicesPort);
+        }
+        
+        runner.run(Arrays.copyOfRange(args, i, args.length));
+    }
+
+    public static Terminal connectToTerminal() throws IOException {
+        setupJavaProcessForREPL();
+      
+        var termBuilder = TerminalBuilder.builder()
+            .dumb(true) // fallback to dumb terminal if detected terminal is not supported
+            .system(true);
+
+        if (OSUtils.IS_WINDOWS) {
+            termBuilder.encoding(StandardCharsets.UTF_8);
+        }
+        return termBuilder.build();
+    }
+
+    private static void checkIfHelp(String[] args) {
+        if (args.length > 0 && "--help".equals(args[0])) {
+            System.err.println("Usage: java -jar rascal-version.jar [Module]");
+            System.err.println("\ttry also the --help options of the respective commands.");
+            System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
             System.exit(0);
         }
-        catch (Throwable e) {
-            System.err.println("\n\nunexpected error: " + e.getMessage());
-            e.printStackTrace(System.err);
-            System.exit(1);
-        }
-        finally {
-            System.out.flush();
-            System.err.flush();
-        }
     }
-    private static final class TMSimpleTerminal extends TerminalSupport {
-    	public TMSimpleTerminal() {
-    		super(true);
-    		setAnsiSupported(true);
-		}
-    	@Override
-    	public void restore() throws Exception {
-    		super.restore();
-    		System.out.println(); // this is what unix terminal does after a restore
-    	}
+
+    public static void setupJavaProcessForREPL() {
+        // configure jline3 to avoid reflective access warnings printed by jdk
+        System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");
+        // avoid getting a separate icon in OSX
+        System.setProperty("apple.awt.UIElement", "true");
     }
+
 }

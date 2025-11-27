@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Visit extends AbstractAST {
   public Visit(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,21 +31,21 @@ public abstract class Visit extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Case> getCases() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSubject() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getSubject() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStrategy() {
     return false;
   }
 
   public org.rascalmpl.ast.Strategy getStrategy() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -116,7 +117,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 467 * subject.hashCode() + 181 * cases.hashCode() ; 
+      return 179 + 797 * subject.hashCode() + 101 * cases.hashCode() ; 
     } 
   
     
@@ -221,7 +222,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 383 + 263 * strategy.hashCode() + 463 * subject.hashCode() + 223 * cases.hashCode() ; 
+      return 17 + 797 * strategy.hashCode() + 499 * subject.hashCode() + 347 * cases.hashCode() ; 
     } 
   
     

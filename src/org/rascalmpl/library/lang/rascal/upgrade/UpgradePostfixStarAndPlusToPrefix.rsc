@@ -12,28 +12,27 @@ list[Message] report(loc root)
 
 void update(loc root) {
   for (m <- find(root, "rsc")) {
-    writeFile(m, "<update(parse(#start[Module], m))>");
+    writeFile(m, "<updateTree(parse(#start[Module], m))>");
   }
 }
 
 list[Message] report(Tree m) {
   result = [];
   visit(m) {
-    case (Pattern) `[<{Pattern ","}* before>,list[<Type elem>] <Name n>,<{Pattern ","}* after>]` : 
+    case (Pattern) `[<{Pattern ","}* _>,list[<Type elem>] <Name _>,<{Pattern ","}* _>]` : 
       result += [info("found list pattern to upgrade", elem@\loc)];
-    case (Pattern) `{<{Pattern ","}* before>,set[<Type elem>] <Name n>,<{Pattern ","}* after>}` : 
+    case (Pattern) `{<{Pattern ","}* _>,set[<Type elem>] <Name _>,<{Pattern ","}* _>}` : 
       result += [info("found list pattern to upgrade", elem@\loc)];
-    case Pattern p : ;
   }
   
   return result;
 }
 
-public Tree update(Tree m) =
+public Tree updateTree(Tree m) =
   innermost visit(m) {
     case (Pattern) `[<{Pattern ","}* before>,list[<Type elem>] <Name n>,<{Pattern ","}* after>]` =>
          (Pattern) `[<{Pattern ","}* before>, *<Type elem> <Name n>, <{Pattern ","}* after>]`
     case (Pattern) `{<{Pattern ","}* before>,set[<Type elem>] <Name n>,<{Pattern ","}* after>}` =>
          (Pattern) `{<{Pattern ","}* before>, *<Type elem> <Name n>, <{Pattern ","}* after>}`
-    case Pattern p : fail; 
+    case Pattern _ : fail; 
   };

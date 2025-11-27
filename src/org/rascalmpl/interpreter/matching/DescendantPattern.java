@@ -22,7 +22,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.TypeReachability;
+import org.rascalmpl.types.TypeReachability;
+import org.rascalmpl.values.iterators.IteratorFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -40,7 +42,6 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return TypeFactory.getInstance().valueType();
-		// TODO: return pat.getType(env) is too restrictive, reconsider this.
 	}
 	
 	@Override
@@ -92,7 +93,6 @@ public class DescendantPattern extends AbstractMatchingResult  {
 		while(iterator.hasNext()){
 			IValue v = (IValue) iterator.next();
 			
-			// TODO: extract the proper static element type that will be generated
 			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){

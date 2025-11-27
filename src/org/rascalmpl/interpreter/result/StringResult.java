@@ -19,10 +19,11 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Map;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IString;
@@ -44,11 +45,11 @@ public class StringResult extends ElementResult<IString> {
 	@SuppressWarnings("unchecked")
 	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		int idx = ((IInteger) key.getValue()).intValue();
 		int len = getValue().length();
@@ -111,7 +112,7 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult s) {
 	    // note the reversal
-	    return makeResult(getType(), s.getValue().concat(getValue()), ctx);
+	    return makeResult(getStaticType(), s.getValue().concat(getValue()), ctx);
 	}	
 	
 	@Override
@@ -172,11 +173,11 @@ public class StringResult extends ElementResult<IString> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isInteger()) {
-			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isInteger()) {
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		if (getValue().getValue().length() == 0) {
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), ctx.getStackTrace());
@@ -189,7 +190,7 @@ public class StringResult extends ElementResult<IString> {
 		if ( (idx >= getValue().length()) || (idx < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType(), getValue().substring(idx, idx + 1), ctx);
+		return makeResult(getStaticType(), getValue().substring(idx, idx + 1), ctx);
 	}
 	
 	@Override

@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class StringTemplate extends AbstractAST {
   public StringTemplate(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,84 +31,84 @@ public abstract class StringTemplate extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGenerators() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStats() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStatsElse() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStatsElse() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPostStatsThen() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPostStatsThen() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStats() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStatsElse() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsElse() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPreStatsThen() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsThen() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCondition() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getCondition() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBody() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElseString() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getElseString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasThenString() {
     return false;
   }
 
   public org.rascalmpl.ast.StringMiddle getThenString() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -201,7 +202,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 73 * preStats.hashCode() + 181 * body.hashCode() + 499 * postStats.hashCode() + 227 * condition.hashCode() ; 
+      return 199 + 389 * preStats.hashCode() + 281 * body.hashCode() + 389 * postStats.hashCode() + 683 * condition.hashCode() ; 
     } 
   
     
@@ -338,7 +339,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 479 * generators.hashCode() + 103 * preStats.hashCode() + 859 * body.hashCode() + 163 * postStats.hashCode() ; 
+      return 577 + 653 * generators.hashCode() + 73 * preStats.hashCode() + 991 * body.hashCode() + 911 * postStats.hashCode() ; 
     } 
   
     
@@ -475,7 +476,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 821 * conditions.hashCode() + 977 * preStats.hashCode() + 677 * body.hashCode() + 11 * postStats.hashCode() ; 
+      return 379 + 811 * conditions.hashCode() + 373 * preStats.hashCode() + 83 * body.hashCode() + 71 * postStats.hashCode() ; 
     } 
   
     
@@ -646,7 +647,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 71 * conditions.hashCode() + 181 * preStatsThen.hashCode() + 199 * thenString.hashCode() + 787 * postStatsThen.hashCode() + 193 * preStatsElse.hashCode() + 199 * elseString.hashCode() + 389 * postStatsElse.hashCode() ; 
+      return 683 + 839 * conditions.hashCode() + 577 * preStatsThen.hashCode() + 41 * thenString.hashCode() + 809 * postStatsThen.hashCode() + 821 * preStatsElse.hashCode() + 821 * elseString.hashCode() + 59 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -808,7 +809,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 389 * condition.hashCode() + 683 * preStats.hashCode() + 577 * body.hashCode() + 653 * postStats.hashCode() ; 
+      return 139 + 233 * condition.hashCode() + 331 * preStats.hashCode() + 359 * body.hashCode() + 151 * postStats.hashCode() ; 
     } 
   
     

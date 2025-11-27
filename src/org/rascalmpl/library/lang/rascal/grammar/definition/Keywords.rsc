@@ -9,9 +9,8 @@ module lang::rascal::grammar::definition::Keywords
 
 import Grammar;
 import ParseTree;
+import Node;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::definition::Productions;
-import IO;
 
 public Grammar expandKeywords(Grammar g) {
   return visit(g) {
@@ -31,7 +30,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
       if (cond has symbol, keywords(str name) := cond.symbol) {
         if (name notin names) {
         	names += {name};
-        	todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+        	todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[unsetRec(cond.symbol)], prod(_,[s],_) <- alts};
       	}  
       } else {
         done += cond;
@@ -43,5 +42,5 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
 }
 
 public set[Production] getKeywords(Grammar g) {
-  return {g.rules[s] | s:keywords(_) <- g.rules}; 
+  return {g.rules[unsetRec(s)] | s:keywords(_) <- g.rules}; 
 }

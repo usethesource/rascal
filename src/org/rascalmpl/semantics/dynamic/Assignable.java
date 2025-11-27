@@ -21,12 +21,12 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.OptionalExpression;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
@@ -37,9 +37,9 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -52,10 +52,15 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
+    /**
+     * TODO: remove this class when the syntax is not supported anymore.
+     * Currently annotations are simulated via keyword fields.
+     */
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
@@ -66,56 +71,40 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			String label = org.rascalmpl.interpreter.utils.Names.name(this
-					.getAnnotation());
-			Result<IValue> result = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
+			String label = org.rascalmpl.interpreter.utils.Names.name(this.getAnnotation());
+			Result<IValue> result = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 
 			if (result == null || result.getValue() == null) {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
-				throw new UndeclaredAnnotation(label, result.getType(),
-						this);
-			}
-
 			try {
-				__eval.__setValue(__eval.newResult(result.getAnnotation(label,
-						__eval.__getEnv()), __eval.__getValue()));
+				__eval.__setValue(__eval.newResult(result.getAnnotation(label, __eval.__getEnv()), __eval.__getValue()));
 			} catch (Throw e) {
 				// NoSuchAnnotation
 			}
-			return __eval.recur(this, result.setAnnotation(label, __eval
-					.__getValue(), __eval.__getEnv()));
-			// result.setValue(((IConstructor)
-			// result.getValue()).setAnnotation(label, value.getValue()));
-			// return recur(this, result);
-
+			
+			return __eval.recur(this, result.setAnnotation(label, __eval.__getValue(), __eval.__getEnv()));
 		}
 
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getAnnotation()).getValue(), __eval.getEvaluator());
+		    return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getAnnotation()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = Names.name(this.getAnnotation());
 
-			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(),
-					label)) {
-				throw new UndeclaredAnnotation(label, receiver.getType(),
-						this);
+			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getStaticType(), label)) {
+				throw new UndeclaredAnnotation(label, receiver.getStaticType(), this);
 			}
 
-			Type type = __eval.getCurrentEnvt().getAnnotationType(
-					receiver.getType(), label);
-			IValue value = ((IConstructor) receiver.getValue())
-					.asAnnotatable().getAnnotation(label);
+			Type type = __eval.getCurrentEnvt().getAnnotationType(receiver.getStaticType(), label);
+
+            IValue value = ((IConstructor) receiver.getValue())
+					.asWithKeywordParameters().getParameter(label);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					type, value, __eval);
@@ -143,13 +132,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
-			Type valueType = __eval.__getValue().getType();
+			Type valueType = __eval.__getValue().getStaticType();
 
 			if (!valueType.isNode() && !valueType.isAbstractData()
 					&& !valueType.isConstructor()) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-								.nodeType(), __eval.__getValue().getType(),
+								.nodeType(), __eval.__getValue().getStaticType(),
 						this);
 			}
 
@@ -163,7 +152,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!node.getName().equals(
 					org.rascalmpl.interpreter.utils.Names.name(this.getName()))) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.nameMismatch(node.getName(),
 								org.rascalmpl.interpreter.utils.Names.name(this
 										.getName()), this.getName(), __eval
@@ -173,7 +162,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			List<org.rascalmpl.ast.Assignable> arguments = this.getArguments();
 
 			if (node.arity() != arguments.size()) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.arityMismatch(node.arity(), arguments.size(), this,
 								__eval.__getEval().getStackTrace());
 			}
@@ -243,20 +232,18 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			Result<IValue> receiver = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
+			Result<IValue> receiver = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 			String label = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			if (receiver == null || receiver.getValue() == null) {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (receiver.getType().isTuple()) {
+			if (receiver.getStaticType().isTuple()) {
 
-				int idx = receiver.getType().getFieldIndex(label);
+				int idx = receiver.getStaticType().getFieldIndex(label);
 				if (idx < 0) {
-					throw new UndeclaredField(label, receiver.getType(), this);
+					throw new UndeclaredField(label, receiver.getStaticType(), this);
 				}
 
 				__eval.__setValue(__eval.newResult(((ITuple) receiver
@@ -265,33 +252,33 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue().getValue());
 				return __eval.recur(this,
 						org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(receiver.getType(), result, __eval
+						.makeResult(receiver.getStaticType(), result, __eval
 								.__getEval()));
 			} 
-			else if (receiver.getType() instanceof NonTerminalType) {
+			else if (receiver.getStaticType() instanceof NonTerminalType) {
 				Result<IValue> result = receiver.fieldUpdate(label, __eval.__getValue(), __eval.getCurrentEnvt().getStore());
 
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()), __eval
 						.__getValue()));
 
-				if (!result.getType().isSubtypeOf(receiver.getType())) {
-					throw new UnexpectedType(receiver.getType(), result.getType(), __eval.getCurrentAST());
+				if (!result.getStaticType().isSubtypeOf(receiver.getStaticType())) {
+					throw new UnexpectedType(receiver.getStaticType(), result.getStaticType(), __eval.getCurrentAST());
 				}
 				return __eval.recur(this, result);
 			}
-			else if (receiver.getType().isConstructor()
-					|| receiver.getType().isAbstractData()) {
+			else if (receiver.getStaticType().isConstructor()
+					|| receiver.getStaticType().isAbstractData()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
-				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
+//				Type kwType = __eval.getCurrentEnvt().getConstructorFunction(node).getKeywordArgumentTypes(__eval.getCurrentEnvt());
 
 				if (node.hasField(label)) {
 					int index = node.getFieldIndex(label);
 
-					if (!__eval.__getValue().getType().isSubtypeOf(
+					if (!__eval.__getValue().getStaticType().isSubtypeOf(
 							node.getFieldType(index))) {
 						throw new UnexpectedType(node.getFieldType(index),
-								__eval.__getValue().getType(), this);
+								__eval.__getValue().getStaticType(), this);
 					}
 					__eval.__setValue(__eval.newResult(cons.get(index), __eval
 							.__getValue()));
@@ -299,14 +286,14 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					IValue result = cons.set(index, __eval.__getValue().getValue());
 					return __eval.recur(this,
 							org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(receiver.getType(), result, __eval
+							.makeResult(receiver.getStaticType(), result, __eval
 									.__getEval()));
 				}
-				else if (kwType.hasField(label)) {
-					if (!__eval.__getValue().getType().isSubtypeOf(
-							kwType.getFieldType(label))) {
-						throw new UnexpectedType(kwType.getFieldType(label),
-								__eval.__getValue().getType(), this);
+				else if (cons.getUninstantiatedConstructorType().hasKeywordField(label, __eval.getCurrentEnvt().getStore())) {
+                    Type declaredType = __eval.getCurrentEnvt().getStore().getKeywordParameterType(cons.getUninstantiatedConstructorType(), label);
+                   
+                    if (!__eval.__getValue().getStaticType().isSubtypeOf(declaredType)) {
+						throw new UnexpectedType(declaredType, __eval.__getValue().getStaticType(), this);
 					}
 
 					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
@@ -324,14 +311,14 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					IValue result = cons.asWithKeywordParameters().setParameter(label,  __eval.__getValue().getValue());
 					return __eval.recur(this,
 							org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(receiver.getType(), result, __eval
+							.makeResult(receiver.getStaticType(), result, __eval
 									.__getEval()));
 				}
 				else {
 					throw new UndeclaredField(label, receiver.getValue().getType(), this);
 				}
 
-			} else if (receiver.getType().isSourceLocation()) {
+			} else if (receiver.getStaticType().isSourceLocation()) {
 				// ISourceLocation loc = (ISourceLocation) receiver.getValue();
 
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label,
@@ -340,13 +327,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue(), __eval.__getEnv().getStore()));
 				// return recur(this, eval.sourceLocationFieldUpdate(loc, label,
 				// value.getValue(), value.getType(), this));
-			} else if (receiver.getType().isDateTime()) {
+			} else if (receiver.getStaticType().isDateTime()) {
 				__eval.__setValue(__eval.newResult(receiver.fieldAccess(label,
 						__eval.__getEnv().getStore()), __eval.__getValue()));
 				return __eval.recur(this, receiver.fieldUpdate(label, __eval
 						.__getValue(), __eval.__getEnv().getStore()));
 			} else {
-				throw new UndeclaredField(label, receiver.getType(), this);
+				throw new UndeclaredField(label, receiver.getStaticType(), this);
 			}
 
 		}
@@ -368,7 +355,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UndeclaredVariable(label, this.getReceiver());
 			}
 
-			Type receiverType = receiver.getType();
+			Type receiverType = receiver.getStaticType();
 			if (receiverType.isTuple()) {
 				// the run-time tuple may not have labels, the static type can
 				// have labels,
@@ -421,17 +408,21 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> assignment(AssignableEvaluator __eval) {
-			if (getReceiver().isDefined(__eval.getEvaluator()).getValue().getValue()) {
-				return getReceiver().assignment(__eval);
+		public Result<IValue> assignment(AssignableEvaluator ae) {
+			if (getReceiver().isDefined(ae.getEvaluator()).getValue().getValue()) {
+				return getReceiver().assignment(ae);
 			}
 			else {
-				__eval.__setValue(__eval.newResult(this.getDefaultExpression()
-						.interpret((Evaluator) __eval.__getEval()), __eval
-						.__getValue()));
-				__eval.__setOperator(AssignmentOperator.Default);
-				return this.getReceiver().assignment(__eval);
+				ae.__setValue(ae.newResult(lubResult(this.getDefaultExpression()
+						.interpret((Evaluator) ae.__getEval()), ae
+						.__getValue(), ae), ae.__getValue()));
+				ae.__setOperator(AssignmentOperator.Default);
+				return this.getReceiver().assignment(ae);
 			}
+		}
+
+		private Result<IValue> lubResult(Result<IValue> newValue, Result<IValue> oldValue, AssignableEvaluator ae) {
+			return ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(), ae.__getEval());
 		}
 
 		@Override
@@ -455,68 +446,68 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 			__eval.__getEval().setCurrentAST(this);
-			Result<IValue> rec = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
-			Result<IValue> subscript = this.getSubscript().interpret(
-					(Evaluator) __eval.__getEval());
+			Result<IValue> rec = this.getReceiver().interpret(__eval.__getEval());
+			Result<IValue> subscript = this.getSubscript().interpret(__eval.__getEval());
 			Result<IValue> result;
 
 			if (rec == null || rec.getValue() == null) {
 				throw new UninitializedVariable(this.getReceiver());
 			}
 
-			if (rec.getType().isList()
-					&& subscript.getType().isInteger()) {
+			if (rec.getStaticType().isList()
+					&& subscript.getStaticType().isInteger()) {
 				try {
 					IList list = (IList) rec.getValue();
 					int index = ((IInteger) subscript.getValue()).intValue();
+					if (index < 0) {
+						index += list.length();
+					}
 					__eval.__setValue(__eval.newResult(list.get(index), __eval
 							.__getValue()));
 					list = list.put(index, __eval.__getValue().getValue());
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(list.getType()) : rec.getType(), list,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(list.getType()) : rec.getStaticType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isMap()) {
-				Type keyType = rec.getType().getKeyType();
+			} else if (rec.getStaticType().isMap()) {
+				Type keyType = rec.getStaticType().getKeyType();
 
-				if (rec.hasInferredType() || subscript.getType().isSubtypeOf(keyType)) {
+				if (rec.hasInferredType() || subscript.getStaticType().isSubtypeOf(keyType)) {
 					IValue oldValue = ((IMap) rec.getValue()).get(subscript.getValue());
 					Result<IValue> oldResult = null;
 					
 					if (oldValue != null) {
-						Type oldType = rec.getType().getValueType();
+						Type oldType = rec.getStaticType().getValueType();
 					    oldResult = makeResult(oldType, oldValue, __eval.getEvaluator());
 					    oldResult.setInferredType(rec.hasInferredType());
 					    __eval.__setValue(__eval.newResult(oldResult, __eval.__getValue()));
 					    IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
-					    result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map, __eval.__getEval());
+					    result = makeResult(rec.hasInferredType() ? rec.getStaticType().lub(map.getType()) : rec.getStaticType(), map, __eval.__getEval());
 					}
 					else {
 					    // to trigger unassigned variable exception in case of a += operator 
 					    __eval.newResult(oldResult, __eval.__getValue()); 
 					    IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
-					    result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
+					    result = makeResult(rec.hasInferredType() ? rec.getStaticType().lub(map.getType()) : rec.getStaticType(), map,
 					            __eval.__getEval());
 					}
 				} else {
-					throw new UnexpectedType(keyType, subscript.getType(),
-							this.getSubscript());
+					throw new UnexpectedType(keyType, subscript.getStaticType(), this.getSubscript());
 				}
 
-			} else if (rec.getType().isNode()
-					&& subscript.getType().isInteger()) {
+			} else if (rec.getStaticType().isNode()
+					&& subscript.getStaticType().isInteger()) {
 				int index = ((IInteger) subscript.getValue()).intValue();
 				IConstructor node = (IConstructor) rec.getValue();
 
 				if (index >= node.arity()) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
@@ -525,14 +516,14 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getValue()));
 				node = node.set(index, __eval.__getValue().getValue());
 				result = org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(rec.getType(), node, __eval.__getEval());
-			} else if (rec.getType().isTuple()
-					&& subscript.getType().isInteger()) {
+						.makeResult(rec.getStaticType(), node, __eval.__getEval());
+			} else if (rec.getStaticType().isTuple()
+					&& subscript.getStaticType().isInteger()) {
 				int index = ((IInteger) subscript.getValue()).intValue();
 				ITuple tuple = (ITuple) rec.getValue();
 
 				if (index >= tuple.arity()) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
@@ -543,33 +534,32 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 				tuple = tuple.set(index, __eval.__getValue().getValue());
 				result = org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(rec.getType(), tuple, __eval.__getEval());
-			} else if (rec.getType().isRelation()
-					&& subscript.getType().isSubtypeOf(
-							rec.getType().getFieldType(0))) {
+						.makeResult(rec.getStaticType(), tuple, __eval.__getEval());
+			} else if (rec.getStaticType().isRelation()
+					&& subscript.getStaticType().isSubtypeOf(
+							rec.getStaticType().getFieldType(0))) {
 				ISet rel = (ISet) rec.getValue();
 				IValue sub = subscript.getValue();
 
-				if (rec.getType().getArity() != 2) {
-					throw new UnsupportedSubscript(rec.getType(),
-							subscript.getType(), this);
+				if (rec.getStaticType().getArity() != 2) {
+					throw new UnsupportedSubscript(rec.getStaticType(),
+							subscript.getStaticType(), this);
 				}
 
-				if (!__eval.__getValue().getType().isSubtypeOf(
-						rec.getType().getFieldType(1))) {
+				if (!__eval.__getValue().getStaticType().isSubtypeOf(
+						rec.getStaticType().getFieldType(1))) {
 					throw new UnexpectedType(
-							rec.getType().getFieldType(1), __eval.__getValue()
-									.getType(), __eval.__getEval()
+							rec.getStaticType().getFieldType(1), __eval.__getValue()
+									.getStaticType(), __eval.__getEval()
 									.getCurrentAST());
 				}
 
 				rel = rel.insert(__eval.__getEval().getValueFactory().tuple(
 						sub, __eval.__getValue().getValue()));
 				result = org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(rec.getType(), rel, __eval.__getEval());
+						.makeResult(rec.getStaticType(), rel, __eval.__getEval());
 			} else {
-				throw new UnsupportedSubscript(rec.getType(), subscript
-						.getType(), this);
+				throw new UnsupportedSubscript(rec.getStaticType(), subscript.getStaticType(), this);
 				// TODO implement other subscripts
 			}
 
@@ -582,7 +572,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		 * potential rules have already been applied to it.
 		 */
 		private Result<IValue> normalizedResult(IEvaluator<Result<IValue>> __eval, Type t, IValue v) {
-			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
+			Map<Type, Type> bindings = __eval.getCurrentEnvt().getStaticTypeBindings();
 			Type instance;
 
 			if (bindings.size() > 0) {
@@ -598,7 +588,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 		
 		private void checkType(Type given, Type expected) {
-			if (expected instanceof FunctionType) {
+			if (expected.isFunction()) {
 				return;
 			}
 			if (!given.isSubtypeOf(expected)) {
@@ -614,40 +604,40 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			assert receiver != null && receiver.getValue() != null;
 			
-			if (receiver.getType().isList()) {
-				if (subscript.getType().isInteger()) {
+			if (receiver.getStaticType().isList()) {
+				if (subscript.getStaticType().isInteger()) {
 					IList list = (IList) receiver.getValue();
 					IValue result = list.get(((IInteger) subscript.getValue())
 							.intValue());
-					Type type = receiver.getType().getElementType();
+					Type type = receiver.getStaticType().getElementType();
 					return normalizedResult(__eval, type, result);
 				}
 
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
-								.integerType(), subscript.getType(), this);
-			} else if (receiver.getType().isMap()) {
-				Type keyType = receiver.getType().getKeyType();
+								.integerType(), subscript.getStaticType(), this);
+			} else if (receiver.getStaticType().isMap()) {
+				Type keyType = receiver.getStaticType().getKeyType();
 
-				if (receiver.hasInferredType()|| subscript.getType().isSubtypeOf(keyType)) {
+				if (receiver.hasInferredType()|| subscript.getStaticType().isSubtypeOf(keyType)) {
 					IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 
 					if (result == null) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 								.noSuchKey(subscript.getValue(), this, __eval
 										.getStackTrace());
 					}
-					Type type = receiver.getType().getValueType();
+					Type type = receiver.getStaticType().getValueType();
 					return org.rascalmpl.interpreter.result.ResultFactory
 							.makeResult(type, result, __eval);
 				}
 
-				throw new UnexpectedType(keyType, subscript.getType(),
+				throw new UnexpectedType(keyType, subscript.getStaticType(),
 						this.getSubscript());
 			}
 			// TODO implement other subscripts
 			throw new UnsupportedOperation("subscript",
-					receiver.getType(), this);
+					receiver.getStaticType(), this);
 
 		}
 		
@@ -686,16 +676,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
       assert rec != null && rec.getValue() != null;
 			
-			if( !(first == null || first.getType().isInteger()) ){
-				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			if( !(first == null || first.getStaticType().isInteger()) ){
+				throw new UnsupportedSubscript(rec.getStaticType(), first.getStaticType(), this);
 			}
 					
-			if( !(end == null || end.getType().isInteger()) ){
-				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			if( !(end == null || end.getStaticType().isInteger()) ){
+				throw new UnsupportedSubscript(rec.getStaticType(), end.getStaticType(), this);
 			}
-			int len =  rec.getType().isList() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isString() ? ((IString) rec.getValue()).length()
-					 : rec.getType().isNode() ?((INode) rec.getValue()).arity() 
+			int len =  rec.getStaticType().isList() ? ((IList) rec.getValue()).length()
+					 : rec.getStaticType().isString() ? ((IString) rec.getValue()).length()
+					 : rec.getStaticType().isNode() ?((INode) rec.getValue()).arity() 
 					 : 0 ;
 
 			int firstIndex = 0;
@@ -717,75 +707,75 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			secondIndex = firstIndex <= endIndex ? firstIndex + 1 : firstIndex - 1;
 
-			if (rec.getType().isList()) {
+			if (rec.getStaticType().isList()) {
 				try {
 					IList list = (IList) rec.getValue();
 					
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isList()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
 					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));
 					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
 					
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(list.getType()) : rec.getType(), list,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(list.getType()) : rec.getStaticType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isString()) {
+			} else if (rec.getStaticType().isString()) {
 				try {
 					IString str = (IString) rec.getValue();
 					
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isString()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
 					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
 					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
 					
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(str.getType()) : rec.getType(), str,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(str.getType()) : rec.getStaticType(), str,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isNode()) {
+			} else if (rec.getStaticType().isNode()) {
 
 				try {
 					INode node = (INode) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isList()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 
 					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
 					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
 
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(node.getType()) : rec.getType(), node,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(node.getType()) : rec.getStaticType(), node,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
 			} else {
-				throw new UnsupportedSlice(rec.getType(), this);
+				throw new UnsupportedSlice(rec.getStaticType(), this);
 				// TODO implement other slices
 			}
 
@@ -821,21 +811,21 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			assert rec != null && rec.getValue() != null;
 			
-			if( !(first == null || first.getType().isInteger()) ){
-				throw new UnsupportedSubscript(rec.getType(), first.getType(), this);
+			if( !(first == null || first.getStaticType().isInteger()) ){
+				throw new UnsupportedSubscript(rec.getStaticType(), first.getStaticType(), this);
 			}
 			
-			if(!second.getType().isInteger()){
-				throw new UnsupportedSubscript(rec.getType(), second.getType(), this);
+			if(!second.getStaticType().isInteger()){
+				throw new UnsupportedSubscript(rec.getStaticType(), second.getStaticType(), this);
 			}
 					
-			if( !(end == null || end.getType().isInteger()) ){
-				throw new UnsupportedSubscript(rec.getType(), end.getType(), this);
+			if( !(end == null || end.getStaticType().isInteger()) ){
+				throw new UnsupportedSubscript(rec.getStaticType(), end.getStaticType(), this);
 			}
 			
-			int len = rec.getType().isList() ? ((IList) rec.getValue()).length()
-					 : rec.getType().isString() ? ((IString) rec.getValue()).length()
-					 :  rec.getType().isNode() ?((INode) rec.getValue()).arity() 
+			int len = rec.getStaticType().isList() ? ((IList) rec.getValue()).length()
+					 : rec.getStaticType().isString() ? ((IString) rec.getValue()).length()
+					 :  rec.getStaticType().isNode() ?((INode) rec.getValue()).arity() 
 					 : 0 ;
 
 			int firstIndex = 0;
@@ -866,76 +856,76 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					endIndex = -1;
 			}
 
-			if (rec.getType().isList()) {
+			if (rec.getStaticType().isList()) {
 				try {
 					IList list = (IList) rec.getValue();					
 					
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isList()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
 					__eval.__setValue(__eval.newResult(list, __eval.__getValue()));					
 					list = list.replace(firstIndex, secondIndex, endIndex, (IList) repl);
 					
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(list.getType()) : rec.getType(), list,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(list.getType()) : rec.getStaticType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
-			} else if (rec.getType().isString()) {
+			} else if (rec.getStaticType().isString()) {
 				try {
 					IString str = (IString) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isString()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 					
 					__eval.__setValue(__eval.newResult(str, __eval.__getValue()));
 					str = str.replace(firstIndex, secondIndex, endIndex, (IString) repl);
 					
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(str.getType()) : rec.getType(), str,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(str.getType()) : rec.getStaticType(), str,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
 				
-			} else if (rec.getType().isNode()) {
+			} else if (rec.getStaticType().isNode()) {
 
 				try {
 					INode node = (INode) rec.getValue();
 
 					IValue repl = __eval.__getValue().getValue();
 					if(!repl.getType().isList()){
-						throw new UnexpectedType(rec.getType(), repl.getType(), __eval.__getEval().getCurrentAST());
+						throw new UnexpectedType(rec.getStaticType(), repl.getType(), __eval.__getEval().getCurrentAST());
 					}
 
 					__eval.__setValue(__eval.newResult(node, __eval.__getValue()));
 					node = node.replace(firstIndex, secondIndex, endIndex, (IList) repl);
 
 					result = org.rascalmpl.interpreter.result.ResultFactory
-							.makeResult(rec.hasInferredType() ? rec.getType()
-									.lub(node.getType()) : rec.getType(), node,
+							.makeResult(rec.hasInferredType() ? rec.getStaticType()
+									.lub(node.getType()) : rec.getStaticType(), node,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
 				}
 			} else {
-				throw new UnsupportedSlice(rec.getType(), this);
+				throw new UnsupportedSlice(rec.getStaticType(), this);
 				// TODO implement other slices
 			}
 
@@ -955,15 +945,14 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			List<org.rascalmpl.ast.Assignable> arguments = this.getElements();
 
-			if (!__eval.__getValue().getType().isTuple()) {
-				// TODO construct a better expected type
-				throw new UnexpectedType(
-						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-								.tupleEmpty(), __eval.__getValue().getType(),
-						this);
+			TypeFactory tf = AssignableEvaluator.__getTf();
+			Type tupleTemplate = tf.tupleType(arguments.stream().map(a ->  tf.valueType()).toArray(Type[]::new));
+
+			if (!__eval.__getValue().getStaticType().comparable(tupleTemplate)) {
+				throw new UnexpectedType(tupleTemplate, __eval.__getValue().getStaticType(), this);
 			}
 
-			Type tupleType = __eval.__getValue().getType();
+			Type tupleType = __eval.__getValue().getStaticType();
 			ITuple tuple = (ITuple) __eval.__getValue().getValue();
 			IValue[] results = new IValue[arguments.size()];
 			Type[] resultTypes = new Type[arguments.size()];
@@ -977,7 +966,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 						.__getEnv(), null, result, __eval.__getEval());
 				Result<IValue> argResult = arguments.get(i).assignment(ae);
 				results[i] = argResult.getValue();
-				resultTypes[i] = argResult.getType();
+				resultTypes[i] = argResult.getStaticType();
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(

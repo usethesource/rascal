@@ -12,9 +12,10 @@
 package org.rascalmpl.interpreter.asserts;
 
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public final class Ambiguous extends AssertionError {
@@ -29,7 +30,7 @@ public final class Ambiguous extends AssertionError {
 	}
 
     private ISourceLocation computeLocation(ITree tree) {
-        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
+        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asWithKeywordParameters().getParameter("src");
         if (tmp == null) {
             return URIUtil.rootLocation("unknown");
         }

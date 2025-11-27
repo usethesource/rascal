@@ -12,19 +12,18 @@ module Reverse::Reverse
 
 import util::Math;
 import util::Benchmark;
-import List;
 import IO;
 
 public list[int] rev (list[int] L)
 {
-	if([int X, list[int] L1] := L)
+    if([int X, *int L1] := L && L1 != [])
 		return rev(L1) + X;
     else
         return L;
 }
 
 int SIZE = 100;
-int ITER = 1000;
+int ITER = 10000;
 
 public void measure(){
     L = for(int i <- [ 0 .. SIZE ]) append arbInt();
@@ -33,9 +32,13 @@ public void measure(){
 	for(int i <- [1 .. ITER])
 	    rev(L);
 	    
-	used = (realTime() - begin)/1000;
+	used = (realTime() - begin);
 		
-	println("<ITER> x rev list <SIZE> elements <used> seconds)");
+	println("<ITER> x rev list <SIZE> elements <used> (msec)");
+}
+
+void main() {
+    measure();
 }
 	
 	

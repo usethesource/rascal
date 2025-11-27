@@ -23,15 +23,16 @@ import org.rascalmpl.ast.Expression.TypedVariable;
 import org.rascalmpl.ast.Expression.TypedVariableBecomes;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName.Default;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	
@@ -98,7 +99,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			// TODO: escaping etc.
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
-			return vf.constructor(RascalValueFactory.Symbol_CiLit, vf.string(str));
+			return vf.constructor(RascalValueFactory.Symbol_Cilit, vf.string(str));
 		}
 		
 		if (name.equals("empty")) {
@@ -106,9 +107,9 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("seq")) {
-			IList list = vf.list(RascalValueFactory.Symbol);
+			IList list = vf.list();
 			Expression.List arg = (List) x.getArguments().get(0);
-			for (Expression y: arg.getElements()) {
+			for (Expression y: arg.getElements0()) {
 				list = list.append(y.accept(this));
 			}
 			return vf.constructor(RascalValueFactory.Symbol_Seq, list);
@@ -121,9 +122,9 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		}
 		
 		if (name.equals("alt")) {
-			ISet set = vf.set(RascalValueFactory.Symbol);
+			ISet set = vf.set();
 			Expression.Set arg = (Set) x.getArguments().get(0);
-			for(Expression y: arg.getElements()){
+			for(Expression y: arg.getElements0()){
 				set = set.insert(y.accept(this));
 			}
 			return vf.constructor(RascalValueFactory.Symbol_Alt, set);
@@ -132,8 +133,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		if (name.equals("tuple")) {
 			java.util.List<Expression> args = x.getArguments();
 			IConstructor head = args.get(0).accept(this); 
-			IList rest = vf.list(RascalValueFactory.Symbol);
-			for (Expression arg: ((Expression.List)args.get(1)).getElements()) {
+			IList rest = vf.list();
+			for (Expression arg: ((Expression.List)args.get(1)).getElements0()) {
 				rest = rest.append(arg.accept(this));
 			}
 			return vf.constructor(RascalValueFactory.Symbol_Tuple, head, rest);
@@ -152,13 +153,13 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
-			return vf.constructor(RascalValueFactory.Symbol_LayoutX, vf.string(str));
+			return vf.constructor(RascalValueFactory.Symbol_Layouts, vf.string(str));
 		}
 		
 
 		if (name.equals("iter")) {
 			IConstructor arg = x.getArguments().get(0).accept(this);
-			return vf.constructor(RascalValueFactory.Symbol_IterPlus, arg);
+			return vf.constructor(RascalValueFactory.Symbol_Iter, arg);
 		}
 		
 		if (name.equals("iter-star")) {
@@ -169,29 +170,29 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		if (name.equals("iter-star-seps")) {
 			IConstructor arg = x.getArguments().get(0).accept(this);
 			Expression.List args = (Expression.List) x.getArguments().get(1);
-			IList seps = vf.list(RascalValueFactory.Args);
-			for (Expression elem: args.getElements()) {
+			IList seps = vf.list();
+			for (Expression elem: args.getElements0()) {
 				seps = seps.append(elem.accept(this));
 			}
-			return vf.constructor(RascalValueFactory.Symbol_IterStarSepX, arg, seps);
+			return vf.constructor(RascalValueFactory.Symbol_IterStarSeps, arg, seps);
 		}
 		
 		if (name.equals("iter-seps")) {
 			IConstructor arg = x.getArguments().get(0).accept(this);
 			Expression.List args = (Expression.List) x.getArguments().get(1);
-			IList seps = vf.list(RascalValueFactory.Args);
-			for (Expression elem: args.getElements()) {
+			IList seps = vf.list();
+			for (Expression elem: args.getElements0()) {
 				seps = seps.append(elem.accept(this));
 			}
-			return vf.constructor(RascalValueFactory.Symbol_IterSepX, arg, seps);
+			return vf.constructor(RascalValueFactory.Symbol_IterSeps, arg, seps);
 		}
 
 		if (name.equals("parameterized-sort")) {
 			java.util.List<Expression> args = x.getArguments();
 			StringConstant.Lexical sort = (org.rascalmpl.ast.StringConstant.Lexical) 
 				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
-			IList rest = vf.list(RascalValueFactory.Symbol);
-			for (Expression arg: ((Expression.List)args.get(1)).getElements()) {
+			IList rest = vf.list();
+			for (Expression arg: ((Expression.List)args.get(1)).getElements0()) {
 				rest = rest.append(arg.accept(this));
 			}
 			return vf.constructor(RascalValueFactory.Symbol_ParameterizedSort, vf.string(sort.getString()), rest);
@@ -207,8 +208,8 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		
 		if (name.equals("char-class")) {
 			java.util.List<Expression> args = x.getArguments();
-			IList ranges = vf.list(RascalValueFactory.CharRange);
-			for (Expression arg: ((Expression.List)args.get(0)).getElements()) {
+			IList ranges = vf.list();
+			for (Expression arg: ((Expression.List)args.get(0)).getElements0()) {
 				ranges = ranges.append(arg.accept(this));
 			}
 			return vf.constructor(RascalValueFactory.Symbol_CharClass, ranges);

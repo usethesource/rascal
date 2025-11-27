@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class DateTimeLiteral extends AbstractAST {
   public DateTimeLiteral(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,21 +31,21 @@ public abstract class DateTimeLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.DateAndTime getDateAndTime() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDate() {
     return false;
   }
 
   public org.rascalmpl.ast.JustDate getDate() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTime() {
     return false;
   }
 
   public org.rascalmpl.ast.JustTime getTime() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

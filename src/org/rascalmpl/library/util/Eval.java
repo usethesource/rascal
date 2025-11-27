@@ -14,207 +14,252 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
-	private final IValueFactory values;
-		
-	private final IInteger duration;
-	private Evaluator eval;
-	private int evalCount = 0;
+	private final IRascalValueFactory values;
 
 	private final TypeReifier tr;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeStore store = new TypeStore();
 	private final Type param = tf.parameterType("T");
 	public final Type Result = tf.abstractDataType(store, "Result", param);
+	public final Type TypeTyp = RascalTypeFactory.getInstance().reifiedType(param);
 	public final Type Result_void = tf.constructor(store, Result, "ok");
 	public final Type Result_value = tf.constructor(store, Result, "result", param, "val");
 	public final Type Exception = tf.abstractDataType(store, "Exception");
 	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "messages", tf.sourceLocationType(), "location");
+	private final Type resetType = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
+	private final Type setTimeoutType = tf.functionType(tf.voidType(), tf.tupleType(tf.integerType()), tf.tupleEmpty());
+	private final Type evalType = tf.functionType(Result_value, tf.tupleType(TypeTyp, tf.stringType()), tf.tupleEmpty());
+	private final Type staticTypeOfType = tf.functionType(TypeTyp.instantiate(Map.of(param, tf.valueType())), tf.tupleType(tf.stringType()), tf.tupleEmpty());
+	private final Type execConstructor;
+
+	/* the following four fields are inherited by the configuration of nested evaluators */
+	private final PrintWriter stderr;
+	private final PrintWriter stdout;
+	private final Reader input;
+	private final IDEServices services;
 			
-	public Eval(IValueFactory values){
+	public Eval(IRascalValueFactory values, PrintWriter out, PrintWriter err, Reader in, ClassLoader loader, IDEServices services, TypeStore ts) {
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);
-		duration = values.integer(1000*100); // default duration for eval
-	}
-
-	private ModuleEnvironment getUniqueModuleEnvironment(IEvaluatorContext ctx) {
-		ModuleEnvironment mod = new ModuleEnvironment("$evalinstance$" + evalCount++ , ctx.getHeap());
-		return mod;
-	}
-
-	private Evaluator getSharedEvaluator(IEvaluatorContext ctx) {
-		if (this.eval == null) {
-			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
-			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
-			this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
-		}
-		
-		return this.eval;
+		this.stderr = err;
+		this.stdout = out;
+		this.input = in;
+		this.services = services;
+		execConstructor = ts.lookupConstructor(ts.lookupAbstractDataType("RascalRuntime"), "evaluator").iterator().next();
 	}
 	
-	
-	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx), true);
-		
-		if(result.getType().isBottom()){
-		  return values.constructor(Result_void);
-		}
-		else {
-			Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(param, result.getType());
-			return values.constructor(Result_value.instantiate(bindings), result.getValue());
-		}
-	}
-	
-	public IValue eval (IValue typ, IString input, IEvaluatorContext ctx) {
-		return eval(typ, input, duration,  getSharedEvaluator(ctx));
-	}
-
-	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx), true);
-		
-		if(result.getType().isBottom()){
-		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
-			return values.constructor(Result_void);
-		}
-		else {
-			Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(param, result.getType());
-			return values.constructor(Result_value.instantiate(bindings), result.getValue());
-		}
-	}
-	
-	public IValue eval (IValue typ, IList commands, IEvaluatorContext ctx) {
-		return eval(typ, commands, duration,  getSharedEvaluator(ctx));
-	}
-	
-	public IValue evalType (IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result =  doEval(null, values.list(input), duration,  getSharedEvaluator(ctx), true);
-		// Make sure redundant spaces are removed from the type.
-		return values.string(result.getType().toString().replaceAll(" ", ""));
-	}
-	
-	public IValue evalType (IString input, IEvaluatorContext ctx) {
-		return evalType(input, duration,  getSharedEvaluator(ctx));
-	}
-	
-	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(null, commands, duration,  getSharedEvaluator(ctx), true);
-		return values.string(result.getType().toString().replaceAll(" ", ""));
-	}
-	
-	public IValue evalType (IList commands, IEvaluatorContext ctx) {
-		return evalType(commands, duration, getSharedEvaluator(ctx));
-	}
-	
-	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx, boolean forRascal) {
-		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
-		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
-
-		Result<IValue> result = null;
-		Environment old = evaluator.getCurrentEnvt();
-		ModuleEnvironment env = getUniqueModuleEnvironment(evaluator);
-		
+	public IConstructor createRascalRuntime(IConstructor pathConfigCons) {
 		try {
-			timer.start();
-			
-			evaluator.setCurrentEnvt(env);
-			if(!timer.hasExpired() && commands.length() > 0){
-				for(IValue command : commands){
-					ISourceLocation commandLocation = eval.getValueFactory().sourceLocation("eval", "", "/","command=" + ((IString)command).getValue(), null);
-					result = evaluator.evalMore(null, ((IString) command).getValue(), commandLocation);
-				}
-				timer.cancel();
-				if (timer.hasExpired()) {
-					throw RuntimeExceptionFactory.timeout(null, null);
+			PathConfig pcfg = new PathConfig(pathConfigCons);
+			RascalRuntime runtime = new RascalRuntime(pcfg, input, stderr, stdout, services);
+
+			return values.constructor(execConstructor,
+				pathConfigCons,
+				buildResetFunction(runtime),
+				buildEvalFunction(runtime),
+				buildStaticTypeOfFunction(runtime),
+				buildSetTimeOutFunction(runtime)
+			);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		catch (URISyntaxException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	private IFunction buildResetFunction(RascalRuntime exec) {
+		return values.function(resetType, (args, kwargs) -> {
+			exec.reset();
+			return null;
+		});
+	}
+
+	private IFunction buildSetTimeOutFunction(RascalRuntime exec) {
+		return values.function(setTimeoutType, (args, kwargs) -> {
+			exec.setTimeout(((IInteger) args[0]).intValue());
+			return null;
+		});
+	}
+
+	private IFunction buildStaticTypeOfFunction(RascalRuntime exec) {
+		return values.function(staticTypeOfType, (args, kwargs) -> {
+			var duration = exec.getTimeoutDuration();
+
+			EvaluatorInterruptTimer timer = new EvaluatorInterruptTimer(exec.eval, duration);
+
+			IString command = (IString) args[0];
+			if (!command.getType().isString()) {
+				throw new MatchFailed();
+			}
+
+			try {	
+				if (duration > 0) {
+					timer.start();
 				}
 				
-				if (expected != null) {
-					Type typ = tr.valueToType((IConstructor) expected);
-					if (!result.getType().isSubtypeOf(typ)) {
-						throw new UnexpectedType(typ, result.getType(), ctx.getCurrentAST());
-					}
-				}
-				return result;
+				return exec.staticTypeOf(command.getValue());
 			}
-		}
-		catch (ParseError e) {
-			if (forRascal) 
-				throw RuntimeExceptionFactory.parseError(values.sourceLocation(e.getLocation(), e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()), null, null);
-			throw e;
-		}
-		catch (StaticError e) {
-			if (forRascal) {
-			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
+			catch (StaticError e) {
+				throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), null, null);
 			}
-			throw e;
-		} 
-		catch (URISyntaxException e) {
-			// this should never happen
-			if (forRascal)
-				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
-			throw new RuntimeException(e.getMessage(), e);
-		}
-		finally {
-			evaluator.getHeap().removeModule(env);
-			evaluator.setCurrentEnvt(old);
-		}
-		
-		if (forRascal) 
-			throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
-		
-		throw new IllegalArgumentException();
+			catch (InterruptException e) {
+				throw RuntimeExceptionFactory.timeout(null, null);
+			}
+			finally {
+				// very necessary to clean up the timer thread
+				timer.cancel();
+			}
+		});
 	}
-	
 
-	public static class Timer extends Thread {
+	private IFunction buildEvalFunction(RascalRuntime exec) {
+		return values.function(evalType, (args, kwargs) -> {    
+			var duration = exec.getTimeoutDuration();
+
+			EvaluatorInterruptTimer timer = new EvaluatorInterruptTimer(exec.eval, duration);
+
+			IConstructor expected = (IConstructor) args[0];
+			if (!(expected.getType().getName().equals("type"))) {
+				throw new MatchFailed();
+			}
+
+			IString command = (IString) args[1];
+			if (!command.getType().isString()) {
+				throw new MatchFailed();
+			}
+
+			try {	
+				if (duration > 0) {
+					timer.start();
+				}
+				Result<?> result = exec.eval(services, command.getValue());
+
+				Type typ = tr.valueToType(expected);
+				if (!result.getStaticType().isSubtypeOf(typ)) {
+					throw new UnexpectedType(typ, result.getStaticType(), URIUtil.rootLocation("eval"));
+				}
+
+				if (result.getStaticType().isBottom()) {
+					return values.constructor(Result_void);
+				}
+				else {
+					Map<Type,Type> bindings = new HashMap<Type,Type>();
+					bindings.put(param, result.getStaticType());
+					return values.constructor(Result_value.instantiate(bindings), result.getValue());
+				}
+			}
+			catch (StaticError e) {
+				throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), null, null);
+			}
+			catch (InterruptException | InterruptedException e) {
+				throw RuntimeExceptionFactory.timeout(null, null);
+			}
+			catch (IOException e) {
+				throw RuntimeExceptionFactory.io(e);
+			}
+			finally {
+				// very necessary to clean up the timer thread
+				timer.cancel();
+			}
+		});
+	}
+
+	/**
+	 * A RascalRuntime is an evaluator that configures itself from a PathConfig instance,
+	 * and then offers the `eval` method, and the `reset` method to interact it.
+	 */
+	private static class RascalRuntime {
+		private final Evaluator eval;
+		private int duration = -1;
+		
+		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
+			eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, input, stdout, stderr, services);
+		}
+
+		public IValue staticTypeOf(String line) {
+			var result = eval.eval(null, line, IRascalValueFactory.getInstance().sourceLocation(URIUtil.assumeCorrect("eval", "", "", "command=" + line)));
+			var type = result.getStaticType();
+			return new TypeReifier(eval.getValueFactory()).typeToValue(type, new TypeStore(), eval.getValueFactory().map());
+		}
+
+		public void setTimeout(int duration) {
+			this.duration = duration;
+		}
+		
+		public int getTimeoutDuration() {
+			return duration;
+		}
+	
+		public void reset() {
+			eval.getCurrentModuleEnvironment().reset();
+			eval.getHeap().clear();
+		}
+
+		public Result<IValue> eval(IRascalMonitor monitor, String line) throws InterruptedException, IOException {
+			return eval.eval(monitor, line, IRascalValueFactory.getInstance().sourceLocation(URIUtil.assumeCorrect("eval", "", "", "command=" + line)));
+		}
+	}
+
+	/**
+	 * This Thread class counts 10 steps towards overflowing the timeout,
+	 * and then stops while informing the given Evaluator object to interrupt
+	 * its running program.
+	 */
+	public static class EvaluatorInterruptTimer extends Thread {
+		private final Evaluator eval;
 		private final int timeout;
-		private int elapsed;
 		private final int sample;
 		private volatile boolean running;
-
-		public Timer(int timeout) {
+		
+		public EvaluatorInterruptTimer(Evaluator eval, int timeout) {
 			super();
-			this.elapsed = 0;
+			setDaemon(true);
+			this.eval = eval;
+			// this.elapsed = 0;
 			this.timeout = timeout;
-			this.sample = timeout / 10;
+			this.sample = java.lang.Math.max(timeout / 10, 1);
 			running = true;
 		}
 
 		public void run() {
 			running = true;
-			elapsed = 0;
+			var elapsed = 0;
 			while (running) {
 				try {
 					sleep(sample);
@@ -225,7 +270,7 @@ public class Eval {
 				elapsed += sample;
 				if (elapsed > timeout && running) {
 					running = false;
-					timeout();
+					eval.interrupt();
 				}
 			}
 		}
@@ -233,33 +278,6 @@ public class Eval {
 		public void cancel() {
 			running = false;
 		}
-
-		public boolean hasExpired() {
-			return elapsed > timeout;
-		}
-
-		public void timeout(){
-			System.err.println("Timeout!");
-		}
 	}
-
-	public static class EvalTimer extends Timer {
-		private IEvaluator<Result<IValue>> eval;
-
-		public EvalTimer(IEvaluator<Result<IValue>> eval, int timeout) {
-			super(timeout);
-			this.eval = eval;
-		}
-		
-		public void timeout(){
-			eval.interrupt();
-		}
-	}
-	
-	public void unimport (IString moduleName, IEvaluatorContext ctx) {
-	        if (this.eval!=null && this.eval.getHeap()!=null) this.eval.getHeap().removeModule(eval.getHeap().getModule(moduleName.getValue()));
-     }
-
-	
 }
 

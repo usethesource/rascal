@@ -10,14 +10,13 @@ module lang::rascal::grammar::definition::Attributes
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
-import IO;
 import ValueIO;
 import util::Maybe;
 
-@doc{adds an attribute to all productions it can find}
+@synopsis{adds an attribute to all productions it can find}
 Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
-set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) := mod2attr(m)};
+set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(Attr x) := mod2attr(m)};
 
 Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) { 
@@ -40,10 +39,12 @@ Maybe[Attr] mod2attr(ProdModifier m) {
   }
 }
 
-Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
+public Maybe[Associativity] testAssoc(str m) = mod2assoc([ProdModifier] m);
 
-Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
-Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
-Maybe[Associativity] mod2assoc(\associativity(\associative()))    = just(Associativity::\left());
-Maybe[Associativity] mod2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
+Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(Associativity x) := mod2assoc(m));
+
+Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\left()))           = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\right()))          = just(Associativity::\right());
+Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\associative()))    = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
 default Maybe[Associativity] mod2assoc(ProdModifier _)            = nothing();

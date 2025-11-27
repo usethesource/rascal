@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Range extends AbstractAST {
   public Range(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,21 +31,21 @@ public abstract class Range extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Char getCharacter() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasEnd() {
     return false;
   }
 
   public org.rascalmpl.ast.Char getEnd() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStart() {
     return false;
   }
 
   public org.rascalmpl.ast.Char getStart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -104,7 +105,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 919 + 233 * character.hashCode() ; 
+      return 499 + 919 * character.hashCode() ; 
     } 
   
     
@@ -188,7 +189,7 @@ public abstract class Range extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 709 + 503 * start.hashCode() + 233 * end.hashCode() ; 
+      return 233 + 709 * start.hashCode() + 503 * end.hashCode() ; 
     } 
   
     

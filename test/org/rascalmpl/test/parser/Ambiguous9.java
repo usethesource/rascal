@@ -20,15 +20,17 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 /*
 * S ::= E
 * E ::= E + E | E * E | 1
@@ -65,14 +67,14 @@ public class Ambiguous9 extends SGTDBF<IConstructor, ITree, ISourceLocation> imp
 	
 	private final static AbstractStackNode<IConstructor>[] S_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		sExpectBuilder.addAlternative(PROD_S_E, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E0});
 		S_EXPECTS = sExpectBuilder.buildExpectArray();
 	}
 	
 	private final static AbstractStackNode<IConstructor>[] E_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> eExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> eExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		eExpectBuilder.addAlternative(PROD_E_EplusE, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_4, NONTERMINAL_E2});
 		eExpectBuilder.addAlternative(PROD_E_EstarE, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_5, NONTERMINAL_E3});
 		eExpectBuilder.addAlternative(PROD_E_1, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_6});

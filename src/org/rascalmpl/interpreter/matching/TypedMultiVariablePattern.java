@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2018 CWI, NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,46 +7,50 @@
  *
  * Contributors:
  *   * Mark Hills - Mark.Hills@cwi.nl - CWI
+ *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl - NWO-I CWO
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.interpreter.result.Result;
+
+import io.usethesource.vallang.IValue;
 
 
+/**
+ * This is a place holder pattern for * Type Name variables which is useful during type inference
+ * at pattern construction time, since it will emulate the element type of the container. However,
+ * during pattern matching it is not useful and must be replace by a normal DesignatedTypedMultiVariablePattern
+ * with the type wrapped by a set or a list appropriately
+ */
 public class TypedMultiVariablePattern extends TypedVariablePattern {
-
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, org.rascalmpl.ast.Name name) {
-		super(ctx, x, type, name);		
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, org.rascalmpl.ast.Name name, boolean bindTypeParameters) {
+		super(ctx, x, elementType, name, bindTypeParameters);		
 	}
 	
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, String name) {
-		super(ctx, x, type, name);
-	}
-	
-	public void convertToListType() {
-		if (!this.alreadyStored) {
-			this.declaredType = TypeFactory.getInstance().listType(/*this.declaredType.isListType() ? this.declaredType.getElementType() : */this.declaredType);
-		} else {
-			if(!declaredType.isList())
-				throw new ImplementationError("Cannot convert a typed multi variable to a list after it has already been stored at its current type");
-		}
-	}
-
-	public void covertToSetType() {
-		if (!this.alreadyStored) {
-			this.declaredType = TypeFactory.getInstance().setType(/*this.declaredType.isSetType() ? this.declaredType.getElementType() : */this.declaredType);
-		} else {
-			if(!declaredType.isSet())
-				throw new ImplementationError("Cannot convert a typed multi variable to a set after it has already been stored at its current type");
-		}
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, String name, boolean bindTypeParameters) {
+		super(ctx, x, elementType, name, bindTypeParameters);
 	}
 	
 	@Override
 	public String toString(){
 		return "*" + declaredType + " " + getName();
 	}
-
+	
+	@Override
+	public void initMatch(Result<IValue> subject) {
+	    throw new ImplementationError("TypedMultiVariablePattern is a placeholder not to be used for matching");
+	}
+	
+	@Override
+	public boolean hasNext() {
+	    throw new ImplementationError("TypedMultiVariablePattern is a placeholder not to be used for matching");
+	}
+	
+	@Override
+	public boolean next() {
+	    throw new ImplementationError("TypedMultiVariablePattern is a placeholder not to be used for matching");
+	}
 }

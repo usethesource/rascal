@@ -12,23 +12,24 @@
  */ 
 package org.rascalmpl.test.infrastructure;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.function.BiFunction;
 
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.exceptions.Throw;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.random.RandomValueGenerator;
-import io.usethesource.vallang.random.util.TypeParameterBinder;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class QuickCheck {
 
@@ -36,8 +37,6 @@ public class QuickCheck {
     public static final String MAXDEPTH = "maxDepth";
     public static final String MAXWIDTH = "maxWidth";
     public static final String EXPECT_TAG = "expected";
-    public static final String IGNORE_ANNOTATIONS_TAG = "ignoreAnnotations";
-
     
     public static final TestResult SUCCESS = new TestResult(true, null);
 
@@ -63,7 +62,7 @@ public class QuickCheck {
         this.vf = vf;
     }
 
-    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth, boolean ignoreAnnotations) {
+    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth, RandomTypesConfig typesConfig) {
         if (formals.getArity() == 0) {
             tries = 1; // no randomization needed
         }
@@ -73,20 +72,22 @@ public class QuickCheck {
             types[n] = formals.getFieldType(n);
         }
 
-        Map<Type, Type> tpbindings = new TypeParameterBinder().bind(formals);
-        Type[] actualTypes = new Type[types.length];
-        for(int j = 0; j < types.length; j ++) {
-            actualTypes[j] = types[j].instantiate(tpbindings);
-        }
-
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
-        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth, !ignoreAnnotations);
         for (int i = 0; i < tries; i++) {
+            Map<Type,Type> tpbindings = new HashMap<>();
             for (int n = 0; n < values.length; n++) {
-                values[n] = generator.generate(types[n], store, tpbindings);
+                // TODO: here we could reuse a previous parameter (once in a while) if it
+                // has a comparable actual type, to cover more cases in the test code
+                // where it is necessary that two parameter values match or are equal.
+                values[n] = types[n].randomValue(random, typesConfig, vf, store, tpbindings, maxDepth, maxWidth);
             }
-            TestResult result = executeTest.apply(actualTypes, values);
+            
+            for (int n = 0; n < formals.getArity(); n++) {
+                types[n] = types[n].instantiate(tpbindings);
+            }
+            
+            TestResult result = executeTest.apply(types, values);
 
             if (!result.succeeded() || (result.succeeded() && expectedException != null)) {
                 Throwable thrownException = result.thrownException();
@@ -99,12 +100,16 @@ public class QuickCheck {
                 IValue[] smallerValues = new IValue[formals.getArity()];
                 for (int depth = 1; depth < maxDepth && !smallerFound; depth++) {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
-                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width, !ignoreAnnotations);
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
-                                smallerValues[n] = gen.generate(types[n], store, tpbindings);
+                                smallerValues[n] = types[n].randomValue(random, typesConfig, vf, store, tpbindings, maxDepth, maxWidth);
                             }
-                            TestResult smallerResult = executeTest.apply(actualTypes, smallerValues);
+                            
+                            for (int n = 0; n < formals.getArity(); n++) {
+                                types[n] = types[n].instantiate(tpbindings);
+                            }
+                            
+                            TestResult smallerResult = executeTest.apply(types, smallerValues);
                             if (!smallerResult.succeeded() || (smallerResult.succeeded() && expectedException != null) ) {
                                 Throwable thrownException2 = smallerResult.thrownException();
                                 if (!wasExpectedException(expectedException, thrownException2)) {
@@ -120,13 +125,13 @@ public class QuickCheck {
 
                 // we have a (hopefully smaller) case, let's report it
                 if (thrownException != null && !wasExpectedException(expectedException, thrownException)) {
-                    return new UnExpectedExceptionThrownResult(functionName, actualTypes, tpbindings, values, thrownException);
+                    return new UnExpectedExceptionThrownResult(functionName, types, tpbindings, values, thrownException);
                 }
                 else if (expectedException != null && thrownException == null) {
-                    return new ExceptionNotThrownResult(functionName, actualTypes, tpbindings, values, expectedException);
+                    return new ExceptionNotThrownResult(functionName, types, tpbindings, values, expectedException);
                 }
                 else {
-                    return new TestFailedResult(functionName, "test returned false", actualTypes, tpbindings, values);
+                    return new TestFailedResult(functionName, "test returned false", types, tpbindings, values);
                 }
             }
         }
@@ -139,8 +144,8 @@ public class QuickCheck {
             return false;
         }
         if (thrownException != null && expectedException != null) {
-            if (thrownException instanceof Throw || thrownException instanceof Thrown) {
-                IValue rascalException = thrownException instanceof Throw  ? ((Throw)thrownException).getException() : ((Thrown)thrownException).getValue(); 
+            if (thrownException instanceof Throw) {
+                IValue rascalException = ((Throw)thrownException).getException(); 
                 if (rascalException instanceof IString && ((IString)rascalException).getValue().equals(expectedException)) {
                     return true;
                 }
@@ -194,7 +199,7 @@ public class QuickCheck {
         }
     }
 
-    public class UnExpectedExceptionThrownResult extends TestFailedResult {
+    public static class UnExpectedExceptionThrownResult extends TestFailedResult {
 
         public UnExpectedExceptionThrownResult(String functionName, Type[] actualTypes,
             Map<Type, Type> tpbindings, IValue[] values, Throwable thrownException) {
@@ -208,24 +213,25 @@ public class QuickCheck {
             out.println("Exception:");
             if (thrownException instanceof Throw) {
                 out.println(((Throw)thrownException).getMessage());
-            }
-            else if (thrownException instanceof Thrown) {
-                out.println(((Thrown)thrownException).getMessage());  
+                try {
+                    ((Throw) thrownException).getTrace().prettyPrintedString(out, new StandardTextWriter(true));
+                }
+                catch (IOException e) {
+                    // should not happen
+                }
             }
             else {
-                out.println(thrownException.toString());
+                // out.println(thrownException.toString());
                 thrownException.printStackTrace(out);
             }
+            out.flush();
         }
-
     }
 
-    public class ExceptionNotThrownResult extends TestFailedResult {
+    public static class ExceptionNotThrownResult extends TestFailedResult {
         public ExceptionNotThrownResult(String functionName, Type[] actualTypes,
             Map<Type, Type> tpbindings, IValue[] values, String expected) {
             super(functionName, "test did not throw '" + expected + "' exception", actualTypes, tpbindings, values);
         }
     }
-
-
 }

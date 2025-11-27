@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.edge;
 
+import java.util.Arrays;
+
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
@@ -20,17 +22,19 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
 @SuppressWarnings({"unchecked", "cast"})
 public class EdgesSet<P>{
-	public final static int DEFAULT_RESULT_STORE_ID = -1;
+	public static final int DEFAULT_RESULT_STORE_ID = -1;
 	
-	private final static int DEFAULT_SIZE = 8;
+	private static final int DEFAULT_SIZE = 8;
 	
 	private AbstractStackNode<P>[] edges;
 	private int size;
-	
+
 	private int lastVisitedLevel = -1;
 	private IntegerMap lastVisitedFilteredLevel;
 	
 	private AbstractContainerNode<P> lastResults;
+
+	// Indexed by `resultStoreId`.
 	private IntegerObjectList<AbstractContainerNode<P>> lastFilteredResults;
 	
 	public EdgesSet(){
@@ -48,10 +52,9 @@ public class EdgesSet<P>{
 	}
 	
 	private void enlarge(){
-		AbstractStackNode<P>[] oldEdges = edges;
-		edges = (AbstractStackNode<P>[]) new AbstractStackNode[size << 1];
-		System.arraycopy(oldEdges, 0, edges, 0, size);
+		edges = Arrays.copyOf(edges, size << 1, edges.getClass());
 	}
+
 	
 	public void add(AbstractStackNode<P> edge){
 		while(size >= edges.length){ // While instead of if to enable the JIT to eliminate the bounds check on the edges array 
@@ -139,4 +142,33 @@ public class EdgesSet<P>{
 	public void clear(){
 		size = 0;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("EdgesSet[{");
+		
+		for (int i=0; i<size; i++) {
+			if (i > 0) {
+				builder.append(",");
+			}
+			builder.append(edges[i].getName() + "=" + edges[i].getId() + "." + edges[i].getDot() + "@" + edges[i].getStartLocation());
+		}
+
+		builder.append("}");
+
+		if (lastVisitedLevel >= 0) {
+			builder.append(",lastVisitedLevel=" + lastVisitedLevel);
+		}
+		if (lastResults != null) {
+			builder.append(",lastResults=" + lastResults);
+		}
+
+		// Skip 'filtered' fields for now
+
+		builder.append("]");
+
+		return builder.toString();
+	}
+
+	
 }

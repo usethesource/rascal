@@ -7,14 +7,16 @@ import Relation;
 import ListRelation;
 import IO;
 import util::Math;
+import Location;
+import util::FileSystem;
 
 int singleChar(str s) = charAt(s,0);
 
-list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")]
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
-	
-list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+
+list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")]
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
 
@@ -24,13 +26,8 @@ str createValidScheme(str s) {
 	return ("a" | it + stringChar(validSchemeChars[c % size(validSchemeChars)]) | c <- chars(s));
 }
 
-@ignoreInterpreter{Renaming}
-@expected{InvalidURI}
-test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
-
-@ignoreCompiler{Remove-after-transtion-to-compiler: Renaming}
 @expected{MalFormedURI}
-test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
@@ -69,16 +66,18 @@ test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 
 str fixPathAddition(str s) = replaceAll(s, "/", "");
 
-test bool pathAdditions1(list[str] ss) 
-  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path 
+test bool pathAdditions1(list[str] ss)
+  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path
   == ("/ba" | it + "/" + t  | s <- ss, t := fixPathAddition(s), t != "" );
-  
+
 test bool pathAdditions2(loc l, str s) = s == "" || (l + fixPathAddition(s)).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + fixPathAddition(s)) ;
 
 test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
+    if (s == "")
+      return true;
 	return (l + s).file == s;
 }
 
@@ -114,21 +113,21 @@ test bool enclosingTest8() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src
 test bool enclosingTest9() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(4,10,<0,0>,<0,0>));
 
 test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLength)
-  = (abs(aOffset) < toInt(pow(2,31)) 
+  = (abs(aOffset) < toInt(pow(2,31))
   && abs(aOffset) + abs(aLength) < toInt(pow(2,31))
-  && abs(bOffset) < toInt(pow(2,31)) 
+  && abs(bOffset) < toInt(pow(2,31))
   && abs(bOffset) + abs(bLength) < toInt(pow(2,31))
-  && abs(aOffset) >= abs(bOffset) 
-  && abs(aOffset) <= abs(bOffset) + abs(bLength) 
+  && abs(aOffset) >= abs(bOffset)
+  && abs(aOffset) <= abs(bOffset) + abs(bLength)
   && abs(aOffset) + abs(aLength) <= abs(bOffset) + abs(bLength))
   ==>
   |tmp:///x.rsc|(abs(aOffset), abs(aLength),<0,0>,<0,0>) <= |tmp:///x.rsc|(abs(bOffset), abs(bLength),<0,0>,<0,0>);
-  
+
 
 // Simulate a list of 1000 lines each of length < 1000;
-public list[int] lineSizes = [ arbInt(1000) | int i <- [1 .. 1000] ];   
+public list[int] lineSizes = [ arbInt(1000) | int _ <- [1 .. 1000] ];
 
-public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));        
+public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));
 
 // Turn an index in the above list into a line/column pair
 tuple[int line, int column] getLineAndColumn(int idx){
@@ -188,7 +187,7 @@ test bool lessequal2(int f, int t){
     return l1 <= l2;    // path is lexicographically less, other attributes are equal
 }
 
-@ignoreCompiler{unknown}
+@ignoreCompiler{FIXME}
 test  bool greater1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1.offset <  l2.offset && l1.offset + l1.length >= l2.offset + l2.length ||
@@ -202,7 +201,7 @@ test bool greater2(int f, int t){
     return !(l1 > l2);
 }
 
-@ignoreCompiler{unknown}
+@ignoreCompiler{FIXME}
 test  bool greaterequal1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1 == l2 ||
@@ -226,13 +225,13 @@ test bool equal1(int f, int t){
 test bool equal2(int f, int t){
     f = restrict(f); t = restrict(t);
     l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
-    return !(l1 == l2); 
+    return !(l1 == l2);
 }
 
 // Create a list of n different locations
 
 list[loc] getLocs(int n){
-    locs = [getLoc(arbInt(maxIndex), arbInt(maxIndex)) | int i <- [0 .. n]];
+    locs = [getLoc(arbInt(maxIndex), arbInt(maxIndex)) | int _ <- [0 .. n]];
     return[ locs[i] | int i <- [0..n], !any(int j <- [0..n], i != j, locs[i] == locs[j]) ];
 }
 
@@ -262,4 +261,444 @@ test bool locInLRel(){
     return all(k <- domain(m), m[k] == [k.offset]);
 }
 
-  
+// Locations library
+
+// Make two locations with a gap inbetween. When gap is negative they will overlap.
+// Always return a pair of locations <l1, l2> where l1 starts before l2.
+
+tuple[loc, loc] makeLocsWithGap(int gap){
+    sign = gap > 0 ? 1 : -1;
+    absgap =  min(abs(gap), maxIndex/2);
+    m1 = 1 + arbInt(maxIndex - absgap - 2); // 1 <= m1 <= maxIndex - 2
+    m2 = m1 + sign * absgap;
+
+    llen = arbInt(m1);
+    l = getLoc(m1 - llen, m1);
+
+    rlen = m2 == maxIndex ? 0 : arbInt(maxIndex - m2);
+    r = getLoc(m2, m2 + rlen);
+
+    if (l.offset == r.offset && r.length == 0) {
+      return <r, l>;
+    }
+    else if (l.offset >= r.offset) {
+      return <r, l>;
+    }
+    else {
+      return <l, r>;
+    }
+}
+
+bool report(loc l1, loc l2, bool expected){
+    if(!expected){
+        println("Not expected: <l1>, <l2>");
+        return false;
+    }
+    return true;
+}
+
+// isLexicallyLess
+
+bool isLexicallyLess1(int f, int t){
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return report(l1, l2, isLexicallyLess(l1, l2));
+}
+
+bool isLexicallyLess1(int _){
+    <l1, l2> = makeLocsWithGap(10);
+    return report(l1, l2, isLexicallyLess(l1, l2));
+}
+
+test bool isSameFile1(){
+    l = |C:///a|;
+    r = |C:///a#1|;
+    return isSameFile(l, r);
+}
+
+test bool isSameFile2(){
+    l = |C:///a|;
+    r = |C:///b#1|;
+    return !isSameFile(l, r);
+}
+
+test bool isSameFile3(loc l){
+    return isSameFile(l, l);
+}
+
+test bool isSameFile4(loc l){
+    return !isSameFile(l[scheme="A"], l[scheme="B"]);
+}
+
+test bool isSameFile5(loc l){
+    return !isSameFile(l[authority="A"], l[authority="B"]);
+}
+
+// isContainedIn
+
+test bool isContainedIn1(int f, int len){
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isContainedIn(l2, l1));
+}
+
+test bool isContainedIn2(int f, int len){
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1, base="base1.src"); l2 = getLoc(f1 + delta, t1 - delta,  base="base2.src");
+    return report(l1, l2, !isContainedIn(l2, l1));
+}
+
+// isStrictlyContainedIn
+
+test bool isStrictlyContainedIn1(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn2(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn3(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    l1 = getLoc(f1, t1);
+    return report(l1, l1, !isStrictlyContainedIn(l1, l1));
+}
+
+// beginsBefore
+
+@ignore{unknown}
+test bool beginsBefore1(int _){
+    <l1, l2> = makeLocsWithGap(-10);
+    return report(l1, l2, beginsBefore(l1, l2));
+}
+
+test bool beginsBefore2(int _){
+    <l1, l2> = makeLocsWithGap(10);
+    return report(l1, l2, !beginsBefore(l2, l1));
+}
+
+// isBefore
+
+test bool isBefore1(int _){
+    <l1, l2> = makeLocsWithGap(10);
+    return report(l1, l2, isBefore(l1, l2));
+}
+
+test bool isBefore2(int _){
+    <l1, l2> = makeLocsWithGap(10);
+    return report(l1, l2, !isBefore(l2, l1));
+}
+
+// isImmediatelyBefore
+@ignore{Fails intermittently}
+test bool isImmediatelyBefore1(int _){
+    <l1, l2> = makeLocsWithGap(0);
+    return report(l1, l2, isImmediatelyBefore(l1, l2));
+}
+
+@ignore{Fails intermittently}
+test bool isImmediatelyBefore2(int _){
+    <l1, l2> = makeLocsWithGap(0);
+    return report(l1, l2, !isImmediatelyBefore(l2, l1));
+}
+
+// beginsAfter
+@ignore{Until #1693 has been solved}
+test bool beginsAfter1(int _){
+    <l1, l2> = makeLocsWithGap(-10);
+    return report(l1, l2, beginsAfter(l2, l1));
+}
+
+// isAfter
+
+test bool isAfter1(int _){
+    <l1, l2> = makeLocsWithGap(10);
+    return report(l1, l2, isAfter(l2, l1));
+}
+
+// isImmediatelyAfter
+@ignore{Fails intermittently}
+test bool isImmediatelyAfter1(int _){
+    <l1, l2> = makeLocsWithGap(0);
+    return report(l1, l2, isImmediatelyAfter(l2, l1));
+}
+
+// isOverlapping
+
+test bool isOverlapping1(int _){
+   <l1, l2> = makeLocsWithGap(-1);
+    return report(l1, l2, isOverlapping(l1, l2));
+}
+
+test bool isOverlapping2(int _){
+   <l1, l2> = makeLocsWithGap(10);
+    return !isOverlapping(l1, l2);
+}
+
+test bool isOverlapping3() = isOverlapping(|unknown:///|(0, 2), |unknown:///|(0, 2));
+test bool isOverlapping4() = isOverlapping(|unknown:///|(0, 2), |unknown:///|(1, 2));
+test bool isOverlapping5() = !isOverlapping(|unknown:///|(0, 2), |unknown:///|(2, 2));
+test bool isOverlapping6() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(0, 2));
+test bool isOverlapping7() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(1, 2));
+test bool isOverlapping8() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(2, 2));
+test bool isOverlapping9() = !isOverlapping(|unknown:///|(2, 2), |unknown:///|(0, 2));
+test bool isOverlapping10() = isOverlapping(|unknown:///|(2, 2), |unknown:///|(1, 2));
+test bool isOverlapping11() = isOverlapping(|unknown:///|(2, 2), |unknown:///|(2, 2));
+
+// cover
+
+test bool isCover1(int _){
+   <l1, l2> = makeLocsWithGap(10);
+   u = cover([l1, l2]);
+   return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
+}
+
+test bool isCover2(int _){
+   <l1, l2> = makeLocsWithGap(-10);
+   u = cover([l1, l2]);
+   return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
+}
+
+test bool isCover3(int f, int t){
+   f = restrict(f); t = restrict(t);
+   l = getLoc(f, t);
+   u = cover([l, l, l, l]);
+   return report(l, l, l == u);
+}
+
+test bool trailingSlashFile1() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    return withSlash.file == withoutSlash.file;
+}
+
+test bool trailingSlashFile2() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    withoutSlash.file = "libs";
+    withSlash.file = "libs";
+
+    return withSlash.file == withoutSlash.file
+        && withSlash.parent == withoutSlash.parent
+        ;
+}
+
+test bool testRelativize()
+    = relativize(|file:///a/b|, |file:///a/b/c.txt|)
+        == |relative:///c.txt|;
+
+test bool testFailedRelativize()
+    = relativize(|file:///b/b|, |file:///a/b/c.txt|)
+        == |file:///a/b/c.txt|;
+
+test bool trailingSlashRelativize1()
+    = relativize(|file:///library/|, |file:///library|)
+        == relativize(|file:///library/|, |file:///library/|);
+
+test bool trailingSlashRelativize2()
+    = relativize(|file:///library|, |file:///library/|)
+        == relativize(|file:///library|, |file:///library|);
+
+test bool extensionSetWithMoreDots1()
+    = |file:///a.txt/b|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithMoreDots2()
+    = |file:///a.txt/b.noot|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithSlash()
+    = |file:///a/b.noot/|[extension="aap"] == |file:///a/b.aap/|;
+
+test bool extensionSetWithSlashAndMoreDots()
+    = |file:///a.txt/b.noot/|[extension="aap"] == |file:///a.txt/b.aap/|;
+
+test bool extensionGetWithMoreDot1()
+    = |file:///a.txt/b|.extension == "";
+
+test bool extensionGetWithMoreDots2()
+    = |file:///a.txt/b.noot|.extension == "noot";
+
+test bool extensionGetWithSlash()
+    = |file:///a/b.noot/|.extension == "noot";
+
+test bool extensionGetSimple()
+    = |file:///a/b.noot|.extension == "noot";
+
+test bool extensionGetRoot()
+    = |file:///b.noot|.extension == "noot";
+
+test bool extensionGetNoRoot()
+    = |file:///b|.extension == "";
+
+test bool extensionNoPath()
+    = |file:///|.extension == "";
+
+test bool extensionSetRoot()
+    = |file:///b.noot|[extension="aap"] == |file:///b.aap|;
+
+test bool extensionSetSimple()
+    = |file:///a/b.noot|[extension="aap"] == |file:///a/b.aap|;
+
+
+// we don't want backslashes in windows
+test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
+
+private data MavenLocalRepositoryPath
+    = path(str groupId, str artifactId, str version)
+    | error(str cause)
+    ;
+
+private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
+    if (jar.extension != "jar") {
+        return error("jar should have jar extension");
+    }
+
+    jar = relativize(|home:///.m2/repository|, jar);
+
+    str groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    str artifactId = jar.parent.parent.file;
+    str version    = jar.parent.file;
+    str file       = jar.file;
+
+    if (file != "<artifactId>-<version>.jar") {
+        return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
+    }
+
+    if (/!/ := artifactId) {
+        return error("ArtifactId contains exclamation mark: <artifactId>");
+    }
+
+    return path(groupId, artifactId, version);
+}
+
+test bool mvnSchemeTest() {
+    debug = false;
+    jarFiles = find(|home:///.m2/repository|, "jar");
+
+    // check whether the implementation of the scheme holds the contract specified in the assert
+    for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        // this is the contract:
+        loc mvnLoc = |mvn://<groupId>--<artifactId>--<version>|;
+        
+        if (!exists(mvnLoc)) {
+            println("<mvnLoc> does not exist.");
+            return false;
+        }
+    }
+
+    // report on all the failed attempts
+    for (debug, jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
+        println(msg);
+    }
+
+
+    return true;
+}
+
+
+test bool fileWorks() = testLocWorksRoot(resolveLocation(|home:///|));
+
+test bool memoryWorks() {
+    loc memTest = |memory://locations-loc-test|;
+    writeFile(memTest + "/a/a.txt", "Hoi");
+    return testLocWorksRoot(memTest);
+}
+
+test bool jarWorks() {
+    for (f := findFile(|home:///.m2/repository|, ext = "jar")) {
+        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"], isWritable = false);
+    }
+    return false;
+}
+
+test bool mavenWorks() {
+    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|, isWritable = false);
+    }
+    return false;
+}
+
+private bool testLocWorksRoot(loc existing,bool isWritable = true) {
+    println("Start file path: <existing>");
+    assert exists(existing) : "Start loc should exist";
+    testLocWorks(existing, isWritable);
+
+    loc subPath = findFile(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    subPath = findDirectory(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    loc nonExisting = existing + "not$__$there";
+    println("Not existing: <nonExisting>");
+    assert !exists(nonExisting) : "Subpath should exist";
+    testLocWorks(nonExisting, isWritable);
+    return true;
+}
+
+private loc findFile(loc l, str ext = "") {
+    for (f <- l.ls, isFile(f) && (ext == "" || f.extension == ext)) {
+        return f;
+    }
+    for (f <- l.ls, isDirectory(f)) {
+        result = findFile(f, ext= ext);
+        if (result.scheme != "invalid") {
+            return result;
+        }
+    }
+    return |invalid:///file|;
+}
+
+private loc findDirectory(loc l) {
+    for (f <- l.ls, isDirectory(f)) {
+        return f;
+    }
+    throw "There should be at least a single directory inside of it";
+}
+
+private void testLocWorks(loc l, bool shouldWrite) {
+    println("\texists: <exists(l)>");
+    println("\tisFile: <isFile(l)>");
+    println("\tisDirectory: <isDirectory(l)>");
+    if (exists(l)) {
+        println("\tlastModified: <lastModified(l)>");
+        if (isDirectory(l)) {
+            println("\tcontents: <l.ls>");
+            println("\tcontents: <listEntries(l)>");
+        }
+        else {
+            println("\tisWriteable: <isWritable(l)>");
+            println("\tisReadable: <isReadable(l)>");
+        }
+    }
+    else if (shouldWrite) {
+        try {
+            remove(l);
+        }
+        catch IO(_): throw "Removing file that does not exist should not cause an exception";
+    }
+
+    if (!exists(l) || !isDirectory(l)) {
+        try {
+            println("\tcontents: <l.ls>");
+            assert false: "ls on a non-directory should have thrown an IO exception";
+        }
+        catch IO(_) : true;
+    }
+}

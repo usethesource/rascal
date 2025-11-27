@@ -8,16 +8,20 @@ import Node;
 
 // the only way two values can be equal while their run-time types are not is due to conversion between int, real, rat by `==`
 test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || size({typeOf(x), typeOf(y)} & {\int(), \real(), \rat()}) > 1;
+
+test bool canonicalTypesRegression1() = canonicalTypes(0.0, 0);
+test bool canonicalTypesRegression2() = canonicalTypes(0r, 0);
+test bool canonicalTypesRegression3() = canonicalTypes(0r, 0.0);
   
 // values have an equivalence relation
-test bool reflexEq(value x) = x == x;
-test bool transEq(value x, value y, value z) = (x == y && y == z) ==> (x == z);
-test bool commutativeEq(value x, value y) = (x == y) <==> (y == x);
+test bool reflexEq1(value x) = x == x;
+test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
+test bool commutativeEq1(value x, value y) = (x == y) <==> (y == x);
 
 // the matching operator is also an equivalence relation on values:
-test bool reflexEq(value x) = x := x;
-test bool transEq(value x, value y, value z) = (x := y && y := z) ==> (x := z);
-test bool commutativeEq(value x, value y) = (x := y) <==> (y := x);
+test bool reflexEq2(value x) = x := x;
+test bool transEq2(value x, value y, value z) = (x := y && y := z) ==> (x := z);
+test bool commutativeEq2(value x, value y) = (x := y) <==> (y := x);
 
 // equality subsumes matching, but we focus on nodes to avoid problems with num coercions of `==`:
 test bool allEqualValuesMatch(node a, node b) = a == b ==> a := b;
@@ -48,7 +52,7 @@ test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2
 test bool antiSymmetricLTEWithKeywordParamsEq() = antiSymmetricLTESame(""(x = 3), ""(x = 3)); 
 
 // numbers are totally ordered
-test bool numTotalLTE(num x, num y) = x <= y || y <= x;
+test bool numTotalLTE1(num x, num y) = x <= y || y <= x;
 test bool numAntiSymmetricLTE(num x, num y) = (x <= y && y <= x) ==> (x == y);
 test bool numTransLTE(num x, num y, num z) = (x <= y && y <= z) ==> (x <= z);
 test bool numValueReflex(num x) { value y = x; return x == y && y == x; }
@@ -72,7 +76,7 @@ test bool ratTransLTE(rat x, rat y, rat z) = (x <= y && y <= z) ==> (x <= z);
 test bool ratValueReflex(rat x) { value y = x; return x == y && y == x; }
 
 // strings are totally ordered
-test bool numTotalLTE(str x, str y) = x <= y || y <= x;
+test bool numTotalLTE2(str x, str y) = x <= y || y <= x;
 test bool strAntiSymmetricLTE(str x, str y) = (x <= y && y <= x) ==> (x == y);
 test bool strTransLTE(str x, str y, str z) = (x <= y && y <= z) ==> x <= z;
 test bool strValueReflex(rat x) { value y = x; return x == y && y == x; }
@@ -87,9 +91,9 @@ test bool subsetOrdering1(set[value] x, set[value] y) = x <= x + y;
 test bool subsetOrdering2(set[value] x, set[value] y) = (x <= y) <==> (x == {} || all(e <- x, e in y));
 
 // sets are partially ordered
-test bool setReflexLTE(set[value] x) = (x <= x);
-test bool setAntiSymmetricLTE(set[value] x, set[value] y) = (x <= y && y <= x) ==> (x == y);
-test bool setTransLTE(set[value] x, set[value] y, set[value] z) = (x <= y && y <= z) ==> x <= z;
+test bool setReflexLTE1(set[value] x) = (x <= x);
+test bool setAntiSymmetricLTE1(set[value] x, set[value] y) = (x <= y && y <= x) ==> (x == y);
+test bool setTransLTE1(set[value] x, set[value] y, set[value] z) = (x <= y && y <= z) ==> x <= z;
 
 // map are ordered via sub-map relation
 
@@ -112,9 +116,9 @@ java.lang.Exception: failed for arguments: (true:"",-1185257414:"1sn"({""()},"å†
 test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==> (x == () || all(e <- x, e in y, eq(y[e], x[e])));
 
 // maps are partially ordered
-test bool setReflexLTE(map[value,value] x) = (x <= x);
-test bool setAntiSymmetricLTE(map[value,value] x, map[value,value] y) = (x <= y && y <= x) ==> (x == y);
-test bool setTransLTE(map[value,value] x, map[value,value] y, map[value,value] z) = (x <= y && y <= z) ==> x <= z;
+test bool setReflexLTE2(map[value,value] x) = (x <= x);
+test bool setAntiSymmetricLTE2(map[value,value] x, map[value,value] y) = (x <= y && y <= x) ==> (x == y);
+test bool setTransLTE2(map[value,value] x, map[value,value] y, map[value,value] z) = (x <= y && y <= z) ==> x <= z;
 
 // locs are partially ordered
 test bool locReflexLTE(loc x) = (x <= x);
@@ -122,22 +126,22 @@ test bool locAntiSymmetricLTE(loc x, loc y) = (x <= y && y <= x) ==> (x == y);
 test bool locTransLTE(loc x, loc y, loc z) = (x <= y && y <= z) ==> x <= z;
 
 // conversions
-test bool intToReal(int i) = i == toReal(i);
-test bool ratToReal(rat r) = r == toReal(r);
-test bool intToReal(int i) = i <= toReal(i);
-test bool ratToReal(rat r) = r <= toReal(r);
-test bool intToReal(int i) = toReal(i) >= i;
-test bool ratToReal(rat r) = toReal(r) >= r;
+test bool intToReal1(int i) = i == toReal(i);
+test bool ratToReal1(rat r) = r == toReal(r);
+test bool intToReal2(int i) = i <= toReal(i);
+test bool ratToReal2(rat r) = r <= toReal(r);
+test bool intToReal3(int i) = toReal(i) >= i;
+test bool ratToReal3(rat r) = toReal(r) >= r;
 test bool lessIntReal(int i) = !(i < toReal(i));
 test bool lessRatReal(int i) = !(i < toReal(i));
 
 // set containment
 test bool differentElements(int i) = size({i, toReal(i), toRat(i,1)}) == 3; // yes, really 3.
 test bool differentElement2(int i, rat r) = i == r ==> size({i,r}) == 2; // yes, really 2.
-test bool differentElement2(int i, real r) = i == r ==> size({i,r}) == 2; // yes, really 2.
+test bool differentElement3(int i, real r) = i == r ==> size({i,r}) == 2; // yes, really 2.
 
 // map keys
-test bool differentKeys(int i,real r) = ((i:10,r:20)[toReal(i)]?0) == 0;
+test bool differentKeys1(int i,real r) = ((i:10,r:20)[toReal(i)]?0) == 0;
 test bool differentKeys2(int i,rat r) = ((i:10,r:20)[toRat(i,1)]?0) == 0;
 test bool differentKeys3(int i) = size((i:10) + (toRat(i,1):20) + (toReal(i):30)) == 3;
 

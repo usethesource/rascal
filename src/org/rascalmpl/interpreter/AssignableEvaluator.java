@@ -16,16 +16,21 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Optional;
+
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Assignment;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -97,6 +102,10 @@ public class AssignableEvaluator {
 	 * Given an old result and a right-hand side Result, compute a new result.
 	 */
 	public Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue) {
+	    if (rhsValue.getStaticType().isBottom()) {
+	        throw new UnexpectedType(oldValue.getStaticType(), tf.voidType(), getCurrentAST());
+	    }
+	    
 		Result<IValue> newValue;
 		if(oldValue != null) {
 			switch(this.__getOperator()){
@@ -118,13 +127,13 @@ public class AssignableEvaluator {
 				throw new ImplementationError("Unknown assignment operator");
 			}
 		
-			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType(), newValue.getValue(),this.__getEval());
+			if (newValue.getValue().getType().isSubtypeOf(oldValue.getStaticType())) {
+				newValue = ResultFactory.makeResult(oldValue.getStaticType(), newValue.getValue(), this.__getEval());
 				return newValue;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
 				// we use the lub type for the new value.
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),this.__getEval());
+				newValue = ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(),this.__getEval());
 				newValue.setInferredType(true);
 				return newValue;
 			}
@@ -133,7 +142,7 @@ public class AssignableEvaluator {
 			// in which case the error is lost. Since we know that the left hand side of the addition
 			// is always the variable we are updating, the cause of the error must always be in the value
 			// on the right hand side
-			throw new UnexpectedType(oldValue.getType(), rhsValue.getType(), this.__getEval().getCurrentAST());
+			throw new UnexpectedType(oldValue.getStaticType(), rhsValue.getStaticType(), this.__getEval().getCurrentAST());
 		}
 		
 		switch(this.__getOperator()){
@@ -147,7 +156,7 @@ public class AssignableEvaluator {
 	
 	public Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
 		if (oldValue != null){
-			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(rhsValue.getType()), oldValue, this.__getEval());
+			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(rhsValue.getStaticType()), oldValue, this.__getEval());
 			return this.newResult(res, rhsValue);
 		}
 		switch(this.__getOperator()){
@@ -160,7 +169,7 @@ public class AssignableEvaluator {
 	}
 	
 	public Result<IValue> recur(Assignable x, Result<IValue> result) {
-		return x.getReceiver().assignment(new org.rascalmpl.interpreter.AssignableEvaluator(this.__getEnv(), null, result, this.__getEval()));
+		return x.getReceiver().assignment(new AssignableEvaluator(this.__getEnv(), null, result, this.__getEval()));
 	}
 	
 	public AbstractAST getCurrentAST() {
@@ -188,7 +197,7 @@ public class AssignableEvaluator {
 	}
 
 	public void runTests(IRascalMonitor monitor) {
-		this.__getEval().runTests(monitor);
+		this.__getEval().runTests(monitor, Optional.empty());
 	}
 
 	public void setCurrentEnvt(Environment environment) {

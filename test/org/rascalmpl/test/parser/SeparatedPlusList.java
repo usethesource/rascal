@@ -26,9 +26,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 /*
 S ::= sep(A, b)+
 A ::= a
@@ -40,7 +41,7 @@ public class SeparatedPlusList extends SGTDBF<IConstructor, ITree, ISourceLocati
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_b = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("b"));
-	private final static IConstructor SYMBOL_SEP_PLUS_LIST_A = VF.constructor(RascalValueFactory.Symbol_IterSepX, SYMBOL_A, VF.list(SYMBOL_b));
+	private final static IConstructor SYMBOL_SEP_PLUS_LIST_A = VF.constructor(RascalValueFactory.Symbol_IterSeps, SYMBOL_A, VF.list(SYMBOL_b));
 	private final static IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
 	private final static IConstructor SYMBOL_char_b = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(98))));

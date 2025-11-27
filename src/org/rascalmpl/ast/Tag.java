@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Tag extends AbstractAST {
   public Tag(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,21 +31,21 @@ public abstract class Tag extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasContents() {
     return false;
   }
 
   public org.rascalmpl.ast.TagString getContents() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -114,7 +115,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 883 * name.hashCode() + 743 * contents.hashCode() ; 
+      return 431 + 67 * name.hashCode() + 19 * contents.hashCode() ; 
     } 
   
     
@@ -197,7 +198,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 607 * name.hashCode() ; 
+      return 181 + 599 * name.hashCode() ; 
     } 
   
     
@@ -281,7 +282,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 727 + 883 * name.hashCode() + 617 * expression.hashCode() ; 
+      return 101 + 421 * name.hashCode() + 277 * expression.hashCode() ; 
     } 
   
     

@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class KeywordFormals extends AbstractAST {
   public KeywordFormals(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormalList() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOptionalComma() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalComma getOptionalComma() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

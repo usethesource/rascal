@@ -1,16 +1,12 @@
-@doc{
-  This module implements the semantics of the ... and :cons notations in Rascal grammars.
+@synopsis{This module implements the semantics of the ... and :cons notations in Rascal grammars.
   
   To give the proper semantics to priorities, this must be run before the priority relation
-  is expanded.
-}
+  is expanded.}
 module lang::rascal::grammar::definition::References
 
 extend Grammar;
 extend ParseTree;
-import Node;
 import lang::rascal::grammar::definition::Symbols;
-import IO;
 
 Grammar references(Grammar g) 
   = visit (g) {

@@ -22,10 +22,10 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INode;
@@ -121,49 +121,55 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
 		if (that.getValue().getElementType().isBottom()) {
-			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
+			return makeResult(getTypeFactory().setType(this.getStaticType()), that.getValue().insert(this.getValue()), ctx);
 		}
 		return super.addRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
-		if(that.getType().getElementType().isBottom())
-			return makeResult(that.getType(), that.getValue(), ctx);
+		if(that.getStaticType().getElementType().isBottom())
+			return makeResult(that.getStaticType(), that.getValue(), ctx);
 		return super.subtractRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		if (that.getValue().getElementType().isBottom()) {
-			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
+			return makeResult(getTypeFactory().listType(this.getStaticType()), that.getValue().append(this.getValue()), ctx);
 		}
 		return super.addListRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
-		if(that.getType().getElementType().isBottom())
-			return makeResult(that.getType(), that.getValue(), ctx);
+		if(that.getStaticType().getElementType().isBottom())
+			return makeResult(that.getStaticType(), that.getValue(), ctx);
 		return super.subtractListRelation(that);
 	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
+	    // TODO: simulating annotations still here
+	    Type annoType;
+	    
+	    if (RascalValueFactory.isLegacySourceLocationAnnotation(getStaticType(), annoName)) {
+            annoName = RascalValueFactory.Location;
+            annoType = getTypeFactory().sourceLocationType();
+        }
+	    else {
+	        annoType = env.getKeywordParameterTypes(getStaticType()).get(annoName);
+	    }
 
-		if (getType() != getTypeFactory().nodeType()) {
-			if (getType() != getTypeFactory().nodeType() && annoType == null) {
-				throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
-			}
-			if (!anno.getType().isSubtypeOf(annoType)){
-				throw new UnexpectedType(annoType, anno.getType(), ctx.getCurrentAST());
+		if (getStaticType() != getTypeFactory().nodeType()) {
+			if (!anno.getStaticType().isSubtypeOf(annoType)) {
+				throw new UnexpectedType(annoType, anno.getStaticType(), ctx.getCurrentAST());
 			}
 		}
 
-		IValue annotatedBase = ((INode)getValue()).asAnnotatable().setAnnotation(annoName, anno.getValue());
+		IValue annotatedBase = ((INode)getValue()).asWithKeywordParameters().setParameter(annoName, anno.getValue());
 
-		return makeResult(getType(), annotatedBase, ctx);
+		return makeResult(getStaticType(), annotatedBase, ctx);
 	}
 
 	
@@ -191,38 +197,25 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	protected Result<IBool> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
-		return bool(a.isEqual(b), ctx);
+
+		return bool(a.equals(b), ctx);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
-		return bool((!a.isEqual(b)), ctx);
+		return bool((!a.equals(b)), ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private int getInt(Result<?> x){
 		Result<IValue> key = (Result<IValue>) x;
-		if (!key.getType().isInteger()) {
-			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isInteger()) {
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		return ((IInteger)key.getValue()).intValue();
 	}

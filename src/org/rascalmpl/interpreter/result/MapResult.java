@@ -21,12 +21,13 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.rascalmpl.ast.Field;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
@@ -53,42 +54,40 @@ public class MapResult extends ElementResult<IMap> {
 	@Override 
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
 		return result.subtractMap(this);
-		
 	}
 	
-
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
 		return result.intersectMap(this);
 	}
-	
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		}
+		
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!getType().getKeyType().comparable(key.getType())) {
-			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
+		if (!getStaticType().getKeyType().comparable(key.getStaticType())) {
+			throw new UnexpectedType(getStaticType().getKeyType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
 		if (v == null){
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType().getValueType(), v, ctx);
+		return makeResult(getStaticType().getValueType(), v, ctx);
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!getType().getKeyType().comparable(key.getType())) {
-			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
+		if (!getStaticType().getKeyType().comparable(key.getStaticType())) {
+			throw new UnexpectedType(getStaticType().getKeyType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
 		if (v == null){
@@ -131,8 +130,8 @@ public class MapResult extends ElementResult<IMap> {
 			}
 			else if (type.getValueLabel().equals(name)) {
 				// interesting operation, sets the image of all keys to one default
-				if (!repl.getType().isSubtypeOf(type.getValueType())) {
-					throw new UnexpectedType(type.getValueType(), repl.getType(), ctx.getCurrentAST());
+				if (!repl.getStaticType().isSubtypeOf(type.getValueType())) {
+					throw new UnexpectedType(type.getValueType(), repl.getStaticType(), ctx.getCurrentAST());
 				}
 
 				IMapWriter w = getValueFactory().mapWriter();
@@ -197,7 +196,7 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected <U extends IValue> Result<U> addMap(MapResult m) {
 		// Note the reverse
-		return makeResult(getType().lub(m.getType()), m.value.join(value), ctx);
+		return makeResult(getStaticType().lub(m.getStaticType()), m.value.join(value), ctx);
 	}
 	
 	@Override
@@ -208,13 +207,13 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected <U extends IValue> Result<U> subtractMap(MapResult m) {
 		// Note the reverse
-		return makeResult(m.getType(), m.getValue().remove(getValue()), ctx);
+		return makeResult(m.getStaticType(), m.getValue().remove(getValue()), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> intersectMap(MapResult m) {
 		// Note the reverse
-		return makeResult(m.getType(), m.getValue().common(getValue()), ctx);
+		return makeResult(m.getStaticType(), m.getValue().common(getValue()), ctx);
 	}
 
 	
@@ -231,13 +230,13 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected Result<IBool> lessThanMap(MapResult that) {
 		// note reversed args: we need that < this
-		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()), ctx);
+		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().equals(getValue()), ctx);
 	}
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
 	  boolean subMap = that.getValue().isSubMap(getValue());
-	  boolean equals = that.getValue().isEqual(getValue());
+	  boolean equals = that.getValue().equals(getValue());
 	  return new LessThanOrEqualResult(subMap && !equals, equals, ctx);
 	}
 
@@ -264,8 +263,8 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	public <U extends IValue> Result<U> composeMap(MapResult left) {
-		if (left.getType().getValueType().comparable(getType().getKeyType())) {		
-			Type mapType = getTypeFactory().mapType(left.getType().getKeyType(), getType().getValueType());
+		if (left.getStaticType().getValueType().comparable(getStaticType().getKeyType())) {		
+			Type mapType = getTypeFactory().mapType(left.getStaticType().getKeyType(), getStaticType().getValueType());
 			return ResultFactory.makeResult(mapType, left.getValue().compose(getValue()), ctx);
 		}
 		
@@ -290,7 +289,7 @@ public class MapResult extends ElementResult<IMap> {
 	public Result<IValue> fieldSelect(Field[] selectedFields) {
 		int nFields = selectedFields.length;
 		int fieldIndices[] = new int[nFields];
-		Type baseType = this.getType();
+		Type baseType = this.getStaticType();
 		
 		for (int i = 0; i < nFields; i++) {
 			Field f = selectedFields[i];
@@ -309,7 +308,7 @@ public class MapResult extends ElementResult<IMap> {
 			}
 
 			if (fieldIndices[i] < 0 || fieldIndices[i] > 1) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 								ctx.getCurrentAST(), ctx.getStackTrace());
 			}

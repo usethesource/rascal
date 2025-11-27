@@ -11,7 +11,6 @@ module lang::json::ast::Implode
 import lang::json::\syntax::JSON;
 import lang::json::ast::JSON;
 import String;
-import ParseTree;
 
 private str removeEnds(str s) {
 	return substring(substring(s,0,size(s)-1),1);

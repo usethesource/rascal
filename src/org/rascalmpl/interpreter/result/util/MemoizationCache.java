@@ -19,7 +19,6 @@ public class MemoizationCache<TResult> {
 	private static final int PRIME4 = 668265263;
 	private static final int PRIME5 = 0x165667b1;
 	
-    @SuppressWarnings("ConstantOverflow")
 	private static int calculateHash(IValue[] params, Map<String, IValue> keyArgs) {
 		//xxHash
 		int h;
@@ -103,11 +102,22 @@ public class MemoizationCache<TResult> {
 			return storedHash;
 		}
 		
-		@Override
+        @Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
 			}
+			// yes, this reads a bit weird. But this is right
+			// we use a different class for lookup (LookupKey)
+			// that doesn't incur the runtime penalty of creating all kinds of
+			// SoftReferences. Since this code is in the hot path of the call
+			// overhead of the evaluator, it's worth it.
+			// The reason is not comparing to it's own class is that the
+			// store method should only be called for cases where we know
+			// the entry is not in the map yet. So to keep this code small,
+			// we don't include a whole bunch of code to handle a case of something 
+			// that should never happen (except in case of hash collision, and then
+			// a false is the right answer)
 			if (obj instanceof LookupKey) {
 				return ((LookupKey)obj).equals(this);
 			}
@@ -151,7 +161,7 @@ public class MemoizationCache<TResult> {
 					IValue op = (IValue)other.params[i].get();
 					if (tp == null || op == null) 
 						return false; 
-					if (!tp.isEqual(op))
+					if (!tp.equals(op))
 						return false;
 				}
 				
@@ -163,7 +173,7 @@ public class MemoizationCache<TResult> {
 						IValue op = other.keyArgs.get(kv.getKey()).get();
 						if (tp == null || op == null) 
 							return false; 
-						if (!tp.isEqual(op))
+						if (!tp.equals(op))
 							return false;
 					}
 				}
@@ -215,10 +225,8 @@ public class MemoizationCache<TResult> {
 			Reference cleared = null;
 			do {
 				cleared = queue.poll();
-				if (cleared != null) {
-					if (cleared instanceof KeySoftReference<?>) {
-						toCleanup.add(new CacheKeyWrapper(((KeySoftReference<?>)cleared).key));
-					}
+				if (cleared != null && cleared instanceof KeySoftReference<?>) {
+					toCleanup.add(new CacheKeyWrapper(((KeySoftReference<?>)cleared).key));
 				}
 			}
 			while (cleared != null);
@@ -256,9 +264,10 @@ public class MemoizationCache<TResult> {
 	/**
 	 * This method assumes that the getStoredResult is first called to assure there was no result already there beforehand.
 	 */
-	public void storeResult(IValue[] params, Map<String, IValue> keyArgs, TResult result) {
+	public TResult storeResult(IValue[] params, Map<String, IValue> keyArgs, TResult result) {
 		cleanupCache();
 		CacheKey newKey = new CacheKey(params, keyArgs, queue);
 		cache.put(newKey, new KeySoftReference<TResult>(result, newKey, queue));
+		return result;
 	}
 }

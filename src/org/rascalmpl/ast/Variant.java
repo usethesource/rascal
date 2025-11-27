@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Variant extends AbstractAST {
   public Variant(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,21 +31,21 @@ public abstract class Variant extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasKeywordArguments() {
     return false;
   }
 
   public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -126,7 +127,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 59 * name.hashCode() + 823 * arguments.hashCode() + 139 * keywordArguments.hashCode() ; 
+      return 401 + 787 * name.hashCode() + 239 * arguments.hashCode() + 997 * keywordArguments.hashCode() ; 
     } 
   
     

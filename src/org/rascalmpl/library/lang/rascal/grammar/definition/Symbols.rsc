@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@bootstrapParser
 module lang::rascal::grammar::definition::Symbols
 
 import lang::rascal::grammar::definition::Literals;
@@ -12,7 +13,6 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
-import IO;
 
 
 default Symbol striprec(Symbol s_ori) = visit(s_ori) { 

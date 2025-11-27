@@ -22,18 +22,20 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -51,19 +53,22 @@ public class TestFramework {
 	
 	private final static PrintWriter stderr;
 	private final static PrintWriter stdout;
+
+	private final static String ROOT_TEST_ENVIRONMENT = "___test___";
 	
 	static{
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___test___", heap));
-		
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
+		var projectLoc = RascalJUnitTestRunner.inferProjectRootFromClass(TestFramework.class);
+		if (projectLoc == null) {
+			projectLoc = URIUtil.rootLocation("cwd");
+		}
+		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_ENVIRONMENT);
+
+		heap = evaluator.getHeap();
+		root = heap.getModule(ROOT_TEST_ENVIRONMENT);
+	
+		stdout = evaluator.getOutPrinter();
+		stderr = evaluator.getErrorPrinter();
+
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");
@@ -85,14 +90,12 @@ public class TestFramework {
 
 		for (ISourceLocation mod : generatedModules) {
 		    try {
-                URIResolverRegistry.getInstance().remove(mod);
+                URIResolverRegistry.getInstance().remove(mod, true);
             }
             catch (IOException e) {
             }
 		}
-		generatedModules.clear();
-		
-		
+		generatedModules.clear();	
 		evaluator.getAccumulators().clear();
 	}
 	
@@ -112,7 +115,7 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-			return evaluator.runTests(evaluator.getMonitor());
+			return evaluator.runTests(evaluator.getMonitor(), Optional.empty());
 		}
 		finally {
 			stderr.flush();
@@ -134,14 +137,12 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-
 		}
 		catch (StaticError e) {
 			throw e;
 		}
 		catch (Exception e) {
 			System.err.println("Unhandled exception while preparing test: " + e);
-			e.printStackTrace();
 			throw new AssertionError(e.getMessage());
 		}
 		return this;
@@ -165,7 +166,7 @@ public class TestFramework {
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		reset();
         try {
-            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("test-modules", null, "/" + name.replace("::", "/") + ".rsc");
+            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("memory", "test-modules", "/" + name.replace("::", "/") + ".rsc");
             generatedModules.add(moduleLoc);
             try (OutputStream target = URIResolverRegistry.getInstance().getOutputStream(moduleLoc, false)) {
                 target.write(module.getBytes(StandardCharsets.UTF_8));
@@ -185,7 +186,7 @@ public class TestFramework {
 	private boolean execute(String command){
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation("stdin"));
 
-		if (result.getType().isBottom()) {
+		if (result.getStaticType().isBottom()) {
 			return true;
 			
 		}
@@ -193,7 +194,7 @@ public class TestFramework {
 			return false;
 		}
 		
-		if (result.getType() == TypeFactory.getInstance().boolType()) {
+		if (result.getStaticType() == TypeFactory.getInstance().boolType()) {
 			return ((IBool) result.getValue()).getValue();
 		}
 		

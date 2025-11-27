@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class UserType extends AbstractAST {
   public UserType(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class UserType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -97,7 +98,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 373 * name.hashCode() ; 
+      return 263 + 463 * name.hashCode() ; 
     } 
   
     
@@ -183,7 +184,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 571 * name.hashCode() + 467 * parameters.hashCode() ; 
+      return 223 + 139 * name.hashCode() + 347 * parameters.hashCode() ; 
     } 
   
     

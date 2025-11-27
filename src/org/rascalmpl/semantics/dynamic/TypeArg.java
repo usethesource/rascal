@@ -30,8 +30,8 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return this.getType().typeOf(__eval, instantiateTypeParameters, eval);
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getType().typeOf(__eval, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -44,8 +44,8 @@ public abstract class TypeArg extends org.rascalmpl.ast.TypeArg {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return this.getType().typeOf(__eval, instantiateTypeParameters, eval);
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getType().typeOf(__eval, eval, instantiateTypeParameters);
 		}
 
 	}

@@ -14,6 +14,9 @@
   *******************************************************************************/ 
  
 import analysis::graphs::Graph;
+import List;
+import Set;
+import Relation;
 
 /*
               1 -----> 3
@@ -145,18 +148,18 @@ public Graph[int] G11 = { <0,1>, <1,2>, <2,3>, <2,4>, <3,0>, <4,2> };
 
 // bottom
   
-test bool bottom0() = bottom({}) == {};
+test bool bottom1() = bottom({}) == {};
 test bool bottom2() = bottom({<1,2>, <1,3>, <2,4>, <3,4>}) == {4};
-test bool bottom1() = bottom(G1) == {4};
-test bool bottom2() = bottom(G2) == {};
-test bool bottom3() = bottom(G3) == {};
-test bool bottom4() = bottom(G4) == {5,6};
-test bool bottom5() = bottom(G5) == {2,9,10};
-test bool bottom6() = bottom(G6) == {};
-test bool bottom7() = bottom(G7) == {4};
-test bool bottom8() = bottom(G8) == {3};
-test bool bottom9() = bottom(G9) == {5,6};
-test bool bottom10() = bottom(G10) == {};
+test bool bottom3() = bottom(G1) == {4};
+test bool bottom4() = bottom(G2) == {};
+test bool bottom5() = bottom(G3) == {};
+test bool bottom6() = bottom(G4) == {5,6};
+test bool bottom7() = bottom(G5) == {2,9,10};
+test bool bottom8() = bottom(G6) == {};
+test bool bottom9() = bottom(G7) == {4};
+test bool bottom10() = bottom(G8) == {3};
+test bool bottom11() = bottom(G9) == {5,6};
+test bool bottom12() = bottom(G10) == {};
 
 // TODO: connectedComponents
 
@@ -174,6 +177,28 @@ test bool scc8() = stronglyConnectedComponents(G8) == {{0}, {1}, {2}, {3}};
 test bool scc9() = stronglyConnectedComponents(G9) == {{3}, {4}, {5}, {6}, {0, 1, 2}};
 test bool scc10() = stronglyConnectedComponents(G10) == {{0,1,2,3}, {4,5,6}, {7}, {8,9}};
 test bool scc11() = stronglyConnectedComponents(G11) == {{0, 1, 2, 3, 4}};
+
+test bool sccPreservesElements(Graph[int] G) {
+    components = stronglyConnectedComponents(G);
+    return {*comp | comp <- components} == carrier(G);
+}
+
+test bool sccDisjointComponents(Graph[int] G) {
+    components = stronglyConnectedComponents(G);
+    return isEmpty(G) || size(components) <= 1 || all(set[int] comp1 <- components, set[int] comp2 <- components, ((comp1 == comp2) ? true : isEmpty(comp1 & comp2)));
+}
+
+// stronglyConnectedComponentsAndTopSort
+
+test bool sccNoDuplicatesInOrder(Graph[int] G){
+    <components, ordered> = stronglyConnectedComponentsAndTopSort(G);
+    return size(ordered) == size(toSet(ordered));
+}
+
+test bool sccOrderEqualsComponents(Graph[int] G){
+    <components, ordered> = stronglyConnectedComponentsAndTopSort(G);
+    return {*comp | comp <- components} == toSet(ordered);
+}
 
 // order
 
@@ -210,10 +235,10 @@ test bool reachR5() = reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {1,2,4}) =={2, 4
 // reachX
   
 test bool reachX1() = reachX({}, {}, {}) == {};
-test bool reachX() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={2, 3, 4};
-test bool reachX2() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2}) =={3, 4};
-test bool reachX() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2,3}) =={};
-test bool reachX3() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {4}) =={2, 3};
+test bool reachX2() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={2, 3, 4};
+test bool reachX3() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2}) =={3, 4};
+test bool reachX4() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2,3}) =={};
+test bool reachX5() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {4}) =={2, 3};
   	
 // reach
   
@@ -239,13 +264,13 @@ test bool successors5() = successors(G3, 2) == {3,4};
   
 test bool top1() = top({}) == {};
 test bool top2() = top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};
-test bool top1() = top(G1) == {1};
-test bool top2() = top(G2) == {1};
-test bool top3() = top(G3) == {1};
-test bool top4() = top(G4) == {1};
-test bool top5() = top(G5) == {5,7,3};
-test bool top6() = top(G6) == {0};
-test bool top7() = top(G7) == {};
-test bool top8() = top(G8) == {0};
-test bool top9() = top(G9) == {};
-test bool top10() = top(G10) == {};
+test bool top3() = top(G1) == {1};
+test bool top4() = top(G2) == {1};
+test bool top5() = top(G3) == {1};
+test bool top6() = top(G4) == {1};
+test bool top7() = top(G5) == {5,7,3};
+test bool top8() = top(G6) == {0};
+test bool top9() = top(G7) == {};
+test bool top10() = top(G8) == {0};
+test bool top11() = top(G9) == {};
+test bool top12() = top(G10) == {};

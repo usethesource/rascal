@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class TypeArg extends AbstractAST {
   public TypeArg(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class TypeArg extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -97,7 +98,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 397 * type.hashCode() ; 
+      return 59 + 823 * type.hashCode() ; 
     } 
   
     
@@ -181,7 +182,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 977 * type.hashCode() + 173 * name.hashCode() ; 
+      return 139 + 293 * type.hashCode() + 773 * name.hashCode() ; 
     } 
   
     

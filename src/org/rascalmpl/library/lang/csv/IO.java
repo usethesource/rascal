@@ -2,7 +2,6 @@ package org.rascalmpl.library.lang.csv;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -12,20 +11,17 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.StackTrace;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -59,34 +55,26 @@ public class IO {
     /*
      * Read a CSV file
      */
-    public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
-        return read(null, loc, header, separator, encoding, printInferredType, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+    public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return read(null, loc, header, separator, encoding);
     }
 
-    public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+    public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return read(result, loc, header, separator, encoding);
     }
 
-    /*
-     * Calculate the type of a CSV file, returned as the string 
-     */
-    public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return computeType(loc, header, separator, encoding, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
+    public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return computeType(loc, header, separator, encoding, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), new TypeStore(), values.mapWriter().done()));
     }
 
-    /*
-     * Write a CSV file.
-     */
-    public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        writeCSV(rel, loc, header, separator, encoding, ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T")),  ctx::getCurrentAST, ctx::getStackTrace);
+    public void writeCSV(IValue schema, IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        writeCSV(rel, loc, header, separator, encoding, tr.valueToType((IConstructor)schema, new TypeStore()));
     }
 
-    
-    
     //////
 
-    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
-        CSVReader reader = new CSVReader(header, separator, printInferredType, stdOut, currentAST, stackTrace);
+    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        CSVReader reader = new CSVReader(header, separator);
 
         Type resultType = types.valueType();
         TypeStore store = new TypeStore();
@@ -106,30 +94,23 @@ public class IO {
             }
         }
         catch (IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
 
-    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace, Function<IValue, IValue> valueToTypeConverter) {
-        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding, values.bool(true), stdOut, currentAST, stackTrace)) ;// ;
+    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, Function<IValue, IValue> valueToTypeConverter) {
+        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding));
     }
 
     protected class CSVReader {
         private final StandardTextReader pdbReader;
         private final int separator;      // The separator to be used between fields
         private final boolean header;     // Does the file start with a line defining field names?
-        private final boolean printInferredType;
-        private final PrintWriter stdOut;
-        private final Supplier<AbstractAST> currentAST;
-        private final Supplier<StackTrace> currentRascalStackTrace;
-        public CSVReader(IBool header, IString separator, IBool printInferredType, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> currentRascalStackTrace) {
-            this.stdOut = stdOut;
-            this.currentAST = currentAST;
-            this.currentRascalStackTrace = currentRascalStackTrace;
+
+        public CSVReader(IBool header, IString separator) {
             this.separator = separator == null ? ',' : separator.charAt(0);
             this.header = header == null ? true : header.getValue();
-            this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
             this.pdbReader = new StandardTextReader();
         }
 
@@ -156,7 +137,7 @@ public class IO {
                 }
             }
             if (recordIndex != currentRecord.length) {
-                throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, currentAST.get(), currentRascalStackTrace.get());
+                throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, null, null);
             }
         }
 
@@ -216,13 +197,8 @@ public class IO {
                 }
             }
             Type tupleType = types.tupleType(currentTypes, labels);
-            Type resultType = types.setType(tupleType);
-            if (printInferredType) {
-                stdOut.println("readCSV inferred the relation type: " + resultType);
-                stdOut.flush();
-            }
 
-            IWriter result = values.setWriter();
+            IWriter<ISet> result = values.setWriter();
             for (IValue[] rec : records) {
                 result.insert(createTuple(tupleType, rec));
             }
@@ -243,7 +219,7 @@ public class IO {
 
         private IValue readAndBuild(Reader stream, Type actualType, TypeStore store) throws IOException {
             FieldReader reader = new FieldReader(stream, separator);
-            IWriter result = actualType.isListRelation() ? values.listWriter() : values.setWriter();
+            IWriter<?> result = actualType.isListRelation() ? values.listWriter() : values.setWriter();
 
             boolean first = header;
             Type tupleType = actualType.getElementType();
@@ -273,7 +249,6 @@ public class IO {
         }
 
         private void parseRecordFields(final String[] fields, final Type[] expectedTypes, TypeStore store, IValue[] result, boolean replaceEmpty) throws IOException  {
-            Prelude prelude = new Prelude(values);
             for (int i=0; i < fields.length; i++) {
                 final String field = fields[i];
                 final Type currentType = expectedTypes[i];
@@ -299,7 +274,7 @@ public class IO {
                             return values.integer(field);
                         }
                         catch (NumberFormatException nfe) {
-                            throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(), currentAST.get(), currentRascalStackTrace.get(), "Invalid int \"" + field + "\" for requested field " + currentType);
+                            throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(), null, null, "Invalid int \"" + field + "\" for requested field " + currentType);
                         }
                     }
                     @Override
@@ -308,7 +283,7 @@ public class IO {
                             return values.real(field);
                         }
                         catch (NumberFormatException nfe) {
-                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, null, null);
                         }
                     }
                     @Override
@@ -319,7 +294,7 @@ public class IO {
                         if (field.equalsIgnoreCase("false")) {
                             return values.bool(false);
                         }
-                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid bool \"" + field + "\" for requested field " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid bool \"" + field + "\" for requested field " + currentType, null, null);
                     }
 
                 });
@@ -334,7 +309,7 @@ public class IO {
                         }
                     }
                     catch (UnexpectedTypeException ute) {
-                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), currentAST.get(), currentRascalStackTrace.get());
+                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), null, null);
                     }
                     catch (FactParseError | NumberFormatException ex) {
                         if (currentType.isTop()) {
@@ -344,7 +319,7 @@ public class IO {
                                 result[i] = values.bool(true);
                             }
                             else if (field.equalsIgnoreCase("false")) {
-                                result[i] = values.bool(true);
+                                result[i] = values.bool(false);
                             }
                             else {
                                 // it is an actual string
@@ -355,14 +330,14 @@ public class IO {
                             try {
                                 // lets be a bit more flexible than rascal's string reader is.
                                 // 2012-06-24T00:59:56Z
-                                result[i] = prelude.parseDateTime(values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+                                result[i] = Prelude.parseDateTime(values, values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ssX"));
                             }
                             catch (Throwable th) {
-                                throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", currentAST.get(), currentRascalStackTrace.get());
+                                throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", null, null);
                             }
                         }
                         else {
-                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, null, null);
                         }
                     }
                     finally {
@@ -388,7 +363,7 @@ public class IO {
                 }
                 @Override
                 public IValue visitList(Type type) throws RuntimeException {
-                    return values.list(type.getElementType());
+                    return values.list();
                 }
                 @Override
                 public IValue visitMap(Type type) throws RuntimeException {
@@ -408,11 +383,11 @@ public class IO {
                 }
                 @Override
                 public IValue visitSet(Type type) throws RuntimeException {
-                    return values.set(type.getElementType());
+                    return values.set();
                 }
                 @Override
                 public IValue visitSourceLocation(Type type) throws RuntimeException {
-                    return values.sourceLocation(URIUtil.invalidURI());
+                    return URIUtil.unknownLocation();
                 }
                 @Override
                 public IValue visitString(Type type) throws RuntimeException {
@@ -522,62 +497,50 @@ public class IO {
         }
     }
 
-
-
-    protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
+    protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType) {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
-        Writer out = null;
 
-        if(!paramType.isRelation() && !paramType.isListRelation()){
-            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, currentAST.get(), stackTrace.get());
+        if(!rel.getType().isRelation() && !rel.getType().isListRelation() || !(rel instanceof IList || rel instanceof ISet)){
+            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, null, null);
         }
 
-        try{
-            boolean isListRel = rel instanceof IList;
-            out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false);
-            out = new BufferedWriter(out); // performance
-            ISet irel = null;
-            IList lrel = null;
-            if (isListRel) {
-                lrel = (IList)rel;
-            }
-            else {
-                irel = (ISet) rel;
-            }
-
-            int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
-            if(head){
-                for(int i = 0; i < nfields; i++){
-                    if(i > 0)
+        try (Writer out = new BufferedWriter(new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false))){
+            int nfields = rel instanceof IList ? ((IList)rel).asRelation().arity() : ((ISet)rel).asRelation().arity();
+           
+            if (head) {
+                for (int i = 0; i < nfields; i++){
+                    if (i > 0) {
                         out.write(sep);
-                    String label = paramType.getFieldName(i);
-                    if(label == null || label.isEmpty())
-                        label = "field" + i;
-                    out.write(label);
+                    }
+                    
+                    out.write(paramType.hasFieldNames() ? paramType.getFieldName(i) : ("field" + i));
                 }
+                
                 out.write('\n');
             }
 
             Pattern escapingNeeded = Pattern.compile("[\\n\\r\"\\x" + Integer.toHexString(separator.charAt(0)) + "]");
 
-            for(IValue v : (isListRel ? lrel : irel)){
+            for (IValue v : (ICollection<?>) rel) {
                 ITuple tup = (ITuple) v;
                 boolean firstTime = true;
-                for(IValue w : tup){
-                    if(firstTime)
+                for (IValue w : tup){
+                    if (firstTime) {
                         firstTime = false;
-                    else
+                    }
+                    else {
                         out.write(sep);
+                    }
 
                     String s;
-                    if(w.getType().isString()){
+                    if (w.getType().isString()){
                         s = ((IString)w).getValue();
                     }
                     else {
                         s = w.toString();
                     }
-                    if(escapingNeeded.matcher(s).find()){
+                    if (escapingNeeded.matcher(s).find()){
                         s = s.replaceAll("\"", "\"\"");
                         out.write('"');
                         out.write(s);
@@ -589,16 +552,7 @@ public class IO {
             }
         }
         catch(IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
-        }finally{
-            if(out != null){
-                try{
-                    out.flush();
-                    out.close();
-                }catch(IOException ioex){
-                    throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()),  currentAST.get(), stackTrace.get());
-                }
-            }
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

@@ -1,4 +1,5 @@
 /** 
+
  * Copyright (c) 2018, Davy Landman, SWAT.engineering
  * All rights reserved. 
  *  
@@ -18,7 +19,9 @@ import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -42,27 +45,34 @@ public class ConcurrentSoftReferenceObjectPool<T> {
 
 	// We cache the size of the Deque, as the size operation is not constant time on the ConcurrentLinkedDeqeue
 	private final AtomicInteger queueSize = new AtomicInteger(0);
+	private final AtomicInteger live = new AtomicInteger(0);
 	// In case of a heavy load on the object pool, this semaphore signals the cleanup to run more often 
-	private final Semaphore returnSignal = new Semaphore(0);
+	private final Semaphore returnSignal = new Semaphore(0, true);
 
     private final long timeout;
     private final Supplier<T> initializeObject;
     private final int keepAlive;
+    private final int maxAlive;
 	
     /**
      * Construct an thread-safe, non-blocking, object pool with soft references. The objects can also be cleared after a specific time of access.
      * @param timeout access timeout after which objects are cleared (LRU alike property)
      * @param timeoutUnit the unit of the  timeout parameter.
      * @param keepAlive how many objects should always be kept in the pool. These objects will not respect clearing caused by the timeout parameter.
+     * @param maxAlive how many objects should be alive at max. This will turn the it into a blocking pool, that waits until one is available instead of initializing a new object. Set it to Integer.MAX_VALUE to make sure it never blocks
      * @param initializeObject a function that generates a new object for this pool. <strong> Make sure this code is thread-safe! It can be called from different threads, in parallel </strong>
      */
-	public ConcurrentSoftReferenceObjectPool(long timeout, TimeUnit timeoutUnit, int keepAlive, Supplier<T> initializeObject) {
-	    if (timeout <= 0) {
+	public ConcurrentSoftReferenceObjectPool(long timeout, TimeUnit timeoutUnit, int keepAlive, int maxAlive, Supplier<T> initializeObject) {
+        if (timeout <= 0) {
 	        throw new IllegalArgumentException("Timeout should be > 0");
 	    }
 	    if (keepAlive < 0) {
 	        throw new IllegalArgumentException("keepAlive argument should be 0 or higher");
 	    }
+	    if (maxAlive < keepAlive) {
+	        throw new IllegalArgumentException("maxAlive should be not be lower than keepAlive");
+	    }
+	    this.maxAlive = maxAlive;
         this.keepAlive = keepAlive;
         this.timeout = timeoutUnit.toNanos(timeout);
         this.initializeObject = Objects.requireNonNull(initializeObject);
@@ -90,6 +100,20 @@ public class ConcurrentSoftReferenceObjectPool<T> {
 	    }
 	}
 	
+	public void prepare(int howMany) {
+	    // schedular for the initialization tasks, will close after not being used anymore
+	    ThreadPoolExecutor pool = new ThreadPoolExecutor(Math.min(4, howMany), Math.min(4, howMany),
+	            1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+	    pool.allowCoreThreadTimeOut(true); // so we don't have to schedule a shutdown
+	    for (int i = 0; i < Math.min(maxAlive, howMany); i++) {
+	        pool.execute(() -> {
+	            TimestampedSoftReference<T> newEntry = new TimestampedSoftReference<>(initializeObject.get(), cleanedReferences);
+                live.incrementAndGet();
+                returnObject(newEntry);
+	        });
+	    }
+	}
+	
 	public boolean healthCheck() {
 	    for (int i = 0; i < 10; i++) {
 	        // it could be that we are just in the middle of an off by one window, so loop a few times to make sure that's not the case
@@ -101,9 +125,15 @@ public class ConcurrentSoftReferenceObjectPool<T> {
 	}
 
     private void returnObject(TimestampedSoftReference<T> obj) {
-        availableObjects.addFirst(obj);
-        queueSize.incrementAndGet();
-        returnSignal.release();
+        if (queueSize.get() < maxAlive) {
+            // only return it if we don't have more than queueSize alive
+            availableObjects.addFirst(obj);
+            queueSize.incrementAndGet();
+            returnSignal.release();
+        }
+        else {
+            live.decrementAndGet();
+        }
     }
 
 
@@ -116,14 +146,28 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                 return result;
             }
         }
-        // we have to construct a new one, as the queue is empty
-        return new TimestampedSoftReference<>(initializeObject.get(), cleanedReferences);
+        if (live.get() < maxAlive) {
+            // we have to construct a new one, as the queue is empty
+            live.incrementAndGet();
+            return new TimestampedSoftReference<>(initializeObject.get(), cleanedReferences);
+        }
+        else {
+            // we have to wait until a new one is released and try again.
+            try {
+                returnSignal.acquire();
+            }
+            catch (InterruptedException e) {
+                // just pass it along
+                Thread.currentThread().interrupt();
+            }
+            return checkoutObject();
+        }
     }
     
     /**
      * Cleanup the object pool, either because a soft reference was cleared, or because a access timeout occured.
      */
-    private final static class CleanupRunner<T> implements Runnable {
+    private static final class CleanupRunner<T> implements Runnable {
         /**
          * Copy of the actual pool to make sure 
          */
@@ -148,7 +192,6 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                 while (true) {
                     // sleep either the timeout period, or until 100 objects have been returned in that span (could indicate a big load)
                     returnSignal.tryAcquire(100, timeout, TimeUnit.NANOSECONDS);
-                    returnSignal.drainPermits(); // drain the rest
 
                     final ConcurrentSoftReferenceObjectPool<T> target = targetPool.get();
                     if (target == null) {
@@ -163,6 +206,7 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                             // remove from the queue if it was still in it, start at the back, as most likely the oldest get cleared first
                             if (target.availableObjects.removeLastOccurrence(cleared)) {
                                 target.queueSize.decrementAndGet();
+                                target.live.decrementAndGet();
                             }
                         }
                     }
@@ -181,10 +225,12 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                         }
                         last.clear();
                         target.queueSize.decrementAndGet();
+                        target.live.decrementAndGet();
                     }
                 }
             }
             catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }

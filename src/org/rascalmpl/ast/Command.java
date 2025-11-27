@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Command extends AbstractAST {
   public Command(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,35 +31,35 @@ public abstract class Command extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declaration getDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasImported() {
     return false;
   }
 
   public org.rascalmpl.ast.Import getImported() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCommand() {
     return false;
   }
 
   public org.rascalmpl.ast.ShellCommand getCommand() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatement() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

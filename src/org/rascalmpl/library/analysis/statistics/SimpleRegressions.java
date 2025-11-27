@@ -9,7 +9,8 @@ package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.regression.SimpleRegression;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.ITuple;
@@ -27,7 +28,7 @@ public class SimpleRegressions {
 	
 	SimpleRegression make(IList dataValues){
 		if(dataValues.length() <= 2)
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "SimpleRegression data should have more than 2 elements");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "SimpleRegression data should have more than 2 elements");
 		SimpleRegression simple = new SimpleRegression();
 		for(IValue v : dataValues){
 			ITuple t = (ITuple) v;
@@ -43,7 +44,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getIntercept());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -51,7 +52,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getInterceptStdErr());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -59,7 +60,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getMeanSquareError());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 
@@ -67,7 +68,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getR());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -75,7 +76,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getRSquare());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -83,7 +84,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getRegressionSumSquares());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -91,9 +92,9 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSignificance());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -101,7 +102,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSlope());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -109,9 +110,9 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSlopeConfidenceInterval());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -119,9 +120,9 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSlopeConfidenceInterval(alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -130,7 +131,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSlopeStdErr());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -138,7 +139,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSumOfCrossProducts());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -146,7 +147,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getSumSquaredErrors());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -154,7 +155,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getTotalSumSquares());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -162,7 +163,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).getXSumSquares());
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	
@@ -170,7 +171,7 @@ public class SimpleRegressions {
 		try {
 			return values.real(make(dataValues).predict(x.toReal(values.getPrecision()).doubleValue()));
 		} catch(NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Not enough variation in x values");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "Not enough variation in x values");
 		}
 	}
 	

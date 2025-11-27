@@ -17,7 +17,6 @@
 package org.rascalmpl.interpreter.matching;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,21 +31,17 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
-import io.usethesource.vallang.IAnnotatable;
+import org.rascalmpl.interpreter.utils.TreeAsNode;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
@@ -92,11 +87,11 @@ public class NodePattern extends AbstractMatchingResult {
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		}
 
-		if (!subject.getValue().getType().isNode()) {
+		if (!subject.getValue().getType().isSubtypeOf(tf.nodeType())) {
 			return;
 		}
 
-		if (!matchUPTR && subject.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) subject.getValue())) {
+		if (!matchUPTR && RascalType.isNonterminal(subject.getDynamicType()) && TreeAdapter.isAppl((ITree) subject.getValue())) {
 			this.subject = new TreeAsNode((ITree) subject.getValue());
 		}
 		else {
@@ -104,7 +99,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		String sname = this.subject.getName();
-		if(qName != null){
+		if (qName != null){
 			if(!((org.rascalmpl.semantics.dynamic.QualifiedName.Default) qName).lastName().equals(sname)){
 				return;
 			}
@@ -368,97 +363,6 @@ public class NodePattern extends AbstractMatchingResult {
 
 		return res.toString();
 	}
-
-	private class TreeAsNode implements INode {
-		private final String name;
-		private final IList args;
-
-		public TreeAsNode(ITree tree) {
-			this.name = TreeAdapter.getConstructorName(tree);
-			this.args = TreeAdapter.isContextFree(tree) ? TreeAdapter.getASTArgs(tree) : TreeAdapter.getArgs(tree);
-		}
-
-		@Override
-		public Type getType() {
-			return TypeFactory.getInstance().nodeType();
-		}
-
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isEqual(IValue other) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-        public boolean match(IValue other) {
-            throw new UnsupportedOperationException();
-        }
-
-		@Override
-		public IValue get(int i) throws IndexOutOfBoundsException {
-			// TODO: this should deal with regular expressions in the "right" way, such as skipping 
-			// over optionals and alternatives.
-			return args.get(i);
-		}
-
-		@Override
-		public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int arity() {
-			return args.length();
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public Iterable<IValue> getChildren() {
-			return args;
-		}
-
-		@Override
-		public Iterator<IValue> iterator() {
-			return args.iterator();
-		}
-
-		@Override
-		public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
-		IndexOutOfBoundsException {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends INode> asAnnotatable() {
-			throw new IllegalOperationException(
-					"Facade cannot be viewed as annotatable.", getType());
-		}
-
-		@Override
-		public boolean mayHaveKeywordParameters() {
-			return false;
-		}
-
-		@Override
-		public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-			throw new IllegalOperationException(
-					"Facade cannot be viewed as with keyword parameters.", getType());
-		}		
-	}
-
 }
 
 

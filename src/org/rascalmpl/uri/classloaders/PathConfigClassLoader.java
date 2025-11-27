@@ -12,106 +12,15 @@
  */ 
 package org.rascalmpl.uri.classloaders;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIResolverRegistry;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 /**
  * A ClassLoader which finds classes and resources in the
- * classloader location list of a PathConfig. @see IClassloaderLocationResolver
+ * libs location list of a PathConfig. @see IClassloaderLocationResolver
  * for more information on how we transform ISourceLocations to Classloaders. 
  */
-public class PathConfigClassLoader extends ClassLoader {
-    private final List<ClassLoader> path;
-
+public class PathConfigClassLoader extends SourceLocationClassLoader {
     public PathConfigClassLoader(PathConfig pcfg, ClassLoader parent) {
-        super(parent);
-        this.path = initialize(pcfg);
-    }
-    
-    private List<ClassLoader> initialize(PathConfig pcfg) {
-        try {
-            URIResolverRegistry reg = URIResolverRegistry.getInstance();
-            IList locs = pcfg.getClassloaders();
-            List<ClassLoader> result = new ArrayList<>(locs.length());
-
-            // TODO: group URLClassLoaders into a single instance 
-            // to enhance class loading performance
-            for (IValue loc : locs) {
-                // because they all get `this` as the parent, the classloaders will be able to refer to each
-                // other like in normal JVM classpath also works. The order of lookup is defined by the current 
-                // for-loop. 
-                result.add(reg.getClassLoader((ISourceLocation) loc, this));
-            }
-
-            return result;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        for (ClassLoader l : path) {
-            try {
-                return l.loadClass(name);
-            }
-            catch (ClassNotFoundException e) {
-                // this is normal, try next loader
-                continue;
-            }
-        }
-        
-        // is caught by the parent.loadClass(name, resolve) method
-        throw new ClassNotFoundException(name);
-    }
-    
-    @Override
-    public URL getResource(String name) {
-        for (ClassLoader l : path) {
-            URL url = l.getResource(name);
-            
-            if (url != null) {
-                return url;
-            }
-        }
-        
-        return null;
-    }
-
-    @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        List<URL> result = new ArrayList<>(path.size());
-        
-        for (ClassLoader l : path) {
-            Enumeration<URL> e = l.getResources(name);
-            while (e.hasMoreElements()) {
-                result.add(e.nextElement());
-            }
-        }
-        
-        return new Enumeration<URL>() {
-            final Iterator<URL> it = result.iterator();
-            
-            @Override
-            public boolean hasMoreElements() {
-                return it.hasNext();
-            }
-
-            @Override
-            public URL nextElement() {
-                return it.next();
-            }
-        };
+        super(pcfg.getLibsAndTarget(), parent);
     }
 }

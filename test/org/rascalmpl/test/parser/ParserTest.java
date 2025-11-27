@@ -14,6 +14,7 @@ package org.rascalmpl.test.parser;
 import java.io.IOException;
 
 import org.junit.Assert;
+import org.junit.Test;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
@@ -22,40 +23,37 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import junit.framework.TestCase;
-
-public class ParserTest extends TestCase{
-	private final static TypeFactory tf = TypeFactory.getInstance();
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+public class ParserTest {
+	private static final TypeFactory tf = TypeFactory.getInstance();
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	public ParserTest(){
-		super();
-	}
 	
 	public void executeParser(IParserTest parser){
-		try{
+		try {
 			IValue expectedResult = parser.getExpectedResult();
-			if(expectedResult.getType().equals(tf.stringType())){
-				try{
+			if (expectedResult.getType().equals(tf.stringType())){
+				try {
 					parser.executeParser();
 					Assert.fail("Expected a parse error to occur:\n"+expectedResult);
-				}catch(ParseError pe){
+				} 
+				catch (ParseError pe) {
 					IString message = vf.string(pe.getMessage());
-					if(!message.isEqual(expectedResult)){
+					if(!message.equals(expectedResult)){
 						Assert.fail("Expected a parse error to occur:\n"+expectedResult+"\nError was:\n"+message);
 					}
 				}
-			}else{
+			} else {
 				IConstructor result = parser.executeParser();
-				if(!result.isEqual(expectedResult)){
+				if(!result.equals(expectedResult)){
 					Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
 				}
 			}
-		}catch(IOException ioex){
+		} catch(IOException ioex) {
 			// Ignore, never happens.
 		}
 	}
 	
+	@Test
 	public void testBasic(){
 		executeParser(new Simple1());
 		executeParser(new Simple2());
@@ -66,6 +64,7 @@ public class ParserTest extends TestCase{
 		executeParser(new Epsilon());
 	}
 	
+	@Test
 	public void testAmbiguitiesBasic(){
 		executeParser(new Ambiguous1());
 		executeParser(new Ambiguous2());
@@ -78,12 +77,14 @@ public class ParserTest extends TestCase{
 		executeParser(new Ambiguous9());
 	}
 	
+	@Test
 	public void testSplitAndMerge(){
 		executeParser(new SplitAndMerge1());
 		executeParser(new SplitAndMerge2());
 		executeParser(new SplitAndMerge3());
 	}
 	
+	@Test
 	public void testList(){
 		executeParser(new CharPlusList());
 		executeParser(new CharStarList());
@@ -92,32 +93,41 @@ public class ParserTest extends TestCase{
 		executeParser(new NonTerminalStarList());
 	}
 	
+	@Test
 	public void testSeparatedList(){
 		executeParser(new SeparatedPlusList());
 		executeParser(new SeparatedStarList());
+		executeParser(new SharedTripleNullableSeparator());
 	}
 	
+	@Test
 	public void testOptional(){
 		executeParser(new Optional1());
 		executeParser(new Optional2());
 		executeParser(new Optional3());
 	}
 	
+	@Test
 	public void testSequence(){
 		executeParser(new Sequence1());
 		executeParser(new Sequence2());
+		executeParser(new Sequence4());
 	}
 	
+	@Test
 	public void testAlternative(){
 		executeParser(new Alternative1());
+		executeParser(new Alternative2());
 	}
 	
+	@Test
 	public void testAmbiguousList(){
 		executeParser(new AmbiguousNonTerminalPlusList1());
 		executeParser(new AmbiguousNonTerminalPlusList2());
 		executeParser(new AmbiguousNestedPlusList());
 	}
 	
+	@Test
 	public void testRecursion(){
 		executeParser(new RightRecursion());
 		executeParser(new LeftRecursion());
@@ -127,11 +137,13 @@ public class ParserTest extends TestCase{
 		executeParser(new NullableSharing());
 	}
 	
+	@Test
 	public void testAmbiguousRecursion(){
 		executeParser(new AmbiguousRecursive());
 		executeParser(new AmbiguousRecursivePrefixShared());
 	}
 	
+	@Test
 	public void testCycle(){
 		executeParser(new NotAUselessSelfLoop());
 		executeParser(new UselessSelfLoop());
@@ -139,13 +151,30 @@ public class ParserTest extends TestCase{
 		executeParser(new CycleEpsilon());
 	}
 	
+	@Test
 	public void testListCycle(){
 		executeParser(new EpsilonList());
 		executeParser(new AmbiguousEpsilonList());
 		executeParser(new AmbiguousSeparatedEpsilonList());
 	}
 	
+	@Test
 	public void testListSharing(){
 		executeParser(new ListOverlap());
+	}
+
+	@Test
+	public void testDoubleLeftNullable() {
+		executeParser(new DoubleLeftNullable());
+	}
+
+	@Test
+	public void testDoubleRightNullable() {
+		executeParser(new DoubleRightNullableWithPrefixSharing());
+	}
+
+	@Test
+	public void testPrefixSharedExcept() {
+		executeParser(new PrefixSharedExcept());
 	}
 }

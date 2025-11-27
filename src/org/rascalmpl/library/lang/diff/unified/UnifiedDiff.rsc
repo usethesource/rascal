@@ -1,9 +1,9 @@
-@doc{
-.Synopsis
-Syntax definition for Unified Diff format (see http://en.wikipedia.org/wiki/Diff_utility#Unified_format)
-}
+
+@synopsis{Syntax definition for Unified Diff format (see <http://en.wikipedia.org/wiki/Diff_utility#Unified_format>)}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::diff::unified::UnifiedDiff
+
+start syntax DiffFile = Diff;
 
 syntax Diff
   = Header old Header new Chunk* chunks

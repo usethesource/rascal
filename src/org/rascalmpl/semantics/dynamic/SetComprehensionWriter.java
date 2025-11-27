@@ -3,6 +3,8 @@ package org.rascalmpl.semantics.dynamic;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
+
 import io.usethesource.vallang.IValue;
 
 public class SetComprehensionWriter extends ComprehensionWriter {
@@ -20,20 +22,26 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> set = resExpr.getArgument().interpret(this.ev);
-				if (set.getType().isSet() || set.getType().isList()) {
-					elementType1 = elementType1.lub(set.getType().getElementType());
+				if (set.getStaticType().isSet() || set.getStaticType().isList()) {
+					elementType1 = elementType1.lub(set.getStaticType().getElementType());
 					writer.insertAll((Iterable<IValue>)set.getValue());
 				}
 				else {
 					// original code supported slicing on no set?
-					elementType1 = elementType1.lub(set.getType());
+					elementType1 = elementType1.lub(set.getStaticType());
 					writer.insert(set.getValue());
 				}
 			}
 			else {
 				Result<IValue> res = resExpr.interpret(this.ev);
-				elementType1 = elementType1.lub(res.getType());
-				writer.insert(res.getValue());
+				
+				if (res == null || res.getStaticType().isBottom()) {
+                    throw new NonVoidTypeRequired(ev.getCurrentAST());
+                }
+				else {
+				    elementType1 = elementType1.lub(res.getStaticType());
+				    writer.insert(res.getValue());
+				}
 			}
 		}
 	}

@@ -12,74 +12,172 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+
+import org.jline.terminal.Terminal;
+import org.rascalmpl.interpreter.BatchProgressMonitor;
+import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalMonitor {
 	/**
-	 * Used to indicate an unknown amount of work to be done.
-	 */
-	public final int TODO_UNKNOWN = 0;
-	
-	/**
-	 * The standard size of a unit of work. 
-	 */
-	public final int TODO_DEFAULT = 10;
-	
-	/**
-	 * Register a job with a name, a default amount of work contributed to the overall task,
-	 * and an unknown amount of steps to do.
-	 */
-	public void startJob(String name);
-	
-	/**
-	 * Register a job with a name and a total amount of steps to do (this will also be the amount
-	 * of work contributed to the parent job, if any).
-	 */
-	public void startJob(String name, int totalWork);
-
-	/**
 	 * Register a job with a name, the amount this will contribute to the overall task,
 	 * and a total amount of steps to do.
 	 */
-	public void startJob(String name, int workShare, int totalWork);
+	public void jobStart(String name, int workShare, int totalWork);
+	
+	default void jobStart(String name) {
+		jobStart(name, 1, 100);
+	} 
+
+	default void jobStart(String name, int totalWork) {
+		jobStart(name, 1, totalWork);
+	}
+
+	/**
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 */
+	default <T> T job(String name, int totalWork, Supplier<T> block) {
+		boolean result = false;
+		try {
+			jobStart(name, totalWork);
+			return block.get();
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
 	
 	/**
-	 * Log the <bold>start</bold> of an event. 
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 * Also it provides easy access to the name of the current job, such that 
+	 * this "magic" constant does not need to be repeated or stored elsewhere.
 	 */
-	public void event(String name);
-	
+	default <T> T job(String name, int totalWork, Function<String, T> block) {
+		boolean result = false;
+		try {
+			jobStart(name, totalWork);
+			return block.apply(name);
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
+	/**
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 * Also it provides easy access to the name of the current job, such that 
+	 * this "magic" constant does not need to be repeated or stored elsewhere.
+	 * @param <T>        return type for the entire job
+	 * @param name       name of the job to identify the progress bar
+	 * @param totalWork  total work to be done
+	 * @param block      lambda to execute. It will get the name as a parameter 
+	 *                   and a `step` function to call with the current message and
+	 *                   the amount of work that has been done.
+	 * 
+	 * Example:
+	 * ```
+	 * job("loading", 100, (n, step) -> {
+	 *   for (int i = 0; i < 100; i+= 10) 
+	 *     doSomething()
+	 *     step("did " + i, 10);
+	 *   }
+	 * });
+	 * 
+	 * @return whatever the block returns is returned by the job
+	 */
+	default <T> T job(String name, int totalWork, BiFunction<String, BiConsumer<String, Integer>, T> block) {
+		boolean result = false;
+		try {
+			jobStart(name, totalWork);
+			return block.apply(name, (msg, worked) -> jobStep(name, msg, worked));
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
 	/**
 	 * Log the start of an event with the amount of work that will be done when it's finished.
 	 * An event is finished when the next event is logged, or when endJob() is called.
+	 * 
+	 * jobSteps should be _ignored_ for jobs that have not started. This helps with modularizing
+	 * the monitoring of steps acros complex reusable pieces algorithms. If the context registers
+	 * a job, progress is monitored, otherwise it is not shown. 
 	 */
-	public void event(String name, int inc);
+	public void jobStep(String name, String message, int workShare);
 	
-	/**
-	 * Log the start of an event with the amount of work that will be done when it's finished.
-	 * An event is finished when the next event is logged, or when endJob() is called.
-	 */
-	public void event(int inc);
+	default void jobStep(String name, String message) {
+		jobStep(name, message, 1);
+	}
 	
 	/**
 	 * This should always be called once for every startJob, unless an exception is thrown.
 	 * @return The amount of work completed for this job (to help in future estimates)
 	 */
-	public int endJob(boolean succeeded);
+	public int jobEnd(String name, boolean succeeded);
 	
 	/**
+	 * @param label
 	 * @return True if cancellation has been requested for this job
 	 */
-	public boolean isCanceled();
+	public boolean jobIsCanceled(String name);
 	
 	/**
 	 * Set the estimated remaining work for the current (sub)job.
+	 * @param string
 	 * 
 	 * @param work Amount of work remaining to be done, or 0 for unknown.
 	 */
-	public void todo(int work);
+	public void jobTodo(String name, int work);
 	
 	/**
-	 * Inform about a warning
+	 * Remove all active jobs from the monitor
+	 */
+	public void endAllJobs();
+
+	/**
+	 * Inform (about a warning
 	 */
 	public void warning(String message, ISourceLocation src);
+
+	/**
+	 * Convenience method will produce a monitor with ANSI progress bars if not in batch mode,
+	 * and otherwise default to a dumn terminal console progress logger.
+	 * @return
+	 */
+	public static IRascalMonitor buildConsoleMonitor(Terminal term) {
+		return buildConsoleMonitor(term, inBatchMode());
+	}
+
+	public static boolean inBatchMode() {
+		return "true".equals(System.getenv("CI")) 
+		    || System.getProperty("rascal.monitor.batch") != null
+			;
+	}
+
+	public static IRascalMonitor buildConsoleMonitor(Terminal terminal, boolean batchMode) {
+
+		return !batchMode && TerminalProgressBarMonitor.shouldWorkIn(terminal)
+			? new TerminalProgressBarMonitor(terminal)
+			: new BatchProgressMonitor(terminal.writer())
+		;
+	}
+
+	/**
+	 * Convenience method will produce a monitor that eats up all events without logging
+	 * or reporting
+	 */
+	public default IRascalMonitor buildNullMonitor() {
+		return new NullRascalMonitor();
+	}
 }

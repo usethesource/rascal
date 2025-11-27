@@ -1,0 +1,95 @@
+====
+    Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+====
+
+This is a global todo list for the compiler
+
+Issues:
+- empty catch clause not handled by StackValidator
+- TypeUtils::extractScopes: needs more stack space than computed by StackValidator
+- lang::rascal::grammar::definition::Symbols:sym2symbol
+  - The Symbol:: qualifier should be unnneccessary
+  - empty (from Rascal.rsc) can cause trouble.
+x Various type checker tests still fail
+x Various (compiled) rascal tests fail.
+x Change main convention from "value main(list[value] args)" to value "main()"
+
+Still to be implemented:
+x memo functions
+- resources
+x keyword parameters across imports (needs infor from type checker)
+x ignored tests are not even compiled, but keep a count of ignored tests for test reporting
+
+Bootstrapping
+x Compile and test parser generator 
+x Compile and test type checker
+x Compile and test compiler
+x Test compiled compiler
+
+Runtime environment and IDE integration
+- Make info available for RascalShell Rascal IDE:
+  - Preserve @doc per function/module in compiled code
+  - Preserve use/def info per function/module
+x Replace current interpreter-based parser generator used by the compiler by compiled parser generator
+x Detach the execute command from the interpreter and make it stand alone
+- Adapt the debugger to run with compiled code
+x Create a RascalShell for compiled code
+- Replace interpreter by compiler in IDE 
+
+Code improvement
+- TypeUtils and TypeReifier are ready for a rewrite
+- Reuse rascal::grammar::Module for grammar normalization and code refactoring
+- Overall code cleanup.
+- Overal consistency check on naming of primitives in RascalPrimitive and MuPrimitive
+
+Performance improvement
+x Make the compiler truly incremental:
+  x Best done using import graph (as provided by typechecker) 
+x Optimize the case of an overloaded function call with only one remaining alternative.
+x Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that
+  variables are always initialized. (Switched off)
+- Potentially, more constant elimination could be done (e.g. replace size([1,2,3]) by 3)
+x Switch to Ferry's RVM structure
+x Connect Ferry's bytecode generator
+x Optimize serialization of RVMExecutable
+x Finalize the reachability analysis for visit and descent.
+x When compiling patterns: propagate the type of the subject downwards and eliminate subtype checks.
+x Make a Java/muRascal bridge to allow calling muRascal code from Java. This makes it possible
+  to write parts of the Library in Java (e.g. descent and visit)
+
+Potential optimizations
+- (Optionally) implement int using int64 in RascalPrimitives
+x Temporaries in generated code are never reused and this may lead to very large stack frames:
+  reuse them (and unfortunately also reset to undefined; needed to correctly implement variables in patterns)
+x Optimize descandant matching
+- Optimize list matching
+
+Documentation
+x Add comments to all enumeration elements in MuPrimitive
+x Add comments to all enumeration elements in RascalPrimitive
+- Add a global comment to every file
+- Write a global architecture document
+- Write a paper to describe and evaluate the compiler

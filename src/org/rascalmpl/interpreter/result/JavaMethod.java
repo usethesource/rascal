@@ -19,26 +19,30 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.StackTrace;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 
 public class JavaMethod extends NamedFunction {
@@ -46,21 +50,47 @@ public class JavaMethod extends NamedFunction {
 	private final Method method;
 	private final boolean hasReflectiveAccess;
 	private final JavaBridge javaBridge;
+	private final Type formals;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func,isDefault(func), hasTestMod(func.getSignature()), varargs, env, javaBridge);
+		this(eval, 
+			func.getSignature().typeOf(env, eval, false), 
+			func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
+			func, 
+			hasTestMod(func.getSignature()), 
+			isDefault(func), 
+			varargs, 
+			env, 
+			javaBridge
+		);
 	}
 	
 	@Override
 	public Type getFormals() {
-		// get formals is overridden because we can provide labeled parameters for JavaMethods (no pattern matching)
-		FunctionDeclaration func = (FunctionDeclaration) getAst();
-		
+		return this.formals;
+	}
+	
+	/*
+	 *  This one is to be called by cloneInto only, to avoid
+	 *  looking into the environment again for obtaining the type.
+	 *  (cloneInto is called when a moduleEnv is extended, so it
+	 *  might not be finished yet, and hence not have all the
+	 *  require types.
+	 */
+	private JavaMethod(IEvaluator<Result<IValue>> eval, Type staticType, Type dynamicType, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
+		super(func, eval, staticType, dynamicType, getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
+		this.javaBridge = javaBridge;
+		this.hasReflectiveAccess = hasReflectiveAccess(func);
+		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getInput(), eval);
+		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
+		this.formals = calculateFormals(func, staticType);
+	}
+
+	private static Type calculateFormals(FunctionDeclaration func, Type ft) {
 		List<Expression> formals = func.getSignature().getParameters().getFormals().getFormals();
 		int arity = formals.size();
 		Type[] types = new Type[arity];
 		String[] labels = new String[arity];
-		FunctionType ft = getFunctionType();
 		
 		for (int i = 0; i < arity; i++) {
 			types[i] = ft.getFieldType(i);
@@ -70,29 +100,10 @@ public class JavaMethod extends NamedFunction {
 		
 		return TF.tupleType(types, labels);
 	}
-	/*
-	 *  This one is to be called by cloneInto only, to avoid
-	 *  looking into the environment again for obtaining the type.
-	 *  (cloneInto is called when a moduleEnv is extended, so it
-	 *  might not be finished yet, and hence not have all the
-	 *  require types.
-	 */
-	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
-		this.javaBridge = javaBridge;
-		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.instance = javaBridge.getJavaClassInstance(func);
-		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
-	}
-
-	
-	
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
-		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
-		jm.setPublic(isPublic());
-		return jm;
+		return new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
 	}
 	
 	@Override
@@ -108,46 +119,36 @@ public class JavaMethod extends NamedFunction {
 		}
 		return false;
 	}
-	
+
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+	public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
 		
 		if (resultValue !=  null) {
 			return resultValue;
 		}
-		Type actualTypesTuple;
-		Type formals = getFormals();
-
-		
-		Object[] oActuals;
-
 		if (hasVarArgs) {
-			oActuals = computeVarArgsActuals(actuals, formals);
+			actuals = computeVarArgsActuals(actuals, formals);
+			actualStaticTypes = computeVarArgsStaticTypes(actualStaticTypes);
 		}
-		else {
-			oActuals = actuals;
-		}
-		
-		if (hasVarArgs) {
-			actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
-		}
-		else {
-			actualTypesTuple = TF.tupleType(actualTypes);
-		}
-		
-		if (!actualTypesTuple.isSubtypeOf(formals)) {
-			// resolve overloading
+
+		if (actualStaticTypes.length != formals.getArity()) {
 			throw new MatchFailed();
 		}
-		
-		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
+		// check parameters are a subtype
+		for (int i = 0; i < actualStaticTypes.length; i++) {
+			if (!actualStaticTypes[i].isSubtypeOf(formals.getFieldType(i))) {
+				throw new MatchFailed();
+			}
+		}
+
+		Object[] oActuals = addKeywordActuals(actuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
 			oActuals = addCtxActual(oActuals);
 		}
 
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			printStartTrace(actuals);
 		}
 
@@ -157,15 +158,27 @@ public class JavaMethod extends NamedFunction {
 			ctx.pushEnv(getName());
 
 			Environment env = ctx.getCurrentEnvt();
-			bindTypeParameters(actualTypesTuple, formals, env); 
+			Map<Type, Type> renamings = Collections.emptyMap();
+
+			if (formals.isOpen() || anyOpen(actualStaticTypes)) {
+				renamings = fastBindTypeParameters(actualStaticTypes, actuals, env); 
+			}
 			
 			IValue result = invoke(oActuals);
 			
-			Type resultType = getReturnType().instantiate(env.getTypeBindings());
+			Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
+			resultType = unrenameType(renamings, resultType);
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
-			storeMemoizedResult(actuals, keyArgValues, resultValue);
+			resultValue = storeMemoizedResult(actuals, keyArgValues, resultValue);
 			printEndTrace(resultValue.value);
+			
+			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
+			    // type parameterized functions are not allowed to return void,
+			    // so if they do not throw an exception, we now do so automatically
+			    throw new MatchFailed();
+			}
+			
 			return resultValue;
 		}
 		catch (Throwable e) {
@@ -173,13 +186,88 @@ public class JavaMethod extends NamedFunction {
 			throw e;
 		}
 		finally {
-			if (callTracing) {
-				callNesting--;
+		   
+		    
+			if (eval.getCallTracing()) {
+				eval.decCallNesting();
 			}
 			ctx.unwind(old);
 		}
 	}
-	
+
+	private Map<Type, Type> fastBindTypeParameters(Type[] actualStaticTypes, IValue[] actuals,  Environment env) {
+		try {
+			Map<Type, Type> renamings;
+			if (anyOpen(actualStaticTypes)) {
+				// we have to make the environment hygenic now, because the caller scope
+				// may have the same type variable names as the current scope
+				renamings = new HashMap<>();
+				actualStaticTypes = fastRenameType(actualStaticTypes, renamings, env.getLocation());
+			}
+			else {
+ 				renamings = Collections.emptyMap();
+			}
+			
+			try {
+				boolean matched = true;
+				Map<Type, Type> staticBindings = new HashMap<>();
+				// we have to go reverse since we infer from right to left
+				for (int i = actuals.length -1; i >= 0; i--) {
+					matched &= formals.getFieldType(i).match(actualStaticTypes[i], staticBindings);
+				}
+			    if (matched) {
+			        env.storeStaticTypeBindings(staticBindings);
+			    }
+			} catch (FactTypeUseException e) {
+			    // this can happen if static types collide
+			}
+			return renamings;
+		}
+		catch (FactTypeUseException e) {
+			throw new UnexpectedType(formals, TF.tupleType(actualStaticTypes), ast);
+		}
+	}
+
+	private Type[] fastRenameType(Type[] actualStaticTypes, Map<Type, Type> renamings, ISourceLocation uniquePrefix) {
+		var result = new Type[actualStaticTypes.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = renameType(actualStaticTypes[i], renamings, uniquePrefix);
+		}
+		return result;
+	}
+
+
+
+	private boolean anyOpen(Type[] types) {
+		for (var t: types) {
+			if (t.isOpen()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Type[] computeVarArgsStaticTypes(Type[] actualStaticTypes) {
+		int arity = formals.getArity();
+		if (arity == 0) {
+			return actualStaticTypes;
+		}
+		if (arity == actualStaticTypes.length) {
+			var lastType = actualStaticTypes[arity - 1];
+			if (lastType.isList() && lastType.isSubtypeOf(formals.getFieldType(arity - 1))) {
+				// already a list
+				return actualStaticTypes;
+			}
+		}
+		var result = Arrays.copyOf(actualStaticTypes, arity);
+		Type lub = TF.voidType();
+		for (int i = arity - 1; i < actualStaticTypes.length; i++) {
+			lub = lub.lub(actualStaticTypes[i]);
+		}
+		result[arity - 1] = TF.listType(lub);
+		return result;
+	}
+
 	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
 		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);
@@ -239,7 +327,7 @@ public class JavaMethod extends NamedFunction {
 				trace.addAll(th.getTrace());
 				
 				ISourceLocation loc = th.getLocation();
-				if (loc == null) {
+				if (loc == null || loc.getScheme().equals("TODO")) {
 				  loc = getAst().getLocation();
 				}
 				trace.add(loc, null);
@@ -263,11 +351,11 @@ public class JavaMethod extends NamedFunction {
 			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
 		}
 		catch (Throwable e) {
-		  if(ctx.getConfiguration().printErrors()){
-        e.printStackTrace();
-      }
-		  
-		  throw RuntimeExceptionFactory.javaException(e, getAst(), eval.getStackTrace());
+		    if(ctx.getConfiguration().printErrors()){
+		        e.printStackTrace();
+		    }
+
+		    throw RuntimeExceptionFactory.javaException(e, getAst(), eval.getStackTrace());
 		}
 	}
 }

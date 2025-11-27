@@ -18,6 +18,7 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.NonWellformedType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -38,7 +39,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"bag should have one type argument, like bag[value].", this);
@@ -66,7 +67,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.boolType();
 
@@ -93,7 +94,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.dateTimeType();
 		}
 
@@ -118,7 +119,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.integerType();
 
@@ -146,7 +147,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.rationalType();
 
@@ -163,11 +164,14 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument() == TF.voidType()) {
+		        return TF.listType(TF.voidType());
+		    }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.listType(__eval.__getTypeArgument().getFieldType(0));
+				return TF.listType(__eval.__getTypeArgument().getFieldType(0));
 			}
+			
 			throw new NonWellformedType(
 					"list should have exactly one type argument, like list[value]",
 					this);
@@ -175,7 +179,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			throw new NonWellformedType(
 					"list should have one type argument, like list[value].",
 					this);
@@ -202,7 +206,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.sourceLocationType();
 
@@ -218,11 +222,14 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+		        return TF.mapType(TF.voidType(), TF.voidType());
+		    }
+		    
 			if (__eval.__getTypeArgument().getArity() == 2) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.mapTypeFromTuple(__eval.__getTypeArgument());
+                return TF.mapTypeFromTuple(__eval.__getTypeArgument());
 			}
+			
 			throw new NonWellformedType(
 					"map should have exactly two type arguments, like map[value,value]",
 					this);
@@ -230,7 +237,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"map should have at two type arguments, like map[value,value].",
@@ -259,7 +266,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.nodeType();
 
@@ -286,7 +293,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			return TF.numberType();
 
@@ -313,7 +320,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.realType();
 		}
 
@@ -328,9 +335,13 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+                return org.rascalmpl.types.RascalTypeFactory
+                    .getInstance().reifiedType(TF.voidType());
+            }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
-				return org.rascalmpl.interpreter.types.RascalTypeFactory
+				return org.rascalmpl.types.RascalTypeFactory
 						.getInstance().reifiedType(
 								__eval.__getTypeArgument().getFieldType(0));
 			}
@@ -341,7 +352,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			throw new NonWellformedType(
 					"type should have at one type argument, like type[value].",
 					this);
@@ -364,7 +375,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"rel should have at least one type argument, like rel[value,value].",
@@ -389,7 +400,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"lrel should have at least one type argument, like lrel[value,value].",
@@ -407,7 +418,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+                return TF.listType(TF.voidType());
+            }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.setType(__eval.__getTypeArgument().getFieldType(0));
@@ -419,7 +433,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"set should have one type argument, like set[value].", this);
@@ -447,7 +461,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.stringType();
 
 		}
@@ -468,7 +482,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 
 			throw new NonWellformedType(
 					"tuple should have type arguments, like tuple[value,value].",
@@ -497,7 +511,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.valueType();
 
 		}
@@ -521,7 +535,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.voidType();
 		}
 

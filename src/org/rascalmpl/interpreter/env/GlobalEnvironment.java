@@ -16,27 +16,21 @@ package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.parser.gtd.IGTD;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.values.uptr.ITree;
 
 
 /**
@@ -54,23 +48,34 @@ public class GlobalEnvironment {
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
 	/**
+	 * For extend cycle detector
+	 */
+	private final Deque<String> extendStack = new ArrayDeque<>();
+	
+	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
 	
-	/** Keeping track of generated parsers */
-	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
-	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
-
-  private boolean bootstrapper;
+	private boolean bootstrapper;
 	
+	public void pushExtend(String module) {
+	    extendStack.push(module);
+	}
+	
+	public void popExtend() {
+	    extendStack.pop();
+	}
+	
+	public boolean isCyclicExtend(String module) {
+	    return extendStack.contains(module);
+	}
+  
 	public void clear() {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
 		locationModules.clear();
 		sourceResolvers.clear();
-		objectParsersForModules.clear();
-		rascalParsersForModules.clear();
 	}
 	
 	/**
@@ -90,6 +95,7 @@ public class GlobalEnvironment {
 	 */
 	public ModuleEnvironment addModule(ModuleEnvironment mod) {
 		assert mod != null;
+		clearLookupChaches();
 		ModuleEnvironment env = moduleEnvironment.get(mod.getName());
 		if (env == null) {
 			moduleEnvironment.put(mod.getName(), mod);
@@ -106,6 +112,7 @@ public class GlobalEnvironment {
 	public ModuleEnvironment resetModule(String name) {
 		ModuleEnvironment mod = moduleEnvironment.get(name);
 		mod.reset();
+		clearLookupChaches();
 		return mod;
 	}
 		
@@ -141,7 +148,11 @@ public class GlobalEnvironment {
 	}
 
 	public void removeModule(ModuleEnvironment env) {
-		moduleEnvironment.remove(env.getName());
+		var name = env.getName();
+		moduleEnvironment.remove(name);
+		for (var mod : moduleEnvironment.values()) {
+			mod.removeModule(name);
+		}
 	}
 
 	public void setModuleURI(String name, URI location) {
@@ -173,34 +184,6 @@ public class GlobalEnvironment {
 		}
 
 		return current;
-	}
-	
-	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String module, IMap productions) {
-		return getParser(objectParsersForModules, module, productions);
-	}
-	
-	/**
-	 * Retrieves a parser for a module.
-	 * 
-	 * @param module
-	 * @param productions
-	 */
-	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
-		ParserTuple parser = store.get(module);
-		if(parser != null && parser.getProductions().isEqual(productions)) {
-			return parser.getParser();
-		}
-		
-		return null;
-	}
-	
-	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		storeParser(objectParsersForModules, module, productions, parser);
-	}
-	
-	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		ParserTuple newT = new ParserTuple(productions, parser);
-		store.put(module, newT);
 	}
 	
 	public Set<String> getImportingModules(String mod) {
@@ -241,24 +224,6 @@ public class GlobalEnvironment {
 		return result;
 	}
 	
-	private static class ParserTuple {
-		private final IMap production;
-		private final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
-
-		public ParserTuple(IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-			this.production = productions;
-			this.parser = parser;
-		}
-		
-		public IMap getProductions() {
-			return production;
-		}
-		
-		public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser() {
-			return parser;
-		}
-	}
-	
 	public AbstractFunction getResourceImporter(String resourceScheme) {
 		for (ModuleEnvironment menv : this.moduleEnvironment.values()) {
 			if (menv.hasImporterForResource(resourceScheme))
@@ -268,10 +233,18 @@ public class GlobalEnvironment {
 	}
 
 	public void isBootstrapper(boolean b) {
-	  this.bootstrapper = b;
+	    this.bootstrapper = b;
 	}
-	
-  public boolean isBootstrapper() {
-    return bootstrapper;
-  }
+
+	public boolean isBootstrapper() {
+	    return bootstrapper;
+	}
+
+	public List<String> getExtendCycle() {
+        return Collections.unmodifiableList(extendStack.stream().collect(Collectors.toList()));
+	}
+
+	public void clearLookupChaches() {
+		moduleEnvironment.values().forEach(ModuleEnvironment::clearLookupCaches);
+	}
 }

@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Variable extends AbstractAST {
   public Variable(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class Variable extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getInitial() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -107,7 +108,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 701 * name.hashCode() + 19 * initial.hashCode() ; 
+      return 557 + 131 * name.hashCode() + 797 * initial.hashCode() ; 
     } 
   
     
@@ -190,7 +191,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 907 * name.hashCode() ; 
+      return 149 + 877 * name.hashCode() ; 
     } 
   
     

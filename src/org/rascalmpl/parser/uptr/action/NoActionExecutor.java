@@ -1,7 +1,7 @@
 package org.rascalmpl.parser.uptr.action;
 
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 public class NoActionExecutor implements IActionExecutor<ITree> {
 
@@ -50,20 +50,17 @@ public class NoActionExecutor implements IActionExecutor<ITree> {
 	}
 
 	@Override
-	public ITree filterListProduction(ITree tree,
-			Object environment) {
+	public ITree filterListProduction(ITree tree, Object environment) {
 		return tree;
 	}
 
 	@Override
-	public ITree filterAmbiguity(ITree ambCluster,
-			Object environment) {
+	public ITree filterAmbiguity(ITree ambCluster, Object environment) {
 		return ambCluster;
 	}
 
 	@Override
-	public ITree filterListAmbiguity(ITree ambCluster,
-			Object environment) {
+	public ITree filterListAmbiguity(ITree ambCluster, Object environment) {
 		return ambCluster;
 	}
 
@@ -81,5 +78,4 @@ public class NoActionExecutor implements IActionExecutor<ITree> {
 	public boolean isImpure(Object rhs) {
 		return false;
 	}
-
 }

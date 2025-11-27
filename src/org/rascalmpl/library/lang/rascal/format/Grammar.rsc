@@ -1,4 +1,4 @@
-@license{
+ @license{
   Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
@@ -8,10 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc {
-  Convert the Rascal internal grammar representation format (Grammar) to 
-  a syntax definition in Rascal source code.
-}
+@synopsis{Convert the Rascal internal grammar representation format (Grammar) to 
+  a syntax definition in Rascal source code.}
 module lang::rascal::format::Grammar
 
 import ParseTree;
@@ -63,15 +61,15 @@ public str grammar2rascal(Grammar g) {
 
 private Grammar cleanIdentifiers(Grammar g) {
   return visit (g) {
-    case s:sort(/<pre:.*>-<post:.*>/) => sort(replaceAll(s.name, "-", "_"))
-    case s:layouts(/<pre:.*>-<post:.*>/) => layouts(replaceAll(s.name, "-", "_"))
-    case s:lex(/<pre:.*>-<post:.*>/) => lex(replaceAll(s.name, "-", "_"))
-    case s:keywords(/<pre:.*>-<post:.*>/) => keywords(replaceAll(s.name, "-", "_"))
+    case s:sort(/.*-.*/) => sort(replaceAll(s.name, "-", "_"))
+    case s:layouts(/.*-.*/) => layouts(replaceAll(s.name, "-", "_"))
+    case s:lex(/.*-.*/) => lex(replaceAll(s.name, "-", "_"))
+    case s:keywords(/.*-.*/) => keywords(replaceAll(s.name, "-", "_"))
     case label(/<pre:.*>-<post:.*>/, s) => label("\\<pre>-<post>", s)
   }
 } 
 
-public str grammar2rascal(Grammar g, list[Symbol] nonterminals) {
+public str grammar2rascal(Grammar g, list[Symbol] _/*nonterminals*/) {
   return "<for (nont <- g.rules) {>
          '<topProd2rascal(g.rules[nont])>
          '<}>";
@@ -112,10 +110,13 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-private str alt2r(Symbol def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
+private str alt2r(Symbol _def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
 public str alt2rascal(Production p:prod(def,_,_)) = alt2r(def, p);
 public str alt2rascal(Production p:priority(def,_)) = alt2r(def, p, sep = "\>");
-public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <associativity(a)>");
+public str alt2rascal(Production p:\associativity(def,a,_)) {
+    sepVal = "= <associativity(a)>";    // Compiler does not yet support string interpolation as keyword parameter expression
+    return alt2r(def, p, sep = sepVal);
+}
 
 public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
 public default str alt2rascal(Production p) { throw "forgot <p>"; }
@@ -123,16 +124,16 @@ public default str alt2rascal(Production p) { throw "forgot <p>"; }
 
 public str prod2rascal(Production p) {
   switch (p) {
-    case choice(s, alts) : {
+    case choice(_, alts) : {
         	<fst, rest> = takeOneFrom(alts);
 			return "<prod2rascal(fst)><for (pr:prod(_,_,_) <- rest) {>
 			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
 			       '| <prod2rascal(pr)><}>";
 		}
-    case priority(s, alts) :
+    case priority(_, alts) :
         return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
                '\> <prod2rascal(pr)><}>"; 
-    case associativity(s, a, alts) : {  
+    case associativity(_, a, alts) : {  
     		<fst, rest> = takeOneFrom(alts);
     		return "<associativity(a)> 
     		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
@@ -140,13 +141,13 @@ public str prod2rascal(Production p) {
     		       '  )";
  		}
 
-    case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
+    case prod(label(str n,Symbol _),list[Symbol] lhs,set[Attr] as) :
         return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case prod(Symbol rhs,list[Symbol] lhs,{}) :
+    case prod(Symbol _,list[Symbol] lhs,{}) :
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case prod(Symbol rhs,list[Symbol] lhs, set[Attr] as) :
+    case prod(Symbol _,list[Symbol] lhs, set[Attr] as) :
       	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_) :
@@ -242,7 +243,7 @@ public str symbol2rascal(Symbol sym) {
         <f,as> = takeOneFrom(ss);
         return "(" + (symbol2rascal(f) | "<it> <symbol2rascal(a)>" | a <- as) + ")";
     }
-    case \layouts(str x): 
+    case \layouts(str _): 
     	return "";
     case \start(x):
     	return symbol2rascal(x);

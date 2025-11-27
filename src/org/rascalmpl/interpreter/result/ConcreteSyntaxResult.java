@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
+ * Copyright (c) 2009-2018 CWI, NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,20 +19,23 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
@@ -48,7 +51,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	public Result<IBool> is(Name name) {
-		if (TreeAdapter.isAppl((ITree) getValue())) {
+		ITree tree = (ITree) getValue();
+		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isError(tree)) {
 			String consName = TreeAdapter.getConstructorName((ITree) getValue());
 			if (consName != null) {
 				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
@@ -64,94 +68,69 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	    if (TreeAdapter.isList(t)) {
 	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getListASTArgs(t), ctx).subscript(subscripts);
 	    }
-	    else {
-	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
-	    }
+
+		try {
+			return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
+		} catch (Throw e) {
+			// Might be because the index is after the dot
+			if (TreeAdapter.isError(t)) {
+				IConstructor prod = ProductionAdapter.getErrorProduction(TreeAdapter.getProduction(t));
+				int arity = ProductionAdapter.getAstArgCount(prod);
+				int index = ((IInteger) subscripts[0].getValue()).intValue();
+
+				if (index < arity) {
+					throw RuntimeExceptionFactory.parseErrorRecovery(e.getException(), TreeAdapter.getLocation(t));
+				}
+			}
+			throw e;
+		}
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
 		
-		if (TreeAdapter.isAppl(tree)) {
-			int found = -1;
-			IConstructor foundType = null;
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			
-			if (!ProductionAdapter.isRegular(prod)) {
-				IList syms = ProductionAdapter.getSymbols(prod);
-
-				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-				for (int i = 0; i < syms.length(); i++) {
-					IConstructor sym = (IConstructor) syms.get(i);
-					
-					while (SymbolAdapter.isConditional(sym)) {
-						sym = SymbolAdapter.getSymbol(sym);
-					}
-					if (SymbolAdapter.isLabel(sym)) {
-						if (SymbolAdapter.getLabel(sym).equals(name)) {
-							found = i;
-							foundType = SymbolAdapter.delabel(sym);
-						}
-					}
-				}
-
-				if (found != -1) {
-					Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
-					IValue child = TreeAdapter.getArgs(tree).get(found);
-					return makeResult(nont, child, ctx);
-				}
-			}
-		}
+		FieldResult field = TreeAdapter.getLabeledField(tree, name); 
 		
-		return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
+		if (field == null) {
+			return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
+		}
+
+		Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		return makeResult(symbolType, field.tree, ctx);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
+		FieldResult field = TreeAdapter.getLabeledField(tree, name);
+		
+		if (field != null) {
+		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		    
+		    if (!repl.getStaticType().isSubtypeOf(symbolType)) {
+		        throw new UnexpectedType(symbolType, repl.getStaticType(), ctx.getCurrentAST()); 
+		    }
+		    
+		    ITree result = TreeAdapter.putLabeledField(tree, name, (ITree) repl.getValue());
+		    
+		    if (result != null) {
+	            return makeResult(result.getType(), result, ctx);
+	        }
+		}
 		
 		if (TreeAdapter.isAppl(tree)) {
-			int found = -1;
-			IConstructor foundType = null;
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			
-			if (ProductionAdapter.isDefault(prod)) {
-			    IList syms = ProductionAdapter.getSymbols(prod);
-
-			    // TODO: find deeper into optionals, alternatives and sequences checking the actual arguments for presence/absence of optional trees.
-			    for (int i = 0; i < syms.length(); i++) {
-			        IConstructor sym = (IConstructor) syms.get(i);
-			        if (SymbolAdapter.isLabel(sym)) {
-			            if (SymbolAdapter.getLabel(sym).equals(name)) {
-			                found = i;
-			                foundType = SymbolAdapter.delabel(sym);
-			                break;
-			            }
-			        }
-			    }
-			}
-			
-			if (found != -1) {
-				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
-				if (repl.getType().isSubtypeOf(nont)) {
-					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
-					return makeResult(getType(), tree.set("args", args), ctx);
-				}
-				throw new UnexpectedType(nont, repl.getType(), ctx.getCurrentAST());
-			}
-			
 			if (RascalValueFactory.Tree_Appl.hasField(name)) {
 				Type fieldType = RascalValueFactory.Tree_Appl.getFieldType(name);
-				if (repl.getType().isSubtypeOf(fieldType)) {
+				if (repl.getStaticType().isSubtypeOf(fieldType)) {
 					throw new UnsupportedOperation("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
-				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(fieldType, repl.getStaticType(), ctx.getCurrentAST());
 			}
 			
 			if (ctx.getCurrentEnvt().getStore().getKeywordParameterType(RascalValueFactory.Tree, name) != null) {
 			    if (getValue().mayHaveKeywordParameters()) {
-			        return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+			        return makeResult(getStaticType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
 			    }
 			    else {
 			        throw RuntimeExceptionFactory.illegalArgument(getValueFactory().string("Can not set a keyword parameter on a tree which already has annotations"), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -162,31 +141,59 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		}
 		
 		return super.fieldUpdate(name, repl, store);
-//		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
-	
+
+	private static boolean hasField(IConstructor prod, Name field) {
+		IList syms = ProductionAdapter.getSymbols(prod);
+		if (syms == null) {
+			return false;
+		}
+		int index = SymbolAdapter.indexOfLabel(syms, Names.name(field));
+		return index >= 0;
+	}
+
+	private static boolean errorHasFieldBeforeDot(IConstructor errorProd, Name field) {
+		int dot = ProductionAdapter.getErrorDot(errorProd);
+		IList syms = ProductionAdapter.getSymbols(ProductionAdapter.getErrorProduction(errorProd));
+		int index = SymbolAdapter.indexOfLabel(syms, Names.name(field));
+		return index >= 0 && index < dot;
+	}
+
 	@Override
 	public Result<IBool> has(Name name) {
 		if (TreeAdapter.isAppl((ITree) getValue())) {
 			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
-			if(ProductionAdapter.isDefault(prod)){
-				IList syms = ProductionAdapter.getSymbols(prod);
-				String tmp = Names.name(name);
-
-				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-
-				for (IValue sym : syms) {
-					if (SymbolAdapter.isLabel((IConstructor) sym)) {
-						if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
-							return ResultFactory.bool(true, ctx);
-						}
-					}
+			if (ProductionAdapter.isDefault(prod)) {
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(prod), Names.name(name));
+				if (index >= 0) {
+					return ResultFactory.bool(true, ctx);
+				}
+			} else if (ProductionAdapter.isError(prod)) {
+				if (errorHasFieldBeforeDot(prod, name)) {
+					return ResultFactory.bool(true, ctx);
 				}
 			}
 		}
+
 		return super.has(name);
 	}
-	
+
+	@Override
+	public Result<IBool> isDefined(Name name) {
+		if (TreeAdapter.isAppl((ITree) getValue())) {
+			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
+			if (ProductionAdapter.isError(prod)) {
+				if (errorHasFieldBeforeDot(prod, name)) {
+					return ResultFactory.bool(true, ctx);
+				}
+			} else if (hasField(prod, name)) {
+				return ResultFactory.bool(true, ctx);
+			}
+		}
+
+		return super.isDefined(name);
+	}
+
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToConcreteSyntax(this);
@@ -230,7 +237,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor p1 = TreeAdapter.getProduction(left);
 			IConstructor p2 = TreeAdapter.getProduction(right);
 			
-			if (!p1.isEqual(p2)) {
+			// TODO: max-sharing productions would reduce this to reference equality
+			if (!p1.equals(p2)) {
 				return bool(false, ctx);
 			}
 			
@@ -284,6 +292,15 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			return bool(true, ctx);
 		}
 
+		if (TreeAdapter.isCycle(left) && TreeAdapter.isCycle(right)) {
+			IConstructor type1 = TreeAdapter.getCycleType(left);
+			IConstructor type2 = TreeAdapter.getCycleType(right);
+			int length1 = TreeAdapter.getCycleLength(left);
+			int length2 = TreeAdapter.getCycleLength(right);
+
+			return bool(type1.equals(type2) && length1 == length2, ctx);
+		}
+
 		return bool(false, ctx);
 	}
 
@@ -294,7 +311,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
         // Note the reverse concat.
-	    return makeResult(that.getType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
+	    return makeResult(that.getStaticType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
 	}
 
 	@Override

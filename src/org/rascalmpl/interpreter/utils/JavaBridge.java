@@ -15,13 +15,21 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -34,20 +42,30 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.JavaCompilation;
+import org.rascalmpl.exceptions.JavaMethodLink;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaCompilation;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
-import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.ListClassLoader;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -66,6 +84,8 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 
 public class JavaBridge {
@@ -78,15 +98,11 @@ public class JavaBridge {
 	private final IValueFactory vf;
 	
 	private final Map<Class<?>, Object> instanceCache;
-	
-
-	private final Configuration config;
 
 	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
 		this.vf = valueFactory;
 		this.instanceCache = new HashMap<Class<?>, Object>();
-		this.config = config;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -94,27 +110,72 @@ public class JavaBridge {
 	}
 
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
-		return compileJava(loc, className, getClass(), source);
+		return compileJava(loc, className, Evaluator.class, source);
+	}
+
+	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
+		compileJava(loc, className, Evaluator.class, source, classBytes);
 	}
 	
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "--release", "11" });
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			return result;
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), loc);
+			throw new JavaCompilation(e.getMessage(), 1, 0, source, e);
+		} 
+		catch (JavaCompilerException e) {
+			if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
+				Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+				throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, e);
+			}
+			else {
+				throw new JavaCompilation(e.getMessage(), 1, 0, source, e);
+			}
+		}
+	}
+
+	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
+		List<String> commandline = Arrays.asList(new String[] {"-proc:none"} );
+		JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), null, commandline);
+		return javaCompiler.load(in);
+	}
+
+	public <T> void compileJava(ISourceLocation loc, String className, Class<?> parent, String source, OutputStream classBytes) {
+		try {
+			// watch out, if you start sharing this compiler, classes will not be able to reload
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none" });
+			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
+			javaCompiler.compile(classBytes, className, source, null);
+		} 
+		catch (ClassCastException e) {
+			throw new JavaCompilation(
+				e.getMessage(), 
+				1, 0,
+				source,
+				e
+			);
 		} 
 		catch (JavaCompilerException e) {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", loc);
+		        throw new JavaCompilation(
+					msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), 
+					source,
+					e
+				);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), loc);
+		        throw new JavaCompilation(
+					e.getMessage(), 
+					1,  0,
+					source,
+					e
+				);
 		    }
 		}
 	}
@@ -187,7 +248,7 @@ public class JavaBridge {
 	}
 	
 	private Class<?> toJavaClass(org.rascalmpl.ast.Type tp, Environment env) {
-		return toJavaClass(tp.typeOf(env, true, null));
+		return toJavaClass(tp.typeOf(env, null, false));
 	}
 
 	private Class<?> toJavaClass(io.usethesource.vallang.type.Type type) {
@@ -195,7 +256,7 @@ public class JavaBridge {
 	}
 	
 	private io.usethesource.vallang.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env, true, null);
+		return formal.typeOf(env, null, false);
 	}
 	
 	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
@@ -304,40 +365,23 @@ public class JavaBridge {
 				throws RuntimeException {
 			return ITree.class;
 		}
-	}
-	
-	public synchronized Object getJavaClassInstance(Class<?> clazz){
-		Object instance = instanceCache.get(clazz);
-		if(instance != null){
-			return instance;
-		}
 		
-		try{
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
-			instanceCache.put(clazz, instance);
-			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} 
+		@Override
+		public Class<?> visitFunction(Type type) throws RuntimeException {
+		    return IFunction.class;
+		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, Reader in, IEvaluatorContext ctx) {
 		String className = getClassName(func);
+		
+		PrintWriter[] outputs = new PrintWriter[] { out, err };
+		int writers = 0;
 
 		try {
-			for(ClassLoader loader : loaders){
-				try{
+			// TODO: this could also be a single classloader
+			for (ClassLoader loader : loaders) {
+				try {
 					Class<?> clazz = loader.loadClass(className);
 
 					Object instance = instanceCache.get(clazz);
@@ -345,34 +389,113 @@ public class JavaBridge {
 						return instance;
 					}
 
-					Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-					instance = constructor.newInstance(vf);
+					if (clazz.getConstructors().length > 1) {
+					    throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
+					}
+					
+					Constructor<?>[] constructors = clazz.getConstructors();
+
+					if (constructors.length < 1) {
+						throw new JavaMethodLink(className, "no public constructors found", new IllegalArgumentException(className));
+					}
+					else if (constructors.length != 1) {
+						throw new JavaMethodLink(className, "more than one public constructor found", new IllegalArgumentException(className));
+					}
+
+					Constructor<?> constructor = constructors[0];
+
+					Object[] args = new Object[constructor.getParameterCount()];
+					Class<?>[] formals = constructor.getParameterTypes();
+
+					for (int i = 0; i < constructor.getParameterCount(); i++) {
+					    if (formals[i].isAssignableFrom(IValueFactory.class)) {
+					        args[i] = vf;
+					    }
+						// TODO this is for interpreter debugging purposes. The compiled runtime can produce `null` for this.
+						else if (formals[i].isAssignableFrom(RascalSearchPath.class)) {
+							args[i] = ctx.getEvaluator().getRascalResolver();
+						}
+					    else if (formals[i].isAssignableFrom(TypeStore.class)) {
+					        args[i] = store;
+					    }
+					    else if (formals[i].isAssignableFrom(TypeFactory.class)) {
+					        args[i] = TypeFactory.getInstance();
+					    }
+					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
+					        args[i] = outputs[writers++ % 2];
+					    }
+					    else if (formals[i].isAssignableFrom(Reader.class)) {
+					        args[i] = in;
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
+					        args[i] = monitor;
+					    }
+					    else if (formals[i].isAssignableFrom(ClassLoader.class)) {
+					        args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+					        args[i] = ctx.getFunctionValueFactory();
+					    }
+						else if (formals[i].isAssignableFrom(IDEServices.class)) {
+							if (monitor instanceof IDEServices) {
+								args[i] = (IDEServices) monitor;
+							}
+							else {
+								args[i] = new BasicIDEServices(err, monitor, null, URIUtil.rootLocation("cwd"));
+							}
+						}
+						else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {
+							args[i] = new IResourceLocationProvider() {
+								@Override
+								public Set<ISourceLocation> findResources(String fileName) {
+									Set<ISourceLocation> result = new HashSet<>();
+									URIResolverRegistry reg = URIResolverRegistry.getInstance();
+									
+									for (ISourceLocation dir : ctx.getEvaluator().getRascalResolver().collect()) {
+										ISourceLocation full = URIUtil.getChildLocation(dir, fileName);
+										if (reg.exists(full)) {
+											result.add(full);
+										}
+									}
+										
+									return result;
+								}
+							};
+						}
+					    else {
+					        throw new IllegalArgumentException(constructor + " has unknown kinds of arguments.");
+					    }
+					}
+
+					instance = constructor.newInstance(args);
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
-				catch(ClassNotFoundException e){
+				catch (ClassNotFoundException e) {
 					continue;
 				} 
 			}
 		} 
 		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		}
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InstantiationException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (IllegalAccessException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InvocationTargetException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (SecurityException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (NoSuchMethodException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		}
+			throw new JavaMethodLink(className, e.getMessage(), e);
+		} 
+		catch (InstantiationException e) {
+			throw new JavaMethodLink(className, e.getMessage(), e);
+		} 
+		catch (IllegalAccessException e) {
+			throw new JavaMethodLink(className, e.getMessage(), e);
+		} 
+		catch (InvocationTargetException e) {
+			throw new JavaMethodLink(className, e.getMessage(), e);
+		} 
+		catch (SecurityException e) {
+			throw new JavaMethodLink(className, e.getMessage(), e);
+		} 
 		
-		throw new JavaMethodLink(className, "class not found", func, null);
+		throw new JavaMethodLink(className, "class not found", null);
 	}
 
 	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
@@ -383,33 +506,28 @@ public class JavaBridge {
 		String className = getClassName(func);
 		String name = Names.name(func.getSignature().getName());
 		
-		if(className.length() == 0){	// TODO: Can this ever be thrown since the Class instance has 
-										// already been identified via the javaClass tag.
-			throw new MissingTag(JAVA_CLASS_TAG, func);
-		}
-		
-		for(ClassLoader loader : loaders){
-			try{
+		for (ClassLoader loader : loaders) {
+			try {
 				Class<?> clazz = loader.loadClass(className);
 				Parameters parameters = func.getSignature().getParameters();
 				Class<?>[] javaTypes = getJavaTypes(parameters, env, hasReflectiveAccess);
 
-				try{
+				try { 
 					Method m;
 					
-					if(javaTypes.length > 0){ // non-void
+					if (javaTypes.length > 0) { // non-void
 						m = clazz.getMethod(name, javaTypes);
-					}else{
+					} else{
 						m = clazz.getMethod(name);
 					}
 
 					return m;
-				}catch(SecurityException e){
+				} catch(SecurityException e) {
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
-				}catch(NoSuchMethodException e){
+				} catch(NoSuchMethodException e) {
 					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}
-			}catch(ClassNotFoundException e){
+			} catch(ClassNotFoundException e) {
 				continue;
 			}
 		}

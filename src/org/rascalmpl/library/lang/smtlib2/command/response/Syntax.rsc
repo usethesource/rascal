@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: Grammar of the SMTLIBv2 response
-}
+@synopsis{Synopsis: Grammar of the SMTLIBv2 response}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::command::response::Syntax

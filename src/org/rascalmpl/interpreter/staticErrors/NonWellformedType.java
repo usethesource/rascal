@@ -19,7 +19,6 @@ public class NonWellformedType extends StaticError {
 
 	public NonWellformedType(String reason, AbstractAST ast) {
 		super("Non-well-formed type: " + reason, ast);
-		printStackTrace();
 	}
 }
 

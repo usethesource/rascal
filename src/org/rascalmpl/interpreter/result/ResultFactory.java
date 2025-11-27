@@ -1,27 +1,21 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2009-2013 CWI All rights reserved. This program and the accompanying materials are
+ * made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ * 
+ * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl *
+ * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen) * Paul Klint - Paul.Klint@cwi.nl - CWI * Mark
+ * Hills - Mark.Hills@cwi.nl (CWI) * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -41,7 +35,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ResultFactory {
 	@SuppressWarnings("unchecked")
@@ -99,12 +92,13 @@ public class ResultFactory {
 
 		@Override
 		public Result<? extends IValue> visitConstructor(Type type) {
-			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
+			if (RascalType.isNonterminal(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
-			if (type instanceof FunctionType) {
+			else if (RascalType.isFunction(type)) {
 				return (AbstractFunction)value;
 			}
+			
 			return new ConstructorResult(declaredType.getAbstractDataType(), (IConstructor)value, ctx);
 		}
 		
@@ -130,9 +124,12 @@ public class ResultFactory {
 		
 		@Override
 		public ListOrRelationResult<IList> visitList(Type type) {
-			if(declaredType.isListRelation()) {
-				if (value != null && !(value.getType().isListRelation()))
+			if (type.isListRelation()) {
+			    // TODOmmm. what if it was first a list relation (an empty one), but not anymore?
+				if (value != null && !(value.getType().isListRelation())) {
 					throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
+				}
+				
 				return new ListRelationResult(declaredType, (IList)value, ctx);
 			}
 
@@ -149,17 +146,26 @@ public class ResultFactory {
 			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
+
 			return new NodeResult(declaredType, (INode)value, ctx);
 		}
 
 		@Override
 		public Result<? extends IValue> visitParameter(Type parameterType) {
+			if (ctx != null) {
+				Type instantiated = parameterType.instantiate(ctx.getEvaluator().getCurrentEnvt().getStaticTypeBindings());
+
+				if (parameterType != instantiated) {
+					return instantiated.accept(this);
+				}
+			}
+
 			return parameterType.getBound().accept(this);
 		}
 		
 		@Override
 		public SetOrRelationResult<ISet> visitSet(Type type) {
-			if(declaredType.isRelation()) {
+			if (type.isRelation()) {
 				if (value != null && !(value.getType().isRelation()))
 					throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
 				return new RelationResult(declaredType, (ISet)value, ctx);
@@ -184,6 +190,36 @@ public class ResultFactory {
 		}
 
 		@Override
+		public Result<?> visitFunction(Type type) {
+			if (value instanceof AbstractFunction) {
+				// the weird thing is, that value is also a result in that case.
+
+				if (value.getType() != type) {
+					return new FunctionResultFacade(type, (AbstractFunction) value, ctx);
+				}
+				else {
+					return (AbstractFunction) value;
+				}
+			}
+			else if (value instanceof OverloadedFunction) {
+				if (value.getType() != type) {
+					return new FunctionResultFacade(type, (OverloadedFunction) value, ctx);
+				}
+				else {
+					return (OverloadedFunction) value;
+				}
+			}
+			else if (value instanceof ComposedFunctionResult) {
+				return (Result<?>) value;
+			}
+			else {
+				// otherwise this is an abstract ICalleableValue
+				// for which no further operations are defined?
+				return new ValueResult(declaredType, value, ctx);
+			}
+		}
+
+		@Override
 		public ValueResult visitValue(Type type) {
 			return new ValueResult(declaredType, value, ctx);
 		}
@@ -194,34 +230,23 @@ public class ResultFactory {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public Result<? extends IValue> visitExternal(Type externalType) {
-			if (externalType instanceof FunctionType || externalType instanceof OverloadedFunctionType) {
-				// the weird thing is, that value is also a result in that case.
-				return (Result<? extends IValue>) value;
+			if (RascalType.isFunction(externalType)) {
+			    
 			}
-			
-			if (externalType instanceof NonTerminalType) {
+			else if (RascalType.isNonterminal(externalType)) {
 				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
-			}
-			
-			if (externalType instanceof ReifiedType) {
+			} 
+			else if (RascalType.isReified(externalType)) {
 				return new ConstructorResult(externalType, (IConstructor) value, ctx);
 			}
-			/* TODO: hope this is OK.... -anya
-			 * 
-			 * was:
-			 *	throw new NotYetImplemented("visitExternal in result factory: " + externalType);
-			*/
+
 			return new ValueResult(declaredType, value, ctx);
-			
 		}
 
 		@Override
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
-
-		
 	}
 }

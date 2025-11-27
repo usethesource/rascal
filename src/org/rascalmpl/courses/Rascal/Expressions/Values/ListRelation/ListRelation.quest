@@ -1,1 +1,0 @@
-[choiceQuestion("Rascal/Expressions/Values/ListRelation","1","  A relation:\n",[good("Is a set of tuples."),bad("Is a list of tuples."),bad("Is a tuple of tuples."),bad("Has ordered elements."),bad("Can contain duplicates."),bad("Has a fixed length.")])]

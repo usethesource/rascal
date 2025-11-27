@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Patterns/Regular","1",valueOfExpr(),details(" Return the strings that contain \"o\".\n",[],"text = [\"andra\", \"moi\", \"ennepe\", \"Mousa\", \"polutropon\"];\npublic list[str] find(list[str] text){\n  return \n    for(s \<- text)\n      if(/o/ := s)\n        ",";\n}\n","find(text) == [\"moi\", \"Mousa\", \"polutropon\"];","",true,false,[],[],void(),""))]

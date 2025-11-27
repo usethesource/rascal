@@ -10,17 +10,17 @@ test bool tstLiteral3() = literal("ab") ==
 	prod(lit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])],{});
 	
 test bool tstCiLiteral1() = ciliteral("") == prod(cilit(""),[],{});
-test bool tstCiLiteral2() = ciliteral("a") == prod(cilit("a"),[\char-class([range(97,97)])],{});
+test bool tstCiLiteral2() = ciliteral("a") == prod(cilit("a"),[\char-class([range(97,97), range(65,65)])],{});
 test bool tstCiLiteral3() = ciliteral("ab") == 
-	prod(cilit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])],{});
+	prod(cilit("ab"),[\char-class([range(97,97), range(65,65)]),\char-class([range(98,98),range(66,66)])],{});
 
 test bool tstStr2Syms1() = str2syms("") == [];
 test bool tstStr2Syms2() = str2syms("a") == [\char-class([range(97,97)])];
 test bool tstStr2Syms3() = str2syms("ab") == [\char-class([range(97,97)]),\char-class([range(98,98)])];
 
 test bool tsCistr2syms1() = cistr2syms("") == [];
-test bool tsCistr2syms2() = cistr2syms("a") == [\char-class([range(97,97)])];
-test bool tsCistr2syms3() = cistr2syms("A") == [\char-class([range(65,65)])];
+test bool tsCistr2syms2() = cistr2syms("a") == [\char-class([range(97,97), range(65,65)])];
+test bool tsCistr2syms3() = cistr2syms("A") == [\char-class([range(65,65), range(97,97)])];
 
 test bool tstUnescapeSC1() = unescapeLiteral((StringConstant) `"a"`) == "a";
 test bool tstUnescapeSC2() = unescapeLiteral((StringConstant) `"\\t"`) == "\t";

@@ -23,25 +23,26 @@ import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.facts.AbstractFact;
-import io.usethesource.vallang.IAnnotatable;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.AbstractExternalValue;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.IValueVisitor;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
 IExpirationListener<IValue> {
 	public static final Type TransactionType = new ExternalType() {
 
+	    protected boolean intersectsWithExternal(Type type) {
+	        return false;
+	    };
+	    
 		@Override
 		protected Type lubWithExternal(Type type) {
 			// TODO Auto-generated method stub
@@ -70,7 +71,14 @@ IExpirationListener<IValue> {
 		public Type asAbstractDataType() {
 		  // TODO Auto-generated method stub
 		  return null;
-		}};
+		}
+		
+		public IValue randomValue(java.util.Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, java.util.Map<Type,Type> typeParameters, int maxDepth, int maxBreadth) {
+		    // TODO Auto-generated method stub
+	          return null;
+		};
+		};
+		
 	private final Transaction parent;
 	private final boolean commitEnabled;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();
@@ -113,26 +121,17 @@ IExpirationListener<IValue> {
 			this.stderr = stderr;
 	}
 
+	@Override
 	public Type getType() {
 		return TransactionType;
 	}
 
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		return null;
-	}
-
-	public boolean isEqual(IValue other) {
-		return false;
-	}
-	
+	@Override
 	public boolean match(IValue other) {
         return false;
     }
 
-	/*@Override
-	public IValue getFact(Type key, IValue name) {
-		return getFact(new NullRascalMonitor(), key, name);
-	}*/
+	@Override
 	public IValue getFact(IRascalMonitor monitor, Type key, IValue name) {
 		IFact<IValue> fact = null;
 		try {
@@ -149,10 +148,11 @@ IExpirationListener<IValue> {
 						return value;
 					}
 				}
-				monitor.startJob("Producing fact " + formatKey(key, name));
+				String JOB = "Producing fact " + formatKey(key, name);
+				monitor.jobStart(JOB);
 				Transaction tr = new Transaction(this, stderr, true);
 				status = registry.produce(monitor, tr, key, name);
-				monitor.endJob(true);
+				monitor.jobEnd(JOB, true);
 				fact = tr.map.get(k);
 				if (fact != null) {
 					tr.commit();
@@ -176,6 +176,7 @@ IExpirationListener<IValue> {
 		}
 	}
 
+	@Override
 	public IValue queryFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = query(k);
@@ -195,6 +196,7 @@ IExpirationListener<IValue> {
 
 	}
 
+	@Override
 	public synchronized void removeFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
@@ -211,10 +213,12 @@ IExpirationListener<IValue> {
 		removeFact(((Key)fact.getKey()).type, ((Key)fact.getKey()).name);
 	}
 
+	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value) {
 		return setFact(key, name, value, null, FactFactory.getInstance());
 	}
 
+	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies) {
 		return setFact(key, name, value, dependencies, FactFactory.getInstance());
@@ -240,6 +244,7 @@ IExpirationListener<IValue> {
 		return fact;
 	}
 
+	@Override
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies, IFactFactory factory) {
 		Key k = new Key(key, name);
@@ -268,13 +273,7 @@ IExpirationListener<IValue> {
 		return fact;
 	}
 
-	// Remove?
-//	private String abbrev(String s, int len) {
-//		if(s.length() > len)
-//			s = s.substring(0, len) + "...";
-//		return s;
-//	}
-
+	@Override
 	public void abandon() {
 		for(IFact<IValue> fact : map.values()) {
 			notifyListeners(((Key)fact.getKey()).type, fact, Change.REMOVED);
@@ -285,6 +284,7 @@ IExpirationListener<IValue> {
 		deps.clear();
 	}
 
+	@Override
 	public void commit() {
 		if(parent != null && commitEnabled) {
 			if(parent.parent == null) {
@@ -317,6 +317,7 @@ IExpirationListener<IValue> {
 		}
 	}
 
+	@Override
 	public void commit(Collection<IFact<IValue>> deps) {
 		if(parent != null && commitEnabled) {
 			for(Key k : removed) {
@@ -345,6 +346,7 @@ IExpirationListener<IValue> {
 			}
 	}
 
+	@Override
 	public synchronized void registerListener(IDependencyListener listener, Type key) {
 		Collection<IDependencyListener> ls = listeners.get(key);
 		if(ls == null)
@@ -354,6 +356,7 @@ IExpirationListener<IValue> {
 		listeners.put(key, ls);
 	}
 
+	@Override
 	public synchronized void unregisterListener(IDependencyListener listener, Type key) {
 		Collection<IDependencyListener> ls = listeners.get(key);
 		if(ls != null) {
@@ -383,6 +386,7 @@ IExpirationListener<IValue> {
 		return key.getName() + "(" + n + ")";
 	}
 
+	@Override
 	public IFact<IValue> findFact(Type key, IValue name) {
 		return query(new Key(key, name));
 	}
@@ -416,30 +420,9 @@ IExpirationListener<IValue> {
 	}
 
 	@Override
-	public boolean isAnnotatable() {
-		return false;
+	public int getMatchFingerprint() {
+		return hashCode();
 	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException("Cannot be viewed as annotatable.", getType());
-	}
-
-	@Override
-	public boolean mayHaveKeywordParameters() {
-		return false;
-	}
-
-	@Override
-	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-		throw new IllegalOperationException("Cannot be viewed as with keyword parameters", getType());
-	}
-
-	@Override
-	public IConstructor encodeAsConstructor() {
-		return AbstractExternalValue.encodeAsConstructor(this);
-	}
-   
 }
 
 class Key {
@@ -472,7 +455,7 @@ class Key {
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.isEqual(other.name))
+		} else if (!name.equals(other.name))
 			return false;
 		if (type == null) {
 			if (other.type != null)

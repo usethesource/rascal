@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Prod extends AbstractAST {
   public Prod(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,56 +31,56 @@ public abstract class Prod extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSyms() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Sym> getSyms() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasAssociativity() {
     return false;
   }
 
   public org.rascalmpl.ast.Assoc getAssociativity() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasReferenced() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getReferenced() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGroup() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getGroup() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getLhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getRhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -480,61 +481,6 @@ public abstract class Prod extends AbstractAST {
     }
             
   }
-  public boolean isOthers() {
-    return false;
-  }
-
-  static public class Others extends Prod {
-    // Production: sig("Others",[],breakable=false)
-  
-    
-  
-    public Others(ISourceLocation src, IConstructor node ) {
-      super(src, node);
-      
-    }
-  
-    @Override
-    public boolean isOthers() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitProdOthers(this);
-    }
-  
-    @Override
-    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
-      if (getLocation().getBeginLine() == $line) {
-        $result.add(this);
-      }
-      ISourceLocation $l;
-      
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof Others)) {
-        return false;
-      }        
-      Others tmp = (Others) o;
-      return true ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 197 ; 
-    } 
-  
-    	
-  
-    @Override
-    public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
-    }
-            
-  }
   public boolean isReference() {
     return false;
   }
@@ -589,7 +535,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 5 + 19 * referenced.hashCode() ; 
+      return 197 + 5 * referenced.hashCode() ; 
     } 
   
     
@@ -677,7 +623,7 @@ public abstract class Prod extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 19 * modifiers.hashCode() + 157 * syms.hashCode() ; 
+      return 19 + 19 * modifiers.hashCode() + 19 * syms.hashCode() ; 
     } 
   
     

@@ -35,33 +35,41 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class Cases  {
-	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char");
+	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char", "Tree::appl", "Tree::cycle", "Tree::char", "Tree::amb");
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
-	public static List<CaseBlock> precompute(List<Case> cases) {
+	public static List<CaseBlock> precompute(List<Case> cases, boolean allowReplacement) {
 		ArrayList<CaseBlock> blocks = new ArrayList<CaseBlock>(cases.size());
 		
 		for (int i = 0; i < cases.size(); i++) {
 			Case c = cases.get(i);
+			
+			if (!allowReplacement && c.hasPatternWithAction() && c.getPatternWithAction().isReplacing()) {
+			    throw new SyntaxError("=> not allowed in switch", c.getLocation());
+			}
+			
 			if (isConcreteSyntaxPattern(c)) {
 				ConcreteBlock b = new ConcreteBlock();
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConcreteSyntaxPattern(d) && !isIUPTRPattern(d)) {
+					if (isConcreteSyntaxPattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -69,14 +77,14 @@ public class Cases  {
 					}
 				}
 				blocks.add(b);
-			} else if (isIUPTRPattern(c)) {
+			} else if (isParseTreePattern(c)) {
 				blocks.add(new DefaultBlock(c));
 			} else if (isConstantTreePattern(c)) {
 				NodeCaseBlock b = new NodeCaseBlock();
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConstantTreePattern(d) && !isIUPTRPattern(d)) {
+					if (isConstantTreePattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -111,7 +119,7 @@ public class Cases  {
 		return false;
 	}
 	
-	private static boolean isIUPTRPattern(Case d) {
+	private static boolean isParseTreePattern(Case d) {
 		if (d.isDefault()) {
 			return false;
 		}
@@ -204,15 +212,23 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			io.usethesource.vallang.type.Type subjectType = value
-					.getType();
+			io.usethesource.vallang.type.Type subjectType = value.getType();
 
-			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.uptr.ITree) value)) {
-				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.uptr.ITree) value));
+			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.parsetrees.ITree) value)) {
+				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
+						Environment old = eval.getCurrentEnvt();
+						try {
+							if (c.matchAndEval(eval, subject)) {
+								return true;
+							}
+						}
+						catch (Failure f) {
+							continue;
+						}
+						finally {
+							eval.unwind(old);
 						}
 					}
 				}
@@ -225,6 +241,7 @@ public class Cases  {
 	private static class DefaultBlock extends CaseBlock {
 		private final Case theCase;
 		private final PatternWithAction pattern;
+		private IMatchingResult matcher; 
 		private final Replacement replacement;
 		private final List<Expression> conditions;
 		private final Expression insert;
@@ -246,20 +263,21 @@ public class Cases  {
 				return true;
 			}
 			
-			PatternWithAction rule = theCase.getPatternWithAction();
+			if (matcher == null) {
+			    matcher = pattern.getPattern().buildMatcher(eval, false);
+			}
 			
-			if (rule.hasStatement()) {
-				return Cases.matchAndEval(subject, rule.getPattern(), pattern.getStatement(), eval);
+			if (pattern.hasStatement()) {
+				return Cases.matchAndEval(subject, matcher, pattern.getStatement(), eval);
 			}
 			else {
-				return matchEvalAndReplace(subject, rule.getPattern(), conditions, insert, eval);
+				return matchEvalAndReplace(subject, matcher, conditions, insert, eval);
 			}
 		}
 		 
-	  public static boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr, IEvaluator<Result<IValue>> eval) {
+	  public static boolean matchEvalAndReplace(Result<IValue> subject, IMatchingResult mp, List<Expression> conditions, Expression replacementExpr, IEvaluator<Result<IValue>> eval) {
 	    Environment old = eval.getCurrentEnvt();
 	    try {
-	      IMatchingResult mp = pat.getMatcher(eval);
 	      mp.initMatch(subject);
 
 	      while (mp.hasNext()) {
@@ -356,15 +374,14 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			io.usethesource.vallang.type.Type subjectType = value
-					.getType();
+			io.usethesource.vallang.type.Type subjectType = value.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
 				boolean isTree = subjectType.isSubtypeOf(RascalValueFactory.Tree) 
-				    && ((org.rascalmpl.values.uptr.ITree) subject.getValue()).isAppl();
+				    && ((org.rascalmpl.values.parsetrees.ITree) subject.getValue()).isAppl();
 
 				if (isTree) { // matching abstract with concrete
-					TreeAsNode wrap = new TreeAsNode((org.rascalmpl.values.uptr.ITree) subject.getValue());
+					TreeAsNode wrap = new TreeAsNode((org.rascalmpl.values.parsetrees.ITree) subject.getValue());
 					Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
 
 					if (tryCases(eval, asTree)) {
@@ -383,8 +400,19 @@ public class Cases  {
 
 			if (alts != null) {
 				for (DefaultBlock c : alts) {
-					if (c.matchAndEval(eval, subject)) {
-						return true;
+					Environment old = eval.getCurrentEnvt();
+					try {
+						eval.pushEnv();
+						if (c.matchAndEval(eval, subject)) {
+							return true;
+						}
+					}
+					catch (Failure e) {
+						// just continue with the next case
+						continue;
+					}
+					finally {
+						eval.unwind(old);
 					}
 				}
 			}
@@ -394,13 +422,12 @@ public class Cases  {
 	}
 
 
-  public static boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat, IEvaluator<Result<IValue>> eval) {
+  public static boolean matchAndEval(Result<IValue> subject, IMatchingResult mp, Statement stat, IEvaluator<Result<IValue>> eval) {
     boolean debug = false;
     Environment old = eval.getCurrentEnvt();
     eval.pushEnv();
   
     try {
-      IMatchingResult mp = pat.getMatcher(eval);
       mp.initMatch(subject);
   
       while (mp.hasNext()) {

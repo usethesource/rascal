@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Visibility extends AbstractAST {
   public Visibility(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -73,7 +74,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 ; 
+      return 641 ; 
     } 
   
     	
@@ -128,7 +129,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 773 ; 
+      return 701 ; 
     } 
   
     	
@@ -183,7 +184,7 @@ public abstract class Visibility extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 ; 
+      return 13 ; 
     } 
   
     	

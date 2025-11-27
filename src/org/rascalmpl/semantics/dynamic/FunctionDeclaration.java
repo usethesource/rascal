@@ -51,7 +51,6 @@ public abstract class FunctionDeclaration extends
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (!hasJavaModifier(this)) {
@@ -62,12 +61,16 @@ public abstract class FunctionDeclaration extends
 					__eval.getCurrentEnvt(), __eval.__getJavaBridge());
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
 					.getSignature().getName());
-		
-			__eval.getCurrentEnvt().storeFunction(name, lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
 
-			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
+			__eval.getCurrentEnvt().storeFunction(name, lambda);
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
+
+			if (!isPublic) {
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+			}
+
 			return lambda;
 
 		}
@@ -85,8 +88,9 @@ public abstract class FunctionDeclaration extends
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			AbstractFunction lambda;
-			boolean varArgs = this.getSignature().getParameters().isVarArgs();
-
+			boolean hasVarArgs = this.getSignature().getParameters().isVarArgs();
+			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
+			
 			if (hasJavaModifier(this)) {
 				throw new NonAbstractJavaFunction(this);
 			}
@@ -95,21 +99,23 @@ public abstract class FunctionDeclaration extends
 				throw new MissingModifier("java", this);
 			}
 
-			lambda = new RascalFunction(__eval, this, varArgs, __eval
-					.getCurrentEnvt(), __eval.__getAccumulators());
+			
+            lambda = new RascalFunction(__eval, this, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
+			if (!isPublic) {
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+			}
 
-			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
 			return lambda;
 
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return this.getSignature().typeOf(__eval, instantiateTypeParameters, eval);
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getSignature().typeOf(__eval, eval, instantiateTypeParameters);
 		}
 	}
 
@@ -128,22 +134,23 @@ public abstract class FunctionDeclaration extends
 			__eval.notifyAboutSuspension(this);			
 			
 			AbstractFunction lambda;
-			boolean varArgs = this.getSignature().getParameters().isVarArgs();
-
+			boolean hasVarArgs = this.getSignature().getParameters().isVarArgs();
+			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
+			
 			if (hasJavaModifier(this)) {
 				throw new NonAbstractJavaFunction(this);
 			}
 
-			lambda = new RascalFunction(__eval, this, varArgs, __eval
-					.getCurrentEnvt(), __eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, this, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 			
-		
-			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
-			
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			
+			if (!isPublic) {
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+			}
+
 			return lambda;
 		}
 
@@ -164,7 +171,7 @@ public abstract class FunctionDeclaration extends
 			__eval.notifyAboutSuspension(this);	
 			
 			AbstractFunction lambda;
-			boolean varArgs = this.getSignature().getParameters().isVarArgs();
+			boolean hasVarArgs = this.getSignature().getParameters().isVarArgs();
 
 			if (hasJavaModifier(this)) {
 				throw new NonAbstractJavaFunction(this);
@@ -177,15 +184,18 @@ public abstract class FunctionDeclaration extends
 			List<AbstractAST> sl = Arrays.<AbstractAST>asList(ite);
 			AbstractAST body = ASTBuilder.make("FunctionBody", "Default", src, sl);
 			FunctionDeclaration.Default func = ASTBuilder.make("FunctionDeclaration", "Default", src, getTags(), getVisibility(), getSignature(), body);
+			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
 			
-			lambda = new RascalFunction(__eval, func, varArgs, __eval
-					.getCurrentEnvt(), __eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, func, hasVarArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
 
-			lambda.setPublic(this.getVisibility().isPublic() || this.getVisibility().isDefault());
+			if (!isPublic) {
+				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+			}
+			
 			return lambda;
 		}
 

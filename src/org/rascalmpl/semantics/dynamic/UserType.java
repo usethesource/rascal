@@ -15,12 +15,17 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Map.Entry;
 
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.MissingTypeParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -35,34 +40,40 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			Environment theEnv = __eval.getHeap().getEnvironmentForName(
-					getName(), __eval);
-			String name = org.rascalmpl.interpreter.utils.Names.typeName(this
-					.getName());
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+		    Environment theEnv = __eval.getHeap().getEnvironmentForName(getName(), __eval);
+		    String name = Names.typeName(this.getName());
 
-			if (theEnv != null) {
-				Type type = theEnv.lookupAlias(name);
+		    if (theEnv != null) {
+		        Type type = theEnv.lookupAlias(name);
 
-				if (type != null) {
-					return type;
-				}
+		        if (type != null) {
+		            if (type.isParameterized()) {
+		                throw new MissingTypeParameters(type, this);
+		            }
 
-				Type tree = theEnv.lookupAbstractDataType(name);
+		            return type.getAliased();
+		        }
 
-				if (tree != null) {
-					return tree;
-				}
+		        Type tree = theEnv.lookupAbstractDataType(name);
 
-				Type symbol = theEnv.lookupConcreteSyntaxType(name);
+		        if (tree != null) {
 
-				if (symbol != null) {
-					return symbol;
-				}
-			}
+		            if (tree.isParameterized()) {
+		                throw new MissingTypeParameters(tree, this);
+		            }
 
-			throw new UndeclaredType(name, this);
+		            return tree;
+		        }
 
+		        Type symbol = theEnv.lookupConcreteSyntaxType(name);
+
+		        if (symbol != null) {
+		            return symbol;
+		        }
+		    }
+
+		    throw new UndeclaredType(name, this);
 		}
 
 	}
@@ -76,14 +87,12 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			String name;
 			Type type = null;
-			Environment theEnv = __eval.getHeap().getEnvironmentForName(
-					this.getName(), __eval);
+			Environment theEnv = __eval.getHeap().getEnvironmentForName(this.getName(), __eval);
 
-			name = org.rascalmpl.interpreter.utils.Names.typeName(this
-					.getName());
+			name = Names.typeName(this.getName());
 
 			if (theEnv != null) {
 				type = theEnv.lookupAlias(name);
@@ -94,23 +103,37 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 			}
 
 			if (type != null) {
-				Map<Type, Type> bindings = new HashMap<Type, Type>();
 				Type[] params = new Type[this.getParameters().size()];
 
 				int i = 0;
 				for (org.rascalmpl.ast.Type param : this.getParameters()) {
-					params[i++] = param.typeOf(__eval, instantiateTypeParameters, eval);
+					params[i++] = param.typeOf(__eval, eval, instantiateTypeParameters);
 				}
-
-				// __eval has side-effects that we might need?
-				type.getTypeParameters().match(TF.tupleType(params), bindings);
-
-				// Instantiate first using the type actually given in the parameter,
-				// e.g., for T[str], with data T[&U] = ..., instantate the binding
-				// of &U = str, and then instantate using bindings from the current
-				// environment (generally meaning we are inside a function with
-				// type parameters, and those parameters are now bound to real types)
-				return type.instantiate(bindings).instantiate(__eval.getTypeBindings());
+				
+				Type tuple = TF.tupleType(params);
+			
+				// if names of the formal type parameters of the alias or ADT overlap with the currently
+				// instantiated types (could be type parameters themselves) we have a non-hygenic type parameter environment.
+				// so first we do some renaming:
+				if (tuple.isOpen()) {
+				    Map<Type, Type> renamings = new HashMap<Type, Type>();
+				    
+				    tuple.match(TF.voidType(), renamings);
+				    // rename all the bound type parameters
+			        for (Entry<Type,Type> entry : renamings.entrySet()) {
+			            Type key = entry.getKey();
+			            renamings.put(key, TF.parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+			        }
+			        
+			        type = type.instantiate(renamings);
+			        
+			        // now the declared type has unique type parameters
+				}
+				
+				// then we bind the formals to the actuals:
+                Map<Type, Type> bindings = new HashMap<Type, Type>();
+                type.getTypeParameters().match(tuple, bindings);
+                return type.instantiate(bindings);
 			}
 
 			throw new UndeclaredType(name, this);

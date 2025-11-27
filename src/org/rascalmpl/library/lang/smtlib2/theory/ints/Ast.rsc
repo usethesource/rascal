@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: AST for the SMTLIBv2 Ints theory
-}
+@synopsis{Synopsis: AST for the SMTLIBv2 Ints theory}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::theory::ints::Ast

@@ -9,12 +9,11 @@
 @bootstrapParser
 module lang::rascal::meta::ModuleInfo
 
-import ParseTree;
 import lang::rascal::\syntax::Rascal;
 
 data ImportsInfo = importsInfo(set[str] importedModules, set[str] extendedModules);
 
-public ImportsInfo getImports(Module m: (Module)`<Header h> <Body b>`) {
+public ImportsInfo getImports((Module)`<Header h> <Body _>`) {
 	set[str] importedModules = { };
 	set[str] extendedModules = { };
 	

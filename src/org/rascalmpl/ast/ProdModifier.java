@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class ProdModifier extends AbstractAST {
   public ProdModifier(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class ProdModifier extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Assoc getAssociativity() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTag() {
     return false;
   }
 
   public org.rascalmpl.ast.Tag getTag() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -97,7 +98,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 + 193 * associativity.hashCode() ; 
+      return 157 + 139 * associativity.hashCode() ; 
     } 
   
     
@@ -161,7 +162,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 ; 
+      return 193 ; 
     } 
   
     	
@@ -226,7 +227,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 3 + 701 * tag.hashCode() ; 
+      return 859 + 3 * tag.hashCode() ; 
     } 
   
     
