@@ -1,7 +1,5 @@
-@doc{
-.Synopsis
-Syntax definition for S-Expressions, based on http://people.csail.mit.edu/rivest/Sexp.txt
-}
+
+@synopsis{Syntax definition for S-Expressions, based on http://people.csail.mit.edu/rivest/Sexp.txt}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 
 module lang::sexp::\syntax::SExp
@@ -119,10 +117,10 @@ public Raw raw(Decimal d, Bytes bs) {
   }
 }
 
-str unparse(Bytes bs){
+str unparse(Bytes _){
     throw "unparse Bytes not implemented";
 }
 
-str unparse(Decimal d){
+str unparse(Decimal _){
     throw "unparse Decimal not implemented";
 }

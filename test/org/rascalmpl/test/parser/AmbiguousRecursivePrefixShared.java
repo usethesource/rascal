@@ -9,15 +9,17 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 // NOTE: This test only succeeds when the expect builder is used and it shares
 // all productions correctly. Otherwise graph node sharing breaks, since the
 // id's of the stack nodes do not end up being unique.
@@ -49,7 +51,7 @@ public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, ITree, 
 	
 	private final static AbstractStackNode<IConstructor>[] S_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		sExpectBuilder.addAlternative(PROD_S_SSS, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2});
 		sExpectBuilder.addAlternative(PROD_S_SS, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1});
 		sExpectBuilder.addAlternative(PROD_S_a, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_a5});

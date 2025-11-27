@@ -17,9 +17,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -40,16 +40,16 @@ public class Type {
 		emptyMap = vf.mapWriter().done();
 	}
 	  
-	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
+	public IValue typeOf(IValue v) {
 		return new TypeReifier(vf).typeToValue(
 		        v.getType(), 
-		        ctx.getCurrentEnvt().getStore(),
-		        (IMap) ctx.getEvaluator().getGrammar(ctx.getCurrentEnvt()).get("rules")
+		        new TypeStore(),
+		        vf.mapWriter().done()
 		        ).get("symbol");
 	}
 	
 	public IBool eq(IValue x, IValue y) {
-	  return vf.bool(x.isEqual(y));
+	  return vf.bool(x.equals(y));
 	}
 	
 	public IValue make(IValue type, IString name, IList args) {
@@ -98,6 +98,36 @@ public class Type {
 			// TODO: improve error messaging, using specialized exception
 			throw RuntimeExceptionFactory.illegalArgument(type, null, null);
 		}
+	}
+
+	public IBool intersects(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return vf.bool(t1.intersects(t2));
+	}
+
+	public IBool subtype(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return vf.bool(t1.isSubtypeOf(t2));
+	}
+
+	public IConstructor lub(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		var ts = new TypeStore();
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return (IConstructor) tr.typeToValue(t1.lub(t2), ts, vf.map()).get("symbol");
+	}
+
+	public IConstructor glb(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		var ts = new TypeStore();
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return (IConstructor) tr.typeToValue(t1.glb(t2), ts, vf.map()).get("symbol");
 	}
 	
 }

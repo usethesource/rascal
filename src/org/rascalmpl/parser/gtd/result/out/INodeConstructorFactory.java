@@ -38,13 +38,17 @@ public interface INodeConstructorFactory<T, P> {
 	
 	T createListAmbiguityNode(ArrayList<T> alternatives);
 	
-	T createRecoveryNode(int[] characters);
-	
+	T createSkippedNode(int[] unrecognizedCharacters);
+
+	T createErrorNode(ArrayList<T> children, Object production);
+
 	ArrayList<T> getChildren(T node);
 	
 	P createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore);
 	
 	T addPositionInformation(T node, P location);
+
+	T addParseErrorPosition(T node, P location);
 	
 	Object getRhs(Object production);
 	

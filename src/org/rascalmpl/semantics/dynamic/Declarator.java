@@ -12,16 +12,17 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.rascalmpl.ast.Variable;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -38,12 +39,10 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
-					.nothing();
+			Result<IValue> r = ResultFactory.nothing();
 
 			for (Variable var : this.getVariables()) {
-				String varAsString = org.rascalmpl.interpreter.utils.Names
-						.name(var.getName());
+				String varAsString = Names.name(var.getName());
 
 				if (var.isInitialized()) { // variable declaration without
 					// initialization
@@ -52,33 +51,23 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 					// that is used on the right hand side.
 					Result<IValue> v = var.getInitial().interpret(__eval);
 
-					Type declaredType = typeOf(__eval.getCurrentEnvt(), true, __eval);
+					Type declaredType = typeOf(__eval.getCurrentEnvt(), __eval, true);
 
-					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
-							var.getName())) {
+					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariable(varAsString, var);
 					}
 
-					if (v.getType().isSubtypeOf(declaredType)) {
-						// TODO: do we actually want to instantiate the locally
-						// bound type parameters?
-						Map<Type, Type> bindings = new HashMap<Type, Type>();
-						declaredType.match(v.getType(), bindings);
-						declaredType = declaredType.instantiate(bindings);
-						// Was: r = makeResult(declaredType,
-						// applyRules(v.getValue()));
-						r = org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(declaredType, v.getValue(), __eval);
+					if (v.getStaticType().isSubtypeOf(declaredType)) {
+						r = ResultFactory.makeResult(declaredType, v.getValue(), __eval);
 						__eval.getCurrentEnvt().storeVariable(var.getName(), r);
 					} else {
-						throw new UnexpectedType(declaredType,
-								v.getType(), var);
+						throw new UnexpectedType(declaredType, v.getStaticType(), var);
 					}
-				} else {
-					Type declaredType = typeOf(__eval.getCurrentEnvt(), true, __eval);
+				} 
+				else {
+					Type declaredType = typeOf(__eval.getCurrentEnvt(), __eval, false);
 
-					if (!__eval.getCurrentEnvt().declareVariable(declaredType,
-							var.getName())) {
+					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariable(varAsString, var);
 					}
 				}
@@ -89,8 +78,8 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getType().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}

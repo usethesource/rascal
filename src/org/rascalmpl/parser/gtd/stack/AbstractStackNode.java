@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
+import java.util.Arrays;
+
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -20,16 +22,21 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.BitSet;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 @SuppressWarnings({"unchecked", "cast"})
 public abstract class AbstractStackNode<P>{
-	public final static int START_SYMBOL_ID = -1;
-	public final static int DEFAULT_START_LOCATION = -1;
+	public static final int START_SYMBOL_ID = -1;
+	public static final int DEFAULT_START_LOCATION = -1;
 	
 	protected AbstractStackNode<P>[] production;
 	protected AbstractStackNode<P>[][] alternateProductions;
-	
-	protected IntegerObjectList<EdgesSet<P>> edgesMap;
+
+	// Our edges
+	protected IntegerObjectList<EdgesSet<P>> edgesMap; // key=startLocation, value=EdgesSet at that location
+	// Edges of our children
 	protected ArrayList<Link>[] prefixesMap;
 	
 	protected EdgesSet<P> incomingEdges;
@@ -56,17 +63,21 @@ public abstract class AbstractStackNode<P>{
 	private IntegerList propagatedReductions;
 	
 	protected AbstractStackNode(int id, int dot){
+		this(id, dot, DEFAULT_START_LOCATION);
+	}
+
+	protected AbstractStackNode(int id, int dot, int startLocation) {
 		super();
 		
 		this.id = id;
 		this.dot = dot;
 		
-		this.startLocation = DEFAULT_START_LOCATION;
+		this.startLocation = startLocation;
 		
 		this.enterFilters = null;
 		this.completionFilters = null;
 	}
-	
+
 	protected AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super();
 		
@@ -180,7 +191,7 @@ public abstract class AbstractStackNode<P>{
 	 * Returns the name associated with the symbol in this node (optional operation).
 	 */
 	public abstract String getName();
-	
+
 	/**
 	 * Check whether of this this node is equal to the given node.
 	 */
@@ -226,8 +237,10 @@ public abstract class AbstractStackNode<P>{
 	public boolean hasEqualFilters(AbstractStackNode<P> otherNode){
 		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
 		if(otherEnterFilters != null){
-			if(enterFilters == null) return false;
-			
+			if(enterFilters == null || enterFilters.length != otherEnterFilters.length) {
+				return false;
+			}
+
 			OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
 				IEnterFilter enterFilter = enterFilters[i];
 				for(int j = otherEnterFilters.length - 1; j >= 0; --j){
@@ -241,7 +254,9 @@ public abstract class AbstractStackNode<P>{
 		
 		ICompletionFilter[] otherCompletionFilters = otherNode.completionFilters;
 		if(otherCompletionFilters != null){
-			if(completionFilters == null) return false;
+			if(completionFilters == null || completionFilters.length != otherCompletionFilters.length) {
+				return false;
+			}
 			
 			OUTER: for(int i = completionFilters.length - 1; i >= 0; --i){
 				ICompletionFilter completionFilter = completionFilters[i];
@@ -354,7 +369,7 @@ public abstract class AbstractStackNode<P>{
 	 * Initializes the set of edges of this node.
 	 */
 	public void initEdges(){
-		edgesMap = new IntegerObjectList<EdgesSet<P>>();
+		edgesMap = new IntegerObjectList<>();
 	}
 	
 	/**
@@ -370,7 +385,7 @@ public abstract class AbstractStackNode<P>{
 	public EdgesSet<P> addEdge(AbstractStackNode<P> edge, int startLocation){
 		EdgesSet<P> edges = edgesMap.findValue(startLocation);
 		if(edges == null){
-			edges = new EdgesSet<P>(1);
+			edges = new EdgesSet<>(1);
 			edgesMap.add(startLocation, edges);
 		}
 		
@@ -412,7 +427,7 @@ public abstract class AbstractStackNode<P>{
 		
 		ArrayList<Link> prefixes = prefixesMap[edgesMapSize];
 		if(prefixes == null){
-			prefixes = new ArrayList<Link>(1);
+			prefixes = new ArrayList<>(1);
 			prefixesMap[edgesMapSize] = prefixes;
 		}
 		prefixes.add(prefix);
@@ -425,7 +440,7 @@ public abstract class AbstractStackNode<P>{
 	private void addPrefix(Link prefix, int index){
 		ArrayList<Link> prefixes = prefixesMap[index];
 		if(prefixes == null){
-			prefixes = new ArrayList<Link>(1);
+			prefixes = new ArrayList<>(1);
 			prefixesMap[index] = prefixes;
 		}
 		
@@ -446,7 +461,7 @@ public abstract class AbstractStackNode<P>{
 		
 		if(edgesMap == null){ // Clean node, no stack merge occurred.
 			// Initialize the edges map by cloning the one of the predecessor, as we need to transfer all these edges to this node.
-			edgesMap = new IntegerObjectList<EdgesSet<P>>(edgesMapToAdd);
+			edgesMap = new IntegerObjectList<>(edgesMapToAdd);
 			
 			// Initialize the prefixes map.
 			prefixesMap = new ArrayList[edgesMap.size()];
@@ -454,12 +469,12 @@ public abstract class AbstractStackNode<P>{
 			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
 				int index = edgesMap.findKey(predecessor.getStartLocation());
 				addPrefix(new Link(null, predecessorResult), index);
-			}else{ // The predecessor has prefixes.
+			} else { // The predecessor has prefixes.
 				int nrOfPrefixes = edgesMapToAdd.size();
 				for(int i = nrOfPrefixes - 1; i >= 0; --i){
 					ArrayList<Link> prefixes = prefixesMap[i];
 					if(prefixes == null){
-						prefixes = new ArrayList<Link>(1);
+						prefixes = new ArrayList<>(1);
 						prefixesMap[i] = prefixes;
 					}
 					
@@ -467,54 +482,65 @@ public abstract class AbstractStackNode<P>{
 				}
 			}
 		}else if(edgesMap != edgesMapToAdd){ // A stack merge occurred (and the production is non-cyclic (expandable nodes, such as lists, can have cyclic child alternatives)).
-			// Initialize the prefixes map (if necessary).
-			int edgesMapSize = edgesMap.size();
-			int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
-			if(prefixesMap == null){
-				prefixesMap = new ArrayList[possibleMaxSize];
-			}else{
-				if(prefixesMap.length < possibleMaxSize){
-					ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-					prefixesMap = new ArrayList[possibleMaxSize];
-					System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
-				}
-			}
-			
-			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
-				addPrefix(new Link(null, predecessorResult), edgesMapSize);
-				edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
-			}else{ // The predecessor has prefixes.
-				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
-					int startLocation = edgesMapToAdd.getKey(i);
-					int index = edgesMap.findKeyBefore(startLocation, edgesMapSize); // Only look where needed.
-					ArrayList<Link> prefixes;
-					if(index == -1){ // No prefix set for the given start location is present yet.
-						index = edgesMap.size();
-						edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
-						
-						prefixes = new ArrayList<Link>(1);
-						prefixesMap[index] = prefixes;
-					}else{ // A prefix set for the given start location is present.
-						prefixes = prefixesMap[index];
-					}
-					
-					// Add the prefix to the appropriate prefix set.
-					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
-				}
-			}
+			handleStackMergeForNonCyclicProduction(predecessorResult, edgesMapToAdd, prefixesMapToAdd);
 		}else{ // A stack merge occurred and the production is self cyclic (expandable nodes, such as lists, can have cyclic child alternatives).
-			if(prefixesMapToAdd == null){
-				int index = edgesMap.findKey(predecessor.getStartLocation());
-				addPrefix(new Link(null, predecessorResult), index);
-			}else{
-				int nrOfPrefixes = edgesMapToAdd.size();
-				for(int i = nrOfPrefixes - 1; i >= 0; --i){
-					// Add the prefix to the appropriate prefixes set.
-					prefixesMap[i].add(new Link(prefixesMapToAdd[i], predecessorResult));
-				}
-			}
+			handleStackMergeForSelfCyclicProduction(predecessor, predecessorResult, edgesMapToAdd, prefixesMapToAdd);
 		}
 	}
+
+    private void handleStackMergeForSelfCyclicProduction(AbstractStackNode<P> predecessor,
+        AbstractNode predecessorResult, IntegerObjectList<EdgesSet<P>> edgesMapToAdd,
+        ArrayList<Link>[] prefixesMapToAdd) {
+        if(prefixesMapToAdd == null){
+        	int index = edgesMap.findKey(predecessor.getStartLocation());
+        	addPrefix(new Link(null, predecessorResult), index);
+        }else{
+        	int nrOfPrefixes = edgesMapToAdd.size();
+        	for(int i = nrOfPrefixes - 1; i >= 0; --i){
+        		// Add the prefix to the appropriate prefixes set.
+        		prefixesMap[i].add(new Link(prefixesMapToAdd[i], predecessorResult));
+        	}
+        }
+    }
+
+    private void handleStackMergeForNonCyclicProduction(AbstractNode predecessorResult,
+        IntegerObjectList<EdgesSet<P>> edgesMapToAdd, ArrayList<Link>[] prefixesMapToAdd) {
+        // Initialize the prefixes map (if necessary).
+        int edgesMapSize = edgesMap.size();
+        int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
+        if(prefixesMap == null){
+        	prefixesMap = new ArrayList[possibleMaxSize];
+        }else{
+        	if(prefixesMap.length < possibleMaxSize){
+        		ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+        		prefixesMap = new ArrayList[possibleMaxSize];
+        		System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+        	}
+        }
+        
+        if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+        	addPrefix(new Link(null, predecessorResult), edgesMapSize);
+        	edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
+        }else{ // The predecessor has prefixes.
+        	for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
+        		int locationStart = edgesMapToAdd.getKey(i);
+        		int index = edgesMap.findKeyBefore(locationStart, edgesMapSize); // Only look where needed.
+        		ArrayList<Link> prefixes;
+        		if(index == -1){ // No prefix set for the given start location is present yet.
+        			index = edgesMap.size();
+        			edgesMap.add(locationStart, edgesMapToAdd.getValue(i));
+        			
+        			prefixes = new ArrayList<>(1);
+        			prefixesMap[index] = prefixes;
+        		}else{ // A prefix set for the given start location is present.
+        			prefixes = prefixesMap[index];
+        		}
+        		
+        		// Add the prefix to the appropriate prefix set.
+        		prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
+        	}
+        }
+    }
 	
 	/**
 	 * This method is a specialized version of 'updateNode'.
@@ -540,7 +566,7 @@ public abstract class AbstractStackNode<P>{
 		}else{ // The predecessor has prefixes.
 			int nrOfPrefixes = edgesMap.size();
 			for(int i = nrOfPrefixes - 1; i >= 0; --i){ // Since we reuse the edges map the indexes of the prefixes map will correspond to the same start locations.
-				ArrayList<Link> prefixes = new ArrayList<Link>(1);
+				ArrayList<Link> prefixes = new ArrayList<>(1);
 				prefixesMap[i] = prefixes;
 				// Add the prefix to the appropriate prefixes set.
 				prefixes.add(new Link(prefixesMapToAdd[i], result));
@@ -564,7 +590,10 @@ public abstract class AbstractStackNode<P>{
 		
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + edgesMapSize;
+		// Before error recovery: int possibleMaxSize = edgesMapSize + edgesMapSize;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for,
+		// although this might just have been a bug.
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 		}else{
@@ -581,18 +610,17 @@ public abstract class AbstractStackNode<P>{
 			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
-			int fromIndex = edgesMapToAdd.size() - edgesMapSize;
-			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
-				int startLocation = edgesMapToAdd.getKey(i);
+			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
+				int locationStart = edgesMapToAdd.getKey(i);
 				
 				// Prefix not present, add it.
-				int index = edgesMap.findKey(startLocation);
+				int index = edgesMap.findKey(locationStart);
 				ArrayList<Link> prefixes;
 				if(index == -1){ // No prefix set for the given start location is present yet.
 					index = edgesMap.size();
-					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+					edgesMap.add(locationStart, edgesMapToAdd.getValue(i));
 					
-					prefixes = new ArrayList<Link>(1);
+					prefixes = new ArrayList<>(1);
 					prefixesMap[index] = prefixes;
 					
 					++nrOfAddedEdges;
@@ -626,11 +654,13 @@ public abstract class AbstractStackNode<P>{
 		
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// Before error recovery: int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for.
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 			
-			propagatedPrefixes = new BitSet();
+			propagatedPrefixes = new BitSet(edgesMapSize);
 		}else{
 			if(prefixesMap.length < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
@@ -639,7 +669,7 @@ public abstract class AbstractStackNode<P>{
 			}
 			
 			if(propagatedPrefixes == null){
-				propagatedPrefixes = new BitSet();
+				propagatedPrefixes = new BitSet(possibleMaxSize);
 			}else{
 				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
@@ -652,20 +682,19 @@ public abstract class AbstractStackNode<P>{
 			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
-			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
-			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
-				int startLocation = edgesMapToAdd.getKey(i);
+			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
+				int locationStart = edgesMapToAdd.getKey(i);
 				
 				// Prefix not present, add it.
-				int index = edgesMap.findKey(startLocation);
+				int index = edgesMap.findKey(locationStart);
 				
 				ArrayList<Link> prefixes;
 				if(index == -1){ // No prefix set for the given start location is present yet.
 					index = edgesMap.size();
-					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+					edgesMap.add(locationStart, edgesMapToAdd.getValue(i));
 					propagatedPrefixes.set(index);
 					
-					prefixes = new ArrayList<Link>(1);
+					prefixes = new ArrayList<>(1);
 					prefixesMap[index] = prefixes;
 					
 					++nrOfAddedEdges;
@@ -723,7 +752,64 @@ public abstract class AbstractStackNode<P>{
 		
 		return propagatedReductions;
 	}
-	
+
+	/**
+	 * Return a short string representation of this object for debugging purposes
+	 */
+	public abstract String toShortString();
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(id + "." + dot + "@" + startLocation);
+		if (production != null) {
+			builder.append(",prod=[");
+			boolean first = true;
+			for (AbstractStackNode<P> prodElem : production) {
+				if (first) {
+					first = false;
+				} else {
+					builder.append(",");
+				}
+				builder.append(prodElem.toShortString());
+			}
+			builder.append("]");
+		}
+		if (isEndNode) {
+			builder.append(",endNode");
+		}
+		if (isSeparator) {
+			builder.append(",separator");
+		}
+		if (isLayout) {
+			builder.append(",layout");
+		}
+
+		if (alternateProductions != null && alternateProductions.length != 0) {
+			builder.append(",alternateProductions=" + Arrays.toString(alternateProductions));
+		}
+		if (prefixesMap != null && prefixesMap.length != 0) {
+			builder.append(",prefixes=" + Arrays.toString(prefixesMap));
+		}
+		if (incomingEdges != null && incomingEdges.size() != 0) {
+			builder.append(",incomingEdges=" + incomingEdges);
+		}
+		if (alternativeProduction != null) {
+			builder.append(",alternativeProduction=" + DebugUtil.prodToString((IConstructor)alternativeProduction));
+		}
+		if (propagatedPrefixes != null) {
+			builder.append(",propagatedPrefixes=" + propagatedPrefixes);
+		}
+		if (propagatedReductions != null) {
+			builder.append(",propagatedReductions=" + propagatedReductions);
+		}
+
+		// Do not print filters for now.
+
+		return builder.toString();
+	}
+
+	public abstract <R> R accept(StackNodeVisitor<P, R> visitor);
+
 	// Matchables.
 	/**
 	 * Matches the symbol associated with this node to the input at the specified location.

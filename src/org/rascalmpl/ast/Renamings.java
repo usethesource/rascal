@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Renamings extends AbstractAST {
   public Renamings(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,7 +31,7 @@ public abstract class Renamings extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Renaming> getRenamings() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -92,7 +93,7 @@ public abstract class Renamings extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 881 * renamings.hashCode() ; 
+      return 881 + 739 * renamings.hashCode() ; 
     } 
   
     

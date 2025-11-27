@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +39,7 @@ public class ObjectPoolTest {
 
     @Test
     public void testObjectsAreOnlyReleasedOnce() throws InterruptedException, BrokenBarrierException {
-        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(100, 3);
+        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(100, 3, Integer.MAX_VALUE);
         final AtomicBoolean result = new AtomicBoolean(true);
         
         int numberOfThreads = 20;
@@ -71,10 +70,40 @@ public class ObjectPoolTest {
         assertTrue(result.get());
         assertTrue(target.healthCheck());
     }
+    
+    @Test
+    public void testMaxIsRespected() throws InterruptedException, BrokenBarrierException {
+        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(100, 1, 5);
+
+        int numberOfThreads = 20;
+        int numberOfTries = 2000;
+        CyclicBarrier waitToStartRunning = new CyclicBarrier(numberOfThreads + 1); // start at the same time
+        CyclicBarrier finishedRunning = new CyclicBarrier(numberOfThreads + 1); // signal finished
+        
+        Set<Integer> instancesSeen = new HashSet<>();
+        for (int i = 0; i < numberOfThreads; i++) {
+            new Thread(() -> {
+                try {
+                    waitToStartRunning.await();
+                    for (int j = 0; j < numberOfTries; j++) {
+                        target.useAndReturn(f -> instancesSeen.add(f.hashCode()));
+                    }
+                    finishedRunning.await();
+                }
+                catch (RuntimeException | InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+        waitToStartRunning.await();
+        finishedRunning.await();
+        assertTrue(instancesSeen.size() >= 5);
+        assertTrue(instancesSeen.size() < 8); // there can be a bit of a race on the condition of constructing two, so that is fine
+    }
 
     @Test
     public void timeoutClears() throws InterruptedException  {
-        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(1, 0);
+        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(1, 0, 10);
         List<TestConcurrentAccess> leakInternal = new ArrayList<>();
         target.useAndReturn((t) -> { leakInternal.add(t); return t.tryRun(); } );
         Thread.sleep(10);
@@ -85,7 +114,7 @@ public class ObjectPoolTest {
 
     @Test
     public void keepAroundEvenAfterTimeout() throws InterruptedException, BrokenBarrierException  {
-        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(1, 2);
+        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(1, 2, 10);
         Set<TestConcurrentAccess> beforeSleep = collectInternalObjects(target, 4);
         Thread.sleep(10); // now there should be only 2 left
         Set<TestConcurrentAccess> afterSleep = collectInternalObjects(target, 4);
@@ -136,8 +165,8 @@ public class ObjectPoolTest {
     
     
 
-    private ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> createExamplePool(int milliSecondTimeouts, int keepAround) {
-        return new ConcurrentSoftReferenceObjectPool<>(milliSecondTimeouts, TimeUnit.MILLISECONDS, keepAround, () -> 
+    private ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> createExamplePool(int milliSecondTimeouts, int keepAround, int maxAlive) {
+        return new ConcurrentSoftReferenceObjectPool<>(milliSecondTimeouts, TimeUnit.MILLISECONDS, keepAround, maxAlive, () -> 
             new TestConcurrentAccess() {
                 private final Random random = new Random();
                 private volatile Thread currentThread;

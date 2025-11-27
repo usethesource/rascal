@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Class extends AbstractAST {
   public Class(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,35 +31,28 @@ public abstract class Class extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Range> getRanges() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCharClass() {
     return false;
   }
 
   public org.rascalmpl.ast.Class getCharClass() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasCharclass() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Class getCharclass() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Class getLhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Class getRhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -69,15 +63,15 @@ public abstract class Class extends AbstractAST {
   }
 
   static public class Bracket extends Class {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Class","charclass")],breakable=false)
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Class","charClass")],breakable=false)
   
     
-    private final org.rascalmpl.ast.Class charclass;
+    private final org.rascalmpl.ast.Class charClass;
   
-    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Class charclass) {
+    public Bracket(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Class charClass) {
       super(src, node);
       
-      this.charclass = charclass;
+      this.charClass = charClass;
     }
   
     @Override
@@ -97,9 +91,9 @@ public abstract class Class extends AbstractAST {
       }
       ISourceLocation $l;
       
-      $l = charclass.getLocation();
+      $l = charClass.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        charclass.addForLineNumber($line, $result);
+        charClass.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
         return;
@@ -113,28 +107,28 @@ public abstract class Class extends AbstractAST {
         return false;
       }        
       Bracket tmp = (Bracket) o;
-      return true && tmp.charclass.equals(this.charclass) ; 
+      return true && tmp.charClass.equals(this.charClass) ; 
     }
    
     @Override
     public int hashCode() {
-      return 13 + 103 * charclass.hashCode() ; 
+      return 13 + 103 * charClass.hashCode() ; 
     } 
   
     
     @Override
-    public org.rascalmpl.ast.Class getCharclass() {
-      return this.charclass;
+    public org.rascalmpl.ast.Class getCharClass() {
+      return this.charClass;
     }
   
     @Override
-    public boolean hasCharclass() {
+    public boolean hasCharClass() {
       return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(charclass));
+      return newInstance(getClass(), src, (IConstructor) null , clone(charClass));
     }
             
   }

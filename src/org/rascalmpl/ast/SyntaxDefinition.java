@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class SyntaxDefinition extends AbstractAST {
   public SyntaxDefinition(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,28 +31,28 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Prod getProduction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStart() {
     return false;
   }
 
   public org.rascalmpl.ast.Start getStart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDefined() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getDefined() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVis() {
     return false;
   }
 
   public org.rascalmpl.ast.Visibility getVis() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -121,7 +122,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 389 * defined.hashCode() + 229 * production.hashCode() ; 
+      return 617 + 233 * defined.hashCode() + 263 * production.hashCode() ; 
     } 
   
     
@@ -224,7 +225,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 617 * start.hashCode() + 521 * defined.hashCode() + 269 * production.hashCode() ; 
+      return 163 + 683 * start.hashCode() + 661 * defined.hashCode() + 499 * production.hashCode() ; 
     } 
   
     
@@ -336,7 +337,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 743 * vis.hashCode() + 751 * defined.hashCode() + 241 * production.hashCode() ; 
+      return 769 + 163 * vis.hashCode() + 641 * defined.hashCode() + 313 * production.hashCode() ; 
     } 
   
     
@@ -438,7 +439,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 911 + 827 * defined.hashCode() + 29 * production.hashCode() ; 
+      return 509 + 563 * defined.hashCode() + 149 * production.hashCode() ; 
     } 
   
     

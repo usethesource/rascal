@@ -12,16 +12,11 @@
 package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IConstructor;
+
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.AbstractExternalValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class ResourceResult extends Result<IValue> implements IExternalValue {
 
@@ -35,13 +30,11 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	}
 
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isEqual(IValue other) {
+	public boolean equals(Object other) {
+	    if (other == null) {
+	        return false;
+	    }
+	    
 		if (other instanceof ResourceResult) {
 			return fullURI.equals(((ResourceResult) other).fullURI);
 		}
@@ -55,32 +48,4 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
         }
         return false;
     }
-	
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
-	@Override
-	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	  throw new IllegalOperationException(
-        "Cannot be viewed as with keyword parameters.", getType());
-	}
-	
-	@Override
-	public boolean mayHaveKeywordParameters() {
-	  return false;
-	}
-	
-	@Override
-	public IConstructor encodeAsConstructor() {
-		return AbstractExternalValue.encodeAsConstructor(this);
-	}
-	
 }

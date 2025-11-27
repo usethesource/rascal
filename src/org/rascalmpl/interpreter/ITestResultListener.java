@@ -14,7 +14,7 @@ package org.rascalmpl.interpreter;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public interface ITestResultListener{
+public interface ITestResultListener {
 	void start(String context, int count);
 	void report(boolean successful, String test, ISourceLocation loc, String message, Throwable exception);
 	void ignored(String test, ISourceLocation loc);

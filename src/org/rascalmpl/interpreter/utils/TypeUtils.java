@@ -23,7 +23,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public final class TypeUtils {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	
-	public static Type typeOf(List<TypeArg> args, Environment env, boolean instantiateTypeParameters) {
+	public static Type typeOf(List<TypeArg> args, Environment env, boolean noVoid) {
 		Type[] fieldTypes = new Type[args.size()];
 		String[] fieldLabels = new String[args.size()];
 
@@ -32,8 +32,12 @@ public final class TypeUtils {
 		boolean someLabeled = false;
 
 		for (TypeArg arg : args) {
-			fieldTypes[i] = arg.getType().typeOf(env, instantiateTypeParameters, null);
+			fieldTypes[i] = arg.getType().typeOf(env, null, false);
 
+			if (noVoid && fieldTypes[i].isBottom()) {
+				return fieldTypes[i];
+			}
+			
 			if (arg.isNamed()) {
 				fieldLabels[i] = Names.name(arg.getName());
 				someLabeled = true;
@@ -52,9 +56,10 @@ public final class TypeUtils {
 		if (!allLabeled) {
 			return TF.tupleType(fieldTypes);
 		}
-		for(int j = 0; j < fieldLabels.length - 1; j++){
-			for(int k = j + 1; k < fieldLabels.length; k++){
-				if(fieldLabels[j].equals(fieldLabels[k])){
+		
+		for (int j = 0; j < fieldLabels.length - 1; j++) {
+			for (int k = j + 1; k < fieldLabels.length; k++) {
+				if (fieldLabels[j].equals(fieldLabels[k])) {
 					throw new RedeclaredField(fieldLabels[j], args.get(k));
 				}
 			}
@@ -62,5 +67,4 @@ public final class TypeUtils {
 
 		return TF.tupleType(fieldTypes, fieldLabels);
 	}
-
 }

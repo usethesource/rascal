@@ -1,0 +1,97 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "RascalCheck",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalCheck",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "Launch DocRunner",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.DocRunner",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "Launch DoubleRightNullableWithPrefixSharing",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.DoubleRightNullableWithPrefixSharing",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch RascalShell",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Launch RascalShell Tutor",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "cwd": "${workspaceFolder}/../rascal-tutor",
+            "vmArgs": "-Xss80m -Xmx2g -ea"
+        },
+        {
+            "type": "java",
+            "name": "Attach RascalShell",
+            "request": "attach",
+            "projectName": "rascal",
+            "hostName": "localhost",
+            "port": 9001
+        },
+        {
+            "type": "java",
+            "name": "Attach Mvn Rascal",
+            "request": "attach",
+            "projectName": "rascal-maven-plugin",
+            "hostName": "localhost",
+            "port": 8000
+        },
+        {
+            "type": "java",
+            "name": "Attach Rascal LSP Terminal",
+            "request": "attach",
+            "projectName": "rascal-lsp",
+            "hostName": "localhost",
+            "port": 9871
+        },
+        {
+            "type": "java",
+            "name": "Attach RascalNotebook",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 8000,
+            "projectName": "rascal-notebook"
+        },
+        {
+            "type": "java",
+            "name": "Launch RascalShell in rascal-core",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "vmArgs": "-ea",
+            "classPaths": [
+                "/Users/jurgenv/.m2/repository/junit/junit/4.12/junit-4.12.jar:/Users/jurgenv/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/jurgenv/.m2/repository/org/rascalmpl/rascal/0.19.3-SNAPSHOT/rascal-0.19.3-SNAPSHOT.jar:/Users/jurgenv/.m2/repository/org/rascalmpl/typepal/0.4.11-SNAPSHOT/typepal-0.4.11-SNAPSHOT.jar:/Users/jurgenv/.m2/repository/io/usethesource/vallang/0.13.0/vallang-0.13.0.jar:/Users/jurgenv/.m2/repository/io/usethesource/capsule/0.6.3/capsule-0.6.3.jar:/Users/jurgenv/.m2/repository/org/apache/commons/commons-compress/1.19/commons-compress-1.19.jar:/Users/jurgenv/.m2/repository/org/tukaani/xz/1.8/xz-1.8.jar:/Users/jurgenv/.m2/repository/com/github/luben/zstd-jni/1.4.5-2/zstd-jni-1.4.5-2.jar:/Users/jurgenv/.m2/repository/com/github/ben-manes/caffeine/caffeine/2.8.8/caffeine-2.8.8.jar:/Users/jurgenv/.m2/repository/com/google/errorprone/error_prone_annotations/2.4.0/error_prone_annotations-2.4.0.jar:/Users/jurgenv/.m2/repository/org/checkerframework/checker-qual/2.9.0/checker-qual-2.9.0.jar"
+            ],
+            "projectName": "rascal",
+            "cwd": "${workspaceFolder}/../rascal-core"
+        }
+    ]
+}

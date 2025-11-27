@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class StringLiteral extends AbstractAST {
   public StringLiteral(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,35 +31,35 @@ public abstract class StringLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPre() {
     return false;
   }
 
   public org.rascalmpl.ast.PreStringChars getPre() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasConstant() {
     return false;
   }
 
   public org.rascalmpl.ast.StringConstant getConstant() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTemplate() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTemplate getTemplate() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -138,7 +139,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 947 * pre.hashCode() + 541 * expression.hashCode() + 103 * tail.hashCode() ; 
+      return 2 + 947 * pre.hashCode() + 281 * expression.hashCode() + 409 * tail.hashCode() ; 
     } 
   
     
@@ -230,7 +231,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 421 * constant.hashCode() ; 
+      return 97 + 607 * constant.hashCode() ; 
     } 
   
     
@@ -324,7 +325,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 509 * pre.hashCode() + 941 * template.hashCode() + 653 * tail.hashCode() ; 
+      return 547 + 283 * pre.hashCode() + 757 * template.hashCode() + 347 * tail.hashCode() ; 
     } 
   
     

@@ -20,15 +20,17 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 /*
 * S ::= AB | AC
 * A ::= a
@@ -63,7 +65,7 @@ public class Ambiguous8 extends SGTDBF<IConstructor, ITree, ISourceLocation> imp
 	
 	private final static AbstractStackNode<IConstructor>[] S_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		sExpectBuilder.addAlternative(PROD_S_AB, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_A0, NONTERMINAL_B1});
 		sExpectBuilder.addAlternative(PROD_S_AC, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_A0, NONTERMINAL_C2});
 		S_EXPECTS = sExpectBuilder.buildExpectArray();
@@ -71,21 +73,21 @@ public class Ambiguous8 extends SGTDBF<IConstructor, ITree, ISourceLocation> imp
 	
 	private final static AbstractStackNode<IConstructor>[] A_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> aExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> aExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		aExpectBuilder.addAlternative(PROD_A_a, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_a3});
 		A_EXPECTS = aExpectBuilder.buildExpectArray();
 	}
 	
 	private final static AbstractStackNode<IConstructor>[] B_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> bExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> bExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		bExpectBuilder.addAlternative(PROD_B_a, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_a4});
 		B_EXPECTS = bExpectBuilder.buildExpectArray();
 	}
 	
 	private final static AbstractStackNode<IConstructor>[] C_EXPECTS;
 	static{
-		ExpectBuilder<IConstructor> cExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		ExpectBuilder<IConstructor> cExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
 		cExpectBuilder.addAlternative(PROD_C_a, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_a5});
 		C_EXPECTS = cExpectBuilder.buildExpectArray();
 	}

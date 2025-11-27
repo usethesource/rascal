@@ -14,9 +14,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 
 /*
 A ::= B B*
@@ -26,7 +27,7 @@ B ::= y | x A
 public class HiddenRightRecursive extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_B = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("B"));
-	private final static IConstructor SYMBOL_STAR_LIST_B = VF.constructor(RascalValueFactory.Symbol_IterStar, SYMBOL_B, VF.list());
+	private final static IConstructor SYMBOL_STAR_LIST_B = VF.constructor(RascalValueFactory.Symbol_IterStar, SYMBOL_B);
 	private final static IConstructor SYMBOL_x = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("x"));
 	private final static IConstructor SYMBOL_y = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("y"));
 	private final static IConstructor SYMBOL_char_x = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(120))));

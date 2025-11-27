@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class StringTail extends AbstractAST {
   public StringTail(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,35 +31,35 @@ public abstract class StringTail extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMid() {
     return false;
   }
 
   public org.rascalmpl.ast.MidStringChars getMid() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPost() {
     return false;
   }
 
   public org.rascalmpl.ast.PostStringChars getPost() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTemplate() {
     return false;
   }
 
   public org.rascalmpl.ast.StringTemplate getTemplate() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -138,7 +139,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 977 + 2 * mid.hashCode() + 947 * expression.hashCode() + 281 * tail.hashCode() ; 
+      return 821 + 977 * mid.hashCode() + 677 * expression.hashCode() + 11 * tail.hashCode() ; 
     } 
   
     
@@ -250,7 +251,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 97 * mid.hashCode() + 607 * template.hashCode() + 547 * tail.hashCode() ; 
+      return 691 + 71 * mid.hashCode() + 181 * template.hashCode() + 199 * tail.hashCode() ; 
     } 
   
     
@@ -342,7 +343,7 @@ public abstract class StringTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 757 * post.hashCode() ; 
+      return 787 + 193 * post.hashCode() ; 
     } 
   
     

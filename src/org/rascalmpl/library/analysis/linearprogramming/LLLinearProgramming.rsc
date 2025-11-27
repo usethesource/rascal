@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 
-// Low level linear programming interface
+@synopsis{Low level linear programming interface}
 module analysis::linearprogramming::LLLinearProgramming
 
 import List;

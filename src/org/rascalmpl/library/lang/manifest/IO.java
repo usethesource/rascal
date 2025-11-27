@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -29,7 +29,7 @@ public class IO {
 			
 			return m.done();
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 }

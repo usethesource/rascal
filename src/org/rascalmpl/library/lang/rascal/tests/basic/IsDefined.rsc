@@ -3,29 +3,6 @@ module lang::rascal::tests::basic::IsDefined
 import Exception;
 import util::Math;
 import List;
-
-syntax As = "a"* as;
-
-syntax Bs = {"b" ","}* bs;
-
-// Concrete lists
-
-test bool isDefinedConcrete1() = (([As] "aaa")[0])?;
-
-test bool isDefinedConcrete2() = !(([As] "aaa")[5])?;
-
-test bool isDefinedConcrete3() = (([Bs] "b,b,b")[0])?;
-
-test bool isDefinedConcrete4() = !(([Bs] "b,b,b")[5])?;
-
-test bool hasConcrete1() = ([As] "aaa") has as;
-
-test bool hasConcrete2() = !(([As] "aaa") has bs);
-
-test bool hasConcrete3() = ([Bs] "b,b,b") has bs;
-
-test bool hasConcrete4() = !(([Bs] "b,b,b") has as);
-
 // Strings
 
 test bool isDefinedStr1() = ("abc"[0])?;
@@ -61,7 +38,7 @@ test bool isDefinedList5() {
     try {
       lst[3];
       return false;
-    } catch IndexOutOfBounds(k): {
+    } catch IndexOutOfBounds(_): {
       return true;
     }
 }
@@ -72,20 +49,20 @@ test bool isDefinedList6() {
 }
 
 test bool isDefinedList7() {
-   int x;
+   int x = -1;
    try {
      x = [0,1,2,3][2] ? 100;
-   } catch IndexOutOfBounds(idx) : {
+   } catch IndexOutOfBounds(_) : {
      x = 200;
    }
    return x == 2;
 }
 
 test bool isDefinedList8() {
-   int x;
+   int x = -1;
    try {
      x = [0,1,2,3][5] ? 100;
-   } catch IndexOutOfBounds(idx) : {
+   } catch IndexOutOfBounds(_) : {
      x = 200;
    }
    return x == 100;
@@ -108,7 +85,7 @@ test bool isDefinedMap3() {
     try {
       m[3];
       return false;
-    } catch NoSuchKey(k): {
+    } catch NoSuchKey(_): {
       return true;
     }
 }
@@ -159,14 +136,14 @@ test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
 }
 
-test bool isDefinedTuple1(){
+test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
     return tup.n?;
 }
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
-test bool isDefinedTuple3(){
+test bool isDefinedTuple4(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
 }
@@ -257,6 +234,7 @@ test bool hasNode2() = !("aap"(boot=1) has noot);
 
 test bool hasNode3() = !("aap"() has noot);
 
+@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 
 // The status of unitialized variables is in transit
@@ -301,7 +279,9 @@ test bool isDefinedAnno8(){
 
 test bool isDefinedAnno9() = f3()[@pos = 1] has pos;
 
-test bool isDefinedAnno10() = !(f3() has pos);
+// TODO we can not tell this anymore since annotations are now simulated using keyword parameters.
+// the keyword parameter "is" always there due to their semantics of having defaults..
+// test bool isDefinedAnno10() = !(f3() has pos);
 
 // e has f : e is of an ADT type and its constructor has a positional or keyword field f.
 // e[k]?   : list or map contains given index k
@@ -375,12 +355,26 @@ test bool ifDefADTFieldOtherwise8() = "def" == (d3(20, s = "def").s ? "xyz");
 test bool ifDefADTFieldOtherwise9() = 20 == (d3(20, s = "abc").n ? 13);
 test bool ifDefADTFieldOtherwise10() = "abc" == (d3(20, s = "abc").s ? "xyz");
 
-@ignoreCompiler{Undefined variables are identified at type check time}
+@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
 test bool undefinedVariable() = !undefined?;
+
+@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
 test bool definedVariable() {
   int defined = 42;
   return defined?;
 }
+
+// Keyword parameters
+
+bool fWithKwN1(int n = 1) = n?;
+
+test bool unsetKwParameterIsUndefined1() = !fWithKwN1();
+test bool setKwParameterIsDefined1() = fWithKwN1(n=2);
+
+int fWithKwN2(int n = 1) = n? ? 10 : -10;
+
+test bool unsetKwParameterIsUndefined2() = fWithKwN2() == -10;
+test bool setKwParameterIsDefined2() = fWithKwN2(n=2) == 10;
 
 // Potential generic rules to check:
 // e has f => e.f is well defined

@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
+import org.rascalmpl.ast.Declaration.Annotation;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.KeywordFormal;
@@ -31,11 +33,11 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.ast.TypeVar;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -44,7 +46,9 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeRedeclaredException;
@@ -61,23 +65,52 @@ public class TypeDeclarationEvaluator {
 
 	private Environment env;
 
-	public void evaluateDeclarations(List<Toplevel> decls, Environment env) {
+	public void evaluateDeclarations(List<Toplevel> decls, Environment env, boolean ignoreErrors) {
 		this.env = env;
-		Set<UserType> abstractDataTypes = new HashSet<UserType>();
-		Set<Data> constructorDecls = new HashSet<Data>();
-		Set<Alias> aliasDecls = new HashSet<Alias>();
+		Set<UserType> abstractDataTypes = new HashSet<>();
+		Set<Data> constructorDecls = new HashSet<>();
+		Set<Alias> aliasDecls = new HashSet<>();
+		Set<Annotation> annotationDecls = new HashSet<>();
 
 		// this code is very much order dependent
-		collectDeclarations(decls, abstractDataTypes, constructorDecls,
-				aliasDecls);
+		collectDeclarations(decls, abstractDataTypes, constructorDecls, aliasDecls, annotationDecls);
+		
 		declareAbstractDataTypes(abstractDataTypes);
-		declareAliases(aliasDecls);
-		declareConstructors(constructorDecls);
+		
+		if (!ignoreErrors) {
+		    declareAnnotations(annotationDecls);
+		}
+		
+		declareAliases(aliasDecls, ignoreErrors);
+		
+		if (!ignoreErrors) {
+		    declareConstructors(constructorDecls, ignoreErrors);
+		}
 	}
 	
-	private void declareConstructors(Set<Data> constructorDecls) {
+	private void declareAnnotations(Set<Annotation> annotationDecls) {
+        for (Annotation anno : annotationDecls) {
+            declareAnnotation(anno, env);
+        }
+    }
+
+    private void declareAnnotation(Annotation anno, Environment env2) {
+        anno.interpret(eval);
+    }
+
+    private void declareConstructors(Set<Data> constructorDecls, boolean ignoreErrors) {
 		for (Data data : constructorDecls) {
-			declareConstructor(data, env);
+		    try {
+		        declareConstructor(data, env);
+		    }
+		    catch (UndeclaredType e) {
+		        if (ignoreErrors) {
+		            return;
+		        }
+		        else {
+		            throw e;
+		        }
+		    }
 		}
 	}
 
@@ -88,11 +121,13 @@ public class TypeDeclarationEvaluator {
 		int i = 0;
 		for (KeywordFormal kw : kws) {
 			kwLabels[i] = Names.name(kw.getName());
-			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), false, eval);
+			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), eval, true);
 		}
 		
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
 	}
+	
+	private static List<String> TreeDeclaringModules = Arrays.asList("lang::rascalcore::check::AType", "ParseTree");
 	
 	public void declareConstructor(Data x, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
@@ -101,6 +136,12 @@ public class TypeDeclarationEvaluator {
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
+		if (adt.getName().equals("Tree")) {
+		    if (!TreeDeclaringModules.contains(env.getRoot().getName())) {
+                throw new UnsupportedOperation("The Tree data-type from the ParseTree library module is \"final\"; it can not be extended. Please choose another name.", x.getUser());
+            }
+        }
+        
 		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
 				? x.getCommonKeywordParameters().getKeywordFormalList()
 		        : Collections.<KeywordFormal>emptyList();
@@ -122,7 +163,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = arg.getType().typeOf(env, true, eval);
+					fields[i] = arg.getType().typeOf(env, eval, true);
 
 					if (fields[i] == null) {
 						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
@@ -137,7 +178,6 @@ public class TypeDeclarationEvaluator {
 				
 				try {
 					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, tf.tupleType(fields, labels), local);
-					cons.setPublic(true); // TODO: implement declared visibility
 					
 					if (local.size() > 0) {
 						Type kwType = computeKeywordParametersType(local, eval);
@@ -166,7 +206,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 	
-	private void declareAliases(Set<Alias> aliasDecls) {
+	private void declareAliases(Set<Alias> aliasDecls, boolean ignoreErrors) {
 		List<Alias> todo = new LinkedList<Alias>();
 		todo.addAll(aliasDecls);
 		
@@ -181,7 +221,13 @@ public class TypeDeclarationEvaluator {
 			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
-					throw e;
+				    if (!ignoreErrors) {
+				        throw e;
+				    }
+				    else {
+				        return;
+				    }
+				    
 				}
 				// Put at end of queue
 				todo.add(trial);
@@ -191,7 +237,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = x.getBase().typeOf(env, true, eval);
+			Type base = x.getBase().typeOf(env, eval, false);
 
 			assert base != null;
 			
@@ -212,10 +258,6 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private void declareAbstractDataTypes(Set<UserType> abstractDataTypes) {
-//		for (UserType decl : abstractDataTypes) {
-//			declareAbstractDataType(decl, env);
-//		}
-		
 		List<UserType> todo = new LinkedList<UserType>();
 		todo.addAll(abstractDataTypes);
 		
@@ -230,7 +272,7 @@ public class TypeDeclarationEvaluator {
 			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
-					throw e;
+				    throw e;
 				}
 				// Put at end of queue
 				todo.add(trial);
@@ -243,6 +285,7 @@ public class TypeDeclarationEvaluator {
 		if (Names.isQualified(name)) {
 			throw new IllegalQualifiedDeclaration(name);
 		}
+		
 		return env.abstractDataType(Names.typeName(name), computeTypeParameters(decl, env));
 	}
 
@@ -262,7 +305,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? var.getBound().typeOf(env, true, eval) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env, eval, false) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);
@@ -275,9 +318,9 @@ public class TypeDeclarationEvaluator {
 
 	private void collectDeclarations(List<Toplevel> decls,
 			Set<UserType> abstractDataTypes, Set<Data> constructorDecls,
-			Set<Alias> aliasDecls) {
+			Set<Alias> aliasDecls, Set<Annotation> annotations) {
 		DeclarationCollector collector = new DeclarationCollector(
-				abstractDataTypes, constructorDecls, aliasDecls);
+				abstractDataTypes, constructorDecls, aliasDecls, annotations);
 
 		for (Toplevel t : decls) {
 			t.accept(collector);
@@ -285,15 +328,16 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
-		private Set<UserType> abstractDataTypes;
-		private Set<Data> constructorDecls;
-		private Set<Alias> aliasDecls;
+		private final Set<UserType> abstractDataTypes;
+		private final Set<Data> constructorDecls;
+		private final Set<Alias> aliasDecls;
+        private final Set<Annotation> annotations;
 
-		public DeclarationCollector(Set<UserType> abstractDataTypes,
-				Set<Data> constructorDecls, Set<Alias> aliasDecls) {
+		public DeclarationCollector(Set<UserType> abstractDataTypes, Set<Data> constructorDecls, Set<Alias> aliasDecls, Set<Annotation> annotations) {
 			this.abstractDataTypes = abstractDataTypes;
 			this.constructorDecls = constructorDecls;
 			this.aliasDecls = aliasDecls;
+			this.annotations = annotations;
 		}
 
 		@Override
@@ -318,6 +362,12 @@ public class TypeDeclarationEvaluator {
 		public Declaration visitDeclarationDataAbstract(DataAbstract x) {
 			abstractDataTypes.add(x.getUser());
 			return x;
+		}
+		
+		@Override
+		public Declaration visitDeclarationAnnotation(Annotation x) {
+		    annotations.add(x);
+		    return x;
 		}
 	}
 }

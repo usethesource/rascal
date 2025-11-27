@@ -10,7 +10,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
-@doc{The syntax definition of Rascal, excluding concrete syntax fragments}
+@synopsis{The syntax definition of Rascal, excluding concrete syntax fragments}
+@bootstrapParser
 module lang::rascal::\syntax::Rascal
 
 lexical BooleanLiteral
@@ -18,14 +19,14 @@ lexical BooleanLiteral
 	| "false" ;
 
 syntax Literal
-	= integer: IntegerLiteral integerLiteral 
-	| regExp: RegExpLiteral regExpLiteral 
-	| \real: RealLiteral realLiteral 
+	= @category="number" integer: IntegerLiteral integerLiteral 
+	| @category="regexp" regExp: RegExpLiteral regExpLiteral 
+	| @category="number" \real: RealLiteral realLiteral 
 	| boolean: BooleanLiteral booleanLiteral 
 	| string: StringLiteral stringLiteral 
 	| dateTime: DateTimeLiteral dateTimeLiteral 
-	| location: LocationLiteral locationLiteral
-	| rational: RationalLiteral rationalLiteral
+	| @category="string" location: LocationLiteral locationLiteral
+	| @category="number" rational: RationalLiteral rationalLiteral
 	;
 
 syntax Expression = concrete: Concrete concrete;
@@ -35,13 +36,13 @@ lexical Concrete
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="MetaVariable" hole : ConcreteHole hole
-  | @category="MetaSkipped" lt: "\\\<"
-  | @category="MetaSkipped" gt: "\\\>"
-  | @category="MetaSkipped" bq: "\\`"
-  | @category="MetaSkipped" bs: "\\\\"
+  | @category="variable" hole : ConcreteHole hole
+  | @category="string" lt: "\\\<"
+  | @category="string" gt: "\\\>"
+  | @category="string" bq: "\\`"
+  | @category="string" bs: "\\\\"
   ;
   
 syntax ConcreteHole 
@@ -303,10 +304,10 @@ syntax StringTemplate
 	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
 lexical PreStringChars
-	= @category="Constant" [\"] StringCharacter* [\<] ;
+	= @category="string" [\"] StringCharacter* [\<] ;
 
 lexical CaseInsensitiveStringConstant
-	= @category="Constant" "\'" StringCharacter* chars "\'" ;
+	= @category="string" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
 	= [\\] !>> [/ \< \> \\] ;
@@ -368,7 +369,7 @@ syntax Assignable
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
 lexical StringConstant
-	= @category="Constant" "\"" StringCharacter* chars "\"" ;
+	= @category="string" "\"" StringCharacter* chars "\"" ;
 
 
 
@@ -399,7 +400,7 @@ lexical JustTime
 	;
 
 lexical MidStringChars
-	= @category="Constant" [\>] StringCharacter* [\<] ;
+	= @category="string" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
 	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
@@ -440,7 +441,7 @@ lexical RegExp
 	| [\\] [/ \< \> \\] 
 	| "\<" Name ":" NamedRegExp* "\>" 
 	| Backslash 
-	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	// | @category="variable" [\<]  Expression expression [\>] TODO: find out why this production existed 
 	;
 	
 
@@ -468,17 +469,31 @@ syntax LocationLiteral
 	= \default: ProtocolPart protocolPart PathPart pathPart ;
 
 syntax ShellCommand
-	= setOption: "set" QualifiedName name Expression expression 
-	| undeclare: "undeclare" QualifiedName name 
-	| help: "help" 
-	| edit: "edit" QualifiedName name 
-	| unimport: "unimport" QualifiedName name 
-	| listDeclarations: "declarations" 
-	| quit: "quit" 
-	| history: "history" 
-	| \test: "test" 
-	| listModules: "modules" 
-	| clear: "clear";
+	= setOption: "set" QualifiedName name OptionalEqualSign sign Expression expression OptionalTerminator terminator
+	| setOptionTrue: "set" QualifiedName name OptionalTerminator terminator
+	| unsetOption: "unset" QualifiedName name OptionalTerminator terminator
+	| undeclare: "undeclare" QualifiedName? optName OptionalTerminator terminator
+	| help: "help" OptionalTerminator terminator
+	| edit: "edit" QualifiedName name OptionalTerminator terminator
+	| unimport: "unimport" QualifiedName name  OptionalTerminator terminator
+	| unextend: "unextend" QualifiedName name  OptionalTerminator terminator
+	| listDeclarations: "declarations" OptionalTerminator terminator
+	| quit: "quit" OptionalTerminator terminator
+	| history: "history" OptionalTerminator terminator
+	| \test: "test" QualifiedName? optName OptionalTerminator terminator
+	| listModules: "modules" OptionalTerminator terminator
+	| clear: "clear" OptionalTerminator terminator
+	;
+
+lexical OptionalEqualSign
+	= absent: ()
+	| present: "="
+	;
+
+lexical OptionalTerminator
+	= absent: ()
+	| present: ";"
+	;
 
 syntax StringMiddle
 	= mid: MidStringChars mid 
@@ -531,9 +546,9 @@ start syntax EvalCommand
   ;
  
 lexical Output   
-  = @category="Result" resultOutput: "⇨" ![\n\r]* [\n] 
-  | @category="StdOut" stdoutOutput: ^ "≫" ![\n\r]* [\n]
-  | @category="StdErr" stderrOutput: ^ "⚠" ![\n\r]* [\n]
+  = @category="string" resultOutput: "⇨" ![\n\r]* [\n] 
+  | @category="string" stdoutOutput: ^ "≫" ![\n\r]* [\n]
+  | @category="string" stderrOutput: ^ "⚠" ![\n\r]* [\n]
   ;
   
 start syntax Command
@@ -568,8 +583,8 @@ syntax StringLiteral
 	| nonInterpolated: StringConstant constant ;
 
 lexical Comment
-	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	= @category="comment" "/*" (![*] | [*] !>> [/])* "*/" 
+	| @category="comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 
@@ -744,7 +759,7 @@ syntax Class
 	> left difference: Class lhs "-" Class rhs 
 	> left intersection: Class lhs "&&" Class rhs 
 	> left union: Class lhs "||" Class rhs 
-	| bracket \bracket: "(" Class charclass ")" ;
+	| bracket \bracket: "(" Class charClass ")" ;
 
 lexical RegExpLiteral
 	= "/" RegExp* "/" RegExpModifier ;
@@ -784,7 +799,7 @@ syntax Toplevel
 	= givenVisibility: Declaration declaration ;
 
 lexical PostStringChars
-	= @category="Constant" [\>] StringCharacter* [\"] ;
+	= @category="string" [\>] StringCharacter* [\"] ;
 
 lexical HexIntegerLiteral
 	= [0] [X x] [0-9 A-F a-f]+ !>> [0-9 A-Z _ a-z] ;
@@ -818,9 +833,9 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
-	| @category="Constant" UnicodeEscape 
+	= @category="string" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="string" ![\  \" \' \- \< \> \[ \\ \]] 
+	| @category="string" UnicodeEscape 
     ; 
     
 syntax Prod
@@ -874,9 +889,9 @@ syntax Pattern
     ;
     
 syntax Tag
-	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
-	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression !>> "@";
+	= @Folded @category="comment" \default  : "@" Name name TagString contents 
+	| @Folded @category="comment" empty     : "@" Name name 
+	| @Folded @category="comment" expression: "@" Name name "=" Expression expression !>> "@";
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;

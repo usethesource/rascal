@@ -18,8 +18,6 @@ import java.util.List;
 
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
-import org.rascalmpl.ast.Tag;
-import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
@@ -57,26 +55,11 @@ public abstract class Module {
 			try {
 			  // the header is already evaluated at parse time, 
 			  // including imports and extends and syntax definitions
-//			  getHeader().interpret(eval);
-				for (Tag tag : getHeader().getTags().getTags()) {
-
-					if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
-
-						String tagString = ((TagString.Lexical)tag.getContents()).getString();
-
-						String cachedParser =tagString.substring(1, tagString.length() - 1);
-						
-						// this assumes the cached parser still defines the same
-						// syntax as the current definitions in the module
-						env.setCachedParser(env.getSyntaxDefinition(), cachedParser);
-					}
-				}
-
 			  List<Toplevel> decls = this.getBody().getToplevels();
-			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt());
+			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
 			  for (Toplevel l : decls) {
-			    l.interpret(eval);
+				l.interpret(eval);
 			  }
 			}
 			catch (RuntimeException e) {

@@ -32,7 +32,6 @@ You {c,sh,w}ould cite this if:
 	  Title = {RASCAL: A Domain Specific Language for Source Code Analysis and Manipulation},
 	  Booktitle = {Ninth IEEE International Working Conference on Source Code Analysis and Manipulation (SCAM)},
 	  Doi = {http://doi.ieeecomputersociety.org/10.1109/SCAM.2009.28},
-	  Isbn = {978-0-7695-3793-1},
 	  Pages = {168-177},
 	  Publisher = {IEEE Computer Society},
 	  Year = {2009},
@@ -45,7 +44,7 @@ Here some citable zenodo snapshots, which you could cite instead of the above pa
 the work than the conceptual contribution of Rascal. It's up to you. The author lists are different necessarily. So if you depend on a particular
 piece of work inside Rascal authored by somebody who is not an author of the above papers, then this might have your preference.
 
-* TODO: put bibtex of zenodo DOI's for 0.7.3 and 0.8.x releases
+* https://zenodo.org/record/7595297
 
 
 		

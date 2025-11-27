@@ -38,14 +38,12 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
-import org.rascalmpl.interpreter.Accumulator;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -99,7 +97,7 @@ public class StringTemplateConverter {
 
 			public IndentingAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2,
 					Statement __param3) {
-				super(__param1, null, __param2, __param3);
+				super(__param1, tree, __param2, __param3);
 			} 
 			
 			@Override
@@ -128,7 +126,7 @@ public class StringTemplateConverter {
 			private void appendToString(IValue value, StringBuilder b) {
 				if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 				    // TODO: could this be replaced by a lazy IString::ITree.asString?
-					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
+					b.append(org.rascalmpl.values.parsetrees.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
 					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
@@ -147,7 +145,7 @@ public class StringTemplateConverter {
 			protected final IString str;
 
 			public ConstAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
-				super(__param1, null,  __param2, null);
+				super(__param1, tree,  __param2, new Statement.EmptyStatement(__param1, tree));
 				str = initString(preprocess(arg));
 			}
 			

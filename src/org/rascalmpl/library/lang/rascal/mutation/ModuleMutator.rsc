@@ -1,46 +1,52 @@
-@bootstrapParser
-@doc{
-.Synopsis
-Mutant Generator for Rascal modules
+@license{
+  Copyright (c) 2020, NWO-I Centrum Wiskunde & Informatica (CWI)
+All rights reserved.
 
-.Description
-  Rascal module. The use case is to test how good the tests are for such a module. The tests
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+}
+@bootstrapParser
+
+@synopsis{Mutant Generator for Rascal modules}
+@description{
+Rascal module. The use case is to test how good the tests are for such a module. The tests
   should be able to find the bugs we introduce using the mutators.
   
 Examples
 
-[source,rascal]
-----
+```rascal
 import lang::rascal::mutation::ModuleMutator;
 mutate(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Grammar.rsc|, mutations=5)
-----
+```
 }
+@contributor{Cleverton Hentz}
+@contributor{Jurgen Vinju}
 module lang::rascal::mutation::ModuleMutator
 
 import lang::rascal::\syntax::Rascal;
 import List;
-import util::Math;
 import ParseTree;
 import IO;
-import String;
 
-list[str] mutate(loc input, int mutations = 5, real chance = 0.1, str folder="mutants", str prefix="") {
+list[str] mutate(loc input, int mutations = 5, str folder="mutants", str prefix="") {
   m = parse(#start[Module], input).top;
-  list[str] modList = [];
-  str muModName;
-  for (new <- mutate(m, mutations=mutations, chance=chance, prefix=prefix, parentMod=folder)) {
+  return for (new <- mutate(m, mutations=mutations, prefix=prefix, parentMod=folder)) {
     muModName = "<getModuleName(new)>.rsc";
     writeFile(input.parent + folder + muModName, "<new>");
-    modList += muModName;
+    append muModName;
   }
-  return modList;
 }
 
-list[Module] mutate(Module input, int mutations = 5, real chance = 0.1, str prefix="", str parentMod="") {
+list[Module] mutate(Module input, int mutations = 5, str prefix="", str parentMod="") {
   list[Module] ret = [];
-  
+   
   for(opId <- muOpers) {
-    ret = ret + make(input, opId, chance=chance, prefix=prefix,parentMod=parentMod);
+    ret = ret + make(input, opId, prefix=prefix,parentMod=parentMod);
     if (size(ret) >= mutations) break;
   }
   return ret;
@@ -86,9 +92,9 @@ list[Module] mutationOp(int opId, Module input) {
   
   list[Module] lMMod = [];
   
-  Module m;
+  Module m = input;
   bool runOp = false;
-  int curMuOperPoint;
+  int curMuOperPoint = 0;
   int curMuOper = 1;
   
   while (!runOp) {
@@ -135,7 +141,7 @@ list[Module] mutationOp(int opId, Module input) {
   return lMMod;
 }
   
-list[Module] make(Module input, int opId, real chance = 0.1, str prefix="", str parentMod="") {
+list[Module] make(Module input, int opId, str prefix="", str parentMod="") {
   list[Module] lMMod = [];
   
   if (opId > muOpers[-1]) throw "make: Invalid mutation operator!";

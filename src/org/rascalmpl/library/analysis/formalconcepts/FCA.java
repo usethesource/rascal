@@ -3,7 +3,7 @@ package org.rascalmpl.library.analysis.formalconcepts;
 import java.util.Iterator;
 
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -18,7 +18,7 @@ public class FCA {
   
   // rel[&Object, &Attribute] fc, set[&Object] objects 
   public ISet sigma(ISet fc, ISet objects) {
-    ISetRelation<ISet> fcRelation = fc.asRelation();
+    IRelation<ISet> fcRelation = fc.asRelation();
     if (objects.isEmpty()) {
       return fcRelation.range();
     }
@@ -46,7 +46,7 @@ public class FCA {
 //	= attributes == {} ? fc<0> : { ob | ob <- fc<0>, all(a <- attributes, <ob, a> in fc)};
 
   public ISet tau(ISet fc, ISet attributes) {
-    ISetRelation<ISet> fcRelation = fc.asRelation();
+    IRelation<ISet> fcRelation = fc.asRelation();
     if (attributes.isEmpty()) {
       return fcRelation.domain();
     }

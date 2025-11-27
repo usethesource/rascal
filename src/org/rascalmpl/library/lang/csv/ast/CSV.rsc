@@ -2,18 +2,13 @@ module lang::csv::ast::CSV
 
 import String;
 
-data Table = table(list[Record] records);
+data Table(loc src=|unknown:///|) = table(list[Record] records);
 
-data Record = record(list[Field] fields);
+data Record(loc src=|unknown:///|) = record(list[Field] fields);
 
-data Field
+data Field(loc src=|unknown:///|)
   = unquoted(str text)
   | quoted(str text);
-
-
-anno loc Field@location;
-anno loc Record@location;
-anno loc Table@location;
 
 public Table unquote(Table tbl) {
   str unescape(str s) = replaceAll(replaceAll(replaceAll(s, "\\n", "\n"), "\\t", "\t"), "\"\"", "\"");

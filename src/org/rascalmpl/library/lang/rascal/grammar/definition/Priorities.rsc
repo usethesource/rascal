@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@bootstrapParser
 module lang::rascal::grammar::definition::Priorities
 
 extend ParseTree;
@@ -13,7 +14,6 @@ import Set;
 import List;
 import IO;
 import util::Maybe;
-import Node;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
@@ -25,12 +25,9 @@ data Associativity = prio();
 public alias Extracted = rel[Production father, Associativity rule, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
-@doc{
-.Synopsis
-Extract which productions are not to be nested under which other productions, at given 
-recursive positions in the parents' defining symbols list.
-
-.Description
+@synopsis{Extract which productions are not to be nested under which other productions, at given 
+recursive positions in the parents' defining symbols list.}
+@description{
 This DoNotNest relation is generated from the grammar using the > priority definitions,
 the associativity groups and the ! restriction operator. 
 
@@ -46,14 +43,14 @@ the associativity groups and the ! restriction operator.
 }
 public DoNotNest doNotNest(Grammar g) {
   g = references(g); 
-  result = {};
+  DoNotNest result = {};
   
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
     // TODO: support relations between mutually recursive non-terminals
     // TODO: support 'deep' priority (for the ML case)
     // TODO: instead of DoNotNest generate data-dependent constraints
-    defined = extract(g.rules[s]);
+    Extracted defined = extract(g.rules[s]);
 
     // select and then close the different relations: left, right, non-assoc and priorities 
     // this is to make sure modular specifications (where rules for the same non-terminal are split 
@@ -102,31 +99,32 @@ public DoNotNest doNotNest(Grammar g) {
                  , same(ss, lr), same(t, rr), same(ss, t)} 
                    
         // right with left recursive            
-        + {<f,size(pre),c> | <f:prod(Symbol ss, [pre*, Symbol rr], _), 
+        + {<f,size(pre),c> | <f:prod(Symbol ss, [*pre, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
                            , same(ss, rr), same(t, lr), same(ss, t)}
         ; 
         
-     // and we warn about recursive productions which have been left ambiguous:
-    allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
-    ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
-                           q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
-                            same(t, rr), same(ss, t)};
-    ambiguous += {<p, q> | p:prod(Symbol ss, [pre*, Symbol rr], _) <- allProds, same(s, rr), 
-                           q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
-                           same(t, lr), same(ss, t), <q, p> notin ambiguous}
-              ;
+    // and we warn about recursive productions which have been left ambiguous:
+    // TODO: this analysis can be done statically in the type-checker
+    // allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
+    // ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
+    //                        q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
+    //                         same(t, rr), same(ss, t)};
+    // ambiguous += {<p, q> | p:prod(Symbol ss, [*_, Symbol rr], _) <- allProds, same(s, rr), 
+    //                        q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
+    //                        same(t, lr), same(ss, t), <q, p> notin ambiguous}
+    //           ;
               
-    ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
-    ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
+    // ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
+    // ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
                   
     // TODO extract checking into separate function
-    for (<p,q> <- ambiguous) {
-         if (p == q) 
-           println("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity");
-         else   
-           println("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)");    
-    }
+    // for (<p,q> <- ambiguous) {
+    //      if (p == q) 
+    //        jobWarning("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity", |unknown:///|);
+    //      else   
+    //        jobWarning("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)", |unknown:///|);    
+    // }
   }
     
   return result + {*except(p, g) | /Production p <- g, p is prod || p is regular};
@@ -142,7 +140,7 @@ Extracted extract(associativity(Symbol s, Associativity a, set[Production] alts)
   = {<x, a, y> | <x, y> <- alts * alts};
 
 Extracted extract(priority(Symbol s, list[Production] levels)) 
-  = {*extract(high, low) | [pre*, Production high, Production low, post*] := levels};
+  = {*extract(high, low) | [*_, Production high, Production low, *_] := levels};
 
 // the follow binary extract rules generate all priority _combinations_ in case of nested groups, 
 // and also make sure these nested groups can generate the necessary associativity relations 
@@ -172,11 +170,9 @@ Extracted extract(Production high, Production p:priority(Symbol _, list[Producti
   + {*extract(high, low) | low <- alts};   
 
     
-@doc{
-This one-liner searches a given production for "except restrictions". 
+@synopsis{This one-liner searches a given production for "except restrictions". 
 For every position in the production that is restricted, and for every restriction it finds 
-at this position, it adds a 'do-not-nest' tuple to the result.
-}
+at this position, it adds a 'do-not-nest' tuple to the result.}
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
   = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s)
                  , except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
@@ -184,35 +180,41 @@ public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] 
 //TODO: compiler issues when  g.rules[s]? is inlined
 bool isdef(Grammar g, Symbol s) = g.rules[s]?;
 
+//TODO compiler issues when  find is local to except
+Maybe[Production] find(str c, Symbol s, Symbol t, Grammar g) {
+    rules = g.rules[t]?choice(s,{});
+    if(/Production q:prod(label(c,t),_,_) := rules) 
+        return just(q);
+    else {
+        return nothing();
+    }
+}
 
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
-  Maybe[Production] find(str c, Symbol t) = (/Production q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-star(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};       
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};       
     case \alt(as) :
-      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \seq(ss) :
-      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
+      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(Production q) := find(c,s,t,g)};
      default: return {};
   }
-  
-  return {};
 }
 
 

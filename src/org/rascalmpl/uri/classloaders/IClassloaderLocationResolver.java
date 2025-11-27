@@ -16,6 +16,21 @@ import java.io.IOException;
 
 import io.usethesource.vallang.ISourceLocation;
 
+/**
+ * Any scheme that can produce a ClassLoader for a given location can implement this 
+ * interface. 
+ * 
+ * The fastest solution is to find a way to produce a URLClassLoader instance.
+ * That instance will be merged with other URLClassLoaders in a single indexed class
+ * file cache by {@see SourceLocationClassLoader}.
+ * 
+ * The next best thing is to return the ClassLoader that fits the modularity
+ * scheme (Eclipse plugins, OSGI bundles, Maven ClassRealms, etc) at hand. 
+ * 
+ * Finally, if you do not implementa {@see IClassloaderLocationResolver} for your scheme, 
+ * the {@see URIResolverRegistry} will produce a default generic ClassLoader based on
+ * {@see ISourceLocationInput.getInputStream()}.
+ */
 public interface IClassloaderLocationResolver {
     /**
      * @return the scheme this resolver supports

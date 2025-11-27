@@ -52,13 +52,13 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> subtractSet(SetResult s) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult s) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
 			ElementResult<V> that) {
-		Type newType = getTypeFactory().setType(that.getType().lub(getType().getElementType()));
+		Type newType = getTypeFactory().setType(that.getStaticType().lub(getStaticType().getElementType()));
 		return makeResult(newType, getValue().insert(that.getValue()), ctx);
 	}
 
@@ -113,12 +113,12 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	@Override
 	protected Result<IBool> equalToSet(SetResult that) {
-		return bool(getValue().isEqual(that.getValue()), ctx);
+		return bool(getValue().equals(that.getValue()), ctx);
 	}
 
 	@Override
 	protected Result<IBool> nonEqualToSet(SetResult that) {
-		return bool(!getValue().isEqual(that.getValue()), ctx);
+		return bool(!getValue().equals(that.getValue()), ctx);
 	}
 
 	@Override
@@ -131,14 +131,14 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualSet(SetResult that) {
 	  boolean isSubset = that.getValue().isSubsetOf(getValue());
-	  boolean equals = that.getValue().isEqual(getValue());
+	  boolean equals = that.getValue().equals(getValue());
 	  return new LessThanOrEqualResult(isSubset && !equals, equals, ctx);
 	}
 	
 	@Override
 	protected Result<IBool> greaterThanSet(SetResult that) {
 		// note reversed args: we need that > this
-		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
+		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().equals(that.getValue()), ctx);
 	}
 
 	@Override
@@ -150,19 +150,19 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected Result<IBool> lessThanRelation(RelationResult that) {
 				// note reversed args: we need that < this
-				return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()), ctx);
+				return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().equals(getValue()), ctx);
 	}
 
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualRelation(RelationResult that) {
 	  boolean isSubset = that.getValue().isSubsetOf(getValue());
-    boolean equals = that.getValue().isEqual(getValue());
+    boolean equals = that.getValue().equals(getValue());
     return new LessThanOrEqualResult(isSubset && !equals, equals, ctx);
 	}
 	
 	@Override
 	protected Result<IBool> greaterThanRelation(RelationResult that) {
-	  return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()), ctx);
+	  return bool(getValue().isSubsetOf(that.getValue()) && !getValue().equals(that.getValue()), ctx);
 	}
 	
 	@Override

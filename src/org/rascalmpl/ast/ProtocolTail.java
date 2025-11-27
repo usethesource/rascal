@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class ProtocolTail extends AbstractAST {
   public ProtocolTail(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,28 +31,28 @@ public abstract class ProtocolTail extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMid() {
     return false;
   }
 
   public org.rascalmpl.ast.MidProtocolChars getMid() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPost() {
     return false;
   }
 
   public org.rascalmpl.ast.PostProtocolChars getPost() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.ProtocolTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -131,7 +132,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 787 * mid.hashCode() + 73 * expression.hashCode() + 673 * tail.hashCode() ; 
+      return 191 + 89 * mid.hashCode() + 787 * expression.hashCode() + 73 * tail.hashCode() ; 
     } 
   
     
@@ -223,7 +224,7 @@ public abstract class ProtocolTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 331 * post.hashCode() ; 
+      return 673 + 233 * post.hashCode() ; 
     } 
   
     

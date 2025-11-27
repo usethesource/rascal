@@ -27,13 +27,12 @@ import java.sql.Types;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -101,50 +100,31 @@ public class JDBC {
 	public static final Type table = TF.constructor(TS, Table, "table", TF.stringType(), "tableName", TF.listType(Column), "columns");
 
 	public static final Type nullableT = TF.parameterType("T");
-	public static final Type Nullable = TF.abstractDataType(TS, "Nullable", nullableT);
+	public static final Type Nullable = TF.abstractDataType(TS, "NULLable", nullableT);
 
 	private final IValueFactory vf;
+	private final ClassLoader loader;
+	
 	private int connectionCounter = 0;
 	private HashMap<IInteger,Connection> connectionMap;
 
-	public JDBC(IValueFactory vf) {
+	public JDBC(IValueFactory vf, ClassLoader loader) {
 		this.vf = vf;
+		this.loader = loader;
 		this.connectionMap = new HashMap<IInteger,Connection>();
 	}
 	
-	public void registerJDBCClass(IString className, IEvaluatorContext eval) {
-		List<ClassLoader> loaders = eval.getEvaluator().getClassLoaders();
+	public void registerJDBCClass(IString className) {
 		Class<?> driverClass = null;
-		Throwable ex = null;
-		
-		for (ClassLoader loader : loaders) {
-			try {
-				driverClass = loader.loadClass(className.getValue());
-				if (driverClass != null) {
-					Driver driver = (Driver)driverClass.newInstance();
-					DriverManager.registerDriver(new DriverShim(driver));
-				}
-			} catch (ClassNotFoundException e) {
-			  ex = e;
-				continue;
-			} catch (InstantiationException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			} catch (IllegalAccessException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			} catch (SQLException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			}
-			break;
-		}
-		
-		if (driverClass == null) {
-		  RuntimeExceptionFactory.javaException(new RuntimeException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", ex), eval.getCurrentAST(), null);
+
+		try {
+		    driverClass = loader.loadClass(className.getValue());
+		    if (driverClass != null) {
+		        Driver driver = (Driver)driverClass.newInstance();
+		        DriverManager.registerDriver(new DriverShim(driver));
+		    }
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException e) {
+		    throw RuntimeExceptionFactory.javaException(new RuntimeException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", e), null, null);
 		}
 	}
 	
@@ -155,7 +135,7 @@ public class JDBC {
 			connectionMap.put(newKey, conn);
 			return vf.constructor(JDBC.jdbcConnection, newKey);
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connectString, null, null, addMessage("Could not connect with given connect string", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connectString, addMessage("Could not connect with given connect string", sqle));
 		}
 	}
 	
@@ -167,10 +147,10 @@ public class JDBC {
 				conn.close();
 				connectionMap.remove(connectionId);
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -181,15 +161,15 @@ public class JDBC {
 				Connection conn = connectionMap.get(connectionId);
 				DatabaseMetaData dmd = conn.getMetaData();
 				ResultSet rs = dmd.getTableTypes();
-				IListWriter resultWriter = this.vf.listWriter(TF.stringType());
+				IListWriter resultWriter = this.vf.listWriter();
 				while (rs.next()) resultWriter.append(this.vf.string(rs.getString(1)));
 				rs.close();
 				return resultWriter.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -204,17 +184,17 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(TF.stringType());
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					setRes.insert(vf.string(tableName));
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -229,17 +209,17 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(TF.stringType());
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					setRes.insert(vf.string(tableName));
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", null));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", null));
 		}
 	}
 
@@ -263,11 +243,11 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(Table);
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					rs = dmd.getColumns(null, null, tableName, null);
-					IListWriter listRes = vf.listWriter(Column); 
+					IListWriter listRes = vf.listWriter(); 
 					while (rs.next()) {
 						String cn = rs.getString("COLUMN_NAME");
 						int dt = rs.getInt("DATA_TYPE");
@@ -279,10 +259,10 @@ public class JDBC {
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}		
 	}
 	
@@ -294,7 +274,7 @@ public class JDBC {
 				Connection conn = connectionMap.get(connectionId);
 				DatabaseMetaData dmd = conn.getMetaData();
 				ResultSet rs = dmd.getColumns(null, null, tableName.getValue(), null);
-				IListWriter listRes = vf.listWriter(Column); 
+				IListWriter listRes = vf.listWriter(); 
 				while (rs.next()) {
 					String cn = rs.getString("COLUMN_NAME");
 					int dt = rs.getInt("DATA_TYPE");
@@ -304,10 +284,10 @@ public class JDBC {
 				rs.close();
 				return vf.constructor(table, tableName, listRes.done());
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -386,7 +366,7 @@ public class JDBC {
 			case Types.VARCHAR:
 				return JDBC.jdbcVarChar;
 		}
-		throw RuntimeExceptionFactory.illegalArgument(ValueFactoryFactory.getValueFactory().integer(columnType), null, null, "Invalid JDBC type id given: " + columnType);
+		throw RuntimeExceptionFactory.illegalArgument(ValueFactoryFactory.getValueFactory().integer(columnType), "Invalid JDBC type id given: " + columnType);
 	}
 
 	public static Type jdbc2pdbType(int columnType, boolean nullable) {
@@ -528,7 +508,7 @@ public class JDBC {
 					break;
 				case Types.BINARY:
 					isr = rs.getBinaryStream(idx);
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (isr != null) {
 						isrRes = isr.read();
 						while (isrRes != -1) {
@@ -542,7 +522,7 @@ public class JDBC {
 					res = vf.bool(rs.getBoolean(idx));
 					break;
 				case Types.BLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getBlob(idx) != null) {
 						isr = rs.getBlob(idx).getBinaryStream();
 						if (isr != null) {
@@ -565,7 +545,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.CLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getClob(idx) != null) {
 						isr = rs.getClob(idx).getAsciiStream();
 						if (isr != null) {
@@ -614,7 +594,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.LONGVARBINARY:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					isr = rs.getBinaryStream(idx);
 					if (isr != null) {
 						isrRes = isr.read();
@@ -638,7 +618,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.NCLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getNClob(idx) != null) {
 						isr = rs.getNClob(idx).getAsciiStream();
 						if (isr != null) {
@@ -700,7 +680,7 @@ public class JDBC {
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.VARBINARY:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					isr = rs.getBinaryStream(idx);
 					if (isr != null) {
 						isrRes = isr.read();
@@ -723,12 +703,13 @@ public class JDBC {
 
 			if(rs.getMetaData().isNullable(idx) != ResultSetMetaData.columnNoNulls) {
 				Type resType = jdbc2pdbType(jdbcColumnType, true);
+				Type notnullresType = resType.getTypeParameters().getFieldType(0);
 
 				if (rs.wasNull()) {
-					Type nullT = TF.constructor(TS,  resType, "null");
+					Type nullT = TF.constructor(TS,  resType, "NULL");
 					res = vf.constructor(nullT);
 				} else {
-					Type notnullT = TF.constructor(TS, resType, "notnull", resType, "item");
+					Type notnullT = TF.constructor(TS, resType, "notNULL", notnullresType, "item");
 					res = vf.constructor(notnullT, res);
 				}
 			}
@@ -755,7 +736,7 @@ public class JDBC {
 				Type elementType = resultType.getType().getTypeParameters().getFieldType(0);
 				int columns = elementType.getArity();
 
-				ISetWriter sw = vf.setWriter(elementType);
+				ISetWriter sw = vf.setWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {
@@ -769,10 +750,10 @@ public class JDBC {
 				
 				return sw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -785,9 +766,7 @@ public class JDBC {
 				PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName.getValue());
 				ResultSet rs = stmt.executeQuery();
 				
-				Type elementType = JDBC.TF.valueType();
-
-				ISetWriter sw = vf.setWriter(elementType);
+				ISetWriter sw = vf.setWriter();
 				int columns = rs.getMetaData().getColumnCount();
 				
 				while (rs.next()) {
@@ -803,10 +782,10 @@ public class JDBC {
 				
 				return sw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -821,7 +800,7 @@ public class JDBC {
 				Type elementType = resultType.getType().getTypeParameters().getFieldType(0);
 				int columns = elementType.getArity();
 
-				IListWriter lw = vf.listWriter(elementType);
+				IListWriter lw = vf.listWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {
@@ -835,10 +814,10 @@ public class JDBC {
 				
 				return lw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -850,10 +829,9 @@ public class JDBC {
 				PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName.getValue());
 				ResultSet rs = stmt.executeQuery();
 				
-				Type elementType = JDBC.TF.valueType();
 				int columns = rs.getMetaData().getColumnCount();
 
-				IListWriter lw = vf.listWriter(elementType);
+				IListWriter lw = vf.listWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {
@@ -867,10 +845,10 @@ public class JDBC {
 				
 				return lw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 	

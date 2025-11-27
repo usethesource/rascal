@@ -3,15 +3,12 @@ module lang::sdf2::filters::DirectThenCountPreferAvoid
 import ParseTree;
 import Set;
 import List;
-import IO;
 
-@doc{
-Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
-label alternatives.
-}
-&T <:Tree amb(set[&T <:Tree] alternatives) {
+@synopsis{Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
+label alternatives.}
+&T <:Tree directThenCountPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   if (size(alternatives) == 1) {
-    fail amb;
+    fail directThenCountPreferAvoidFilter;
   }
   // first check for direct prefers / avoids
   direct = { t | t:appl(prod(_,_,{\tag("prefer"()),*_}),_) <- alternatives};
@@ -46,7 +43,7 @@ label alternatives.
   result = {alts[indexes[i]] | i <- index(indexes), counts[i] == min(counts)};
   
   if (result == alternatives) {
-    fail amb;
+    fail directThenCountPreferAvoidFilter;
   }
   else {
   	return amb(result);

@@ -18,10 +18,10 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
@@ -56,7 +56,7 @@ public class RSFIO {
 	 * each relation name to the actual relation.
 	 */
 
-	public IValue readRSF(ISourceLocation nameRSFFile, IEvaluatorContext ctx)
+	public IValue readRSF(ISourceLocation nameRSFFile)
 	//@doc{readRSF -- read an RSF file}
 	{
 		HashMap<java.lang.String, ISetWriter> table = new HashMap<java.lang.String, ISetWriter>();
@@ -81,14 +81,14 @@ public class RSFIO {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+						throw RuntimeExceptionFactory.io(e);
 				}
 			}
 		}
@@ -124,7 +124,7 @@ public class RSFIO {
 	 * - location
 	 */
 	
-	public IValue readRSFRelation(IValue result, IString relName, ISourceLocation loc, IEvaluatorContext ctx){
+	public IValue readRSFRelation(IValue result, IString relName, ISourceLocation loc){
 		
 		Type resultType = tr.valueToType((IConstructor) result, new TypeStore());
 	
@@ -135,7 +135,7 @@ public class RSFIO {
 		if(!resultType.isRelation() || (resultType.getArity() != 2)){
 			throw RuntimeExceptionFactory.illegalArgument(
 					values.string("Type of an RSF relation should be a binary relation"),
-					ctx.getCurrentAST(), ctx.getStackTrace());
+					null, null);
 		}
 		
 		Type elem1Type = resultType.getFieldType(0);
@@ -160,7 +160,7 @@ public class RSFIO {
 			reader.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		
 		return rw.done();
@@ -188,13 +188,10 @@ public class RSFIO {
 	 * Returns a map[str Symbol]
 	 */
 	
-	public IValue getRSFTypes(ISourceLocation loc, IEvaluatorContext ctx)
+	public IValue getRSFTypes(ISourceLocation loc)
 	{
 		HashMap<java.lang.String, Type> table = new HashMap<java.lang.String, Type>();
 	
-//		Type strType = types.stringType();
-//		Type symbolType = Factory.Symbol;
-		
 		Reader reader = null;
 		try {
 			reader = URIResolverRegistry.getInstance().getCharacterReader(loc);
@@ -202,10 +199,8 @@ public class RSFIO {
 			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
-				System.err.println(line);
 				java.lang.String[] fields = line.split("\\s+");
 				java.lang.String name = fields[0];
-				System.err.println(fields[0] + "|" + fields[1] + "|" + fields[2]);
 				
 				Type t1 = getElementType(fields[1]);
 				Type t2 = getElementType(fields[2]);
@@ -220,14 +215,14 @@ public class RSFIO {
 			reader.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			if (reader != null){
 				try {
 					reader.close();
 				} catch (IOException e){
-					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+					throw RuntimeExceptionFactory.io(e);
 				}
 			}
 		}
@@ -237,7 +232,7 @@ public class RSFIO {
 		for (Map.Entry<java.lang.String, Type> entry : table.entrySet()) {
 			Type t = entry.getValue();
 			mr.put(values.string(entry.getKey()), 
-			       new TypeReifier(values).typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));	
+			       tr.typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), new TypeStore(), values.mapWriter().done()));	
 		}
 		return mr.done();
 	}

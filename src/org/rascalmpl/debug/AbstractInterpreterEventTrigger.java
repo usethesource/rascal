@@ -84,6 +84,14 @@ public abstract class AbstractInterpreterEventTrigger implements IRascalEventTri
 
 	/**
 	 * Fires a resume event for this debug element with detail
+	 * <code>RascalEvent.Detail.STEP_OUT</code>.
+	 */
+	public void fireResumeByStepOutEvent() {
+		fireResumeEvent(RascalEvent.Detail.STEP_OUT);
+	}
+
+	/**
+	 * Fires a resume event for this debug element with detail
 	 * <code>RascalEvent.Detail.CLIENT_REQUEST</code>.
 	 */
 	public void fireResumeByClientRequestEvent() {

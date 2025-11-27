@@ -2,28 +2,29 @@ module lang::rascal::tests::basic::ListRelations
 
 import List;
 import ListRelation;
-import IO;
 import Type;
 
 // Operators
-
-test bool product(list[&A]X, list[&B] Y) =
-  isEmpty(X) ==> isEmpty(X * Y) ||
-  isEmpty(Y) ==> isEmpty(X * Y) ||
-  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
+  
+ test bool product(list[&A]X, list[&B] Y) =
+  isEmpty(X) ? isEmpty(X * Y) 
+             : (isEmpty(Y) ? isEmpty(X * Y) 
+                           : all(x <- X, x in domain(X * Y)) &&
+                             all(y <- Y, y in range(X * Y)) &&
+                             all(<x, y> <- X * Y, x in X, y in Y));
   
 test bool composition(lrel[int, str]X, lrel[str, int] Y) =
-  isEmpty(X) ==> isEmpty(X o Y) ||
-  isEmpty(Y) ==> isEmpty(X o Y) ||
-  all(<x, y> <- X o Y, z <- range(X), <x, z> in X, <z, y> in Y);
+  isEmpty(X) ? isEmpty(X o Y)
+             : (isEmpty(Y) ? isEmpty(X o Y)
+                           : (isEmpty(X o Y) || all(<x, y> <- X o Y, x in domain(X o Y), y in range(X o Y))));
 
 test bool selection(lrel[&A fa, &B fb] X) =
   domain(X) <= X.fa && range(X) <= X.fb && X.fa == X<0> && X.fb == X<1>;
   
 test bool \join(lrel[&A, &B]X, lrel[&B, &C, &D] Y) =
-  isEmpty(X) ==> size(X join Y) == size(Y) ||
-  isEmpty(Y) ==> size(X join Y) == size(X) ||
-  (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y;  
+  isEmpty(X)  ? isEmpty(X join Y)
+              : (isEmpty(Y) ? isEmpty(X join Y)
+                            : toSet((X join Y)<0, 1>) == toSet(X) && toSet((X join Y)<2,3,4>) == toSet(Y));
   
 // Note that all subscriptions are of the form X[{a}] to avoid that a is interpreted as an integer index.  
 test bool subscription1(lrel[&A, &B, &C] X) =
@@ -78,18 +79,18 @@ test bool tst_complement(lrel[int, int] X) =
    
 test bool tst_domain(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<a, b> <- X, a in domain(X)) && all(c <- domain(X), any(<int x, int y> <- X, eq(x,c)));
+   all(<a, _> <- X, a in domain(X)) && all(c <- domain(X), any(<int x, int _> <- X, eq(x,c)));
    
 test bool tst_domainR(lrel[int, int] X) {
    s = sample(X);
    XR = domainR(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, a in s);
+   return isEmpty(XR) || all(<a, _> <- XR, a in s);
 }
 
 test bool tst_domainX(lrel[int, int] X) {
    s = sample(X);
    XR = domainX(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, a notin s);
+   return isEmpty(XR) || all(<a, _> <- XR, a notin s);
 }
 
 test bool tst_ident(list[int] X) = isEmpty(X) || all(<a, b> <- ident(X), eq(a,b), a in X);
@@ -98,18 +99,18 @@ test bool tst_invert(lrel[int, int] X) = invert(invert(X)) == X;
 
 test bool tst_range(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<int a, int b> <- X, b in range(X)) && all(int c <- range(X), any(<int x, int y> <- X, eq(y,c)));
+   all(<int _, int b> <- X, b in range(X)) && all(int c <- range(X), any(<int _, int y> <- X, eq(y,c)));
    
 test bool tst_rangeR(lrel[int, int] X) {
    s = sample(X);
    XR = rangeR(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, b in s);
+   return isEmpty(XR) || all(<_, b> <- XR, b in s);
 }
 
 test bool tst_rangeX(lrel[int, int] X) {
    s = sample(X);
    XR = rangeX(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, b notin s);
+   return isEmpty(XR) || all(<_, b> <- XR, b notin s);
 }
 
 

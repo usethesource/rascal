@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Expression extends AbstractAST {
   public Expression(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,280 +31,280 @@ public abstract class Expression extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElements() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElements0() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGenerators() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSubscripts() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getSubscripts() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFields() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Field> getFields() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMappings() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Mapping_Expression> getMappings() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatements() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatements0() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getStatements0() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasComprehension() {
     return false;
   }
 
   public org.rascalmpl.ast.Comprehension getComprehension() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasConcrete() {
     return false;
   }
 
   public org.rascalmpl.ast.Concrete getConcrete() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasArgument() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getArgument() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCondition() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getCondition() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDefinitions() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getDefinitions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElseExp() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getElseExp() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFirst() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getFirst() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasInit() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getInit() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLast() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getLast() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getLhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPattern() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getPattern() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasReplacement() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getReplacement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasResult() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getResult() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getRhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSecond() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getSecond() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasThenExp() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getThenExp() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasValue() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getValue() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasKeywordArguments() {
     return false;
   }
 
   public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLabel() {
     return false;
   }
 
   public org.rascalmpl.ast.Label getLabel() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.Literal getLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasField() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getField() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasKey() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getKey() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOptFirst() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalExpression getOptFirst() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOptLast() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalExpression getOptLast() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParameters() {
     return false;
   }
 
   public org.rascalmpl.ast.Parameters getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasQualifiedName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getQualifiedName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVisit() {
     return false;
   }
 
   public org.rascalmpl.ast.Visit getVisit() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

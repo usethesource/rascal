@@ -21,18 +21,20 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ListPattern extends AbstractMatchingResult  {
   private List<IMatchingResult> patternChildren;  // The elements of this list pattern
@@ -66,18 +68,20 @@ public class ListPattern extends AbstractMatchingResult  {
   private boolean debug = false;
   private Type staticListSubjectElementType;
   private Type staticListSubjectType;
+  private final boolean bindTypeParameters;
  
 
 
-  public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list){
-    this(ctx, x, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+  public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, boolean bindTypeParameters){
+    this(ctx, x, list, 1, bindTypeParameters);  // Default delta=1; Set to 2 to run DeltaListPatternTests
   }
 
-  ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta){
+  ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta, boolean bindTypeParameters){
     super(ctx, x);
 
     if(delta < 1)
       throw new ImplementationError("Wrong delta");
+    this.bindTypeParameters = bindTypeParameters;
     this.delta = delta;
     this.patternChildren = list;          
     this.patternSize = list.size();
@@ -116,23 +120,6 @@ public class ListPattern extends AbstractMatchingResult  {
       System.err.println("List: initMatch: subject=" + subject);
     }
 
-    //    This is an experiment to add abstract list matching for concrete subjects
-    //    if (subject.getType().isSubtypeOf(Factory.Tree)) {
-    //      IConstructor tree = (IConstructor) subject.getValue();
-    //      if (TreeAdapter.isList(tree)) {
-    //        subject = ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx);
-    //        IConstructor rhs = TreeAdapter.getType(tree);
-    //        
-    //        if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
-    //          this.delta = SymbolAdapter.getSeparators(rhs).length() + 1;
-    //        }
-    //      }
-    //      else {
-    //        hasNext = false;
-    //        return;
-    //      }
-    //    }
-
     super.initMatch(subject);
 
     if (!subject.getValue().getType().isList()) {
@@ -141,8 +128,8 @@ public class ListPattern extends AbstractMatchingResult  {
     }
     listSubject = (IList) subject.getValue();
     listSubjectType = listSubject.getType(); 
-    staticListSubjectType = subject.getType();
-    staticListSubjectElementType = staticListSubjectType.isList() ? subject.getType().getElementType() : tf.valueType();
+    staticListSubjectType = subject.getStaticType();
+    staticListSubjectElementType = staticListSubjectType.isList() ? subject.getStaticType().getElementType() : tf.valueType();
 
     subjectCursor = 0;
     patternCursor = 0;
@@ -177,20 +164,30 @@ public class ListPattern extends AbstractMatchingResult  {
       Environment env = ctx.getCurrentEnvt();
 
       if (child instanceof TypedMultiVariablePattern) {
-        TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
-        Type tmvType = tmvVar.getType(env, null);
+          TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
+          
+          // now we know what we are, a list multi variable!
+          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.listType(tmv.getType(env,  null)), tmv.getName(), bindTypeParameters); 
+          
+          // cache this information for the next round, we'll still be a list
+          patternChildren.set(i, child);
+      }
+      
+      if (child instanceof DesignatedTypedMultiVariablePattern) {
+         DesignatedTypedMultiVariablePattern tmvVar = (DesignatedTypedMultiVariablePattern) child;
+        Type tmvType = child.getType(env, null);
         String name = tmvVar.getName();
 
         varName[i] = name;
         isListVar[i] = true;
         listVarOccurrences[i] = 1;
+       
         ++nListVar;
 
-        if(!tmvVar.isAnonymous() && allVars.contains(name)) {
+        if (!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if(tmvType.comparable(listSubject.getType().getElementType()) 
-        		|| (tmvVar.bindingInstance() && tmvType.comparable(listSubject.getType()))) {
-          tmvVar.convertToListType();
+        } 
+        else if (tmvType.comparable(listSubject.getType())) {
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
           }
@@ -200,7 +197,7 @@ public class ListPattern extends AbstractMatchingResult  {
           return;
         }
       }
-      else if(child instanceof MultiVariablePattern){
+      else if (child instanceof MultiVariablePattern){
         MultiVariablePattern multiVar = (MultiVariablePattern) child;
         String name = multiVar.getName();
         varName[i] = name;
@@ -219,7 +216,7 @@ public class ListPattern extends AbstractMatchingResult  {
             isBindingVar[i] = true;
           } else {
             isBindingVar[i] = false;
-            Type varType = varRes.getType();
+            Type varType = varRes.getStaticType();
             if (isAnyListType(varType)){  
               if (!varType.comparable(listSubjectType)) {     
                 hasNext = false;
@@ -263,7 +260,7 @@ public class ListPattern extends AbstractMatchingResult  {
           if(varRes == null || qualName.bindingInstance()){ 
             // A completely new non-list variable, nothing to do
           } else {
-            Type varType = varRes.getType();
+            Type varType = varRes.getStaticType();
             if (isAnyListType(varType)){  
               /*
                * A variable declared in the current scope.
@@ -345,7 +342,7 @@ public class ListPattern extends AbstractMatchingResult  {
       IMatchingResult child = patternChildren.get(i);
       Type childType = child.getType(env, patternVars);
       patternVars = merge(patternVars, patternChildren.get(i).getVariables());
-      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof DesignatedTypedMultiVariablePattern;
       
       if(childType.isList() && isMultiVar){
         elemType = elemType.lub(childType.getElementType());
@@ -381,7 +378,7 @@ public class ListPattern extends AbstractMatchingResult  {
 
     for(int i = 0; i < previousBinding.length(); i += delta){
       if(debug)System.err.println("comparing: " + previousBinding.get(i) + " and " + listSubject.get(subjectCursor + i));
-      if(!previousBinding.get(i).isEqual(listSubject.get(subjectCursor + i))){
+      if(!previousBinding.get(i).equals(listSubject.get(subjectCursor + i))){
         forward = false;
         listVarLength[patternCursor] = 0;
         patternCursor -= delta;
@@ -558,14 +555,14 @@ public class ListPattern extends AbstractMatchingResult  {
       } 
       else if(isListVar[patternCursor] && 
           !isBindingVar[patternCursor] && 
-          ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]).getType().isList()){
+          ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]).getStaticType().isList()){
         if(forward){
           listVarStart[patternCursor] = subjectCursor;
 
           Result<IValue> varRes = ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]);
           IValue varVal = varRes.getValue();
 
-          if(varRes.getType().isList()){
+          if(varRes.getStaticType().isList()){
             assert varVal != null && varVal.getType().isList();
 
             int varLength = ((IList)varVal).length();

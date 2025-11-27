@@ -8,18 +8,14 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascal::grammar::definition::Productions
-     
+
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
 import lang::rascal::grammar::definition::Names;
 extend Grammar;
-import List; 
-import String;    
 extend ParseTree;   
 import IO;  
-import util::Math;
 import util::Maybe;
 
 
@@ -63,19 +59,17 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
    
 private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
-    case labeled(ProdModifier* ms, Name n, Sym* args) : 
-      if ([Sym x] := args.args, x is empty) {
-        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), [], mods2attrs(ms)));
+    case labeled(ProdModifier* ms, Name n, Sym* args) : {
+          if ([Sym x] := args.args, x is empty) {
+            return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), [], mods2attrs(ms)));
+          }
+          return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), args2symbols(args), mods2attrs(ms)));
       }
-      else {
-        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), args2symbols(args), mods2attrs(ms)));
-      }
-    case unlabeled(ProdModifier* ms, Sym* args) :
-      if ([Sym x] := args.args, x is empty) {
-        return associativity(nt, mods2assoc(ms), prod(nt, [], mods2attrs(ms)));
-      }
-      else {
-        return associativity(nt, mods2assoc(ms), prod(nt,args2symbols(args),mods2attrs(ms)));
+    case unlabeled(ProdModifier* ms, Sym* args) : {
+          if ([Sym x] := args.args, x is empty) {
+            return associativity(nt, mods2assoc(ms), prod(nt, [], mods2attrs(ms)));
+          }
+          return associativity(nt, mods2assoc(ms), prod(nt,args2symbols(args),mods2attrs(ms)));
       }     
     case \all(Prod l, Prod r) :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});

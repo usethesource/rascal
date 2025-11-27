@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Type extends AbstractAST {
   public Type(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,56 +31,56 @@ public abstract class Type extends AbstractAST {
   }
 
   public org.rascalmpl.ast.BasicType getBasic() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSelector() {
     return false;
   }
 
   public org.rascalmpl.ast.DataTypeSelector getSelector() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFunction() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionType getFunction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStructured() {
     return false;
   }
 
   public org.rascalmpl.ast.StructuredType getStructured() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTypeVar() {
     return false;
   }
 
   public org.rascalmpl.ast.TypeVar getTypeVar() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasUser() {
     return false;
   }
 
   public org.rascalmpl.ast.UserType getUser() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -139,7 +140,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 641 * basic.hashCode() ; 
+      return 541 + 491 * basic.hashCode() ; 
     } 
   
     
@@ -213,7 +214,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 509 * type.hashCode() ; 
+      return 331 + 167 * type.hashCode() ; 
     } 
   
     
@@ -287,7 +288,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 563 + 149 * function.hashCode() ; 
+      return 809 + 109 * function.hashCode() ; 
     } 
   
     
@@ -361,7 +362,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 67 * selector.hashCode() ; 
+      return 373 + 449 * selector.hashCode() ; 
     } 
   
     
@@ -435,7 +436,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 181 * structured.hashCode() ; 
+      return 571 + 467 * structured.hashCode() ; 
     } 
   
     
@@ -509,7 +510,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 599 + 101 * symbol.hashCode() ; 
+      return 691 + 701 * symbol.hashCode() ; 
     } 
   
     
@@ -583,7 +584,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 277 * user.hashCode() ; 
+      return 19 + 137 * user.hashCode() ; 
     } 
   
     
@@ -657,7 +658,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 + 797 * typeVar.hashCode() ; 
+      return 907 + 41 * typeVar.hashCode() ; 
     } 
   
     

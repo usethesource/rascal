@@ -18,21 +18,22 @@
 package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
-import java.util.Collection;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-// TODO: this interface needs to be split into an external interface, for clients
-// which want to call Rascal from Java, and an internal interface for managing the global
-// state of the interpreter between its different components.
 public interface IEvaluatorContext extends IRascalMonitor {
 	/** for error messaging */
 	public AbstractAST getCurrentAST();
@@ -40,8 +41,10 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public StackTrace getStackTrace();
 	
 	/** for standard IO */
-	public PrintWriter getStdOut();
-	public PrintWriter getStdErr();
+	public PrintWriter getOutPrinter();
+	public PrintWriter getErrorPrinter();
+
+	public Reader getInput();
 	
 	/** for "internal use" */
 	public IEvaluator<Result<IValue>> getEvaluator();
@@ -50,6 +53,11 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Environment getCurrentEnvt();
 	public void setCurrentEnvt(Environment environment);
 	
+	public int getCallNesting();
+	public void incCallNesting();
+	public void decCallNesting();
+	public boolean getCallTracing();
+
 	public void pushEnv();
 	public void pushEnv(String name);
 	public void unwind(Environment old);
@@ -57,13 +65,20 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public GlobalEnvironment getHeap();
 	public Configuration getConfiguration();
 	
-	public boolean runTests(IRascalMonitor monitor);
+	default boolean runTests(IRascalMonitor monitor) {
+		return runTests(monitor, Optional.empty());
+	}
+
+	public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName);
 	
 	public IValueFactory getValueFactory();
+	public RascalFunctionValueFactory getFunctionValueFactory();
 	
 	public void setAccumulators(Stack<Accumulator> accumulators);
 	public Stack<Accumulator> getAccumulators();
 	
 	
-	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
+	/** Given a (possibly empty) qualifier and a partial identifier, look in the current root environment if there are names defined that could match the partial names
+	 * @return identifiers and their category (variable, function, etc) */
+	public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier);
 }

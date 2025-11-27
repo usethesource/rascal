@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class AllBenchmarks extends TestFramework {
+
+	
 	@Test
 	public void BubbleSort() {
 		prepare("import BubbleSort::BubbleSort;");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,9 @@ import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 /**
  * All nodes in the resulting tree that can contain other nodes are a subtype
@@ -37,7 +40,7 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 	protected ArrayList<Link> alternatives;
 	protected ArrayList<P> productions;
 	
-	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
+	protected AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.input = input;
@@ -62,8 +65,8 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 			firstProduction = production;
 		}else{
 			if(alternatives == null){
-				alternatives = new ArrayList<Link>(1);
-				productions = new ArrayList<P>(1);
+				alternatives = new ArrayList<>(1);
+				productions = new ArrayList<>(1);
 			}
 			alternatives.add(children);
 			productions.add(production);
@@ -146,5 +149,34 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 	 */
 	public ArrayList<Link> getAdditionalAlternatives(){
 		return alternatives;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("offset=" + offset);
+		builder.append(",endOffset=" + endOffset);
+		if (isNullable) {
+			builder.append(",nullable");
+		}
+		if (isSeparator) {
+			builder.append(",separator");
+		}
+		if (isLayout) {
+			builder.append(",layout");
+		}
+		if (firstAlternative != null) {
+			builder.append(",");
+			builder.append(DebugUtil.prodToString((IConstructor) firstProduction));
+
+			if (productions != null) {
+				for (int i=0; i<productions.size(); i++) {
+					builder.append(",");
+					builder.append(DebugUtil.prodToString((IConstructor)productions.get(i)));
+				}
+			}
+			builder.append("]");
+		}
+		return builder.toString();
 	}
 }

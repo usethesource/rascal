@@ -25,14 +25,14 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -98,29 +98,37 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw RuntimeExceptionFactory.illegalArgument(actuals[0], ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 			
-		if (actuals.length == 4) {
-			int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
-			int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
-			int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
-			int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
-			
-			if (iBeginLine < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iBeginColumn < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iEndLine < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
-			if (iEndColumn < 0) {
-				throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
-			}
+		try {
+			if (actuals.length == 4) {
+				int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
+				int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
+				int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
+				int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
+				
+				if (iBeginLine < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iBeginColumn < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[2]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iEndLine < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(0), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
+				if (iEndColumn < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(((ITuple) actuals[3]).get(1), ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+			}
+			else {
+				return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength), ctx);
+			}
 		}
-		else {
-			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(getValue(), iOffset, iLength), ctx);
+		catch (IllegalArgumentException e) {
+			var lw = ctx.getValueFactory().listWriter();
+			lw.append(actuals);
+
+			throw RuntimeExceptionFactory.illegalArgument(lw.done(), e.getMessage(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 	}
 	
@@ -128,14 +136,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	public Result<IBool> isDefined(Name name) {
 		IValueFactory vf = getValueFactory();
 		TypeFactory tf = getTypeFactory();
-		URI uri = value.getURI();
 		String path = value.hasPath() ? value.getPath() : "";
 		
 		ISourceLocation value = getValue();
-		String stringResult = null;
-		Integer intResult = null;
-		Integer tupleA = null;
-		Integer tupleB = null;
 		
 		switch (Names.name(name)) {
 			// fall through
@@ -169,18 +172,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		case "parent": 
 			return makeResult(tf.boolType(), vf.bool(!path.equals("") && !path.equals("/")), ctx);
 
-		case "file": {
-			int i = path.lastIndexOf((int)'/');
-			
-			if (i != -1) {
-				stringResult = path.substring(i+1);
-			}
-			else {
-				stringResult = path;
-			}
-			
-			return makeResult(tf.boolType(), vf.bool(!path.equals("")), ctx);
-		}
+		case "file": 
+			return makeResult(tf.boolType(), vf.bool(!path.equals("") && !path.equals("/")), ctx);
 
 		case "ls": 
 			return makeResult(tf.boolType(), vf.bool(URIResolverRegistry.getInstance().exists(value) && URIResolverRegistry.getInstance().isDirectory(value) ), ctx);
@@ -308,6 +301,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		case "file": {
 			String path = value.hasPath() ? value.getPath() : "";
+
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
 			
 			int i = path.lastIndexOf((int)'/');
 			
@@ -340,19 +337,30 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				return makeResult(result.getType(), result, ctx);
 				
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+				throw RuntimeExceptionFactory.io(e, ctx.getCurrentAST(), ctx.getStackTrace());
 			}
 			
 		}
 
 		case "extension" : {
 			String path = value.hasPath() ? value.getPath() : "";
-			int i = path.lastIndexOf((int)'.');
-			if (i != -1) {
-				stringResult = path.substring(i + 1);
+			if (path.endsWith(URIUtil.URI_PATH_SEPARATOR)) {
+				path = path.substring(0, path.length() - 1);
+			}
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			if (slashIndex == -1) {
+				// empty path
+				stringResult = "";
 			}
 			else {
-				stringResult = "";
+				int i = path.substring(slashIndex).lastIndexOf((int)'.');
+
+				if (i != -1) {
+					stringResult = path.substring(slashIndex + i + 1);
+				}
+				else {
+					stringResult = "";
+				}
 			}
 			break;
 		}
@@ -407,7 +415,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		String fragment = loc.hasFragment() ? loc.getFragment() : null;
 		
 
-		Type replType = repl.getType();
+		Type replType = repl.getStaticType();
 		IValue replValue = repl.getValue();
 
 		try {
@@ -465,6 +473,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
+				boolean endsWithSlash = path.endsWith("/");
+				path = endsWithSlash ? path.substring(0, path.length() - 1) : path;
+
 				int i = path.lastIndexOf("/");
 				
 				if (i != -1) {
@@ -473,6 +484,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				else {
 					path = path + "/" + newStringValue;	
 				}
+
+				if (endsWithSlash) {
+					path += "/";
+				}
+
 				uriPartChanged = true;
 			}
 			else if (name.equals("parent")) {
@@ -501,21 +517,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				String ext = newStringValue;
 				
-				if (path.length() > 1) {
-					int index = path.lastIndexOf('.');
-
-					if (index == -1 && !ext.isEmpty()) {
-						path = path + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else if (!ext.isEmpty()) {
-						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else {
-						path = path.substring(0, index);
-					}
-				}
+				path = URIUtil.changeExtension(loc, newStringValue).getPath();
 				uriPartChanged = true;
 			}
 			else if (name.equals("top")) {
@@ -637,7 +640,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			if (loc.hasLineColumn()) {
 				// was a complete loc, and thus will be now
-				return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 			}
 			
 			if (loc.hasOffsetLength()) {
@@ -647,17 +650,17 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					//will be complete now.
 					iEndLine = iBeginLine;
 					iEndColumn = iBeginColumn;
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 				}
 				else if (iEndLine != -1 || iEndColumn != -1) {
 					// will be complete now.
 					iBeginLine = iEndLine;
 					iBeginColumn = iEndColumn;
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 				}
 				else {
 					// remains a partial loc
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
 				}
 			}
 
@@ -684,14 +687,14 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 			if (iOffset != -1 || iLength != -1) {
 				// used not to no offset/length, but do now
-				return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
+				return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
 			}
 			
 			// no updates to offset/length or line/column, and did not used to have any either:
-			return makeResult(getType(), newLoc, ctx);
+			return makeResult(getStaticType(), newLoc, ctx);
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(getValue(), ctx.getCurrentAST(), ctx.getStackTrace(), "can not update field " + name + ": " + e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(getValue(), "can not update field " + name + ": " + e.getMessage(), ctx.getCurrentAST(), ctx.getStackTrace());
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.parseError(ctx.getCurrentAST().getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}

@@ -11,7 +11,6 @@
 module lang::pico::\syntax::Main
 
 import ParseTree;
-import IO;
 
 start syntax Program 
   = program: "begin" Declarations decls {Statement  ";"}* body "end" ;
@@ -54,8 +53,8 @@ layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
 
 lexical WhitespaceAndComment 
    = [\ \t\n\r]
-   | @category="Comment" "%" ![%]+ "%"
-   | @category="Comment" "%%" ![\n]* $
+   | @category="comment" "%" ![%]+ "%"
+   | @category="comment" "%%" ![\n]* $
    ;
 
 public start[Program] program(str s) {

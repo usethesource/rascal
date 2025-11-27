@@ -8,8 +8,6 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::c90::\syntax::C
 
-import ParseTree;
-
 syntax Statement 
 	= "{" Declaration* Statement* "}" 
 	| Identifier ":" Statement 
@@ -32,11 +30,11 @@ syntax Statement
 
 syntax Expression 
 	= variable: Identifier 
-	| @category="Constant" HexadecimalConstant 
-	| @category="Constant" IntegerConstant 
-	| @category="Constant" CharacterConstant 
-	| @category="Constant" FloatingPointConstant 
-	| @category="Constant" StringConstant 
+	| @category="number" HexadecimalConstant 
+	| @category="number" IntegerConstant 
+	| @category="string" CharacterConstant 
+	| @category="number" FloatingPointConstant 
+	| @category="string" StringConstant 
 	| Expression "[" Expression "]" 
 	| Expression "(" {NonCommaExpression ","}* ")" 
 	| "sizeof" "(" TypeName ")" 
@@ -311,5 +309,5 @@ layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r];
 
 lexical LAYOUT 
 	= whitespace: [\ \t\n\r] 
-	| @category="Comment" comment: Comment
+	| @category="comment" comment: Comment
 	;

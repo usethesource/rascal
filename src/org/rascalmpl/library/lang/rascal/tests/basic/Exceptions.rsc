@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::Exceptions
 
 import List;
 import Exception;
+import String;
 
 test bool exceptionHandling1(){
 	value f() { throw "Try to catch me!"; }
@@ -16,13 +17,13 @@ test bool exceptionHandling1(){
 			n = n + " 3"; // dead code
 		} catch 0: {
 			n = n + " 4";
-		} catch int i: {
+		} catch int _: {
 			n = n + " 5";
 		}
 		n = n + " 6";
 	} catch "0": {
 		n = n + " 7";
-	} catch str s: {
+	} catch str _: {
 		n = n + " 8";
 	}
 	return n == "0 1 2 8";
@@ -66,16 +67,16 @@ test bool exceptionHandling2(){
 			n = n + ", then 7"; // dead code
 		
 		// Example of overlapping catch patterns and try/catch block within a catch block
-		} catch str s: {
+		} catch str _: {
 			n = n + ", then 8";
 			try {
 				n = n + ", then 9";
 				f(n);
-			} catch int i: {
+			} catch int _: {
 				n = n + ", then 10";
 			}
 			n = n + ", then 11";
-		} catch value v: {
+		} catch value _: {
 			n = n + ", then 12";
 		}
 	
@@ -127,21 +128,21 @@ test bool exceptionHandling3(){
 				n = n + ", then 7"; // dead code
 		
 			// Example of overlapping catch patterns and try/catch block within a catch block
-			} catch str s: {
+			} catch str _: {
 				n = n + ", then 8";
 				try {
 					n = n + ", then 9";
 					f(n); // re-throws
-				} catch int i: { // should not catch re-thrown value due to the type
+				} catch int _: { // should not catch re-thrown value due to the type
 					n = n + ", then 10";
 				}
 				n = n + ", then 11";
-			} catch value v: {
+			} catch value _: {
 				n = n + ", then 12";
 			}
 	
 		// The outer try block of the catch block that throws an exception (should not catch due to the type)
-		} catch int i: {
+		} catch int _: {
 			n = n + ", then 13";
 		}
 	// The outer try block of the catch block that throws an exception (should catch)
@@ -162,8 +163,6 @@ test bool exceptionHandling4(){
 
 
 test bool exceptionHandlingFinally1(){
-	value f() { throw "Try to catch me!"; }
-	
 	str main(){
 		str n = "0";
 		
@@ -175,29 +174,27 @@ test bool exceptionHandlingFinally1(){
 				return n + " has been returned!";
 			} catch 0: {		
 				n = n + " 4";
-			} catch int i: {
+			} catch int _: {
 				n = n + " 5";
 			} finally {
 				n = n + " 6";
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
-		} catch str s: {
+		} catch str _: {
 			n = n + " 9";
 		} finally {
 			n = n + " 10";
 		}
+		return "no case matched";
 	}
 	
 	return main() == "0 1 2 6 has been returned from the inner finally!";
 }
 
 test bool exceptionHandlingFinally2(){
-	value f() { throw "Try to catch me!"; }
-	
 	str main() {
 		str n = "0";
 		try {
@@ -208,32 +205,28 @@ test bool exceptionHandlingFinally2(){
 				return n + " has been returned!";
 			} catch 0: {		
 				n = n + " 4";
-			} catch int i: {
+			} catch int _: {
 				n = n + " 5";
 			} finally {
 				n = n + " 6";
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
-		} catch str s: {
+		} catch str _: {
 			n = n + " 9";
 		} finally {
 			n = n + " 10";
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
 	}
 	
 	return main() == "0 1 2 6 10 has been returned from the outer finally!";
 }
 
 test bool exceptionHandlingFinally3(){
-	value f() { throw "Try to catch me!"; }
-	
 	str main() {
 		str n = "0";
 		
@@ -245,13 +238,14 @@ test bool exceptionHandlingFinally3(){
 				return n + " has been returned!";
 			} catch 0: {		
 				n = n + " 4";
-			} catch int i: {
+			} catch int _: {
 				n = n + " 5";
 			}		
 			n = n + " 7";
+			return " should not come here";
 		} catch "0": {	
 			n = n + " 8";
-		} catch str s: {
+		} catch str _: {
 			n = n + " 9";
 		} 
 		finally {
@@ -259,14 +253,12 @@ test bool exceptionHandlingFinally3(){
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
+		
 	}
 	return main() == "0 1 2 10 has been returned from the outer finally!";
 }
 
 test bool exceptionHandlingFinally4(){
-	value f() { throw "Try to catch me!"; }
-	
 	str main() {
 		str n = "0";
 		// No exceptions and no returns
@@ -275,7 +267,7 @@ test bool exceptionHandlingFinally4(){
 			try {
 				n = n + " 2";
 				n = n + " 3";
-			} catch str s: {
+			} catch str _: {
 				n = n + " 5";
 			} finally {
 				n = n + " 6";
@@ -283,7 +275,7 @@ test bool exceptionHandlingFinally4(){
 			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
-		} catch str s: {
+		} catch str _: {
 			n = n + " 9";
 		} finally {
 			n = n + " 10";
@@ -305,11 +297,12 @@ test bool exceptionHandlingFinally5(){
 				n = n + " 2";
 				f();
 				n = n + " 3"; // dead code
+				return " should not come here";
 			} catch "0": {
 				n = n + " 4";
 				// Inline in a 'catch' block
 				return n;
-			} catch str s: {
+			} catch str _: {
 				n = n + " 5";
 				// Inline in 'catch' block
 				return n + " has been returned from the inner catch!";
@@ -318,17 +311,15 @@ test bool exceptionHandlingFinally5(){
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
-		} catch str s: {
+		} catch str _: {
 			n = n + " 9";
 		} finally {
 			n = n + " 10";
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
 	}
 	return main() == "0 1 2 5 6 10 has been returned from the outer finally!";
 }	
@@ -349,7 +340,7 @@ test bool exceptionHandlingFinally6(){
 					n = n + " 4";
 					// Inline in a 'catch' block: does not match!
 					return n;
-				} catch int i: {
+				} catch int _: {
 					n = n + " 5";
 					// Inline in 'catch' block: does not match!
 					return n + " has been returned from the inner catch!";
@@ -357,9 +348,10 @@ test bool exceptionHandlingFinally6(){
 					n = n + " 6";
 				}
 				n = n + " 7";
+				return " should not come here";
 			} catch "0": {	
 				n = n + " 8";
-			} catch str s: {
+			} catch str _: {
 				n = n + " 9";
 				// Inline in 'catch' block: does match!
 				return n + " has been returned from the outer catch!";
@@ -375,7 +367,6 @@ test bool exceptionHandlingFinally6(){
 			n = n + " and last finally";
 			return n;
 		}
-		return n;
 	}
 	return main() == "0 1 2 6 9 10 and last finally";
 }	
@@ -394,7 +385,7 @@ test bool exceptionHandlingFinally7(){
 					n = n + " 3"; // dead code
 				} catch 0: { // Does not match!
 					n = n + " 4";
-				} catch int i: {
+				} catch int _: {
 					n = n + " 5";
 					// Inline in 'catch' block: does not match!
 					return n + " has been returned from the inner catch!";
@@ -404,7 +395,7 @@ test bool exceptionHandlingFinally7(){
 				n = n + " 7";
 			} catch "0": {	
 				n = n + " 8";
-			} catch str s: { // Does match!
+			} catch str _: { // Does match!
 				n = n + " 9";
 			} finally {
 				n = n + " 10";
@@ -438,7 +429,7 @@ test bool exceptionHandlingFinally8(){
 					n = n + " 3"; // dead code	
 				} catch 0: { // Does not match!
 					n = n + " 4";
-				} catch int i: {
+				} catch int _: {
 					n = n + " 5";
 					// Inline in 'catch' block: does not match!
 					return n + " has been returned from the inner catch!";
@@ -448,7 +439,7 @@ test bool exceptionHandlingFinally8(){
 				n = n + " 7";
 			} catch "0": {	
 				n = n + " 8";
-			} catch str s: { // Does match!
+			} catch str _: { // Does match!
 				n = n + " 9";
 			} finally {
 				n = n + " 10";
@@ -458,7 +449,7 @@ test bool exceptionHandlingFinally8(){
 			n = n + " 12";
 			f();            // Throws again, but unreachable
 			n = n + " 13";
-		} catch value v: {
+		} catch value _: {
 			n = n + " 14";
 		} finally {
 			// Inline in a 'finally' block
@@ -491,17 +482,17 @@ test bool exceptionHandlingNotHandled(){
 					n = n + ", then 6";
 				}
 				n = n + ", then 7"; // dead code
-			} catch str s: {
+			} catch str _: {
 				n = n + ", then 8";
 				try {
 					n = n + ", then 9";
 					f(n);
-				} catch int i: {
+				} catch int _: {
 					n = n + ", then 10";
 				}
 				n = n + ", then 11";
 			}
-		} catch int i: {
+		} catch int _: {
 			n = n + ", then 13";
 		}
 		return n;
@@ -516,37 +507,19 @@ test bool exceptionHandlingNotHandled(){
 	}
 }
 
-//@ignoreCompiler{Renamed Exception}
-@ignore
-test bool exceptionHandlingNotHandledSimple(){
+test bool exceptionHandlingNotHandledSimple1(){
 	void divide() { 1/0; }
 
-	value main() {
-		return divide();
+	void main() {
+		divide();
 	}
 	
 	try {
-		return main();
-	} 
-	catch value v: {
-		return v == ArithmeticException("/ by zero");
-	}
-}
-
-//@ignoreInterpreter{Renamed Exception}
-@ignore
-test bool exceptionHandlingNotHandledSimple(){
-    void divide() { 1/0; }
-
-    value main() {
-        return divide();
-    }
-    
-    try {
-        return main();
+		main();
+		return false;
     } 
     catch value v: {
-        return v == ArithmeticException("divide by zero");
+		return ArithmeticException(str msg) := v && endsWith(msg, "by zero"); 
     }
 }
 
@@ -568,7 +541,7 @@ test bool rascalException1() {
 test bool rascalRuntimeExceptionsPlusOverloading(){
 	str trace = "";
 
-	void f(int i) {
+	void f(int _) {
 	    map[int,str] m = (0:"0", 1:"1",2:"2");
 	    trace = trace + "Bad function f; ";
 	    m[3];
@@ -595,31 +568,55 @@ test bool rascalRuntimeExceptionsPlusOverloading(){
 }
 
 test bool untypedCatch1() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
-	catch s: return true;
-	
-	return false;
+	catch _: x += 1;
+	return x == 2;
 }
 
 test bool untypedCatch2() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
-	catch int n: return false;
-	catch s:     return true;
-	
-	return false;
+	catch int _: return false;
+	catch _:     x += 1;
+	return x == 2;
 }
 
 test bool untypedCatch3() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
-	catch int n: return false;
-	catch s:     return true;
+	catch int _: return false;
+	catch _:     x += 1;
 	finally;
 	
-	return false;
-}			
+	return x == 2;
+}		
+
+test bool definedVarCatch() {
+    x = 1;
+    try {
+        throw 1;
+    } 
+    catch x:     x += 1;
+    finally;
+    
+    return x == 2;
+}   
+
+test bool valueCatch() {
+    x = 1;
+    try {
+        throw "exception";
+    } 
+    catch value _:     x += 1;
+    finally;
+    
+    return x == 2;
+}           
+    	

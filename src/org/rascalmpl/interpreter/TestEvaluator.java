@@ -20,17 +20,20 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.test.infrastructure.QuickCheck;
 import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
+import org.rascalmpl.test.infrastructure.QuickCheck.UnExpectedExceptionThrownResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class TestEvaluator {
 
@@ -44,12 +47,15 @@ public class TestEvaluator {
         this.testResultListener = testResultListener;
     }
 
-    public void test(String moduleName) {
+    public boolean test(String moduleName) {
         ModuleEnvironment topModule = eval.getHeap().getModule(moduleName);
 
         if (topModule != null) {
             runTests(topModule, topModule.getTests());
+            return true;
         }
+        
+        return false;
     }
 
     public void test() {
@@ -80,65 +86,79 @@ public class TestEvaluator {
         }
     }
 
-    
-
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
-        testResultListener.start(env.getName(), tests.size());
-        // first, let's shuffle the tests
-        tests = new ArrayList<>(tests); // just to be sure, clone the list
-        Collections.shuffle(tests);
-
-        QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
-        for (AbstractFunction test: tests) {
-            if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
-                testResultListener.ignored(test.getName(), test.getAst().getLocation());
-                continue;
-            }
-
-            try{
-                int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
-                int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
-                int tries = readIntTag(test, QuickCheck.TRIES, 500);
-                String expected = null;
-                if(test.hasTag(QuickCheck.EXPECT_TAG)){
-                    expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
-                } 
-                boolean ignoreAnnotations = test.hasTag(QuickCheck.IGNORE_ANNOTATIONS_TAG);
-
-                TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
-                    try {
-                        IValue testResult = test.call(actuals, args, null).getValue();
-                        if (((IBool)testResult).getValue()) {
-                            return QuickCheck.SUCCESS;
-                        }
-                        else {
-                            return new TestResult(false, null);
-                        }
-                    }
-                    catch (Throwable e) {
-                        return new TestResult(false, e);
-                    }
-                }, env.getRoot().getStore(), tries, maxDepth, maxWidth, ignoreAnnotations);
-                
-                eval.getStdOut().flush();
-                eval.getStdErr().flush();
-                
-                if (!result.succeeded()) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter out = new PrintWriter(sw);
-                    result.writeMessage(out);
-                    out.flush();
-                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer().toString(), result.thrownException());
-                } else {
-                    testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
-                }
-            }
-            catch(Throwable e){
-                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-            }
-            eval.getStdOut().flush();
-            eval.getStdErr().flush();
+        if (tests.size() <= 0) {
+            return;
         }
-        testResultListener.done();
+        
+        eval.job("Testing " + env.getName(), tests.size(), (String jn) -> {
+            testResultListener.start(env.getName(), tests.size());
+
+            // first, let's shuffle the tests
+            var theTests = new ArrayList<>(tests); // just to be sure, clone the list
+            Collections.shuffle(theTests);
+
+            QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
+            for (AbstractFunction test: theTests) {
+                eval.jobStep(jn, "Running " + env.getName() + "::" + test.getName(), 1);
+                
+                if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
+                    testResultListener.ignored(test.getName(), test.getAst().getLocation());
+                    continue;
+                }
+
+                try{
+                    int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
+                    int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
+                    int tries = readIntTag(test, QuickCheck.TRIES, 500);
+                    
+                    // we can not generate new type definitions while running a test function, because the test function
+                    // has already been statically checked in its current module. Hence: `.withoutRandomAbstractDatatypes()`
+                    RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(new Random()).withoutRandomAbstractDatatypes();
+                    
+                    String expected = null;
+                    if(test.hasTag(QuickCheck.EXPECT_TAG)){
+                        expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
+                    } 
+                    TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
+                        try {
+                            IValue testResult = test.call(args);
+                            if ((testResult instanceof IBool) && ((IBool)testResult).getValue()) {
+                                return QuickCheck.SUCCESS;
+                            }
+                            else {
+                                return new TestResult(false, null);
+                            }
+                        }
+                        catch (Throwable e) {
+                            // TODO: add bound type parameters
+                            return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
+                        }
+                    }, env.getStore(), tries, maxDepth, maxWidth, typesConfig);
+                    
+                    eval.getOutPrinter().flush();
+                    eval.getErrorPrinter().flush();
+                    
+                    if (!result.succeeded()) {
+                        StringWriter sw = new StringWriter();
+                        PrintWriter out = new PrintWriter(sw);
+                        result.writeMessage(out);
+                        out.flush();
+                        testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer().toString(), result.thrownException());
+                    } else {
+                        testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
+                    }
+                }
+                catch (Throwable e) {
+                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+                }
+                
+                eval.getOutPrinter().flush();
+                eval.getErrorPrinter().flush();
+            }
+
+            testResultListener.done();
+            return true;
+        });
     }
 }

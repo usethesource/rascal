@@ -7,9 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-  This module implements the support for parameterized syntax definitions
-}
+@synopsis{This module implements the support for parameterized syntax definitions}
 module lang::rascal::grammar::definition::Parameters
 
 import Grammar;
@@ -22,7 +20,7 @@ public Grammar expandParameterizedSymbols(Grammar g) {
 } 
 
 private Symbol delabel(Symbol l) {
-  return (label(x,m) := l) ? m : l;
+  return (label(_,m) := l) ? m : l;
 }
 
 set[Production] expand(set[Production] prods) {

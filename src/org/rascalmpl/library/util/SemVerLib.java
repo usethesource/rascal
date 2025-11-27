@@ -1,7 +1,8 @@
 package org.rascalmpl.library.util;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.VersionInfo;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.util.VersionInfo;
+
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -22,7 +23,7 @@ public class SemVerLib {
 		try {
 			return new SemVer(version.getValue());
 		} catch(Exception e){
-			throw RuntimeExceptionFactory.illegalArgument(version, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(version);
 		}
 	}
 	
@@ -30,7 +31,7 @@ public class SemVerLib {
 		try {
 			return vf.bool(makeSemVer(version).satisfiesVersion(rangeSet.getValue()));
 		} catch(Exception e){
-			throw RuntimeExceptionFactory.illegalArgument(rangeSet, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(rangeSet);
 		}
 	}
 
@@ -64,5 +65,9 @@ public class SemVerLib {
 	
 	public IValue getRascalCompilerVersion(){
 		return vf.string(VersionInfo.RASCAL_COMPILER_VERSION);
+	}
+
+	public IValue getJavaRuntimeVersion() {
+		return vf.string(Runtime.version().toString());
 	}
 }

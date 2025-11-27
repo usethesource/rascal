@@ -1,5 +1,13 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::basic::Sets
 
+import Exception;
 import Set;
 import List;
 import Relation;
@@ -11,21 +19,28 @@ test bool eqSet(value a, value b) = eq(a,b) <==> size({a,b}) == 1;
 
 // Set operators
 
+bool elemInAorB(&T x, set[&T] A, set[&T] B)
+    =  (x in A) || (x in B);
+
 // is A + B == C?
 bool isUnion(set[&T] A, set[&T] B, set[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A || x in B);
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : all(x <- C, elemInAorB(x, A, B)));
 
-test bool union(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
-test bool union(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
-test bool union(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
+test bool union1(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
+test bool union2(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
+test bool union3(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
 
+bool elemInAandNotInB(&T x, set[&T] A, set[&T] B)
+    =  (x in A) && (x notin B);
+                                            
 // is A - B == C?
 bool isDiff(set[&T] A, set[&T] B, set[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A && x notin B);
+     isEmpty(A) ? isEmpty(C)
+                : (isEmpty(B) ? C == A
+                              : (isEmpty(C) ? all(x <- A, x in B)
+                                            : all(x <- C, elemInAandNotInB(x, A, B))));
      
 test bool diff(set[&T] A, set[&T] B) = isDiff(A, B, A - B);
 
@@ -34,11 +49,11 @@ public bool isEqual(set[&T] A, set[&T] B) =
      size(A) == size(B) ? (size(A) == 0 || all(x <- A, x in B) && all(x <- B, x in A))
                         : false;
 
-test bool equal(set[&T] A) = A == A;
-test bool equal(set[int] A, set[int] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
+test bool equal1(set[&T] A) = A == A;
+test bool equal2(set[int] A, set[int] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
 
-test bool notEqual(set[&T] A) = !(A != A);
-test bool notEqual(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(A, B);
+test bool notEqual1(set[&T] A) = !(A != A);
+test bool notEqual2(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(A, B);
  
 test bool intersection(set[&T] A, set[&T] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B);
 
@@ -95,10 +110,7 @@ test bool tst_min(set[int] S) = isEmpty(S) || all(x <- S, x >= min(S));
 
 // power, power1, reducer
 
-test bool tst_size(set[int] S) = size(S) == (0 | it + 1 | x <- S);
-
-// Is L sorted?
-public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && L[i] > L[j]);
+test bool tst_size(set[int] S) = size(S) == (0 | it + 1 | _ <- S);
 
 test bool tst_sort(set[int] S) = isEmpty(S) || all(x <- sort(S), x in S) && size(S) == size(sort(S)) && isSorted(sort(S));
 
@@ -110,16 +122,29 @@ test bool tst_takeOneFrom(set[int] S) {
   return x in S && x notin S2 && size(S2) == size(S) - 1 && S2 < S;
 }
 
+test bool tst_getSingleFrom(set[int] S) {
+  if ({e} := S) {
+    return getSingleFrom(S) == e;
+  }
+  return true;
+}
+
+test bool tst_getSingleFromExample(str input) {
+  return getSingleFrom({input}) == input;
+}
+
+@expected{CallFailed}
+test bool tst_getSingleFromMore(str input, int i) {
+    getSingleFrom({input, i});
+    return false;
+}
+
 test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(x <- S, x in toList(S));
 
 test bool tst_toMap(rel[int, int] S) = isEmpty(S) || domain(S) == domain(toMap(S)) && range(S) == {*toMap(S)[k] | k <- toMap(S)};
 
 data X = y(int y);
 anno int X@z;
-test bool tst_toMapAnnotations(int a, int b) {
-	m = toMap({<y(1)[@z = a], a>, <y(1)[@z = b], b>});
-	return eq(m[y(1)],{a, b});
-}
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
  if(isEmpty(D) || isEmpty(R)) return true;
@@ -136,7 +161,7 @@ test bool tst_toMapUnique(set[int] D, set[int] R) {
 test bool dtstDifference(set[&T] s) {
 	if(isEmpty(s)) return true;
 	bool check = true;
-	for(int i <- [0..size(s)]) {
+	for(int _ <- [0..size(s)]) {
 		&T elem = getOneFrom(s);
 		lhs = s - {elem};
 		rhs = { el | &T el <- s, !eq(el, elem) };

@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Start extends AbstractAST {
   public Start(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -73,7 +74,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 ; 
+      return 617 ; 
     } 
   
     	
@@ -128,7 +129,7 @@ public abstract class Start extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 ; 
+      return 151 ; 
     } 
   
     	

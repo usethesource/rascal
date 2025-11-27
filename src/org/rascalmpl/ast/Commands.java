@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Commands extends AbstractAST {
   public Commands(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,7 +31,7 @@ public abstract class Commands extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.EvalCommand> getCommands() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

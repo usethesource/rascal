@@ -24,21 +24,18 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.semantics.dynamic.Tree;
-import io.usethesource.vallang.IAnnotatable;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.func.TupleFunctions;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private IList subjectArgs;
@@ -70,14 +67,17 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	
 	private class TreeAsTuple implements ITuple {
 		
+		@Override
 		public int arity() {
 			return subjectArgs.length();
 		}
 
+		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			return subjectArgs.get(i);
 		}
 
+		@Override
 		public Type getType() {
 			Type[] fields = new Type[arity()];
 			for (int i = 0; i < fields.length; i++) {
@@ -86,15 +86,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return tf.tupleType(fields);
 		}
 
-		public boolean isEqual(IValue other) {
-		    return TupleFunctions.isEqual(this, other);
-		}
-		
-		public boolean match(IValue other) {
-            return TupleFunctions.match(this, other);
-        }
-
-		
+		@Override
 		public Iterator<IValue> iterator() {
 			return new Iterator<IValue>() {
 				int currentIndex = 0;
@@ -113,10 +105,12 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			};
 		}
 
+		@Override
 		public IValue get(String label) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public IValue select(int... fields) throws IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
 		}
@@ -126,40 +120,15 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public ITuple set(String label, IValue arg) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}
-
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new IllegalOperationException(
-					"Cannot be viewed as annotatable.", getType());
-		}
-		
-	  @Override
-	  public boolean mayHaveKeywordParameters() {
-	    return false;
-	  }
-	  
-	  @Override
-	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	    throw new IllegalOperationException(
-	        "Cannot be viewed as with keyword parameters", getType());
-	  }
-
 	}
 	
 
@@ -169,8 +138,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractData() && subject.getValue() instanceof ITree) {
-			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
+		if(subjectType.isExternalType() && ((RascalType) subjectType).isNonterminal() && subject.getValue() instanceof ITree) {
+			org.rascalmpl.values.parsetrees.ITree treeSubject = (org.rascalmpl.values.parsetrees.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {
 				// fail early if the subject is an ambiguity cluster
@@ -178,13 +147,14 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
-			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+			if (!TreeAdapter.getProduction(treeSubject).equals(production)) {
 				// fail early if the subject's production is not the same
 				hasNext = false;
 				return;
 			}
 			
-			if (!SymbolAdapter.isLiteral(ProductionAdapter.getType(production))) {
+			IConstructor symbol = ProductionAdapter.getType(production);
+			if (!(SymbolAdapter.isLiteral(symbol) || SymbolAdapter.isCILiteral(symbol))) {
 				this.subjectArgs = TreeAdapter.getNonLayoutArgs(treeSubject);
 				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			

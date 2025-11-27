@@ -18,7 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 

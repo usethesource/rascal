@@ -17,7 +17,7 @@ public abstract class ComprehensionWriter {
 	protected io.usethesource.vallang.type.Type elementType2;
 	protected io.usethesource.vallang.type.Type resultType;
 	protected final java.util.List<Expression> resultExprs;
-	protected IWriter writer;
+	protected IWriter<?> writer;
 	protected final org.rascalmpl.interpreter.IEvaluator<Result<IValue>> ev;
 	protected final TypeFactory TF;
 	protected final IValueFactory VF;
@@ -34,8 +34,8 @@ public abstract class ComprehensionWriter {
 	public void check(Result<IValue> r,
 			io.usethesource.vallang.type.Type t, String kind,
 			Expression expr) {
-		if (!r.getType().isSubtypeOf(t)) {
-			throw new UnexpectedType(t, r.getType(), expr);
+		if (!r.getStaticType().isSubtypeOf(t)) {
+			throw new UnexpectedType(t, r.getStaticType(), expr);
 		}
 	}
 

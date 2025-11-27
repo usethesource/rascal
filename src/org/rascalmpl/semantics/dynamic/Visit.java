@@ -18,13 +18,13 @@ import java.util.List;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Strategy;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator.CaseBlockList;
 import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
 import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases;
@@ -42,7 +42,14 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		public DefaultStrategy(ISourceLocation __param1, IConstructor tree, Expression __param2,
 				List<Case> __param3) {
 			super(__param1, tree, __param2, __param3);
-			blocks = new CaseBlockList(Cases.precompute(getCases()));
+			blocks = new CaseBlockList(Cases.precompute(getCases(), true));
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -56,13 +63,13 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 						blocks, DIRECTION.BottomUp,
 						PROGRESS.Continuing, FIXEDPOINT.No);
 				
-				if (!val.getType().isSubtypeOf(subject.getType())) {
+				if (!val.getType().isSubtypeOf(subject.getStaticType())) {
 				  // this is not a static error but an extra run-time sanity check
 				  throw new ImplementationError("this should really never happen",
-				      new UnexpectedType(subject.getType(), val.getType(), this));
+				      new UnexpectedType(subject.getStaticType(), val.getType(), this));
 				}
 				
-				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getStaticType(),
 						val, __eval);
 			}
 			catch (UnexpectedType e) {
@@ -84,16 +91,23 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		public GivenStrategy(ISourceLocation __param1, IConstructor tree, Strategy __param2,
 				Expression __param3, List<Case> __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
-			blocks = new CaseBlockList(Cases.precompute(getCases()));
+			blocks = new CaseBlockList(Cases.precompute(getCases(), true));
 		}
 
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 
 			// TODO: warning switched to static type here, but not sure if
 			// that's correct...
-			Type subjectType = subject.getType();
+			Type subjectType = subject.getStaticType();
 
 			if (subjectType.isConstructor()) {
 				subjectType = subjectType.getAbstractDataType();

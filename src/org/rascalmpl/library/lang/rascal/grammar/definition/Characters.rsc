@@ -7,11 +7,9 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-  In this module character classes are normalized.
+@synopsis{In this module character classes are normalized.
   
-  It also provides a number of convenience functions on character classes.
-}
+  It also provides a number of convenience functions on character classes.}
 module lang::rascal::grammar::definition::Characters
 
 import lang::rascal::\syntax::Rascal;
@@ -19,7 +17,6 @@ import ParseTree;
 import String;
 import Grammar;
 import List;
-import IO;
 
 data CharRange = \empty-range();
 
@@ -62,7 +59,7 @@ public default Symbol  intersection(Symbol s, Symbol t) {
 }
 
 public bool lessThan(CharRange r1, CharRange r2) {
-  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+  if (range(_,e1) := r1, range(s2,_) := r2) {
     return e1 < s2;
   }
   throw "unexpected ranges <r1> and <r2>";

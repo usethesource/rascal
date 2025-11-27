@@ -34,13 +34,13 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.ITree;
 
 /**
  * TODO: This interface was used by the
@@ -53,6 +53,7 @@ import org.rascalmpl.values.uptr.ITree;
  * Interface needs to be properly split up in different compoments.
  */
 public interface IEvaluator<T> extends IEvaluatorContext {
+	public static final String LOADING_JOB_CONSTANT = "loading modules";
 
 	/**
 	 * Notify subscribers about a suspension caused while interpreting the program.
@@ -102,7 +103,10 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public void notifyConstructorDeclaredListeners();
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects);
+	
+	public int getCallNesting();
+	public boolean getCallTracing();
+	public void setCallTracing(boolean val);
 	
 	public Environment pushEnv(Statement s);
 
@@ -115,7 +119,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public ITree parseCommand(IRascalMonitor monitor, String command,
 			ISourceLocation location);
 
-	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException;
+	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
@@ -137,16 +141,11 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public IValue call(String name, IValue... args);
 	
-	public IValue call(String returnType, String name, IValue... args);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, String input, boolean allowAmbiguity, boolean hasSideEffects);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects);
+	/**
+	 * Calls a constructor function, or an overloaded function with the same
+	 * signature which overrrides it.
+	 */
+	public IValue call(String adt, String name, IValue... args);
 
 	/**
 	 *  Freeze the global state of this evaluator so that it can no longer be updated.

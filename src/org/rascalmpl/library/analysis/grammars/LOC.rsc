@@ -1,18 +1,29 @@
+@license{
+  Copyright (c) 2009-2022 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@synopsis{Generic utilities to compute (S)LOC metrics based on grammars}
+@description{
+We use this definition to separate lines from: <http://en.wikipedia.org/wiki/Newline>:
+ 
+* LF:    Line Feed, U+000A
+* VT:    Vertical Tab, U+000B
+* FF:    Form Feed, U+000C
+* CR:    Carriage Return, U+000D
+* CR+LF: CR (U+000D) followed by LF (U+000A)
+* NEL:   Next Line, U+0085
+* LS:    Line Separator, U+2028
+* PS:    Paragraph Separator, U+2029
+}
 module analysis::grammars::LOC
 
-import Exception;
-import Message;
 import ParseTree;
-import util::Math;
 import List;
-import IO;
 import util::FileSystem;
 import util::Reflective;
-
-
-/*
- * Generic utilities to compute (S)LOC metrics based on grammars
- */
 
 alias Stats = tuple[int total, map[loc file, int sloc] dist];
 
@@ -114,25 +125,15 @@ int countSLOC(Tree t) {
 }
 
 bool isLayout(appl(prod(\layouts(_), _, _), _)) = true;
-bool isLayout(amb({_*, appl(prod(\layouts(_), _, _), _)})) = true;
+bool isLayout(amb({*_, appl(prod(\layouts(_), _, _), _)})) = true;
 default bool isLayout(Tree t) = false;
 
-bool isComment(appl(p:prod(_, _, {_*, \tag("category"("Comment"))}), _)) = true;
+bool isComment(appl(p:prod(_, _, {*_, \tag("category"("Comment"))}), _)) = true;
+bool isComment(appl(p:prod(_, _, {*_, \tag("category"("comment"))}), _)) = true;
 default bool isComment(Tree _) = false;
 
 
  /*
- 
- From: http://en.wikipedia.org/wiki/Newline
- 
- LF:    Line Feed, U+000A
- VT:    Vertical Tab, U+000B
- FF:    Form Feed, U+000C
- CR:    Carriage Return, U+000D
- CR+LF: CR (U+000D) followed by LF (U+000A)
- NEL:   Next Line, U+0085
- LS:    Line Separator, U+2028
- PS:    Paragraph Separator, U+2029
  
  */
  

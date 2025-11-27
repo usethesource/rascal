@@ -23,26 +23,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -69,6 +70,9 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Used in generated clone methods to avoid case distinctions in the code generator
 	 */
 	protected <T extends AbstractAST> T clone(T in) {
+	    if (in == null) {
+	        return null;
+	    }
 		return (T) in.clone();
 	}
 	
@@ -159,9 +163,8 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	/**
 	 * Computes internal type representations for type literals and patterns. 
 	 * @param instantiateTypeParameters TODO
-	 * @param eval TODO
 	 */
-	public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+	public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 		throw new NotYetImplemented(this);
 	}
 
@@ -171,13 +174,14 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 
 	/**
 	 * Recursively build a matching data-structure, use getMatcher if you are just a client of IMatchingResult.
+	 * @param bindTypeParameters TODO
 	 */
-	public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+	public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 		throw new UnsupportedPattern(toString(), this);
 	}
 	
-	public IMatchingResult getMatcher(IEvaluatorContext eval) {
-			return buildMatcher(eval);
+	public IMatchingResult getMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return buildMatcher(eval, bindTypeParameters);
 	}
 
 	protected void addForLineNumber(int line, java.util.List<AbstractAST> result) {
@@ -194,7 +198,6 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */
 	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-	  System.err.println("ambiguity at " + getLocation());
 		throw new NotYetImplemented(this);
 	}
 	
@@ -208,6 +211,15 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 */
 	public boolean isBreakable() {
 		return false;
+	}
+
+	/**
+	 * The debugger uses this to decide where to continue when you do "step-over".
+	 * By default this is beyond the current statement, but for block statements
+	 * we really want to go into the block (for example).
+	 */
+	public ISourceLocation getDebugStepScope() {
+		return getLocation();
 	}
 	
 	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {

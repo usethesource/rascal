@@ -14,8 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -25,10 +23,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
@@ -38,7 +34,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -68,7 +63,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			this.type = super.type;
 			try {
 				// trying to compute the composed type 
-				type = left.getType().compose(right.getType());
+				type = left.getStaticType().compose(right.getStaticType());
 			} catch(IllegalOperationException e) {
 				// if the type of one of the arguments is of the type 'value' (e.g., the type of an overloaded function can be of the type 'value')
 			}
@@ -110,7 +105,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
+	public Type getStaticType() {
+		return this.type;
+	}
+
+	@Override
 	public Type getType() {
+		// TODO distinguish dynamic type from static type
 		return this.type;
 	}
 	
@@ -137,9 +138,16 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
+	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
+	    synchronized (ctx.getEvaluator()) {
+	        return ICallableValue.super.call(keywordParameters, parameters);
+	    }
+	}
+	
+	@Override
   public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     Result<IValue> rightResult = right.call(argTypes, argValues, null);
-    return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
+    return left.call(new Type[] { rightResult.getStaticType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
   }
 	
 	@Override
@@ -222,7 +230,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 				U extends Result<IValue> & IExternalValue & ICallableValue> 
 					NonDeterministic(T left, U right, IEvaluatorContext ctx) {	
-						super(left, right, TF.voidType().lub(left.getType()).lub(right.getType()), ctx);
+						super(left, right, TF.voidType().lub(left.getStaticType()).lub(right.getStaticType()), ctx);
 					}
 		
 		@Override
@@ -255,17 +263,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 
 	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
-	@Override
 	public boolean mayHaveKeywordParameters() {
 	  return false;
 	}
@@ -273,7 +270,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	@Override
 	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
 	  throw new IllegalOperationException(
-        "Cannot be viewed as with keyword parameters", getType());
+        "Cannot be viewed as with keyword parameters", getStaticType());
 	}
 	
 	@Override

@@ -5,10 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -17,9 +17,10 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -35,25 +36,64 @@ public class RascalManifest {
     public static final String DEFAULT_MAIN_MODULE = "Plugin";
     public static final String DEFAULT_MAIN_FUNCTION = "main";
     public static final String DEFAULT_SRC = "src";
-    public static final String DEFAULT_COURSES = "courses";
     protected static final String SOURCE = "Source";
-    protected static final String COURSES = "Courses";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
+    public static final String META_INF_MANIFEST_MF = META_INF + "/MANIFEST.MF";
     protected static final String MAIN_MODULE = "Main-Module";
     protected static final String MAIN_FUNCTION = "Main-Function";
-    protected static final String REQUIRE_BUNDLES = "Require-Bundles";
-    protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
+    protected static final String PROJECT_NAME = "Project-Name";
+   
+    public static String getRascalVersionNumber() {
+        try {
+            Enumeration<URL> resources = RascalManifest.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            while (resources.hasMoreElements()) {
+                Manifest manifest = new Manifest(resources.nextElement().openStream());
+                String bundleName = manifest.getMainAttributes().getValue("Name");
+                if (bundleName != null && bundleName.equals("rascal")) {
+                    String result = manifest.getMainAttributes().getValue("Specification-Version");
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            }
 
-    public Manifest getDefaultManifest() {
+            return "Not specified";
+        } catch (IOException e) {
+            return "unknown (due to " + e.getMessage();
+        }
+    }
+
+    /**
+     * This looks into the META-INF/MANIFEST.MF file for a Name and Specification-Version
+     */
+    public String getManifestVersionNumber(ISourceLocation project) throws IOException {
+        Manifest mf = new Manifest(javaManifest(project));
+
+        String bundleName = mf.getMainAttributes().getValue("Name");
+        if (bundleName != null && bundleName.equals("rascal")) {
+            String result = mf.getMainAttributes().getValue("Specification-Version");
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return "unknown";
+    }
+    
+    public Manifest getDefaultManifest(String projectName) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "0.0.1");
         mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
-        mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
+        mainAttributes.put(new Attributes.Name(PROJECT_NAME), projectName);
         return manifest;
+    }
+    
+    public boolean hasManifest(ISourceLocation root) {
+        return hasManifest(manifest(root));
     }
 
     public boolean hasManifest(Class<?> clazz) {
@@ -106,26 +146,12 @@ public class RascalManifest {
         return getManifestMainFunction(manifest(jarStream));
     }
 
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCoursesFolder(File jarFile) {
-        return getManifestCourses(manifest(jarFile));
+    public String getProjectName(Class<?> clazz) {
+        return getManifestProjectName(manifest(clazz));
     }
 
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCourses(Class<?> clazz) {
-        return getManifestCourses(manifest(clazz));
-    }
-
-
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCoursesFolder(JarInputStream jarStream) {
-        return getManifestCourses(manifest(jarStream));
+    public String getManifestProjectName(InputStream manifest) {
+        return getManifestAttribute(manifest, PROJECT_NAME, "");
     }
 
     /**
@@ -134,18 +160,24 @@ public class RascalManifest {
     public String getMainFunction(File jarFile) {
         return getManifestMainFunction(manifest(jarFile));
     }
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(JarInputStream jarStream) {
-        return getManifestRequiredLibraries(manifest(jarStream));
+    
+    public String getProjectName(File jarFile) {
+        return getManifestProjectName(manifest(jarFile));
     }
-
+    
     /**
      * @return the name of the main module of a deployment unit, or 'null' if none is configured.
      */
     public String getMainModule(JarInputStream jarStream) {
         return getManifestMainModule(manifest(jarStream));
+    }
+    
+    public String getProjectName(JarInputStream jarStream) {
+        return getManifestProjectName(manifest(jarStream));
+    }
+    
+    public String getProjectName(InputStream in) {
+        return getManifestProjectName(in);
     }
 
     /**
@@ -168,20 +200,6 @@ public class RascalManifest {
     public boolean hasMainModule(Class<?> clazz) {
         return getManifestMainModule(manifest(clazz)) != null;
     }  
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(File jarFile) {
-        return getManifestRequiredLibraries(manifest(jarFile));
-    }
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(Class<?> clazz) {
-        return getManifestRequiredLibraries(manifest(clazz));
-    }
 
     /**
      * @return a list of paths relative to the root of the jar, if no such option is configured
@@ -213,69 +231,32 @@ public class RascalManifest {
         return getManifestAttribute(project, MAIN_FUNCTION, null);
     }
 
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getManifestCourses(InputStream project) {
-        return getManifestAttributeList(project, COURSES, null);
-    }
-    
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getManifestRequiredLibraries(InputStream project) {
-        return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
-    }
-
     public InputStream manifest(Class<?> clazz) {
         return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
     }
 
     public InputStream manifest(ISourceLocation root) {
         try {
-            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(jarify(root), META_INF_RASCAL_MF));
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_RASCAL_MF));
         } catch (IOException e) {
             return null;
         }
     }
 
+    public InputStream javaManifest(ISourceLocation root) {
+        try {
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_MANIFEST_MF));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String getProjectName(ISourceLocation root) {
+        return getManifestProjectName(manifest(root));
+    }
+    
     public List<String> getSourceRoots(ISourceLocation root) {
         return getManifestSourceRoots(manifest(root));
-    }
-
-    public List<String> getRequiredLibraries(ISourceLocation root) {
-        return getManifestRequiredLibraries(manifest(root));
-    }
-
-    public PathConfig makePathConfig(ISourceLocation root) throws IOException {
-        List<ISourceLocation> libs = new ArrayList<>();
-        List<ISourceLocation> srcs = new ArrayList<>();
-
-        ISourceLocation binFolder = URIUtil.getChildLocation(root, "bin");
-        libs.add(binFolder);
-
-        RascalManifest mf = new RascalManifest();
-        for (String src : mf.getSourceRoots(root)) {
-            srcs.add(URIUtil.getChildLocation(root, src));
-        }
-
-        return new PathConfig(srcs, libs, binFolder);
-    }
-
-    public static ISourceLocation jarify(ISourceLocation loc) {
-        if (!loc.getPath().endsWith(".jar")) {
-            return loc;
-        }
-        
-        try {
-            loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
-            loc = URIUtil.changePath(loc, loc.getPath() + "!/");
-            return loc;
-        }
-        catch (URISyntaxException e) {
-            assert false;  // this can never happen;
-            return loc;
-        }
     }
 
     public InputStream manifest(JarInputStream stream) {
@@ -324,7 +305,7 @@ public class RascalManifest {
                 Manifest manifest = new Manifest(mf);
                 String source = manifest.getMainAttributes().getValue(label);
 
-                if (source != null) {
+                if (source != null && !source.trim().isEmpty()) {
                     return Arrays.<String>asList(trim(source.split(",")));
                 }
             }

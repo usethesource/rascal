@@ -1,0 +1,231 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.*'
+  pull_request:
+    branches:
+      - main
+      - 'feat/*'
+env:
+  MAVEN_OPTS: "-Xmx4G -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  IS_OWN_PR: "${{ secrets.MAVEN_MIRROR_URL }}"
+
+jobs:
+  test-linux:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    steps: 
+      - uses: actions/checkout@v4
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
+        with:
+          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+          overwrite-settings: false
+      - name: Run Tests
+        run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
+
+      - uses: codecov/codecov-action@v4
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        with:
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish Test Report on github action
+        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        uses: scacap/action-surefire-report@v1
+        with:
+          check_name: "Test Report - ${{ runner.os }}"
+
+  builds:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    needs: [test-linux]
+    permissions:
+      contents: write
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'deployment' || '' }} 
+    steps:
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: 1047731 # v107
+      - run: which chrome
+      - uses: nanasess/setup-chromedriver@v2
+        with:
+          chromedriver-version: '107.0.5304.62'
+      - run: which chromedriver
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
+        with:
+          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+          overwrite-settings: false
+
+
+      - name: Compile & Bootstrap
+        run: mvn -B compile -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` 
+        env:
+          MAVEN_OPTS: "-Xmx14G -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+
+      - name: Test if release # just to be extra sure for a release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: mvn -Drascal.test.memory=10 -Drascal.compile.skip -Drascal.tutor.skip test 
+
+      - name: Attach artifact 
+        id: build-artifact
+        uses: SWAT-engineering/maven-full-artifacts-action@v1
+        with:
+          maven-options: |
+            -Drascal.compile.skip
+            -Drascal.tutor.skip
+            -DskipTests
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+
+      - name: Making sure test have succeeded in the parallel jobs
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: yogeshlonkar/wait-for-jobs@v0
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          jobs: |
+            tests (macos-latest)
+            tests (windows-latest)
+          ttl: 15
+
+      - name: Deploy
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: usethesource/releases-maven-action@v1
+        with:
+          maven-username: ${{ secrets.RELEASE_MAVEN_USERNAME }}
+          maven-password: ${{ secrets.RELEASE_MAVEN_PASSWORD }}
+          maven-local-port: ${{ secrets.RELEASE_MAVEN_LOCAL_PORT }}
+          ssh-hostname: ${{ secrets.RELEASE_SSH_SERVER }}
+          ssh-known-host: ${{ secrets.RELEASE_SSH_KNOWN_HOSTS }}
+          ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
+          ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
+
+      - name: Prepare Draft Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: ${{ steps.build-artifact.outputs.artifact-root-dir}}/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#       - name: prepare-unshaded
+#         if: startsWith(github.ref, 'refs/tags/')
+#         run: sed -i 's#<artifactId>rascal</artifactId>#<artifactId>rascal-unshaded</artifactId>#' pom.xml
+# 
+#       - name: Deploy unshaded jar
+#         if: startsWith(github.ref, 'refs/tags/v')
+#         uses: usethesource/releases-maven-action@v1
+#         with:
+#           maven-username: ${{ secrets.RELEASE_MAVEN_USERNAME }}
+#           maven-password: ${{ secrets.RELEASE_MAVEN_PASSWORD }}
+#           maven-local-port: ${{ secrets.RELEASE_MAVEN_LOCAL_PORT }}
+#           ssh-hostname: ${{ secrets.RELEASE_SSH_SERVER }}
+#           ssh-known-host: ${{ secrets.RELEASE_SSH_KNOWN_HOSTS }}
+#           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
+#           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
+#           maven-options: -Punshaded -Drascal.compile.skip -Drascal.tutor.skip -DskipTests
+# 
+  tests:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    needs: [test-linux]
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    env:
+      MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+    steps: 
+      - uses: actions/checkout@v4
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
+        with:
+          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+          overwrite-settings: false
+
+      - name: Run Tests
+        # single quotes to help windows deal with argument splitting
+        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=2' test
+
+      - uses: codecov/codecov-action@v4
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        with:
+          token: e8b4481a-d178-4148-a4ff-502906390512
+
+      - name: Publish Test Report on github action
+        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        uses: scacap/action-surefire-report@v1
+        with:
+          check_name: "Test Report - ${{ runner.os }}"
+
+  compiler-tests:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    needs: [test-linux]
+    runs-on: buildjet-2vcpu-ubuntu-2204
+    steps: 
+      - uses: actions/checkout@v4
+
+      - uses: s4u/maven-settings-action@v3.1.0
+        if: ${{ env.IS_OWN_PR != '' }}
+        with:
+          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+          overwrite-settings: false
+
+      - name: Retrieve dependencies for integration tests
+        run: bash src/org/rascalmpl/compiler/lang/rascalcore/check/tests/download-test-jars.sh
+
+      - name: Run Tests
+        run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=6 test
+
+      - uses: codecov/codecov-action@v4
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        with:
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish Test Report on github action
+        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
+        uses: scacap/action-surefire-report@v1
+        with:
+          check_name: "Compiler Test Report"
+
+
+

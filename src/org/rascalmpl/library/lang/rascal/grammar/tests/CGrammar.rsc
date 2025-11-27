@@ -3,11 +3,11 @@ module lang::rascal::grammar::tests::CGrammar
 import IO;
 import Grammar;
 import ParseTree;
-import String;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 
 public Grammar C = grammar({sort("TranslationUnit")},
 
@@ -61,7 +61,7 @@ sort("StructDeclarator"): choice(sort("StructDeclarator"),{prod(sort("StructDecl
 )
 );
 
-loc CParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/CParser.java.gz";
+loc CParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/| + "generated_parsers/CParser.java.gz";
 
 str generateCParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
 
@@ -69,11 +69,18 @@ void generateAndWriteCParser(){
 	writeFile(CParserLoc, generateCParser());
 }
 
+void warmup(){
+	for(_ <- [0..10]) 
+		generateCParser();
+}
+
 int generateAndTimeCParser() { 
-	println("GenerateAndTimeCParser");
+	warmup();
 	t = cpuTime(); 
 	generateCParser();
-	return (cpuTime() - t)/1000000;
+	used = (cpuTime() - t)/1000000;
+	println("GenerateAndTimeCParser: <used> ms");
+	return used;
 }	
 
 value main() { return generateAndTimeCParser(); }

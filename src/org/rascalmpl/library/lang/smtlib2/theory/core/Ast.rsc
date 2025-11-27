@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: AST for the SMTLIBv2 Core theory (boolean logic)
-}
+@synopsis{Synopsis: AST for the SMTLIBv2 Core theory (boolean logic)}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::theory::core::Ast

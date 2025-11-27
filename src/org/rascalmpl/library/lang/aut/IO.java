@@ -17,7 +17,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -25,12 +26,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class IO{
-	private static final TypeFactory types = TypeFactory.getInstance();
-	
 	private final IValueFactory values;
 	
 	public IO(IValueFactory values){
@@ -45,11 +42,8 @@ public class IO{
 	 * takes an AUT file nameAUTFile and generates a rel[int, str, int]
 	 */
 	public IValue readAUT(IString nameAUTFile){
-		Type strType = types.stringType();
-		Type intType = types.integerType();
-		Type tupleType = types.tupleType(intType, strType, intType);
 		java.lang.String fileName = nameAUTFile.getValue();
-		ISetWriter rw = values.relationWriter(tupleType);
+		ISetWriter rw = values.setWriter();
 		BufferedReader bufRead = null;
 		try{
 			FileReader input = new FileReader(fileName);
@@ -65,7 +59,7 @@ public class IO{
 				line = bufRead.readLine();
 			}
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(ioex);
 		}finally{
 			if(bufRead != null){
 				try{
@@ -117,7 +111,7 @@ public class IO{
 			fos = new PrintStream(file);
 			printTransitions(fos, value);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(ioex);
 		}finally{
 			if(fos != null){
 				fos.close();

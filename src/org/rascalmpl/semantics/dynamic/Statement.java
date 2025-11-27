@@ -28,6 +28,7 @@ import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -47,6 +48,7 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.interpreter.utils.Names;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -60,6 +62,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Append(ISourceLocation src, IConstructor node, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
 			super(src, node, __param2, __param3);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
+			return getStatement().getDebugStepScope();
 		}
 		
 		protected Accumulator getTarget(IEvaluator<Result<IValue>> __eval) {
@@ -133,15 +143,15 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.notifyAboutSuspension(this);
 			
 			Result<IValue> r = this.getExpression().interpret(__eval);
-			if (!r.getType().equals(
+			if (!r.getStaticType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
-								.boolType(), r.getType(), this);
+								.boolType(), r.getStaticType(), this);
 			}
 
-			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+			if (r.getValue().equals(__eval.__getVf().bool(false))) {
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.assertionFailed(this, __eval.getStackTrace());
 			}
 			return r;
@@ -166,17 +176,17 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> r = this.getExpression().interpret(__eval);
-			if (!r.getType().equals(
+			if (!r.getStaticType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
-								.boolType(), r.getType(), this);
+								.boolType(), r.getStaticType(), this);
 			}
-			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
+			if (r.getValue().equals(__eval.__getVf().bool(false))) {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
 //				IString msg = __eval.__getVf().string(
 //						org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(msgValue.getValue().toString());
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.assertionFailed((IString) msgValue.getValue(), __eval.getCurrentAST(), __eval
 								.getStackTrace());
 			}
@@ -193,6 +203,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				org.rascalmpl.ast.Assignment __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
+			return getStatement().getDebugStepScope();
 		}
 
 		@Override
@@ -266,6 +284,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				org.rascalmpl.ast.Statement __param3,
 				org.rascalmpl.ast.Expression __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -416,6 +441,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -572,6 +604,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getThenStatement().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
@@ -644,6 +683,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				org.rascalmpl.ast.Statement __param4,
 				org.rascalmpl.ast.Statement __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getThenStatement().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -722,6 +768,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
@@ -740,6 +794,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public NonEmptyBlock(ISourceLocation __param1, IConstructor tree, Label __param2,
 				List<org.rascalmpl.ast.Statement> __param3) {
 			super(__param1, tree, __param2, __param3);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getStatements().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -774,14 +835,20 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 			
-			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
-					.getStatement().interpret(__eval), this.getStatement()
-					.getLocation());
+            throw new org.rascalmpl.interpreter.control_exceptions.Return(getStatement().interpret(__eval), this.getStatement().getLocation());
 
 		}
 
@@ -792,6 +859,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Solve(ISourceLocation __param1, IConstructor tree, List<QualifiedName> __param2,
 				Bound __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -833,14 +907,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				if (bound.isDefault()) {
 					Result<IValue> res = bound.getExpression()
 							.interpret(__eval);
-					if (!res.getType().isInteger()) {
+					if (!res.getStaticType().isInteger()) {
 						throw new UnexpectedType(
 								org.rascalmpl.interpreter.Evaluator.__getTf()
-										.integerType(), res.getType(), this);
+										.integerType(), res.getStaticType(), this);
 					}
 					max = ((IInteger) res.getValue()).intValue();
 					if (max <= 0) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 								.indexOutOfBounds((IInteger) res.getValue(),
 										__eval.getCurrentAST(), __eval
 												.getStackTrace());
@@ -864,7 +938,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						Result<IValue> v = __eval.getCurrentEnvt().getVariable(
 								var);
 						if (currentValue[i] == null
-								|| !v.getValue().isEqual(currentValue[i])) {
+								|| !v.getValue().equals(currentValue[i])) {
 							change = true;
 							currentValue[i] = v.getValue();
 						}
@@ -885,7 +959,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Switch(ISourceLocation __param1, IConstructor tree, Label __param2,
 				org.rascalmpl.ast.Expression __param3, List<Case> cases) {
 			super(__param1, tree, __param2, __param3, cases);
-			blocks = Cases.precompute(cases);
+			blocks = Cases.precompute(cases, false);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getCases().get(0).getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -914,10 +995,18 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			if(getStatement().isExpression()){
+				return super.getDebugStepScope();
+			}
+			return getStatement().getDebugStepScope();
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this
+			throw new org.rascalmpl.exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
-					.getCurrentAST(), __eval.getStackTrace());
+					.getCurrentAST().getLocation(), __eval.getStackTrace());
 		}
 
 	}
@@ -930,6 +1019,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
+		}
+
+		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return evalStatementTry(__eval, this.getBody(), this.getHandlers(), null);
 		}
@@ -939,7 +1035,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			try {
 				res = body.interpret(eval);
-			} catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
+			} catch (org.rascalmpl.exceptions.Throw e) {
 				IValue eValue = e.getException();
 
 				boolean handled = false;
@@ -951,7 +1047,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						break;
 					}
  
-					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern(), c.getBody(), eval)) {
+					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
 						handled = true;
 						break;
 					}
@@ -959,12 +1055,49 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				if (!handled)
 					throw e;
-			} finally {
+			} 
+			catch (RascalStackOverflowError e) {
+				// and now we pretend as if a real Stackoverflow() value has been thrown, such that 
+				// it can be caugt in this catch block if necessary:
+				boolean handled = false;
+
+				for (Catch c : handlers) {
+					if (c.hasPattern() && isCatchStackOverflow(c.getPattern())) {
+					    IValue pseudo = e.makeThrow().getException();
+
+						if (Cases.matchAndEval(makeResult(pseudo.getType(), pseudo, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
+							handled = true;
+							break;
+						}
+					}
+				}
+
+				if (!handled) {
+					// we rethrow because higher up the stack may be another catch block
+					throw e;
+				}	
+			}
+			finally {
 				if (finallyBody != null) {
 					finallyBody.interpret(eval);
 				}
 			}
 			return res;
+		}
+
+		private static boolean isCatchStackOverflow(org.rascalmpl.ast.Expression pattern) {
+			if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
+				return isCatchStackOverflow(pattern.getPattern());
+			}
+			else if (pattern.isCallOrTree()) {
+				var called = pattern.getExpression();
+				if (called.isQualifiedName()) {
+					var qname = called.getQualifiedName();
+					return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.consName(qname));
+				}
+			}
+			
+			return false;
 		}
 	}
 
@@ -974,6 +1107,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public TryFinally(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Statement __param2,
 				List<org.rascalmpl.ast.Catch> __param3, org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override
@@ -1033,6 +1173,13 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				List<org.rascalmpl.ast.Expression> __param3,
 				org.rascalmpl.ast.Statement __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
+		}
+
+		@Override
+		public ISourceLocation getDebugStepScope() {
+			int start = getLocation().getOffset();
+			int startOfBody = getBody().getLocation().getOffset();
+			return VF.sourceLocation(getLocation(), start, startOfBody - start);
 		}
 
 		@Override

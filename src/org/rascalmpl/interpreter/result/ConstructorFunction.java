@@ -33,17 +33,16 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {
 	protected final Type constructorType;
@@ -51,7 +50,17 @@ public class ConstructorFunction extends NamedFunction {
 	private final List<KeywordFormal> initializers;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), initializers, constructorType.getName(), false, true, false, env);
+		super(ast, 
+			eval, 
+			TF.functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), 
+			TF.functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), 
+			initializers, 
+			constructorType.getName(), 
+			false, 
+			true, 
+			false, 
+			env
+		);
 		this.constructorType = constructorType;
 		this.initializers = initializers;
 	}
@@ -62,9 +71,7 @@ public class ConstructorFunction extends NamedFunction {
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
-		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
-		c.setPublic(isPublic());
-		return c;
+		return new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
 	}
 	
 	// TODO: refactor and make small. For now this does the job.
@@ -105,14 +112,17 @@ public class ConstructorFunction extends NamedFunction {
 						kwResult = def.interpret(eval);
 					}
 					
+					// apply the static type we expect from the declaration:
+					kwResult = ResultFactory.makeResult(kwType, kwResult.getValue(), ctx);
+
 					if (name.equals(label)) {
 						// we have the one we need, bail out quickly
 						return kwResult;
 					}
 					else {
-						env.declareVariable(kwResult.getType(), name);
+						env.declareVariable(kwType, name);
 						env.storeVariable(name, kwResult);
-						resultEnv.declareVariable(kwResult.getType(), name);
+						resultEnv.declareVariable(kwType, name);
 						resultEnv.storeVariable(name, kwResult);
 					}
 				}
@@ -122,7 +132,7 @@ public class ConstructorFunction extends NamedFunction {
 			}
 		}
 		
-		Type formals = getFunctionType().getArgumentTypes();
+		Type formals = getFunctionType().getFieldTypes();
 		
 		try {
 			// we set up an environment to hold the positional parameter values
@@ -135,8 +145,8 @@ public class ConstructorFunction extends NamedFunction {
 				resultEnv.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, value.get(fieldName), ctx));
 			}
 		
-			for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()) {
-	            Type kwType = functionType.getKeywordParameterType(kwparam);
+			for (String kwparam : staticFunctionType.getKeywordParameterTypes().getFieldNames()) {
+	            Type kwType = staticFunctionType.getKeywordParameterType(kwparam);
 	            Result<IValue> kwResult;
 	            
 	            if (wkw.hasParameter(kwparam)){
@@ -150,7 +160,12 @@ public class ConstructorFunction extends NamedFunction {
 	            } 
 	            else {
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
-	                kwResult = def.interpret(eval);
+					IValue res = def.interpret(eval).getValue();
+
+					if (!res.getType().isSubtypeOf(kwType)) {
+						throw new UnexpectedKeywordArgumentType(kwparam, kwType, res.getType(), ctx.getCurrentAST());
+					}
+	                kwResult = ResultFactory.makeResult(kwType, res, ctx);
 	            }
 	            
 	            if (kwparam.equals(label)) {
@@ -175,8 +190,8 @@ public class ConstructorFunction extends NamedFunction {
 	    if (kwTypes != null) {
 	        return kwTypes;
 	    }
-	    
-		Type kwTypes = functionType.getKeywordParameterTypes();
+		
+		Type kwTypes = staticFunctionType.getKeywordParameterTypes();
 		ArrayList<Type> types = new ArrayList<>();
 		ArrayList<String> labels = new ArrayList<>();
 		
@@ -209,17 +224,48 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
-		    // This has to be checked first, so that the special casing knows that at least the types are correct
-			throw new MatchFailed();
+	    Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
+	    Type fieldTypes = constructorType.getFieldTypes();
+
+		// first we match to see if the actual parameters can fit the constructor's parameter types:
+	    if (fieldTypes.getArity() != actuals.length) {
+	        throw new MatchFailed();
+	    }
+	    
+		for (int i = 0; i < actuals.length; i++) {
+		    if (!actuals[i].getType().isSubtypeOf(fieldTypes.getFieldType(i))) {
+		        throw new MatchFailed();
+		    }
 		}
+		
+		// if the match works, then we can go fill the information for the static type system:
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		
+        if (!fieldTypes.match(TF.tupleType(actualTypes), bindings)) {
+		    // so now the static types don't match, but the dynamic types did match... 
+		    // then what should the bindings be for the type parameters?
+		    // they should bubble up to their upper bounds because we don't know 
+            // anything about them statically.
+		    bindings = new HashMap<Type,Type>();
+		    
+		    if (!formalTypeParameters.isBottom()) {
+	            for (Type field : formalTypeParameters) {
+	                Type bound = field.getBound();
+                    if (bound != null) {
+	                    bindings.put(field, bound);
+                    }
+                    else {
+                        bindings.put(field, TF.valueType());
+                    }
+	            }
+		    }
+		}
+		
 		// TODO: when characters get proper types we need to add them here.
-		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle) {
+		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle || constructorType == RascalValueFactory.Tree_Char) {
 			return new ConcreteConstructorFunction(ast, constructorType, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
-		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 
 		if (!formalTypeParameters.isBottom()) {

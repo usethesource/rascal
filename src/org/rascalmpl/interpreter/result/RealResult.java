@@ -18,8 +18,9 @@ import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromTo
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;
@@ -362,10 +363,10 @@ public class RealResult extends ElementResult<IReal> {
 	
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
 		if (from.getValue().less(getValue()).getValue()) {
-			return makeStepRangeFromToWithSecond(from, this, makeResult(getTypeFactory().realType().lub(from.getType()),
+			return makeStepRangeFromToWithSecond(from, this, makeResult(getTypeFactory().realType().lub(from.getStaticType()),
 					from.getValue().add(getValueFactory().real(1.0)), ctx), getValueFactory(), getTypeFactory(), ctx);
 		}
-		return makeStepRangeFromToWithSecond(from, this, makeResult(getTypeFactory().realType().lub(from.getType()),
+		return makeStepRangeFromToWithSecond(from, this, makeResult(getTypeFactory().realType().lub(from.getStaticType()),
 				from.getValue().subtract(getValueFactory().real(1.0)), ctx), getValueFactory(), getTypeFactory(), ctx);
 
 	}

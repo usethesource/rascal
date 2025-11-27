@@ -1,393 +1,243 @@
+/*
+ * Copyright (c) 2015-2025, NWO-I CWI and Swat.engineering
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.rascalmpl.repl;
 
-import java.io.File;
-import java.io.FilterWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReader.Option;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.LineReaderImpl;
+import org.jline.reader.impl.completer.AggregateCompleter;
+import org.jline.reader.impl.history.DefaultHistory;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
+import org.jline.terminal.Terminal.SignalHandler;
+import org.jline.utils.ShutdownHooks;
+import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
+import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.IWebContentOutput;
+import org.rascalmpl.repl.parametric.ParametricReplService;
+import org.rascalmpl.repl.rascal.RascalReplServices;
 
-import io.usethesource.vallang.ISourceLocation;
-import jline.Terminal;
-import jline.console.ConsoleReader;
-import jline.console.UserInterruptException;
-import jline.console.completer.CandidateListCompletionHandler;
-import jline.console.completer.Completer;
-import jline.console.history.FileHistory;
-import jline.console.history.PersistentHistory;
-import jline.internal.ShutdownHooks;
-import jline.internal.ShutdownHooks.Task;
-
+/**
+ * This class wraps a jline3 terminal, and turns it into a REPL, what kind of repl depends on the {@link IREPLService} implementation.
+ * The two common ones are: {@link RascalReplServices} for rascal and {@link ParametricReplService} for DSLs that define a repl.
+ */
 public class BaseREPL {
-    protected final ConsoleReader reader;
-    private final OutputStream originalStdOut;
-    protected final boolean prettyPrompt;
-    protected final boolean allowColors;
-    protected final Writer stdErr;
-    protected volatile boolean keepRunning = true;
-    private volatile Task historyFlusher = null;
-    private volatile PersistentHistory history = null;
-    private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
-    protected IDEServices ideServices;
-    private final ILanguageProtocol language;
     
-    private static byte CANCEL_RUNNING_COMMAND = (byte)ctrl('C'); 
-    private static byte STOP_REPL = (byte)ctrl('D'); 
-    private static byte STACK_TRACE = (byte)ctrl('\\'); 
+    private final IREPLService replService;
+    private final Terminal term;
+    private final LineReader reader;
+    private volatile boolean keepRunning = true;
+    private final @MonotonicNonNull DefaultHistory history;
+    private final String normalPrompt;
+    private final boolean ansiColorsSupported;
+    private final boolean unicodeSupported;
+    private IDEServices ideServices;
+
+    public BaseREPL(IREPLService replService, Terminal term) {
+        this.replService = replService;
+        this.term = term;
+
+        var reader = LineReaderBuilder.builder()
+            .appName(replService.name())
+            .terminal(term)
+            .parser(replService.inputParser())
+            ;
+
+        if (replService.storeHistory()) {
+            reader.variable(LineReader.HISTORY_FILE, replService.historyFile());
+            this.history = new DefaultHistory();
+            reader.history(this.history);
+            ShutdownHooks.add(this.history::save);
+        } else {
+            this.history = null;
+        }
+        reader.option(Option.BRACKETED_PASTE, false); // disable bracket paste
+        reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
+        reader.option(Option.DISABLE_EVENT_EXPANSION, true); // stop jline expending escaped characters in the input
+        reader.variable(LineReader.LINE_OFFSET, 1);
 
 
-    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal, ideServices);
-    }
+        if (replService.supportsCompletion()) {
+            reader.completer(new AggregateCompleter(replService.completers()));
+            reader.completionMatcher(replService.completionMatcher());
+        }
+        this.ansiColorsSupported = !term.getType().equals(Terminal.TYPE_DUMB);
+        this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
+        this.normalPrompt = replService.prompt(ansiColorsSupported, unicodeSupported);
+        reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiColorsSupported, unicodeSupported));
+        this.reader = reader.build();
 
-    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal, ideServices);
-    }
-
-   
-    private BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this.originalStdOut = stdout;
-        this.language = language;
         
-        if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
-            stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
-        }
-        reader = new ConsoleReader(stdin, stdout, terminal);
-        this.ideServices = ideServices;
-        if (history != null) {
-            this.history = history;
-            reader.setHistory(history);
-            historyFlusher = new Task() {
-                @Override
-                public void run() throws Exception {
-                    history.flush();
-                }
-            };
-            ShutdownHooks.add(historyFlusher);
-        }
-        reader.setExpandEvents(false);
+        // FUTURE features:
+        // - CTRL+\ to print the stacktrace while running
+        // - highlighting in the prompt? (future work, as it also hurts other parts)
+        // - measure time
+        // - possible to tee output
+    }
 
-        prettyPrompt = prettyPrompt && terminal != null && terminal.isAnsiSupported();
-        this.prettyPrompt = prettyPrompt;
-        this.allowColors = allowColors;
-        if (prettyPrompt && allowColors) {
-            this.stdErr = new RedErrorWriter(reader.getOutput());
-        }
-        else if (prettyPrompt) {
-            this.stdErr = new ItalicErrorWriter(reader.getOutput());
-        }
-        else {
-            this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
-        }
-        initialize(reader.getOutput(), stdErr);
-        if (supportsCompletion()) {
-            reader.addCompleter(new Completer(){
-                @Override
-                public int complete(String buffer, int cursor, List<CharSequence> candidates) {
-                    try {
-                        CompletionResult res = completeFragment(buffer, cursor);
-                        candidates.clear();
-                        if (res != null && res.getOffset() > -1 && !res.getSuggestions().isEmpty()) {
-                            candidates.addAll(res.getSuggestions());
-                            return res.getOffset();
-                        }
-                        return -1;
+    /**
+     * Start the REPL, this function will block until the REPL is terminated by the user
+     */
+    public void run() throws IOException {
+        try {
+            ideServices = replService.connect(term, ansiColorsSupported, unicodeSupported);
+            var running = setupInterruptHandler();
+
+            while (keepRunning) {
+                try {
+                    replService.flush();
+                    term.writer().write(LineReaderImpl.BRACKETED_PASTE_OFF); // disable bracket paste
+                    String line = reader.readLine(this.normalPrompt);
+
+                    if (line == null) {
+                        // EOF
+                        break;
                     }
-                    catch(Throwable t) {
-                        // the completer should never fail, this breaks jline
-                        return -1;
-                    }
+                    running.set(true);
+                    handleInput(line);
                 }
-            });
-            if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
-                ((CandidateListCompletionHandler)reader.getCompletionHandler()).setPrintSpaceAfterFullCompletion(printSpaceAfterFullCompletion());
+                catch (UserInterruptException u) {
+                    // only thrown while `readLine` is active
+                    reader.printAbove(replService.interruptedPrompt(ansiColorsSupported, unicodeSupported));
+                    term.flush();
+                }
+                finally {
+                    running.set(false);
+                }
             }
-            reader.setHandleUserInterrupt(true);
         }
-    }
-
-
-    public static char ctrl(char ch) {
-        assert 'A' <= ch && ch <= '_'; 
-        return (char)((((int)ch) - 'A') + 1);
-    }
-
-
-    /**
-     * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
-     * @param pcfg the PathConfig to be used
-     * @param stdout the output stream to write normal output to.
-     * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
-     * @param ideServices TODO
-     * @throws NoSuchRascalFunction 
-     * @throws IOException 
-     * @throws URISyntaxException 
-     */
-    protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
-        language.initialize(stdout, stderr);
-    }
-
-    /**
-     * Will be called everytime a new prompt is printed.
-     * @return The string representing the prompt.
-     */
-    protected String getPrompt() {
-        return language.getPrompt();
-    }
-
-    /**
-     * After a newline is pressed, the current line is handed to this method.
-     * @param line the current line entered.
-     * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
-     */
-    protected void handleInput(String line) throws InterruptedException {
-        Map<String,String> output = new HashMap<>();
-        
-        language.handleInput(line, output, new HashMap<>());
-        
-        // TODO: maybe we can do this cleaner, but this works for now
-        String out = output.get("text/plain");
-        
-        if (out != null) {
+        catch (InterruptedException _e) {
+            // closing the runner
+        }
+        catch (EndOfFileException|StopREPLException _e) {
+            // user pressed ctrl+d or the terminal :quit command was given
+            // so exit cleanly
+            replService.errorWriter().println("Quiting REPL");
+        }
+        catch (Throwable e) {
+            
+            var err = replService.errorWriter();
+            if (err.checkError()) {
+                err = new PrintWriter(System.err, false);
+            }
+            
+            err.println("Unexpected (uncaught) exception, closing the REPL: ");
+            err.print(e.toString());
+            e.printStackTrace(err);
+            
+            err.flush();
+    
+            throw e;
+        }
+        finally {
             try {
-                reader.print(out);
-                reader.flush();
-            }
-            catch (IOException e) {
-            }
-        }
-    }
-
-    /**
-     * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
-     * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
-     */
-    protected void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
-        language.handleReset(output, metadata);
-    }
-
-    /**
-     * Test if completion of statement in the current line is supported
-     * @return true if the completeFragment method can provide completions
-     */
-    protected boolean supportsCompletion() {
-        return language.supportsCompletion();
-    }
-
-    /**
-     * If the completion succeeded with one match, should a space be printed aftwards?
-     * @return true if completed fragment should be followed by a space
-     */
-    protected boolean printSpaceAfterFullCompletion() {
-        return language.printSpaceAfterFullCompletion();
-    }
-
-    /**
-     * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.
-     * @param line The current line.
-     * @param cursor The cursor offset in the line.
-     * @return suggestions for the line.
-     */
-    protected CompletionResult completeFragment(String line, int cursor) {
-        return language.completeFragment(line, cursor);
-    }
-
-    /**
-     * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
-     * 
-     * Interrupt the handleInput code as soon as possible, but leave stuff in a valid state.
-     */
-    protected void cancelRunningCommandRequested() {
-        language.cancelRunningCommandRequested();
-    }
-
-    /**
-     * This method gets called from another thread, and indicates the user pressed CTLR-D during a call to handleInput.
-     * 
-     * Quit the code from handleInput as soon as possible, assume the REPL will close after this.
-     */
-    protected void terminateRequested() {
-        language.terminateRequested();
-    }
-
-    /**
-     * This method gets called from another thread, indicates a user pressed CTRL+\ during a call to handleInput.
-     * 
-     * If possible, print the current stack trace.
-     */
-    protected void stackTraceRequested() {
-        language.stackTraceRequested();
-    }
-
-    private String previousPrompt = "";
-    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().fg(Color.BLACK).toString();
-    public static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
-
-    protected void updatePrompt() {
-        String newPrompt = getPrompt();
-        if (!newPrompt.equals(previousPrompt)) {
-            previousPrompt = newPrompt;
-            if (prettyPrompt) {
-                reader.setPrompt(PRETTY_PROMPT_PREFIX + newPrompt + PRETTY_PROMPT_POSTFIX);
-            }
-            else {
-                reader.setPrompt(newPrompt);
+                replService.flush();
+            } catch (Throwable _t) { /* ignore */ }
+            try {
+                replService.disconnect();
+            } catch (Throwable _t) { /* ignore */ }
+            term.flush();
+            if (this.history != null) {
+                ShutdownHooks.remove(this.history::save);
+                this.history.save();
             }
         }
     }
 
     /**
      * Queue a command (separated by newlines) to be "entered"
+     * No support for multi-line input, newlines in the input are turned into separate commands
      */
     public void queueCommand(String command) {
-        commandQueue.addAll(Arrays.asList(command.split("[\\n\\r]")));
+        reader.addCommandsInBuffer(Arrays.asList(command.split("[\\n\\r]")));
     }
 
-
-    private volatile boolean handlingInput = false;
-
-    private boolean handleEscape(Byte b) {
-        if (handlingInput) {
-            if (b == CANCEL_RUNNING_COMMAND) {
-                cancelRunningCommandRequested();
-                return true;
-            }
-            else if (b == STOP_REPL) {
-                // jline already handles this
-                // but we do have to stop the interpreter
-                terminateRequested();
-                this.stop();
-                return true;
-            }
-            else if (b == STACK_TRACE) {
-                stackTraceRequested();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * This will run the console in the current thread, and will block until it is either:
-     * <ul>
-     *  <li> handleInput throws an InteruptedException.
-     *  <li> input reaches the end of the stream
-     *  <li> either the input or output stream throws an IOException 
-     * </ul>
-     */
-    public void run() throws IOException {
-        try {
-            updatePrompt();
-            while(keepRunning) {
-
-                handleCommandQueue();
-
-                updatePrompt();
+    private AtomicBoolean setupInterruptHandler() {
+        var running = new AtomicBoolean(false);
+        var original = new AtomicReference<SignalHandler>(null);
+        original.set(term.handle(Signal.INT, (s) -> {
+            if (running.get()) {
                 try {
-                    String line = reader.readLine(reader.getPrompt(), null, null);
-                    if (line == null) { // EOF
-                        break;
-                    }
-                    try {
-                        handlingInput = true;
-                        handleInput(line);
-                    }
-                    finally {
-                        handlingInput = false;
-                    }
+                    replService.handleInterrupt();
                 }
-                catch (UserInterruptException u) {
-                    reader.println();
-                    handleReset(new HashMap<>(), new HashMap<>());
-                    updatePrompt();
+                catch (InterruptedException e) {
+                    return;
                 }
+            }
+            else {
+                var fallback = original.get();
+                if (fallback != null) {
+                    fallback.handle(s);
+                }
+            }
+        }));
 
-            }
-        }
-        catch (IOException e) {
-            try (PrintWriter err = new PrintWriter(stdErr, true)) {
-                err.println("REPL Failed: ");
-                if (!err.checkError()) {
-                    e.printStackTrace(err);
-                }
-                else {
-                    e.printStackTrace();
-                }
-                err.flush();
-                stdErr.flush();
-            }
-            throw e;
-        }
-        catch (InterruptedException e) {
-            // we are closing down, so do nothing, the finally clause will take care of it
-        }
-        finally {
-            reader.getOutput().flush();
-            originalStdOut.flush();
-            if (historyFlusher != null) {
-                ShutdownHooks.remove(historyFlusher);
-                history.flush();
-            }
-            reader.shutdown();
-        }
+        return running;
     }
 
-    private void handleCommandQueue() throws IOException, InterruptedException {
-        boolean handledQueue = false;
-        String queuedCommand;
-        while ((queuedCommand = commandQueue.poll()) != null) {
-            handledQueue = true;
-            reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
-            reader.println();
-            reader.getHistory().add(queuedCommand);
+
+    private void handleInput(String line) throws InterruptedException, StopREPLException {
+        writeResult(replService.handleInput(line));
+    }
+
+    private void writeResult(ICommandOutput result) {
+        PrintWriter target = replService.outputWriter();
+        if (result instanceof IErrorCommandOutput) {
+            target = replService.errorWriter();
+            result = ((IErrorCommandOutput)result).getError();
+        }
+        if (result instanceof IWebContentOutput) {
             try {
-                handlingInput = true;
-                handleInput(queuedCommand);
-            }
-            finally {
-                handlingInput = false;
-            }
+                var webContent = (IWebContentOutput)result;
+                ideServices.browse(webContent.webUri(), webContent.webTitle(), webContent.webviewColumn());
+            } catch (UnsupportedOperationException _ignored) { }
         }
-        if (handledQueue) {
-            String oldPrompt = reader.getPrompt();
-            reader.resetPromptLine("", "", 0);
-            reader.setPrompt(oldPrompt);
+
+        IOutputPrinter writer;
+        if (ansiColorsSupported && result instanceof IAnsiCommandOutput) {
+            writer = ((IAnsiCommandOutput)result).asAnsi();
         }
-    }
+        else {
+            writer = result.asPlain();
+        }
 
-    /**
-     * stop the REPL without waiting for it to stop
-     */
-    public void stop() {
-        language.stop();
-        keepRunning = false;
-        reader.shutdown();
-    }
-    
-    public Terminal getTerminal() {
-        return reader.getTerminal();
-    }
-
-    public InputStream getInput() {
-        return reader.getInput();
-    }
-
-    public PrintStream getOutput() {
-        return new PrintStream(originalStdOut);
+        writer.write(target, unicodeSupported);
     }
 }

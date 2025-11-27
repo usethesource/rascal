@@ -11,13 +11,9 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 
-@doc{
-.Synopsis
-Library functions for parse trees.
-
-.Description
-
-A _concrete syntax tree_ or http://en.wikipedia.org/wiki/Parse_tree[parse tree] is an ordered, rooted tree that 
+@synopsis{Library functions for parse trees.}
+@description{
+A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
 represents the syntactic structure of a string according to some formal grammar. 
 
 Most Rascal users will encounter parse trees in the form of concrete values.
@@ -28,66 +24,53 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 
 `Tree` is the universal parse tree data type in Rascal and can be used to represent parse trees for any language.
 
-*  `Tree` is a subtype of the type link:/Rascal#Values-Node[node].
-*  All types (non-terminals) declared in link:/Rascal#Declarations-SyntaxDefinition[syntax definitions] are sub-types of `Tree`.
-*  All link:/Rascal#Expressions-ConcreteSyntax[concrete syntax expressions] produce parse trees with a type corresponding to a non-terminals.
-*  Trees can be annotated in various ways, see features for link:/Rascal#Concepts-IDEConstruction[IDE construction].
-   Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
+*  `Tree` is a subtype of the type `node`
+*  All types (non-terminals) declared in `syntax`, `lexical`, `layout` and `keyword`  definitions are sub-types of `Tree`.
+*  All concrete syntax expressions produce parse trees with a type corresponding to a non-terminal.
+*  Trees can be annotated in various ways.  Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
-
-Parse trees are usually analyzed and constructed using 
-link:/Rascal#Expressions-ConcreteSyntax[concrete syntax expressions]
-and link:/Rascal#Patterns-Concrete[concrete syntax patterns].
- 
 _Advanced users_ may want to create tools that analyze any parse tree, regardless of the 
-link:/Rascal#Declarations-SyntaxDefinition[syntax definition] that generated it, you can manipulate them on the abstract level.
+syntax definition that generated it, you can manipulate them on the abstract level.
 
-A parse tree is of type <<ParseTree-Tree>> using the auxiliary types 
-<<ParseTree-Production>>, <<ParseTree-Symbol>>, <<ParseTree-Condition>>,
-<<ParseTree-Attr>>, <<ParseTree-Associativity>>, <<ParseTree-CharRange>>.
+A parse tree is of type ((ParseTree-Tree)) using the auxiliary types 
+((ParseTree-Production)), ((ParseTree-Symbol)), ((ParseTree-Condition)),
+((ParseTree-Attr)), ((ParseTree-Associativity)), ((ParseTree-CharRange)).
 Effectively, a parse tree is a nested tree structure of type `Tree`. 
 
 *  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. 
    `Production` is the abstract representation of a rule in a
-   link:/Rascal#Declarations-SyntaxDefinition[syntax definition], 
+   syntax definition.
    which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
 *  The leaves of a parse tree are always
-characters (`char`), which have an integer index in the UTF8 table. 
+characters (`char`), which have an integer index in the Unicode table. Specifically the 
+integer value is a decimal [codepoint](https://en.wikipedia.org/wiki/Code_point). A Unicode codepoint
+stands for an abstract character: an atomic unit of textual data. By the way, the first 127 characters are the
+same as the ASCII table. 
 
 *  Some internal nodes encode ambiguity (`amb`) by pointing to a set of 
 alternative `Tree` nodes.
 
-
-The `Production` and `Symbol` types are an abstract notation for rules in 
-link:/Rascal#Declarations-SyntaxDefinition[syntax definitions],
+The `Production` and `Symbol` types are an abstract notation for rules in syntax definitions,
 while the `Tree` type is the actual notation for parse trees. 
 
 Parse trees are called parse forests when they contain `amb` nodes.
 
 You can analyze and manipulate parse trees in three ways:
 
-*  Directly on the `Tree` level, just like any other link:/Rascal#Declarations-AlgebraicDataType[algebraic data type].
-*  Using link:/Rascal#Expressions-ConcreteSyntax[concrete syntax expressions]
-and link:/Rascal#Patterns-Concrete[concrete syntax patterns].
-*  Using link:/Rascal#SynyaxDefinition-Action[actions].
-
+*  Directly on the `Tree` level, just like any other algebraic data type.
+*  Using concrete syntax expressions and concrete syntax patterns.
+*  Using disambiguation actions (parameters of the `parse` function)
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
-
-.Examples
-
-// the following definition
-[source,rascal-shell]
-----
+}
+@examples{
+```rascal-shell
 import ParseTree;
 syntax A = "a";
-----
-will make the following succeed:
-[source,rascal-shell-continue]
-----
-parse(#A,"a") == 
-appl(
+// will make the following succeed:
+t = parse(#A,"a");
+t := appl(
   prod(
     sort("A"),
     [lit("a")],
@@ -98,24 +81,19 @@ appl(
         [\char-class([range(97,97)])],
         {}),
       [char(97)])]);
-----
+```
 You see that the defined non-terminal A ends up as the production for the outermost node. 
 As the only child is the tree for recognizing the literal a, which is defined to be a single a from the character-class `[ a ]`.
 
 When we use labels in the definitions, they also end up in the trees.
 The following definition
-[source,rascal-shell]
-----
+```rascal-shell
 import ParseTree;
 lexical B= myB:"b";
 lexical C = myC:"c" B bLabel;
-----
-Will make the following succeed:
-
-[source,rascal-shell-continue]
-----
-parse(#C,"cb") == 
-appl(
+// Will make the following succeed:
+t = parse(#C,"cb");
+t := appl(
   prod(
     label(
       "myC",
@@ -145,57 +123,53 @@ appl(
             [\char-class([range(98,98)])],
             {}),
           [char(98)])])]);
-----
+```
 
 Here you see that the alternative name is a label around the first argument of `prod` while argument labels become 
 labels in the list of children of a `prod`.
-
-.Examples
-
-.Benefits
-
-.Pitfalls
-For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of link:/Rascal#Values-Location[source locations].
-Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
-
-The following functions and data types are declared for ParseTrees:
+}
+@benefits{
+* Parse trees have all the necessary information in them for high-fidelity source code analysis and transformation
+* Parse trees contain full definitions of the grammar rules that it applies
+* Parse trees can always be "unparsed" to source text again
+}
+@pitfalls{
+* For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
+for the type of source locations. Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
+* We are in transition from deprecating the annotation `@\loc` with the keyword field `.src=|unknown:///|`. Currently the
+run-time already uses `.src` while the source code still uses `@\loc`.
 }
 
 module ParseTree
 
-extend Type;
-extend Message;
 extend List;
+extend Message;
+extend Type;
 
-@doc{
-.Synopsis
-The Tree data type as produced by the parser.
+import Node;
+import Set;
 
-.Description
-
+@synopsis{The Tree data type as produced by the parser.}
+@description{
 A `Tree` defines the trees normally found after parsing; additional constructors exist for execptional cases:
 
 <1> Parse tree constructor when parse succeeded.
 <2> Cyclic parsetree.
 <3> Ambiguous subtree.
-<4> A single character. 
+<4> A single character.
 }
 
-data Tree 
+data Tree(loc parseError = |unknown:///|(0,0,<0,0>,<0,0>)) //loc src = |unknown:///|(0,0,<0,0>,<0,0>)
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
      | char(int character) // <4>
      ;
 
-@doc{
-.Synopsis
-Production in ParseTrees 
 
-.Description
-
-The type `Production` is introduced in <<Prelude-Type>>, see <<Type-Production>>. Here we extend it with the symbols
+@synopsis{Production in ParseTrees}
+@description{
+The type `Production` is introduced in ((Library:module:Type)), see ((Type-Production)). Here we extend it with the symbols
 that can occur in a ParseTree. We also extend productions with basic combinators allowing to
 construct ordered and un-ordered compositions, and associativity groups.
 
@@ -204,60 +178,72 @@ construct ordered and un-ordered compositions, and associativity groups.
   
 <2> A `regular` is a regular expression, i.e. a repeated construct.
 
-<3> A `error` represents a parse error.
-
-<4> A `skipped` represents skipped input during error recovery.
-
-<5> `priority` means ordered choice, where alternatives are tried from left to right;
-<6> `assoc`  means all alternatives are acceptable, but nested on the declared side;
-<7> `reference` means a reference to another production rule which should be substituted there,
+<3> `priority` means operator precedence, where the order of the list indicates the binding strength of each rule;
+<4> `assoc`  means all alternatives are acceptable, but nested on the declared side;
+<5> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
+<6> `error` means a node produced by error recovery.
+<7> `skipped` means characters skipped during error recovery, always the last child of an `appl` with a `error` production.
 } 
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
      | regular(Symbol def) // <2>
-     | error(Production prod, int dot) // <3>
-     | skipped() // <4>
      ;
      
 data Production 
-     = \priority(Symbol def, list[Production] choices) // <5>
-     | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <6>
-     | \reference(Symbol def, str cons) // <7>
+     = \priority(Symbol def, list[Production] choices) // <3>
+     | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <4>
+     | \reference(Symbol def, str cons) // <5>
      ;
 
-@doc{
-.Synopsis
-Attributes in productions.
+data Production
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol def);
 
-.Description
+@synopsis{A special exception that wraps errors that are (almost) certainly caused by unexpected parse errors}
+@description{
+  Certain operations will always succeed on regular parse trees but will fail when the parse tree is an error Tree
+  resulting from error recovery.
+  A typical example is `t.someField` where `t` is an error node and `someField` is a field that would normally
+  be present in the tree but is after the dot so it is missing.
+  Normally  a `NoSuchField("someField")` exception would be thrown but because this problem is caused by a parse error,
+  the original exception is wrapped like this: `ParseErrorRecovery(NoSuchField("someField"), t.src)`.
+}
+@Benefits{
+using try/catch you can make a language processor robust against (deeply nested) recovered parse errors without scattering or tangling error handling code everywhere.
+}
+@pitfalls{
+it is advised to try/catch these exception high up in the call graph of your language processor, otherwise you'll have to write try/catch in many different places
+}
 
+data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
+
+@synopsis{Attributes in productions.}
+@description{
 An `Attr` (attribute) documents additional semantics of a production rule. Neither tags nor
 brackets are processed by the parser generator. Rather downstream processors are
-activated by these. Associativity is a parser generator feature though. 
+activated by these. Associativity is a parser generator feature though.
 }
-data Attr = \bracket() | /*deprecated*/ \assoc(Associativity \assoc);
+data Attr 
+  = \bracket() 
+  | \assoc(Associativity \assoc)
+  ;
 
-@doc{
-.Synopsis
-Associativity attribute. 
- 
-.Description
 
+@synopsis{Associativity attribute.}
+@description{
 Associativity defines the various kinds of associativity of a specific production.
 }  
 data Associativity 
-     = \left()
-     | \right() 
-     | \assoc() 
-     | \non-assoc()
-     ;
+    = \left()
+    | \right() 
+    | \assoc() 
+    | \non-assoc()
+    ;
 
-@doc{
-.Synopsis
-Character ranges and character class
-.Description
 
+@synopsis{Character ranges and character class}
+@description{
 *  `CharRange` defines a range of characters.
 *  A `CharClass` consists of a list of characters ranges.
 }
@@ -265,13 +251,10 @@ data CharRange = range(int begin, int end);
 
 alias CharClass = list[CharRange];
 
-@doc{
-.Synopsis
-Symbols that can occur in a ParseTree
 
-.Description
-
-The type `Symbol` is introduced in <<Prelude-Type>>, see <<Type-Symbol>>, to represent the basic Rascal types,
+@synopsis{Symbols that can occur in a ParseTree}
+@description{
+The type `Symbol` is introduced in ((Library:module:Type)), see ((Type-Symbol)), to represent the basic Rascal types,
 e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occur in a ParseTree.
 
 <1>  The `start` symbol wraps any symbol to indicate that it is a start symbol of the grammar and
@@ -281,7 +264,7 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 <4>  Layout symbols
 <5>  Terminal symbols that are keywords
 <6>  Parameterized context-free non-terminal
-<7> Parameterized lexical non-terminal
+<7>  Parameterized lexical non-terminal
 <8>  Terminal.
 <9>  Case-insensitive terminal.
 <10> Character class
@@ -294,7 +277,6 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 <17> Alternative of symbols
 <18> Sequence of symbols
 <19> Conditional occurrence of a symbol.
-
 }
 data Symbol // <1>
      = \start(Symbol symbol);
@@ -331,14 +313,11 @@ data Symbol
 data Symbol // <19>
      = \conditional(Symbol symbol, set[Condition] conditions);
 
-public bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
 
-@doc{
-.Synopsis
-Datatype for declaring preconditions and postconditions on symbols
 
-.Description
-
+@synopsis{Datatype for declaring preconditions and postconditions on symbols}
+@description{
 A `Condition` can be attached to a symbol; it restricts the applicability
 of that symbol while parsing input text. For instance, `follow` requires that it
 is followed by another symbol and `at-column` requires that it occurs 
@@ -356,22 +335,17 @@ data Condition
      | \except(str label)
      ;
 
-@doc{
-.Synopsis
-Nested priority is flattened.
-}
-public Production priority(Symbol s, [*Production a, priority(Symbol t, list[Production] b), *Production c])
+
+@synopsis{Nested priority is flattened.}
+Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
   = priority(s,a+b+c);
    
-@doc{
-.Synopsis
-Normalization of associativity.
 
-.Description
-
-* Choice (see the `choice` constructor in <<Type-ParseTree>>) under associativity is flattened.
+@synopsis{Normalization of associativity.}
+@description{
+* The ((Type-choice)) constructor under associativity is flattened.
 * Nested (equal) associativity is flattened.
-* Priority under an associativity group defaults to choice.
+* ((ParseTree-priority)) under an associativity group defaults to choice.
 }
 Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
@@ -381,57 +355,119 @@ Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associ
 
 Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, {*a, *b}); 
-
-// deprecated; remove after bootstrap
-Production associativity(Symbol rhs, Associativity a, set[Production] rest)
-  = associativity(rhs, a, withAssoc + withNewAssocs)
-  when  withoutAssoc := {p | Production p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
-        withoutAssoc != {},
-        withAssoc := rest - withoutAssoc,
-        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | Production p <- withoutAssoc}
-        ;
         
-@doc{
-.Synopsis
-Annotate a parse tree node with a source location.
+
+@synopsis{Annotate a parse tree node with a source location.}
+@description{
+A generated ((parser)) will produce ((Tree)) instances annotated with @\loc. In this way every node knows its own precise
+range in the file, _and_ the file it originally came from. The ((reposition)) function
+can simulate the same behavior without erasing other information (keyword parameters) that was produced after parsing.
+
+It is here, with ((parser)), ((parsers)) and ((reposition)), that location information is given its exact semantics for parse ((Tree))s:
+* The URI points to a single file location that is the source (or target) for the current parse tree.
+* Right after parsing and repositioning, the URI is the same for all \@loc annotation in a single ((Tree)) instance.
+However, after tree rewriting this is not the case anymore.
+* The `offset` is _zero-based_, inclusive, and is increasing from left to right, as long as the tree has not changed yet.
+The offset of the very first character in a file is `0`.
+* The `length` is always zero or positive. The length of a character (Unicode codepoint) is always 1, even if it is a control
+code like `\n` or `\r`. Even `\t` has length `1`!
+* The `begin.line` is _one-based_, inclusive, and increasing from top to bottom, as long as the tree has not changed yet. This follows the
+POSIX convention that the first line on a screen or a punch card is labeled with `1`.
+* The `begin.column` is _zero-based_, inclusive, and increasing from left-to-right, as long as the tree has not changed yet.
+The column is reset to `0` on `\r` and `\n` characters. Zero based columns are also a POSIX convention. It is sometimes motivated
+by the `|` bar cursor being _before_ the first character initially.
+* The `end.line` is _one-based_ and inclusive, always larger or equal than `begin.line`.
+* The `end.column` is _zero-based_ and inclusive, and _not_ always larger or equal than `begin.column`. That's true only if `begin.line == end.line`.
+}
+@benefits{
+* @\loc can be used to point to the origins of trees, even if rewritten parse trees are composed of values
+from different sources, their @\loc value will explain where they come from. This can be used to construct
+debugging interfaces for DSLs and PLs, for example.
+* @\loc contains offset/length and line/column information to cater for all kinds of different ways that editors work.
+* @\loc follows POSIX conventions to help in minimizing off-by-one errors when mapping to editor APIs
+* @\loc indexes work on the basic concept of an "abstract character", namely Unicode codepoints. The character is
+what most easily relates to what a users sees as a character on the screen.
+}
+@pitfalls{
+* @\loc is based on Unicode's abstract characters, a.k.a. codepoints. If your editor is byte-based or follows another character
+encoding than the 24-bit integer codepoints (e.g. java/javascript 16-bit characters), then you need smart just-in-time bidirectional 
+conversion methods to make sure selection and highlighting ranges (for example) are always exact.
+* If a concrete character ("grapheme") on screen is composed of several abstract characters ("codepoints"), then the @\loc 
+character metaphor breaks. It depends on how the editor internally handles graphemes and on the way it is connected to Rascal 
+what the effect for the user is. 
+* @\loc annotations make ((Tree)) instances _unique_ ,where otherwise they could be semantically and syntactically equivalent.
+Therefor if you want to test for ((Tree)) (in)equality, always use `t1 := t2` and `t1 !:= t2`. Pattern matching already automatically
+ignores @\loc annotations and whitespace and comments.
+* Annotated trees are strictly too big for optimal memory usage. Often `@\loc` is the first and only annotation, so it introduces a map for keyword parameters
+for every node. Also more nodes are different, impeding in optimal reference sharing. If you require long time storage of many
+parse trees it may be useful to strip them of annotations for selected categories of nodes, using ((reposition)).
 }
 anno loc Tree@\loc;
 
-@doc{
-.Synopsis
-Parse input text (from a string or a location) and return a parse tree.
-
-.Description
-
+@synopsis{Parse input text (from a string or a location) and return a parse tree.}
+@description{
 *  Parse a string and return a parse tree.
 *  Parse a string and return a parse tree, `origin` defines the original location of the input.
 *  Parse the contents of resource input and return a parse tree.
 
-The parse either throws ParseError exceptions or returns parse trees of type `Tree`. See [[ParseTree]].
+The parse either throws ParseError exceptions or returns parse trees of type ((Tree)).
 
 The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true` 
 the parser will construct ambiguity clusters (local sets of parse trees where the input string is ambiguous). If it is `false`
-the parser will throw an `Ambiguous` exception instead which is comparable to a ParseError exception. The latter option terminates faster.
+the parser will throw an `Ambiguous` exception instead. An `Ambiguous` exception is comparable to a ParseError exception then.
+The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph, 
+while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n 
+is the length of the input.
 
-The `hasSideEffects` flag is normally set to false. When a [[SyntaxDefinition]] uses side-effects to filter ambiguity, this 
-option must be set to `true` to ensure correct behavior. Otherwise the parser employs optimizations which assume the parse tree construction
-algorithm is context-free. When filter functions associated with syntax definitions exist that use global variables, for example to store type definitions 
-in a symbol table , then this option must be set to `true`. 
+The `maxAmbDepth` parameter is used to limit the depth of ambiguity clusters. If the depth of a cluster exceeds this value, a random
+alternative is chosen and the rest of the alternatives are ignored. So for instance when `maxAmbDepth` is set to 1, the first level of
+ambiguities is produced normally, but no ambiguities within ambiguities will be produced. This feature is primarily useful when using
+error recovery (see below) as error recovery tends to generate many nested ambiguities. Without limiting the depth of ambiguities, the parser
+parse forests generated by error recovery can easily become too large to process.
 
-.Examples
-[source,rascal-shell,error]
-----
-import demo::lang::Exp::Concrete::NoLayout::Syntax;
+The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
+When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
+If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
+The `util::ErrorRecovery` module contains a number of functions to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of ambiguities. Any code that processes error trees must be aware of this,
+for instance a simple traversal of all subtrees will be too expensive in most cases. `disambiguateParseErrors` can be used to 
+efficiently prune the forest and leave a tree with a single (or even zero) errors based on simple heuristics, but these heuristics
+are somewhat arbitrary so the usability of this function is limited.
+
+The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
+the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
+to each node in a tree. If such a function fails to apply, the other ones are tried. There is no fixed-point computation, so
+composed filters must be added to the set of filters programmatically. Post-parse filtering is best done at this stage and
+not later on the Tree representation for efficiency reasons. Namely, the size of the parse graph before Tree construction
+is still cubic due to "binarized" sharing of intermediate nodes, while after Tree construction the forest may obtain
+a size in O(n^p+1) where n is the length of the input and p is the length of the longest syntax rule. Filtering using
+the `filters` parameter, on the other hand, may very well cut the forest quickly down to even a linear size and result in 
+an efficient overall parsing algorithm.
+
+The `hasSideEffects` flag is normally set to false. When the `filters` functions have side-effects to
+remove ambiguity, this option must be set to `true` to ensure correct behavior. A side-effect of filter functions is
+typically the construction of a symbol table and the removal (see [[Statements/Filter]]) of syntax trees which refer to 
+undefined symbols. In such a case `hasSideEffects` must be set to `true` for correctness' sake. If its set to `false`
+then the algorithm assumes tree construction is context-free and it can memoize the results of shared intermediate graph nodes.
+The tree construction algorithm is effectively always worst case
+polynomial in O(n^p+1) --p being the length of the longest syntax rule-- when `hasSideEffects` is true, but may be linear when set 
+to false. So this is quite an important flag to consider.
+}
+@examples{
+```rascal-shell
+lexical Number = [0-9]+;
+syntax Exp
+    = Number
+    | left Exp "+" Exp
+    ;
 import ParseTree;
-----
+```
 Seeing that `parse` returns a parse tree:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue
 parse(#Exp, "2+3");
-----
+```
 Catching a parse error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue
 import IO;
 try {
   Exp e = parse(#Exp, "2@3");
@@ -439,85 +475,206 @@ try {
 catch ParseError(loc l): {
   println("I found a parse error at line <l.begin.line>, column <l.begin.column>");
 }
-----
+```
+}
+
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+  
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, input);
+
+
+@synopsis{Generates a parser from an input grammar.}
+@description{
+This builtin function wraps the Rascal parser generator by transforming a grammar into a parsing function.
+
+The resulting parsing function has the following overloaded signature:
+
+   * Tree parse(str input, loc origin);
+   * Tree parse(loc input, loc origin);
+
+So the parse function reads either directly from a str or via the contents of a loc. It also takes a `origin` parameter
+which leads to the prefix of the `src` fields of the resulting tree.
+
+The parse function behaves differently depending of the given keyword parameters:
+     * `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+                         the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
+                         if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
+     * `maxAmbDepth`: can be used to limit the maximum depth of ambiguity clusters. For instance, when set to 1, no ambiguities within ambiguities are produced.
+                      When set to 0, all ambiguity clusters will be removed. When set to -1 no ambiguity filtering will take place. Note that ambiguity pruning
+                      is done by dropping all but the first alternative (which is more or less random but repeatable).
+     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
+                         special `error` and `skipped` productions are included in the resulting parse tree. More documentation will be added here when this feature matures.
+                         Note that if `allowRecovery` is set to true, the resulting tree can still contain ambiguity nodes related to recovered parse errors, even if `allowAmbiguity`
+                         is set to false. When a 'regular` (non-error) ambiguity is found an exception is still thrown in this case.
+     * `maxRecoveryAttempts`: *** experimental *** the maximum number of recovery attempts to make when a parse error is encountered.
+                              Only relevant when `allowRecovery` is set to true.
+     * `maxRecoveryTokens`: *** experimental *** the maximum number of tokens considered on each recovery attempt.
+                            Only relevant when `allowRecovery` is set to true.
+     *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
+                         interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false);
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false);
+@synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
+@benefits{
+* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
+* Use this function for ambiguity diagnostics and regression testing for ambiguity.
+}
+@pitfalls{
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
+}
+java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+
+@synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
+@description{
+This parser generator behaves the same as the `parser` function, but it produces parser functions which have an additional
+nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false);
+@synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
+@benefits{
+* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
+* Use this function for ambiguity diagnostics and regression testing for ambiguity.
+}
+@pitfalls{
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
+}
+java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
-
-@doc{
-.Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
-
-.Description
-
-This function is similar to the [[parse]] function in its functionality. However, in case of serious ambiguity parse
+@synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
+@description{
+This function is similar to the ((parse)) function in its functionality. However, in case of serious ambiguity parse
 could be very slow. This function is much faster, because it does not try to construct an entire forest and thus avoids
 the cost of constructing nested ambiguity clusters. 
 
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, str input);
+Tree firstAmbiguity(type[Tree] begin, str input)
+  = firstAmbiguityFinder(begin)(input, |unknown:///|);
+
+Tree firstAmbiguity(type[Tree] begin, loc input)
+  = firstAmbiguityFinder(begin)(input, input);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, loc input);
+@synopsis{Generate a parser and store it in serialized form for later reuse.}
+@description{
+The stored parsers would be able to be recovered later using ((loadParsers)).
 
+For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
+* after `storeParsers(g, file);`
+* then `g = loadParsers(file);`
+* and given `h = parsers(g);`
+* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == h(nt, input, origin)`
 
-@doc{
-.Synopsis
-Yield the string of characters that form the leafs of the given parse tree.
+In other words, a loaded parser function behaves exactly as a freshly generated parser
+for the same grammar, if (and only if) it was stored for the same grammar value.
+}
+@benefits{
+* storing parsers is to cache the work of reifing a grammar, and generating a parser from that grammar.
+* stored parsers are nice for deployment scenerios where the language is fixed and efficiency is appreciated.
+}
+@pitfalls{
+* caching parsers with `storeParsers` is your responsibility; the cache is not cleaned automatically when the grammar changes.
+}
+java void storeParsers(type[Tree] grammar, loc saveLocation);
 
-.Description
-`unparse` is the inverse function of <<ParseTree-parse>>, i.e., for every syntactically correct string _TXT_ of
-type `S`, the following holds:
-[source,rascal,subs="quotes"]
-----
-unparse(parse(#S, _TXT_)) == _TXT_
-----
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Load a previously serialized parser from disk for usage}
+@description{
+For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
+* after `storeParsers(g, file);`
+* then `g = loadParsers(file);`
+* and given `h = parsers(g);`
+* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == h(nt, input, origin)`
 
-.Examples
-[source,rascal-shell]
-----
-import demo::lang::Exp::Concrete::NoLayout::Syntax;
+In other words, a loaded parser function behaves exactly as a freshly generated parser
+for the same grammar, if (and only if) it was stored for the same grammar value.
+}
+@examples{
+First we store a parser:
+```rascal-shell
 import ParseTree;
-----
-First parse an expression, this results in a parse tree. Then unparse this parse tree:
-[source,rascal-shell,continue]
-----
-unparse(parse(#Exp, "2+3"));
-----
+syntax E = E "+" E | "e";
+storeParsers(#E, |memory://test-tmp/E.parsers|)
+```
+
+Here we show a new shell does not even know about the grammar:
+```rascal-shell,errors
+#E
+```
+
+Then in a next run, we load the parser and use it:
+```rascal-shell
+import ParseTree;
+p = loadParsers(|memory://test-tmp/E.parsers|);
+p(type(sort("E"), ()), "e+e", |src:///|);
+```
+}
+@benefits{
+* loaded parsers can be used immediately without the need of loadig and executing a parser generator.
+}
+@pitfalls{
+* reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
+this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
+}
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+
+@synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
+@description{
+This loader behaves just like ((loadParsers)), except that the resulting parser function is already
+bound to a specific non-terminal. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str unparse(Tree tree);
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+
+@synopsis{Yield the string of characters that form the leafs of the given parse tree.}
+@description{
+`unparse` is the inverse function of ((ParseTree-parse)), i.e., for every syntactically correct string `TXT` of
+type `S`, the following holds:
+```rascal
+unparse(parse(#S, TXT)) == TXT
+```
+}
+@examples{
+```rascal-shell
+syntax Exp = Exp "+" Exp | Number;
+lexical Number = [0-9]+;
+import ParseTree;
+```
+First parse an expression, this results in a parse tree. Then unparse this parse tree:
+```rascal-shell,continue
+unparse(parse(#Exp, "2+3"));
+```
+}
+str unparse(Tree tree) = "<tree>";
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printSymbol(Symbol sym, bool withLayout);
+java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
-@doc{
-.Synopsis
-Implode a parse tree according to a given (ADT) type.
 
-.Description
-
+@synopsis{Implode a parse tree according to a given (ADT) type.}
+@description{
 Given a grammar for a language, its sentences can be parsed and the result is a parse tree
 (or more precisely a value of type `Tree`). For many applications this is sufficient
 and the results are achieved by traversing and matching them using concrete patterns.
 
 In other cases, the further processing of parse trees is better done in a more abstract form.
-The http://en.wikipedia.org/wiki/Abstract_syntax[abstract syntax] for a language is a
+The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
 data type that is used to represent programs in the language in an _abstract_ form.
 Abstract syntax has the following properties:
 
@@ -581,136 +738,65 @@ ADT type names correspond to syntax non-terminal names, and constructor names co
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
-Finally, source location annotations are propagated as annotations on constructor ASTs. 
-To access them, the user is required to explicitly declare a location annotation on all
+Finally, source location fields are propagated as keyword fields on constructor ASTs. 
+To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
-[source,rascal]
-----
-anno loc T@location;
-----
-
-.Examples
+```rascal-commands
+data T(loc location=|unknown:///|);
+```
+}
+@examples{
 Here are some examples for the above rules.
 
-.Example for rule 5
-
-Given the grammar
-[source,rascal]
-----
+* Example for rule 5. Given the grammar
+```rascal
 syntax IDTYPE = Id ":" Type;
 syntax Decls = decls: "declare" {IDTYPE ","}* ";";
-----
-    
+```
 `Decls` will be imploded as:
-[source,rascal]
-----
+```rascal
 data Decls = decls(list[tuple[str,Type]]);
-----
+```
 (assuming Id is a lexical non-terminal).   
-
-.Example for rule 6
-
-Given the grammar
-[source,rascal]
-----
+* Example for rule 6. Given the grammar
+```rascal
 syntax Formal = formal: "VAR"? {Id ","}+ ":" Type;
-----
+```
 The corresponding ADT could be:
-[source,rascal]
-----
+```rascal
 data Formal = formal(bool, list[str], Type);
-----
-
-.Example for rule 8
-
-Given the grammar
-[source,rascal]
-----
+```
+* Example for rule 8. Given the grammar
+```rascal
 syntax Tag = "[" {Modifier ","}* "]";
 syntax Decl = decl: Tag? Signature Body;
-----
+```
 In this case, a `Decl` is imploded into the following ADT:
-[source,rascal]
-----
+```rascal
 data Decl = decl(list[Modifier], Signature, Body);  
-----
-
-.Example for rule 9
-
-Given the grammar
-[source,rascal]
-----
+```
+* Example for rule 9. Given the grammar
+```rascal
 syntax Exp = left add: Exp "+" Exp;
-----
+```
 Can be imploded into:
-[source,rascal]
-----
+```rascal
 data Exp = add(Exp, Exp);
-----
+```
 }
-public java &T<:value implode(type[&T<:value] t, Tree tree);
+java &T<:value implode(type[&T<:value] t, Tree tree);
 
-@doc{
-.Synopsis
-Annotate a parse tree node with an (error) message.
-}
-public anno Message Tree@message;
+@synopsis{Tree search result type for ((treeAt)).}
+data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
-@doc{
-.Synopsis
-Annotate a parse tree node with a list of (error) messages.
-}
-public anno set[Message] Tree@messages;
 
-@doc{
-.Synopsis
-Annotate a parse tree node with a documentation string.
-}
-anno str Tree@doc;
 
-@doc{
-.Synopsis
-Annotate a parse tree node with documentation strings for several locations.
+@synopsis{Select the innermost Tree of a given type which is enclosed by a given location.}
+@description{
 
 }
-anno map[loc,str] Tree@docs;
-
-
-@doc{
-.Synopsis
-Annotate a parse tree node with the target of a reference.
-}
-anno loc Tree@link;
-
-@doc{
-.Synopsis
-Annotate a parse tree node with multiple targets for a reference.
-}
-anno set[loc] Tree@links;
-
-@doc{
-.Synopsis
-Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
-
-This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
-}
-anno rel[loc,loc] Tree@hyperlinks;
-
-@doc{
-.Synopsis
-Tree search result type for <<treeAt>>.
-}
-public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
-
-
-@doc{
-.Synopsis
-Select the innermost Tree of a given type which is enclosed by a given location.
-
-.Description
-}
-public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
+TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
 	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
@@ -723,24 +809,187 @@ public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_,
 	return treeNotFound();
 }
 
-public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
+default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
 
-public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
-public bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
-public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
-public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
-public bool sameType(Symbol s, s) = true;
-public default bool sameType(Symbol s, Symbol t) = false;
+bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
+bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
+bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
+bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
+bool sameType(Symbol s, s) = true;
+default bool sameType(Symbol s, Symbol t) = false;
 
-@doc{
-.Synopsis
-Determine if the given type is a non-terminal type.
+
+@synopsis{Determine if the given type is a non-terminal type.}
+bool isNonTerminalType(Symbol::\sort(str _)) = true;
+bool isNonTerminalType(Symbol::\lex(str _)) = true;
+bool isNonTerminalType(Symbol::\layouts(str _)) = true;
+bool isNonTerminalType(Symbol::\keywords(str _)) = true;
+bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
+default bool isNonTerminalType(Symbol s) = false;
+
+private alias NewLineChar = [\n];
+
+@synopsis{Re-compute and overwrite origin locations for all sub-trees of a ((Tree))}
+@description{
+This function takes a ((Tree)) and overwrites the old \loc annotations of every subtree 
+with fresh locations. The new locations are as-if the file was parsed again from the unparsed result:
+the locations describe the left-to-right order of the sub-trees again exactly, and they are all
+from the same top-level location (read "file").
+
+Typically, with the default options, this algorithm changes _nothing_ in a ((Tree)) which
+has just been produced by the parser. It will rebuild the tree and recompute the exact
+locations as they were originally. However, there are many reasons why the (location) fields 
+in a ((Tree)) are not at all anymore what they were just after parsing:
+1. subtrees may have been removed
+2. subtrees may have been relocated to different parts of the tree;
+2. subtrees may have been introduced from other source files
+3. subtrees may have been introduced from concrete syntax expressions in Rascal code.
+4. other algorithms may have added more keyword fields, for example fully resolved qualified names,
+resolved types, error messages or future computations (closures).
+5. location fields themselves may have been lost accidentally when rewriting trees with `visit`
+6. etc. 
+
+Some downstream algorithms (e.g. ((HiFiLayoutDiff)) ) require source locations to be consistent with the current actual position
+of every source tree. ((reposition)) provides this contract. Even if one of the above transformations have happened,
+after ((reposition)) every node has an accurate position with respect to the hypothetical file contents that would be generated
+if the tree is unparsed (written to a string or a file).
+
+Next to this feature, ((reposition)) may add locations to ((Tree)) nodes which were not annotated
+initially by the ((parser)): layout nodes, literal nodes, and sub-lexical nodes. Some algorithms on 
+parse trees (like formatting), require more detailed location information than provided by the ((parser)):
+* markLexical=true, ensures the sub-structure of lexicals is annotated as well.
+* markLayout=true, ensures annotating layout nodes and their sub-structure as well.
+* markLit=true, ensures literal trees and case-insensitive literal trees are annotated as well.
+* markAmb=true, ensures ambiguity nodes are annotated. NB: the sub-structure of a cluster is always annotated according to the other flags.
+* etc. every kind of node has a "mark" flag for completeness sake.
+
+Finally, ((reposition)) can be used to removed superfluous locations from ((Tree)) nodes. Every node which
+originally had a position will lose it unless ((reposition)) is configured to recompute it.
+
+By default ((reposition)) simulates the behavior of a ((parser)) exactly. Reparsing the 
+yield of a tree should always produce the exact same locations as ((reposition)) does.
 }
-public bool isNonTerminalType(Symbol::\sort(str _)) = true;
-public bool isNonTerminalType(Symbol::\lex(str _)) = true;
-public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
-public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
-public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
-public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
-public bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
-public default bool isNonTerminalType(Symbol s) = false;
+@benefits{
+* Unlike reparsing, ((reposition)) will maintain all other keyword parameters of ((Tree)) nodes, like resolved qualified names and type attributes.
+* Can be used to erase superfluous annotations for memory efficiency, while keeping the essential ones.
+* The default mark options simulatete the behavior of ((parser)) functions.
+}
+&T <: Tree reposition(
+  &T <: Tree tree, 
+  loc file = tree@\loc.top, 
+  bool \markStart = true,
+  bool \markSyntax = true,
+  bool \markLexical = true,
+  bool \markSubLexical = true, 
+  bool \markRegular = true,
+  bool \markLayout = true,
+  bool \markSubLayout = true,
+  bool \markLit = false,
+  bool \markSubLit = false,
+  bool \markAmb = false,
+  bool \markCycle = false,
+  bool \markChar = false
+  ) {
+    // the cur variables are shared state by the `rec` local function that recurses over the entire tree
+    int curOffset = 0;
+    int curLine = 1;
+    int curColumn = 0;
+
+    @synopsis{Check if this rule is configured to be annotated}
+    default bool doAnno(Production _)               = false;
+    bool doAnno(prod(\lex(_), _, _))                = markLexical;
+    bool doAnno(prod(\label(_, \lex(_)), _, _))     = markLexical;
+    bool doAnno(prod(\parameterized-lex(_, _), _, _))            = markLexical;
+    bool doAnno(prod(\label(_, \parameterized-lex(_, _)), _, _)) = markLexical;
+    bool doAnno(prod(\layouts(_), _, _))            = markLayout;
+    bool doAnno(prod(\label(_, \layouts(_)), _, _)) = markLayout;
+    bool doAnno(prod(\sort(_), _, _))               = markSyntax;
+    bool doAnno(prod(\label(_, \sort(_)), _, _))    = markSyntax;
+    bool doAnno(prod(\parameterized-sort(_, _), _, _))            = markSyntax;
+    bool doAnno(prod(\label(_, \parameterized-sort(_, _)), _, _)) = markSyntax;
+    bool doAnno(\regular(_))                        = markRegular;
+    bool doAnno(prod(\lit(_), _, _))                = markLit;
+    bool doAnno(prod(\cilit(_), _, _))              = markLit;
+    bool doAnno(prod(\start(_), _, _))              = markStart;
+
+    @synopsis{Check if sub-structure of this rule is configured to be annotated}
+    default bool doSub(Production _)               = true;
+    bool doSub(prod(\lex(_), _, _))                = \markSubLexical;
+    bool doSub(prod(\label(_, lex(_)), _, _))      = \markSubLexical;
+    bool doSub(prod(\layouts(_), _, _))            = \markSubLayout;
+    bool doSub(prod(\label(_, \layouts(_)), _, _)) = \markSubLayout;
+    bool doSub(prod(\lit(_), _, _))                = \markSubLit;
+    bool doSub(prod(\cilit(_), _, _))              = \markSubLit;
+
+    // the character nodes drive the actual current position: offset, line and column
+    Tree rec(Tree t:char(int ch), bool _sub) {
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      curOffset += 1;
+      curColumn += 1;
+
+      switch (t) {
+        case NewLineChar _ : {
+          curLine += 1;
+          curColumn = 0;
+        }
+      }
+
+      Tree washCC(Tree x) = x; // workaround for issue #2342
+
+      return markChar 
+        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, max([curColumn, beginColumn + 1]) /* for \r */>)]
+        : washCC(char(ch))
+        ;
+    }
+
+    // cycles take no space
+    Tree rec(cycle(Symbol s, int up), bool _sub) = markCycle
+      ? cycle(s, up)[@\loc=file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
+      : cycle(s, up)
+      ;
+
+    // application nodes always have children to traverse, to get to the individual characters eventually
+    // different types of nodes lead to annotation, or not, depending on the parameters of ((reposition))
+    Tree rec(appl(Production prod, list[Tree] args), bool sub) {
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      // once `sub` is false, going down, we can never turn it on again
+      newArgs = [mergeRec(a, sub && doSub(prod)) | a <- args];
+
+      return (sub && doAnno(prod)) 
+        ? appl(prod, newArgs)[@\loc=file(beginOffset, curOffset - beginOffset, <beginLine, beginColumn>, <curLine, curColumn>)]
+        : appl(prod, newArgs)
+        ;
+    } 
+
+    // ambiguity nodes are simply choices between alternatives which each receive their own positions.
+    Tree rec(amb(set[Tree] alts), bool sub) {
+      newAlts = {mergeRec(a, sub) | a <- alts};  
+      // inherit the outermost positions from one of the alternatives, since they are all the same by definition.  
+      Tree x = getFirstFrom(newAlts);  
+      return markAmb && x@\loc? 
+        ? amb(newAlts)[@\loc=x@\loc]  
+        : amb(newAlts)  
+        ;   
+    }
+
+    @synopsis{Recurse, but not without recovering all other keyword parameters except "src" a.k.a. @\loc from the original.}
+    Tree mergeRec(Tree t, bool sub) {
+      oldParams = getKeywordParameters(t);
+      t = rec(t, sub); 
+      newParams = getKeywordParameters(t);
+      mergedParams = (oldParams - ("src" : |unknown:///|)) + newParams;
+      return setKeywordParameters(t, mergedParams);
+    }
+
+    // we start recursion at the top, not forgetting to merge its other keyword fields
+    return mergeRec(tree, true);
+}
+ 

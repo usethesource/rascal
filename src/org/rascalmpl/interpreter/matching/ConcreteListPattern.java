@@ -18,29 +18,31 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private Expression callOrTree;
+	private final boolean bindTypeParameters; 
 
-	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
+	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list, boolean bindTypeParameters) {
 		super(ctx, x);
-		
+		this.bindTypeParameters = bindTypeParameters;
 		callOrTree = x;
 		initListPatternDelegate(list);
-		//System.err.println("ConcreteListPattern");
 	}
 
 	private void initListPatternDelegate(List<IMatchingResult> list) {
@@ -50,10 +52,10 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			IConstructor rhs = ((NonTerminalType) type).getSymbol();
 
 		   if (SymbolAdapter.isIterPlus(rhs) || SymbolAdapter.isIterStar(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, 1);
+				pat = new ListPattern(ctx, callOrTree, list, 1, bindTypeParameters);
 			}
 			else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
+				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1, bindTypeParameters);
 			}
 			else {
 				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);
@@ -66,11 +68,11 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		if (!subject.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+		if (!subject.getStaticType().isSubtypeOf(RascalValueFactory.Tree)) {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
+		org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) subject.getValue();
 		
 		if (!tree.isAppl()) {
 			hasNext = false;
@@ -99,7 +101,6 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			return false;
 		}
 		return pat.next();
-		
 	}
 
 	@Override

@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
@@ -28,15 +31,17 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class ShellExec {
-	
-	private static HashMap<IInteger, Process> runningProcesses = new HashMap<IInteger, Process>();
-	private static HashMap<IInteger, InputStreamReader> processInputStreams = new HashMap<IInteger, InputStreamReader>();
-	private static HashMap<IInteger, BufferedReader> processErrorStreams = new HashMap<IInteger, BufferedReader>();
-	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
+	private static Map<IInteger, Process> runningProcesses = new ConcurrentHashMap<>();
+	private static Map<IInteger, IInteger> processExitCodes = new ConcurrentHashMap<>();
+	private static Map<IInteger, InputStreamReader> processInputStreams = new HashMap<>();
+	private static Map<IInteger, BufferedReader> processErrorStreams = new HashMap<>();
+	private static Map<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<>();
 	private static IInteger processCounter = null;
 	
 	private final IValueFactory vf;
@@ -46,7 +51,68 @@ public class ShellExec {
 	}
 
 	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
-		return createProcessInternal(processCommand,arguments,envVars,workingDir);
+		return createProcessInternal(processCommand, arguments, envVars, workingDir);
+	}
+
+	private IString toString(IValue o) {
+		var TF = TypeFactory.getInstance();
+
+		try {
+			if (o.getType().isSourceLocation()) {
+				ISourceLocation p = URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) o);
+
+				if (!"file".equals(p.getScheme())) {
+					throw RuntimeExceptionFactory.illegalArgument(o,
+						"only file:/// URI are supported or logical schemes that derived from file");
+				}
+
+				return vf.string(new File(p.getURI()).getAbsolutePath());
+			}
+			else if (o.getType().isSubtypeOf(TF.listType(TF.sourceLocationType()))) {
+				// a list of loc becomes a path with OS-specific path separators
+				return vf.string(((IList) o).stream()
+					.map(this::toString)
+					.map(IString::getValue)
+					.collect(Collectors.joining(File.pathSeparator))
+				);
+			}
+			else if (o.getType().isSubtypeOf(TF.setType(TF.sourceLocationType()))) {
+				// a set of loc becomes a path with OS-specific path separators
+				return vf.string(((IList) o).stream()
+					.map(this::toString)
+					.map(IString::getValue)
+					.collect(Collectors.joining(File.pathSeparator))
+				);
+			}
+			else if (o.getType().isString()) {
+				return (IString) o;
+			}
+			else {
+				return vf.string(o.toString());
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
+	public IInteger createProcess(ISourceLocation processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
+		try {
+			processCommand = URIResolverRegistry.getInstance().logicalToPhysical(processCommand);
+
+			arguments = arguments.stream().map(v -> toString(v)).collect(vf.listWriter());
+			envVars = envVars.stream().map(t -> vf.tuple(((ITuple) t).get(0), toString(((ITuple) t).get(1)))).collect(vf.mapWriter());
+
+			if ("file".equals(processCommand.getScheme())) {
+				return createProcessInternal(toString(processCommand), arguments, envVars, workingDir);	
+			}
+			else {
+				throw RuntimeExceptionFactory.illegalArgument(processCommand, "createProcess only supports the file:/// scheme for command arguments, or logical schemes derived from it.");
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
 	}
 	
 	public IBool isAlive(IInteger pid) {
@@ -58,6 +124,25 @@ public class ShellExec {
         Process p = runningProcesses.get(pid);
         return vf.bool(p != null && !p.isAlive());
     }
+
+	public IInteger exitCode(IInteger pid) {
+		Process p = runningProcesses.get(pid);
+
+		if (p == null) {
+			IInteger storedExitCode = processExitCodes.get(pid);
+			if (storedExitCode == null) {
+				throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
+			}
+			return storedExitCode;
+		}
+
+		try {
+			return vf.integer(p.waitFor());
+		}
+		catch (InterruptedException e) {
+			throw RuntimeExceptionFactory.javaException(e, null, null);
+		}
+	}
 	
 	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
@@ -103,6 +188,7 @@ public class ShellExec {
 				throw RuntimeExceptionFactory.permissionDenied(vf.string("Modifying environment variables is not allowed on this machine."), null, null);
 			}
 			
+			workingDir = URIResolverRegistry.getInstance().logicalToPhysical(workingDir);
 			File cwd = null;
 			if (workingDir != null && workingDir.getScheme().equals("file")) {
 				cwd = new File(workingDir.getPath());
@@ -118,7 +204,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -166,21 +252,26 @@ public class ShellExec {
 		        runningProcess.destroy();    
 		    }
 		}
-		
-		new Thread("zombie process clean up") {
+
+		Thread waitForCleared = new Thread("zombie process clean up") {
 		    public void run() {
-		        try {
-                    Thread.sleep(1000);
-                    if (!runningProcess.isAlive()) {
-                        runningProcesses.remove(processId);
-                    }
-                }
-                catch (InterruptedException e) {
-                    // may happen occasionally
-                }
+				while (true) {
+					try {
+						runningProcess.waitFor();
+						processExitCodes.put(processId, vf.integer(runningProcess.exitValue()));
+						runningProcesses.remove(processId);
+						return;
+					}
+					catch (InterruptedException e) {
+						// may happen occasionally 
+						// and we should go back to waiting for
+						// the process to end
+					}
+				}
 		    };
-		}.start();
-		 
+		};
+		waitForCleared.setDaemon(true);
+		waitForCleared.start();
 		
 		return;
 	}

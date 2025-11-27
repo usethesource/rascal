@@ -26,9 +26,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 /*
 S ::= [a-z]+
 */
@@ -36,7 +37,7 @@ S ::= [a-z]+
 public class CharPlusList extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Range, VF.integer(97), VF.integer(122))));
-	private final static IConstructor SYMBOL_PLUS_LIST_a_z = VF.constructor(RascalValueFactory.Symbol_IterPlus, SYMBOL_char_a_z);
+	private final static IConstructor SYMBOL_PLUS_LIST_a_z = VF.constructor(RascalValueFactory.Symbol_Iter, SYMBOL_char_a_z);
 	
 	private final static IConstructor PROD_S_PLUSLISTa_z = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_a_z), VF.set());
 	private final static IConstructor PROD_PLUSLISTa_z = VF.constructor(RascalValueFactory.Production_Regular, SYMBOL_PLUS_LIST_a_z);

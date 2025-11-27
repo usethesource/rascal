@@ -1,61 +1,43 @@
 package org.rascalmpl.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import org.rascalmpl.interpreter.Evaluator;
+import org.jline.terminal.Terminal;
 import org.rascalmpl.repl.BaseREPL;
-import org.rascalmpl.repl.ILanguageProtocol;
-import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.repl.rascal.RascalInterpreterREPL;
+import org.rascalmpl.repl.rascal.RascalReplServices;
 
-import jline.Terminal;
+public class REPLRunner implements ShellRunner {
 
-public class REPLRunner extends BaseREPL  implements ShellRunner {
+    private final Terminal term;
+    private final int remoteIDEServicesPort;
 
-  private static File getHistoryFile() throws IOException {
-    File home = new File(System.getProperty("user.home"));
-    File rascal = new File(home, ".rascal");
-    if (!rascal.exists()) {
-      rascal.mkdirs();
+    public REPLRunner(Terminal term) {
+        this(term, -1);
     }
-    File historyFile = new File(rascal, ".repl-history-rascal-terminal");
-    if (!historyFile.exists()) {
-      historyFile.createNewFile();
+    
+    public REPLRunner(Terminal term, int remoteIDEServicesPort) {
+        this.term = term;
+        this.remoteIDEServicesPort = remoteIDEServicesPort;
     }
-    return historyFile;
-  }
 
-  public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
-    super(makeInterpreter(stdin, stdout, true, term.isAnsiSupported(), false, getHistoryFile(), term), null, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
-  }
-  
-  public REPLRunner(ILanguageProtocol language)  throws IOException, URISyntaxException{
-      super(language, null, null, null, true, true, new File(""), null, null);
-  }
+    @Override
+    public void run(String[] args) throws IOException {
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(remoteIDEServicesPort), getHistoryFile()), term);
+        repl.run();
+    }
 
-  private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
-    RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
-        @Override
-        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-          return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+    private static Path getHistoryFile() throws IOException {
+        var home = FileSystems.getDefault().getPath(System.getProperty("user.home"));
+        var rascalDir = home.resolve(".rascal");
+        if (!Files.isDirectory(rascalDir)) {
+            Files.createDirectories(rascalDir);
         }
-    };
+        return rascalDir.resolve(".repl-history-rascal-terminal-jline3");
+    }
+
     
-    repl.setMeasureCommandTime(false);
-    
-    return repl;
-  }
-
-
-
-  @Override
-  public void run(String[] args) throws IOException {
-    // there are no args for now
-    run();
-  }
 }

@@ -20,14 +20,15 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Map;
 
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INode;
@@ -46,11 +47,11 @@ public class NodeResult extends ElementResult<INode> {
 	@SuppressWarnings("unchecked")
 	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		int idx = ((IInteger) key.getValue()).intValue();
 		int len = getValue().arity();
@@ -64,17 +65,41 @@ public class NodeResult extends ElementResult<INode> {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
+	    if (value instanceof IConstructor) {//check for existing parameters on constructors
+            Type consType = ((IConstructor) value).getConstructorType();
+
+            if (consType.hasField(name, store)) {//positional field on constructor
+                int index = consType.getFieldIndex(name);
+                return makeResult(consType.getFieldType(index), getValue().get(index), ctx);
+            }
+            if (value.mayHaveKeywordParameters()) { //non-default keyword parameter
+                IValue parameter = value.asWithKeywordParameters().getParameter(name);
+                if (parameter != null) {
+                    return makeResult(getTypeFactory().valueType(), parameter, ctx);
+                }
+            }
+        }
+	    
 	    if (value.mayHaveKeywordParameters()) {
 	        IValue parameter = value.asWithKeywordParameters().getParameter(name);
-	        
 	        if (parameter != null) {
 	            return makeResult(getTypeFactory().valueType(), parameter, ctx);
-	        }
-	    }
+	        }    
+	    }  
 	    
 	    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
+	    if (value.mayHaveKeywordParameters()) {
+	        return makeResult(type, value.asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+	    }
+	    else {
+	        return makeResult(type, value, ctx);
+	    }
+	}
+	
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToNode(this);
@@ -103,6 +128,9 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public Result<IBool> isDefined(Name name) {
 		String sname = Names.name(name);
+		if (value instanceof IConstructor && ((IConstructor) value).has(sname)) {
+		    return ResultFactory.bool(true, ctx);
+		}
 		return ResultFactory.bool(getValue().asWithKeywordParameters().hasParameter(sname), ctx);
 	}
 	
@@ -110,11 +138,11 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		}
-		if (!((Result<IValue>)subscripts[0]).getType().isInteger()) {
+		if (!((Result<IValue>)subscripts[0]).getStaticType().isInteger()) {
 			throw new UnexpectedType(getTypeFactory().integerType(), 
-					((Result<IValue>)subscripts[0]).getType(), ctx.getCurrentAST());
+					((Result<IValue>)subscripts[0]).getStaticType(), ctx.getCurrentAST());
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
 		int idx = index.intValue();
@@ -196,13 +224,6 @@ public class NodeResult extends ElementResult<INode> {
     	}
     }
     
-    if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
-    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
-    		// bail out 
-    		return new LessThanOrEqualResult(false, true, ctx);
-    	}
-    }
-    
     if ((!left.mayHaveKeywordParameters() || !left.asWithKeywordParameters().hasParameters()) && (right.mayHaveKeywordParameters() && right.asWithKeywordParameters().hasParameters())) {
     	return new LessThanOrEqualResult(true, false, ctx);
     }
@@ -258,18 +279,7 @@ public class NodeResult extends ElementResult<INode> {
 	
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
-	
-		if (annoType == null) {
-			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
-		}
-	
-		IValue annoValue = getValue().asAnnotatable().getAnnotation(annoName);
-		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), null);
-		}
-		// TODO: applyRules?
-		return makeResult(annoType, annoValue, ctx);
+	    // TODO: simulating annotations using kw fields
+		return fieldAccess(annoName, env.getStore());
 	}
-
 }

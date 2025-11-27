@@ -39,7 +39,6 @@ import io.usethesource.vallang.type.Type;
 public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	static public class Alias extends org.rascalmpl.ast.Declaration.Alias {
-
 		public Alias(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				UserType __param4, org.rascalmpl.ast.Type __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
@@ -47,18 +46,12 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
-			__eval.__getTypeDeclarator().declareAlias(this,
-					__eval.getCurrentEnvt());
+			__eval.__getTypeDeclarator().declareAlias(this, __eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
-
 	}
 
-	static public class Annotation extends
-			org.rascalmpl.ast.Declaration.Annotation {
-
+	static public class Annotation extends org.rascalmpl.ast.Declaration.Annotation {
 		public Annotation(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				org.rascalmpl.ast.Type __param4,
 				org.rascalmpl.ast.Type __param5, Name __param6) {
@@ -67,26 +60,28 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), true, __eval);
-			String name = org.rascalmpl.interpreter.utils.Names.name(this
-					.getName());
+			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), __eval, false);
+			String name = Names.name(this.getName());
 
-			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), true, __eval);
+			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), __eval, false);
 			
 			if (onType.isAbstractData() || onType.isConstructor() || onType.isNode()) {
-				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
-						name, annoType);
-			} else {
+			    if (onType == TF.nodeType()) {
+			        // TODO: while simulating annotations as keyword fields we ignore
+			        // all declarations done on `node`
+			        return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+			    }
+				__eval.getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);
+			} 
+			else {
 				throw new UnsupportedOperation("Can only declare annotations on node and ADT types",getOnType());
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
-
 	}
 
 	static public class Data extends org.rascalmpl.ast.Declaration.Data {
-
 		public Data(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				UserType __param4, CommonKeywordParameters __param5, List<Variant> __param6) {
 			super(__param1, tree, __param2, __param3, __param4, __param5, __param6);
@@ -97,12 +92,9 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			eval.__getTypeDeclarator().declareConstructor(this, eval.getCurrentEnvt());
 			return ResultFactory.nothing();
 		}
-
 	}
 
-	static public class DataAbstract extends
-			org.rascalmpl.ast.Declaration.DataAbstract {
-
+	static public class DataAbstract extends org.rascalmpl.ast.Declaration.DataAbstract {
 		public DataAbstract(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
 				UserType __param4, CommonKeywordParameters __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
@@ -110,33 +102,25 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			eval.__getTypeDeclarator().declareAbstractADT(this,
-					eval.getCurrentEnvt());
+			eval.__getTypeDeclarator().declareAbstractADT(this, eval.getCurrentEnvt());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
-
 	}
 
 	static public class Function extends org.rascalmpl.ast.Declaration.Function {
-
 		public Function(ISourceLocation __param1, IConstructor tree, FunctionDeclaration __param2) {
 			super(__param1, tree, __param2);
 		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			return this.getFunctionDeclaration().interpret(__eval);
-
 		}
-
 	}
 
 	static public class Variable extends org.rascalmpl.ast.Declaration.Variable {
-
 		public Variable(ISourceLocation __param1, IConstructor tree, Tags __param2, Visibility __param3,
-				org.rascalmpl.ast.Type __param4,
-				List<org.rascalmpl.ast.Variable> __param5) {
+				org.rascalmpl.ast.Type __param4, List<org.rascalmpl.ast.Variable> __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
 		}
 
@@ -146,33 +130,39 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			eval.setCurrentAST(this);
 
 			for (org.rascalmpl.ast.Variable var : this.getVariables()) {
-				Type declaredType = getType().typeOf(eval.getCurrentEnvt(), true, eval);
+				Type declaredType = getType().typeOf(eval.getCurrentEnvt(), eval, true);
 
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(eval);
 
+					if (v.getStaticType().isBottom()) {
+					    throw new UnexpectedType(declaredType, TF.voidType(), this);
+					}
+					
 					if (!eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariable(Names.name(var.getName()), var);
 					}
 
-					if (v.getType().isSubtypeOf(declaredType)) {
+					if (v.getStaticType().isSubtypeOf(declaredType)) {
 						// TODO: do we actually want to instantiate the locally
 						// bound type parameters?
 						Map<Type, Type> bindings = new HashMap<Type, Type>();
-						declaredType.match(v.getType(), bindings);
+						declaredType.match(v.getStaticType(), bindings);
 						declaredType = declaredType.instantiate(bindings);
 						r = ResultFactory.makeResult(declaredType, v.getValue(), eval);
 						eval.getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 					} else {
-						throw new UnexpectedType(declaredType,
-								v.getType(), var);
+						throw new UnexpectedType(declaredType, v.getStaticType(), var);
 					}
 				} else {
 					eval.getCurrentModuleEnvironment().storeVariable(var.getName(), ResultFactory.nothing(declaredType));
 				}
+				
+				if (!getVisibility().isPublic()) {
+	                eval.getCurrentModuleEnvironment().markVariableNamePrivate(Names.name(var.getName()));
+	            }
 			}
-
-			r.setPublic(this.getVisibility().isPublic());
+			
 			return r;
 		}
 	}

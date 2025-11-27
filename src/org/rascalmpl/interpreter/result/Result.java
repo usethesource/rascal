@@ -26,14 +26,13 @@ import java.util.Map;
 
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
@@ -82,16 +81,12 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private Iterator<Result<IValue>> iterator = null;
 	protected final Type type;
 	protected T value;
-	private boolean isPublic;
 	private boolean inferredType = false;
 	protected IEvaluatorContext ctx;
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type)) {
-			//System.err.println(value.getType());
-			//System.err.println(type); 
-			//System.err.println(value.getType().isSubtypeOf(type));
 			throw new UnexpectedType(type, value.getType(), ctx.getCurrentAST());
 		}
 	
@@ -111,13 +106,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	/// The "result" interface
 	
+	@Override
 	public T getValue() {
 		return value;
+	}
+
+	@Override
+	public Type getStaticType() { 
+		return type;
 	}
 	
 	@Override
 	public String toString(){
-		return getType().toString() + ": " + value.toString();
+		return getStaticType().toString() + ": " + value.toString();
 	}
 	
 	public String toString(int length){
@@ -127,28 +128,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		try {
 			stw.write(getValue(), lros);
 		}
-		catch (IOLimitReachedException iolrex){
+		catch (/*IOLimitReachedException*/ RuntimeException iolrex){
 			// This is fine, ignore.
 		}
 		catch (IOException ioex) {
 			// This can never happen.
 		}
 		
-		return getType().toString() + ": " + lros.toString();
-	}
-	
-	
-	public Type getType() { 
-		return type;
+		return getStaticType().toString() + ": " + lros.toString();
 	}
 	
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
 		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), ctx);
 	}
-	
-	/// TODO: Factory access:
-	//this should probably access fields initialized by constructor invocations
-	//passed into them by ResultFactory.
 	
 	protected TypeFactory getTypeFactory() {
 		return TypeFactory.getInstance();
@@ -181,17 +173,17 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	// Error aux methods
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator) {
-		throw new UnsupportedOperation(operator, getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getStaticType(), ctx.getCurrentAST());
 	}
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg) {
-		throw new UnsupportedOperation(operator, getType(), arg.getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getStaticType(), arg.getStaticType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
-    throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+    throw new UnsupportedOperation("A value of type " + getStaticType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
   }
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
@@ -396,11 +388,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> Result<U> multiplyList(ListResult that) {
-		return that.undefinedError(MULTIPLICATION_STRING, that);
+		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 	
 	protected <U extends IValue> Result<U> intersectList(ListResult that) {
-		return that.undefinedError(INTERSECTION_STRING, that);
+		return that.undefinedError(INTERSECTION_STRING, this);
 	}
 
 	protected <U extends IValue> Result<U> addSet(SetResult that) {
@@ -641,8 +633,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected Result<IBool> equalToListRelation(ListRelationResult that) {
-    return bool(false, ctx);
-  }
+        return bool(false, ctx);
+    }
 	
 	protected Result<IBool> equalToSet(SetResult that) {
 		return bool(false, ctx);
@@ -1047,14 +1039,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(IS_DEFINED_STRING, this);
 	}
 	
-	public boolean isPublic() {
-		return isPublic;
-	}
-	
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
 	public void setInferredType(boolean inferredType) {
 		this.inferredType  = inferredType;
 	}

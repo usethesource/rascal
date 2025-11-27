@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Strategy extends AbstractAST {
   public Strategy(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -73,7 +74,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 ; 
+      return 521 ; 
     } 
   
     	
@@ -128,7 +129,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 839 ; 
     } 
   
     	
@@ -183,7 +184,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 ; 
+      return 191 ; 
     } 
   
     	
@@ -238,7 +239,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 ; 
+      return 599 ; 
     } 
   
     	
@@ -293,7 +294,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 ; 
+      return 109 ; 
     } 
   
     	
@@ -348,7 +349,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 ; 
+      return 977 ; 
     } 
   
     	

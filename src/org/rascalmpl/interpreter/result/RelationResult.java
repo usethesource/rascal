@@ -19,15 +19,17 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.Arity;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
@@ -48,10 +50,10 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
-			int len = getType().getElementType().getArity();
+			int len = getStaticType().getElementType().getArity();
 			
 			if (subscripts.length >= len){
-			    throw new UnsupportedSubscriptArity(getType(), len, ctx.getCurrentAST());
+			    throw new UnsupportedSubscriptArity(getStaticType(), len, ctx.getCurrentAST());
 			}
 			
 			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
@@ -64,7 +66,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IBool> has(Name name) {
-			return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
+			return ResultFactory.bool(getStaticType().hasField(Names.name(name)), ctx);
 		}
 		
 		@Override
@@ -135,14 +137,17 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
-			if(getType().getElementType().isBottom()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
-			
-			// TODO: must go to PDB
-			int nSubs = subscripts.length;
-			if (nSubs >= getType().getArity()) {
-				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
+			if(getStaticType().getElementType().isBottom()) {
+//			    throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			    return ResultFactory.makeResult(getStaticType(), ctx.getValueFactory().set(), ctx);
 			}
-			int relArity = getType().getArity();
+			
+			// TODO: must go to vallang!
+			int nSubs = subscripts.length;
+			if (nSubs >= getStaticType().getArity()) {
+				throw new UnsupportedSubscriptArity(getStaticType(), nSubs, ctx.getCurrentAST());
+			}
+			int relArity = getStaticType().getArity();
 			
 			Type subscriptType[] = new Type[nSubs];
 			boolean subscriptIsSet[] = new boolean[nSubs];
@@ -151,13 +156,13 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			 * Subscripts will value null are interpreted as wildcards (_) that match any value.
 			 */
 			for (int i = 0; i < nSubs; i++){
-				subscriptType[i] = subscripts[i] == null ? valueType : subscripts[i].getType();
+				subscriptType[i] = subscripts[i] == null ? valueType : subscripts[i].getStaticType();
 			}
 			
 			boolean yieldSet = (relArity - nSubs) == 1;
 			Type resFieldType[] = new Type[relArity - nSubs];
 			for (int i = 0; i < relArity; i++) {
-				Type relFieldType = getType().getFieldType(i);
+				Type relFieldType = getStaticType().getFieldType(i);
 				if (i < nSubs) {
 					if (subscriptType[i].isSet() && 
 							relFieldType.comparable(subscriptType[i].getElementType())){
@@ -174,26 +179,68 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 			}
 			Type resultType;
-			ISetWriter wset = null;
-			ISetWriter wrel = null;
-			
 			if (yieldSet){
 				resultType = getTypeFactory().setType(resFieldType[0]);
-				wset = this.getValueFactory().setWriter();
-			} else {
-				resultType = getTypeFactory().relType(resFieldType);
-				wrel = this.getValueFactory().setWriter();
 			}
-
+			else {
+				resultType = getTypeFactory().relType(resFieldType);
+			}
 			
+			
+			if (nSubs == 1) {
+			    // special case the simple subscription to directly target vallang
+			    IRelation<ISet> relation = getValue().asRelation();
+			    
+			    ISet result;
+			    if (subscripts[0] == null) {
+			        // edge case, we want everything, so an project
+			        int[] restSubScripts = new int[relArity - 1];
+			        for (int i = 1; i < relArity; i++) {
+			            restSubScripts[i - 1] = i;
+			        }
+			        result = relation.project(restSubScripts);
+			    }
+			    else if (subscriptIsSet[0]) {
+			        ISet subScriptSet = ((ISet) subscripts[0].getValue());
+			        if (subScriptSet.size() * 2 < relation.asContainer().size() && relArity == 2) {
+			            // if it is a binary relation and the subscript set is not that big, it's quicker to just do a few seperate indexes
+                        result = this.getValueFactory().set();
+                        for (IValue v : subScriptSet) {
+                            result = result.union(relation.index(v));
+                        }
+			        }
+			        else {
+			            // we have a big subscript, so it's quicker to do a single loop
+			            ISetWriter resultWriter = this.getValueFactory().setWriter();
+                        int[] restSubScripts = new int[relArity - 1];
+                        for (int i = 1; i < relArity; i++) {
+                            restSubScripts[i - 1] = i;
+                        }
+			            for (IValue v : relation) {
+			                ITuple tup = (ITuple)v;
+			                if (subScriptSet.contains(tup.get(0))) {
+			                   resultWriter.append(tup.select(restSubScripts));
+			                }
+			            }
+			            result = resultWriter.done();
+			        }
+			    }
+			    else {
+			        result = relation.index(subscripts[0].getValue());
+			        
+			    }
+			    return makeResult(resultType, result, ctx);
+			}
+			
+			ISetWriter result = this.getValueFactory().setWriter();
 			for (IValue v : getValue()) {
 				ITuple tup = (ITuple)v;
 				boolean allEqual = true;
-				for(int k = 0; k < nSubs; k++){
+				for(int k = 0; k < nSubs && allEqual; k++){
 					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
 							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
-					} else if (subscripts[k] == null || tup.get(k).isEqual(subscripts[k].getValue())){
+					} else if (subscripts[k] == null || tup.get(k).equals(subscripts[k].getValue())){
 						/* ok */
 					} else {
 						allEqual = false;
@@ -201,18 +248,19 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 				
 				if (allEqual) {
-					IValue args[] = new IValue[relArity - nSubs];
-					for (int i = nSubs; i < relArity; i++) {
-						args[i - nSubs] = tup.get(i);
-					}
-					if(yieldSet){
-						wset.insert(args[0]);
-					} else {
-						wrel.insert(getValueFactory().tuple(args));
-					}
+				    if (yieldSet) {
+						result.insert(tup.get(nSubs));
+				    }
+				    else {
+				        IValue args[] = new IValue[relArity - nSubs];
+				        for (int i = nSubs; i < relArity; i++) {
+				            args[i - nSubs] = tup.get(i);
+				        }
+				        result.insert(getValueFactory().tuple(args));
+				    }
 				}
 			}
-			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ctx);
+			return makeResult(resultType, result.done(), ctx);
 		}
 
 		////
@@ -248,14 +296,14 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-			Type tupleType = getType().getFieldTypes();	
+			Type tupleType = getStaticType().getFieldTypes();	
 			
-			if (!getType().hasFieldNames()) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasFieldNames()) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
-			if (!getType().hasField(name, store)) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasField(name, store)) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
 			try {
@@ -267,7 +315,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 		}
 		
@@ -278,8 +326,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		protected <U extends IValue> Result<U> composeRelation(RelationResult that) {
 			RelationResult left = that;
 			RelationResult right = this;
-			Type leftrelType = left.getType(); 
-			Type rightrelType = right.getType();
+			Type leftrelType = left.getStaticType(); 
+			Type rightrelType = right.getStaticType();
 			int leftArity = leftrelType.getArity();
 			int rightArity = rightrelType.getArity();
 				
@@ -296,7 +344,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple) {
 			// TODO: check arity 
-			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
+			Type newType = getTypeFactory().setType(tuple.getStaticType().lub(getStaticType().getElementType()));
 			return makeResult(newType, /*(ISet)*/ getValue().insert(tuple.getValue()), ctx); // do not see a reason for the unsafe cast
 		}
 
@@ -305,8 +353,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			// Note the reverse of arguments, we need "that join this"
 			int arity1 = that.getValue().asRelation().arity();
 			int arity2 = this.getValue().asRelation().arity();
-			Type tupleType1 = that.getType().getElementType();
-			Type tupleType2 = this.getType().getElementType();
+			Type tupleType1 = that.getStaticType().getElementType();
+			Type tupleType2 = this.getStaticType().getElementType();
 			Type fieldTypes[] = new Type[arity1 + arity2];
 			for (int i = 0; i < arity1; i++) {
 				fieldTypes[i] = tupleType1.getFieldType(i);
@@ -336,8 +384,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		protected <U extends IValue> Result<U> joinSet(SetResult that) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity2 = this.getValue().asRelation().arity();
-			Type eltType = that.getType().getElementType();
-			Type tupleType = this.getType().getElementType();
+			Type eltType = that.getStaticType().getElementType();
+			Type tupleType = this.getStaticType().getElementType();
 			Type fieldTypes[] = new Type[1 + arity2];
 			fieldTypes[0] = eltType;
 			for (int i = 1;  i < 1 + arity2; i++) {
@@ -361,9 +409,9 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IValue> fieldSelect(int[] selectedFields) {
-			if (!getType().getElementType().isBottom()) {
+			if (!getStaticType().getElementType().isBottom()) {
 				for (int i : selectedFields) {
-					if (i < 0 || i >= getType().getArity()) {
+					if (i < 0 || i >= getStaticType().getArity()) {
 						throw RuntimeExceptionFactory.indexOutOfBounds(ctx.getValueFactory().integer(i), ctx.getCurrentAST(), ctx.getStackTrace());
 					}
 				}
@@ -375,7 +423,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		public Result<IValue> fieldSelect(Field[] selectedFields) {
 			int nFields = selectedFields.length;
 			int fieldIndices[] = new int[nFields];
-			Type baseType = this.getType();
+			Type baseType = this.getStaticType();
 			
 			for (int i = 0; i < nFields; i++) {
 				Field f = selectedFields[i];
@@ -383,18 +431,21 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 					fieldIndices[i] = ((IInteger) f.getFieldIndex()
 							.interpret(this.ctx.getEvaluator()).getValue()).intValue();
 				} else {
-					String fieldName = org.rascalmpl.interpreter.utils.Names
-							.name(f.getFieldName());
+					String fieldName = org.rascalmpl.interpreter.utils.Names.name(f.getFieldName());
+
+					if (!baseType.hasFieldNames()) {
+						throw new UndeclaredField(fieldName, baseType,ctx.getCurrentAST());
+					}
+
 					try {
 						fieldIndices[i] = baseType.getFieldIndex(fieldName);
 					} catch (UndeclaredFieldException e) {
-						throw new UndeclaredField(fieldName, baseType,
-								ctx.getCurrentAST());
+						throw new UndeclaredField(fieldName, baseType, ctx.getCurrentAST());
 					}
 				}
 
-				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isBottom())) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getStaticType().getElementType().isBottom())) {
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 									ctx.getCurrentAST(), ctx.getStackTrace());
 				}

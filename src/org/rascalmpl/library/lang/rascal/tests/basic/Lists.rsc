@@ -1,31 +1,32 @@
 module lang::rascal::tests::basic::Lists
 
-import IO;
 import List;
 import ListRelation;
 import Set;
-import Map;
-import String;
 import Boolean;
 import util::Math;
 import Type;
-import ValueIO;
+import String;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : (slice(C, 0, size(A)) == A && slice(C, size(A), size(C) - size(A)) == B));
 
-test bool concat(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
-test bool concat(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
-test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
+test bool concat1(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
+test bool concat2(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
+test bool concat3(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
 
+bool isElemProperlyRemoved(&T x, list[&T] A, list[&T] B)
+    = x in A && (x notin B || freq(x, A) > freq(x, B));
+    
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A && (x notin B || freq(x, A) > freq(x, B)));
+     isEmpty(A) ? isEmpty(C)
+                : (isEmpty(B) ? C == A
+                              : (isEmpty(C) ? (isEmpty(B) || all(x <- B, freq(x, A) <= freq(x, B)))
+                                            : all(x <- C, isElemProperlyRemoved(x, A, B))));
 
 test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 
@@ -60,17 +61,14 @@ test bool notEqual2(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual
 // x in L?
 bool isIn(&T x, list[&T] L) = (false | it || eq(x,e) | e <- L);
 
-// Is L sorted?
-public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
-
 // Frequency of x in L
-int freq(&T x, list[&T] L) = (0 | eq(e,x) ? it + 1 : it | e <- L);
+int freq(&T x, list[&T] L) = (0 | eq(e, x) ? it + 1 : it | e <- L);
 
 // Merge two lists, keeping their order
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
    int i = 0;
    int j = 0;
-   res = [];
+   list[&T] res = [];
    while(i < size(A) || j < size(B)){
             if(i < size(A) && arbBool()){
                res = res + [elementAt(A,i)];
@@ -85,7 +83,7 @@ public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
 
 // Merge two lists without keeping their order.
 public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
-   res = [];
+   list[&T] res = [];
    while(!(isEmpty(A) && isEmpty(B))){
             if(arbBool() && size(A) > 0){
                <x, A> = takeOneFrom(A);
@@ -144,7 +142,7 @@ test bool sliceFirst(list[int] L) {
   return S == makeSlice(L, f, f + 1, e);
 }
 
-test bool sliceFirst(list[&T] L) {
+test bool sliceFirst2(list[&T] L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   S = L[f..];
@@ -187,7 +185,7 @@ test bool sliceFirstSecond(list[int] L) {
   return L[f, f + incr..] == makeSlice(L, f, f + incr, size(L));
 }
 
-test bool sliceEmpty(int from, int to) = [][from..to] == [];
+test bool sliceEmpty(int from, int to) = [][from % 32768 .. to % 32768] == [];
 
 test bool sliceOverEnd() = [0][1..] == [];
 
@@ -287,9 +285,9 @@ test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,
 
 // TODO: add tests for /= and &= 
 
-@ignoreInterpreter{} test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
-@ignoreInterpreter{} test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
-@ignoreInterpreter{} test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
+test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
+test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
+test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
 
 // Library functions
 
@@ -353,11 +351,19 @@ test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-test bool tstIntercalate(str sep, list[value] L) = 
-       intercalate(sep, L) == (isEmpty(L) ? ""
-                                          : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
+@ignoreCompiler{FIXME: breaks on the negative match}
+test bool simplerIntercalateWithNegativeMatch() {
+  str ic(str sep:!"", list[value] l) = "<for (e <- l) {><e><sep><}>"[..-size(sep)];
+  
+  return ic(",",[1,2,3]) == "1,2,3";
+}
 
-test bool tstIsEmpty(list[&T] L) = isEmpty(L) ==> (size(L) == 0);
+test bool tstIntercalate(str sep, list[value] L) {
+  if (sep == "" || L == []) return true;
+  return intercalate(sep, L) ==  "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>";
+}
+
+test bool tstIsEmpty(list[&T] L) = isEmpty(L) ? size(L) == 0 : size(L) > 0;
 
 test bool tstLast(list[&T] L) = isEmpty(L) || eq(last(L),elementAt(L,-1));
 
@@ -408,7 +414,7 @@ test bool tstPush(value elem, list[value] L) = push(elem, L) == [elem, *L];
 
 test bool tstReverse(list[&T] L) = reverse(reverse(L)) == L;
 
-test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | e <- L);
+test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | _ <- L);
 
 // TODO: slice
 
@@ -455,13 +461,6 @@ test bool tstTakeWhile(list[int] L){
   return takeWhile(L, isEven) == takeEven(L);
 }
 
-test bool tstToMap(lrel[int, rat] L)
-{
-	mapFromLRel = ListRelation::toMap(L);
-	mapFromRel = toMap(toSet(L));
-	return (k:toSet(mapFromLRel[k]) | k <- mapFromLRel) == mapFromRel;
-}
-
 test bool tstToMapUnique(list[tuple[&A, &B]] L) =
   (size(L<0>) == size(toSet(domain(L)))) ==> (toMapUnique(L) == toMapUnique(toSet(L)));
 
@@ -475,14 +474,14 @@ test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 
-test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
+test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip2(L) == <[a | <a,_> <- L], [b | <_,b> <- L]>;
 
 test bool tstUnzip3(list[tuple[&A, &B, &C]] L) = 
-     isEmpty(L) || unzip(L) == <[a | <a,b,c> <- L], [b | <a,b,c> <- L], [c | <a,b,c> <- L]>;
+     isEmpty(L) || unzip3(L) == <[a | <a,_,_> <- L], [b | <_,b,_> <- L], [c | <_,_,c> <- L]>;
      
 test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 
-test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
+test bool tstZip(list[&T] L) = zip2(L, L) == [<x, x> | x <- L];
 
 // Tests that check the correctness of the dynamic types of lists produced by the library functions; 
 // incorrect dynamic types make pattern matching fail;
@@ -551,8 +550,11 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-		
+		// TODO: the following expression cannot be coorectly translated by the compiler
+		//rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		rhs = for(&T el <- lst){
+		          if(eq(elem,el) && !deleted) { deleted = true; } else { append el; }
+		}
 		if (!eq(lhs,rhs) || typeOf(lhs) != typeOf(rhs)) {
 		  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
 		  
