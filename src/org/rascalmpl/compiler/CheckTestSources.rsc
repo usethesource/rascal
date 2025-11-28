@@ -74,9 +74,9 @@ void checkTestSources(list[str] cmdLineArgs) {
                       ];
     }
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
+   ignoredModules = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   modulesToCheck -= ignored; 
+   modulesToCheck -= ignoredModules; 
    
    list[str] exceptions = [];
    int n = size(modulesToCheck);
@@ -91,7 +91,7 @@ void checkTestSources(list[str] cmdLineArgs) {
    }
    println("Checked <n> test modules");
    println("<size(exceptions)> failed to check: <exceptions>");
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredModules)) { println("Ignored: <ignoredModules>"); }
    secs = total/1000000000;
    println("Time: <secs> seconds");
 }
