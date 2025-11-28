@@ -40,6 +40,7 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -368,6 +369,9 @@ public class RascalFunction extends NamedFunction {
         catch (Throwable e) {
             if (eval.getCallTracing()) {
                 printExcept(e);
+            }
+            if(e instanceof Exception){
+                eval.notifyAboutSuspensionException((Exception)e); // Force call here so we do not loose the current env
             }
             throw e;
         }
