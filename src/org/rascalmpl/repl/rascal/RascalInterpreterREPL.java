@@ -252,7 +252,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 });
             }
             catch (Throw e) {
-                return printer.outputError((w, sw, _u) -> {
+                return printer.outputError((w, sw, _u) -> { // Here we should catch exception and provide breakpoint ?
                     throwMessage(w,e, sw);
                 });
             }

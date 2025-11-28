@@ -138,11 +138,18 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             Capabilities capabilities = new Capabilities();
 
             capabilities.setSupportsConfigurationDoneRequest(true);
-            capabilities.setExceptionBreakpointFilters(new ExceptionBreakpointsFilter[]{});
             capabilities.setSupportsStepBack(false);
             capabilities.setSupportsRestartFrame(false);
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
+
+            ExceptionBreakpointsFilter[] exceptionFilters = new ExceptionBreakpointsFilter[1];
+            ExceptionBreakpointsFilter exFilter = new ExceptionBreakpointsFilter();
+            exFilter.setFilter("rascalExceptions");
+            exFilter.setLabel("Rascal Exceptions");
+            exFilter.setDescription("Break when a Rascal exception is thrown");
+            exceptionFilters[0] = exFilter;
+            capabilities.setExceptionBreakpointFilters(exceptionFilters);
 
             return capabilities;
         }, ownExecutor);
@@ -274,6 +281,16 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
         return null;
     }
+
+    @Override
+    public CompletableFuture<SetExceptionBreakpointsResponse> setExceptionBreakpoints(SetExceptionBreakpointsArguments args) {
+		return CompletableFuture.supplyAsync(() -> {
+            SetExceptionBreakpointsResponse response = new SetExceptionBreakpointsResponse();
+            debugHandler.setSuspendOnException(!debugHandler.getSuspendOnException());
+            response.setBreakpoints(new Breakpoint[0]);
+            return response;
+        }, ownExecutor);
+	}
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {

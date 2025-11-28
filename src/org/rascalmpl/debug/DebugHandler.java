@@ -23,6 +23,8 @@ import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IDebugMessage.Detail;
+import org.rascalmpl.interpreter.Evaluator;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public final class DebugHandler implements IDebugHandler {
@@ -35,6 +37,16 @@ public final class DebugHandler implements IDebugHandler {
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
 	 */
 	private boolean suspendRequested;
+
+	private boolean suspendOnException = false;
+
+	public boolean getSuspendOnException() {
+		return suspendOnException;
+	}
+
+	public void setSuspendOnException(boolean suspendOnException) {
+		this.suspendOnException = suspendOnException;
+	}
 
 	/**
 	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
@@ -103,7 +115,11 @@ public final class DebugHandler implements IDebugHandler {
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
 	        setSuspendRequested(false);
-	    } 
+	    } else if(getSuspendOnException() && runtime instanceof Evaluator && ((Evaluator) runtime).getCurrentException() != null ) {
+	        // Suspension due to exception
+	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+	        getEventTrigger().fireSuspendByExceptionEvent( ((Evaluator) runtime).getCurrentException() );
+	    }
 	    else {
 	        AbstractAST location = currentAST;
 	        switch (getStepMode()) {
@@ -181,7 +197,7 @@ public final class DebugHandler implements IDebugHandler {
 
 	        }
 	    }
-
+		
 	    /*
 	     * Waiting until GUI triggers end of suspension.
 	     */
