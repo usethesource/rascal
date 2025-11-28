@@ -14,6 +14,8 @@ package org.rascalmpl.debug;
 import java.util.Collection;
 import java.util.EventObject;
 
+import org.rascalmpl.exceptions.Throw;
+
 /**
  * Interpreter event trigger template that does not 
  * specify yet how an event is fired.
@@ -139,6 +141,15 @@ public abstract class AbstractInterpreterEventTrigger implements IRascalEventTri
 				RascalEvent.Kind.SUSPEND,
 				RascalEvent.Detail.BREAKPOINT);
 		event.setData(data);
+
+		fireEvent(event);
+	}
+
+	public void fireSuspendByExceptionEvent(Exception exception) {
+		RascalEvent event = new RascalEvent(source,
+				RascalEvent.Kind.SUSPEND,
+				RascalEvent.Detail.EXCEPTION);
+		event.setData(exception);
 
 		fireEvent(event);
 	}

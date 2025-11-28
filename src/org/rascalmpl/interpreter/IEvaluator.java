@@ -26,6 +26,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -60,6 +61,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 * @param currentAST the AST that is causes the suspension.
 	 */
 	public void notifyAboutSuspension(AbstractAST currentAST);
+	public void notifyAboutSuspensionException(Exception t);
 
 	/*
 	 * Evaluation.

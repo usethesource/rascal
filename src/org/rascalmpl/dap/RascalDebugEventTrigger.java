@@ -27,10 +27,13 @@
 package org.rascalmpl.dap;
 
 import io.usethesource.vallang.ISourceLocation;
+
+import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.rascalmpl.dap.breakpoint.BreakpointsCollection;
 import org.rascalmpl.debug.*;
+import org.rascalmpl.exceptions.Throw;
 
 /**
  * This class handled events triggered by the Rascal interpreter (suspension, resume, ...)
@@ -129,6 +132,18 @@ public class RascalDebugEventTrigger extends AbstractInterpreterEventTrigger {
         stoppedEventArguments.setThreadId(RascalDebugAdapter.mainThreadID);
         stoppedEventArguments.setDescription("Paused by client.");
         stoppedEventArguments.setReason("pause");
+        client.stopped(stoppedEventArguments);
+    }
+
+    @Override
+    public void fireSuspendByExceptionEvent(Exception exception) {
+        suspendedState.suspended();
+
+        StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+        stoppedEventArguments.setThreadId(RascalDebugAdapter.mainThreadID);
+        stoppedEventArguments.setDescription("Paused on exception.");
+        stoppedEventArguments.setReason("exception");
+        stoppedEventArguments.setText(exception.getMessage());
         client.stopped(stoppedEventArguments);
     }
 
