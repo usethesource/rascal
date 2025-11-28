@@ -508,7 +508,6 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe <qualifyHint><argHint>",
                          current@\loc);
-        iprintln(overloads);
         s.addMessages([msg]);
     }
 }
