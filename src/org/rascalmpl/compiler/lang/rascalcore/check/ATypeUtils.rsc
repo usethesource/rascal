@@ -127,7 +127,7 @@ str prettyAType(cc: \achar-class(list[ACharRange] ranges)) {
     return cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 }
 
-str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
+str prettyAType(\start(AType symbol, SyntaxRole _)) = "start[<prettyAType(symbol)>]";
 
 // regular symbols
 str prettyAType(\aempty()) = "()";
@@ -225,8 +225,7 @@ Symbol atype2symbol1(acilit(str string)) = Symbol::\cilit(string);
 //Symbol atype2symbol1("lit"(str string)) = Symbol::\lit(string);
 //Symbol atype2symbol1("cilit"(str string)) = Symbol::\cilit(string);
 Symbol atype2symbol1(\achar-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
-
-Symbol atype2symbol1(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
+Symbol atype2symbol1(\start(AType symbol, SyntaxRole _)) = Symbol::\start(atype2symbol(symbol));
 
 // regular symbols
 Symbol atype2symbol1(\aempty()) = Symbol::\empty();
@@ -486,7 +485,7 @@ AType symbol2atype1(Symbol::\seq(list[Symbol] symbols))
     = AType::seq(symbol2atype(symbols));     
  
 AType symbol2atype1(Symbol::\start(Symbol symbol))
-    = AType::\start(symbol2atype1(symbol));  
+    = AType::\start(symbol2atype1(symbol), contextFreeSyntax());  
     
 list[AType] symbol2atype(list[Symbol] symbols) = [ symbol2atype(s) | s <- symbols ]; 
 
@@ -1061,7 +1060,7 @@ Determine if the given type is an Abstract Data Type (ADT).
 bool isADTAType(aparameter(_,AType tvb)) = isADTAType(tvb);
 bool isADTAType(aadt(_,_,_)) = true;
 bool isADTAType(areified(_)) = true;
-bool isADTAType(\start(AType s)) = isADTAType(s);
+bool isADTAType(\start(AType s, SyntaxRole _)) = isADTAType(s);
 default bool isADTAType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}
@@ -1074,7 +1073,7 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 str getADTName(AType t) {
     if (aadt(n,_,_) := unwrapAType(t)) return n;
     if (acons(a,_,_) := unwrapAType(t)) return getADTName(a);
-    if (\start(ss) := unwrapAType(t)) return getADTName(ss);
+    if (\start(ss, _) := unwrapAType(t)) return "start[<getADTName(ss)>]";
     if (areified(_) := unwrapAType(t)) return "type";
      if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTName(def);
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyAType(t)>");
@@ -1084,7 +1083,7 @@ str getADTName(AType t) {
 list[AType] getADTTypeParameters(AType t) {
     if (aadt(_,ps,_) := unwrapAType(t)) return ps;
     if (acons(a,_,_) := unwrapAType(t)) return getADTTypeParameters(a);
-    if (\start(ss) := unwrapAType(t)) return getADTTypeParameters(ss);
+    if (\start(ss, _) := unwrapAType(t)) return [ss];
     if (areified(_) := unwrapAType(t)) return [];
     if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTTypeParameters(def);
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
@@ -1342,7 +1341,7 @@ bool isNonTerminalAType(aparameter(_,AType tvb)) = isNonTerminalAType(tvb);
 bool isNonTerminalAType(AType::\conditional(AType ss,_)) = isNonTerminalAType(ss);
 bool isNonTerminalAType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr);
 bool isNonTerminalAType(acons(AType adt, list[AType] _, list[Keyword] _)) = isNonTerminalAType(adt);
-bool isNonTerminalAType(AType::\start(AType ss)) = isNonTerminalAType(ss);
+bool isNonTerminalAType(AType::\start(AType ss, SyntaxRole _)) = true;
 bool isNonTerminalAType(AType::aprod(AProduction p)) = isNonTerminalAType(p.def);
 
 bool isNonTerminalAType(AType::\iter(AType t)) = isNonTerminalAType(t);
@@ -1361,11 +1360,11 @@ bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalAType(t) && (t ha
 
 // start
 bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
-bool isStartNonTerminalType(AType::\start(_)) = true;
+bool isStartNonTerminalType(AType::\start(_, _)) = true;
 default bool isStartNonTerminalType(AType s) = false;    
 
 AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
-AType getStartNonTerminalType(AType::\start(AType s)) = s;
+AType getStartNonTerminalType(AType::\start(AType s, _)) = s;
 default AType getStartNonTerminalType(AType s) {
     throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
 }
@@ -1376,7 +1375,7 @@ bool isLexicalAType(aparameter(_,AType tvb)) = isLexicalAType(tvb);
 bool isLexicalAType(AType::\conditional(AType ss,_)) = isLexicalAType(ss);
 bool isLexicalAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();
 bool isLexicalAType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalAType(adt);
-bool isLexicalAType(AType::\start(AType ss)) = isLexicalAType(ss);
+bool isLexicalAType(AType::\start(AType ss, _)) = false;
 
 bool isLexicalAType(AType:alit(str string)) = true;
 bool isLexicalAType(AType:acilit(str string)) = true;
@@ -1524,13 +1523,9 @@ default list[AType] getSeqTypes(AType t){
 
 //AType getSyntaxType(AType t, Solver _) = t;
 
-AType getSyntaxType(AType t, Solver _) = stripStart(removeConditional(t));
+AType getSyntaxType(AType t, Solver _) = removeConditional(t);
 
-AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
-
-AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
-
-AType stripStart(aprod(AProduction production)) = production.def;
+AType getSyntaxType(Tree tree, Solver s) = removeConditional(s.getType(tree));
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.alabel? ? s[alabel=cnd.alabel] : s;
 default AType removeConditional(AType s) = s;
