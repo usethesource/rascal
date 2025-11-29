@@ -11,9 +11,11 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
 
@@ -74,6 +76,17 @@ public abstract class AbstractCommandlineTool {
         catch (Throwable e) {
             e.printStackTrace();
             return 1;
+        }
+    }
+
+    private static ISourceLocation findTypepalIfOnClassPath() {
+        try {
+            var typepal = PathConfig.resolveProjectOnClasspath("typepal");
+            typepal = MavenRepositoryURIResolver.mavenize(typepal);
+            typepal = JarURIResolver.jarify(typepal);
+            return typepal;
+        } catch (IOException ignored) {
+            return null;
         }
     }
 
