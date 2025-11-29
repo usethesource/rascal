@@ -52,22 +52,9 @@ public class RascalCompile extends AbstractCommandlineTool {
 		try {
 			var parser = new CommandlineParser(out);
 			var kwParams = reproduceCheckerMainParameterTypes();
-			
-			Map<String,IValue> parsedArgs = parser.parseKeywordCommandLineArgs("RascalCompile", args, kwParams);
+			var parsedArgs = parser.parseKeywordCommandLineArgs("RascalCompile", args, kwParams);
 
-			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
-			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
-			IList modules = listParameter(parsedArgs, "modules");
-			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
-			removeParallelismArguments(parsedArgs);
-
-		
-			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
-				System.exit(main(mainModule, imports, parsedArgs, term, monitor, err, out));
-			}
-			else {
-				System.exit(parallelMain(parsedArgs, preChecks, parAmount, mainModule, imports , args, term, monitor, err, out));
-			}
+			System.exit(runMain(parsedArgs, term, monitor, err, out));
 		}
 		catch (Throwable e) {
 			// this should have been handled inside main or parallelMain, but to be sure we log any exception here
@@ -83,8 +70,23 @@ public class RascalCompile extends AbstractCommandlineTool {
 		parsedArgs.remove("parallelMax");
 		parsedArgs.remove("parallelPreChecks");
 	}
+	
+	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
+			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
+			IList modules = listParameter(parsedArgs, "modules");
+			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
+			removeParallelismArguments(parsedArgs);
 
-	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
+				return main(mainModule, imports, parsedArgs, term, monitor, err, out);
+			}
+			else {
+				return parallelMain(parsedArgs, preChecks, parAmount, mainModule, imports , term, monitor, err, out);
+			}
+	}
+
+	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
 		IList modules = (IList) parsedArgs.get("modules");
 
 		if (modules.isEmpty()) {
