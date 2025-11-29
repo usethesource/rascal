@@ -191,7 +191,9 @@ jobs:
   compiler-tests:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    env:
+      MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
       - uses: actions/checkout@v4
 
@@ -211,7 +213,7 @@ jobs:
         run: bash src/org/rascalmpl/compiler/lang/rascalcore/check/tests/download-test-jars.sh
 
       - name: Run Tests
-        run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=6 test
+        run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=10 test
 
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
