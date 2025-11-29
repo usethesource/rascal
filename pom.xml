@@ -647,6 +647,11 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <argLine>
+                                -Xmx${rascal.test.memory}G
+                                -Dfile.encoding=UTF-8
+                                ${argLine}
+                            </argLine>
                             <includes>
                                 <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
                                 <include>**/org/rascalmpl/compiler/**/*Test.java</include>
