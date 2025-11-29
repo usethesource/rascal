@@ -29,7 +29,7 @@ import io.usethesource.vallang.IValueFactory;
 public class CheckStdLibTest {
     @Test
     public void checkerSupportsStandardLib() throws IOException, URISyntaxException {
-        try {
+        try (var term = new DumbTerminal(InputStream.nullInputStream(), System.out)) {
             var vf = ValueFactoryFactory.getValueFactory();
             simulateShadedTypePal();
 
@@ -41,16 +41,13 @@ public class CheckStdLibTest {
             args.put("modules", calculateModules(vf, stdLibRoot));
             args.put("pcfg", buildPathConfig(stdLibRoot));
             args.put("logPathConfig", vf.bool(true));
-            args.put("verbose", vf.bool(true));
+            args.put("verbose", vf.bool(false));
 
             args.put("parallel", vf.bool(true));
             args.put("parallelMax", vf.integer(4));
             args.put("parallelPreCheck", URIUtil.getChildLocation(stdLibRoot, "Prelude.rsc"));
 
-            System.out.println("Running checker now");
-
             var monitor = RascalJunitConsoleMonitor.getInstance();
-            var term = new DumbTerminal(InputStream.nullInputStream(), System.out);
             assertEquals("Standard library checker should not find errors", 0, RascalCompile.runMain(args, term, monitor, term.writer(), term.writer()));
         }
         finally {
@@ -95,7 +92,6 @@ public class CheckStdLibTest {
         var result = vf.listWriter();
         findModules(stdLibRoot, result, URIResolverRegistry.getInstance());
         var list = result.done();
-        System.out.println("Found: " + list.size() + " modules");
         return list;
     }
 
