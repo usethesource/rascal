@@ -68,7 +68,6 @@ public class StreamingBase64Tests {
             var input = new byte[1 + r.nextInt(16 * 1024)];
             r.nextBytes(input);
             var encoded = encoder.encode(input);
-            System.out.println(encoded);
             var output = Base64.getDecoder().decode(encoded);
             assertArrayEquals(input, output);
         }
