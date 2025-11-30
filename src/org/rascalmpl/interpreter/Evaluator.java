@@ -874,7 +874,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             return eval(command, location);
-        } // Note if some error are not catch by function call, catch them here
+        }
         finally {
             endAllJobs();
             setMonitor(old);
