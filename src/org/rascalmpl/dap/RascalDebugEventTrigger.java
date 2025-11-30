@@ -28,12 +28,10 @@ package org.rascalmpl.dap;
 
 import io.usethesource.vallang.ISourceLocation;
 
-import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.rascalmpl.dap.breakpoint.BreakpointsCollection;
 import org.rascalmpl.debug.*;
-import org.rascalmpl.exceptions.Throw;
 
 /**
  * This class handled events triggered by the Rascal interpreter (suspension, resume, ...)
