@@ -117,8 +117,10 @@ public final class DebugHandler implements IDebugHandler {
 	        setSuspendRequested(false);
 	    } else if(getSuspendOnException() && runtime instanceof Evaluator && ((Evaluator) runtime).getCurrentException() != null ) {
 	        // Suspension due to exception
+			Evaluator eval = (Evaluator) runtime;
+			Exception e = eval.getCurrentException();
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	        getEventTrigger().fireSuspendByExceptionEvent( ((Evaluator) runtime).getCurrentException() );
+	        getEventTrigger().fireSuspendByExceptionEvent(e);
 	    }
 	    else {
 	        AbstractAST location = currentAST;
