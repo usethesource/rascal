@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -286,7 +287,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public CompletableFuture<SetExceptionBreakpointsResponse> setExceptionBreakpoints(SetExceptionBreakpointsArguments args) {
 		return CompletableFuture.supplyAsync(() -> {
             SetExceptionBreakpointsResponse response = new SetExceptionBreakpointsResponse();
-            debugHandler.setSuspendOnException(!debugHandler.getSuspendOnException());
+            debugHandler.setSuspendOnException(Arrays.stream(args.getFilters()).anyMatch("rascalExceptions"::equals));
             response.setBreakpoints(new Breakpoint[0]);
             return response;
         }, ownExecutor);
