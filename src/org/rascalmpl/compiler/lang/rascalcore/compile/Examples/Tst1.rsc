@@ -25,10 +25,58 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
+import lang::rascalcore::check::Checker;
+import util::FileSystem;
+import util::PathConfig;
 import IO;
-data PathRole = extendPath();
+import Message;
 
-void main() {
-    x = <|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>),extendPath(),|file:///Users/paulklint/git/rascal/src/org/rascalmpl/compiler/lang/rascalcore/compile/Examples/B.rsc|(0,1837,<1,0>,<50,7>)>;
-    iprintln({x, x});
-  }
+private void runChecker(PathConfig pcfg, bool (loc m) validModule) {
+    result = check([m | src <- pcfg.srcs, m <- find(src, "rsc"), validModule(m)], rascalCompilerConfig(pcfg));
+    for (/e:error(_,_) := result) {
+        println(e);
+    }
+}
+
+private void runChecker(PathConfig pcfg, list[str] modules) {
+    result = check([getRascalModuleLocation(m, pcfg) | m <- modules], rascalCompilerConfig(pcfg));
+    for (/e:error(_,_) := result) {
+        println(e);
+    }
+}
+
+// void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///Users/paulklint/rascal-tpls|) {
+//     rascalPcfg = pathConfig(srcs=[repoRoot + "rascal/src/org/rascalmpl/library"], bin=tplRoot + "rascal");
+//     salixCorePcfg = pathConfig(srcs=[repoRoot + "salix-core/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin]);
+//     salixContribPcfg = pathConfig(srcs=[repoRoot + "salix-contrib/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin, salixCorePcfg.bin]);
+
+//     // println("**** Checking rascal");
+//     // runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
+
+
+//     // println("**** Checking salix-core");
+//     // runChecker(salixCorePcfg, bool (loc m) { return true; });
+
+//     println("**** Checking salix-contrib");
+//     //runChecker(salixContribPcfg, ["salix::util::Mode"]);
+//     runChecker(salixContribPcfg, bool (loc m) { return true; });
+// }
+
+void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///Users/paulklint/rascal-tpls|) {
+    rascalPcfg = pathConfig(srcs=[repoRoot + "rascal/src/org/rascalmpl/library"], bin=tplRoot + "rascal");
+    salixCorePcfg = pathConfig(srcs=[repoRoot + "salix-core/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin]);
+    salixContribPcfg = pathConfig(srcs=[repoRoot + "salix-contrib/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin, salixCorePcfg.bin]);
+
+    remove(|file:///Users/paulklint/rascal-tpls|);
+    println("**** Checking rascal");
+    runChecker(rascalPcfg, ["ParseTree", "String"]);
+    // runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
+
+
+    // println("**** Checking salix-core");
+    // runChecker(salixCorePcfg, bool (loc m) { return true; });
+
+    println("**** Checking salix-contrib");
+    runChecker(salixContribPcfg, ["salix::util::Mode"]);
+    //runChecker(salixContribPcfg, bool (loc m) { return true; });
+}
