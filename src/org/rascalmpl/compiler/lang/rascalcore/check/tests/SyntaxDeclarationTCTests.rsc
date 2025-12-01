@@ -574,7 +574,7 @@ test bool TwoStartSymbolsTop() = checkModuleOK("
 
     void main() {
         start[A] sa = [start[A]] \"A\";
-        start[A] sb = [start[B]] \"B\";
+        start[B] sb = [start[B]] \"B\";
         A a = sa.top;
         B b = sb.top;
     }
