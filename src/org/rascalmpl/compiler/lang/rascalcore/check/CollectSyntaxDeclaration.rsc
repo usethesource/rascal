@@ -92,7 +92,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         c.define(adtName, idRole, current, dt);
 
         if (current is \language && current.\start is present) {
-            collectStartRule(current.\start, nonterminalType, c);
+            declareTopField(current.\start, nonterminalType, c);
         }
 
         adtParentScope = c.getScope();
@@ -113,33 +113,26 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     }
 }
 
-@synopsis{Simulate the declaration of a start rule}
+@synopsis{Declare a `top` field  for each `start` rule}
 @description{
-For every `start syntax A = ...` which has just been collected, we simulate the existence
-of `syntax start[A] = A top;`:
+For every `start syntax A = ...` which is being collected, we simulate the declaration
+of a `top` field of the form `syntax start[A] = A top;`:
 * a `start[A]` type
-* a production rule `start[A] = A top;`
 * a field `A top` of `start[A]`
 
-We don't generate a `acons` because the generated syntax rule has no cons label.
 We don't include layout before and after the `top` field, because that is added much
 later in the compilatiojn pipeline with the other layout non-terminals.
 }
-void collectStartRule(Start current, AType nonterminalType, Collector c) {    
+void declareTopField(Start current, AType nonterminalType, Collector c) {    
     aStartSym = \start(nonterminalType, contextFreeSyntax());
     st = defType(aStartSym);
     c.define("<aStartSym>", nonterminalId(), current, st);
-
+   
     c.enterScope(current);
-        startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-        sPos = current@\loc.top(current@\loc.offset, 1);
-        c.define("", productionId(), sPos, startProd);
-
         tPos = current@\loc.top(current@\loc.offset + 1, 1);
-
         fieldDef = defType(nonterminalType[alabel="top"]);
-        // fieldDef = defTypeCall([tPos], makeFieldType("top", nonterminalType[alabel="top"]));
-        // fieldDef = defTypeCall([tPos], AType(Solver _s) { return nonterminalType[alabel="top"]; });
+        str currentModuleName = str nm := c.top(key_current_module) ? nm : "";
+        fieldDef.md5 = md5Hash("<currentModuleName><nonterminalType.adtName>top");
         
         c.define("top", fieldId(), tPos, fieldDef);
     c.leaveScope(current);
