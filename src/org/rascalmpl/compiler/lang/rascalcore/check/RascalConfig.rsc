@@ -241,6 +241,10 @@ tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aadt(s
     return <isConcreteSyntaxRole(syntaxRole) ? [adtName, "Tree"] : [adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
+tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(at:\start(AType _adt, SyntaxRole _syntaxRole)){
+    return <["<at>", "Tree"], {dataId(), nonterminalId()}>;
+}
+
 tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
     return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordFieldId()}>;
 }
