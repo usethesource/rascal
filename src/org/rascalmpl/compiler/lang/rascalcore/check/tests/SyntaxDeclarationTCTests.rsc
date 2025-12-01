@@ -568,6 +568,22 @@ test bool StartSymbolTop() = checkModuleOK("
     }
 ");
 
+test bool TwoStartSymbolsTop() = checkModuleOK("
+    module StartSymbolTop
+
+    import ParseTree;
+    
+    start syntax A = \"A\";
+    start syntax B = \"B\";
+
+    void main() {
+        start[A] sa = [start[A]] \"A\";
+        start[A] sb = [start[B]] \"B\";
+        A a = sa.top;
+        B b = sb.top;
+    }
+");
+
 test bool StartNotSuperType() = unexpectedDeclarationInModule("
     module StartNotSuperType
 
