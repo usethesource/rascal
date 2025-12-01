@@ -129,14 +129,20 @@ void collectStartRule(Start current, AType nonterminalType, Collector c) {
     aStartSym = \start(nonterminalType, contextFreeSyntax());
     st = defType(aStartSym);
     c.define("<aStartSym>", nonterminalId(), current, st);
-    
-    startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-    sPos = current@\loc.top(current@\loc.offset, 1);
-    c.define("", productionId(), sPos, startProd);
 
-    fieldDef = defType(nonterminalType[alabel="top"]);
-    tPos = current@\loc.top(current@\loc.offset + 1, 1);
-    c.define("top", fieldId(), tPos, fieldDef);
+    c.enterScope(current);
+        startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
+        sPos = current@\loc.top(current@\loc.offset, 1);
+        c.define("", productionId(), sPos, startProd);
+
+        tPos = current@\loc.top(current@\loc.offset + 1, 1);
+
+        fieldDef = defType(nonterminalType[alabel="top"]);
+        // fieldDef = defTypeCall([tPos], makeFieldType("top", nonterminalType[alabel="top"]));
+        // fieldDef = defTypeCall([tPos], AType(Solver _s) { return nonterminalType[alabel="top"]; });
+        
+        c.define("top", fieldId(), tPos, fieldDef);
+    c.leaveScope(current);
 }
 
 // ---- Prod ------------------------------------------------------------------
