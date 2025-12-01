@@ -557,8 +557,6 @@ test bool WrongNonterminal2() = unexpectedTypeInModule("
 
 test bool StartSymbolTop() = checkModuleOK("
     module StartSymbolTop
-
-    import ParseTree;
     
     start syntax A = \"A\";
 
@@ -570,8 +568,6 @@ test bool StartSymbolTop() = checkModuleOK("
 
 test bool TwoStartSymbolsTop() = checkModuleOK("
     module StartSymbolTop
-
-    import ParseTree;
     
     start syntax A = \"A\";
     start syntax B = \"B\";
