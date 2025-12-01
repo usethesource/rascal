@@ -35,9 +35,8 @@ public class CheckStdLibTest {
 
 
             var args = new HashMap<String,IValue>();
-            var ioModule = Prelude.class.getResource("/org/rascalmpl/library/IO.rsc");
-            assertNotNull(ioModule);
-            var stdLibRoot = URIUtil.getParentLocation(URIUtil.createFromURI(URIUtil.fromURL(ioModule).toString()));
+            var preludeModule = URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString());
+            var stdLibRoot = URIUtil.getParentLocation(preludeModule);
             args.put("modules", calculateModules(vf, stdLibRoot));
             args.put("pcfg", buildPathConfig(stdLibRoot));
             args.put("logPathConfig", vf.bool(true));
@@ -45,7 +44,7 @@ public class CheckStdLibTest {
 
             args.put("parallel", vf.bool(true));
             args.put("parallelMax", vf.integer(4));
-            args.put("parallelPreCheck", URIUtil.getChildLocation(stdLibRoot, "Prelude.rsc"));
+            args.put("parallelPreChecks", vf.list(preludeModule));
 
             var monitor = RascalJunitConsoleMonitor.getInstance();
             assertEquals("Standard library checker should not find errors", 0, RascalCompile.runMain(args, term, monitor, term.writer(), term.writer()));
