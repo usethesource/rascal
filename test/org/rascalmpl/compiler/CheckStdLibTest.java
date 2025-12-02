@@ -1,7 +1,6 @@
 package org.rascalmpl.compiler;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,12 +34,24 @@ public class CheckStdLibTest {
 
 
             var args = new HashMap<String,IValue>();
-            var preludeModule = URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString());
-            var stdLibRoot = URIUtil.getParentLocation(preludeModule);
+            //var preludeModule = URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString());
+            // var stdLibRoot = URIUtil.getParentLocation(preludeModule);
+            var rascalRoot = rascalProjectRoot(URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString()));
+            var stdLibRoot = URIUtil.getChildLocation(rascalRoot, "src/org/rascalmpl/library");
+            var preludeModule = URIUtil.getChildLocation(stdLibRoot, "Prelude.rsc");
             args.put("modules", calculateModules(vf, stdLibRoot));
             args.put("pcfg", buildPathConfig(stdLibRoot));
-            args.put("logPathConfig", vf.bool(true));
+            args.put("logPathConfig", vf.bool(false));
             args.put("verbose", vf.bool(false));
+            args.put("warningsAsErrors", vf.bool(false));
+            args.put("errorsAsWarnings", vf.bool(false));
+            args.put("warnUnusedVariables", vf.bool(true));
+            args.put("warnUnused", vf.bool(true));
+            args.put("warnUnusedPatternFormals", vf.bool(true));
+            args.put("warnUnusedFormals", vf.bool(true));
+            args.put("warnUnusedFormals", vf.bool(true));
+            args.put("logImports", vf.bool(false));
+            args.put("logWrittenFiles", vf.bool(false));
 
             args.put("parallel", vf.bool(true));
             args.put("parallelMax", vf.integer(4));
@@ -69,6 +80,19 @@ public class CheckStdLibTest {
         URIResolverRegistry.getInstance().remove(URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntimeJar(), "org/rascalmpl/typepal"), true);
     }
 
+    private ISourceLocation rascalProjectRoot(ISourceLocation stdLibRoot) {
+        var projectRoot = stdLibRoot;
+        while (!projectRoot.getPath().endsWith("rascal")) {
+            var newRoot = URIUtil.getParentLocation(projectRoot);
+            if (newRoot.equals(projectRoot)) {
+                break;
+            }
+            projectRoot = newRoot;
+        }
+        return projectRoot;
+
+    }
+
     private IValue buildPathConfig(ISourceLocation stdLibRoot) throws IOException {
         var projectRoot = stdLibRoot;
         while (!projectRoot.getPath().endsWith("rascal")) {
@@ -79,7 +103,7 @@ public class CheckStdLibTest {
             projectRoot = newRoot;
             
         }
-        var pcfg = new PathConfig(projectRoot);
+        var pcfg = new PathConfig(URIUtil.unknownLocation());
         pcfg = pcfg.addSourceLoc(stdLibRoot);
         var binDir = URIUtil.correctLocation("memory", "std-lib-test", "/bins/");
         URIResolverRegistry.getInstance().mkDirectory(binDir);
