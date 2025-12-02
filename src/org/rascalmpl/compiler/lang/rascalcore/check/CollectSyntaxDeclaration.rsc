@@ -133,10 +133,6 @@ void collectStartRule(Start current, AType nonterminalType, Collector c) {
     st.md5 = md5Hash("<md5prefix>_type");
     c.define("<aStartSym>", nonterminalId(), current, st);
    
-    // since start rules are the "top" of the grammar dependency graph, they should
-    // always be "used" artificially to avoid "unused" warnings
-    c.use("<aStartSym>", {productionId(), nonterminalId});
-
     c.enterScope(current);
         startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
         startProd.md5 = md5Hash("<md5prefix>_prod");
