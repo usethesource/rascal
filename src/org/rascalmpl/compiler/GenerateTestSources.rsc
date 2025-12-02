@@ -79,12 +79,12 @@ void generateTestSources(list[str] cmdLineArgs) {
                           ];
    }  
 
-   ignored = ["lang::rascal::tests::concrete::Patterns3",
+   ignoredModules = ["lang::rascal::tests::concrete::Patterns3",
                "lang::rascal::syntax::tests::ExpressionGrammars",
                "lang::sdf2::util::SDF2Grammar",
                "lang::sdf2::util::Importer"
               ];           
-   modulesToCompile -= ignored;    
+   modulesToCompile -= ignoredModules;    
    
    list[str] exceptions = [];
    int n = size(modulesToCompile);
@@ -98,7 +98,7 @@ void generateTestSources(list[str] cmdLineArgs) {
    }
    println("Compiled <n> modules");
    println("<size(exceptions)> failed to compile:"); iprintln(exceptions);
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredModules)) { println("Ignored: <ignoredModules>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
