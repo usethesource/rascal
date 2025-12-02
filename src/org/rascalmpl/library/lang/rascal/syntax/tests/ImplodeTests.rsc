@@ -1,7 +1,7 @@
 @license{
   Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
+  are made available under the terms of the Eclipse License v1.0
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
@@ -12,21 +12,29 @@ import lang::rascal::\syntax::tests::ImplodeTestGrammar;
 import ParseTree;
 import Exception;
 
-public data Num(loc src=|unknown:///|, map[int,list[str]] comments = ());
-public data Exp(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
-public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
+data Num(loc src=|unknown:///|, map[int,list[str]] comments = ())
+  = \int(str val)
+  ;
 
-public data Number(loc src=|unknown:///|, map[int,list[str]] comments = ());
-public data Expr(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
-public Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
+data Exp(loc src=|unknown:///|, map[int,list[str]] comments = ()) 
+  = id(str name)
+  | number(Num number)
+  | eq(Exp lhs, Exp rhs)
+  ;
 
-public Exp implodeExp(str s) = implode(#Exp, parseExp(s));
-public Exp implodeExpLit1() = implode(#Exp, expLit1());
-public Exp implodeExpLit2() = implode(#Exp, expLit2());
+Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
 
-public Expr implodeExpr(str s) = implode(#Expr, parseExp(s));
-public Expr implodeExprLit1() = implode(#Expr, exprLit1());
-public Expr implodeExprLit2() = implode(#Expr, exprLit2());
+data Number(loc src=|unknown:///|, map[int,list[str]] comments = ());
+data Expr(loc src=|unknown:///|, map[int,list[str]] comments = ()) = id(str name);
+Expr number(Number::\int("0")) = Expr::number(Number::\int("02"));
+
+Exp implodeExp(str s) = implode(#Exp, parseExp(s));
+Exp implodeExpLit1() = implode(#Exp, expLit1());
+Exp implodeExpLit2() = implode(#Exp, expLit2());
+
+Expr implodeExpr(str s) = implode(#Expr, parseExp(s));
+Expr implodeExprLit1() = implode(#Expr, exprLit1());
+Expr implodeExprLit2() = implode(#Expr, exprLit2());
 
 
 // ---- test1 ----
