@@ -113,30 +113,39 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     }
 }
 
-@synopsis{Simulate the declaration of a start rule}
+@synopsis{Declare a `top` field  for each `start` rule}
 @description{
-For every `start syntax A = ...` which has just been collected, we simulate the existence
-of `syntax start[A] = A top;`:
+For every `start syntax A = ...` which is being collected, we simulate the declaration
+of a `top` field of the form `syntax start[A] = A top;`:
 * a `start[A]` type
-* a production rule `start[A] = A top;`
+* a production rule `syntax start[A] = A top;`
 * a field `A top` of `start[A]`
 
-We don't generate a `acons` because the generated syntax rule has no cons label.
 We don't include layout before and after the `top` field, because that is added much
 later in the compilatiojn pipeline with the other layout non-terminals.
 }
-void collectStartRule(Start current, AType nonterminalType, Collector c) {    
+void collectStartRule(Start current, AType nonterminalType, Collector c) {  
+    str currentModuleName = str nm := c.top(key_current_module) ? nm : "";  
+    str md5prefix = "<currentModuleName>_start_<nonterminalType.adtName>";
+
     aStartSym = \start(nonterminalType, contextFreeSyntax());
     st = defType(aStartSym);
+    st.md5 = md5Hash("<md5prefix>_type");
     c.define("<aStartSym>", nonterminalId(), current, st);
-    
-    startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-    sPos = current@\loc.top(current@\loc.offset, 1);
-    c.define("", productionId(), sPos, startProd);
+   
+    c.enterScope(current);
+        startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
+        startProd.md5 = md5Hash("<md5prefix>_prod");
+        sPos = current@\loc.top(current@\loc.offset, 1);
+        c.define("", productionId(), sPos, startProd);
 
-    fieldDef = defType(nonterminalType[alabel="top"]);
-    tPos = current@\loc.top(current@\loc.offset + 1, 1);
-    c.define("top", fieldId(), tPos, fieldDef);
+        tPos = current@\loc.top(current@\loc.offset + 1, 1);
+        fieldDef = defType(nonterminalType[alabel="top"]);
+       
+        fieldDef.md5 = md5Hash("<md5prefix>_top");
+        
+        c.define("top", fieldId(), tPos, fieldDef);
+    c.leaveScope(current);
 }
 
 // ---- Prod ------------------------------------------------------------------
