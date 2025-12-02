@@ -1276,7 +1276,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    orgtp = getType(expression);
-   tp = stripStart(orgtp);
+   tp = orgtp;
    fieldType = getType(field);
    ufield = unescape("<field>");
 
