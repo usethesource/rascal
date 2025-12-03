@@ -126,7 +126,10 @@ public class RascalCompile extends AbstractCommandlineTool {
 			final var chunkBin = bins.get(index);
 			final Map<String,IValue> chunkArgs = new HashMap<>(parsedArgs);
 			chunkArgs.put("modules", chunk);				
-			chunkArgs.put("bin", chunkBin);
+			// update pcfg with new our bin folder
+			var pcfg = chunkArgs.get("pcfg");
+			pcfg = pcfg.asWithKeywordParameters().setParameter("bin", chunkBin);
+			chunkArgs.put("pcfg", pcfg);
 
 			workers.add(exec.submit(() -> {
 				out.println("Starting worker " + index + " on " + chunk.size() + " modules.");
