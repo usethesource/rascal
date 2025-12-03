@@ -541,6 +541,11 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     //println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
     assert isADTAType(adtType) : "getConstructorInfo: <adtType>";
     adtType = unsetRec(adtType);
+    is_start = false;
+    if(isStartNonTerminalType(adtType)){
+        adtType = getStartNonTerminalType(adtType);
+        is_start = true;
+    }
     adtType1 = adtType;  // TODO: this is to ensure that adType is a constant inside visit below
     fieldType = fieldType[alabel=fieldName];
     if(adtType1 in domain(getBuiltinFieldMap())){
@@ -598,7 +603,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         productions = getGrammar().rules[adtType1].alternatives;
         for(prod(AType _, list[AType] atypes) <- productions){
             for(a <- atypes, a.alabel?, a.alabel == fieldName){
-                return <"", a, false>;
+                return <"", is_start ? \start(a) : a, false>;
             }
         }
     }
@@ -610,12 +615,12 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         //}
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
-                return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), adtType1, true>;
+                return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
             }
         }
     }
 
-    return <"", adtType1, false>;
+    return <"", is_start ? \start(adtType1) : adtType1, false>;
 
     //throw "getConstructorInfo, no constructor found for <adtType1>, <fieldType>, <fieldName>";
 }
@@ -698,7 +703,7 @@ set[loc] getDefiningScopes(AType root)
          def := definitions[defLoc],
          def.idRole in syntaxRoles,
          dt := getDefType(defLoc),
-         dt == root
+         dt == root || dt == \start(root)
        } & module_scopes;
 
 // Get the governing layout rule
@@ -731,6 +736,10 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     is_start = false;
     syntax_type = false;
     base_t = t;
+    if(\start(AType t2) := base_t){
+        is_start = true;
+        base_t = t2;
+    }
 
     if(isReifiedAType(t)){
         base_t = getReifiedType(t);
@@ -784,6 +793,9 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         definedLayouts = getLayouts(base_t, allADTs);
         my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
 
+        if(is_start){
+            my_definitions += (\start(base_t) : { aprod(achoice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
+        }
         if(!isEmpty(parameterized_uninstantiated_ADTs)){ // add generic parameter type Tree
             my_definitions += (treeType : {});
         }

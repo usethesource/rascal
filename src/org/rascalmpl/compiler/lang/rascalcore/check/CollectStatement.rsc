@@ -1007,6 +1007,9 @@ private void requireAssignmentSubType(Tree current, AType a, AType b, FailMessag
 private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
     //println("computeFieldAssignableType: <current>");
     fieldName = unescape("<field>");
+    if(isNonTerminalAType(receiverType) && fieldName == "top"){
+        return isStartNonTerminalType(receiverType) ? getStartNonTerminalType(receiverType) : receiverType;
+    }
     fieldType = s.getTypeInType(receiverType, field, {fieldId(), keywordFieldId()}, scope);
     updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
     requireAssignmentSubType(current, updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType), s);
