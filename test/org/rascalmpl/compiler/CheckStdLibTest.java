@@ -34,24 +34,22 @@ public class CheckStdLibTest {
 
 
             var args = new HashMap<String,IValue>();
-            //var preludeModule = URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString());
-            // var stdLibRoot = URIUtil.getParentLocation(preludeModule);
             var rascalRoot = rascalProjectRoot(URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString()));
             var stdLibRoot = URIUtil.getChildLocation(rascalRoot, "src/org/rascalmpl/library");
             var preludeModule = URIUtil.getChildLocation(stdLibRoot, "Prelude.rsc");
             args.put("modules", calculateModules(vf, stdLibRoot));
             args.put("pcfg", buildPathConfig(stdLibRoot));
-            args.put("logPathConfig", vf.bool(false));
-            args.put("verbose", vf.bool(false));
-            args.put("warningsAsErrors", vf.bool(false));
-            args.put("errorsAsWarnings", vf.bool(false));
-            args.put("warnUnusedVariables", vf.bool(true));
-            args.put("warnUnused", vf.bool(true));
-            args.put("warnUnusedPatternFormals", vf.bool(true));
-            args.put("warnUnusedFormals", vf.bool(true));
-            args.put("warnUnusedFormals", vf.bool(true));
-            args.put("logImports", vf.bool(false));
-            args.put("logWrittenFiles", vf.bool(false));
+            // args.put("logPathConfig", vf.bool(false));
+            // args.put("verbose", vf.bool(false));
+            // args.put("warningsAsErrors", vf.bool(false));
+            // args.put("errorsAsWarnings", vf.bool(false));
+            // args.put("warnUnusedVariables", vf.bool(true));
+            // args.put("warnUnused", vf.bool(true));
+            // args.put("warnUnusedPatternFormals", vf.bool(true));
+            // args.put("warnUnusedFormals", vf.bool(true));
+            // args.put("warnUnusedFormals", vf.bool(true));
+            // args.put("logImports", vf.bool(false));
+            // args.put("logWrittenFiles", vf.bool(false));
 
             args.put("parallel", vf.bool(true));
             args.put("parallelMax", vf.integer(4));

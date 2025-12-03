@@ -650,7 +650,7 @@
                             <argLine>
                                 -Xmx${rascal.test.memory}G
                                 -Dfile.encoding=UTF-8
-                                ${argLine}
+                                <!-- we turn of jacoco as it really slows down these tests, sadly -->
                             </argLine>
                             <includes>
                                 <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
