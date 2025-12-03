@@ -233,7 +233,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ (isLexicalAType(stp) ? astr() : stp)[alabel=tsym.alabel?"anonymous<unescape("<name>")>"] 
+                    fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<unescape("<name>")>"] 
                              | sym <- symbols,
                                !isTerminalSym(sym),
                                tsym := s.getType(sym),
