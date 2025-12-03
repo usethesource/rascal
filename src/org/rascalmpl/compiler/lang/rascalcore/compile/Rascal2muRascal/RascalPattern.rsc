@@ -2375,6 +2375,11 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp s
     return code;
 }
 
+// Strip start if present
+
+AType stripStart(\start(AType s)) = s;
+default AType stripStart(AType s) = s;
+
 // Is  a pattern a concretePattern?
 // Note that a callOrTree pattern always requires a visit of the production to inspect labeled fields and is etherefore
 // NOT a concrete pattern
