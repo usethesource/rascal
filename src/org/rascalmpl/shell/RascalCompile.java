@@ -97,13 +97,10 @@ public class RascalCompile extends AbstractCommandlineTool {
 		// first run the pre-checks
 		parsedArgs.put("modules", preChecks);
 		out.println("Prechecking " + preChecks.size() + " modules ");
-		var start = System.nanoTime();
 		if (main(mainModule, imports, parsedArgs, term, monitor, err, out) != 0) {
 			System.exit(1);
 		}
-		var stop = System.nanoTime();
 		out.println("Precheck is done.");
-		out.println("Precheck time: " + Duration.ofNanos(stop - start));
 		out.flush();
 
 		// Split the remaining work as evenly as possible
