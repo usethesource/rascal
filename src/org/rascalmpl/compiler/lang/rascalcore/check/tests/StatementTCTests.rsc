@@ -99,10 +99,11 @@ test bool WrongInsert() = unexpectedType("String vs = visit ([1,2,3]) {case 1: i
 
 // https://github.com/cwi-swat/rascal/issues/416
 
-test bool Issue416() = checkModuleOK(
-    "module Issue416
-    '   data D = d(int i) | d();
-    '   D d(int i) { if (i % 2 == 0) fail d; else return d();}");
+test bool Issue416() = checkModuleOK("
+    module Issue416
+        data D = d(int i) | d();
+        D d(int i) { if (i % 2 == 0) fail d; else return d();}
+    ");
 
 // https://github.com/cwi-swat/rascal/issues/432
 
