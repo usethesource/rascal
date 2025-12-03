@@ -79,17 +79,6 @@ public abstract class AbstractCommandlineTool {
         }
     }
 
-    private static ISourceLocation findTypepalIfOnClassPath() {
-        try {
-            var typepal = PathConfig.resolveProjectOnClasspath("typepal");
-            typepal = MavenRepositoryURIResolver.mavenize(typepal);
-            typepal = JarURIResolver.jarify(typepal);
-            return typepal;
-        } catch (IOException ignored) {
-            return null;
-        }
-    }
-
     /**
      * A main for which the commandine parameters have already been parsed.
      */
