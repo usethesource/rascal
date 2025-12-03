@@ -557,14 +557,26 @@ test bool WrongNonterminal2() = unexpectedTypeInModule("
 
 test bool StartSymbolTop() = checkModuleOK("
     module StartSymbolTop
-
-    import ParseTree;
     
     start syntax A = \"A\";
 
     void main() {
         start[A] sa = [start[A]] \"A\";
         A a = sa.top;
+    }
+");
+
+test bool TwoStartSymbolsTop() = checkModuleOK("
+    module StartSymbolTop
+    
+    start syntax A = \"A\";
+    start syntax B = \"B\";
+
+    void main() {
+        start[A] sa = [start[A]] \"A\";
+        start[B] sb = [start[B]] \"B\";
+        A a = sa.top;
+        B b = sb.top;
     }
 ");
 
