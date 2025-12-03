@@ -100,6 +100,11 @@ public class RemoteIDEServices extends BasicIDEServices {
     }
 
     @Override
+    public void registerDebugServerPort(int processID, int serverPort) {
+        server.registerDebugServerPort(processID, serverPort);
+    }
+
+    @Override
     public void applyFileSystemEdits(IList edits) {
         server.applyDocumentsEdits(new DocumentEditsParameter(edits));
     }
