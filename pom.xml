@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-BOOT1-1</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-BOOT2</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
