@@ -241,10 +241,6 @@ tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aadt(s
     return <isConcreteSyntaxRole(syntaxRole) ? [adtName, "Tree"] : [adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
-tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(at:\start(AType _adt, SyntaxRole _syntaxRole)){
-    return <["<at>", "Tree"], {dataId(), nonterminalId()}>;
-}
-
 tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
     return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordFieldId()}>;
 }
@@ -510,7 +506,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe <qualifyHint><argHint>",
+        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
                          current@\loc);
         s.addMessages([msg]);
     }
