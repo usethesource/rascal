@@ -16,8 +16,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +42,7 @@ import io.usethesource.vallang.IValue;
 public class SourceLocationClassLoader extends ClassLoader {
     private final Map<String, Class<?>> cache = new ConcurrentHashMap<>();
     private final List<ClassLoader> path;
-    private final Stack<SearchItem> stack = new Stack<>();
+    private final ThreadLocal<Deque<SearchItem>> stack = ThreadLocal.withInitial(ArrayDeque::new);
 
     public SourceLocationClassLoader(IList classpath, ClassLoader parent) {
         super(parent);
@@ -94,6 +96,27 @@ public class SourceLocationClassLoader extends ClassLoader {
         return result;
     }
     
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> cls;
+
+        try {
+            // the delegation contract demands us to look up in the parent first.
+            cls = super.loadClass(name, resolve);
+        } 
+        catch (ClassNotFoundException e) {
+            // only then we try our own loop
+            cls = findClass(name);
+        }
+
+        if (resolve) {
+            // optimizes future lookups
+            resolveClass(cls);
+        }
+
+        return cls;
+    }
+
     /**
      * Is called by loadClass but not before searching in the parent classloader.
      */
@@ -132,13 +155,14 @@ public class SourceLocationClassLoader extends ClassLoader {
             return parent;
         }
 
-        if (stack.contains(new SearchItem(this, name))) {
+        Deque<SearchItem> theStack = stack.get();
+        if (theStack.contains(new SearchItem(this, name))) {
             return null;
         }
 
         for (ClassLoader l : path) {
             try {
-                stack.push(new SearchItem(this, name));
+                theStack.push(new SearchItem(this, name));
                 URL url = l.getResource(name);
                 
                 if (url != null) {
@@ -146,7 +170,7 @@ public class SourceLocationClassLoader extends ClassLoader {
                 }
             }
             finally {
-                stack.pop();
+                theStack.pop();
             }
         }
         
@@ -159,19 +183,21 @@ public class SourceLocationClassLoader extends ClassLoader {
 
         result.addAll(Collections.list(super.getResources(name)));
 
+        Deque<SearchItem> theStack = stack.get();
+
         for (ClassLoader l : path) {
             SearchItem item = new SearchItem(l, name);
 
-            if (stack.contains(item)) {
+            if (theStack.contains(item)) {
                 continue;
             }
             try {
-                stack.push(item);
+                theStack.push(item);
                 
                 result.addAll(Collections.list(l.getResources(name)));
             }
             finally {
-                stack.pop();
+                theStack.pop();
             }
         }
         
