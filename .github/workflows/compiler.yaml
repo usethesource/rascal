@@ -3,13 +3,7 @@ on:
   push:
     branches:
       - main
-      - '*'
-    tags:
-      - 'v[0-9]+.*'
-  pull_request:
-    branches:
-      - main
-      - 'feat/*'
+      - '**'
 
 env:
   MAVEN_OPTS: "-Xmx4G -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
