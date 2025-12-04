@@ -120,32 +120,67 @@ public class SourceLocationClassLoader extends ClassLoader {
     /**
      * Is called by loadClass but not before searching in the parent classloader.
      */
+    // @Override
+    // protected Class<?> findClass(String name) throws ClassNotFoundException {
+    //     var cached = cache.computeIfAbsent(name, (n) -> {
+    //         var fileName = n.replace('.', '/') + ".class";
+
+    //         for (ClassLoader l : path) {
+    //             try (var stream = l.getResourceAsStream(fileName)) {
+    //                 if (stream == null) {
+    //                     continue;
+    //                 }
+    //                 return defineClass(n, ByteBuffer.wrap(stream.readAllBytes()), null);
+    //             }
+    //             catch (IOException e) {
+    //                 throw new RuntimeException(e);
+    //             }
+    //         }
+
+    //         return null;
+    //     });
+
+    //     if (cached == null) {
+    //         // is caught by the parent.loadClass(name, resolve) method
+    //         throw new ClassNotFoundException(name);
+    //     }
+
+    //     return cached;
+    // }
+
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        var cached = cache.computeIfAbsent(name, (n) -> {
-            var fileName = n.replace('.', '/') + ".class";
+        Class<?> cached = cache.get(name);
+        if (cached != null) {
+            return cached;
+        }
+
+        synchronized (getClassLoadingLock(name)) {
+            // someone could have added something to the cache by now.
+            cached = cache.get(name);
+            if (cached != null) {
+                return cached;
+            }
+
+            String fileName = name.replace('.', '/') + ".class";
 
             for (ClassLoader l : path) {
                 try (var stream = l.getResourceAsStream(fileName)) {
                     if (stream == null) {
                         continue;
                     }
-                    return defineClass(n, ByteBuffer.wrap(stream.readAllBytes()), null);
-                }
-                catch (IOException e) {
+
+                    byte[] bytes = stream.readAllBytes();
+                    Class<?> cls = defineClass(name, ByteBuffer.wrap(bytes), null);
+                    cache.put(name, cls);
+                    return cls;
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
 
-            return null;
-        });
-
-        if (cached == null) {
-            // is caught by the parent.loadClass(name, resolve) method
             throw new ClassNotFoundException(name);
         }
-
-        return cached;
     }
     
     @Override
