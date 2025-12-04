@@ -102,6 +102,7 @@ public DoNotNest doNotNest(Grammar g) {
         + {<f,size(pre),c> | <f:prod(Symbol ss, [*pre, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
                            , same(ss, rr), same(t, lr), same(ss, t)}
+                           
         ; 
         
     // and we warn about recursive productions which have been left ambiguous:
@@ -220,3 +221,9 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 
 private bool same(Symbol x, Symbol ref) = striprec(x) == striprec(ref);
+
+private Symbol striprec(Symbol x) = visit(x) { case Symbol s => strip(s) };
+
+private Symbol strip(label(_, Symbol s)) = strip(s);
+private Symbol strip(conditional(Symbol s, _)) = strip(s);
+default Symbol strip(Symbol s) = s;

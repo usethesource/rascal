@@ -58,9 +58,5 @@ lexical WhitespaceAndComment
    ;
 
 public start[Program] program(str s) {
-  return parse(#start[Program], s);
-}
-
-public start[Program] program(str s, loc l) {
-  return parse(#start[Program], s, l);
+    return parse(#start[Program], s);
 } 
