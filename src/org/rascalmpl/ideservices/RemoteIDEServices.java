@@ -65,7 +65,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils::configureGson)
-                .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Runtime.getRuntime().availableProcessors()))
+                .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2))))
                 .create();
 
                 clientLauncher.startListening();
