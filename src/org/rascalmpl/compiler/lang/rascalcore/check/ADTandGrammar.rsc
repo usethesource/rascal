@@ -194,20 +194,11 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         }
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
-
-        allProductions = visit(allProductions){
-            case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
-            case \start(a:aadt(_,_,_)) => a
-        }
-
         set[AType] allLayouts = {};
         set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
 
         for(AType adtType <- domain(allProductions)){
-            if(\start(adtType2) := adtType){
-                adtType = adtType2;
-            }
             productions = allProductions[adtType];
             syntaxDefinitions[adtType] = achoice(adtType, productions);
             //println("syntaxDefinitions, for <adtType> add <achoice(adtType, productions)>");
@@ -250,7 +241,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         // Add start symbols
 
         for(AType adtType <- allStarts){
-            syntaxDefinitions[\start(adtType)] = achoice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
+            syntaxDefinitions[\start(adtType, contextFreeSyntax())] = achoice(\start(adtType, contextFreeSyntax()), { prod(\start(adtType, contextFreeSyntax()), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
 
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
@@ -365,7 +356,8 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
             }
         }
     }
-    for(AType adtType <- domain(allProductions), ((\start(t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
+
+    for(AType adtType <- domain(allProductions), adtType.syntaxRole == keywordSyntax()){
         for(p:prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];
