@@ -26,15 +26,13 @@
  */
 package org.rascalmpl.ideservices;
 
+import engineering.swat.watch.DaemonThreadPool;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -67,17 +65,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils::configureGson)
-                .setExecutorService(Executors.newCachedThreadPool(new ThreadFactory() {
-                    AtomicInteger counter = new AtomicInteger();
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread("rascal-ide-services-" + counter.incrementAndGet());
-                        t.setDaemon(true);
-                        return t;
-                    }
-
-                }))
+                .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Runtime.getRuntime().availableProcessors()))
                 .create();
 
                 clientLauncher.startListening();
