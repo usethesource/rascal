@@ -1,17 +1,16 @@
 package org.rascalmpl.shell;
 
+import engineering.swat.watch.DaemonThreadPool;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Files;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -120,7 +119,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 
 		// a cachedThreadPool lazily spins-up threads, but eagerly cleans them up
 		// this might help with left-over threads to get more memory and finish sooner.
-		final ExecutorService exec = Executors.newCachedThreadPool();
+		final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("rascal-compile", parAmount);
 		
 		// the for loop eagerly spawns `parAmount` workers, one for each chunk
 		List<Future<Integer>> workers = new ArrayList<>(parAmount);
