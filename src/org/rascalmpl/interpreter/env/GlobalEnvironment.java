@@ -324,4 +324,11 @@ public class GlobalEnvironment {
 	public void clearLookupChaches() {
 		moduleEnvironment.values().forEach(ModuleEnvironment::clearLookupCaches);
 	}
+
+	/**
+	 * This is for the tutor and eval; sometimes we do not want to keep seeing old messages
+	 */
+	public void clearModuleLoadMessage() {
+		moduleEnvironment.values().forEach(ModuleEnvironment::clearLoadMessages);
+	}
 }
