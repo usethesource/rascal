@@ -716,6 +716,10 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
 
         exactLinks = exactShortestLinks(ind, removeSpaces(link));
 
@@ -771,6 +775,10 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else if (str sep <- {"-", "::"}, {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         exactLinks = exactShortestLinks(ind, removeSpaces(link));
