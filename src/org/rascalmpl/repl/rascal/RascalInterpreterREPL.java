@@ -336,4 +336,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             dirtyModules.add(modName);
         }
     }
+
+    public void clearModuleLoadMessages() {
+        eval.getHeap().clearModuleLoadMessage();
+    }
 }
