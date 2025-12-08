@@ -133,6 +133,16 @@ public class ModuleEnvironment extends Environment {
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
 	}
+
+	/**
+	 * This is useful for the tutor and the eval repl where we 
+	 * sometimes need to forget about previous errors without
+	 * actually fixing them. This is not for the real REPL, where
+	 * we _do_ want to be reminded of previous erroneous initializations.
+	 */
+	public void clearLoadMessages() {
+		this.loadMessages.clear();
+	}
 	
 	public void extend(ModuleEnvironment other) {
 		extendNameFlags(other);
