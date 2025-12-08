@@ -155,12 +155,27 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
     }
 }
 
-// Check if a module is modified compared to a given timestamp
-bool isModuleModified(str qualifiedModuleName, datetime timestamp, PathConfig pcfg){
+// Check if a module is modified compared to a given timestamp in BOM
+bool isModuleModified(str qualifiedModuleName, datetime timestamp, PathRole pathRole, ModuleStatus ms){
     qualifiedModuleName = unescape(qualifiedModuleName);
+    pcfg = ms.pathConfig;
     try {
         mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
-        return lastModified(mloc) != timestamp;
+        bool modifiedChanged = lastModified(mloc) != timestamp;
+        if(pathRole == importPath()){
+            return modifiedChanged;
+        } else {    // extendPath
+            <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=false);
+            if(found && tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+                 for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
+                    if(isModuleModified(m, timestampInBom, pathRole, ms)){
+                        return true;
+                    }
+                 }
+                 return false;
+            }
+            return false;
+        }
     } catch value _: {
         return false;
     }
