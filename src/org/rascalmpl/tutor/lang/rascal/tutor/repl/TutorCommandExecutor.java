@@ -142,6 +142,7 @@ public class TutorCommandExecutor {
     public void reset() {
         interpreter.cancelRunningCommandRequested();
         interpreter.cleanEnvironment();
+        interpreter.clearModuleLoadMessages();
         outPrinter.flush();
         outWriter.getBuffer().setLength(0);
         errPrinter.flush();
