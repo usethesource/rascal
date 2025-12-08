@@ -65,6 +65,8 @@ import org.rascalmpl.interpreter.result.NamedFunction;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.output.IWebContentOutput;
+
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -561,6 +563,15 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
             EvalResult er = evaluateExpression(expr, frameId);
 
+            if (er.output instanceof IWebContentOutput) {
+                try {
+                    var webContent = (IWebContentOutput) er.output;
+                    services.browse(webContent.webUri(), webContent.webTitle(), webContent.webviewColumn());
+                    response.setResult("Web Content displayed");
+                    return response;
+                } catch (UnsupportedOperationException _ignored) { }
+            }
+
             if (er.result != null) { // Successful evaluation
                 // IRascalResult doesn't expose isVoid; check value==null as proxy for void
                 if (er.result.getValue() == null) {
@@ -580,7 +591,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                         tempVar.setNamedVariables(counter.getNamedVariables());
                     }
 
-                    response.setResult(er.result.toString());
+                    response.setResult(tempVar.getDisplayValue());
                     response.setType(er.result.getValue().getType().toString());
                     response.setVariablesReference(tempVar.getReferenceID());
                     response.setNamedVariables(tempVar.getNamedVariables());
