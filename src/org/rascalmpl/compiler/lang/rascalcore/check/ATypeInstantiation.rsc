@@ -44,6 +44,7 @@ module lang::rascalcore::check::ATypeInstantiation
 
 extend lang::rascalcore::check::ATypeParamBase;
 extend lang::rascalcore::check::NameUtils;
+extend lang::rascalcore::check::ATypeUtils;
 
 import List;
 import Map;
