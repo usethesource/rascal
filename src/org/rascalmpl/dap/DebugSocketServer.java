@@ -26,11 +26,11 @@
  */
 package org.rascalmpl.dap;
 
+import engineering.swat.watch.DaemonThreadPool;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.debug.TerminatedEventArguments;
@@ -67,7 +67,7 @@ public class DebugSocketServer {
                     Socket newClient = serverSocket.accept();
                     if(clientSocket == null || clientSocket.isClosed()){
                         clientSocket = newClient;
-                        threadPool = Executors.newCachedThreadPool();
+                        threadPool = DaemonThreadPool.buildConstrainedCached("rascal-debug", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
                         debugClient = RascalDebugAdapterLauncher.start(evaluator, clientSocket, this, services, threadPool);
                     } else {
                         newClient.close();
