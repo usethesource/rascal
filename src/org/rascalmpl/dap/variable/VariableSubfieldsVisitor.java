@@ -42,6 +42,7 @@ import org.rascalmpl.dap.SuspendedState;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
@@ -171,11 +172,18 @@ public class VariableSubfieldsVisitor implements IValueVisitor<List<RascalVariab
 			    o = (ITree) skippedStarto.get(0);
             }
 		}
+
         IList args = TreeAdapter.getASTArgs(o);
+        // Only get symbol if production is default production
+        IList symbol = ProductionAdapter.isDefault(o.getProduction()) ? ProductionAdapter.getASTSymbols(o.getProduction()) : null;
+
         int max = count == -1 ? args.length() : Math.min(args.length(), startIndex+count);
         for (int i = startIndex; i < max; i++) {
             IValue arg = args.get(i);
-            RascalVariable newVar = new RascalVariable(arg.getType(), Integer.toString(i), arg, services);
+            String name = symbol != null && i < symbol.length() && SymbolAdapter.isLabel((IConstructor) symbol.get(i))
+                    ? SymbolAdapter.getLabel((IConstructor) symbol.get(i))
+                    : Integer.toString(i);
+            RascalVariable newVar = new RascalVariable(arg.getType(), name, arg, services);
             addVariableToResult(newVar, result);
         }
         return result;
