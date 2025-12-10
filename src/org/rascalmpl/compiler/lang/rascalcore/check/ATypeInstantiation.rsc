@@ -229,7 +229,7 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
         return t;
     else
         return visit(t) { case param:aparameter(str pname, AType bound): {
-      /                          if(bindings[pname]?){
+                                if(bindings[pname]?){
                                     if(asubtype(bindings[pname], bound)){
                                         repl = param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname]; //TODO simplified for compiler
                                         insert repl;
