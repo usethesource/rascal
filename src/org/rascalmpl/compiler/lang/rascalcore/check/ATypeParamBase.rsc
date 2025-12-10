@@ -95,12 +95,6 @@ set[AType] collectAndUnlabelRascalTypeParams(set[AProduction] prods) {
    return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := prods }; // TODO: "alabel" is unset to enable subset check later, reconsider
 }
 
-@doc{Provide an initial type map from the type parameters in the type to void.}
-map[str,AType] initializeRascalTypeParamMap(AType t) {
-    set[AType] rt = collectRascalTypeParams(t);
-    return ( getRascalTypeParamName(tv) : makeVoidType() | tv <- rt );
-}
-
 @doc{See if a type contains any type parameters.}
 bool typeContainsRascalTypeParams(AType t) = size(collectRascalTypeParams(t)) > 0;
 
