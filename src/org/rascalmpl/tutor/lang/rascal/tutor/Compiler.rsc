@@ -74,6 +74,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   loc funding           = |unknown:///|, 
   loc releaseNotes      = |unknown:///|,
   loc authors           = |unknown:///|,
+  bool verbose          = false,
   bool errorsAsWarnings = false, 
   bool warningsAsErrors = false, 
   bool isPackageCourse  = false, 
@@ -99,6 +100,8 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
     pcfg.libs = [];
   }
 
+  if (verbose) iprintln(pcfg);
+ 
   messages = compile(pcfg);
   
   return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
