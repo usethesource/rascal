@@ -16,16 +16,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -42,7 +39,7 @@ import io.usethesource.vallang.IValue;
 public class SourceLocationClassLoader extends ClassLoader {
     private final Map<String, Class<?>> cache = new ConcurrentHashMap<>();
     private final List<ClassLoader> path;
-    private final ThreadLocal<Deque<SearchItem>> stack = ThreadLocal.withInitial(ArrayDeque::new);
+    private final ThreadLocal<Deque<SearchItem>> stack = ThreadLocal.withInitial(LinkedList::new);
 
     public SourceLocationClassLoader(IList classpath, ClassLoader parent) {
         super(parent);
@@ -122,6 +119,9 @@ public class SourceLocationClassLoader extends ClassLoader {
      */
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        // we cannot use computeIfAbsent here, as its not re-entrant safe 
+        // (so for example, while finding class X, we also have to find class Y, 
+        // that would be a nested computeIfAbsent call, that the ConcurrentHashMap doesn't support)
         Class<?> cached = cache.get(name);
         if (cached != null) {
             return cached;
@@ -142,8 +142,7 @@ public class SourceLocationClassLoader extends ClassLoader {
                         continue;
                     }
 
-                    byte[] bytes = stream.readAllBytes();
-                    Class<?> cls = defineClass(name, ByteBuffer.wrap(bytes), null);
+                    Class<?> cls = defineClass(name, ByteBuffer.wrap(stream.readAllBytes()), null);
                     cache.put(name, cls);
                     return cls;
                 } catch (IOException e) {
