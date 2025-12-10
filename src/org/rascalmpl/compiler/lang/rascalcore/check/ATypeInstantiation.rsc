@@ -42,17 +42,15 @@ module lang::rascalcore::check::ATypeInstantiation
     Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
-import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
-import lang::rascalcore::check::ATypeUtils; // was extend
+extend lang::rascalcore::check::ATypeParamBase;
 extend lang::rascalcore::check::NameUtils;
+extend lang::rascalcore::check::ATypeUtils;
 
 import List;
 import Map;
 import Set;
 import Node;
 import String;
-
-public alias Bindings = map[str varName, AType varType];
 
 public Bindings unifyRascalTypeParams(AType r, AType s, Bindings b){
     b2 = matchRascalTypeParams(r, s, b);
@@ -207,54 +205,6 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 
 AType invalidInstantiation(str pname, AType bound, AType actual){
     throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
-}
-
-AType makeClosedTypeParams(AType t){
-    return visit(t) { case par:aparameter(_, _) => par[closed=true] };
-}
-
-void requireClosedTypeParams(AType t){
-    if(hasOpenTypeParams(t)){
-        throw "requireClosedTypeParams: <t>";
-    }
-}
-
-bool hasOpenTypeParams(AType t){
-    return /aparameter(_,_,closed=false) := t;
-}
-
-// Make all type parameters unique with given suffix
-AType makeUniqueTypeParams(AType t, str suffix){
-    return visit(t) { case param:aparameter(str pname, AType _bound): {
-                                if(findLast(pname, ".") < 0){
-                                    param.pname = param.pname + "." + suffix;
-                                    insert param;
-                                }
-                          }
-                     };
-}
-
-// Make all type parameters unique with given suffix
-list[AType] makeUniqueTypeParams(list[AType] ts, str suffix){
-    return [ makeUniqueTypeParams(t, suffix) | t <- ts ];
-}
-
-// Reverse the makeUnique operation
-str deUnique(str s) {
-    i = findLast(s, ".");
-    return i > 0 ? s[0..i] : s;
-}
-
-AType deUnique(AType t){
-    return visit(t) { case param:aparameter(str pname, AType _bound): {
-                                param.pname = deUnique(pname);
-                                insert param;
-                       }
-                    };
-}
-
-Bindings deUniqueTypeParams(Bindings b){ 
-    return (deUnique(key) : deUnique(b[key]) | key <- b);
 }
 
 // NOTE used during match, no bounds check is needed since that is already done during the match
