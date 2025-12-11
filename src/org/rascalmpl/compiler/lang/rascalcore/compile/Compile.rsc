@@ -163,7 +163,7 @@ list[Message] compile(list[str] qualifiedModuleNames, RascalCompilerConfig compi
 	return [*(ms.messages[m] ? {}) |  m <- qualifiedModuleNames];
 }
 
-void main(
+int main(
     PathConfig pcfg               = pathConfig(), 
     list[loc] \modules            = [],
     bool logPathConfig            = false,
