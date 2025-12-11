@@ -500,9 +500,9 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
 
         defs = for(tup:<loc _scope, str id, str _orgId, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
                     if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined)
-                                                    && ( idRole == moduleVariableId() ==>
+                                                    /*&& ( idRole == moduleVariableId() ==>
                                                          defInfo.vis == publicVis()
-                                                       )
+                                                       )*/
                                                     )
                                                   : (  idRole in keepInTModelRoles
                                                     && ( isContainedInComponentScopes(defined)
