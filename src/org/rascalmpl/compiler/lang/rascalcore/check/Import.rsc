@@ -498,8 +498,12 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
 
         // Filter model for current module and replace functions in defType by their defined type
 
-        defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                    if( ( idRole in variableRoles ?  isContainedInComponentScopes(defined)
+        defs = for(tup:<loc _scope, str id, str _orgId, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
+                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined)
+                                                    && ( idRole == moduleVariableId() ==>
+                                                         defInfo.vis == publicVis()
+                                                       )
+                                                    )
                                                   : (  idRole in keepInTModelRoles
                                                     && ( isContainedInComponentScopes(defined)
                                                        || isContainedInFilteredModuleScopes(defined)
