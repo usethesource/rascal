@@ -409,7 +409,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
        swriter = muTmpStrWriter("swriter", fuid);
        buildRegExp = muValueBlock(astr(),
                                   muConInit(swriter, muPrim("open_string_writer", astr(), [], [], e@\loc)) + 
-                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | exp <- fragmentCode ] +
+                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | MuExp exp <- fragmentCode ] +
                                   muPrim("close_string_writer", astr(), [astr()], [swriter], e@\loc));
        return  <buildRegExp, vars>; 
    }  
