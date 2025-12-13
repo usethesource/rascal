@@ -58,6 +58,7 @@ import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
@@ -166,6 +167,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * Used in runtime error messages
      */
     private AbstractAST currentAST;
+
+    /**
+     * Used in debugger exception handling
+     */
+    private Exception currentException;
 
     /**
      * True if we're doing profiling
@@ -778,6 +784,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public AbstractAST getCurrentAST() {
         return currentAST;
+    }
+
+    public Exception getCurrentException() {
+        return currentException;
     }
 
     public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
@@ -1587,6 +1597,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
         }
+    }
+
+    @Override
+    public void notifyAboutSuspensionException(Exception t) {
+        currentException = t;
+        if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+            for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
+            }
+        }
+        currentException = null;
     }
 
     public AbstractInterpreterEventTrigger getEventTrigger() {
