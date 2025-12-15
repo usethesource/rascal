@@ -22,7 +22,7 @@ import IO;
 test bool testOvertakeNullableBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
-    loc source = |std:///lang/rascal/tests/library/analysis/statistics/DescriptiveTests.rsc|;
+    loc source = |std:///lang/rascal/tests/libraries/analysis/statistics/DescriptiveTests.rsc|;
     input = readFile(source);
 
     testDeleteUntilEol(standardParser, recoveryParser, source, input, 200, 100, 100, 100, begin=561, end=561);
