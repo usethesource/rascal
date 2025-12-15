@@ -99,13 +99,15 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-@memo{expireAfter(minutes=5),maximumSize(500)}
+
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
-str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
+str getRascalModuleName(loc moduleLoc,  PathConfig pcfg)
+    = getRascalModuleName1(moduleLoc.top, pcfg);
+
+@memo{expireAfter(minutes=5),maximumSize(500)}
+private str getRascalModuleName1(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
 
-    rscFile = endsWith(modulePath, "rsc");
-    tplFile = endsWith(modulePath, "tpl");
     if(isLogicalLoc(moduleLoc)){
         path = moduleLoc.path;
         if(path[0] == "/"){
@@ -113,9 +115,8 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
         }
         return replaceAll(path, "/", "::");
     }
-    if(!( rscFile || tplFile )){
-        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
-    }
+
+    rscFile = endsWith(modulePath, "rsc");
     
     // Find matching .rsc file in source directories
     if(rscFile){
@@ -127,9 +128,16 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
                     moduleName = moduleName[1..];
                 }
                 moduleName = replaceAll(moduleName, "/", "::");
+                // if(moduleName == "library::List"){
+                //     println("getRascalModuleName: <moduleLoc> =\> <moduleName>");
+                // }
                 return moduleName;
             }
         }
+    }
+    tplFile = endsWith(modulePath, "tpl");
+    if(!( rscFile || tplFile )){
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find longest matching .tpl file in library directories
@@ -151,17 +159,19 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     modulePathReversed = reverse(modulePathAsList);
     
-    int longestSuffix = 0;
-    for(loc dir <- pcfg.libs){
+    int currentSuffix = 0;
+    bool found = false;
+    for(loc dir <- pcfg.libs, !found){
         dir = dir + "rascal";
         dpath = dir.path;
        
         while(dpath[0] == "/"){
             dpath = dpath[1..];
         }
-       
+     
         for(loc file <- find(dir, "tpl")){
-            candidate = replaceFirst(file.path, dpath, "");    
+            candidate = replaceFirst(file.path, dpath, "");  
+
             <candidate, ext> = splitFileExtension(candidate);
             while(candidate[0] == "/"){
                 candidate = candidate[1..];
@@ -172,21 +182,26 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
             if(lastName[0] == "$"){
                 candidateAsList = [*candidateAsList[..-1],lastName[1..]];
             }
-            // println("cand: <candidateAsList>, modpath: <modulePathAsList>");
-            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
-                        
-            if(n > longestSuffix){
-                longestSuffix = n;
+           
+            currentSuffix = commonPrefix(reverse(candidateAsList), modulePathReversed);
+                    
+            if(currentSuffix == size(candidateAsList)){
+                found = true;
+                break;
             }
         }
     }
     
-    if(longestSuffix > 0){
+    if(currentSuffix > 0){
         lastName = modulePathAsList[-1];
         if(lastName[0] == "$"){
             modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
         }
-        return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
+        res = intercalate("::", modulePathAsList[size(modulePathAsList) - currentSuffix .. ]);
+        //if(contains(moduleLoc.path, "Content")){
+            // println("getRascalModuleName: <moduleLoc> =\> <res>, currentSuffix: <currentSuffix>");
+        //}
+        return res;
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
