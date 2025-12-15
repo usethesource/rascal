@@ -27,10 +27,20 @@ POSSIBILITY OF SUCH DAMAGE.
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
 
-      
-    
-int N = 0;
+import IO;
+import util::UUID;
+import util::PathConfig;
+import lang::rascalcore::check::ModuleLocations;
 
-void main(){
-    N += 1;
+private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
+
+ test bool moduleReflectiveOnlyTpl() {
+      writeFile(testLibraryLoc + "/resources/rascal/util/$Reflective.tpl",
+        "util/$Reflective.tpl (only file matters, content irrelevant)
+        ");
+    pcfg = pathConfig(srcs = [],
+                    libs=[testLibraryLoc + "/resources/"]
+                     );
+    return getRascalModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
+            == "util::Reflective";
 }

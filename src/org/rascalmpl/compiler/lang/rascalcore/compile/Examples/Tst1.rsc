@@ -43,13 +43,40 @@ void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///
     salixCorePcfg = pathConfig(srcs=[repoRoot + "salix-core/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin]);
     salixContribPcfg = pathConfig(srcs=[repoRoot + "salix-contrib/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin, salixCorePcfg.bin]);
 
-    println("**** Checking rascal");
-    runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
+    //println("**** Checking rascal");
+    // // iprintln(check([|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/ParseTree.rsc|,
+    // //                 |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/String.rsc|
+    // //                ], rascalCompilerConfig(rascalPcfg)));
+ 
+    // runChecker(rascalPcfg, bool (loc m) { return  true; });
+
+    //runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
 
 
     println("**** Checking salix-core");
     runChecker(salixCorePcfg, bool (loc m) { return true; });
 
-    println("**** Checking salix-contrib");
-    runChecker(salixContribPcfg, bool (loc m) { return true; });
-}
+    //println("**** Checking salix-contrib");
+    // iprintln(check([|file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/util/Mode.rsc|], rascalCompilerConfig(salixContribPcfg)));
+    // iprintln(check([
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/Mermaid.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/Demo.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/jsplumb/Demo.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/FlowChart.rsc|,
+    // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/util/Mode.rsc|,
+    // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/Main.rsc|
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/ace/Editor.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/cytoscape/Demo.rsc|,
+    // //|file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/canvas/Demo.rsc|
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/canvas/Heart.rsc|,
+    // //|file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/ace/Demo.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/canvas/Canvas.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/charts/Charts.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/jsplumb/JSPlumb.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/cytoscape/Cytoscape.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/charts/Demo.rsc|,
+    // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/ClassDiagram.rsc|
+    // ], rascalCompilerConfig(salixContribPcfg)));
+
+    //runChecker(salixContribPcfg, bool (loc m) { return true; });
+ }
