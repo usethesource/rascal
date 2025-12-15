@@ -106,6 +106,12 @@ public final class DebugHandler implements IDebugHandler {
 	    } 
 	    else {
 	        AbstractAST location = currentAST;
+
+			if (hasBreakpoint(location.getLocation())) {
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByBreakpointEvent(location.getLocation());
+			}
+			
 	        switch (getStepMode()) {
 
 	        case STEP_INTO:
@@ -173,12 +179,7 @@ public final class DebugHandler implements IDebugHandler {
 				break;
 
 	        case NO_STEP:
-	            if (hasBreakpoint(location.getLocation())) {
-	                updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	                getEventTrigger().fireSuspendByBreakpointEvent(location.getLocation());
-	            }
 	            break;
-
 	        }
 	    }
 
