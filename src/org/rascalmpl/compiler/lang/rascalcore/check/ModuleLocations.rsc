@@ -159,7 +159,7 @@ private str getRascalModuleName1(loc moduleLoc,  PathConfig pcfg){
     }
     modulePathReversed = reverse(modulePathAsList);
     
-    int currentSuffix = 0;
+    int largestSuffix = 0;
     bool found = false;
     for(loc dir <- pcfg.libs, !found){
         dir = dir + "rascal";
@@ -183,23 +183,22 @@ private str getRascalModuleName1(loc moduleLoc,  PathConfig pcfg){
                 candidateAsList = [*candidateAsList[..-1],lastName[1..]];
             }
            
-            currentSuffix = commonPrefix(reverse(candidateAsList), modulePathReversed);
+            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
                     
-            if(currentSuffix == size(candidateAsList)){
-                found = true;
-                break;
+            if(n > largestSuffix){
+                largestSuffix = n;
             }
         }
     }
     
-    if(currentSuffix > 0){
+    if(largestSuffix > 0){
         lastName = modulePathAsList[-1];
         if(lastName[0] == "$"){
             modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
         }
-        res = intercalate("::", modulePathAsList[size(modulePathAsList) - currentSuffix .. ]);
-        //if(contains(moduleLoc.path, "Content")){
-            // println("getRascalModuleName: <moduleLoc> =\> <res>, currentSuffix: <currentSuffix>");
+        res = intercalate("::", modulePathAsList[size(modulePathAsList) - largestSuffix .. ]);
+        //if(contains(res, "List")){
+            //println("getRascalModuleName: <moduleLoc> =\> <res>");
         //}
         return res;
     }
