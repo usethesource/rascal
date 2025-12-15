@@ -42,5 +42,7 @@ private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
                     libs=[testLibraryLoc + "/resources/"]
                      );
     return getRascalModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
-            == "util::Reflective";
+            == "util::Reflective"
+            && getRascalModuleName(|project://rascal/src/org/rascalmpl/library/Reflective.rsc|, pcfg) 
+            == "Reflective";
 }

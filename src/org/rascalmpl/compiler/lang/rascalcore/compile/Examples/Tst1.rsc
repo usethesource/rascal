@@ -30,6 +30,7 @@ import util::FileSystem;
 import util::PathConfig;
 import IO;
 import Message;
+import lang::rascalcore::check::ModuleLocations;
 
 private void runChecker(PathConfig pcfg, bool (loc m) validModule) {
     result = check([m | src <- pcfg.srcs, m <- find(src, "rsc"), validModule(m)], rascalCompilerConfig(pcfg));
@@ -43,21 +44,28 @@ void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///
     salixCorePcfg = pathConfig(srcs=[repoRoot + "salix-core/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin]);
     salixContribPcfg = pathConfig(srcs=[repoRoot + "salix-contrib/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin, salixCorePcfg.bin]);
 
-    //println("**** Checking rascal");
+    println("**** Checking rascal");
     // // iprintln(check([|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/ParseTree.rsc|,
     // //                 |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/String.rsc|
     // //                ], rascalCompilerConfig(rascalPcfg)));
  
     // runChecker(rascalPcfg, bool (loc m) { return  true; });
 
-    //runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
+    runChecker(rascalPcfg, bool (loc m) { return  /lang.rascal/ !:= m.path && /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
+    // println(getRascalModuleName(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/lang/json/IO.rsc|, salixCorePcfg));
+    // println(getRascalModuleName(|file:///Users/paulklint/rascal-tpls/rascal/rascal/lang/json/$IO.tpl|, salixCorePcfg));
 
+    // println(getRascalModuleName(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/IO.rsc|, salixCorePcfg));
+    // println(getRascalModuleName(|file:///Users/paulklint/rascal-tpls/rascal/rascal/$IO.tpl|, salixCorePcfg));
 
-    println("**** Checking salix-core");
-    runChecker(salixCorePcfg, bool (loc m) { return true; });
+    // println(getRascalModuleName(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/lang/rascal/tests/libraries/IO.rsc|, salixCorePcfg));
+    // println(getRascalModuleName(|file:///Users/paulklint/rascal-tpls/rascal/rascal/$IO.tpl|, salixCorePcfg));
 
-    //println("**** Checking salix-contrib");
-    // iprintln(check([|file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/util/Mode.rsc|], rascalCompilerConfig(salixContribPcfg)));
+    // println("**** Checking salix-core");
+    // runChecker(salixCorePcfg, bool (loc m) { return true; });
+
+    println("**** Checking salix-contrib");
+    //iprintln(check([|file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/util/Mode.rsc|], rascalCompilerConfig(salixContribPcfg)));
     // iprintln(check([
     // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/Mermaid.rsc|,
     // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/Demo.rsc|,
@@ -78,5 +86,5 @@ void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///
     // // |file:///Users/paulklint/git/salix-contrib/src/main/rascal/salix/mermaid/ClassDiagram.rsc|
     // ], rascalCompilerConfig(salixContribPcfg)));
 
-    //runChecker(salixContribPcfg, bool (loc m) { return true; });
+    runChecker(salixContribPcfg, bool (loc m) { return true; });
  }
