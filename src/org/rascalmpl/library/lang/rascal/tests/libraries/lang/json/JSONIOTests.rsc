@@ -1,4 +1,4 @@
-module lang::rascal::tests::library::lang::json::JSONIOTests
+module lang::rascal::tests::libraries::lang::json::JSONIOTests
 
 import String;
 import lang::json::IO;
@@ -89,8 +89,8 @@ test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
 test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
 test bool originTracking() {
-   ex2 = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
-   content = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+   ex2 = readJSON(#node, |std:///lang/rascal/tests/libraries/lang/json/glossary.json|, trackOrigins=true);   
+   content = readFile(|std:///lang/rascal/tests/libraries/lang/json/glossary.json|);
 
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
@@ -173,7 +173,7 @@ value toDefaultValue(real r) = r - round(r) == 0
 default value toDefaultValue(value x) = x;
 
 test bool accurateParseErrors() {
-   ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+   ex = readFile(|std:///lang/rascal/tests/libraries/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
 
    try {
