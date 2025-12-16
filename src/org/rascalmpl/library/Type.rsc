@@ -205,7 +205,7 @@ graph(transitiveReduction(typeLattice<1,0>), cfg=cytoGraphConfig(\layout=default
 ```
 }
 @examples{
-```rascal-shell
+```rascal
 import Type;
 subtype(#int, #value)
 subtype(#value, #int)
@@ -253,7 +253,7 @@ The `==` operator, for convience, equates `1.0` with `1` but not `[1] with [1.0]
 when writing consistent specifications. The new number system that is coming up will not have these issues.
 }
 @examples{
-```rascal-shell
+```rascal
 import Type;
 1 == 1.0
 eq(1,1.0)
@@ -268,9 +268,11 @@ This function implements the lub operation in Rascal's type system, via unreifyi
 and calling into the underlying run-time Type implementation.
 }
 @examples{
+```rascal
 import Type;
 lub(#tuple[int,value], #tuple[value, int])     
 lub(#int, #real)
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 java Symbol lub(Symbol s1, Symbol s2);
@@ -284,9 +286,11 @@ This function implements the glb operation in Rascal's type system, via unreifyi
 and calling into the underlying run-time Type implementation.
 }
 @examples{
+```rascal
 import Type;
 glb(#tuple[int,value], #tuple[value, int])   
 glb(#int, #real)  
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 java Symbol glb(Symbol s1, Symbol s2);
@@ -322,7 +326,7 @@ As opposed to the # operator, which produces the type of a value statically, thi
 function produces the dynamic type of a value, represented by a symbol.
 }
 @examples{
-```rascal-shell
+```rascal
 import Type;
 value x = 1;
 typeOf(x)

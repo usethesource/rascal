@@ -34,7 +34,7 @@ module lang::rascalcore::check::AType
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::agrammar::definition::Characters;
 
-import lang::rascalcore::check::ATypeInstantiation;
+import lang::rascalcore::check::ATypeParamBase;
 
 import IO;
 import Node;
