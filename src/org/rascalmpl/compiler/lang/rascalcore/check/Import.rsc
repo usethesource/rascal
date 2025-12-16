@@ -167,7 +167,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     
                dependencyChanged = (m != qualifiedModuleName) && !isEmpty(ms.changedModules & range(ms.strPaths[m]));
                //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
-               if(dependencyChanged || isModuleModified(m, timestampInBom, pathRole, ms)){
+               <mchanged, ms> = isModuleModified(m, timestampInBom, pathRole, ms);
+               if(dependencyChanged || mchanged){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
@@ -498,7 +499,8 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         // Filter model for current module and replace functions in defType by their defined type
 
         defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                    if( ( idRole in variableRoles ?  isContainedInComponentScopes(defined)
+                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined)
+                                                    )
                                                   : (  idRole in keepInTModelRoles
                                                     && ( isContainedInComponentScopes(defined)
                                                        || isContainedInFilteredModuleScopes(defined)

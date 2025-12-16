@@ -7,9 +7,8 @@ import String;
 import util::Reflective;
 import lang::rascalcore::check::Checker;
 
-loc REPO = |file:///Users/paulklint/git/rascal/|;
 // Rascal 0.41.0-RC42
-public loc projectDir = REPO;
+public loc projectDir = |file:///Users/paulklint/git/rascal/|;
 
 // Typepal 0.15.1, met Rascal dependency aangepast naar 0.41.0-RC42
 public loc typepalLib = |mvn://org.rascalmpl--typepal--0.15.1-SNAPSHOT/|;
