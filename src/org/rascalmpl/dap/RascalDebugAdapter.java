@@ -119,7 +119,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
         this.eventTrigger = new RascalDebugEventTrigger(this, breakpointsCollection, suspendedState, debugHandler);
         debugHandler.setEventTrigger(eventTrigger);
-        this.debugHandler.setEvaluator(evaluator);
+        debugHandler.setEvaluator(evaluator);
 
         columns = new ColumnMaps(l -> {
             try {
@@ -529,7 +529,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     }
 
     private org.rascalmpl.debug.IRascalRuntimeEvaluation.EvalResult evaluateExpression(String expression, int frameId) {
-        assert suspendedState.isSuspended(); // For race condition reason, call to evaluator is only allowrd on suspended state
+        assert suspendedState.isSuspended() : "this function should only be called when suspended";
         if(frameId >= 0 
             && frameId < suspendedState.getCurrentStackFrames().length 
             && suspendedState.getCurrentStackFrames()[frameId] instanceof Environment){
@@ -547,10 +547,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             EvaluateResponse response = new EvaluateResponse();
             Integer frameId = args.getFrameId(); // If null, the expression is evaluated in the global scope
             String expr = args.getExpression();
-            if (args.getContext() == "variables") {
+
+            if (args.getContext().equals("variables")) {
                 response.setResult(expr);
                 return response;
             }
+
             if(frameId == null){
                 response.setResult("Evaluation in global scope not supported");
                 return response;
@@ -691,7 +693,10 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             List<CompletionItem> completions = new ArrayList<>();
             if(suspendedState.isSuspended()) {
                 Integer frameId = args.getFrameId();
-                assert frameId != null;
+                if(frameId == null){ // We can only do completion in the context of a frame
+                    response.setTargets(new CompletionItem[0]);
+                    return response;
+                }
                 IRascalFrame frame = suspendedState.getCurrentStackFrames()[frameId];
 
                 // Variable names starting with the typed text
@@ -727,7 +732,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 for(String importName : importsToSearch){
                     IRascalFrame module = evaluator.getModule(importName);
                     // Try to cast module IRascalFrame as an Environment to get its functions
-                    if(module != null && module instanceof Environment){
+                    if(module instanceof Environment){
                         addFunctionsCompletionsFromEnvironment((Environment) module, functionToSearch, completions);
                     }
                 }                
