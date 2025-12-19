@@ -603,12 +603,11 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             else if (er.output != null) { // Evaluation resulted in error with output
                 // Render the ICommandOutput to plain text for the DAP client
                 var sw = new StringWriter();
-                var pw = new PrintWriter(sw, true);
-                try {
+                try (var pw = new PrintWriter(sw, true)) {
                     er.output.asPlain().write(pw, true);
                 } catch (Exception _e) {
                     // fallback
-                    pw.print(er.output.toString());
+                    sw.append(er.output.toString());
                 }
                 String outText = sw.toString();
                 
@@ -650,7 +649,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             if(var.startsWith(text)){
                 CompletionItem completion = new CompletionItem();
                 IRascalResult varInFrame = frame.getFrameVariable(var);
-                completion.setLabel(var+" : " + varInFrame.getDynamicType().toString());
+                completion.setLabel(varInFrame.getDynamicType().toString() + " " + var);
                 completion.setSortText(var);
                 if (text.length() < var.length()) { //remove the prefix
                     completion.setText(var.substring(text.length()));
