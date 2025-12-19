@@ -68,6 +68,13 @@ public class BreakpointsCollection {
         debugHandler.processMessage(DebugMessageFactory.requestSetBreakpoint(location));
     }
 
+    public void addBreakpoint(ISourceLocation location, Source source, String condition){
+        String path = location.getPath();
+        BreakpointInfo breakpoint = new BreakpointInfo(breakpointIDCounter.incrementAndGet(), source);
+        breakpoints.computeIfAbsent(path, k -> new HashMap<>()).put(location, breakpoint);
+        debugHandler.processMessage(DebugMessageFactory.requestSetConditionalBreakpoint(location, condition));
+    }
+
     public int getBreakpointID(ISourceLocation location){
         String path = location.getPath();
         Map<ISourceLocation, BreakpointInfo> fileBreakpoints = breakpoints.get(path);

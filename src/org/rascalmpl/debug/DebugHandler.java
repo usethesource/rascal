@@ -18,7 +18,7 @@ package org.rascalmpl.debug;
 
 import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -27,15 +27,12 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
 import java.util.function.Function;
-import org.rascalmpl.semantics.dynamic.Statement.For;
-import org.rascalmpl.semantics.dynamic.Statement.Switch;
-import org.rascalmpl.semantics.dynamic.Statement.Visit;
-import org.rascalmpl.semantics.dynamic.Statement.While;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
@@ -56,7 +53,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 
 	private static final ISourceLocation DEBUGGER_PROMPT_LOCATION = URIUtil.rootLocation("debugger");
 
-	private final Set<ISourceLocation> breakpoints = new java.util.HashSet<>();
+	private final Map<ISourceLocation, String> breakpoints = new java.util.HashMap<>();
 			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
@@ -104,11 +101,31 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		return breakpoints.contains(b);
+		if(!breakpoints.containsKey(b)) {
+			return false;
+		}
+		if(breakpoints.get(b) == null) {
+			return true;
+		}
+		setSuspended(true);
+		
+		try {
+			Result<IValue> condResult = this.evaluate(breakpoints.get(b), (Environment) evaluator.getCurrentStack().lastElement()).result;
+			setSuspended(false);
+			return condResult.isTrue();
+		}
+		catch (Throwable e) {
+			setSuspended(false);
+			return false;
+		}
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.add(breakpointLocation);
+		breakpoints.put(breakpointLocation, null);
+	}
+
+	private void addBreakpoint(ISourceLocation breakpointLocation, String condition) {
+		breakpoints.put(breakpointLocation, condition);
 	}
 
 	private void removeBreakpoint(ISourceLocation breakpointLocation) {
@@ -271,6 +288,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 			// Save old state
 			AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
 			Environment oldEnvironment = evaluator.getCurrentEnvt();
+			AbstractAST oldAST = evaluator.getCurrentAST();
 			try {
 				// disable suspend triggers while evaluating expressions from the debugger
 				evaluator.removeSuspendTriggerListener(this);
@@ -334,6 +352,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 				evaluator.setCurrentEnvt(oldEnvironment);
 				evaluator.setEventTrigger(oldTrigger);
 				evaluator.addSuspendTriggerListener(this);
+				evaluator.setCurrentAST(oldAST);
 			}
 		}
 	}
@@ -360,14 +379,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	  switch (message.getSubject()) {
 
 	  case BREAKPOINT:
-	    ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
-  
 	    switch (message.getAction()) {
 	    case SET:
-	      addBreakpoint(breakpointLocation);
+		  switch (message.getDetail()) {
+			case CONDITIONAL:
+				Pair<ISourceLocation, String> payload = (Pair<ISourceLocation, String>) message.getPayload();		
+	      		addBreakpoint(payload.getFirst(), payload.getSecond());
+				break;
+			case UNKNOWN:
+	      		ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
+	      		addBreakpoint(breakpointLocation);
+		  }
 	      break;
 
 	    case DELETE:
+	      ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
 	      removeBreakpoint(breakpointLocation);
 	      break;
 	    }
