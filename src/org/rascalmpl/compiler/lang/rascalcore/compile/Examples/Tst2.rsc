@@ -34,15 +34,28 @@ import lang::rascalcore::check::ModuleLocations;
 
 private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
 
- test bool moduleReflectiveOnlyTpl() {
-      writeFile(testLibraryLoc + "/resources/rascal/util/$Reflective.tpl",
-        "util/$Reflective.tpl (only file matters, content irrelevant)
-        ");
-    pcfg = pathConfig(srcs = [],
-                    libs=[testLibraryLoc + "/resources/"]
-                     );
-    return getRascalModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
-            == "util::Reflective"
-            && getRascalModuleName(|project://rascal/src/org/rascalmpl/library/Reflective.rsc|, pcfg) 
-            == "Reflective";
+void showName(loc m, PathConfig pcfg){
+  println("<m> =\> <getRascalModuleName(m, pcfg)>");
+}
+void confusion() {
+    listTPL = testLibraryLoc + "/rascal/$List.tpl";
+    writeFile( listTPL, "$List.tpl (only file name matters, content irrelevant)");
+    testListTPL = testLibraryLoc + "/rascal/lang/rascal/tests/library/$List.tpl";
+    writeFile(testListTPL, "lang/rascal/tests/library/$List.tpl (content irrelevant)");
+    pcfg = pathConfig(srcs = [], libs=[testLibraryLoc]);
+    
+    listSrc = |project://rascal/src/org/rascalmpl/library/List.rsc|;
+    testListSrc = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/List.rsc|;
+    println("\nConfusion");
+    showName(listSrc, pcfg);
+    showName(testListSrc, pcfg);
+
+    //rename library => libraries
+    remove(testListTPL);
+    renamedTestListTPL = testLibraryLoc + "/rascal/lang/rascal/tests/libraries/$List.tpl";
+    writeFile(renamedTestListTPL, "lang/rascal/tests/libraries/$List.tpl (content irrelevant)");
+
+    println("\nNo confusion after renaming library to libraries");
+    showName(listSrc, pcfg);
+    showName(testListSrc, pcfg);
 }

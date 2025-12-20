@@ -25,8 +25,25 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
-import  lang::rascalcore::compile::Examples::Tst2;
-    
+
+import IO;
+
+data R  = r(void(value) f,
+            void(value,value) g)
+            ;
+
+R makeR(){
+    void f1(int x){ println("f1(<x>)"); }
+
+    void f2(str x){ println("f2(<x>)"); }
+
+    void f3(int x, int y) {  println("f3(<x>,<y>)"); }
+
+    void f4(str x, str y) {  println("f4(<x>,<y>)"); }
+
+    return r(f1 + f2, f3 + f4);
+}
+
 void main(){
-    N = "a";   
+    makeR().g("a", "b");
 }

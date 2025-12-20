@@ -104,7 +104,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg)
     = getRascalModuleName1(moduleLoc.top, pcfg);
 
-@memo{expireAfter(minutes=5),maximumSize(500)}
+//@memo{expireAfter(minutes=5),maximumSize(500)}
 private str getRascalModuleName1(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
 
