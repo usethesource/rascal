@@ -27,10 +27,35 @@ POSSIBILITY OF SUCH DAMAGE.
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
 
-      
-    
-int N = 0;
+import IO;
+import util::UUID;
+import util::PathConfig;
+import lang::rascalcore::check::ModuleLocations;
 
-void main(){
-    N += 1;
+private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
+
+void showName(loc m, PathConfig pcfg){
+  println("<m> =\> <getRascalModuleName(m, pcfg)>");
+}
+void confusion() {
+    listTPL = testLibraryLoc + "/rascal/$List.tpl";
+    writeFile( listTPL, "$List.tpl (only file name matters, content irrelevant)");
+    testListTPL = testLibraryLoc + "/rascal/lang/rascal/tests/library/$List.tpl";
+    writeFile(testListTPL, "lang/rascal/tests/library/$List.tpl (content irrelevant)");
+    pcfg = pathConfig(srcs = [], libs=[testLibraryLoc]);
+    
+    listSrc = |project://rascal/src/org/rascalmpl/library/List.rsc|;
+    testListSrc = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/List.rsc|;
+    println("\nConfusion");
+    showName(listSrc, pcfg);
+    showName(testListSrc, pcfg);
+
+    //rename library => libraries
+    remove(testListTPL);
+    renamedTestListTPL = testLibraryLoc + "/rascal/lang/rascal/tests/libraries/$List.tpl";
+    writeFile(renamedTestListTPL, "lang/rascal/tests/libraries/$List.tpl (content irrelevant)");
+
+    println("\nNo confusion after renaming library to libraries");
+    showName(listSrc, pcfg);
+    showName(testListSrc, pcfg);
 }
