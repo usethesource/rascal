@@ -30,7 +30,7 @@ The ((subtype)) relation of Rascal has all the mathematical properties of a _fin
 This is a core design principle of Rascal with the following benefits:
 * Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambigous manner.
 * A _principal type_ can always be computed, which is a most precise and unique solution of a type inference problem. Without the lattice, solution candidates could become incomparable and thus ambiguous. Without
-this principal type property, type inference is predictable for programmers.
+this principal type property, type inference is unpredictable for programmers.
 * Solving type inference constraints can be implemented efficiently. The algorithm, based on ((lub)) and ((glb)), makes progress _deterministically_ and does not require backtracking
 to find better solutions. Since the lattice is not very deep, fixed-point solutions are always found quickly.
 
