@@ -23,11 +23,38 @@ import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IDebugMessage.Detail;
-import io.usethesource.vallang.ISourceLocation;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.QuitException;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.rascal.RascalValuePrinter;
+import org.rascalmpl.values.functions.IFunction;
+import java.util.function.Function;
+import org.rascalmpl.semantics.dynamic.Statement.For;
+import org.rascalmpl.semantics.dynamic.Statement.Switch;
+import org.rascalmpl.semantics.dynamic.Statement.Visit;
+import org.rascalmpl.semantics.dynamic.Statement.While;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import io.usethesource.vallang.io.StandardTextWriter;
+import java.io.StringWriter;
+import java.io.PrintWriter;
+import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
-public final class DebugHandler implements IDebugHandler {
+import io.usethesource.vallang.ISourceLocation;
+import org.rascalmpl.uri.URIUtil;
+import io.usethesource.vallang.IValue;
+
+public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluation {
 
 	private AbstractInterpreterEventTrigger eventTrigger;
+
+	private static final ISourceLocation DEBUGGER_PROMPT_LOCATION = URIUtil.rootLocation("debugger");
 
 	private final Set<ISourceLocation> breakpoints = new java.util.HashSet<>();
 			
@@ -40,6 +67,8 @@ public final class DebugHandler implements IDebugHandler {
 	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
 	 */
 	private boolean suspended;
+
+	private long suspendThreadId;
 	
 	private enum DebugStepMode {
 		NO_STEP, STEP_INTO, STEP_OVER, STEP_OUT
@@ -63,6 +92,11 @@ public final class DebugHandler implements IDebugHandler {
 	 * Action to execute on termination request, or <code>null</code> if none.
 	 */
 	private Runnable terminateAction = null;
+
+	/**
+	 * Evaluator that is being debugged.
+	 */
+	private Evaluator evaluator = null;
 
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
@@ -99,6 +133,11 @@ public final class DebugHandler implements IDebugHandler {
 	
 	@Override
 	public void suspended(Object runtime, IntSupplier getCallStackSize, AbstractAST currentAST) {
+		if(isSuspended() && Thread.currentThread().getId() != this.suspendThreadId) {
+			// already suspended by another thread, ignore any suspension
+			return;
+		}
+		
 	    if (isSuspendRequested()) {
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
@@ -106,6 +145,12 @@ public final class DebugHandler implements IDebugHandler {
 	    } 
 	    else {
 	        AbstractAST location = currentAST;
+
+			if (hasBreakpoint(location.getLocation())) {
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByBreakpointEvent(location.getLocation());
+			}
+			
 	        switch (getStepMode()) {
 
 	        case STEP_INTO:
@@ -173,12 +218,7 @@ public final class DebugHandler implements IDebugHandler {
 				break;
 
 	        case NO_STEP:
-	            if (hasBreakpoint(location.getLocation())) {
-	                updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	                getEventTrigger().fireSuspendByBreakpointEvent(location.getLocation());
-	            }
 	            break;
-
 	        }
 	    }
 
@@ -200,6 +240,109 @@ public final class DebugHandler implements IDebugHandler {
 
 	protected void setReferenceAST(AbstractAST referenceAST) {
 	  this.referenceAST = referenceAST;
+	}
+
+	public Evaluator getEvaluator() {
+	  return evaluator;
+	}
+	
+	public void setEvaluator(Evaluator evaluator) {
+	  this.evaluator = evaluator;
+	}
+
+	/**
+	 * Evaluate the given command in the provided environment and return both a
+	 * printable {@link ICommandOutput} and the raw {@link Result} (if any).
+	 * ParseError is propagated to the caller so callers can format it like the REPL.
+	 */
+	@Override
+	public EvalResult evaluate(String command, Environment evalEnv) throws IllegalStateException {
+		if (evaluator == null) {
+			throw new IllegalStateException("DebugHandler was not initialized with an Evaluator");
+		}
+		if (!suspended) {
+			throw new IllegalStateException("Evaluator must be suspended to evaluate expressions");
+		}
+		RascalValuePrinter printer = new RascalValuePrinter() {
+			@Override
+			protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
+				return v -> {
+					synchronized (evaluator) {
+						return func.call(v);
+					}
+				};
+			}
+		};
+
+		synchronized (evaluator) { // The evaluator is synchronized here, under the assumption that the evaluator is currently suspended by this thread
+			// Save old state
+			AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
+			Environment oldEnvironment = evaluator.getCurrentEnvt();
+			try {
+				// disable suspend triggers while evaluating expressions from the debugger
+				evaluator.removeSuspendTriggerListener(this);
+				evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+				evaluator.setCurrentEnvt(evalEnv);
+
+				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+
+				ICommandOutput out = printer.outputResult((org.rascalmpl.interpreter.result.IRascalResult) result);
+				return new EvalResult(result, out);
+			}
+			catch (InterruptException ex) {
+				ICommandOutput out = printer.outputError((w, sw, u) -> {
+					w.println((u ? "»» " : ">> ") + "Interrupted");
+					ex.getRascalStackTrace().prettyPrintedString(w, sw);
+				});
+				return new EvalResult(null, out);
+			}
+			catch (RascalStackOverflowError e) {
+				ICommandOutput out = printer.outputError((w, sw, _u) -> {
+					w.println(e.makeThrow().toString());
+				});
+				return new EvalResult(null, out);
+			}
+			catch (StaticError e) {
+				ICommandOutput out = printer.outputError((w, sw, _u) -> {
+					w.println(String.format("%s: %s", e.getLocation(), e.getMessage()));
+				});
+				return new EvalResult(null, out);
+			}
+			catch (Throw e) {
+				ICommandOutput out = printer.outputError((w, sw, _u) -> {
+					w.println(e.toString());
+				});
+				return new EvalResult(null, out);
+			}
+			catch (QuitException q) {
+				ICommandOutput out = printer.outputError((w, sw, _u) -> {
+					w.println("Quit requested");
+				});
+				return new EvalResult(null, out);
+			}
+			catch (ParseError pe) {
+				// Format parse error using the REPL helper so the message matches REPL output
+				var perr = new StringWriter();
+				var perrPw = new PrintWriter(perr, true);
+				ReadEvalPrintDialogMessages.parseErrorMessage(perrPw, command, DEBUGGER_PROMPT_LOCATION.getScheme(), pe, new StandardTextWriter(false));
+				// Remove the initial prompt ("rascal>") that the formatter emits
+				String formatted = perr.toString();
+				String shifted = formatted.length() > 7 ? formatted.substring(7) : formatted;
+				return new EvalResult(null, new PrinterErrorCommandOutput(shifted));
+			}
+			catch (Throwable e) {
+				ICommandOutput out = printer.outputError((w, sw, _u) -> {
+					w.println(e.toString());
+				});
+				return new EvalResult(null, out);
+			}
+			finally {
+				// Restore old state
+				evaluator.setCurrentEnvt(oldEnvironment);
+				evaluator.setEventTrigger(oldTrigger);
+				evaluator.addSuspendTriggerListener(this);
+			}
+		}
 	}
 
 	protected Integer getReferenceEnvironmentStackSize() {
@@ -225,7 +368,7 @@ public final class DebugHandler implements IDebugHandler {
 
 	  case BREAKPOINT:
 	    ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
-
+  
 	    switch (message.getAction()) {
 	    case SET:
 	      addBreakpoint(breakpointLocation);
@@ -276,7 +419,7 @@ public final class DebugHandler implements IDebugHandler {
 	        terminateAction.run();
 	      }
 	      break;
-	    }
+		}
 	    break;
 	  }
 	}
@@ -290,6 +433,7 @@ public final class DebugHandler implements IDebugHandler {
 	}
 
 	protected synchronized void setSuspended(boolean suspended) {
+	  this.suspendThreadId = Thread.currentThread().getId();
 	  this.suspended = suspended;
 	}
 

@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class CyclicExtend extends StaticError {
-    private static final long serialVersionUID = -7673780054774870139L;
+public class CyclicImportExtend extends StaticError {
+    private static final long serialVersionUID = -3820319837749195535L;
     private final List<ISourceLocation> cycle;
 
-    public CyclicExtend(String name, List<ISourceLocation> cycle, ISourceLocation loc) {
-        super("Extend cycle detected (" + name + "):\n* " + cycle.stream().map(Object::toString).collect(Collectors.joining("\n* ")), loc);
+    public CyclicImportExtend(String name, List<ISourceLocation> cycle, ISourceLocation loc) {
+        super("Extend/import cycle detected:\n* " + cycle.stream().map(Object::toString).collect(Collectors.joining("\n* ")), loc);
         this.cycle = cycle;
     }
 

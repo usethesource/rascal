@@ -70,8 +70,8 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       module_scope = M@\loc;
       setModuleScope(module_scope);
       //setModuleScope(convert2fuid(module_scope));
-      module_name = "<M.header.name>";
-      setModuleName(module_name);
+      M_module_name = "<M.header.name>";
+      setModuleName(M_module_name);
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
@@ -80,7 +80,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
             return <tmodel, errorMuModule(getRascalModuleName(), {e}, M@\loc)>;
       }
      
-      //if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
+      //if(verbose) println("r2mu: entering ... <M_module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the tmodel returned by the type checker  
    	  extractScopes(tmodel); 
@@ -139,9 +139,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
 //        return visit(tmodel) { case loc l => relocLoc(l, reloc, srcs) };
 //}
 
-void translateModule((Module) `<Header header> <Body body>`) {
-    for(imp <- header.imports) importModule(imp);
-	for( tl <- body.toplevels) translateToplevel(tl);
+void translateModule(Module m) {
+    for(imp <- m.header.imports) importModule(imp);
+	for(tl <- m.body.toplevels) translateToplevel(tl);
 }
 
 /********************************************************************/
