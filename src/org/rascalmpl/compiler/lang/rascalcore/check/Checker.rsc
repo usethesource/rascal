@@ -294,8 +294,8 @@ ModuleStatus rascalTModelForLocs(
                     m_extends[m] = extends;
                     invertedExtends = ms.strPaths<2,0>;
                     if(compilerConfig.warnUnused){
-                        // Look for unused imports or exports
-                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                        // Look for unused imports or extends
+                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole == moduleId(), path2module[l.path]?};
                         usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
                         list[Message] imsgs = [];
                         <success, pt, ms> = getModuleParseTree(m, ms);

@@ -64,6 +64,8 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
 	 */
 	private boolean suspended;
+
+	private long suspendThreadId;
 	
 	private enum DebugStepMode {
 		NO_STEP, STEP_INTO, STEP_OVER, STEP_OUT
@@ -148,6 +150,11 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	
 	@Override
 	public void suspended(Object runtime, IntSupplier getCallStackSize, AbstractAST currentAST) {
+		if(isSuspended() && Thread.currentThread().getId() != this.suspendThreadId) {
+			// already suspended by another thread, ignore any suspension
+			return;
+		}
+		
 	    if (isSuspendRequested()) {
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
@@ -452,6 +459,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 
 	protected synchronized void setSuspended(boolean suspended) {
+	  this.suspendThreadId = Thread.currentThread().getId();
 	  this.suspended = suspended;
 	}
 
