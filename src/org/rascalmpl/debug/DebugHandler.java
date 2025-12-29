@@ -26,16 +26,13 @@ import org.rascalmpl.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
+import org.rascalmpl.interpreter.control_exceptions.RestartFrameException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
 import java.util.function.Function;
-import org.rascalmpl.semantics.dynamic.Statement.For;
-import org.rascalmpl.semantics.dynamic.Statement.Switch;
-import org.rascalmpl.semantics.dynamic.Statement.Visit;
-import org.rascalmpl.semantics.dynamic.Statement.While;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
@@ -97,6 +94,12 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	 * Evaluator that is being debugged.
 	 */
 	private Evaluator evaluator = null;
+
+	/**
+	 * Flag indicating a frame restart has been requested.
+	 * Set by the debugger thread, checked and used by the evaluated thread in suspended().
+	 */
+	private int restartFrameId = -1;
 
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
@@ -231,6 +234,13 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        } catch (InterruptedException e) {
 	            // Ignore
 	        }
+	    }
+
+	    // Check if a frame restart was requested while suspended
+	    if (restartFrameId >= 0) {
+	        int frameToRestart = restartFrameId;
+	        restartFrameId = -1; // Reset the flag
+	        throw new RestartFrameException(frameToRestart);
 	    }
 	}
 
@@ -419,6 +429,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        terminateAction.run();
 	      }
 	      break;
+		
+		case RESTART_FRAME:
+		  assert suspended: "Can only restart frame when suspended";
+		  int frameId = (int) message.getPayload();
+		  assert frameId >= 0 && frameId < evaluator.getCurrentStack().size(): "Frame id out of bounds: " + frameId;
+		  // Set flag for the evaluated thread to handle the restart
+		  restartFrameId = frameId;
+		  // Unsuspend to let the evaluated thread continue and hit the restart exception
+		  setSuspended(false);
+		  break;
 		}
 	    break;
 	  }
