@@ -31,7 +31,7 @@ public class RascalEvent extends EventObject {
 	 * Details additional to {@link Kind}.
 	 */
 	public enum Detail {
-		UNSPECIFIED, CLIENT_REQUEST, STEP_INTO, STEP_OVER, STEP_END, BREAKPOINT, STEP_OUT
+		UNSPECIFIED, CLIENT_REQUEST, STEP_INTO, STEP_OVER, STEP_END, BREAKPOINT, STEP_OUT, RESTART_FRAME_END
 	}
 
 	private final Kind kind;
