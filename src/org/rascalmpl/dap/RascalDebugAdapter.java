@@ -154,7 +154,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setSupportsConfigurationDoneRequest(true);
             capabilities.setExceptionBreakpointFilters(new ExceptionBreakpointsFilter[]{});
             capabilities.setSupportsStepBack(false);
-            capabilities.setSupportsRestartFrame(false);
+            capabilities.setSupportsRestartFrame(true);
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
             capabilities.setSupportsCompletionsRequest(true);
@@ -740,6 +740,13 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             return response;
         }, ownExecutor);
 	}
-    
+ 
+    @Override
+    public CompletableFuture<Void> restartFrame(RestartFrameArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            debugHandler.processMessage(DebugMessageFactory.requestRestartFrame(args.getFrameId()));
+            return null;
+        }, ownExecutor);
+    }
 }
 
