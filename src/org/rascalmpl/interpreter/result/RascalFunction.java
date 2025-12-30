@@ -249,9 +249,11 @@ public class RascalFunction extends NamedFunction {
         if (result != null) { 
             return result;
         }
+        boolean restartFrame = true;
 
         // Outer loop to handle frame restarts
-        while (true) {
+        while (restartFrame) {
+            restartFrame = false; // reset flag
             Environment old = ctx.getCurrentEnvt();
             AbstractAST currentAST = ctx.getCurrentAST();
             AbstractAST oldAST = currentAST;
@@ -366,16 +368,14 @@ public class RascalFunction extends NamedFunction {
                 if(ctx instanceof Evaluator) {
                     Evaluator evaluator = (Evaluator) ctx;
                     var stackTrace = evaluator.getCurrentStack();
-                    // here we can check if the frame to restart is indeed this one
-                    // we can just choose by length
-                    if(stackTrace.size() == 1){
+                    if(stackTrace.size() == 1){ // should not happen because this is the REPL frame
                         throw new ImplementationError("Cannot restart frame of the REPL");
                     }
-                    if (rfe.getTargetFrameId() == stackTrace.size() -1) {
+                    if (rfe.getTargetFrameId() == stackTrace.size() -1) { // the frame to restart
+                        restartFrame = true;
                         continue; // restart the frame by continuing the while loop
                     }
-                    else {
-                        // not the frame to restart, rethrow to let upper frames handle it
+                    else { // not the frame to restart, rethrow to let upper frames handle it
                         throw rfe;
                     }
                 }
@@ -406,6 +406,7 @@ public class RascalFunction extends NamedFunction {
                 ctx.setCurrentAST(oldAST);
             }
         }
+        throw new ImplementationError("Unreachable code reached after frame restart handling");
     }
 
     private Result<IValue> runBody() {
