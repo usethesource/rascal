@@ -744,8 +744,18 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> restartFrame(RestartFrameArguments args) {
         return CompletableFuture.supplyAsync(() -> {
-            debugHandler.processMessage(DebugMessageFactory.requestRestartFrame(args.getFrameId()));
+            if(args.getFrameId() == 0){ 
+                // From DAP spec, we must send a stopped event. Here we use this to indicate that the REPL frame cannot be restarted
+                StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                stoppedEventArguments.setThreadId(RascalDebugAdapter.mainThreadID);
+                stoppedEventArguments.setDescription("Cannot restart the REPL frame");
+                stoppedEventArguments.setReason("restart");
+                client.stopped(stoppedEventArguments);
+            } else{
+                debugHandler.processMessage(DebugMessageFactory.requestRestartFrame(args.getFrameId()));
+            }
             return null;
+
         }, ownExecutor);
     }
 }
