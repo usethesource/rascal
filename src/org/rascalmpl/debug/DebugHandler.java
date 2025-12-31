@@ -437,6 +437,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 		  // Set flag for the evaluated thread to handle the restart
 		  restartFrameId = frameId;
 		  // Unsuspend to let the evaluated thread continue and hit the restart exception
+		  setSuspendRequested(true); // We use the suspension request to break on the first frame's breakable point
 		  setSuspended(false);
 		  break;
 		}
