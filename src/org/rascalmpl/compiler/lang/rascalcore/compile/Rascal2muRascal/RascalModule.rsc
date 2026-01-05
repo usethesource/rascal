@@ -92,7 +92,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  
    	  translateModule(M);
    	  
-   	  generateAllFieldGetters(module_scope);
+   	  generateAllFieldGetters(module_scope, tmodel.logical2physical);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       

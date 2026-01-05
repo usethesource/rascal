@@ -175,7 +175,7 @@ bool checkExpectErrors(str mname, list[str] expected, PathConfig pcfg, list[Proj
 
 TModel check(str mname, RascalCompilerConfig cfg){
     ModuleStatus ms = rascalTModelForNames([mname], cfg, dummy_compile1);
-    <found, tm, ms> = getTModelForModule(mname, ms);
+    <found, tm, ms> = getTModelForModule(moduleName2moduleId(mname), ms);
     if(found) return tm;
     throw "check: no TModel found for <mname>";
 }
@@ -359,7 +359,7 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
  */
 
 test bool incompatibleVersionsOfBinaryLibrary(){
-    clearMemory() ;
+    clearMemory();
     rascalName = "rascal";
     rascal =
         createProject(rascalName,

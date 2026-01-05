@@ -35,7 +35,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 extend lang::rascalcore::check::CheckerCommon;
 
-import Location;
+import LogicalLocation;
 import List;
 import Relation;
 import Set;
@@ -108,7 +108,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, pcfg, jg);
     
     map[loc,AType] facts = tm.facts;
-    cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) }
+    cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), jg.isContainedIn(def.scope, module_scope) }
                      + { t | loc k <- facts, /AType t:acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts[k],
                            !isEmpty(adt.parameters), any(p <- adt.parameters, !isTypeParameter(p))
                        };
@@ -465,7 +465,7 @@ str getMemoCache(MuFunction fun)
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
     //iprintln(fun); // print function
     
-    if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
+    if(!jg.isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
     if(ignoreCompiler(fun.tags)) return <"", "", "">;
     
@@ -996,7 +996,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
         externalRefs = jg.getExternalRefs(uid);
         externals = [ varName(var, jg) | var <- sort(externalRefs), !isVarDeclaredInFun(var, jg.getFunction())/*, var notin fun.formals*/];
     
-        if(isContainedIn(uid, jg.getModuleLoc())){
+        if(jg.isContainedIn(uid, jg.getModuleLoc())){
             fn = loc2muFunction[uid];
             kwactuals1 = jg.collectKwpFormals(fn);
             if(isEmpty(kwactuals) && !isEmpty(kwactuals1)) kwactuals = ["$kwpActuals"];

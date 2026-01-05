@@ -44,9 +44,9 @@ void main() {
 tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatus ms){
     libName = lib.modelName;
     set[loc] libLogical = domain(lib.logical2physical);
-    set[loc] libDefines = { l | l <- libLogical, getModuleFromLogical(l) == libName };
+    set[loc] libDefines = { l | l <- libLogical, getModuleNameFromAnyLogical(l) == libName };
     set[loc] libDependsOn = libLogical - libDefines;
-    set[str] libDependsOnModules = { getModuleFromLogical(l) | l <- libDependsOn };
+    set[str] libDependsOnModules = { getModuleNameFromAnyLogical(l) | l <- libDependsOn };
     set[loc] dependentsProvide = {};
     for(m <- libDependsOnModules){
        <found, tm, ms> = getTModelForModule(m, ms, convert=false);
