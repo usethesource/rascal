@@ -366,7 +366,7 @@ ModuleStatus removeTModel(MID candidate, ModuleStatus ms, bool updateBOMneeded =
         tm = ms.tmodels[candidate];
         tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
         ms.status[candidate] += tpl_saved();
-        if(ms.compilerConfig.verbose) println("Saving tmodel for <candidate> before removing from cache");
+        if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
             writeBinaryValueFile(tplLoc, tm);
             if(traceTPL) println("Written <tplLoc>");
