@@ -37,7 +37,7 @@ import ParseTree;
 import Message;
 import String;
 import IO;
-import Location;
+import LogicalLocation;
 
 // WARNING: this module is sensitive to bootstrapping dependencies and implicit contracts:
 // 
@@ -72,7 +72,7 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    M = top-down-break visit(M) {
      case Tree t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
           => appl(p, [parseFragment(concrete)])[@\loc=t@\loc]
-          when !any(loc ign <- ignoredFunctionLocs, isContainedIn(t@\loc, ign))
+          when !any(loc ign <- ignoredFunctionLocs, isContainedIn(t@\loc, ign, tm.logical2physical))
    }
    
    return <M, tm>;

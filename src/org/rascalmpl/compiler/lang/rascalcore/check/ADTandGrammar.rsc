@@ -165,19 +165,20 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
-tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] transient_tms, ModuleStatus ms){
+tuple[TModel, ModuleStatus] addGrammar(MID moduleId, set[MID] imports, set[MID] extends, map[MID,TModel] transient_tms, ModuleStatus ms){
     try {
         rel[AType,AProduction] definedProductions = {};
         allStarts = {};
-        for(m <- {qualifiedModuleName, *imports, *extends}){
+        qualifiedModuleName = moduleId2moduleName(moduleId);
+        for(m <- {moduleId, *imports, *extends}){
             TModel tm1;
             if(transient_tms[m]?){
                 tm1 = transient_tms[m];
             } else {
                 <found, tm1, ms> = getTModelForModule(m, ms);
                 if(!found) {
-                    msg = error("Cannot add grammar, tmodel for <m> not found", ms.moduleLocs[qualifiedModuleName] ? |unknown:///|);
-                    ms.messages[qualifiedModuleName] ? {} += { msg };
+                    msg = error("Cannot add grammar, tmodel for <m> not found", ms.moduleLocs[moduleId] ? |unknown:///|);
+                    ms.messages[moduleId] ? {} += { msg };
                     tm1 = tmodel(modelName=qualifiedModuleName, messages=[msg]);
                     return <tm1, ms>;
                 }
@@ -223,7 +224,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         // Check keyword rules
 
-        tm = checkKeywords(allProductions, transient_tms[qualifiedModuleName]);
+        tm = checkKeywords(allProductions, transient_tms[moduleId]);
 
         // Check layout
 

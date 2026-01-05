@@ -24,9 +24,14 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst4
-import  lang::rascalcore::compile::Examples::Tst2;
-    
-void main(){
-    N = "a";   
-}
+module lang::rascalcore::compile::Examples::Tst4   
+
+import lang::rascalcore::compile::Examples::Tst5;
+                     
+// int M = lang::rascalcore::compile::Examples::Tst5::N + 2;        
+                     
+//AB xxx = AB::ab();   
+
+value f() = AB::ab(); 
+
+  
