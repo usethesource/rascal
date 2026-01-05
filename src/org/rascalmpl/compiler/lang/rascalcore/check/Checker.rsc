@@ -311,7 +311,7 @@ ModuleStatus rascalTModelForLocs(
                         <success, pt, ms> = getModuleParseTree(m, ms);
                         if(success){
                             if(compilerConfig.infoModuleChecked){
-                                imsgs += [info("Checked <m>", pt.header.name@\loc)];
+                                imsgs += [info("Checked <moduleId2moduleName(m)>", pt.header.name@\loc)];
                             }
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
