@@ -458,7 +458,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.15.6-SNAPSHOT</version>
+            <version>0.15.6</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
