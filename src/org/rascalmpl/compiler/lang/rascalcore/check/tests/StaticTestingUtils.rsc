@@ -36,7 +36,7 @@ module lang::rascalcore::check::tests::StaticTestingUtils
 
 import IO;
 import String;
-import LogicalLocation;
+import Location;
 import Message;
 import Set;
 import util::Reflective;

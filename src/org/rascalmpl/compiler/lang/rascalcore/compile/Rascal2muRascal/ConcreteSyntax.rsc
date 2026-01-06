@@ -37,7 +37,7 @@ import ParseTree;
 import Message;
 import String;
 import IO;
-import LogicalLocation;
+import Location;
 
 // WARNING: this module is sensitive to bootstrapping dependencies and implicit contracts:
 // 
