@@ -35,7 +35,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 extend lang::rascalcore::check::CheckerCommon;
 
-import LogicalLocation;
+import Location;
 import List;
 import Relation;
 import Set;

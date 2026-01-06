@@ -31,7 +31,7 @@ import IO;
 import Map;
 import List;
 import ListRelation;
-import LogicalLocation;
+import Location;
 import Node;
 import Set;
 import String;
