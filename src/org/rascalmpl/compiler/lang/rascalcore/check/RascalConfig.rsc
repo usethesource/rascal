@@ -40,7 +40,7 @@ import lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::ModuleLocations;
 
-import LogicalLocation;
+import Location;
 import util::FileSystem;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names;

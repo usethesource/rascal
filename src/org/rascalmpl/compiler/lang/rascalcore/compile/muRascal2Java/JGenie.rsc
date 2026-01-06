@@ -29,7 +29,7 @@ module lang::rascalcore::compile::muRascal2Java::JGenie
 
 import IO;
 import List;
-import LogicalLocation;
+import Location;
 import Map;
 import Node;
 import Set;
