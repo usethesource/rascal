@@ -148,8 +148,9 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
-    module_scope = module2loc[moduleName];
+str generateResolvers(MID moduleId, map[loc, MuFunction] loc2muFunction, set[MID] imports, set[MID] extends, map[MID,TModel] tmodels, map[MID,loc] module2loc, PathConfig pcfg, JGenie jg){
+    moduleName = moduleId2moduleName(moduleId);
+    module_scope = module2loc[moduleId];
 
     loc2module = invertUnique(module2loc);
     module_scopes = domain(loc2module);
@@ -158,7 +159,8 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
-    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes, pcfg, jg) | mname <- tmodels };
+
+    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mid], module_and_extend_scopes, pcfg, jg) | mid <- tmodels };
 
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
@@ -175,7 +177,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
         for(sdefs <- defs_in_disjoint_scopes){
             if(any(d <- sdefs, d.scope notin module_scopes)){
                 // All local functions trated samw wrt keyword parameters
-                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, pcfg, jg);
+                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleId].paths, tmodels[moduleId], loc2module, pcfg, jg);
 
             } else {
                 // For global functions we differentiate wrt keyword oarameters
@@ -217,7 +219,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 }
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, PathConfig pcfg, JGenie jg){
+str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, MID] loc2module, PathConfig pcfg, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
 
     module_scopes = domain(loc2module);
