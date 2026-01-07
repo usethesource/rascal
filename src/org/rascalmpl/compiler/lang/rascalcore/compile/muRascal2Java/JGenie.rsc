@@ -86,14 +86,15 @@ data JGenie
     ;
     
 JGenie makeJGenie(MuModule m, 
-                  map[str,TModel] tmodels, 
-                  map[str,loc] moduleLocs, 
-                  map[str, MuFunction] muFunctions){
+                  map[MID,TModel] tmodels, 
+                  map[MID,loc] moduleLocs, 
+                  map[MID, MuFunction] muFunctions){
                   
-    map[str,loc] allModuleLocs = moduleLocs;
-    map[loc,str] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
+    map[MID,loc] allModuleLocs = moduleLocs;
+    map[loc,MID] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
+    MID moduleId = moduleName2moduleId(moduleName);
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
@@ -115,9 +116,9 @@ JGenie makeJGenie(MuModule m,
         checkAllTypesAvailable(tmodels[mname]);
     }
     
-    TModel currentTModel = tmodels[moduleName];
+    TModel currentTModel = tmodels[moduleId];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
-    loc currentModuleScope = moduleLocs[moduleName];
+    loc currentModuleScope = moduleLocs[moduleId];
     str functionName = "$UNKNOWN";
     MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     

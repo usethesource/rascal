@@ -44,7 +44,7 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie _jg){
+str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[MID] imports, set[MID] extends, map[MID,TModel] tmodels, PathConfig pcfg, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.runtime.function.*;
@@ -55,11 +55,11 @@ str generateInterface(str moduleName, str packageName, list[MuFunction] function
            '}";
 }
 
-lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
-    
+lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[MID]  _imports, set[MID] extends, map[MID,TModel] tmodels, PathConfig pcfg){
+    MID moduleId = moduleName2moduleId(moduleName);
     lrel[str, AType] result = [];
     rel[str, int, AType] signatures = {};
-    mscope = tmodels[moduleName].moduleLocs[moduleName];
+    mscope = tmodels[moduleId].moduleLocs[moduleName];
    
     
     for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
@@ -101,7 +101,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     return sort(result);
 }
 
-str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
+str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[MID] imports, set[MID] extends, map[MID,TModel] tmodels, PathConfig pcfg){
     interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels, pcfg);
     methods = [generateInterfaceMethod(name, tp) | <name, tp> <- interface_signature];
     return intercalate("\n", methods);
