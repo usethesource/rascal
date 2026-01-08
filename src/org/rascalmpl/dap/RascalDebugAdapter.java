@@ -369,7 +369,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
-        if(loc != null && loc.getScheme()!="prompt"){
+        if(loc != null && !loc.getScheme().equals("prompt")){
             var offsets = columns.get(loc);
             var line = shiftLine(loc.getBeginLine());
             var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
