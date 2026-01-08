@@ -289,6 +289,13 @@ test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  
 test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
 test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
 
+// Nested Lists
+
+test bool AssignNestedList1(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; L[1][2] = 50; return L ==  [[0,1,2],[3,4,50],[6,7,8,9]]; }
+test bool AccessNestedList1(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; return L[1][2] == 5; }
+test bool AssignNestedList2(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; L[-2][-1] = 50; return L ==  [[0,1,2],[3,4,50],[6,7,8,9]]; }
+test bool AccessNestedList2(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; return L[-2][-1] == 5; }
+
 // Library functions
 
 test bool tstDelete(list[&T] L) {
