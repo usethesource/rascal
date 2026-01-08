@@ -246,6 +246,13 @@ test bool sliceSecondNegative(list[int] L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
+test bool sliceOutOfBoundIndex1() { L = [0,1,2,3,4,5,6,7,8,9]; return L[..] == [0,1,2,3,4,5,6,7,8,9];}
+test bool sliceOutOfBoundIndex2() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..] == [];}
+test bool sliceOutOfBoundIndex3() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..10] == [];}
+test bool sliceOutOfBoundIndex4() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..-11] == [9,8,7,6,5,4,3,2,1];}
+test bool sliceOutOfBoundIndex5() { L = [0,1,2,3,4,5,6,7,8,9]; return L[-15..-11] == [];}
+test bool sliceOutOfBoundIndex6() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..-5] == [9,8,7,6];}
+
 test bool assignSlice1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
 test bool assignSlice2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
 test bool assignSlice3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
