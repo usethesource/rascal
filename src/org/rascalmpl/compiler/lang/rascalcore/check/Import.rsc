@@ -172,8 +172,8 @@ ModuleStatus getImportAndExtendGraph(MID moduleId, ModuleStatus ms){
                     ms.status[moduleId] -= tpl_saved();
                     ms.messages[moduleId] = {};
                     if(ms.compilerConfig.verbose){
-                        println("--- using <getLastModified(mid, ms)> (most recent) version of <mid>,
-                                '    older <timestampInBom> version was used in previous check of <moduleId>");
+                        println("--- using <getLastModified(mid, ms)> (most recent) version of <m>,
+                                '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
                }
            }
@@ -291,12 +291,12 @@ tuple[list[MID], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
         //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
-        println("BOM of <lib.modelName>:"); iprintln(lib.store[key_bom]);
-        println("libDependsOn: <size(libDependsOn)>
-                'dependentsProvide: <size(dependentsProvide)>
-                'unstatisfied: <size(unsatisfied)>
-                ");
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied (<unsatisfied>)");
+        // println("BOM of <lib.modelName>:"); iprintln(lib.store[key_bom]);
+        // println("libDependsOn: <size(libDependsOn)>
+        //         'dependentsProvide: <size(dependentsProvide)>
+        //         'unstatisfied: <size(unsatisfied)>
+        //         ");
+        // println("isCompatibleBinaryLibrary, <libName> unsatisfied (<unsatisfied>)");
         
         //incompatibleModuleNames = { moduleId2moduleName(u) | u <- unsatisfied };
         return <sort(unsatisfied), ms>;
