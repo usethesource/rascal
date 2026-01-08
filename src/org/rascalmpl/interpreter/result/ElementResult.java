@@ -233,7 +233,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 				firstIndex = Math.max(firstIndex+len, 0);
 			}
 			else{
-				firstIndex = Math.min(firstIndex, len-1);
+				firstIndex = Math.min(firstIndex, len);
 			}
 		}
 		if(end != null){
@@ -244,6 +244,10 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			else{
 				endIndex = Math.min(endIndex, len);
 			}
+		}
+		
+		if(firstIndex == len && endIndex<firstIndex){
+			firstIndex = len - 1;
 		}
 		
 		if(second == null){
