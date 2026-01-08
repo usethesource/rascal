@@ -229,13 +229,20 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		
 		if(first != null){
 			firstIndex = getInt(first);
-			if(firstIndex < 0)
-				firstIndex += len;
+			if(firstIndex < 0){
+				firstIndex = Math.max(firstIndex+len, 0);
+			}
+			else{
+				firstIndex = Math.min(firstIndex, len-1);
+			}
 		}
 		if(end != null){
 			endIndex = getInt(end);
 			if(endIndex < 0){
-				endIndex += len;
+				endIndex = Math.max(endIndex+len, 0);
+			}
+			else{
+				endIndex = Math.min(endIndex, len);
 			}
 		}
 		
