@@ -165,11 +165,8 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 }
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
-    // println("rascalIsAcceptableQualified: <def>, <use>");
+    //  println("rascalIsAcceptableQualified: <def>, <use>");
     
-    // defPath = def.path;
-    // qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
-
     path = def.path;
     if(path[0] == "/") path = path[1..];
     defPath = split("/", path)[0..-1];
@@ -177,7 +174,6 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
 
     // qualifier and proposed definition are the same?
     if(defPath == qualAsPath){
-    // if(endsWith(defPath, qualAsPath)){
        return acceptBinding();
     }
 
@@ -197,7 +193,8 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // Is there another acceptable qualifier via an extend?
 
     extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
-
+    // println("path = <path>");
+    // println("extendedStarBy");iprintln(extendedStarBy);
     if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[path]?{}, endsWith(p, path))){ //TODO check this
        return acceptBinding();
     }
