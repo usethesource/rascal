@@ -158,6 +158,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
             capabilities.setSupportsCompletionsRequest(true);
+            capabilities.setSupportsConditionalBreakpoints(true);
 
             return capabilities;
         }, ownExecutor);
@@ -208,7 +209,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 ITree treeBreakableLocation = locateBreakableTree(parseTree, breakpoint.getLine());
                 if(treeBreakableLocation != null) {
                     ISourceLocation breakableLocation = TreeAdapter.getLocation(treeBreakableLocation);
-                    breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    if(breakpoint.getCondition() != null){
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource(), breakpoint.getCondition());
+                    }
+                    else {
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    }
                 }
                 Breakpoint b = new Breakpoint();
                 b.setId(i);
