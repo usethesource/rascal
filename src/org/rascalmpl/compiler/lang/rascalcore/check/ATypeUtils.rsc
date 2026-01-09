@@ -355,7 +355,7 @@ AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters
 AType symbol2atype1(Symbol::sort(str name)) = aadt(name, [], contextFreeSyntax());
 AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
 AType symbol2atype1(Symbol::keywords(str name)) = aadt(name, [], keywordSyntax());
-AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
+AType symbol2atype1(Symbol::layouts(str name)) = aadt(name, [], layoutSyntax());
 
 AType symbol2atype1(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) =
     aadt(name, symbol2atype(parameters), contextFreeSyntax());
