@@ -228,7 +228,7 @@ bool tplOutdated(MID moduleId, PathConfig pcfg){
         res = !found || lmMloc > lmTpl;
         //println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
         return res;
-    } catch e: {
+    } catch _: {
         return false;
     }
 }
@@ -322,7 +322,6 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
 }
 
 rel[str,datetime,PathRole] makeBom(MID moduleId, ModuleStatus ms){
-    map[MID,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     qualifiedModuleName = moduleId2moduleName(moduleId);
     imports = ms.paths[moduleId,importPath()];
@@ -455,7 +454,7 @@ rel[loc from, PathRole r, loc to] getPaths(rel[MID from, PathRole r, MID to] pat
             mfrom = getRascalModuleLocation(from, ms);
             mto = getRascalModuleLocation(to, ms);
             paths += <mfrom, r, mto>;
-        } catch e: ;/* ignore non-existing module */
+        } catch _: ;/* ignore non-existing module */
     }
     return paths;
 }
