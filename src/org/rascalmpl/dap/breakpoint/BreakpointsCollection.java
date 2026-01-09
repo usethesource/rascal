@@ -64,7 +64,7 @@ public class BreakpointsCollection {
     public void addBreakpoint(ISourceLocation location, Source source){
         String path = location.getPath();
         BreakpointInfo breakpoint = new BreakpointInfo(breakpointIDCounter.incrementAndGet(), source);
-        breakpoints.computeIfAbsent(path, k -> new HashMap<>()).put(location, breakpoint);
+        breakpoints.computeIfAbsent(path, k -> new ConcurrentHashMap<>()).put(location, breakpoint);
         debugHandler.processMessage(DebugMessageFactory.requestSetBreakpoint(location));
     }
 
