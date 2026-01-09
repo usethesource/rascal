@@ -62,16 +62,9 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 public int nalternatives = 0;
 public int syndefCounter = 0;
 
-
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
     // println("declareSyntax: <current>");
     Sym defined = current.defined;
-
-    if (defined is \start) {
-        c.report(error(defined, "Can not manually define a start non-terminal, because its syntax rule is already generated automatically."));
-        return;
-    }
-
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
 
@@ -83,17 +76,13 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType,closed=true)| tp <- typeParameters ]];
         }
 
-        dt = defType(nonterminalType);
+        dt = defType(/*current is language && current.\start is present ? \start(nonterminalType) : */nonterminalType);
         dt.vis = vis;
         dt.md5 = md5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
         syndefCounter += 1;
 
         // Define the syntax symbol itself and all labelled alternatives as constructors
         c.define(adtName, idRole, current, dt);
-
-        if (current is \language && current.\start is present) {
-            collectStartRule(current.\start, nonterminalType, c);
-        }
 
         adtParentScope = c.getScope();
         c.enterScope(current);
@@ -111,32 +100,6 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     } else {
         c.report(error(defined, "Lhs of syntax definition not supported"));
     }
-}
-
-@synopsis{Simulate the declaration of a start rule}
-@description{
-For every `start syntax A = ...` which has just been collected, we simulate the existence
-of `syntax start[A] = A top;`:
-* a `start[A]` type
-* a production rule `start[A] = A top;`
-* a field `A top` of `start[A]`
-
-We don't generate a `acons` because the generated syntax rule has no cons label.
-We don't include layout before and after the `top` field, because that is added much
-later in the compilatiojn pipeline with the other layout non-terminals.
-}
-void collectStartRule(Start current, AType nonterminalType, Collector c) {    
-    aStartSym = \start(nonterminalType, contextFreeSyntax());
-    st = defType(aStartSym);
-    c.define("<aStartSym>", nonterminalId(), current, st);
-    
-    startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
-    sPos = current@\loc.top(current@\loc.offset, 1);
-    c.define("", productionId(), sPos, startProd);
-
-    fieldDef = defType(nonterminalType[alabel="top"]);
-    tPos = current@\loc.top(current@\loc.offset + 1, 1);
-    c.define("top", fieldId(), tPos, fieldDef);
 }
 
 // ---- Prod ------------------------------------------------------------------
@@ -232,6 +195,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                                stp := getSyntaxType(removeChainRule(tsym), s)
                              ];
 
+                    def = \start(sdef) := def ? sdef : def;
+                    //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=md5Hash("<adt><unparseNoLayout(current)>")]);

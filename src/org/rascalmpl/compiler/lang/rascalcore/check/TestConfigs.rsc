@@ -46,23 +46,20 @@ data PathConfig(
 // use the `download-test-jars.sh` to download these dependencies 
 // (and make sure to KEEP THE VERSIONS up to date)
 
-public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
-public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
-public loc OUTDATED_TYPEPAL 
-                  = |mvn://org.rascalmpl--typepal--0.14.1/|;
+public loc RASCAL       = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
+loc TYPEPAL             = |mvn://org.rascalmpl--typepal--0.14.8/|;
+loc OUTDATED_TYPEPAL    = |mvn://org.rascalmpl--typepal--0.14.1/|;
 
-public loc DRAMBIGUITY   = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
-public loc FLYBYTES      = |mvn://org.rascalmpl--flybytes--0.1.5/|;
-public loc SALIX_CORE    = |mvn://org.rascalmpl--salix-core--0.2.7/|;
-public loc SALIX_CONTRIB = |mvn://org.rascalmpl--salix-contrib--0.2.7/|;
-public loc RASCAL_LSP    = |mvn://org.rascalmpl--rascal-lsp--2.21.2/|;
-public loc PHP_ANALYSIS  = |mvn://org.rascalmpl--php-analysis--0.2.5-SNAPSHOT/|;
+loc DRAMBIGUITY         = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
+loc FLYBYTES            = |mvn://org.rascalmpl--flybytes--0.1.5/|;
+loc SALIX_CORE          = |mvn://org.rascalmpl--salix-core--0.2.7/|;
+loc SALIX_CONTRIB       = |mvn://org.rascalmpl--salix-contrib--0.2.7/|;
+loc RASCAL_LSP          = |mvn://org.rascalmpl--rascal-lsp--2.21.2/|;
+loc PHP_ANALYSIS        = |mvn://org.rascalmpl--php-analysis--0.2.5-SNAPSHOT/|;
 
-public loc REPO          =  |file:///Users/paulklint/git/|;
-public loc COMPILED_RASCAL 
-                  =  REPO + "compiled-rascal";
-public loc TMP_COMPILED_RASCAL 
-                  = |tmp:///compiled-rascal/|;
+loc REPO                =  |file:///Users/paulklint/git/|;
+loc COMPILED_RASCAL     =  REPO + "compiled-rascal";
+loc TMP_COMPILED_RASCAL = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
