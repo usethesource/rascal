@@ -155,14 +155,34 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
     }
 }
 
-// Check if a module is modified compared to a given timestamp
-bool isModuleModified(str qualifiedModuleName, datetime timestamp, PathConfig pcfg){
+// Check if a module is modified compared to a given timestamp in BOM
+tuple[bool,ModuleStatus] isModuleModified(str qualifiedModuleName, datetime timestamp, PathRole pathRole, ModuleStatus ms){
     qualifiedModuleName = unescape(qualifiedModuleName);
+    pcfg = ms.pathConfig;
     try {
         mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
-        return lastModified(mloc) != timestamp;
+        bool modifiedChanged = lastModified(mloc) != timestamp;
+        if(pathRole == importPath()){
+            return <modifiedChanged, ms>;
+        } else {    
+            // extendPath
+            // TODO: in the case of deep extend chains this might become inefficient since we are
+            // yoyo-ing up and down through the extend chains.
+            // Potential solution: maintain set of changed modules in ModuleStatus
+            <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=false);
+            if(found && tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+                 for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
+                    <mchanged, ms> = isModuleModified(m, timestampInBom, pathRole, ms);
+                    if(mchanged){
+                        return <true, ms>;
+                    }
+                 }
+                 return <false, ms>;
+            }
+            return <false, ms>;
+        }
     } catch value _: {
-        return false;
+        return <false, ms>;
     }
 }
 
