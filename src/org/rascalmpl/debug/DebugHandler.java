@@ -431,15 +431,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	      break;
 		
 		case RESTART_FRAME:
-		  assert suspended: "Can only restart frame when suspended";
-		  int frameId = (int) message.getPayload();
-		  assert frameId >= 0 && frameId < evaluator.getCurrentStack().size(): "Frame id out of bounds: " + frameId;
-		  // Set flag for the evaluated thread to handle the restart
-		  if (restartFrameId.compareAndSet(-1, frameId)) {
-			// Unsuspend to let the evaluated thread continue and hit the restart exception
-			setSuspendRequested(true);
-			setSuspended(false);
-		  }
+			if(suspended) {
+				int frameId = (int) message.getPayload();
+				assert frameId >= 0 && frameId < evaluator.getCurrentStack().size(): "Frame id out of bounds: " + frameId;
+				// Set flag for the evaluated thread to handle the restart
+				if (restartFrameId.compareAndSet(-1, frameId)) {
+					// Unsuspend to let the evaluated thread continue and hit the restart exception
+					setSuspendRequested(true);
+					setSuspended(false);
+				}
+			}
 		  break;
 		}
 	    break;
