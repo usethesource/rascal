@@ -103,16 +103,17 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		if(!breakpoints.containsKey(b)) {
+		String condition = breakpoints.get(b);
+		if(condition == null) {
 			return false;
 		}
-		if(breakpoints.get(b) == null) {
+		if(condition.isEmpty()) {
 			return true;
 		}
 		setSuspended(true);
 		
 		try {
-			Result<IValue> condResult = this.evaluate(breakpoints.get(b), (Environment) evaluator.getCurrentStack().lastElement()).result;
+			Result<IValue> condResult = this.evaluate(condition, (Environment) evaluator.getCurrentStack().lastElement()).result;
 			setSuspended(false);
 			return condResult.isTrue();
 		}
@@ -123,7 +124,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.put(breakpointLocation, null);
+		breakpoints.put(breakpointLocation, "");
 	}
 
 	private void addBreakpoint(ISourceLocation breakpointLocation, String condition) {
