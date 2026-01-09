@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-BOOT2-SNAPSHOT</version>
+    <version>0.41.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC29</rascal-maven.version>
+        <rascal-maven.version>0.30.2</rascal-maven.version>
         <jline.version>3.29.0</jline.version> <!-- do not upgrade unless https://github.com/jline/jline3/issues/1445 is solved-->
     </properties>
 
@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC70</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.2-BOOT1</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -458,7 +458,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.15.2-RC21</version>
+            <version>0.15.3</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
@@ -487,17 +487,17 @@
         <dependency> <!-- needed by commons-compress for compressed+...://...zst -->
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
-            <version>1.5.7-4</version>
+            <version>1.5.7-6</version>
         </dependency>
         <dependency> <!-- needed by commons-compress for compressed+...://...xz -->
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
-            <version>1.10</version>
+            <version>1.11</version>
         </dependency>
         <dependency> <!-- used for base32 encoding in IO and String, needed anyway for commons-compress -->
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.19.0</version>
+            <version>1.20.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -557,7 +557,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>77.1</version>
+            <version>78.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -588,7 +588,7 @@
         <dependency> <!-- file watch support -->
             <groupId>engineering.swat</groupId>
             <artifactId>java-watch</artifactId>
-            <version>0.9.5</version>
+            <version>0.9.6</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.lsp4j</groupId>
@@ -647,6 +647,11 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <argLine>
+                                -Xmx${rascal.test.memory}G
+                                -Dfile.encoding=UTF-8
+                                <!-- we turn of jacoco as it really slows down these tests, sadly -->
+                            </argLine>
                             <includes>
                                 <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
                                 <include>**/org/rascalmpl/compiler/**/*Test.java</include>

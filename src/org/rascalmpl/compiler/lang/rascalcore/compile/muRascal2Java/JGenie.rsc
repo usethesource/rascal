@@ -359,7 +359,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     bool _isDefinedInCurrentFunction(MuExp var){
-        definitions = currentTModel.definitions;
+        map[loc, Define] definitions = currentTModel.definitions;
         for(d <- definitions, def := definitions[d], var.name == def.id, isContainedIn(def.scope, function.src), def.idRole in variableRoles){
             return true;
         }
@@ -368,7 +368,7 @@ JGenie makeJGenie(MuModule m,
     
     list[Keyword] _collectKwpFormals(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
         outer = scopes[fun.src];
         while (muFunctionsByLoc[outer]?){

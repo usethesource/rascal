@@ -26,13 +26,13 @@
  */
 package org.rascalmpl.ideservices;
 
+import engineering.swat.watch.DaemonThreadPool;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -65,6 +65,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils::configureGson)
+                .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2))))
                 .create();
 
                 clientLauncher.startListening();
@@ -97,6 +98,11 @@ public class RemoteIDEServices extends BasicIDEServices {
     @Override
     public void startDebuggingSession(int serverPort) {
         server.startDebuggingSession(serverPort);
+    }
+
+    @Override
+    public void registerDebugServerPort(int processID, int serverPort) {
+        server.registerDebugServerPort(processID, serverPort);
     }
 
     @Override
