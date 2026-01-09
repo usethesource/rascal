@@ -294,7 +294,6 @@ list[AType] dummyFormalsInType(AType t){
 
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
-    //tm = convertTModel2PhysicalLocs(tm);
     current_tmodel = tm;
     physical2logical = invertUnique(tm.logical2physical);
 
