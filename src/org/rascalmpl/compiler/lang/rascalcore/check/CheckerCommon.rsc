@@ -311,11 +311,11 @@ int tmodelCacheSize = 30; // should be > 0
 ModuleStatus clearTModelCache(ModuleStatus ms){
     todo = { mname | mname <- ms.status, bom_update_needed() in ms.status[mname]};
     for(candidate <- ms.tmodelLIFO){
-        ms = removeOldestTModelFromCache(ms, updateBOMneeded=true);
+        ms = removeOldestTModelFromCache(ms/*, updateBOMneeded=true*/);
         todo -= candidate;
     }
     for(candidate <- todo){
-        ms = removeTModel(candidate, ms, updateBOMneeded=true);
+        ms = removeTModel(candidate, ms/*, updateBOMneeded=true*/);
         ms.status[candidate] -= bom_update_needed();
     }
     return ms;
@@ -341,7 +341,7 @@ ModuleStatus updateBOM(MID moduleId, ModuleStatus ms){
         newBom = makeBom(moduleId, ms);
         if(newBom != tm.store[key_bom]){
             tm.store[key_bom] = newBom;
-            ms.status[moduleId] -= tpl_saved();
+            ms.status[moduleId] -= {tpl_saved(), bom_update_needed()};
             ms = addTModel(moduleId, tm, ms);
 
             if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <moduleId>");
@@ -354,13 +354,17 @@ ModuleStatus updateBOM(MID moduleId, ModuleStatus ms){
 
 ModuleStatus removeTModel(MID candidate, ModuleStatus ms, bool updateBOMneeded = false){
     assert isModuleId(candidate) : "removeTModel: <candidate>";
-    if(candidate in ms.tmodels && ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
+    if(   updateBOMneeded
+       || (   candidate in ms.tmodels 
+           && candidate in ms.status
+           && tpl_saved() notin ms.status[candidate] 
+           && rsc_not_found() notin ms.status[candidate])
+      ){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
             ms = updateBOM(candidate, ms);
-         } else {
-            ms.status[candidate] += bom_update_needed();
-         }
+         } 
+        ms.status[candidate] -= bom_update_needed();
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
         tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
@@ -409,7 +413,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str moduleName, ModuleStatu
 
 tuple[bool, TModel, ModuleStatus] getTModelForModule(MID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getTModelForModule: <moduleId>";
-    if(traceTModelCache) println("getTModelForModule: <moduleId>");
+    if(traceTModelCache) println("getTModelForModule: <moduleId> <moduleId in ms.status ? ms.status[moduleId] : "{}">");
     pcfg = ms.pathConfig;
     if(moduleId in ms.tmodels){
         tm = ms.tmodels[moduleId];

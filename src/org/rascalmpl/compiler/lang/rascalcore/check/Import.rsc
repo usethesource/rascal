@@ -224,7 +224,7 @@ ModuleStatus getImportAndExtendGraph(MID moduleId, ModuleStatus ms){
             }
         }
         if(allImportsAndExtendsValid){
-            ms.status[moduleId] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
+            ms.status[moduleId] += {tpl_uptodate(), checked(), tpl_saved()}; //TODO: maybe check existence of generated java files
             ms.moduleLocs += (moduleName2moduleId(mname) : tm.moduleLocs[mname] | mname <- tm.moduleLocs); // TODO: or not?
             ms.paths += tm.paths;
             // ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
