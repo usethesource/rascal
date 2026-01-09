@@ -268,9 +268,11 @@ This function implements the lub operation in Rascal's type system, via unreifyi
 and calling into the underlying run-time Type implementation.
 }
 @examples{
+```rascal-shell
 import Type;
 lub(#tuple[int,value], #tuple[value, int])     
 lub(#int, #real)
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 java Symbol lub(Symbol s1, Symbol s2);
@@ -284,9 +286,11 @@ This function implements the glb operation in Rascal's type system, via unreifyi
 and calling into the underlying run-time Type implementation.
 }
 @examples{
+```rascal-shell
 import Type;
 glb(#tuple[int,value], #tuple[value, int])   
 glb(#int, #real)  
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 java Symbol glb(Symbol s1, Symbol s2);

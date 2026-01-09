@@ -27,9 +27,10 @@ POSSIBILITY OF SUCH DAMAGE.
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
 
-import lang::rascalcore::check::TestConfigs;
-import lang::rascalcore::check::Checker;
+      
+    
+int N = 0;
 
-value main(){
-    return checkModules(["lang::rascalcore::compile::Examples::Tst6"], getAllSrcREPOCompilerConfig());
+void main(){
+    N += 1;
 }

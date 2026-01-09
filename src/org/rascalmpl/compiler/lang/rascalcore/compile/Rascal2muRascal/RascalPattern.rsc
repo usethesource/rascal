@@ -409,7 +409,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
        swriter = muTmpStrWriter("swriter", fuid);
        buildRegExp = muValueBlock(astr(),
                                   muConInit(swriter, muPrim("open_string_writer", astr(), [], [], e@\loc)) + 
-                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | exp <- fragmentCode ] +
+                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | MuExp exp <- fragmentCode ] +
                                   muPrim("close_string_writer", astr(), [astr()], [swriter], e@\loc));
        return  <buildRegExp, vars>; 
    }  
@@ -2374,6 +2374,11 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp s
     code = muForAll(desc_btscope.enter, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor), body,  pattern is anti ? trueCont : falseCont);             
     return code;
 }
+
+// Strip start if present
+
+AType stripStart(\start(AType s)) = s;
+default AType stripStart(AType s) = s;
 
 // Is  a pattern a concretePattern?
 // Note that a callOrTree pattern always requires a visit of the production to inspect labeled fields and is etherefore

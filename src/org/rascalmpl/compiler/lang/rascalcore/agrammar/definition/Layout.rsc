@@ -34,10 +34,11 @@ import lang::rascalcore::check::ATypeUtils;
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
   
   res = top-down-break visit (g) {
-    case p: prod(aadt(_, list[AType] _, contextFreeSyntax()), list[AType] lhs)  => p[atypes=intermix(lhs, l, others)]
-    case p: prod(\start(AType topSymbol, SyntaxRole _), [topSymbol])            => p[atypes=[l, topSymbol, l]]   
+    case p: prod(\start(aadt(_, list[AType] _, contextFreeSyntax())), [x]) => p[atypes=[l, x, l]]
+       
+    case p: prod(aadt(_, list[AType] _, contextFreeSyntax()), list[AType] lhs) => p[atypes=intermix(lhs, l, others)]
   }
-  
+  //iprintln(res);
   return res;
 } 
 
