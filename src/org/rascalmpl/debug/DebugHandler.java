@@ -34,15 +34,19 @@ import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
 import java.util.function.Function;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.Type;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.io.PrintWriter;
 import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IValue;
@@ -61,6 +65,8 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	private boolean suspendRequested;
 
 	private boolean suspendOnException = false;
+
+	private Exception lastExceptionHandled = null;
 
 	public boolean getSuspendOnException() {
 		return suspendOnException;
@@ -174,8 +180,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        // Suspension due to exception
 			Evaluator eval = (Evaluator) runtime;
 			Exception e = eval.getCurrentException();
-	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	        getEventTrigger().fireSuspendByExceptionEvent(e);
+			if(lastExceptionHandled != null && e == lastExceptionHandled){
+				return; // already handled this exception
+			}
+			if(handleExceptionSuspension(eval, e)){
+				lastExceptionHandled = e;
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByExceptionEvent(e);
+			} else {
+				return;
+			}
 	    }
 	    else {
 	        AbstractAST location = currentAST;
@@ -266,6 +280,31 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	            // Ignore
 	        }
 	    }
+	}
+
+	private boolean handleExceptionSuspension(Evaluator eval, Exception e) {
+		AbstractAST referenceAST = eval.getCurrentAST();
+		if(e instanceof Throw){
+			Throw thr = (Throw) e;
+			IValue excValue = thr.getException();
+			if(excValue.getType().isAbstractData() && excValue instanceof IConstructor){
+				IConstructor cons = (IConstructor) excValue;
+				Type constructorType = cons.getConstructorType();
+				
+				// Match on different constructors
+				if(constructorType == RuntimeExceptionFactory.ParseError){
+					try{
+						return !referenceAST.getLocation().top().equals(
+							URIUtil.createFromURI("std:///ParseTree.rsc"));
+					}catch(URISyntaxException use){
+						return true; // if std not found, suspend
+					}
+				}
+				// ... TODO : other cases
+			}
+			// TODO : other kinds of exceptions
+		}
+		return false;
 	}
 
 	protected AbstractAST getReferenceAST() {
