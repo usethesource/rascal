@@ -51,7 +51,6 @@ data ModuleStatus;
 list[Message] compile1(MID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
     qualifiedModuleName = moduleId2moduleName(moduleId);
     pcfg = ms.pathConfig;
-    //<found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
     tm = transient_tms[moduleId];
     //iprintln(tm, lineLimit=10000);
     if(errorsPresent(tm)){
