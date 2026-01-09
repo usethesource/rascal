@@ -19,6 +19,7 @@ package org.rascalmpl.debug;
 import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -99,7 +100,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	 * Flag indicating a frame restart has been requested.
 	 * Set by the debugger thread, checked and used by the evaluated thread in suspended().
 	 */
-	private int restartFrameId = -1;
+	private AtomicInteger restartFrameId = new AtomicInteger(-1);
 
 	/**
 	 * Create a new debug handler with its own interpreter event trigger.
@@ -237,9 +238,8 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	    }
 
 	    // Check if a frame restart was requested while suspended
-	    if (restartFrameId >= 0) {
-	        int frameToRestart = restartFrameId;
-	        restartFrameId = -1; // Reset the flag
+		int frameToRestart = restartFrameId.getAndSet(-1);
+	    if (frameToRestart >= 0) {
 	        throw new RestartFrameException(frameToRestart);
 	    }
 	}
@@ -435,10 +435,11 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 		  int frameId = (int) message.getPayload();
 		  assert frameId >= 0 && frameId < evaluator.getCurrentStack().size(): "Frame id out of bounds: " + frameId;
 		  // Set flag for the evaluated thread to handle the restart
-		  restartFrameId = frameId;
-		  // Unsuspend to let the evaluated thread continue and hit the restart exception
-		  setSuspendRequested(true); // We use the suspension request to break on the first frame's breakable point
-		  setSuspended(false);
+		  if (restartFrameId.compareAndSet(-1, frameId)) {
+			// Unsuspend to let the evaluated thread continue and hit the restart exception
+			setSuspendRequested(true);
+			setSuspended(false);
+		  }
 		  break;
 		}
 	    break;
