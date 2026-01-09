@@ -18,12 +18,11 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -40,7 +39,7 @@ import io.usethesource.vallang.IValue;
 public class SourceLocationClassLoader extends ClassLoader {
     private final Map<String, Class<?>> cache = new ConcurrentHashMap<>();
     private final List<ClassLoader> path;
-    private final Stack<SearchItem> stack = new Stack<>();
+    private final ThreadLocal<Deque<SearchItem>> stack = ThreadLocal.withInitial(LinkedList::new);
 
     public SourceLocationClassLoader(IList classpath, ClassLoader parent) {
         super(parent);
@@ -94,35 +93,65 @@ public class SourceLocationClassLoader extends ClassLoader {
         return result;
     }
     
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> cls;
+
+        try {
+            // the delegation contract demands us to look up in the parent first.
+            cls = super.loadClass(name, resolve);
+        } 
+        catch (ClassNotFoundException e) {
+            // only then we try our own loop
+            cls = findClass(name);
+        }
+
+        if (resolve) {
+            // optimizes future lookups
+            resolveClass(cls);
+        }
+
+        return cls;
+    }
+
     /**
      * Is called by loadClass but not before searching in the parent classloader.
      */
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        var cached = cache.computeIfAbsent(name, (n) -> {
-            var fileName = n.replace('.', '/') + ".class";
+        // we cannot use computeIfAbsent here, as its not re-entrant safe 
+        // (so for example, while finding class X, we also have to find class Y, 
+        // that would be a nested computeIfAbsent call, that the ConcurrentHashMap doesn't support)
+        Class<?> cached = cache.get(name);
+        if (cached != null) {
+            return cached;
+        }
+
+        synchronized (getClassLoadingLock(name)) {
+            // someone could have added something to the cache by now.
+            cached = cache.get(name);
+            if (cached != null) {
+                return cached;
+            }
+
+            String fileName = name.replace('.', '/') + ".class";
 
             for (ClassLoader l : path) {
                 try (var stream = l.getResourceAsStream(fileName)) {
                     if (stream == null) {
                         continue;
                     }
-                    return defineClass(n, ByteBuffer.wrap(stream.readAllBytes()), null);
-                }
-                catch (IOException e) {
+
+                    Class<?> cls = defineClass(name, ByteBuffer.wrap(stream.readAllBytes()), null);
+                    cache.put(name, cls);
+                    return cls;
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
 
-            return null;
-        });
-
-        if (cached == null) {
-            // is caught by the parent.loadClass(name, resolve) method
             throw new ClassNotFoundException(name);
         }
-
-        return cached;
     }
     
     @Override
@@ -132,13 +161,14 @@ public class SourceLocationClassLoader extends ClassLoader {
             return parent;
         }
 
-        if (stack.contains(new SearchItem(this, name))) {
+        Deque<SearchItem> theStack = stack.get();
+        if (theStack.contains(new SearchItem(this, name))) {
             return null;
         }
 
         for (ClassLoader l : path) {
             try {
-                stack.push(new SearchItem(this, name));
+                theStack.push(new SearchItem(this, name));
                 URL url = l.getResource(name);
                 
                 if (url != null) {
@@ -146,7 +176,7 @@ public class SourceLocationClassLoader extends ClassLoader {
                 }
             }
             finally {
-                stack.pop();
+                theStack.pop();
             }
         }
         
@@ -159,19 +189,21 @@ public class SourceLocationClassLoader extends ClassLoader {
 
         result.addAll(Collections.list(super.getResources(name)));
 
+        Deque<SearchItem> theStack = stack.get();
+
         for (ClassLoader l : path) {
             SearchItem item = new SearchItem(l, name);
 
-            if (stack.contains(item)) {
+            if (theStack.contains(item)) {
                 continue;
             }
             try {
-                stack.push(item);
+                theStack.push(item);
                 
                 result.addAll(Collections.list(l.getResources(name)));
             }
             finally {
-                stack.pop();
+                theStack.pop();
             }
         }
         
