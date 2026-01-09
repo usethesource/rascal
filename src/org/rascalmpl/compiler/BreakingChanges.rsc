@@ -10,7 +10,7 @@ import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 import analysis::typepal::TModel;
 
-map[loc,loc] breaking(TModel old, TModel new){
+map[loc,loc] breakingDiffs(TModel old, TModel new){
     missing = domain(old.logical2physical) - domain(new.logical2physical);
     return domainR(old.logical2physical, missing);
 }
@@ -46,14 +46,14 @@ void reportDiffs(map[loc,loc] diffs, TModel old, TModel new){
 void breaking(loc old, loc new, set[str] details = {}){
     oldTPLs = getTPLs(old); oldRelTPLs = {relativize(old, tpl) | tpl <- oldTPLs};
     newTPLs = getTPLs(new); newRelTPLs = {relativize(new, tpl) | tpl <- newTPLs};
-    removed = {};
+    set[str] removed = {};
     nchanges = 0;
     for(oldRelTPL <- oldRelTPLs){
         oldPath = oldRelTPL.path;
         tmOld = readBinaryValueFile(#TModel, old + oldPath);
         if(exists(new + oldPath)){
             tmNew = readBinaryValueFile(#TModel, new + oldPath);
-            b = breaking(tmOld, tmNew);
+            b = breakingDiffs(tmOld, tmNew);
             if(!isEmpty(b)){
                 nchanges += size(b);
                 println("- <oldPath> <size(b)> changes");

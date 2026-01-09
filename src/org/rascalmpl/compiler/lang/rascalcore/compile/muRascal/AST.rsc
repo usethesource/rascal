@@ -410,10 +410,8 @@ str getUniqueFunctionName(MuFunction fun){
     //return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
-private set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
-
 bool isVarOrTmp(MuExp exp)
-    = getName(exp) in varExp;
+    = getName(exp) in {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
 // Produces NativeBool
    

@@ -71,7 +71,7 @@ public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] localVariableRoles = formalRoles + {variableId(), patternVariableId()};
 public set[IdRole] variableRoles = localVariableRoles + { moduleVariableId() };
-public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] inferrableRoles = variableRoles;
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
                                                              moduleVariableId(), productionId()

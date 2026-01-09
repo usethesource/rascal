@@ -55,7 +55,7 @@ public class RascalDebugAdapterLauncher {
             });
             evaluator.addSuspendTriggerListener(debugHandler);
 
-            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator, services, threadPool);
+            RascalDebugAdapter server = new RascalDebugAdapter(debugHandler, evaluator, services, threadPool,socketServer.getPromptLocation());
             Launcher<IDebugProtocolClient> launcher = DSPLauncher.createServerLauncher(server, clientSocket.getInputStream(), clientSocket.getOutputStream());
             server.connect(launcher.getRemoteProxy());
             launcher.startListening();

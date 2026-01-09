@@ -289,6 +289,10 @@ public class PathConfig {
         extendedlibs.add(dir);
         return new PathConfig(projectRoot, srcs, extendedlibs, bin, ignores, resources, messages);
     }
+
+    public PathConfig setBin(ISourceLocation bin) {
+        return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, messages);
+    }
     
     /**
      * This will create a PathConfig by learning from the MANIFEST/RASCAL.MF file where the sources

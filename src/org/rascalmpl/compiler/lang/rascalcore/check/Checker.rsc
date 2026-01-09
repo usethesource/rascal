@@ -294,8 +294,8 @@ ModuleStatus rascalTModelForLocs(
                     m_extends[m] = extends;
                     invertedExtends = ms.strPaths<2,0>;
                     if(compilerConfig.warnUnused){
-                        // Look for unused imports or exports
-                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                        // Look for unused imports or extends
+                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole == moduleId(), path2module[l.path]?};
                         usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
                         list[Message] imsgs = [];
                         <success, pt, ms> = getModuleParseTree(m, ms);
@@ -403,13 +403,15 @@ bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
 
 tuple[set[str], ModuleStatus] loadImportsAndExtends(set[str] moduleNames, ModuleStatus ms, Collector c, set[str] added){
     pcfg = ms.pathConfig;
-    rel[str,str] contains = ms.strPaths<0,2>;
-    for(imp <- contains[moduleNames]){
+    for(<from, pathRole, imp> <- ms.strPaths, from in moduleNames){
         if(imp notin added, imp notin moduleNames){
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms, convert=true);
                 try {
+                    if(pathRole == importPath()){
+                        tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
+                    }
                     c.addTModel(tm);
                 } catch wrongTplVersion(str reason): {
                     ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };

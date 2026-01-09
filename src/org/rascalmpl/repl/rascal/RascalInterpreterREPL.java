@@ -143,7 +143,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
         var evaluator = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
-        debugServer = new DebugSocketServer(evaluator, services);
+        debugServer = new DebugSocketServer(evaluator, services, PROMPT_LOCATION);
         return evaluator;
     }
 
@@ -335,5 +335,9 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             modName = modName.replace("\\", "::");
             dirtyModules.add(modName);
         }
+    }
+
+    public void clearModuleLoadMessages() {
+        eval.getHeap().clearModuleLoadMessage();
     }
 }

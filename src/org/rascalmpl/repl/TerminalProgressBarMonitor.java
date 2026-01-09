@@ -505,81 +505,87 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     }
     
     @Override
-    public synchronized void jobStart(String name, int workShare, int totalWork) {
+    public void jobStart(String name, int workShare, int totalWork) {
         if (totalWork == 0) {
             // makes it easy to use `size` for totalWork and not do anything
             // if there is nothing to do.
             return;
         }
 
-        if (bars.isEmpty()) {
-            // we might not be on a new line, so before we start rendering
-            // do a println, if the last output was not a newline
-            if (!onNewLine) {
-                directWrite(System.lineSeparator());
-                directFlush();
-            }
-
-            // first new job, we take time to react to window resizing
-            lineWidth = tm.getWidth();
-        }
-
-
-        var pb = findBarByName(name);
-        
-        directWrite(hideCursor);
-
-        if (pb == null) {    
-            eraseBars(); // to make room for the new bars
-            bars.add(new ProgressBar(name, totalWork));
-            printBars(); // probably one line longer than before!   
-        }
-        else {
-            // Zeno-bar: we add the new work to the already existing work
-            pb.max += totalWork;
-            pb.nesting++;
-            pb.update();
-        }
-
-        directWrite(showCursor);
-        directFlush();
-    }
-
-    @Override
-    public synchronized void jobStep(String name, String message, int workShare) {
-        ProgressBar pb = findBarByName(name);
-        
-        if (pb != null) {
-            pb.worked(workShare, message);
-            pb.update();
-        }
-    }
-
-    @Override
-    public synchronized int jobEnd(String name, boolean succeeded) {
-        var pb = findBarByName(name);
-
-        directWrite(hideCursor);
-        try {
-            if (pb != null && --pb.nesting == -1) {
-                eraseBars();
-                pb.done();
-                bars.remove(pb);
-                // print the left over bars under this one.
-                printBars();
-                if (bars.isEmpty()) {
-                    // cleanup
-                    endAllJobs();
+        synchronized(this.lock) {
+            if (bars.isEmpty()) {
+                // we might not be on a new line, so before we start rendering
+                // do a println, if the last output was not a newline
+                if (!onNewLine) {
+                    directWrite(System.lineSeparator());
+                    directFlush();
                 }
-                return pb.current;
+
+                // first new job, we take time to react to window resizing
+                lineWidth = tm.getWidth();
             }
-            else if (pb != null) {
-                pb.done();
+
+
+            var pb = findBarByName(name);
+            
+            directWrite(hideCursor);
+
+            if (pb == null) {    
+                eraseBars(); // to make room for the new bars
+                bars.add(new ProgressBar(name, totalWork));
+                printBars(); // probably one line longer than before!   
+            }
+            else {
+                // Zeno-bar: we add the new work to the already existing work
+                pb.max += totalWork;
+                pb.nesting++;
+                pb.update();
+            }
+
+            directWrite(showCursor);
+            directFlush();
+        }
+    }
+
+    @Override
+    public void jobStep(String name, String message, int workShare) {
+        synchronized(this.lock) {
+            ProgressBar pb = findBarByName(name);
+            
+            if (pb != null) {
+                pb.worked(workShare, message);
                 pb.update();
             }
         }
-        finally {
-            directWrite(showCursor);
+    }
+
+    @Override
+    public int jobEnd(String name, boolean succeeded) {
+        synchronized(this.lock) {
+            var pb = findBarByName(name);
+
+            directWrite(hideCursor);
+            try {
+                if (pb != null && --pb.nesting == -1) {
+                    eraseBars();
+                    pb.done();
+                    bars.remove(pb);
+                    // print the left over bars under this one.
+                    printBars();
+                    if (bars.isEmpty()) {
+                        // cleanup
+                        endAllJobs();
+                    }
+                    return pb.current;
+                }
+                else if (pb != null) {
+                    pb.done();
+                    pb.update();
+                }
+            }
+            finally {
+                directWrite(showCursor);
+            }
         }
 
 
@@ -587,32 +593,36 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     }
 
     @Override
-    public synchronized boolean jobIsCanceled(String name) {
+    public boolean jobIsCanceled(String name) {
        // This is in UI environments where there is a cancel button.
        return false;
     }
 
     @Override
-    public synchronized void jobTodo(String name, int work) {
-        ProgressBar pb = findBarByName(name);
-        
-        if (pb != null) {
-            pb.max += work;
-            pb.update();
+    public void jobTodo(String name, int work) {
+        synchronized(this.lock) {
+            ProgressBar pb = findBarByName(name);
+            
+            if (pb != null) {
+                pb.max += work;
+                pb.update();
+            }
         }
     }
 
     @Override
-    public synchronized void warning(String message, ISourceLocation src) {
-        if (!bars.isEmpty()) {
-            eraseBars();
-        }
+    public void warning(String message, ISourceLocation src) {
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                eraseBars();
+            }
 
-        directPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
-        onNewLine = true;
+            directPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
+            onNewLine = true;
 
-        if (!bars.isEmpty()) {
-            printBars();
+            if (!bars.isEmpty()) {
+                printBars();
+            }
         }
     }
 
@@ -632,17 +642,19 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is before the first character of a line.
      */
     @Override
-    public synchronized void write(String s, int off, int len) {
+    public void write(String s, int off, int len) {
         boundsCheck(s.length(), off, len);
         if (len == 0) {
             return;
         }
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(s, off, len);
-        }
-        else {
-            directWrite(s, off, len);
-            onNewLine = s.charAt(off + len - 1) == '\n';
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(s, off, len);
+            }
+            else {
+                directWrite(s, off, len);
+                onNewLine = s.charAt(off + len - 1) == '\n';
+            }
         }
     }
     /**
@@ -651,19 +663,21 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public synchronized void write(char[] buf, int off, int len)  {
+    public void write(char[] buf, int off, int len)  {
         boundsCheck(buf.length, off, len);
         if (len == 0) {
             return;
         }
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(buf, off, len);
-        }
-        else {
-            // this must be the raw output stream
-            // otherwise rascal prompts (which do not end in newlines) will be buffered
-            directWrite(buf, off, len);
-            onNewLine = buf[off + len - 1] == '\n';
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(buf, off, len);
+            }
+            else {
+                // this must be the raw output stream
+                // otherwise rascal prompts (which do not end in newlines) will be buffered
+                directWrite(buf, off, len);
+                onNewLine = buf[off + len - 1] == '\n';
+            }
         }
     }
 
@@ -673,51 +687,59 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public synchronized void write(int c) {
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
-        }
-        else {
-            directWrite(c);
-            onNewLine = c == '\n';
+    public void write(int c) {
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
+            }
+            else {
+                directWrite(c);
+                onNewLine = c == '\n';
+            }
         }
     }
 
     @Override
-    public synchronized void println() {
-        if (!bars.isEmpty()) {
-            write(System.lineSeparator());
-        }
-        else {
-            super.println();
-            onNewLine = true;
+    public void println() {
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                write(System.lineSeparator());
+            }
+            else {
+                super.println();
+                onNewLine = true;
+            }
         }
     }
 
     
 
     @Override
-    public synchronized void endAllJobs() {
-        if (!bars.isEmpty()) {
-            eraseBars();
-            bars.clear();
-        }
+    public void endAllJobs() {
+        synchronized(this.lock) {
+            if (!bars.isEmpty()) {
+                eraseBars();
+                bars.clear();
+            }
 
-        for (UnfinishedLine l : unfinishedLines) {
-            l.flushLastLine();
-        }
+            for (UnfinishedLine l : unfinishedLines) {
+                l.flushLastLine();
+            }
 
-        directWrite(showCursor);
-        directFlush();
+            directWrite(showCursor);
+            directFlush();
+        }
     }
 
     @Override
-    public synchronized void close() {
-        try {
-            endAllJobs();
-        }
-        finally {
-            super.close();
+    public void close() {
+        synchronized(this.lock) {
+            try {
+                endAllJobs();
+            }
+            finally {
+                super.close();
+            }
         }
     }
 }
