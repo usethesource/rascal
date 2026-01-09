@@ -27,6 +27,8 @@
 package org.rascalmpl.dap;
 
 import engineering.swat.watch.DaemonThreadPool;
+import io.usethesource.vallang.ISourceLocation;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,12 +47,14 @@ public class DebugSocketServer {
 
     private final IDEServices services;
     private final ServerSocket serverSocket;
+    private final ISourceLocation promptLocation;
     private volatile @Nullable Socket clientSocket;
     private volatile @Nullable IDebugProtocolClient debugClient;
     private volatile @Nullable ExecutorService threadPool;
 
-    public DebugSocketServer(Evaluator evaluator, IDEServices services){
+    public DebugSocketServer(Evaluator evaluator, IDEServices services, ISourceLocation promptLocation){
         this.services = services;
+        this.promptLocation = promptLocation;
         try {
             serverSocket = new ServerSocket(0);
         } catch (IOException e) {
@@ -92,6 +96,10 @@ public class DebugSocketServer {
 
     public int getPort(){
         return serverSocket.getLocalPort();
+    }
+
+    public ISourceLocation getPromptLocation() {
+        return promptLocation;
     }
 
     public void terminateDebugSession(){
