@@ -67,11 +67,13 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, RascalCompilerConfig compilerConfig){
    try {
       resetModuleInfo(compilerConfig);
-      module_scope = M@\loc;
-      setModuleScope(module_scope);
-      //setModuleScope(convert2fuid(module_scope));
-      M_module_name = "<M.header.name>";
+      
+      M_module_name = unescape("<M.header.name>");
       setModuleName(M_module_name);
+
+      module_scope = moduleName2ModuleId(M_module_name);
+      setModuleScope(module_scope);
+      
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
