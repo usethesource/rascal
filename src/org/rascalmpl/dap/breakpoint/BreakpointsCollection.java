@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.debug.Source;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.DebugMessageFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,7 +70,7 @@ public class BreakpointsCollection {
     public void addBreakpoint(ISourceLocation location, Source source, String condition){
         String path = location.getPath();
         BreakpointInfo breakpoint = new BreakpointInfo(breakpointIDCounter.incrementAndGet(), source);
-        breakpoints.computeIfAbsent(path, k -> new HashMap<>()).put(location, breakpoint);
+        breakpoints.computeIfAbsent(path, k -> new ConcurrentHashMap<>()).put(location, breakpoint);
         debugHandler.processMessage(DebugMessageFactory.requestSetConditionalBreakpoint(location, condition));
     }
 
