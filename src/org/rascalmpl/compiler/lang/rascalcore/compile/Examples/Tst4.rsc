@@ -32,6 +32,11 @@ import lang::rascalcore::compile::Examples::Tst5;
                      
 //AB xxx = AB::ab();   
 
-value f() = AB::ab(); 
+// value f() = AB::ab(); 
+
+void main(){
+    lang::rascalcore::compile::Examples::Tst5::bla::empty();              
+}   
+  
 
   

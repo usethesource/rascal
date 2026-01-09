@@ -165,7 +165,7 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 }
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
-    //  println("rascalIsAcceptableQualified: <def>, <use>");
+    // println("rascalIsAcceptableQualified: <def>, <use>");
     
     path = def.path;
     if(path[0] == "/") path = path[1..];
@@ -173,7 +173,7 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     qualAsPath = split("::", use.ids[0]);
 
     // qualifier and proposed definition are the same?
-    if(defPath == qualAsPath){
+    if(defPath[-size(qualAsPath)..] == qualAsPath){
        return acceptBinding();
     }
 
@@ -181,13 +181,13 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // Qualifier is a ADT name?
 
     if(acons(aadt(adtName, _, _), list[AType] _fields, list[Keyword] _kwFields) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
     // Qualifier is a Production?
 
     if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
     // Is there another acceptable qualifier via an extend?

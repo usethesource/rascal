@@ -372,9 +372,9 @@ ModuleStatus rascalTModelForLocs(
                     ms.status[m] += {tpl_uptodate()};
                 }
             } else {
-                 for(m <- component){  
-                    ms.status[m] += bom_update_needed();
-                 }
+                ;//  for(m <- component){  
+                //     ms.status[m] += bom_update_needed();
+                //  }
             }
         }
     } catch ParseError(loc src): {
@@ -441,7 +441,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MID] moduleIds, ModuleStat
     map[MID, Module] idTrees = ();
     for(MID mid <- moduleIds){
         mname = moduleId2moduleName(mid);
-        ms.status[mid] = {};
+        //ms.status[mid] = {};
         //ms.messages[mid] = {};
         ms = removeTModel(mid, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
