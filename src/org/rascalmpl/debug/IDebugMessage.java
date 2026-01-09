@@ -73,7 +73,12 @@ public interface IDebugMessage {
 		 * Indicates a continuation of the execution, caused by a step out
 		 * request.
 		 */
-		STEP_OUT
+		STEP_OUT,
+		
+		/**
+		 * Indicates a conditional breakpoint.
+		 */
+		CONDITIONAL
 	}
 	
 	Action getAction();
