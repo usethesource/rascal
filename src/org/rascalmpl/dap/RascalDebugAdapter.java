@@ -102,6 +102,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
     private final IDEServices services;
     private final ExecutorService ownExecutor;
+    private final ISourceLocation promptLocation;
     private final ColumnMaps columns;
     private int lineBase = 1;   // Default in DAP
     private int columnBase = 1; // Default in DAP
@@ -109,11 +110,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
 
-    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool) {
+    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool, ISourceLocation promptLocation) {
         this.debugHandler = debugHandler;
         this.evaluator = evaluator;
         this.services = services;
         this.ownExecutor = threadPool;
+        this.promptLocation = promptLocation;
         this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
@@ -158,6 +160,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
             capabilities.setSupportsCompletionsRequest(true);
+            capabilities.setSupportsConditionalBreakpoints(true);
 
             return capabilities;
         }, ownExecutor);
@@ -208,7 +211,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 ITree treeBreakableLocation = locateBreakableTree(parseTree, breakpoint.getLine());
                 if(treeBreakableLocation != null) {
                     ISourceLocation breakableLocation = TreeAdapter.getLocation(treeBreakableLocation);
-                    breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    if(breakpoint.getCondition() != null){
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource(), breakpoint.getCondition());
+                    }
+                    else {
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    }
                 }
                 Breakpoint b = new Breakpoint();
                 b.setId(i);
@@ -369,7 +377,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
-        if(loc != null){
+        if(loc != null && !loc.getScheme().equals(promptLocation.getScheme())) {
             var offsets = columns.get(loc);
             var line = shiftLine(loc.getBeginLine());
             var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
