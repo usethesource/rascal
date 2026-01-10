@@ -86,15 +86,20 @@ data JGenie
     ;
     
 JGenie makeJGenie(MuModule m, 
-                  map[MID,TModel] tmodels, 
-                  map[MID,loc] moduleLocs, 
-                  map[MID, MuFunction] muFunctions){
-                  
-    map[MID,loc] allModuleLocs = moduleLocs;
-    map[loc,MID] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
+                  map[str,TModel] tmodels, 
+                  map[str,loc] moduleLocs, 
+                  map[str, MuFunction] muFunctions){
+
+    // // temporary glue code
+    // map[str,TModel] tmodels = (moduleId2moduleName(mid) : tmodels[mid] | mid <- tmodels0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : moduleLocs[mid] | mid <- moduleLocs0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : muFunctions0[mid] | mid <- muFunctions0);
+
+    map[str,loc] allModuleLocs = moduleLocs;
+    map[loc,str] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
-    MID moduleId = moduleName2moduleId(moduleName);
+    MODID moduleId = moduleName2moduleId(moduleName);
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
@@ -116,9 +121,9 @@ JGenie makeJGenie(MuModule m,
         checkAllTypesAvailable(tmodels[mname]);
     }
     
-    TModel currentTModel = tmodels[moduleId];
+    TModel currentTModel = tmodels[moduleName];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
-    loc currentModuleScope = moduleLocs[moduleId];
+    loc currentModuleScope = moduleLocs[moduleName];
     str functionName = "$UNKNOWN";
     MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     

@@ -48,7 +48,7 @@ import lang::rascalcore::compile::util::Names;
 
 data ModuleStatus;
 
-list[Message] compile1(MID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
+list[Message] compile1(MODID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MODID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
     qualifiedModuleName = moduleId2moduleName(moduleId);
     pcfg = ms.pathConfig;
     tm = transient_tms[moduleId];

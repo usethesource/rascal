@@ -165,7 +165,7 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
-tuple[TModel, ModuleStatus] addGrammar(MID moduleId, set[MID] imports, set[MID] extends, map[MID,TModel] transient_tms, ModuleStatus ms){
+tuple[TModel, ModuleStatus] addGrammar(MODID moduleId, set[MODID] imports, set[MODID] extends, map[MODID,TModel] transient_tms, ModuleStatus ms){
     try {
         rel[AType,AProduction] definedProductions = {};
         allStarts = {};

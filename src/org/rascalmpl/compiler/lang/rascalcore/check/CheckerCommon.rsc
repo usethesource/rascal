@@ -40,6 +40,7 @@ extend analysis::typepal::FailMessage;
 extend lang::rascalcore::check::BasicRascalConfig;
 extend lang::rascalcore::check::ModuleLocations;
 extend lang::rascalcore::CompilerPathConfig;
+extend lang::rascalcore::check::LogicalLocations;
 
 extend analysis::typepal::Collector;
 
@@ -67,20 +68,7 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
     });
  }
 
-alias MID = loc;   // module identification
 
-bool isModuleId(loc l) = l.scheme == "rascal+module";
-
-MID moduleName2moduleId(str mname){
-    return |rascal+module:///<replaceAll(unescape(mname), "::", "/")>|;
-}
-
-str moduleId2moduleName(loc mloc){
-    assert mloc.scheme == "rascal+module" : "moduleId2moduleName: <mloc>";
-    path = mloc.path;
-    if(path[0] == "/") path = path[1..];
-    return replaceAll(path, "/", "::");
-}
 
 data MStatus =
       rsc_not_found()
@@ -101,16 +89,16 @@ data MStatus =
 
 data ModuleStatus =
     moduleStatus(
-      rel[MID, PathRole, MID] paths,
-      map[MID, Module] parseTrees,
-      list[MID] parseTreeLIFO,
-      map[MID, TModel] tmodels,
-      list[MID] tmodelLIFO,
-      set[MID] changedModules,
-      map[MID,loc] moduleLocs,
-      map[MID,datetime] moduleLastModified,
-      map[MID, set[Message]] messages,
-      map[MID, set[MStatus]] status,
+      rel[MODID, PathRole, MODID] paths,
+      map[MODID, Module] parseTrees,
+      list[MODID] parseTreeLIFO,
+      map[MODID, TModel] tmodels,
+      list[MODID] tmodelLIFO,
+      set[MODID] changedModules,
+      map[MODID,loc] moduleLocs,
+      map[MODID,datetime] moduleLastModified,
+      map[MODID, set[Message]] messages,
+      map[MODID, set[MStatus]] status,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig
    );
@@ -143,7 +131,7 @@ bool traceTModelCache = false;
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg)
     =  getTPLReadLoc(moduleName2moduleId(qualifiedModuleName), pcfg);
 
-tuple[bool,loc] getTPLReadLoc(MID moduleId, PathConfig pcfg){
+tuple[bool,loc] getTPLReadLoc(MODID moduleId, PathConfig pcfg){
     assert isModuleId(moduleId) : "getTPLReadLoc: <moduleId>";
     parts = split("/", moduleId.path);
     parts = parts[0 .. size(parts)-1] + "$<parts[-1]>";
@@ -163,7 +151,7 @@ tuple[bool,loc] getTPLReadLoc(MID moduleId, PathConfig pcfg){
     return <false, |error:///|>;
 }
 
-tuple[bool,loc] getTPLWriteLoc(MID moduleId, PathConfig pcfg){
+tuple[bool,loc] getTPLWriteLoc(MODID moduleId, PathConfig pcfg){
     assert isModuleId(moduleId) : "getTPLWriteLoc: <moduleId>";
     qualifiedModuleName = moduleId2moduleName(moduleId);
     fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
@@ -173,7 +161,7 @@ tuple[bool,loc] getTPLWriteLoc(MID moduleId, PathConfig pcfg){
 
 datetime startOfEpoch = $2000-01-01T00:00:00.000+00:00$;
 
-datetime getLastModified(MID moduleId, ModuleStatus ms){
+datetime getLastModified(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getLastModified: <moduleId>";
     qualifiedModuleName = moduleId2moduleName(moduleId);
     if(moduleId in ms.moduleLastModified){
@@ -189,7 +177,7 @@ datetime getLastModified(MID moduleId, ModuleStatus ms){
 }
 
 // Check if a module is modified compared to a given timestamp in BOM
-tuple[bool,ModuleStatus] isModuleModified(MID moduleId, datetime timestamp, PathRole pathRole, ModuleStatus ms){
+tuple[bool,ModuleStatus] isModuleModified(MODID moduleId, datetime timestamp, PathRole pathRole, ModuleStatus ms){
     pcfg = ms.pathConfig;
     try {
         mloc = getRascalModuleLocation(moduleId, ms);
@@ -218,7 +206,7 @@ tuple[bool,ModuleStatus] isModuleModified(MID moduleId, datetime timestamp, Path
     }
 }
 
-bool tplOutdated(MID moduleId, PathConfig pcfg){
+bool tplOutdated(MODID moduleId, PathConfig pcfg){
     try {
         qualifiedModuleName = moduleId2moduleName(moduleId);
         mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
@@ -235,7 +223,7 @@ bool tplOutdated(MID moduleId, PathConfig pcfg){
 
 int parseTreeCacheSize = 20;
 
-tuple[bool, Module, ModuleStatus] getModuleParseTree(MID moduleId, ModuleStatus ms){
+tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getModuleParseTree: <moduleId>";
     pcfg = ms.pathConfig;
     qualifiedModuleName = moduleId2moduleName(moduleId);
@@ -289,7 +277,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MID moduleId, ModuleStatus 
    }
 }
 
-loc getRascalModuleLocation(MID moduleId, ModuleStatus ms){
+loc getRascalModuleLocation(MODID moduleId, ModuleStatus ms){
     if(moduleId in ms.moduleLocs){
         loc l = ms.moduleLocs[moduleId];
         if(!isLogicalLoc(l)) return l;
@@ -321,7 +309,7 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
     return ms;
 }
 
-rel[str,datetime,PathRole] makeBom(MID moduleId, ModuleStatus ms){
+rel[str,datetime,PathRole] makeBom(MODID moduleId, ModuleStatus ms){
     pcfg = ms.pathConfig;
     qualifiedModuleName = moduleId2moduleName(moduleId);
     imports = ms.paths[moduleId,importPath()];
@@ -331,7 +319,7 @@ rel[str,datetime,PathRole] makeBom(MID moduleId, ModuleStatus ms){
            + { <qualifiedModuleName, getLastModified(moduleId, ms), importPath() > };
 }
 
-ModuleStatus updateBOM(MID moduleId, ModuleStatus ms){
+ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
     if(rsc_not_found() in ms.status[moduleId]){
         return ms;
     }
@@ -352,7 +340,7 @@ ModuleStatus updateBOM(MID moduleId, ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus removeTModel(MID candidate, ModuleStatus ms, bool updateBOMneeded = false){
+ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded = false){
     assert isModuleId(candidate) : "removeTModel: <candidate>";
     if(   updateBOMneeded
        || (   candidate in ms.tmodels 
@@ -392,7 +380,7 @@ ModuleStatus removeOldestTModelFromCache(ModuleStatus ms, bool updateBOMneeded =
     return ms;
 }
 
-ModuleStatus  addTModel (MID moduleId, TModel tm, ModuleStatus ms){
+ModuleStatus  addTModel (MODID moduleId, TModel tm, ModuleStatus ms){
     if(traceTModelCache) println("addTModel: <moduleId>");
     if(tmodelCacheSize > 0){
         ms.tmodels[moduleId] = tm;
@@ -411,7 +399,7 @@ private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str moduleName, ModuleStatus ms)
     = getTModelForModule(moduleName2moduleId(moduleName), ms);
 
-tuple[bool, TModel, ModuleStatus] getTModelForModule(MID moduleId, ModuleStatus ms){
+tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getTModelForModule: <moduleId>";
     if(traceTModelCache) println("getTModelForModule: <moduleId> <moduleId in ms.status ? ms.status[moduleId] : "{}">");
     pcfg = ms.pathConfig;
@@ -451,9 +439,9 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MID moduleId, ModuleStatus 
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
 }
 
-rel[loc from, PathRole r, loc to] getPaths(rel[MID from, PathRole r, MID to] paths, ModuleStatus ms){
+rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to] paths, ModuleStatus ms){
     paths = {};
-    for(<MID from, PathRole r, MID to> <- paths){
+    for(<MODID from, PathRole r, MODID to> <- paths){
         try {
             mfrom = getRascalModuleLocation(from, ms);
             mto = getRascalModuleLocation(to, ms);
