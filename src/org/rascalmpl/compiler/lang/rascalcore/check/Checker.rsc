@@ -113,7 +113,7 @@ bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 // Dummy compile function (used when running only the checker)
 
-list[Message] dummy_compile1(MID _moduleId, lang::rascal::\syntax::Rascal::Module _M, map[MID,TModel] _transient_tms, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
+list[Message] dummy_compile1(MODID _moduleId, lang::rascal::\syntax::Rascal::Module _M, map[MODID,TModel] _transient_tms, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
     = [];
 
 // rascalTModelForLocs is the basic work horse
@@ -123,7 +123,7 @@ list[Message] dummy_compile1(MID _moduleId, lang::rascal::\syntax::Rascal::Modul
 ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,
     RascalCompilerConfig compilerConfig,
-    list[Message](MID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
+    list[Message](MODID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MODID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){
     pcfg = compilerConfig.typepalPathConfig;
     
@@ -204,20 +204,20 @@ ModuleStatus rascalTModelForLocs(
 
         imports_and_extends = ms.paths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
-        map[MID, set[MID]] module2component = (m : c | c <- components, m <- c);
+        map[MODID, set[MODID]] module2component = (m : c | c <- components, m <- c);
 
-        list[MID] ordered = [];
+        list[MODID] ordered = [];
 
         if(isEmpty(sorted)){
             ordered = toList(topModuleIds);
-            for(MID topModuleId <- topModuleIds){
+            for(MODID topModuleId <- topModuleIds){
                 module2component[topModuleId] = {topModuleId};
             }
         } else {
             ordered = reverse(sorted);
             singletons = toList(topModuleIds - toSet(ordered));
             ordered += singletons;
-            for(MID singleton <- singletons){
+            for(MODID singleton <- singletons){
                 module2component[singleton] = {singleton};
             }
         }
@@ -294,8 +294,8 @@ ModuleStatus rascalTModelForLocs(
                 <tm, ms> = rascalTModelComponent(component, ms);
                 // moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
-                map[MID,set[MID]] m_imports = ();
-                map[MID,set[MID]] m_extends = ();
+                map[MODID,set[MODID]] m_imports = ();
+                map[MODID,set[MODID]] m_extends = ();
                 for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
                     imports =  { imp | <m1, importPath(), imp> <- ms.paths, m1 == m, MStatus::ignored() notin ms.status[imp]};
                     m_imports[m] =  imports;
@@ -358,7 +358,7 @@ ModuleStatus rascalTModelForLocs(
 
                 // generate code for the modules in this component
 
-                for(MID m <- component, MStatus::ignored() notin ms.status[m]){
+                for(MODID m <- component, MStatus::ignored() notin ms.status[m]){
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
                         lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
@@ -378,15 +378,15 @@ ModuleStatus rascalTModelForLocs(
             }
         }
     } catch ParseError(loc src): {
-        for(MID mid <- topModuleIds){
+        for(MODID mid <- topModuleIds){
             ms.messages[mid] = { error("Parse error", src) };
         }
     } catch rascalTplVersionError(str txt):{
-        for(MID mid <- topModuleIds){
+        for(MODID mid <- topModuleIds){
             ms.messages[mid] = { error("<txt>", ms.moduleLocs[mid] ? |unknown:///|) };
         }
     } catch Message msg: {
-        for(MID mid <- topModuleIds){
+        for(MODID mid <- topModuleIds){
             ms.messages[mid] = { error("During type checking: <msg>", msg.at) };
         }
     }
@@ -412,7 +412,7 @@ bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
     return res;
 }
 
-tuple[set[MID], ModuleStatus] loadImportsAndExtends(set[MID] moduleIds, ModuleStatus ms, Collector c, set[MID] added){
+tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, ModuleStatus ms, Collector c, set[MODID] added){
     pcfg = ms.pathConfig;
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
         if(imp notin added, imp notin moduleIds){
@@ -433,13 +433,13 @@ tuple[set[MID], ModuleStatus] loadImportsAndExtends(set[MID] moduleIds, ModuleSt
     return <added, ms>;
 }
 
-tuple[TModel, ModuleStatus] rascalTModelComponent(set[MID] moduleIds, ModuleStatus ms){
+tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleStatus ms){
     pcfg = ms.pathConfig;
     compilerConfig = ms.compilerConfig;
     modelNames = [moduleId2moduleName(moduleId) | moduleId <- moduleIds];
     modelName = intercalate(" + ", modelNames);
-    map[MID, Module] idTrees = ();
-    for(MID mid <- moduleIds){
+    map[MODID, Module] idTrees = ();
+    for(MODID mid <- moduleIds){
         mname = moduleId2moduleName(mid);
         //ms.status[mid] = {};
         //ms.messages[mid] = {};
@@ -515,7 +515,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MID] moduleIds, ModuleStat
 
 ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   RascalCompilerConfig compilerConfig,
-                                  list[Message] (MID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
+                                  list[Message] (MODID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MODID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
 
     pcfg = compilerConfig.typepalPathConfig;
     mlocs = [];
@@ -542,7 +542,7 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     return true;
 }
 
-tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[MID] candidates, ModuleStatus ms){
+tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[MODID] candidates, ModuleStatus ms){
     pcfg = ms.pathConfig;
     for(candidate <- candidates){
         <found, tm, ms> = getTModelForModule(candidate, ms);
@@ -575,8 +575,8 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
 
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
     moduleIds = domain(ms.moduleLocs);
-    messagesNoModule = {*ms.messages[mid] | MID mid <- ms.messages, (mid notin moduleIds || mid notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
-    msgs = [ program(ms.moduleLocs[mid], (ms.messages[mid] ? {}) + messagesNoModule) | MID mid <- moduleIds ];
+    messagesNoModule = {*ms.messages[mid] | MODID mid <- ms.messages, (mid notin moduleIds || mid notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
+    msgs = [ program(ms.moduleLocs[mid], (ms.messages[mid] ? {}) + messagesNoModule) | MODID mid <- moduleIds ];
     if(isEmpty(msgs) && !isEmpty(messagesNoModule)){
         msgs = [ program(|unknown:///|, messagesNoModule) ];
     }
