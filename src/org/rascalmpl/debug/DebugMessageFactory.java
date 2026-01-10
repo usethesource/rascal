@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import org.rascalmpl.interpreter.env.Pair;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -51,6 +53,10 @@ public class DebugMessageFactory {
 	
 	public static IDebugMessage requestSetBreakpoint(ISourceLocation location) {
 		return new DebugMessage(IDebugMessage.Action.SET, IDebugMessage.Subject.BREAKPOINT, IDebugMessage.Detail.UNKNOWN, location);
+	}
+
+	public static IDebugMessage requestSetConditionalBreakpoint(ISourceLocation location, String condition) {
+		return new DebugMessage(IDebugMessage.Action.SET, IDebugMessage.Subject.BREAKPOINT, IDebugMessage.Detail.CONDITIONAL, new Pair<ISourceLocation, String>(location, condition));
 	}
 
 	public static IDebugMessage requestDeleteBreakpoint(ISourceLocation location) {
