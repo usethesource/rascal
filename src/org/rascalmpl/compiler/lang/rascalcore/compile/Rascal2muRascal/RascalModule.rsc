@@ -41,6 +41,8 @@ import lang::rascalcore::compile::muRascal::AST;
 //extend lang::rascalcore::check::Checker;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::LogicalLocations;
+
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -71,7 +73,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       M_module_name = unescape("<M.header.name>");
       setModuleName(M_module_name);
 
-      module_scope = moduleName2ModuleId(M_module_name);
+      module_scope = moduleName2moduleId(M_module_name);
       setModuleScope(module_scope);
       
       mtags = translateTags(M.header.tags);

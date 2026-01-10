@@ -380,13 +380,13 @@ bool rascalReportUnused(loc def, TModel tm){
 // Extend the path relation by
 // - adding transitive edges for extend
 // - adding imports via these extends
-rel[loc, PathRole,loc] enhancePathRelation(rel[MID, PathRole,MID] paths){
-    extendPlus = {<from, to> | <MID from, extendPath(), MID to> <- paths}+;
-    paths += { <from, extendPath(), to> | <MID from, MID to> <- extendPlus};
+rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole,MODID] paths){
+    extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
+    paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus};
 
-    imports = {<from, to> | <MID from, importPath(), MID to> <- paths};
+    imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
     delta = { <from, importPath(), to2> 
-            | <MID from, MID to2> <- extendPlus o imports, 
+            | <MODID from, MODID to2> <- extendPlus o imports, 
               <from, extendPath(), to2> notin paths, 
               from != to2
             };
