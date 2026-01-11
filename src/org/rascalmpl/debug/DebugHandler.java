@@ -283,26 +283,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 
 	private boolean handleExceptionSuspension(Evaluator eval, Exception e) {
-		AbstractAST referenceAST = eval.getCurrentAST();
 		if(e instanceof Throw){
 			Throw thr = (Throw) e;
 			IValue excValue = thr.getException();
-			if(excValue.getType().isAbstractData() && excValue instanceof IConstructor){
-				IConstructor cons = (IConstructor) excValue;
-				Type constructorType = cons.getConstructorType();
-				
-				// Match on different constructors
-				if(constructorType == RuntimeExceptionFactory.ParseError){
-					try{
-						return !referenceAST.getLocation().top().equals(
-							URIUtil.createFromURI("std:///ParseTree.rsc"));
-					}catch(URISyntaxException use){
-						return true; // if std not found, suspend
-					}
+			if(excValue.getType().isAbstractData()){
+				// We ignore suspension that happens due in standard library code for RuntimeExceptions
+				if(excValue.getType().getName().equals("RuntimeException")){
+					return !eval.getCurrentAST().getLocation().getScheme().equals("std");
 				}
-				// ... TODO : other cases
 			}
-			// TODO : other kinds of exceptions
+			return true;
 		}
 		return false;
 	}
