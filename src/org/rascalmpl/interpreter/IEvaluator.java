@@ -26,7 +26,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
-import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
