@@ -624,3 +624,14 @@ alias Entry = tuple[int a, int b];
 test bool javaFunctionsLaterBindings() {
     return sort([<3,4>,<1,2>], bool (Entry left, Entry right) { return left.a < right.a; }).a == [1,3];
 }
+
+int aFunction() = 42;
+default int bFunction() = 84; /* must be default to force the choice to `aFunction` */
+int testFunction(int () aFunction /* must be the same as `aFunction` */) = aFunction();
+
+test bool functionParameterWithFunctionName() {
+    assert testFunction(aFunction) == 42;
+    // issue #2575 
+    assert testFunction(bFunction) == 84;
+    return true;
+}
