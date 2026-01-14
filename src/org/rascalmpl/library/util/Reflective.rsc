@@ -428,6 +428,7 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
     
     newRascalPomFile(folder, name=name, group=group, version=version);
     newRascalMfFile(folder, name=name);
+    newRascalVsCodeSettings(folder);
     
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
@@ -541,3 +542,24 @@ private str pomXml(str name, str group, str version)
     '  \</build\>
     '\</project\>
     ";
+
+private str vscodeSettings() = "{
+                               '    \"search.exclude\": {
+                               '        \"/target/\": true,
+                               '    },
+                               '}";
+
+private loc vscodeFolder(loc folder) = folder + ".vscode";
+private loc vscodeSettingsFile(loc folder) = vscodeFolder(folder) + "settings.json";
+
+@synopsis{Create a `.vscode` folder for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+A `.vscode` folder will be generated and written.
+
+The project folder is created if it does not exist already.
+}
+void newRascalVsCodeSettings(loc folder) {
+    mkDirectory(vscodeFolder(folder));
+    writeFile(vscodeSettingsFile(folder), vscodeSettings());
+}
