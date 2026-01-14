@@ -429,12 +429,23 @@ public class Environment implements IRascalFrame {
 	
 	protected boolean isFunctionFlagged(String name, Predicate<NameFlags> tester) {
 		Environment flaggingEnvironment = getFunctionFlagsEnvironment(name);
-		if (flaggingEnvironment == null) {
+		
+		// function flags are _not_ set for function references via local variables and pattern variables
+		// but we _can_ get Environments as flaggingEnvironments is a local variable is shadowing a function name
+
+		if (flaggingEnvironment == null || flaggingEnvironment.functionFlags == null) {
 			return false;
 		}
 
-		return flaggingEnvironment.functionFlags.containsKey(name) 
-			&& tester.test(flaggingEnvironment.functionFlags.get(name));
+		if (flaggingEnvironment.functionFlags.containsKey(name)) {
+			var flags = flaggingEnvironment.functionFlags.get(name);
+
+			if (flags != null) {
+				return tester.test(flags);
+			}
+		}
+
+		return false;
 	}
 
 	public boolean isFunctionFinal(QualifiedName name) {
@@ -1122,7 +1133,20 @@ public class Environment implements IRascalFrame {
 		return null;
 	}
 
+	/*
+	 * Return the environment that defines a function name. This includes local Environments
+	 * which bind function values to local variables, even though these never define the function's flags (
+	 * alls flags are `false` by default for these high-order instances.)
+	 */
 	protected Environment getFunctionFlagsEnvironment(String name) {
+		if (this.variableEnvironment != null) {
+			if (this.variableEnvironment.get(name) != null) {
+				// the function handle is a local variable which shadows
+				// other definitions. See #2575
+				return this;
+			}
+		}
+
 		if (this.functionEnvironment != null) {
 			if (this.functionEnvironment.get(name) != null) {
 				if (this.functionFlags != null) {
