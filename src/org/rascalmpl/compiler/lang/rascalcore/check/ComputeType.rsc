@@ -83,7 +83,7 @@ rel[loc key, IdRole idRole, AType atype]
     
     rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
     rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
-    for(tup:<def, r, tp> <- overloads){
+    for(tup:<_, _, tp> <- overloads){
         if(isValueAType(expected)){
             filteredOverloads += tup;
             if(isConstructorAType(tp) || isADTAType(tp)){
@@ -96,7 +96,7 @@ rel[loc key, IdRole idRole, AType atype]
         } 
     }
     if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | <key, idRole, tp>  <- unResolvedConstructorOverloads };
+        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
@@ -123,7 +123,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){
                     filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
-                    for(<def, r, tp> <- filteredOverloads){
+                    for(<_, _, tp> <- filteredOverloads){
                         s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
                     }
                 } else {
