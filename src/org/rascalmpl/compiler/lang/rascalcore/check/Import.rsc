@@ -453,6 +453,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         filteredModuleScopes = {m | MODID m <- (currentModule + imports), checked() in ms.status[m]} + extendedModuleScopes;
 
         TModel m1 = tmodel();
+        m1.version = getCurrentTplVersion();
         m1.rascalTplVersion = compilerConfig.rascalTplVersion;
         m1.modelName = moduleId2moduleName(currentModule);
         m1.moduleLocs = (m1.modelName  : currentModule);
