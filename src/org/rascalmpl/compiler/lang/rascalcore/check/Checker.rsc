@@ -147,7 +147,7 @@ ModuleStatus rascalTModelForLocs(
                     mname = getRascalModuleName(mloc, pcfg);
                     mnames += mname;
                     append moduleName2moduleId(mname);
-                } catch e: {
+                } catch _: {
                     msgs += error("No module name found for <mloc>", mloc);
                 }
             } else {
