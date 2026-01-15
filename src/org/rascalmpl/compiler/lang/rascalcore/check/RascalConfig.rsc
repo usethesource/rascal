@@ -166,14 +166,15 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // println("rascalIsAcceptableQualified: <def>, <use>");
-    
+    assert isLogicalLoc(def): "rascalIsAcceptableQualified: <def>";
     path = def.path;
-    if(path[0] == "/") path = path[1..];
-    defPath = split("/", path)[0..-1];
-    qualAsPath = split("::", use.ids[0]);
+    i = findLast(path, "/");
+    assert i >= 0: " findLast in <path> gives <i>";
+    defPath = def.path[..i];
+    qualPath = "/" + replaceAll(use.ids[0], "::","/");
 
     // qualifier and proposed definition are the same?
-    if(defPath[-size(qualAsPath)..] == qualAsPath){
+    if(defPath == qualPath){
        return acceptBinding();
     }
 
@@ -191,11 +192,11 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     }
 
     // Is there another acceptable qualifier via an extend?
-
-    extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
-    // println("path = <path>");
-    // println("extendedStarBy");iprintln(extendedStarBy);
-    if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[path]?{}, endsWith(p, path))){ //TODO check this
+    paths = enhancePathRelation(s.getPaths());
+    defPathAsMODID = |rascal+module://<defPath>|;
+    qualPathAsMODID = |rascal+module://<qualPath>|;
+    if(defPathAsMODID in paths[qualPathAsMODID]<1>){
+       println("acceptBinding: <defPathAsMODID>");
        return acceptBinding();
     }
 
@@ -380,7 +381,7 @@ bool rascalReportUnused(loc def, TModel tm){
 // Extend the path relation by
 // - adding transitive edges for extend
 // - adding imports via these extends
-rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole,MODID] paths){
+rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
     extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
     paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus};
 
