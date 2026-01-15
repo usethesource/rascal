@@ -357,6 +357,11 @@ public abstract class Import {
               module.interpret(eval);
           }
       }
+      catch (ModuleImport e) {
+        // if it does not exist, it should not remain on the heap
+        heap.removeModule(env);
+        throw e; // pass the error to the importing/extending module for future reference
+      }
       catch (StaticError e) {
           handleLoadError(env, e.getMessage(), e.getLocation(), "");
       }
