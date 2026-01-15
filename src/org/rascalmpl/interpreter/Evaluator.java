@@ -1163,7 +1163,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
-                    onHeap.add(mod);
+                    if (URIResolverRegistry.getInstance().exists(heap.getModule(mod).getLocation())) {
+                        // only if the file was not removed in the mean time
+                        onHeap.add(mod);
+                    }
                     if (recurseToExtending) {
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
