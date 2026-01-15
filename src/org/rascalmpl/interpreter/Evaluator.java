@@ -1121,6 +1121,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             setMonitor(old);
             setCurrentAST(null);
             heap.writeLoadMessages(getErrorPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
@@ -1255,6 +1257,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             // during reload we don't see any errors being printed, to avoid duplicate reports
             // so at the end we always report what went wrong to the user.
             heap.writeLoadMessages(getOutPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
