@@ -99,6 +99,8 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		  }
 		  finally {
 			__eval.getHeap().writeLoadMessages(__eval.getErrorPrinter());
+			// the repl is not a persistent file, so errors do not persist either
+            __eval.__getRootScope().clearLoadMessages();
 		    __eval.setCurrentAST(this);
 		  }
 
