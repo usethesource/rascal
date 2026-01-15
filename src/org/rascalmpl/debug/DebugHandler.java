@@ -20,6 +20,8 @@ import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTr
 
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IDebugMessage.Detail;
@@ -268,6 +270,19 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	  this.evaluator = evaluator;
 	}
 
+	private final Pattern importCommandPattern = Pattern.compile("^\\s*import\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
+	public Result<IValue> importModule(String command){
+		Matcher matcher = importCommandPattern.matcher(command);
+        if (!matcher.find()) {
+            return null;
+        }
+		Environment oldEnvironment = evaluator.getCurrentEnvt();
+		evaluator.setCurrentEnvt(evaluator.__getRootScope()); // For import we set the current module to the root to reload modules properly
+		Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+		evaluator.setCurrentEnvt(oldEnvironment);
+		return result;
+	}
+
 	/**
 	 * Evaluate the given command in the provided environment and return both a
 	 * printable {@link ICommandOutput} and the raw {@link Result} (if any).
@@ -302,8 +317,10 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 				evaluator.removeSuspendTriggerListener(this);
 				evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 				evaluator.setCurrentEnvt(evalEnv);
-
-				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				Result<IValue> result = importModule(command);
+				if(result == null) {
+					result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				}
 
 				ICommandOutput out = printer.outputResult((org.rascalmpl.interpreter.result.IRascalResult) result);
 				return new EvalResult(result, out);
