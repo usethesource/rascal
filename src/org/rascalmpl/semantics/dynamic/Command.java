@@ -17,6 +17,9 @@ import org.rascalmpl.ast.ShellCommand;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -78,15 +81,21 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 		  try {
 		    __eval.setCurrentAST(this);
-		    Result<IValue> res = this.getImported().interpret(__eval);
 
-		    // If we import a module from the command line, notify any
-		    // expressions caching
-		    // results that could be invalidated by a module load that we have
-		    // loaded.
-		    __eval.notifyConstructorDeclaredListeners();
-
-		    return res;
+			try {
+		    	return this.getImported().interpret(__eval);
+			}
+			catch (ModuleImport e) {
+				 __eval.getCurrentModuleEnvironment().addLoadError(e.getMessage(), e.getLocation(), "");
+				 return ResultFactory.nothing();
+			}
+			finally {
+				// If we import a module from the command line, notify any
+			    // expressions caching
+			    // results that could be invalidated by a module load that we have
+			    // loaded.
+		    	__eval.notifyConstructorDeclaredListeners();
+			}
 		  }
 		  finally {
 			__eval.getHeap().writeLoadMessages(__eval.getErrorPrinter());
