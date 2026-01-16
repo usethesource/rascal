@@ -14,8 +14,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package org.rascalmpl.shell;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -24,12 +24,15 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.repl.streams.StreamUtil;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.remote.RemoteExternalResolverRegistry;
 
 
 public class RascalShell  {
 
     public static void main(String[] args) throws IOException {
         int ideServicesPort = -1;
+        int vfsPort = -1;
         checkIfHelp(args);
 
         var term = connectToTerminal();
@@ -39,8 +42,8 @@ public class RascalShell  {
             if (args[i].equals("--remoteIDEServicesPort")) {
                 ideServicesPort = Integer.parseInt(args[++i]);
             } else if (args[i].equals("--vfsPort")) {
-                System.err.println("Ignored parameter --vfsPort and its argument");
-                i++; // skip the argument
+                vfsPort = Integer.parseInt(args[++i]);
+                System.err.println("Found --vfsPort " + vfsPort);
             } else if (args[i].startsWith("--")) {
                 // Currently unknown named argument, skipping over this
                 System.err.println("Ignored parameter " + args[i]);
@@ -49,6 +52,11 @@ public class RascalShell  {
                 break;
             }
         }
+
+        if (vfsPort != -1) {
+            URIResolverRegistry.getInstance().setExternalResolverRegistry(new RemoteExternalResolverRegistry(vfsPort));
+        }
+        
 
         ShellRunner runner; 
         if (args.length > i) {
