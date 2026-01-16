@@ -157,6 +157,7 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
     return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
                             REPO + "rascal/test/org/rascalmpl/benchmark/",
                             REPO + "rascal/src/org/rascalmpl/compiler",
+                            REPO + "rascal/src/org/rascalmpl/tutor",
                             REPO + "typepal/src",
                             LSP_REPO + "src/main/rascal/library", 
                             LSP_REPO + "src/main/rascal/lsp"
