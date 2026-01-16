@@ -20,10 +20,9 @@ import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTr
 
 import java.util.Map;
 import java.util.function.IntSupplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Command;
 import org.rascalmpl.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -34,17 +33,29 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import java.util.function.Function;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+
 import io.usethesource.vallang.io.StandardTextWriter;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IValue;
@@ -270,10 +281,11 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	  this.evaluator = evaluator;
 	}
 
-	private final Pattern importCommandPattern = Pattern.compile("^\\s*import\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
 	public Result<IValue> importModule(String command){
-		Matcher matcher = importCommandPattern.matcher(command);
-        if (!matcher.find()) {
+		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, DEBUGGER_PROMPT_LOCATION.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+		Command stat = new ASTBuilder().buildCommand(tree);
+        if (!stat.isImport()) {
             return null;
         }
 		Environment oldEnvironment = evaluator.getCurrentEnvt();
