@@ -141,11 +141,6 @@ public interface IRemoteResolverRegistry {
     }
 
     //TODO (Rodin): @JsonRequest tag, plus wat betekent dit binnen Rascal?
-    default CompletableFuture<String[]> fileSystemSchemes() {
-        throw new UnsupportedOperationException();
-    }
-
-    //TODO (Rodin): @JsonRequest tag, plus wat betekent dit binnen Rascal?
     default void onDidChangeFile(FileChangeEvent event) {
         throw new UnsupportedOperationException();
     }
