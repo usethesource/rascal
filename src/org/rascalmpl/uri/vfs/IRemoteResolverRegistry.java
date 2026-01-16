@@ -119,7 +119,7 @@ public interface IRemoteResolverRegistry {
     }
 
     @JsonRequest("rascal/vfs/output/rename")
-    default CompletableFuture<Void> rename(URI from, URI to, boolean overwrite) {
+    default CompletableFuture<Void> rename(ISourceLocation from, ISourceLocation to, boolean overwrite) {
         throw new UnsupportedOperationException();
     }
 
