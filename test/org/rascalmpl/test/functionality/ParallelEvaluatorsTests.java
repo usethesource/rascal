@@ -26,8 +26,8 @@ public class ParallelEvaluatorsTests {
     private static final IRascalMonitor monitor = new NullRascalMonitor();
     
     private static final String[] testModules = new String[] {
-        "lang::rascal::tests::library::ValueIO",
-        "lang::rascal::tests::library::Map",
+        "lang::rascal::tests::libraries::ValueIO",
+        "lang::rascal::tests::libraries::Map",
         "lang::rascal::tests::concrete::Parsing"
     };
 

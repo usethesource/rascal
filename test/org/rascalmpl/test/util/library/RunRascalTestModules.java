@@ -5,6 +5,6 @@ import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 
 @RunWith(RascalJUnitTestRunner.class)
-@RascalJUnitTestPrefix("lang::rascal::tests::library")
+@RascalJUnitTestPrefix("lang::rascal::tests::libraries")
 public class RunRascalTestModules { }
 
