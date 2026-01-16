@@ -185,6 +185,10 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
        return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
+    if(afunc(AType _ret, list[AType] _formals, list[Keyword] _kwFormals) := atype){
+        return acceptBinding();
+    }
+
     // Qualifier is a Production?
 
     if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
