@@ -196,7 +196,7 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     defPathAsMODID = |rascal+module://<defPath>|;
     qualPathAsMODID = |rascal+module://<qualPath>|;
     if(defPathAsMODID in paths[qualPathAsMODID]<1>){
-       println("acceptBinding: <defPathAsMODID>");
+       //println("acceptBinding: <defPathAsMODID>");
        return acceptBinding();
     }
 
