@@ -67,12 +67,12 @@ str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals
                                             = "TypedFunctionInstance<size(formals)>\<IValue, <intercalate(", ", ["IValue" | _ <- formals])>\>"
                                               when !isEmpty(formals); // TODO: check for number of defined versions of TypedFunctionInstance
  
-str atype2javatype(anode(list[AType fieldType] fields)) 
+str atype2javatype(anode(list[AType] fields)) 
                                             = "INode";
 str atype2javatype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
                                             = (adtName == "Tree" || isConcreteSyntaxRole(syntaxRole)) ? "ITree" : "IConstructor";
 
-str atype2javatype(t: acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields))
+str atype2javatype(t: acons(AType adt, list[AType] fields, list[Keyword] kwFields))
                                             = "IConstructor";
                  
 str atype2javatype(aparameter(str pname, AType bound)) 
@@ -115,7 +115,7 @@ str atype2idpart(amap(AType d, AType r))  = "map_<atype2idpart(d)>_<atype2idpart
 str atype2idpart(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                           = "<atype2idpart(ret)>_<intercalate("_", [atype2idpart(f) | f <- formals])>";
 
-str atype2idpart(anode(list[AType fieldType] fields))
+str atype2idpart(anode(list[AType] fields))
                                           = "node";
 
 str atype2idpart(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
@@ -125,7 +125,7 @@ str atype2idpart(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxR
     return asJavaName(aname);
 }
                                               
-str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields)){
+str atype2idpart(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields)){
     aname = getUniqueADTName(adt);
     //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<size(adt.parameters)>";
     //aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
@@ -242,7 +242,7 @@ str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)
 str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
     = "<atype2IValue(ret, defs)>_<intercalate("_", [atype2IValue(f,defs) | f <- formals])>";
     
-str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) 
+str atype2IValue1(at:anode(list[AType] fields), map[AType, set[AType]] defs) 
     = "$anode(<lab(at)>)";
 
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, dataSyntax()), map[AType, set[AType]] defs)
@@ -258,7 +258,7 @@ str atype2IValue1(at:aadt(str adtName, list[AType] parameters, layoutSyntax()), 
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), map[AType, set[AType]] defs)
     = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(\"<adtName>\"))";
     
-str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields), map[AType, set[AType]] defs)
+str atype2IValue1(at:acons(AType adt, list[AType] fields, list[Keyword] kwFields), map[AType, set[AType]] defs)
     = "$acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
 
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
@@ -549,10 +549,10 @@ str getOuter(atuple(AType ts))        = "atuple";
 str getOuter(amap(AType d, AType r))  = "amap";
 str getOuter(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                       = "afunc";
-str getOuter(anode(list[AType fieldType] fields)) 
+str getOuter(anode(list[AType] fields)) 
                                       = "anode";
 str getOuter(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "aadt";
-str getOuter(t:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields))
+str getOuter(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields))
                                       = "acons";
 str getOuter(aparameter(str pname, AType bound)) 
                                       = getOuter(bound);
@@ -768,7 +768,7 @@ str doValue2IValue(aadt(str adtName, list[AType] parameters, contextFreeSyntax()
 str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, int] constants) = adtName;
 
 str doValue2IValue(acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields), map[value, int] constants)
                  = "IConstructor";
 
@@ -818,7 +818,7 @@ str value2outertype(alrel(AType_)) = "IRelation\<IList\>";
 str value2outertype(aadt(str adtName, list[AType] _, SyntaxRole _)) = (adtName == "Tree") ? "ITree" : "IConstructor"; //asADTName(adtName);
 
 str value2outertype(acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields))
                  = "IConstructor";
 str value2outertype(areified(AType atype)) = "IConstructor";
@@ -839,7 +839,7 @@ str atype2vtype(areal(), JGenie jg, bool inTest=false) = "$TF.realType()";
 str atype2vtype(arat(), JGenie jg, bool inTest=false) = "$TF.rationalType()";
 str atype2vtype(astr(), JGenie jg, bool inTest=false) = "$TF.stringType()";
 str atype2vtype(anum(), JGenie jg, bool inTest=false) = "$TF.numberType()";
-str atype2vtype(anode(list[AType fieldType] fields), JGenie jg, bool inTest=false) = "$TF.nodeType()";
+str atype2vtype(anode(list[AType] fields), JGenie jg, bool inTest=false) = "$TF.nodeType()";
 str atype2vtype(avoid(), JGenie jg, bool inTest=false) = "$TF.voidType()";
 str atype2vtype(avalue(), JGenie jg, bool inTest=false) = "$TF.valueType()";
 str atype2vtype(aloc(), JGenie jg, bool inTest=false) = "$TF.sourceLocationType()";
@@ -920,7 +920,7 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, layoutSyntax()), JGe
     //= "$TF.constructor($TS, RascalValueFactory.Symbol, \"layout\", $RVF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields), JGenie jg, bool inTest=false){
     res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.accessType(adt)>, \"<asUnqualifiedName(c.alabel)>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- fields])>)";
     return res;
