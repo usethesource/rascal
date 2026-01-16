@@ -27,7 +27,6 @@
 package org.rascalmpl.ideservices;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -100,9 +99,30 @@ public class GsonUtils {
     }
 
     public static enum ComplexTypeMode {
+        /**
+         * All values are serialized as JSON objects. Automatic deserialization is only supported for primitive types (`bool`,
+         * `datetime`, `int`, `rat`, `real`, `loc`, `str`, `num`); more complex types cannot be automatically deserialized as
+         * the type is not available at deserialization time.
+         * 
+         * Rationals are wrapped in an object with `rat` as key, to avoid an ambiguity between a rational's JSON representation
+         * (a list) and a list as a sole argument on the JSON-RPC level. 
+         */
         ENCODE_AS_JSON_OBJECT,
+
+        /**
+         * All values are serialized as a (binary) Base64-encoded string. An appropriate {@link TypeStore} must be provided for
+         * deserialization with {@link ComplexTypeMode#base64Decode}.
+         */
         ENCODE_AS_BASE64_STRING,
+
+        /**
+         * All values are serialized as a string.
+         */
         ENCODE_AS_STRING,
+
+        /**
+         * Only primitive types are supported; more complex types are neither serialized nor deserialized.
+         */
         NOT_SUPPORTED
     }
 
@@ -131,13 +151,13 @@ public class GsonUtils {
 
         public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode) {
             if (isPrimitive) {
+                var needsWrapping = complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type.isSubtypeOf(tf.rationalType());
                 return new TypeAdapter<T>() {
                     @Override
                     public void write(JsonWriter out, T value) throws IOException {
-                        var needsWrapping = needsWrapping(type, complexTypeMode);
                         if (needsWrapping) {
                             out.beginObject();
-                            out.name("val");
+                            out.name("rat");
                         }
                         writer.write(out, (IValue) value);
                         if (needsWrapping) {
@@ -148,7 +168,6 @@ public class GsonUtils {
                     @SuppressWarnings("unchecked")
                     @Override
                     public T read(JsonReader in) throws IOException {
-                        var needsWrapping = needsWrapping(type, complexTypeMode);
                         if (needsWrapping) {
                             in.beginObject();
                             in.nextName();
@@ -166,15 +185,7 @@ public class GsonUtils {
                 public void write(JsonWriter out, T value) throws IOException {
                     switch (complexTypeMode) {
                         case ENCODE_AS_JSON_OBJECT:
-                            var needsWrapping = needsWrapping(type, complexTypeMode);
-                            if (needsWrapping) {
-                                out.beginObject();
-                                out.name("val");
-                            }
                             writer.write(out, (IValue) value);
-                            if (needsWrapping) {
-                                out.endObject();
-                            }
                             break;
                         case ENCODE_AS_BASE64_STRING:
                             out.value(base64Encode((IValue) value));
@@ -195,16 +206,6 @@ public class GsonUtils {
                 }
             };
         }
-    }
-    
-    /**
-     * IValues that are encoded as a (JSON) list need to be wrapped in an object to avoid Gson accidentally unpacking the list
-     * @param type
-     * @param complexTypeMode
-     * @return whether or not wrapping is required 
-     */
-    private static boolean needsWrapping(Type type, ComplexTypeMode complexTypeMode) {
-        return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type == null || type.isSubtypeOf(tf.rationalType());
     }
 
     public static void configureGson(GsonBuilder builder) {
