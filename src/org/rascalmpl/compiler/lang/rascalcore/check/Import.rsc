@@ -230,7 +230,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             // ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[moduleId] += module_dependencies_extracted();
             ms.messages[moduleId] ? {} += toSet(tm.messages);
-            for(<imp, pr> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
+            for(<imp, _> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
                 ms.status[imp] -= tpl_saved();
                 ms = getImportAndExtendGraph(imp, ms);
             }
