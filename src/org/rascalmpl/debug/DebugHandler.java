@@ -65,6 +65,8 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 
 	private boolean suspendOnException = false;
 
+	private Exception lastExceptionHandled = null;
+
 	public boolean getSuspendOnException() {
 		return suspendOnException;
 	}
@@ -183,8 +185,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        // Suspension due to exception
 			Evaluator eval = (Evaluator) runtime;
 			Exception e = eval.getCurrentException();
-	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
-	        getEventTrigger().fireSuspendByExceptionEvent(e);
+			if(lastExceptionHandled != null && e == lastExceptionHandled){
+				return; // already handled this exception
+			}
+			if(handleExceptionSuspension(eval, e)){
+				lastExceptionHandled = e;
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByExceptionEvent(e);
+			} else {
+				return;
+			}
 	    }
 	    else {
 	        AbstractAST location = currentAST;
@@ -281,6 +291,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	    if (frameToRestart >= 0) {
 	        throw new RestartFrameException(frameToRestart);
 	    }
+	}
+
+	private boolean handleExceptionSuspension(Evaluator eval, Exception e) {
+		if(e instanceof Throw){
+			Throw thr = (Throw) e;
+			IValue excValue = thr.getException();
+			if(excValue.getType().isAbstractData()){
+				// We ignore suspension that happens due in standard library code for RuntimeExceptions
+				if(excValue.getType().getName().equals("RuntimeException")){
+					return !eval.getCurrentAST().getLocation().getScheme().equals("std");
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	protected AbstractAST getReferenceAST() {
