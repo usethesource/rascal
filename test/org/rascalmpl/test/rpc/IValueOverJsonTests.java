@@ -201,6 +201,15 @@ public abstract class IValueOverJsonTests {
         }
     }
 
+
+    protected static IRational arbRational() {
+        IInteger numerator = (IInteger) math.arbInt();
+        IInteger denominator = (IInteger) math.arbInt();
+        while (denominator.equals(vf.integer(0))) {
+            denominator = (IInteger) math.arbInt();
+        }
+        return vf.rational(numerator, denominator);
+    }    
     
     @Test
     public abstract void testSendBool();
@@ -249,13 +258,4 @@ public abstract class IValueOverJsonTests {
 
     @Test
     public abstract void testSendTuple();
-
-    private static IRational arbRational() {
-        IInteger numerator = (IInteger) math.arbInt();
-        IInteger denominator = (IInteger) math.arbInt();
-        while (denominator.equals(vf.integer(0))) {
-            denominator = (IInteger) math.arbInt();
-        }
-        return vf.rational(numerator, denominator);
-    }
 }
