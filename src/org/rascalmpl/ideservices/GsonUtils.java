@@ -71,7 +71,6 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class GsonUtils {
     private static final JsonValueWriter writer = new JsonValueWriter();
-    private static final JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), new TypeStore(), new NullRascalMonitor(), null);
     private static final TypeFactory tf = TypeFactory.getInstance();
     
     private static final List<TypeMapping> typeMappings;
@@ -150,7 +149,8 @@ public class GsonUtils {
             return clazz.isAssignableFrom(incoming);
         }
 
-        public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode) {
+        public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode, TypeStore ts) {
+            JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), ts, new NullRascalMonitor(), null);
             if (isPrimitive) {
                 var needsWrapping = complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type.isSubtypeOf(tf.rationalType());
                 return new TypeAdapter<T>() {
@@ -201,9 +201,17 @@ public class GsonUtils {
                     }
                 }
 
+                @SuppressWarnings("unchecked")
                 @Override
                 public T read(JsonReader in) throws IOException {
-                    throw new IOException("Cannot handle complex type");
+                    switch (complexTypeMode) {
+                        case ENCODE_AS_BASE64_STRING:
+                            return base64Decode(in.nextString(), ts);
+                        case ENCODE_AS_STRING:
+                            return (T) reader.read(in, type);
+                        default:
+                            throw new IOException("Cannot handle complex type");
+                    }
                 }
             };
         }
