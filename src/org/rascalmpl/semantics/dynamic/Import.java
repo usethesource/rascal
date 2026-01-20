@@ -357,6 +357,11 @@ public abstract class Import {
               module.interpret(eval);
           }
       }
+      catch (ModuleImport e) {
+        // if it does not exist, it should not remain on the heap
+        heap.removeModule(env);
+        throw e; // pass the error to the importing/extending module for future reference
+      }
       catch (StaticError e) {
           handleLoadError(env, e.getMessage(), e.getLocation(), "");
       }
@@ -469,8 +474,19 @@ private static boolean isDeprecated(Module preModule){
       Environment old = eval.getCurrentEnvt();
       try {
           eval.setCurrentEnvt(env);
-          // env.setInitialized(true);
-             
+          
+          // always extend first (non-cyclic), to create proper
+          // local type definitions and resolve possible import cycles 
+          ISet extend = Modules.getExtends(top);
+          eval.getMonitor().jobTodo(jobName, extend.size());
+          for (IValue mod : extend) {
+              evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(jobName, "extending for " + name, 1);
+              if (eval.isInterrupted()) {
+                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+              }
+          }
+
           declareTypesWhichDoNotNeedImportedModulesAlready(eval, env, top);
           
           eval.getCurrentModuleEnvironment().clearProductions();
@@ -494,15 +510,7 @@ private static boolean isDeprecated(Module preModule){
               }
           }
 
-          ISet extend = Modules.getExtends(top);
-          eval.getMonitor().jobTodo(jobName, extend.size());
-          for (IValue mod : extend) {
-              evalImport(eval, (IConstructor) mod);
-              eval.getMonitor().jobStep(jobName, "extending for " + name, 1);
-              if (eval.isInterrupted()) {
-                throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
-              }
-          }
+          
 
           ISet externals = Modules.getExternals(top);
           eval.getMonitor().jobTodo(jobName, externals.size());
