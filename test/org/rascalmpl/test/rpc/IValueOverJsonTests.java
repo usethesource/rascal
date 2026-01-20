@@ -79,53 +79,6 @@ public class IValueOverJsonTests {
         }
     }
 
-    interface TestInterface {
-        @JsonRequest
-        CompletableFuture<IBool> sendBool(IBool bool);
-        
-        @JsonRequest
-        CompletableFuture<Void> sendConstructor(IConstructor constructor);
-
-        @JsonRequest
-        CompletableFuture<IDateTime> sendDateTime(IDateTime dateTime);
-
-        @JsonRequest
-        CompletableFuture<IInteger> sendInteger(IInteger integer);
-
-        @JsonRequest
-        CompletableFuture<Void> sendNode(INode node);
-
-        @JsonRequest
-        CompletableFuture<IRational> sendRational(IRational rational);
-
-        @JsonRequest
-        CompletableFuture<IReal> sendReal(IReal real);
-
-        @JsonRequest
-        CompletableFuture<ISourceLocation> sendLocation(ISourceLocation loc);
-
-        @JsonRequest
-        CompletableFuture<IString> sendString(IString string);
-
-        @JsonRequest
-        CompletableFuture<INumber> sendNumber(INumber number);
-
-        @JsonRequest
-        CompletableFuture<IValue> sendValue(IValue value);
-
-        @JsonRequest
-        CompletableFuture<Void> sendList(IList list);
-        
-        @JsonRequest
-        CompletableFuture<Void> sendMap(IMap map);
-
-        @JsonRequest
-        CompletableFuture<Void> sendSet(ISet set);
-
-        @JsonRequest
-        CompletableFuture<Void> sendTuple(ITuple tuple);
-    }
-
     static class TestServer implements TestInterface {
 
         @Override
