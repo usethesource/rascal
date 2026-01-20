@@ -355,7 +355,7 @@ ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded
         ms.status[candidate] -= bom_update_needed();
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
-        tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
+        //tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
         ms.status[candidate] += tpl_saved();
         if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
