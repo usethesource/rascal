@@ -395,6 +395,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
+        frame.setCanRestart(false);
         if(loc != null && !loc.getScheme().equals(promptLocation.getScheme())) {
             var offsets = columns.get(loc);
             var line = shiftLine(loc.getBeginLine());
@@ -402,6 +403,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             frame.setLine(line);
             frame.setColumn(column);
             frame.setSource(getSourceFromISourceLocation(loc));
+            frame.setCanRestart(true);
         }
         return frame;
     }
