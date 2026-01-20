@@ -11,56 +11,49 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Math;
-import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IDateTime;
+import com.google.gson.GsonBuilder;
+
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
-import io.usethesource.vallang.IReal;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public abstract class IValueOverJsonTests {
-    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    private static final Prelude prelude = new Prelude(vf, null, null, null, null);
-    private static final Math math = new Math(vf);
+    protected static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    protected static final Prelude prelude = new Prelude(vf, null, null, null, null);
+    protected static final Math math = new Math(vf);
 
-    private static TestInterface server;
-    private static PipedInputStream is0 = null, is1 = null;
-    private static PipedOutputStream os0 = null, os1 = null;
+    protected static JsonRpcTestInterface testServer;
+    protected static final PipedInputStream is0, is1;
+    protected static final PipedOutputStream os0, os1;
+    
+    static {
+        try {
+            is0 = new PipedInputStream();
+            os0 = new PipedOutputStream();
+            is1 = new PipedInputStream(os0);
+            os1 = new PipedOutputStream(is0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    @BeforeClass
-    public static void setup() throws IOException {
-        is0 = new PipedInputStream();
-        os0 = new PipedOutputStream();
-        is1 = new PipedInputStream(os0);
-        os1 = new PipedOutputStream(is0);
-        new TestThread(is0, os0).start();
-        new TestClient(is1, os1);
+    protected static void startTestServerAndClient(Consumer<GsonBuilder> gsonConfig) {
+        new TestThread(is0, os0, gsonConfig).start();
+        new TestClient(is1, os1, gsonConfig);
     }
 
     @AfterClass
@@ -79,118 +72,42 @@ public abstract class IValueOverJsonTests {
         }
     }
 
-    static class TestServer implements TestInterface {
-
-        @Override
-        public CompletableFuture<IBool> sendBool(IBool value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<Void> sendConstructor(IConstructor value) {
-            return CompletableFuture.failedFuture(new IllegalStateException("IConstructor should not have been decoded"));
-        }
-
-        @Override
-        public CompletableFuture<IDateTime> sendDateTime(IDateTime value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<IInteger> sendInteger(IInteger value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<Void> sendNode(INode value) {
-            return CompletableFuture.failedFuture(new IllegalStateException("INode should not have been decoded"));
-        }
-
-        @Override
-        public CompletableFuture<IRational> sendRational(IRational value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<IReal> sendReal(IReal value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<ISourceLocation> sendLocation(ISourceLocation value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<IString> sendString(IString value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<INumber> sendNumber(INumber value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<IValue> sendValue(IValue value) {
-            return CompletableFuture.completedFuture(value);
-        }
-
-        @Override
-        public CompletableFuture<Void> sendList(IList list) {
-            return CompletableFuture.failedFuture(new IllegalStateException("IList should not have been decoded"));
-        }
-
-        @Override
-        public CompletableFuture<Void> sendMap(IMap map) {
-            return CompletableFuture.failedFuture(new IllegalStateException("IMap should not have been decoded"));
-        }
-
-        @Override
-        public CompletableFuture<Void> sendSet(ISet set) {
-            return CompletableFuture.failedFuture(new IllegalStateException("ISet should not have been decoded"));
-        }
-
-        @Override
-        public CompletableFuture<Void> sendTuple(ITuple tuple) {
-            return CompletableFuture.failedFuture(new IllegalStateException("ITuple should not have been decoded"));
-        }
-    }
-
     static class TestClient {
-        public TestClient(InputStream is, OutputStream os) {
-            Launcher<TestInterface> clientLauncher = new Launcher.Builder<TestInterface>()
-                .setRemoteInterface(TestInterface.class)
+        public TestClient(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
+            Launcher<JsonRpcTestInterface> clientLauncher = new Launcher.Builder<JsonRpcTestInterface>()
+                .setRemoteInterface(JsonRpcTestInterface.class)
                 .setLocalService(this)
                 .setInput(is)
                 .setOutput(os)
-                .configureGson(GsonUtils::configureGson)
+                .configureGson(gsonConfig)
                 .setExecutorService(Executors.newCachedThreadPool())
                 .create();
 
-                clientLauncher.startListening();
-                server = clientLauncher.getRemoteProxy();
+            clientLauncher.startListening();
+            testServer = clientLauncher.getRemoteProxy();
         }
     }
 
     static class TestThread extends Thread {
         private final InputStream is;
         private final OutputStream os;
+        private final Consumer<GsonBuilder> gsonConfig;
         
-        public TestThread(InputStream is, OutputStream os) {
+        public TestThread(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
             this.is = is;
             this.os = os;
+            this.gsonConfig = gsonConfig;
             this.setDaemon(true);
         }
 
         @Override
         public void run() {
-            Launcher<TestInterface> serverLauncher = new Launcher.Builder<TestInterface>()
-                .setLocalService(new TestServer())
-                .setRemoteInterface(TestInterface.class)
+            Launcher<JsonRpcTestInterface> serverLauncher = new Launcher.Builder<JsonRpcTestInterface>()
+                .setLocalService(new JsonRpcTestInterface() {}) // `setLocalService` explicitly requires an interface, not a class
+                .setRemoteInterface(JsonRpcTestInterface.class)
                 .setInput(is)
                 .setOutput(os)
-                .configureGson(GsonUtils::configureGson)
+                .configureGson(gsonConfig)
                 .setExceptionHandler(e -> {
                     System.err.println(e);
                     return new ResponseError(ResponseErrorCode.InternalError, e.getMessage(), e);
@@ -201,6 +118,24 @@ public abstract class IValueOverJsonTests {
         }
     }
 
+    protected static <T extends IValue> void expectSuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+        var value = supplier.get();
+        try {
+            assertEquals(value, function.apply(value).get());
+        } catch (InterruptedException | ExecutionException e) {
+            fail("Error occurred while testing " + type + " over jsonrpc: " + e.getMessage());
+        }
+    }
+
+    protected static <T extends IValue> void expectUnsuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+        var value = supplier.get();
+        try {
+            function.apply(value).get();
+            fail("Error occurred: " + type + " should not have round-tripped");
+        } catch (InterruptedException | ExecutionException e) {
+            //This is expected
+        }
+    }
 
     protected static IRational arbRational() {
         IInteger numerator = (IInteger) math.arbInt();
