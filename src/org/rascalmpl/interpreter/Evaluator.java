@@ -1608,12 +1608,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override
     public void notifyAboutSuspensionException(Exception t) {
         currentException = t;
-        if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
-            for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST);
+        try{
+            if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+                for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                    listener.suspended(this, () -> getCallStack().size(), currentAST);
+                }
             }
+        } finally { // clear the exception after notifying listeners
+            currentException = null;
         }
-        currentException = null;
     }
 
     public AbstractInterpreterEventTrigger getEventTrigger() {
