@@ -28,6 +28,7 @@ package org.rascalmpl.ideservices;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -208,11 +209,73 @@ public class GsonUtils {
         }
     }
 
-    public static void configureGson(GsonBuilder builder) {
-        configureGson(builder, ComplexTypeMode.ENCODE_AS_JSON_OBJECT);
+    /**
+     * Configure Gson to encode complex (non-primitive) values as JSON objects.
+     * 
+     * See {@link ComplexTypeMode.ENCODE_AS_JSON_OBJECT}.
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     */
+    public static Consumer<GsonBuilder> complexAsJsonObject() {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_JSON_OBJECT, new TypeStore());
     }
 
-    public static void configureGson(GsonBuilder builder, ComplexTypeMode complexTypeMode) {
+    /**
+     * Configure Gson to encode complex (non-primitive) values as Base64-encoded strings.
+     * 
+     * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     */
+    public static Consumer<GsonBuilder> complexAsBase64String() {
+        return builder -> complexAsBase64String(new TypeStore());
+    }
+
+    /**
+     * Configure Gson to encode complex (non-primitive) values as Base64-encoded strings.
+     * 
+     * This configuration can be used for both serialization and deserialization.
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     * @param ts The {@link TypeStore} to be used during deserialization.
+     */
+    public static Consumer<GsonBuilder> complexAsBase64String(TypeStore ts) {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_BASE64_STRING, ts);
+    }
+
+    /**
+     * Configure Gson to encode complex (non-primitive) values as plain strings.
+     * 
+     * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     */
+    public static Consumer<GsonBuilder> complexAsString() {
+        return builder -> complexAsString(new TypeStore());
+    }
+
+    /**
+     * Configure Gson to encode complex (non-primitive) values as plain strings.
+     * 
+     * This configuration can be used for both serialization and deserialization.
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     * @param ts The {@link TypeStore} to be used during deserialization.
+     */
+    public static Consumer<GsonBuilder> complexAsString(TypeStore ts) {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_STRING, ts);
+    }
+
+    /**
+     * Configure Gson to encode encode primitive values only. Complex values raise an exception.
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     */
+    public static Consumer<GsonBuilder> noComplexTypes() {
+        return builder -> configureGson(builder, ComplexTypeMode.NOT_SUPPORTED, new TypeStore());
+    }
+
+    public static void configureGson(GsonBuilder builder, ComplexTypeMode complexTypeMode, TypeStore ts) {
         builder.registerTypeAdapterFactory(new TypeAdapterFactory() {
             @Override
             public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -223,7 +286,7 @@ public class GsonUtils {
                 return typeMappings.stream()
                     .filter(m -> m.supports(rawType))
                     .findFirst()
-                    .map(m -> m.<T>createAdapter(complexTypeMode))
+                    .map(m -> m.<T>createAdapter(complexTypeMode, ts))
                     .orElse(null);
             }
         });
