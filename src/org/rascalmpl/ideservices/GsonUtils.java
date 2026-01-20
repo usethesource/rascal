@@ -110,13 +110,13 @@ public class GsonUtils {
         ENCODE_AS_JSON_OBJECT,
 
         /**
-         * All values are serialized as a (binary) Base64-encoded string. An appropriate {@link TypeStore} must be provided for
+         * Complex values are serialized as a (binary) Base64-encoded string. An appropriate {@link TypeStore} must be provided for
          * deserialization with {@link ComplexTypeMode#base64Decode}.
          */
         ENCODE_AS_BASE64_STRING,
 
         /**
-         * All values are serialized as a string.
+         * Complex values are serialized as a string.
          */
         ENCODE_AS_STRING,
 
