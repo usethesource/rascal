@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -154,13 +155,20 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             Capabilities capabilities = new Capabilities();
 
             capabilities.setSupportsConfigurationDoneRequest(true);
-            capabilities.setExceptionBreakpointFilters(new ExceptionBreakpointsFilter[]{});
             capabilities.setSupportsStepBack(false);
             capabilities.setSupportsRestartFrame(false);
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
             capabilities.setSupportsCompletionsRequest(true);
             capabilities.setSupportsConditionalBreakpoints(true);
+
+            ExceptionBreakpointsFilter[] exceptionFilters = new ExceptionBreakpointsFilter[1];
+            ExceptionBreakpointsFilter exFilter = new ExceptionBreakpointsFilter();
+            exFilter.setFilter("rascalExceptions");
+            exFilter.setLabel("Rascal Exceptions");
+            exFilter.setDescription("Break when a Rascal exception is thrown");
+            exceptionFilters[0] = exFilter;
+            capabilities.setExceptionBreakpointFilters(exceptionFilters);
 
             return capabilities;
         }, ownExecutor);
@@ -297,6 +305,16 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
 
         return null;
     }
+
+    @Override
+    public CompletableFuture<SetExceptionBreakpointsResponse> setExceptionBreakpoints(SetExceptionBreakpointsArguments args) {
+		return CompletableFuture.supplyAsync(() -> {
+            SetExceptionBreakpointsResponse response = new SetExceptionBreakpointsResponse();
+            debugHandler.setSuspendOnException(Arrays.stream(args.getFilters()).anyMatch("rascalExceptions"::equals));
+            response.setBreakpoints(new Breakpoint[0]);
+            return response;
+        }, ownExecutor);
+	}
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
