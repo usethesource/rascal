@@ -44,7 +44,7 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-public class IValueOverJsonTests {
+public abstract class IValueOverJsonTests {
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     private static final Prelude prelude = new Prelude(vf, null, null, null, null);
     private static final Math math = new Math(vf);
@@ -201,176 +201,54 @@ public class IValueOverJsonTests {
         }
     }
 
-    @Test
-    public void testSendBool() {
-        IBool bool = (IBool) prelude.arbBool();
-        try {
-            assertEquals(bool, server.sendBool(bool).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IBool " + bool + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendConstructor() {
-        IConstructor constructor = (IConstructor) RascalValueFactory.Attribute_Assoc_Left;
-        try {
-            server.sendNode(constructor).get();
-            fail("IConstructor should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
-
-    @Test
-    public void testSendDateTime() {
-        IDateTime dateTime = (IDateTime) prelude.arbDateTime();
-        try {
-            assertEquals(dateTime, server.sendDateTime(dateTime).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IDateTime " + dateTime + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendInteger() {
-        IInteger integer = (IInteger) math.arbInt();
-        try {
-            assertEquals(integer, server.sendInteger(integer).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IInteger " + integer + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendNode() {
-        INode node = prelude.arbNode();
-        try {
-            server.sendNode(node).get();
-            fail("INode should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
-
-    @Test
-    public void testSendRational() {
-        IRational rational = arbRational();
-        try {
-            assertEquals(rational, server.sendRational(rational).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IRational " + rational + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendReal() {
-        IReal real = (IReal) math.arbReal();
-        try {
-            assertEquals(real, server.sendReal(real).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IReal " + real + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendLocation() {
-        ISourceLocation location = prelude.arbLoc();
-        try {
-            assertEquals(location, server.sendLocation(location).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing ISourceLocation " + location + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendString() {
-        IString string = prelude.arbString(vf.integer(1024));
-        try {
-            assertEquals(string, server.sendString(string).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IString " + string + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendIntAsNumber() {
-        IInteger number = (IInteger) math.arbInt();
-        try {
-            assertEquals(number, server.sendNumber(number).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing INumber " + number + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendRealAsNumber() {
-        IReal number = (IReal) math.arbReal();
-        try {
-            assertEquals(number, server.sendNumber(number).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing INumber " + number + " over jsonrpc: " + e);
-        }
-    }
-
-    @Test
-    public void testSendRealAsValue() {
-        IReal value = (IReal) math.arbReal();
-        try {
-            assertEquals(value, server.sendValue(value).get());
-        } catch (InterruptedException | ExecutionException e) {
-            fail("Error occurred while testing IValue " + value + " over jsonrpc: " + e);
-        }
-    }
     
     @Test
-    public void testSendList() {
-        IList list = vf.list(vf.string(""), vf.integer(0));
-        try {
-            server.sendList(list).get();
-            fail("IList should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
+    public abstract void testSendBool();
+    
+    @Test
+    public abstract void testSendConstructor();
 
     @Test
-    public void testSendMap() {
-        IMapWriter writer = vf.mapWriter();
-        writer.put(vf.integer(0), vf.string("zero"));
-        writer.put(vf.integer(1), vf.string("one"));
-        IMap map = writer.done();
-        try {
-            server.sendMap(map).get();
-            fail("IMap should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
+    public abstract void testSendDateTime();
 
     @Test
-    public void testSendSet() {
-        ISetWriter writer = vf.setWriter();
-        writer.insert(vf.integer(0), vf.integer(1), vf.integer(-1));
-        ISet set = writer.done();
-        try {
-            server.sendSet(set).get();
-            fail("ISet should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
+    public abstract void testSendInteger();
 
     @Test
-    public void testSendTuple() {
-        ITuple tuple = vf.tuple(vf.integer(0), vf.string("one"));
-        try {
-            server.sendTuple(tuple).get();
-            fail("ITuple should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
-            //This is expected
-        }
-    }
+    public abstract void testSendNode();
+
+    @Test
+    public abstract void testSendRational();
+
+    @Test
+    public abstract void testSendReal();
+
+    @Test
+    public abstract void testSendLocation();
+
+    @Test
+    public abstract void testSendString();
+    
+    @Test
+    public abstract void testSendIntAsNumber();
+
+    @Test
+    public abstract void testSendRealAsNumber();
+    
+    @Test
+    public abstract void testSendRealAsValue();
+    
+    @Test
+    public abstract void testSendList();
+
+    @Test
+    public abstract void testSendMap();
+
+    @Test
+    public abstract void testSendSet();
+
+    @Test
+    public abstract void testSendTuple();
 
     private static IRational arbRational() {
         IInteger numerator = (IInteger) math.arbInt();
