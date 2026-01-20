@@ -243,6 +243,24 @@ public class RascalFunction extends NamedFunction {
         return getName() == null;
     }
 
+    private boolean handleRestartFrame(RestartFrameException rfe) {
+        // Placeholder for any additional handling needed for frame restarts
+        if(ctx instanceof Evaluator) {
+            Evaluator evaluator = (Evaluator) ctx;
+            var stackTrace = evaluator.getCurrentStack();
+            if(stackTrace.size() == 1){ // should not happen because this is the REPL frame
+                throw new ImplementationError("Cannot restart frame of the REPL");
+            }
+            if (rfe.getTargetFrameId() == stackTrace.size() -1) { // the frame to restart
+                return true; // indicate to restart the frame
+            }
+            else { // not the frame to restart, rethrow to let upper frames handle it
+                throw rfe;
+            }
+        }
+        throw new ImplementationError("Frame restart is only supported in Evaluator contexts");
+    }
+
     @Override
     public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
         Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
@@ -365,21 +383,8 @@ public class RascalFunction extends NamedFunction {
                 // Handle frame restart at this level
                 // Restore environment state and retry execution
                 // Continue the while loop to retry the call
-                if(ctx instanceof Evaluator) {
-                    Evaluator evaluator = (Evaluator) ctx;
-                    var stackTrace = evaluator.getCurrentStack();
-                    if(stackTrace.size() == 1){ // should not happen because this is the REPL frame
-                        throw new ImplementationError("Cannot restart frame of the REPL");
-                    }
-                    if (rfe.getTargetFrameId() == stackTrace.size() -1) { // the frame to restart
-                        restartFrame = true;
-                        continue; // restart the frame by continuing the while loop
-                    }
-                    else { // not the frame to restart, rethrow to let upper frames handle it
-                        throw rfe;
-                    }
-                }
-                throw new ImplementationError("Frame restart is only supported in Evaluator contexts");
+                restartFrame = handleRestartFrame(rfe);
+                continue;
             }
             catch (Return e) {
                 checkReturnTypeIsNotVoid(formals, actuals, renamings);
@@ -395,9 +400,15 @@ public class RascalFunction extends NamedFunction {
                 if (eval.getCallTracing()) {
                     printExcept(e);
                 }
-            if(e instanceof Exception){
-                eval.notifyAboutSuspensionException((Exception)e); // Force call here so we do not loose the current env
-            }
+                if(e instanceof Exception){
+                    try {
+                        eval.notifyAboutSuspensionException((Exception)e); 
+                    } catch (RestartFrameException rfe){ 
+                        // Special case to handle restart frame on the exception breakpoint
+                        restartFrame = handleRestartFrame(rfe);
+                        continue;
+                    }
+                }
                 throw e;
             }
             finally {
