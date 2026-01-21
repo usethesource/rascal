@@ -36,7 +36,6 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.util.base64.StreamingBase64;
-import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.Gson;
@@ -151,7 +150,7 @@ public class GsonUtils {
         }
 
         public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode, TypeStore ts) {
-            JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), ts, new NullRascalMonitor(), null);
+            JsonValueReader reader = new JsonValueReader(vf, ts, new NullRascalMonitor(), null);
             if (isPrimitive) {
                 return new TypeAdapter<T>() {
                     @Override
@@ -288,7 +287,7 @@ public class GsonUtils {
     public static String base64Encode(IValue value) {
         var builder = new StringBuilder();
         try (var encoder = StreamingBase64.encode(builder);
-             var out = new IValueOutputStream(encoder, IRascalValueFactory.getInstance())) {
+             var out = new IValueOutputStream(encoder, vf)) {
             out.write(value);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -299,7 +298,7 @@ public class GsonUtils {
     @SuppressWarnings("unchecked")
     public static <T extends IValue> T base64Decode(String string, TypeStore ts) {
         try (var decoder = StreamingBase64.decode(string);
-             var in = new IValueInputStream(decoder, IRascalValueFactory.getInstance(), () -> ts)) {
+             var in = new IValueInputStream(decoder, vf, () -> ts)) {
             return (T) in.read();
         } catch (IOException e) {
             throw new RuntimeException(e);
