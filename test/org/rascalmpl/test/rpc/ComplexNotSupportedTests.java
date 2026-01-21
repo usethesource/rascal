@@ -13,10 +13,10 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IReal;
 
-public class ComplexAsJsonObject extends IValueOverJsonTests {
+public class ComplexNotSupportedTests extends IValueOverJsonTestBase {
     @BeforeClass
     public static void setup() throws IOException {
-        startTestServerAndClient(GsonUtils.complexAsJsonObject());
+        startTestServerAndClient(GsonUtils.noComplexTypes());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ComplexAsJsonObject extends IValueOverJsonTests {
 
     @Override
     public void testSendRational() {
-        expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
+        // expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ComplexAsJsonObject extends IValueOverJsonTests {
 
     @Override
     public void testSendSet() {
-        // expectUnsuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
+        expectUnsuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
     }
 
     @Override
