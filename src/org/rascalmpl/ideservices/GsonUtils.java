@@ -103,9 +103,6 @@ public class GsonUtils {
          * All values are serialized as JSON objects. Automatic deserialization is only supported for primitive types (`bool`,
          * `datetime`, `int`, `rat`, `real`, `loc`, `str`, `num`); more complex types cannot be automatically deserialized as
          * the type is not available at deserialization time.
-         * 
-         * Rationals are wrapped in an object with `rat` as key, to avoid an ambiguity between a rational's JSON representation
-         * (a list) and a list as a sole argument on the JSON-RPC level. 
          */
         ENCODE_AS_JSON_OBJECT,
 
@@ -152,32 +149,16 @@ public class GsonUtils {
         public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode, TypeStore ts) {
             JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), ts, new NullRascalMonitor(), null);
             if (isPrimitive) {
-                var needsWrapping = complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type.isSubtypeOf(tf.rationalType());
                 return new TypeAdapter<T>() {
                     @Override
                     public void write(JsonWriter out, T value) throws IOException {
-                        if (needsWrapping) {
-                            out.beginObject();
-                            out.name("rat");
-                        }
                         writer.write(out, (IValue) value);
-                        if (needsWrapping) {
-                            out.endObject();
-                        }
                     }
 
                     @SuppressWarnings("unchecked")
                     @Override
                     public T read(JsonReader in) throws IOException {
-                        if (needsWrapping) {
-                            in.beginObject();
-                            in.nextName();
-                        }
-                        var ret = (T) reader.read(in, type);
-                        if (needsWrapping) {
-                            in.endObject();
-                        }
-                        return ret;
+                        return (T) reader.read(in, type);
                     }
                 };
             }
