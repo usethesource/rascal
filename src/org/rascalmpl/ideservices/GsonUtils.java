@@ -79,7 +79,7 @@ public class GsonUtils {
      * Subtypes should be declared before their supertypes; e.g., `Number` and `Value` appear last.
      */
     static {
-        writer.setDatesAsInt(true);
+        writer.setRationalsAsString(true);
         typeMappings = List.of(
             new TypeMapping(IBool.class, tf.boolType()),
             new TypeMapping(ICollection.class), // IList, IMap, ISet
