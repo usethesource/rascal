@@ -180,6 +180,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isConstructorAType(r) && isADTAType(s) ) {
         return matchRascalTypeParams0(getConstructorResultType(r), s, b);
     }
+
+    if ( isADTAType(r) && isConstructorAType(s) ) {
+        return matchRascalTypeParams0(r, getConstructorResultType(s), b);
+    }
     
     // For functions, match the return types and the parameter types
     // TODO: kewyword params?
