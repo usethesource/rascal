@@ -11,6 +11,9 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -118,18 +121,17 @@ public abstract class IValueOverJsonTestBase {
     protected static <T extends IValue> void expectSuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
         var value = supplier.get();
         try {
-            assertEquals(value, function.apply(value).get());
-        } catch (InterruptedException | ExecutionException e) {
+            assertEquals(value, function.apply(value).get(10, TimeUnit.SECONDS));
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             fail("Error occurred while testing " + type + " over jsonrpc: " + e.getMessage());
         }
     }
 
     protected static <T extends IValue> void expectUnsuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
-        var value = supplier.get();
         try {
-            function.apply(value).get();
+            function.apply(supplier.get()).get(10, TimeUnit.SECONDS);
             fail("Error occurred: " + type + " should not have round-tripped");
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             //This is expected
         }
     }
