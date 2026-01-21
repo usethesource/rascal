@@ -168,6 +168,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private AbstractAST currentAST;
 
     /**
+     * Used in debugger exception handling
+     */
+    private Exception currentException;
+
+    /**
      * True if we're doing profiling
      */
     private boolean doProfiling = false;
@@ -778,6 +783,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public AbstractAST getCurrentAST() {
         return currentAST;
+    }
+
+    public Exception getCurrentException() {
+        return currentException;
     }
 
     public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
@@ -1594,6 +1603,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
         }
+    }
+
+    @Override
+    public void notifyAboutSuspensionException(Exception t) {
+        currentException = t;
+        if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+            for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
+            }
+        }
+        currentException = null;
     }
 
     public AbstractInterpreterEventTrigger getEventTrigger() {
