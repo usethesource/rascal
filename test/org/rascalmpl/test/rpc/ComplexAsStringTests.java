@@ -14,7 +14,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-public class ComplexAsString extends IValueOverJsonTests {
+public class ComplexAsStringTests extends IValueOverJsonTestBase {
     private static TypeFactory tf = TypeFactory.getInstance();
     private static TypeStore ts = new TypeStore();
     private static final Type TestAdt = tf.abstractDataType(ts, "TestAdt");

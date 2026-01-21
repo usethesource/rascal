@@ -31,7 +31,7 @@ import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-public abstract class IValueOverJsonTests {
+public abstract class IValueOverJsonTestBase {
     protected static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     protected static final Prelude prelude = new Prelude(vf, null, null, null, null);
     protected static final Math math = new Math(vf);
