@@ -376,7 +376,7 @@ public class JsonValueReader {
                 case STRING:
                     return vf.rational(nextString());
                 default:
-                    throw parseErrorHere("Expected integer but got " + in.peek());
+                    throw parseErrorHere("Expected rational but got " + in.peek());
             }
         }
 
