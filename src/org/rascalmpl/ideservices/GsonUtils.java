@@ -205,8 +205,6 @@ public class GsonUtils {
      * Configure Gson to encode complex (non-primitive) values as JSON objects.
      * 
      * See {@link ComplexTypeMode.ENCODE_AS_JSON_OBJECT}.
-     * 
-     * @param builder The {@link GsonBuilder} to be configured.
      */
     public static Consumer<GsonBuilder> complexAsJsonObject() {
         return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_JSON_OBJECT, new TypeStore());
@@ -216,8 +214,6 @@ public class GsonUtils {
      * Configure Gson to encode complex (non-primitive) values as Base64-encoded strings.
      * 
      * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
-     * 
-     * @param builder The {@link GsonBuilder} to be configured.
      */
     public static Consumer<GsonBuilder> complexAsBase64String() {
         return builder -> complexAsBase64String(new TypeStore());
@@ -228,7 +224,6 @@ public class GsonUtils {
      * 
      * This configuration can be used for both serialization and deserialization.
      * 
-     * @param builder The {@link GsonBuilder} to be configured.
      * @param ts The {@link TypeStore} to be used during deserialization.
      */
     public static Consumer<GsonBuilder> complexAsBase64String(TypeStore ts) {
@@ -239,8 +234,6 @@ public class GsonUtils {
      * Configure Gson to encode complex (non-primitive) values as plain strings.
      * 
      * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
-     * 
-     * @param builder The {@link GsonBuilder} to be configured.
      */
     public static Consumer<GsonBuilder> complexAsString() {
         return builder -> complexAsString(new TypeStore());
@@ -251,7 +244,6 @@ public class GsonUtils {
      * 
      * This configuration can be used for both serialization and deserialization.
      * 
-     * @param builder The {@link GsonBuilder} to be configured.
      * @param ts The {@link TypeStore} to be used during deserialization.
      */
     public static Consumer<GsonBuilder> complexAsString(TypeStore ts) {
