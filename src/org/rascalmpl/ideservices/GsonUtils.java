@@ -105,25 +105,24 @@ public class GsonUtils {
 
     public static enum ComplexTypeMode {
         /**
-         * All values are serialized as JSON objects. Automatic deserialization is only supported for primitive types (`bool`,
+         * Complex values are serialized as JSON objects. Automatic deserialization is only supported for primitive types (`bool`,
          * `datetime`, `int`, `rat`, `real`, `loc`, `str`, `num`); more complex types cannot be automatically deserialized as
          * the type is not available at deserialization time.
          */
         ENCODE_AS_JSON_OBJECT,
 
         /**
-         * Complex values are serialized as a (binary) Base64-encoded string. An appropriate {@link TypeStore} must be provided for
-         * deserialization with {@link ComplexTypeMode#base64Decode}.
+         * Complex values are serialized as a Base64-encoded string. A properly filled {@link TypeStore} is required for deserialization.
          */
         ENCODE_AS_BASE64_STRING,
 
         /**
-         * Complex values are serialized as a string.
+         * Complex values are serialized as a string. A properly filled {@link TypeStore} is required for deserialization.
          */
         ENCODE_AS_STRING,
 
         /**
-         * Only primitive types are supported; more complex types are neither serialized nor deserialized.
+         * Only values of primitive type are supported; more complex values are neither serialized nor deserialized.
          */
         NOT_SUPPORTED
     }
