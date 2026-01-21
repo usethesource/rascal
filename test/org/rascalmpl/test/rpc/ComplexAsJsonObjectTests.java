@@ -94,7 +94,7 @@ public class ComplexAsJsonObjectTests extends IValueOverJsonTestBase {
 
     @Override
     public void testSendSet() {
-        // expectUnsuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
+        expectUnsuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
     }
 
     @Override

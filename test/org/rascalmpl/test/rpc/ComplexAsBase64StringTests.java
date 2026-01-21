@@ -52,7 +52,7 @@ public class ComplexAsBase64StringTests extends IValueOverJsonTestBase {
 
     @Override
     public void testSendRational() {
-        // expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
+        expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
     }
 
     @Override

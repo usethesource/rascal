@@ -32,7 +32,7 @@ public class ComplexAsStringTests extends IValueOverJsonTestBase {
 
     @Override
     public void testSendConstructor() {
-        // expectSuccessful("IConstructor", () -> vf.constructor(TestAdt_testCons, vf.string("hi"), vf.integer(38)), testServer::sendConstructor);
+        expectSuccessful("IConstructor", () -> vf.constructor(TestAdt_testCons, vf.string("hi"), vf.integer(38)), testServer::sendConstructor);
     }
 
     @Override
@@ -47,12 +47,12 @@ public class ComplexAsStringTests extends IValueOverJsonTestBase {
 
     @Override
     public void testSendNode() {
-        // expectSuccessful("INode", () -> prelude.arbNode(), testServer::sendNode);
+        expectSuccessful("INode", () -> prelude.arbNode(), testServer::sendNode);
     }
 
     @Override
     public void testSendRational() {
-        // expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
+        expectSuccessful("IRational", () -> arbRational(), testServer::sendRational);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ComplexAsStringTests extends IValueOverJsonTestBase {
 
     @Override
     public void testSendList() {
-        // expectSuccessful("IList", () -> vf.list(vf.string(""), vf.integer(0)), testServer::sendList);
+        expectSuccessful("IList", () -> vf.list(vf.string(""), vf.integer(0)), testServer::sendList);
     }
 
     @Override
@@ -95,16 +95,16 @@ public class ComplexAsStringTests extends IValueOverJsonTestBase {
         IMapWriter writer = vf.mapWriter();
         writer.put(vf.integer(0), vf.string("zero"));
         writer.put(vf.integer(1), vf.string("one"));
-        // expectSuccessful("IMap", () -> writer.done(), testServer::sendMap);
+        expectSuccessful("IMap", () -> writer.done(), testServer::sendMap);
     }
 
     @Override
     public void testSendSet() {
-        // expectSuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
+        expectSuccessful("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
     }
 
     @Override
     public void testSendTuple() {
-        // expectSuccessful("ITuple", () -> vf.tuple(vf.integer(0), vf.integer(1)), testServer::sendTuple);
+        expectSuccessful("ITuple", () -> vf.tuple(vf.integer(0), vf.integer(1)), testServer::sendTuple);
     }
 }
