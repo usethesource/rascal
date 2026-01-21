@@ -27,6 +27,7 @@
 package org.rascalmpl.ideservices;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -36,6 +37,7 @@ import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.util.base64.StreamingBase64;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +61,8 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.type.Type;
@@ -72,6 +76,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class GsonUtils {
     private static final JsonValueWriter writer = new JsonValueWriter();
     private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     
     private static final List<TypeMapping> typeMappings;
 
@@ -189,7 +194,7 @@ public class GsonUtils {
                         case ENCODE_AS_BASE64_STRING:
                             return base64Decode(in.nextString(), ts);
                         case ENCODE_AS_STRING:
-                            return (T) reader.read(in, type);
+                            return (T) new StandardTextReader().read(vf, ts, tf.valueType(), new StringReader(in.nextString()));
                         default:
                             throw new IOException("Cannot handle complex type");
                     }
