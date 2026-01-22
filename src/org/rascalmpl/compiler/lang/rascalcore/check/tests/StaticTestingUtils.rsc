@@ -46,7 +46,7 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
 
-bool verbose = true;
+bool verbose = false;
 
 PathConfig pathConfigForTesting() {
   return getDefaultTestingPathConfig();
