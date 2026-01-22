@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -69,9 +69,9 @@ public class IValueOverJsonTests {
     private static final Type TestAdt = tf.abstractDataType(ts, "TestAdt");
     private static final Type TestAdt_testCons = tf.constructor(ts, TestAdt, "testCons", tf.stringType(), "id", tf.integerType(), "nr");
 
-    private static JsonRpcTestInterface testServer;
-    private static final ThreadLocal<PipedInputStream> is0 = new ThreadLocal<>(), is1 = new ThreadLocal<>();
-    private static final ThreadLocal<PipedOutputStream> os0 = new ThreadLocal<>(), os1 = new ThreadLocal<>();
+    private JsonRpcTestInterface testServer;
+    private final PipedInputStream is0, is1;
+    private final PipedOutputStream os0, os1;
 
     @Parameters(name="{0}")
     public static Iterable<Object[]> modesAndConfig() {
@@ -87,39 +87,35 @@ public class IValueOverJsonTests {
 
     public IValueOverJsonTests(ComplexTypeMode complexTypeMode, Consumer<GsonBuilder> gsonConfig) {
         this.complexTypeMode = complexTypeMode;
-        startTestServerAndClient(gsonConfig);
-    }
-
-    private static void startTestServerAndClient(Consumer<GsonBuilder> gsonConfig) {
         try {
-            is0.set(new PipedInputStream());
-            os0.set(new PipedOutputStream());
-            is1.set(new PipedInputStream(os0.get()));
-            os1.set(new PipedOutputStream(is0.get()));
-            new TestThread(is0.get(), os0.get(), gsonConfig).start();
-            new TestClient(is1.get(), os1.get(), gsonConfig);
+            is0 = new PipedInputStream();
+            os0 = new PipedOutputStream();
+            is1 = new PipedInputStream(os0);
+            os1 = new PipedOutputStream(is0);
+            new TestThread(is0, os0, gsonConfig).start();
+            new TestClient(is1, os1, gsonConfig);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @AfterClass
-    public static void teardown() throws IOException {
-        if (is0.get() != null) {
-            is0.get().close();
+    @After
+    public void teardown() throws IOException {
+        if (is0 != null) {
+            is0.close();
         }
-        if (is1.get() != null) {
-            is1.get().close();
+        if (is1 != null) {
+            is1.close();
         }
-        if (os0.get() != null) {
-            os0.get().close();
+        if (os0 != null) {
+            os0.close();
         }
-        if (os1.get() != null) {
-            os1.get().close();
+        if (os1 != null) {
+            os1.close();
         }
     }
 
-    static class TestClient {
+    class TestClient {
         public TestClient(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
             Launcher<JsonRpcTestInterface> clientLauncher = new Launcher.Builder<JsonRpcTestInterface>()
                 .setRemoteInterface(JsonRpcTestInterface.class)
