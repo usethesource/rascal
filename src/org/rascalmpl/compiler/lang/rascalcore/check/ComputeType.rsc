@@ -347,10 +347,10 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     }
     for(p <- parameters){
         if(!bindings[p.pname]?){
-            bindings[p.pname] = avoid(); //avalue(); // was: avoid()
+            bindings[p.pname] = avoid();
         }
     }
-    if(!!isEmpty(index_formals)){
+    if(!isEmpty(index_formals)){
       if(!isEmpty(bindings)){
         try {
             ctype_old = makeUniqueTypeParams(s.getType(current), fsuffix);
@@ -1124,7 +1124,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
 }
 
 AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
-    println("instantiateAndCompare: <current>, <patType>, <subjectType>");
+    // println("instantiateAndCompare: <current>, <patType>, <subjectType>");
     if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
       s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
       s.fact(current, patType); // <====
