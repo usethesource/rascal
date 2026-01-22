@@ -249,7 +249,7 @@ public class Webserver {
                 JsonValueWriter writer = new JsonValueWriter()
                     .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                     .setFormatters((IFunction) formatters)
-                    .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                    .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : false)
                     .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
                     .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
                     .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
