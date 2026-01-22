@@ -49,7 +49,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
-public class IValueOverJsonTestBase {
+public class IValueOverJsonTests {
     protected static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     protected static final Prelude prelude = new Prelude(vf, null, null, null, null);
     protected static final Math math = new Math(vf);
@@ -75,7 +75,7 @@ public class IValueOverJsonTestBase {
 
     private final ComplexTypeMode complexTypeMode;
 
-    public IValueOverJsonTestBase(ComplexTypeMode complexTypeMode, Consumer<GsonBuilder> gsonConfig) {
+    public IValueOverJsonTests(ComplexTypeMode complexTypeMode, Consumer<GsonBuilder> gsonConfig) {
         this.complexTypeMode = complexTypeMode;
         startTestServerAndClient(gsonConfig);
     }
