@@ -50,18 +50,18 @@ import io.usethesource.vallang.type.TypeStore;
 
 @RunWith(Parameterized.class)
 public class IValueOverJsonTests {
-    protected static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    protected static final Prelude prelude = new Prelude(vf, null, null, null, null);
-    protected static final Math math = new Math(vf);
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private static final Prelude prelude = new Prelude(vf, null, null, null, null);
+    private static final Math math = new Math(vf);
 
     private static TypeFactory tf = TypeFactory.getInstance();
     private static TypeStore ts = new TypeStore();
     private static final Type TestAdt = tf.abstractDataType(ts, "TestAdt");
     private static final Type TestAdt_testCons = tf.constructor(ts, TestAdt, "testCons", tf.stringType(), "id", tf.integerType(), "nr");
 
-    protected static JsonRpcTestInterface testServer;
-    protected static final ThreadLocal<PipedInputStream> is0 = new ThreadLocal<>(), is1 = new ThreadLocal<>();
-    protected static final ThreadLocal<PipedOutputStream> os0 = new ThreadLocal<>(), os1 = new ThreadLocal<>();
+    private static JsonRpcTestInterface testServer;
+    private static final ThreadLocal<PipedInputStream> is0 = new ThreadLocal<>(), is1 = new ThreadLocal<>();
+    private static final ThreadLocal<PipedOutputStream> os0 = new ThreadLocal<>(), os1 = new ThreadLocal<>();
 
     @Parameters(name="{0}")
     public static Iterable<Object[]> modesAndConfig() {
@@ -80,7 +80,7 @@ public class IValueOverJsonTests {
         startTestServerAndClient(gsonConfig);
     }
 
-    protected static void startTestServerAndClient(Consumer<GsonBuilder> gsonConfig) {
+    private static void startTestServerAndClient(Consumer<GsonBuilder> gsonConfig) {
         try {
             is0.set(new PipedInputStream());
             os0.set(new PipedOutputStream());
@@ -169,7 +169,7 @@ public class IValueOverJsonTests {
         }
     }
 
-    protected static <T extends IValue> void expectSuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+    private static <T extends IValue> void expectSuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
         var value = supplier.get();
         try {
             assertEquals(value, function.apply(value).get(10, TimeUnit.SECONDS));
@@ -178,7 +178,7 @@ public class IValueOverJsonTests {
         }
     }
 
-    protected static <T extends IValue> void expectUnsuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+    private static <T extends IValue> void expectUnsuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
         try {
             function.apply(supplier.get()).get(10, TimeUnit.SECONDS);
             fail("Error occurred: " + type + " should not have round-tripped");
@@ -187,7 +187,7 @@ public class IValueOverJsonTests {
         }
     }
 
-    protected static IRational arbRational() {
+    private static IRational arbRational() {
         IInteger numerator = (IInteger) math.arbInt();
         IInteger denominator = (IInteger) math.arbInt();
         while (denominator.equals(vf.integer(0))) {
