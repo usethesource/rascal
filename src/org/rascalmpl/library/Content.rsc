@@ -82,7 +82,7 @@ data Response
   = response(Status status, str mimeType, map[str,str] header, str content)
   | fileResponse(loc file, str mimeType, map[str,str] header)
   | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; },
-      bool explicitConstructorNames=false, bool explicitDataTypes=false, bool dateTimeAsInt=false, bool rationalsAsString=false)
+      bool explicitConstructorNames=false, bool explicitDataTypes=false, bool dateTimeAsInt=true, bool rationalsAsString=false)
   ;
   
 @synopsis{Utility to quickly render a string as HTML content}  
