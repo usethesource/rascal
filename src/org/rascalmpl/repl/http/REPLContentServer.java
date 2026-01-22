@@ -171,7 +171,7 @@ public class REPLContentServer extends NanoHTTPD {
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
             .setFormatters((IFunction) formatters)
-            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : false)
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
             .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
             .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
             .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
