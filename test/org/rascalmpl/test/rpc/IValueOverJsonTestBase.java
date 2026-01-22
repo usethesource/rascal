@@ -8,12 +8,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,26 +25,61 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.rascalmpl.ideservices.GsonUtils;
+import org.rascalmpl.ideservices.GsonUtils.ComplexTypeMode;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.Math;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.GsonBuilder;
 
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
-public abstract class IValueOverJsonTestBase {
+@RunWith(Parameterized.class)
+public class IValueOverJsonTestBase {
     protected static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     protected static final Prelude prelude = new Prelude(vf, null, null, null, null);
     protected static final Math math = new Math(vf);
 
+    private static TypeFactory tf = TypeFactory.getInstance();
+    private static TypeStore ts = new TypeStore();
+    private static final Type TestAdt = tf.abstractDataType(ts, "TestAdt");
+    private static final Type TestAdt_testCons = tf.constructor(ts, TestAdt, "testCons", tf.stringType(), "id", tf.integerType(), "nr");
+
     protected static JsonRpcTestInterface testServer;
     protected static final ThreadLocal<PipedInputStream> is0 = new ThreadLocal<>(), is1 = new ThreadLocal<>();
     protected static final ThreadLocal<PipedOutputStream> os0 = new ThreadLocal<>(), os1 = new ThreadLocal<>();
-    
+
+    @Parameters(name="{0}")
+    public static Iterable<Object[]> modesAndConfig() {
+        return Arrays.asList(new Object[][] {
+            { ComplexTypeMode.ENCODE_AS_JSON_OBJECT, GsonUtils.complexAsJsonObject() },
+            { ComplexTypeMode.ENCODE_AS_BASE64_STRING, GsonUtils.complexAsBase64String(ts) },
+            { ComplexTypeMode.ENCODE_AS_STRING, GsonUtils.complexAsString(ts) },
+            { ComplexTypeMode.NOT_SUPPORTED, GsonUtils.noComplexTypes() }
+        });
+    }
+
+    private final ComplexTypeMode complexTypeMode;
+
+    public IValueOverJsonTestBase(ComplexTypeMode complexTypeMode, Consumer<GsonBuilder> gsonConfig) {
+        this.complexTypeMode = complexTypeMode;
+        startTestServerAndClient(gsonConfig);
+    }
+
     protected static void startTestServerAndClient(Consumer<GsonBuilder> gsonConfig) {
         try {
             is0.set(new PipedInputStream());
@@ -118,6 +155,20 @@ public abstract class IValueOverJsonTestBase {
         }
     }
 
+    private static Set<ComplexTypeMode> asJsonObjectOrNotSupported = new HashSet<>(Arrays.asList(ComplexTypeMode.ENCODE_AS_JSON_OBJECT, ComplexTypeMode.NOT_SUPPORTED));
+
+    private <T extends IValue> void runTestForPrimitiveType(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+        expectSuccessful(type, supplier, function);
+    }
+    
+    private <T extends IValue> void runTestForComplexType(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
+        if (asJsonObjectOrNotSupported.contains(complexTypeMode)) {
+            expectUnsuccessful(type, supplier, function);
+        } else {
+            expectSuccessful(type, supplier, function);
+        }
+    }
+
     protected static <T extends IValue> void expectSuccessful(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
         var value = supplier.get();
         try {
@@ -143,53 +194,88 @@ public abstract class IValueOverJsonTestBase {
             denominator = (IInteger) math.arbInt();
         }
         return vf.rational(numerator, denominator);
-    }    
+    }
+
+    @Test
+    public void testSendBool() {
+        runTestForPrimitiveType("IBool", () -> (IBool) prelude.arbBool(), testServer::sendBool);
+    }
     
     @Test
-    public abstract void testSendBool();
+    public void testSendConstructor() {
+        runTestForComplexType("IConstructor", () -> vf.constructor(TestAdt_testCons, vf.string("hi"), vf.integer(38)), testServer::sendConstructor);
+    }
+
+    @Test
+    public void testSendDateTime() {
+        runTestForPrimitiveType("IDateTime", () -> (IDateTime) prelude.arbDateTime(), testServer::sendDateTime);
+    }
+
+    @Test
+    public void testSendInteger() {
+        runTestForPrimitiveType("IInteger", () -> (IInteger) math.arbInt(), testServer::sendInteger);
+    }
+
+    @Test
+    public void testSendNode() {
+        runTestForComplexType("INode", () -> prelude.arbNode(), testServer::sendNode);
+    }
+
+    @Test
+    public void testSendRational() {
+        runTestForPrimitiveType("IRational", () -> arbRational(), testServer::sendRational);
+    }
+
+    @Test
+    public void testSendReal() {
+        runTestForPrimitiveType("IReal", () -> (IReal) math.arbReal(), testServer::sendReal);
+    }
+
+    @Test
+    public void testSendLocation() {
+        runTestForPrimitiveType("ISourceLocation", () -> prelude.arbLoc(), testServer::sendLocation);
+    }
+
+    @Test
+    public void testSendString() {
+        runTestForPrimitiveType("IString", () -> prelude.arbString(vf.integer(1024)), testServer::sendString);
+    }
     
     @Test
-    public abstract void testSendConstructor();
+    public void testSendIntAsNumber() {
+        runTestForPrimitiveType("INumber", () -> (IInteger) math.arbInt(), testServer::sendNumber);
+    }
 
     @Test
-    public abstract void testSendDateTime();
-
-    @Test
-    public abstract void testSendInteger();
-
-    @Test
-    public abstract void testSendNode();
-
-    @Test
-    public abstract void testSendRational();
-
-    @Test
-    public abstract void testSendReal();
-
-    @Test
-    public abstract void testSendLocation();
-
-    @Test
-    public abstract void testSendString();
+    public void testSendRealAsNumber() {
+        runTestForPrimitiveType("INumber", () -> (IReal) math.arbReal(), testServer::sendNumber);
+    }
     
     @Test
-    public abstract void testSendIntAsNumber();
-
-    @Test
-    public abstract void testSendRealAsNumber();
+    public void testSendRealAsValue() {
+        runTestForPrimitiveType("IValue", () -> (IReal) math.arbReal(), testServer::sendReal);
+    }
     
     @Test
-    public abstract void testSendRealAsValue();
-    
-    @Test
-    public abstract void testSendList();
+    public void testSendList() {
+        runTestForComplexType("IList", () -> vf.list(vf.string(""), vf.integer(0)), testServer::sendList);
+    }
 
     @Test
-    public abstract void testSendMap();
+    public void testSendMap() {
+        IMapWriter writer = vf.mapWriter();
+        writer.put(vf.integer(0), vf.string("zero"));
+        writer.put(vf.integer(1), vf.string("one"));
+        runTestForComplexType("IMap", () -> writer.done(), testServer::sendMap);
+    }
 
     @Test
-    public abstract void testSendSet();
+    public void testSendSet() {
+        runTestForComplexType("ISet", () -> vf.set(vf.integer(0), vf.integer(1), vf.integer(2)), testServer::sendSet);
+    }
 
     @Test
-    public abstract void testSendTuple();
+    public void testSendTuple() {
+        runTestForComplexType("ITuple", () -> vf.tuple(vf.integer(0), vf.integer(1)), testServer::sendTuple);
+    }
 }
