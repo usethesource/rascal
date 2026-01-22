@@ -150,7 +150,7 @@ public class GsonUtils {
         }
 
         public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode, TypeStore ts) {
-            JsonValueReader reader = new JsonValueReader(vf, ts, new NullRascalMonitor(), null);
+            var reader = new JsonValueReader(vf, ts, new NullRascalMonitor(), null);
             if (isPrimitive) {
                 return new TypeAdapter<T>() {
                     @Override
