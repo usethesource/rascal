@@ -143,6 +143,15 @@ public abstract class AbstractInterpreterEventTrigger implements IRascalEventTri
 		fireEvent(event);
 	}
 
+	public void fireSuspendByExceptionEvent(Exception exception) {
+		RascalEvent event = new RascalEvent(source,
+				RascalEvent.Kind.SUSPEND,
+				RascalEvent.Detail.EXCEPTION);
+		event.setData(exception);
+
+		fireEvent(event);
+	}
+
 	/**
 	 * Fires a idle event for this interpreter. E.g. this happens when the REPL
 	 * is waiting for another command input.
