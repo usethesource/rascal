@@ -14,8 +14,8 @@ import Node;
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 public int maxLong = floor(pow(2,63));
 
-bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false, bool unpackedLocations=false, bool explicitConstructorNames=false, bool explicitDataTypes=false) {
-    json = asJSON(dt, dateTimeAsInt=dateTimeAsInt, unpackedLocations=unpackedLocations, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes);
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false, bool rationalsAsString=false, bool unpackedLocations=false, bool explicitConstructorNames=false, bool explicitDataTypes=false) {
+    json = asJSON(dt, dateTimeAsInt=dateTimeAsInt, rationalsAsString=rationalsAsString, unpackedLocations=unpackedLocations, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes);
     readBack = normalizer(parseJSON(returnType, json, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes));
     if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
         println("What is read back, a <type(typeOf(readBack),())>:");
@@ -67,6 +67,8 @@ test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
 @ignore{until #2133 is fixed}
 test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultRec);
+test bool jsonWithRational1(rat r) = writeRead(#rat, r);
+test bool jsonWithRational2(rat r) = writeRead(#rat, r, rationalsAsString=true);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
