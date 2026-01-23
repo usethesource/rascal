@@ -162,7 +162,8 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
   str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
-  bool dateTimeAsInt=false, 
+  bool dateTimeAsInt=false,
+  bool rationalsAsString=false,
   int indent=0, 
   bool dropOrigins=true, 
   JSONFormatter[value] formatter = str (value _) { fail; }, 
@@ -176,7 +177,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{

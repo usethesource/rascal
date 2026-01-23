@@ -241,6 +241,7 @@ public class Webserver {
 
                 IValue dtf = kws.getParameter("dateTimeFormat");
                 IValue dai = kws.getParameter("dateTimeAsInt");
+                IValue ras = kws.getParameter("rationalsAsString");
                 IValue formatters = kws.getParameter("formatter");
                 IValue ecn = kws.getParameter("explicitConstructorNames");
                 IValue edt = kws.getParameter("explicitDataTypes");
@@ -249,6 +250,7 @@ public class Webserver {
                     .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                     .setFormatters((IFunction) formatters)
                     .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                    .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
                     .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
                     .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                     ;

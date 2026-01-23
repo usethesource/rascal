@@ -60,6 +60,18 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	 */
 	private boolean suspendRequested;
 
+	private boolean suspendOnException = false;
+
+	private Exception lastExceptionHandled = null;
+
+	public boolean getSuspendOnException() {
+		return suspendOnException;
+	}
+
+	public void setSuspendOnException(boolean suspendOnException) {
+		this.suspendOnException = suspendOnException;
+	}
+
 	/**
 	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
 	 */
@@ -160,7 +172,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
 	        setSuspendRequested(false);
-	    } 
+	    } else if(getSuspendOnException() && runtime instanceof Evaluator && ((Evaluator) runtime).getCurrentException() != null ) {
+	        // Suspension due to exception
+			Evaluator eval = (Evaluator) runtime;
+			Exception e = eval.getCurrentException();
+			if(lastExceptionHandled != null && e == lastExceptionHandled){
+				return; // already handled this exception
+			}
+			if(handleExceptionSuspension(eval, e)){
+				lastExceptionHandled = e;
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByExceptionEvent(e);
+			} else {
+				return;
+			}
+	    }
 	    else {
 	        AbstractAST location = currentAST;
 
@@ -239,7 +265,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	            break;
 	        }
 	    }
-
+		
 	    /*
 	     * Waiting until GUI triggers end of suspension.
 	     */
@@ -250,6 +276,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	            // Ignore
 	        }
 	    }
+	}
+
+	private boolean handleExceptionSuspension(Evaluator eval, Exception e) {
+		if(e instanceof Throw){
+			Throw thr = (Throw) e;
+			IValue excValue = thr.getException();
+			if(excValue.getType().isAbstractData()){
+				// We ignore suspension that happens due in standard library code for RuntimeExceptions
+				if(excValue.getType().getName().equals("RuntimeException")){
+					return !eval.getCurrentAST().getLocation().getScheme().equals("std");
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	protected AbstractAST getReferenceAST() {
