@@ -61,6 +61,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public class JsonValueWriter {
     private ThreadLocal<SimpleDateFormat> format;
     private boolean datesAsInts = true;
+    private boolean rationalsAsString = false;
     private boolean unpackedLocations = false;
     private boolean dropOrigins = true;
     private IFunction formatters;
@@ -127,6 +128,11 @@ public class JsonValueWriter {
         return this;
     }
 
+    public JsonValueWriter setRationalsAsString(boolean setting) {
+        this.rationalsAsString = setting;
+        return this;
+    }
+
     public JsonValueWriter setUnpackedLocations(boolean setting) {
         this.unpackedLocations = setting;
         return this;
@@ -175,10 +181,14 @@ public class JsonValueWriter {
 
             @Override
             public Void visitRational(IRational o) throws IOException {
-                out.beginArray();
-                o.numerator().accept(this);
-                o.denominator().accept(this);
-                out.endArray();
+                if (rationalsAsString) {
+                    out.value(o.toString());
+                } else {
+                    out.beginArray();
+                    o.numerator().accept(this);
+                    o.denominator().accept(this);
+                    out.endArray();
+                }
 
                 return null;
             }
