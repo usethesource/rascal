@@ -33,30 +33,43 @@ import ParseTree;
 import Location;
 import util::Reflective;
 
-void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|) {
+void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
       throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";
     }
 
-    package(pcfg.srcs, pcfg.bin, sourceLookup);
+    package(pcfg.srcs, pcfg.bin, relocatedClasses, sourceLookup);
 }
 
-void package(list[loc] srcs, loc bin, loc sourceLookup) {
-    packageSourceFiles(srcs, bin);  
-    rewriteTypeFiles(srcs, bin, sourceLookup);
+void package(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) {
+    packageSourceFiles(srcs, relocated);  
+    copyAllTargetFiles(bin, relocated);
+    rewriteTypeFiles(srcs, bin, relocated, sourceLookup);
 }
 
-void packageSourceFiles(list[loc] srcs, loc bin) {
+void packageSourceFiles(list[loc] srcs, loc relocated) {
     for (folder <- srcs, file <- find(folder, "rsc")) {
-      copy(file, bin + relativize(folder, file).path);
+      copy(file, relocated + relativize(folder, file).path);
     }
 }
 
-void rewriteTypeFiles(list[loc] srcs, loc bin, loc sourceLookup) {
-    for (file <- find(bin, "tpl")) {
+void copyAllTargetFiles(loc bin, loc relocated) {
+    // A pom file may include any thing (resources and classes)
+    // and we just copy everything just in case it is needed at runtime.
+    copy(bin, relocated, recursive = true);
+
+    // But we remove the superfluous tpl files just in case.
+    // They will be rewritten and copied later again.
+    for (file <- find(relocated, "tpl")) {
+        remove(file);
+    }
+}
+
+void rewriteTypeFiles(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) {
+    for (folder <- srcs, file <- find(folder, "tpl")) {
         model = readBinaryValueFile(file);
         model = rewriteTypeModel(model, paths(srcs), sourceLookup);
-        writeBinaryValueFile(file, model);
+        writeBinaryValueFile(relocated + relative(folder, file), model);
     }
 }
 
