@@ -54,22 +54,24 @@ void packageSourceFiles(list[loc] srcs, loc relocated) {
 }
 
 void copyAllTargetFiles(loc bin, loc relocated) {
+    mkDirectory(relocated);
+
     // A pom file may include any thing (resources and classes)
     // and we just copy everything just in case it is needed at runtime.
     copy(bin, relocated, recursive = true);
 
     // But we remove the superfluous tpl files just in case.
     // They will be rewritten and copied later again.
-    for (file <- find(relocated, "tpl")) {
+    for (loc file <- find(relocated, "tpl")) {
         remove(file);
     }
 }
 
 void rewriteTypeFiles(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) {
-    for (folder <- srcs, file <- find(folder, "tpl")) {
+    for (loc file <- find(bin, "tpl")) {
         model = readBinaryValueFile(file);
         model = rewriteTypeModel(model, paths(srcs), sourceLookup);
-        writeBinaryValueFile(relocated + relative(folder, file), model);
+        writeBinaryValueFile(relocated + relativize(bin, file).path, model);
     }
 }
 
