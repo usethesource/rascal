@@ -103,20 +103,14 @@ data ModuleStatus =
       RascalCompilerConfig compilerConfig
    );
 
-// void checkMS(ModuleStatus ms){
-//     for(<f, _ , t> <- ms.paths) assert isModuleId(f) && isModuleId(t);
-//     for(mid <- domain(ms.parseTrees)) assert isModuleId(mid);
-//     for(mid <- ms.parseTreeLIFO) assert isModuleId(mid);
-//     for(mid <- domain(ms.tmodels)) assert isModuleId(mid);
-//     for(mid <- ms.tmodelLIFO) assert isModuleId(mid);
-//     for(mid <- ms.changedModules) assert isModuleId(mid);
-//     for(mid <- domain(ms.moduleLocs)) assert isModuleId(mid);
-//     for(mid <- domain(ms.moduleLastModified)) assert isModuleId(mid);
-//     for(mid <- domain(ms.messages)) assert isModuleId(mid);
-//     for(mid <- domain(ms.status)) assert isModuleId(mid);
-// }
+ModuleStatus newModuleStatus(PathConfig pcfg, TypePalConfig tcfg)
+    = moduleStatus({}, (), [], (), [], {}, (), (), (), (), pcfg, tcfg);
 
-ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, (), [], (), [], {}, (), (), (), (), ccfg.typepalPathConfig, ccfg);
+ModuleStatus newModuleStatus() 
+    = newModuleStatus(pathConfig(), tconfig());
+
+ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) 
+    = newModuleStatus(ccfg.typepalPathConfig, ccfg);
 
 bool isModuleLocationInLibs(loc l, PathConfig pcfg){
     assert !isModuleId(l);
