@@ -38,41 +38,48 @@ private void runChecker(PathConfig pcfg, bool (loc m) validModule) {
     }
 }
 
-void showFiles(PathConfig pcfg){
-    for(src <- pcfg.srcs, m <- find(src, "rsc")){
-        println(m);
+private void runChecker(PathConfig pcfg, list[str] mnames) {
+    result = checkModules(mnames, rascalCompilerConfig(pcfg));
+    for (/e:error(_,_) := result) {
+        println(e);
     }
 }
 
 void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///Users/paulklint/rascal-tpls|) {
-
-    // rascalPcfg = pathConfig(srcs=[repoRoot + "rascal/src/org/rascalmpl/library"], bin=tplRoot + "rascal");
-    // salixCorePcfg = pathConfig(srcs=[repoRoot + "salix-core/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin]);
-    // salixContribPcfg = pathConfig(srcs=[repoRoot + "salix-contrib/src/main/rascal"], bin=tplRoot + "salix-core", libs=[rascalPcfg.bin, salixCorePcfg.bin]);
-
-
-    rascalWithTypepalPcfg =
-        pathConfig(srcs = [repoRoot + "rascal/src/org/rascalmpl/library",
-                           repoRoot + "rascal/src/org/rascalmpl/compiler",
-                           repoRoot + "rascal/src/org/rascalmpl/compiler",
-                           repoRoot + "typepal/src/"], 
-                   bin  =  tplRoot + "rascal");
     
+    println("**** Checking rascal-lib");
+    rascalLibPcfg =
+        pathConfig(srcs = [repoRoot + "rascal/src/org/rascalmpl/library"], 
+                   bin  =  tplRoot + "rascal-lib");
+    runChecker(rascalLibPcfg, bool (loc m) { return true; });
+
+    println("**** Checking typepal");
+    typepalPcfg = 
+        pathConfig(srcs = [repoRoot + "typepal/src/"], 
+                   bin  =  tplRoot + "typepal",
+                   libs = [rascalLibPcfg.bin]);
+    runChecker(typepalPcfg, bool (loc m) { return true; });
+
+    println("**** Checking rascalAll");
+    rascalAllPcfg =
+        pathConfig(srcs = [repoRoot + "rascal/src/org/rascalmpl/compiler",
+                           repoRoot + "rascal/tutor/"],
+                   bin  =  tplRoot + "rascal-all",
+                   libs = [typepalPcfg.bin, rascalLibPcfg.bin]);
+    
+    runChecker(rascalAllPcfg, bool (loc m) { return true; });
+
+    println("**** Checking lsp");
     LSP_REPO = repoRoot + "rascal-language-servers/rascal-lsp";
     lspPcfg = 
         pathConfig(srcs = [LSP_REPO + "src/main/rascal/library",
                            LSP_REPO + "src/main/rascal/lsp",
                            LSP_REPO + "src/test/rascal"],
                    bin  = tplRoot + "lsp",
-                   libs = [rascalWithTypepalPcfg.bin]);
+                   libs = [typepalPcfg.bin, rascalLibPcfg.bin, rascalAllPcfg.bin]);
 
-    // println("**** Checking rascal + typepal");
-    // runChecker(rascalWithTypepalPcfg, bool (loc m) { return  /*/lang.rascal/ !:= m.path &&*/ /experiments/ !:= m.path && /lang.rascal.*tests/ !:= m.path; });
-
-
-    println("**** Checking lsp");
-    msgs = checkModules([
-    // "demo::lang::pico::LanguageServer",
+    runChecker(lspPcfg, [
+    "demo::lang::pico::LanguageServer",
      "util::Util",
     "util::LanguageServer",
     "lang::rascal::lsp::Actions",
@@ -107,9 +114,7 @@ void main(loc repoRoot = |file:///Users/paulklint/git/|, loc tplRoot = |file:///
     "lang::rascal::tests::semanticTokenizer::Pico",
     "lang::rascal::tests::semanticTokenizer::Rascal",
     "lang::rascal::tests::semanticTokenizer::Util"
-    ], rascalCompilerConfig(lspPcfg));
-    for (/e:error(_,_) := msgs) {
-        println(e);
-    }
+    ]);
+    
     //runChecker(lspPcfg, bool (loc m) { return true; });
 }
