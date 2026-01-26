@@ -54,7 +54,7 @@ void package(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) {
     rewriteTypeFiles(srcs, bin, relocated, sourceLookup);
 }
 
-void oldPackagelist([loc] srcs, loc bin, loc sourceLookup) {
+void oldPackage(list([loc] srcs, loc bin, loc sourceLookup) {
     packageSourceFiles(srcs, bin);
     rewriteTypeFiles(srcs, bin, bin, sourceLookup);
 }
