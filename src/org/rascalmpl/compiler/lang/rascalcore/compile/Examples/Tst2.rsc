@@ -26,11 +26,18 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
+import lang::rascalcore::check::ATypeInstantiation;
+import IO;
+value main(){
+    t1 = aadt("Maybe",[aparameter("T.r",aadt("Tree",[],dataSyntax()),closed=false)],dataSyntax());
+    t2 = acons(aadt("Maybe",[aparameter("A.l",avalue(),closed=true)],dataSyntax()),
+            [aparameter("A.l",avalue(),closed=false,alabel="val")],[],alabel="just");
+    b = ("A.l":aparameter("T.r",aadt("Tree",[],dataSyntax()),closed=false));
 
-      
-    
-int N = 0;
+    t1_ins = instantiateRascalTypeParameters(t1, b);
+    t2_ins = instantiateRascalTypeParameters(t2, b);
+    println("t1, instantiated: <t1_ins>");
+    println("t2, instantiated: <t2_ins>");
 
-void main(){
-    N += 1;
+    return matchRascalTypeParams0( t1, t2, b);
 }
