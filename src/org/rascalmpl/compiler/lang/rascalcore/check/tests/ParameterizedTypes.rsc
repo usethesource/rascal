@@ -135,6 +135,12 @@ test bool MaybeBoundViolated() = unexpectedTypeInModule("
         Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }
     ");         
          
+test bool MaybeMatchNothingOK() = checkModuleOK("
+    module MaybeMatchNothingOK
+        data Maybe[&T] = none() | just(&T arg);               
+        bool f() = just(&T \<: node t) := none();
+    ");
+
 test bool BoundViolatedInCall() = unexpectedTypeInModule("
     module BoundViolatedInCall
         bool strange(&L \<: num _, &R \<: &L _) = false;
