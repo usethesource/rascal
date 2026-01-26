@@ -269,7 +269,7 @@ private loc findContainer(Define d){
 }
 
 str findDefiningModule(loc l){
-    for(ms <- module_scopes,isContainedIn(l, ms)){
+    for(ms <- module_scopes,isContainedIn(l, ms, current_tmodel.logical2physical)){
         return definitions[ms].id;
     }
     throw "No module found for <l>";
@@ -294,7 +294,6 @@ list[AType] dummyFormalsInType(AType t){
 
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
-    tm = convertTModel2PhysicalLocs(tm);
     current_tmodel = tm;
     physical2logical = invertUnique(tm.logical2physical);
 
@@ -644,11 +643,11 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
   else {
     bool found = false;
     for(c <- functions){
-        if(isContainedIn(l, c)){ container = c; found = true; break; }
+        if(isContainedIn(l, c, current_tmodel.logical2physical)){ container = c; found = true; break; }
     }
     if(!found){
         for(c <- module_scopes){
-         if(isContainedIn(l, c)){ container = c; found = true; break; }
+         if(isContainedIn(l, c, current_tmodel.logical2physical)){ container = c; found = true; break; }
         }
     }
     if(!found) throw "No container found for <name>, <l>";

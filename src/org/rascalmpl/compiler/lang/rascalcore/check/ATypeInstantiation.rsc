@@ -180,6 +180,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isConstructorAType(r) && isADTAType(s) ) {
         return matchRascalTypeParams0(getConstructorResultType(r), s, b);
     }
+
+    if ( isADTAType(r) && isConstructorAType(s) ) {
+        return matchRascalTypeParams0(r, getConstructorResultType(s), b);
+    }
     
     // For functions, match the return types and the parameter types
     // TODO: kewyword params?
@@ -204,7 +208,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 }
 
 AType invalidInstantiation(str pname, AType bound, AType actual){
-    throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
+    throw invalidInstantiation("Type parameter `&<pname>` should be less than `<prettyAType(deUnique(bound))>`, but is bound to `<prettyAType(deUnique(actual))>`");  
 }
 
 // NOTE used during match, no bounds check is needed since that is already done during the match
@@ -235,7 +239,7 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
                                         insert repl;
                                     }
                                     else {
-                                        s.report(error(selector, "Type parameter %q should be less than %t, found %t", deUnique(pname), bound, bindings[pname]));
+                                        s.report(error(selector, "Type parameter &%q should be less than %t, found %t", deUnique(pname), deUnique(bound), deUnique(bindings[pname])));
                                     }
                                   } else {
                                         insert param;

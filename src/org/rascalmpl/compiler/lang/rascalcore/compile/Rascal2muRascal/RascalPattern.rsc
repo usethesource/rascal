@@ -1623,7 +1623,7 @@ private bool isDefinition(Pattern pat){
 private bool isDefinedOutsidePat(loc def, Pattern container){
     try {
         defined = getDefinition(def); 
-        return !isContainedIn(defined, container@\loc);
+        return !isContainedIn(defined, container@\loc);     // TODO: adapt
     } catch: {
          return false;
     }

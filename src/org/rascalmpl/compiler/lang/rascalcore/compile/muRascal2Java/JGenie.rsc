@@ -80,7 +80,8 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
-        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
+        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions,
+        bool (loc,loc) isContainedIn
       )
     ;
     
@@ -88,11 +89,17 @@ JGenie makeJGenie(MuModule m,
                   map[str,TModel] tmodels, 
                   map[str,loc] moduleLocs, 
                   map[str, MuFunction] muFunctions){
-                  
+
+    // // temporary glue code
+    // map[str,TModel] tmodels = (moduleId2moduleName(mid) : tmodels[mid] | mid <- tmodels0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : moduleLocs[mid] | mid <- moduleLocs0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : muFunctions0[mid] | mid <- muFunctions0);
+
     map[str,loc] allModuleLocs = moduleLocs;
-    map[loc,str] allLocs2Module = invertUnique(moduleLocs);
+    map[loc,str] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
+    MODID moduleId = moduleName2moduleId(moduleName);
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
@@ -126,9 +133,9 @@ JGenie makeJGenie(MuModule m,
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
-    extendScopesCurrentModule = { mscope | <currentModuleScope, extendPath(), mscope> <- allPaths };
-    importScopesCurrentModule = { mscope | <currentModuleScope, importPath(), mscope> <- allPaths} ;
-    flattenedImportScopes = importScopesCurrentModule + { mscope | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
+    extendScopesCurrentModule = { mscope.top | <currentModuleScope, extendPath(), mscope> <- allPaths };
+    importScopesCurrentModule = { mscope.top | <currentModuleScope, importPath(), mscope> <- allPaths} ;
+    flattenedImportScopes = importScopesCurrentModule + { mscope.top | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
     importAndExtendScopes = flattenedImportScopes + extendScopesCurrentModule;
    
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
@@ -137,9 +144,12 @@ JGenie makeJGenie(MuModule m,
             bool(loc a, loc b) { return a != b && <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
     JGenie thisJGenie;
    
+   bool _isContainedIn(loc inner, loc outer)
+        = isContainedIn(inner, outer, currentTModel.logical2physical);
+
     loc findDefiningModuleForDef(loc def){
         for(ms <- sortedImportAndExtendScopes){
-            if(isContainedIn(def, ms)){
+            if(_isContainedIn(def, ms)){
                return ms;
             }
         }
@@ -214,9 +224,8 @@ JGenie makeJGenie(MuModule m,
         }
         for(ms <- sortedImportAndExtendScopes){
             for(Define def <- found_defs){
-                //println("def: <def>");
-                if(isContainedIn(def.scope, ms)){
-                    defMod = allLocs2Module[ms];
+                if(_isContainedIn(def.scope, ms)){
+                    defMod = allLocs2Module[ms.top];
                     res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
                     if(b)println("getTypeAccessor(<t>) =\> <res>)");
                     return res;
@@ -239,7 +248,7 @@ JGenie makeJGenie(MuModule m,
     
     bool importFromSameModule(list[loc] srcs){
         fst = srcs[0].top;
-        return all(src <- srcs, fst == src.top) && any(imp <- importScopesCurrentModule, isContainedIn(srcs[0], imp));
+        return all(src <- srcs, fst == src.top) && any(imp <- importScopesCurrentModule, _isContainedIn(srcs[0], imp));
     }
     
     @memo
@@ -255,7 +264,7 @@ JGenie makeJGenie(MuModule m,
                     
                     if(isSyntheticFunctionName(def.id)){
                         return baseName;
-                    } else if(isContainedIn(def.defined, currentModuleScope)){
+                    } else if(_isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
                             fun = muFunctionsByLoc[def.defined];
                             return isEmpty(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
@@ -277,7 +286,7 @@ JGenie makeJGenie(MuModule m,
                         if(isSyntheticFunctionName(baseName)){
                             return baseName;
                         }
-                        if(isContainedIn(def.defined, currentModuleScope)){
+                        if(_isContainedIn(def.defined, currentModuleScope)){
                             return baseName;
                         } else {
                             return def.scope in extendScopesCurrentModule ? "$me.<baseName>"
@@ -312,10 +321,10 @@ JGenie makeJGenie(MuModule m,
             return "<scopeIn>_<jname>";
         }
         
-        if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
+        if(any(d <- srcs, _isContainedIn(d, currentModuleScope))){
             return "$me.<jname>";
         }
-        alternative_defined_in_extended_module = any(d <- srcs, ms <- extendScopesCurrentModule, isContainedIn(d, ms));
+        alternative_defined_in_extended_module = any(d <- srcs, ms <- extendScopesCurrentModule, _isContainedIn(d, ms));
         if(alternative_defined_in_extended_module){
             return "$me.<jname>";
         }
@@ -326,7 +335,7 @@ JGenie makeJGenie(MuModule m,
     str definedInInnerScope(list[loc] srcs){
         scopeIn = "";
         for(d <- srcs){
-            if(isContainedIn(d, currentModuleScope)){
+            if(_isContainedIn(d, currentModuleScope)){
                 if(muFunctionsByLoc[d]?){
                     fun = muFunctionsByLoc[d];
                     if(fun.scopeIn == "") return "";
@@ -352,7 +361,7 @@ JGenie makeJGenie(MuModule m,
     list[MuExp] _getExternalRefs(loc src){
         if(fun2externals[src]?){
             fun = muFunctionsByLoc[src];
-            evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
+            evars = _isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
             return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
         return [];
@@ -360,7 +369,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _isDefinedInCurrentFunction(MuExp var){
         map[loc, Define] definitions = currentTModel.definitions;
-        for(d <- definitions, def := definitions[d], var.name == def.id, isContainedIn(def.scope, function.src), def.idRole in variableRoles){
+        for(d <- definitions, def := definitions[d], var.name == def.id, _isContainedIn(def.scope, function.src), def.idRole in variableRoles){
             return true;
         }
         return false;
@@ -719,8 +728,8 @@ JGenie makeJGenie(MuModule m,
     }
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
-        return    any(of <- overloads.ofunctions, isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
-               || any(oc <- overloads.oconstructors, isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
+        return    any(of <- overloads.ofunctions, _isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
+               || any(oc <- overloads.oconstructors, _isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
     }
     
     thisJGenie = 
@@ -757,7 +766,8 @@ JGenie makeJGenie(MuModule m,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,
-                _usesLocalFunctions
+                _usesLocalFunctions,
+                _isContainedIn
             );
     
      //thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions
