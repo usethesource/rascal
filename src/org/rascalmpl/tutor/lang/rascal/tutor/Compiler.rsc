@@ -78,6 +78,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   bool errorsAsWarnings = false, 
   bool warningsAsErrors = false, 
   bool isPackageCourse  = false, 
+  bool includeLibraries = false,
   str groupId           = "org.rascalmpl",
   str artifactId        = "rascal",
   str version           = getRascalVersion(),
@@ -102,6 +103,19 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
 
   if (verbose) iprintln(pcfg);
  
+  if (includeLibraries) {
+    jobStart("Including libraries", totalWork=size(pcfg.libs));
+
+    for (loc lib <- pcfg.libs) {
+      jobStep("Including libraries", "<lib>");
+      copy(lib + "docs", pcfg.bin + "docs", recursive=true);
+      remove(pcfg.bin + "docs" + "index.value");
+    }
+
+    jobEnd("Including libraries");
+  }
+
+
   messages = compile(pcfg);
   
   return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
@@ -116,6 +130,7 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
 
   // all documentation ends up nested under the `docs` folder in the target
   pcfg.bin = pcfg.bin + "docs";
+
 
   ind = createConceptIndex(pcfg);
 
