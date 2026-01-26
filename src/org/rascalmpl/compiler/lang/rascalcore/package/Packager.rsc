@@ -38,13 +38,25 @@ void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc 
       throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";
     }
 
-    package(pcfg.srcs, pcfg.bin, relocatedClasses, sourceLookup);
+    if (relocatedClasses?) {
+        // then we activate the new style with a fresh target folder `relocatedClasses`
+        package(pcfg.srcs, pcfg.bin, relocatedClasses, sourceLookup);
+    }
+    else {
+        // otherwise we do the old in-place rewriting
+        oldPackage(pcfg.srcs, pcfg.bin, sourceLookup);
+    }
 }
 
 void package(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) {
     packageSourceFiles(srcs, relocated);  
     copyAllTargetFiles(bin, relocated);
     rewriteTypeFiles(srcs, bin, relocated, sourceLookup);
+}
+
+void oldPackagelist([loc] srcs, loc bin, loc sourceLookup) {
+    packageSourceFiles(srcs, bin);
+    rewriteTypeFiles(srcs, bin, bin, sourceLookup);
 }
 
 void packageSourceFiles(list[loc] srcs, loc relocated) {
