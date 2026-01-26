@@ -93,6 +93,6 @@ test bool CircularAliasError4() = unexpectedDeclarationInModule("
 test bool Issue504() = redeclaredVariableInModule("
     module Issue504
 	    alias INT = int;
-        alias INT = int;
+        alias INT = rat;
     ");
 

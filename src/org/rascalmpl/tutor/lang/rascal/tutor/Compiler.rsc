@@ -796,7 +796,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         }
         else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+          return compileMarkdown(["<prefix>(<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         exactLinks = exactShortestLinks(ind, removeSpaces(link));

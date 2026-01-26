@@ -75,7 +75,6 @@ private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
     
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
-    tm = convertTModel2PhysicalLocs(tm);
     // Extract @doc and @synopsis tags
     map[loc def, str synopsis] synopses = ();
     map[loc def, loc docloc] docLocs = ();
