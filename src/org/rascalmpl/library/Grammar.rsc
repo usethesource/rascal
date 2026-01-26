@@ -11,7 +11,7 @@
 
 @synopsis{A simple but effective internal format for the representation of context-free grammars.}
 module Grammar
-
+  
 extend ParseTree;
 
 
