@@ -41,6 +41,8 @@ import lang::rascalcore::compile::muRascal::AST;
 //extend lang::rascalcore::check::Checker;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::LogicalLocations;
+
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -67,11 +69,13 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, RascalCompilerConfig compilerConfig){
    try {
       resetModuleInfo(compilerConfig);
-      module_scope = M@\loc;
-      setModuleScope(module_scope);
-      //setModuleScope(convert2fuid(module_scope));
-      M_module_name = "<M.header.name>";
+      
+      M_module_name = unescape("<M.header.name>");
       setModuleName(M_module_name);
+
+      module_scope = moduleName2moduleId(M_module_name);
+      setModuleScope(module_scope);
+      
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
@@ -92,7 +96,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  
    	  translateModule(M);
    	  
-   	  generateAllFieldGetters(module_scope);
+   	  generateAllFieldGetters(module_scope, tmodel.logical2physical);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       

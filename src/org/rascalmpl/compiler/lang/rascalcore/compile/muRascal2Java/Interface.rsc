@@ -56,7 +56,6 @@ str generateInterface(str moduleName, str packageName, list[MuFunction] function
 }
 
 lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
-    
     lrel[str, AType] result = [];
     rel[str, int, AType] signatures = {};
     mscope = tmodels[moduleName].moduleLocs[moduleName];

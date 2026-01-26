@@ -112,16 +112,16 @@ public void translateDecl(d: (Declaration) `<FunctionDeclaration functionDeclara
 }
 
 
-public void generateAllFieldGetters(loc module_scope){
+public void generateAllFieldGetters(loc module_scope, map[loc,loc] l2p){
     map[AType, set[AType]] constructors = getConstructorsMap();
     map[AType, list[Keyword]] common_keyword_fields = getCommonKeywordFieldsMap();
     
     for(adtType <- getADTs(), !isSyntaxType(adtType)){
-        generateGettersForAdt(adtType, module_scope, constructors[adtType] ? {}, common_keyword_fields[adtType] ? []);
+        generateGettersForAdt(adtType, module_scope, constructors[adtType] ? {}, common_keyword_fields[adtType] ? [], l2p);
     }
 }
 
-private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
+private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields, map[loc,loc] l2p){
 
     adtName = getUniqueADTName(adtType); 
   
@@ -141,7 +141,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.alabel;
        
-       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
             kwType = kw.fieldType;
             defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
@@ -178,7 +178,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, getterName, 0, adtType, dataId());
         failCode = muFailReturn(returnType);
-        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
             kwType = kw.fieldType;
             str commonKwFieldName = unescape(kwType.alabel);
             if(commonKwFieldName == kwFieldName){
@@ -189,7 +189,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         }
         body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(asUnqualifiedName(consType.alabel)), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
-                       | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
+                       | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope, l2p)
                        ]
                        + failCode
                       );
@@ -200,7 +200,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope)){
+    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
         kwType = kw.fieldType;
         defaultExp = kw.defaultExp;
         seen += kwType;
