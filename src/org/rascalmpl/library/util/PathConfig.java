@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -950,13 +952,29 @@ public class PathConfig {
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
                 // errors of the artifacts downloaded should be propagated as well
-                messages.appendAll(a.getMessages());
+                // skip "Could not resolve" error, since `addArtifactToPathConfig` will re-try resolution and error when necessary
+                var isUnresolved = isUnresolvedMessage(a);
+                messages.appendAll(a.getMessages().stream().filter(isUnresolved.negate()).collect(Collectors.toList()));
             }
             return result;
         }
         catch (RuntimeException | IOException | ModelResolutionError e) {
             return Collections.emptyList();
         }
+    }
+
+    private static Predicate<IValue> isUnresolvedMessage(Artifact art) {
+        var errorMsg = String.format("Could not resolve %s", art.getCoordinate().toString());
+        return message -> {
+            if (!(message instanceof IConstructor)) {
+                return false;
+            }
+            var msg = ((IConstructor) message).get("msg");
+            if (!(msg instanceof IString)) {
+                return false;
+            }
+            return ((IString) msg).getValue().startsWith(errorMsg);
+        };
     }
 
     private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
