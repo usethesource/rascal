@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -954,8 +953,11 @@ public class PathConfig {
             for (var a : result) {
                 // errors of the artifacts downloaded should be propagated as well
                 // skip "Could not resolve" errors, since our caller will re-try resolution and re-add the error when necessary
-                var isNotUnresolved = isUnresolvedMessage(a).negate();
-                messages.appendAll(a.getMessages().stream().filter(isNotUnresolved).collect(vf.listWriter()));
+                for (var m : a.getMessages()) {
+                    if (!isUnresolvedMessage(a, m)) {
+                        messages.append(m);
+                    }
+                }
             }
             return result;
         }
@@ -964,18 +966,16 @@ public class PathConfig {
         }
     }
 
-    private static Predicate<IValue> isUnresolvedMessage(Artifact art) {
+    private static boolean isUnresolvedMessage(Artifact art, IValue message) {
         var errorMsg = String.format("Could not resolve %s", art.getCoordinate().toString());
-        return message -> {
-            if (!(message instanceof IConstructor)) {
-                return false;
-            }
-            var msg = ((IConstructor) message).get("msg");
-            if (!(msg instanceof IString)) {
-                return false;
-            }
-            return ((IString) msg).getValue().startsWith(errorMsg);
-        };
+        if (!(message instanceof IConstructor)) {
+            return false;
+        }
+        var msg = ((IConstructor) message).get("msg");
+        if (!(msg instanceof IString)) {
+            return false;
+        }
+        return ((IString) msg).getValue().startsWith(errorMsg);
     }
 
     private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
