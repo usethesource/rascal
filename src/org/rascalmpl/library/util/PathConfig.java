@@ -951,10 +951,11 @@ public class PathConfig {
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
+                var errorMsg = String.format("Could not resolve %s", a.getCoordinate().toString());
                 // errors of the artifacts downloaded should be propagated as well
                 // skip "Could not resolve" errors, since our caller will re-try resolution and re-add the error when necessary
                 for (var m : a.getMessages()) {
-                    if (!isUnresolvedMessage(a, m)) {
+                    if (!messageStartsWith(m, errorMsg)) {
                         messages.append(m);
                     }
                 }
@@ -966,8 +967,7 @@ public class PathConfig {
         }
     }
 
-    private static boolean isUnresolvedMessage(Artifact art, IValue message) {
-        var errorMsg = String.format("Could not resolve %s", art.getCoordinate().toString());
+    private static boolean messageStartsWith(IValue message, String prefix) {
         if (!(message instanceof IConstructor)) {
             return false;
         }
@@ -975,7 +975,7 @@ public class PathConfig {
         if (!(msg instanceof IString)) {
             return false;
         }
-        return ((IString) msg).getValue().startsWith(errorMsg);
+        return ((IString) msg).getValue().startsWith(prefix);
     }
 
     private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
