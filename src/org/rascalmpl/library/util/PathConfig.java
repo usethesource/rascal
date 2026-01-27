@@ -929,6 +929,7 @@ public class PathConfig {
      * Note that this method should not filter or enhance the path beyond what is written in the pom.xml
      * and the semantics of compile-time dependencies of Maven.
      * @param manifestRoot
+     * @param skipUnresolvedDependencyErrors If true, do not propagate "Could not resolve ..." errors from dependencies.
      * @return
      */
     private static List<Artifact> getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages) {
@@ -952,9 +953,9 @@ public class PathConfig {
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
                 // errors of the artifacts downloaded should be propagated as well
-                // skip "Could not resolve" error, since `addArtifactToPathConfig` will re-try resolution and error when necessary
-                var isUnresolved = isUnresolvedMessage(a);
-                messages.appendAll(a.getMessages().stream().filter(isUnresolved.negate()).collect(Collectors.toList()));
+                // skip "Could not resolve" errors, since our caller will re-try resolution and re-add the error when necessary
+                var isNotUnresolved = isUnresolvedMessage(a).negate();
+                messages.appendAll(a.getMessages().stream().filter(isNotUnresolved).collect(vf.listWriter()));
             }
             return result;
         }
