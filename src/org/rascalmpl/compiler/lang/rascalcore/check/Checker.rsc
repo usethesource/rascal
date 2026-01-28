@@ -234,7 +234,12 @@ ModuleStatus rascalTModelForLocs(
           
             component = module2component[ordered[mi]];
             sizeComponent = size(component);
-            componentNames = [moduleId2moduleName(c) | c <- component];
+            componentNames =
+                for(c <- component){
+                    cstr = "<c.path>";
+                    append replaceAll(cstr[0] == "/" ? cstr[1..] : cstr, "/", "::");         
+                };
+            
             jobStep(jobName, intercalate(" + ", [*componentNames]), work=size(componentNames));
 
             recheck = !all(m <- component, m in ms.status, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
