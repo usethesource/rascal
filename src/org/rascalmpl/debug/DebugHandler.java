@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Command;
 import org.rascalmpl.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -32,17 +33,29 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import java.util.function.Function;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+
 import io.usethesource.vallang.io.StandardTextWriter;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IValue;
@@ -309,6 +322,23 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	  this.evaluator = evaluator;
 	}
 
+	public Result<IValue> importModule(String command){
+		// Parse the command and check if it is an import statement
+		// The parsing code is supposed to be the same as in org.rascalmpl.interpreter.Evaluator.eval()
+		// If the parsing fail, the exceptions must be handled by the caller
+		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, DEBUGGER_PROMPT_LOCATION.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+		Command stat = new ASTBuilder().buildCommand(tree);
+        if (!stat.isImport()) {
+            return null;
+        }
+		Environment oldEnvironment = evaluator.getCurrentEnvt();
+		evaluator.setCurrentEnvt(evaluator.__getRootScope()); // For import we set the current module to the root to reload modules properly
+		Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+		evaluator.setCurrentEnvt(oldEnvironment);
+		return result;
+	}
+
 	/**
 	 * Evaluate the given command in the provided environment and return both a
 	 * printable {@link ICommandOutput} and the raw {@link Result} (if any).
@@ -343,8 +373,10 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 				evaluator.removeSuspendTriggerListener(this);
 				evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 				evaluator.setCurrentEnvt(evalEnv);
-
-				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				Result<IValue> result = importModule(command);
+				if(result == null) {
+					result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				}
 
 				ICommandOutput out = printer.outputResult((org.rascalmpl.interpreter.result.IRascalResult) result);
 				return new EvalResult(result, out);
