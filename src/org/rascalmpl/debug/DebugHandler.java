@@ -323,6 +323,9 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 
 	public Result<IValue> importModule(String command){
+		// Parse the command and check if it is an import statement
+		// The parsing code is supposed to be the same as in org.rascalmpl.interpreter.Evaluator.eval()
+		// If the parsing fail, the exceptions must be handled by the caller
 		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
         ITree tree = new RascalParser().parse(Parser.START_COMMAND, DEBUGGER_PROMPT_LOCATION.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 		Command stat = new ASTBuilder().buildCommand(tree);
