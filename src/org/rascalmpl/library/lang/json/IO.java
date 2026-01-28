@@ -111,7 +111,7 @@ public class IO {
     }
 
     public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat,
-        IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
+        IBool dateTimeAsInt, IBool rationalsAsString, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
         IBool explicitDataTypes) {
         try (JsonWriter out =
             new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false),
@@ -123,6 +123,7 @@ public class IO {
             new JsonValueWriter()
                 .setCalendarFormat(dateTimeFormat.getValue())
                 .setDatesAsInt(dateTimeAsInt.getValue())
+                .setRationalsAsString(rationalsAsString.getValue())
                 .setUnpackedLocations(unpackedLocations.getValue())
                 .setDropOrigins(dropOrigins.getValue())
                 .setFormatters(formatter)
@@ -135,7 +136,7 @@ public class IO {
         }
     }
 
-    public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt,
+    public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IBool rationalsAsString,
         IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
         IBool explicitDataTypes) {
         StringWriter string = new StringWriter();
@@ -147,6 +148,7 @@ public class IO {
             new JsonValueWriter()
                 .setCalendarFormat(dateTimeFormat.getValue())
                 .setDatesAsInt(dateTimeAsInt.getValue())
+                .setRationalsAsString(rationalsAsString.getValue())
                 .setUnpackedLocations(unpackedLocations.getValue())
                 .setDropOrigins(dropOrigins.getValue())
                 .setFormatters(formatter)
