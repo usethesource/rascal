@@ -65,7 +65,7 @@ public default value implode(Node x) { throw "can not implode node"(x); }
 
 public Node toXML(node x) 
   = element(none(), getName(x), 
-           [toXML(c) | c <- getChildren(x)] + [attribute(none(),"<key>","<annos[key]>") | annos := getKeywordParameters(x), key <- annos]);
+           [toXML(c) | c <- getChildren(x)] + [attribute(none(),"<key>","<params[key]>") | params := getKeywordParameters(x), key <- params]);
 public default Node toXML(value x) = charData("<x> ");
 
 
