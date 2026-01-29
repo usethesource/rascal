@@ -476,6 +476,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
         //    ms.messages[mid] += error("Cannot get parse tree for module `<mid>`", ms.moduleLocs[mid]);
         //}
     }
+
     if(!isEmpty(idTrees)){
         if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
 
