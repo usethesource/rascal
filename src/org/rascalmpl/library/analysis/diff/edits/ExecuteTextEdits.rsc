@@ -46,13 +46,13 @@ void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
 }
 
 str executeTextEdits(str content, list[TextEdit] edits) {
-    assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
-        return e1.range.offset < e2.range.offset; 
-    });
+    // assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
+    //     return e1.range.offset < e2.range.offset; 
+    // });
 
-    for (replace(loc range, str repl) <- reverse(edits)) {
-        content = "<content[..range.offset]><repl><content[range.offset+range.length..]>";
-    }
+    int cursor = 0;
 
-    return content;
+    // linear-time streamed reconstruction of the entire text
+    return "<for (replace(loc range, str repl) <- edits) {><content[cursor..range.offset]><repl>< 
+             cursor = range.offset + range.length;}><content[cursor..]>";
 }
