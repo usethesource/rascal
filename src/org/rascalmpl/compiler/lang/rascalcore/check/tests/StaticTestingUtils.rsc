@@ -46,6 +46,8 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
 
+extend analysis::typepal::Collector;
+
 bool verbose = false;
 
 PathConfig pathConfigForTesting() {
