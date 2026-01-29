@@ -38,9 +38,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.rascalmpl.library.Messages;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
+
+import io.usethesource.vallang.IListWriter;
 
 public class MavenResolverTest extends AbstractMavenTest {
     @Test
@@ -120,16 +127,53 @@ public class MavenResolverTest extends AbstractMavenTest {
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeRascalLsp = locate(resolved, "rascal-lsp");
 
+        assertEquals(project.getCoordinate().getGroupId(), "org.rascalmpl");
+        assertEquals(project.getCoordinate().getVersion(), "1.0.0-SNAPSHOT");
+       
         assertTrue("Rascal-lsp should be found", maybeRascalLsp.isPresent());
         assertEquals("rascal-lsp should be resolved to the right version", "2.21.2", maybeRascalLsp.get().getCoordinate().getVersion());
 
         var maybeCoreLink = locate(resolved, "example-core");
 
+        assertEquals(maybeCoreLink.get().getCoordinate().getGroupId(), "org.rascalmpl");
+        assertEquals(maybeCoreLink.get().getCoordinate().getVersion(), "1.0.0-SNAPSHOT");
+        
         assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
         assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
         String message = maybeCoreLink.get().getMessages().get(0).toString();
         assertTrue("example-core should have a warning message", message.contains("No downloading & updating logic of SNAPSHOTs yet"));
         assertTrue("example-core message should have origin information", message.contains("<20,17>"));
+    }
+
+    @Test 
+    // this tests the problems associated with #2614
+    public void testMultiModuleDependencyResolution() throws ModelResolutionError {
+        var messages = IRascalValueFactory.getInstance().listWriter();
+        var path = getPomsPath("multi-module/example-ide/pom.xml");
+        var mavenParser = new MavenParser(path);
+        var rootProject = mavenParser.parseProject();
+        messages.appendAll(rootProject.getMessages());
+        
+        // these four asserts were _not_ failing for #2614, but we need them to be
+        // like this for the test to be in the right state for triggering the issue.
+        assertTrue(messages.done().isEmpty());
+        assertEquals(rootProject.getCoordinate().getArtifactId(), "example-ide");
+        assertEquals(rootProject.getCoordinate().getGroupId(), "org.rascalmpl");
+        assertEquals(rootProject.getCoordinate().getVersion(), "1.0.0-SNAPSHOT");
+
+        // depending on how many errors are propagated in #2615 scenario, and the amount
+        // of fixing of error propagation and NULL propagation, this
+        // code either fails completely to resolve any dependencies and produces an empty list,
+        // or it continues with errors and throws an NPE, or it continues and collect errors
+        // where there should not be. The main reason is that the _parent_ of example-ide
+        // is a SNAPSHOT and the SNAPSHOT is not even tried to be resolved.
+        var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
+        // there are two local dependencies, which each may have many dependencies of their own.
+        assertTrue(result.size() >= 2);       
+
+        for (var a : result) {
+            assertTrue(a.getMessages().toString(), a.getMessages().isEmpty());
+        } 
     }
 
     @Test
