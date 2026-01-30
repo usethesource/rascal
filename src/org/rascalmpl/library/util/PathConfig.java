@@ -40,6 +40,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -927,6 +928,7 @@ public class PathConfig {
      * Note that this method should not filter or enhance the path beyond what is written in the pom.xml
      * and the semantics of compile-time dependencies of Maven.
      * @param manifestRoot
+     * @param skipUnresolvedDependencyErrors If true, do not propagate "Could not resolve ..." errors from dependencies.
      * @return
      */
     private static List<Artifact> getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages) {
@@ -949,14 +951,31 @@ public class PathConfig {
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
             for (var a : result) {
+                var errorMsg = String.format("Could not resolve %s", a.getCoordinate().toString());
                 // errors of the artifacts downloaded should be propagated as well
-                messages.appendAll(a.getMessages());
+                // skip "Could not resolve" errors, since our caller will re-try resolution and re-add the error when necessary
+                for (var m : a.getMessages()) {
+                    if (!messageStartsWith(m, errorMsg)) {
+                        messages.append(m);
+                    }
+                }
             }
             return result;
         }
         catch (RuntimeException | IOException | ModelResolutionError e) {
             return Collections.emptyList();
         }
+    }
+
+    private static boolean messageStartsWith(IValue message, String prefix) {
+        if (!(message instanceof IConstructor)) {
+            return false;
+        }
+        var msg = ((IConstructor) message).get("msg");
+        if (!(msg instanceof IString)) {
+            return false;
+        }
+        return ((IString) msg).getValue().startsWith(prefix);
     }
 
     private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
