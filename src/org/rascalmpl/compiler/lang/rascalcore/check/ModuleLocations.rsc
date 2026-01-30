@@ -107,7 +107,7 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    if(isLogicalLoc(moduleLoc)){
+    if(isRascalLogicalLoc(moduleLoc)){
         path = moduleLoc.path;
         if(path[0] == "/"){
             path = path[1..];
