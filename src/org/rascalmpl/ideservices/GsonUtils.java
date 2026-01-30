@@ -216,7 +216,7 @@ public class GsonUtils {
      * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
      */
     public static Consumer<GsonBuilder> complexAsBase64String() {
-        return builder -> complexAsBase64String(new TypeStore());
+        return complexAsBase64String(new TypeStore());
     }
 
     /**
@@ -236,7 +236,7 @@ public class GsonUtils {
      * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
      */
     public static Consumer<GsonBuilder> complexAsString() {
-        return builder -> complexAsString(new TypeStore());
+        return complexAsString(new TypeStore());
     }
 
     /**
