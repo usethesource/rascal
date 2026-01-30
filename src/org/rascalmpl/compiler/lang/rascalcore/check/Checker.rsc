@@ -138,7 +138,7 @@ ModuleStatus rascalTModelForLocs(
     list[str] mnames = [];
     mids = 
         for(mloc <- mlocs){
-            if(isLogicalLoc(mloc)){
+            if(isRascalLogicalLoc(mloc)){
                 mnames += moduleId2moduleName(mloc);
                 append mloc;
             } else 
@@ -459,7 +459,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             ms = addTModel(mid, tm, ms);
             return <tm, ms>;
         }
-        if(!isLogicalLoc(mloc) && (mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg))){
+        if(!isRascalLogicalLoc(mloc) && (mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg))){
             continue;
         }
         <success, pt, ms> = getModuleParseTree(mid, ms);
