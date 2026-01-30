@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
-/
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,17 +39,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils.Null;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.library.Messages;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.IRascalValueFactory;
-
-import io.usethesource.vallang.IListWriter;
 
 public class MavenResolverTest extends AbstractMavenTest {
     @Test
