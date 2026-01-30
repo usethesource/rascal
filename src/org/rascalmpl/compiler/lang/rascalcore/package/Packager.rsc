@@ -30,8 +30,9 @@ import util::FileSystem;
 import IO;
 import ValueIO;
 import ParseTree;
-import Location;
 import util::Reflective;
+
+import lang::rascalcore::check::LogicalLocations;
 
 void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
