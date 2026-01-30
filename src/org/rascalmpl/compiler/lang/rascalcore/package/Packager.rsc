@@ -103,7 +103,7 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
           // \loc annotations on Trees are not visited by `visit` automatically
           case Tree t => t[@\loc = inheritPosition(sourceLookup + paths[Top], t@\loc)]
               when t@\loc?, 
-                   !isRascalLogicalLoc(\loc), 
+                   !isRascalLogicalLoc(t@\loc), 
                    loc Top := t@\loc.top, 
                    Top in paths
 
