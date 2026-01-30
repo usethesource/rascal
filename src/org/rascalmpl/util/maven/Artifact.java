@@ -326,7 +326,13 @@ public class Artifact {
 
         var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion(), classifier);
         var parent = m.getParent();
-        var parentCoordinate = parent == null ? null : new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
+        ArtifactCoordinate parentCoordinate = null;
+        if (parent != null) {
+            parentCoordinate = new ArtifactCoordinate(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "");
+            if (parent.getRelativePath().equals("../pom.xml")) {
+                resolver = resolver.createSiblingResolver(parent.getGroupId(), pom.getParent().getParent());
+            }
+        }
         try {
             var loc = isRoot ? null : resolver.resolveJar(coordinate); // download jar if needed
             List<Dependency> dependencies;
