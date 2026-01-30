@@ -213,6 +213,9 @@ loc cover(list[loc] locs){
     }
 }
 
+bool isRascalLogicalLoc(loc l)
+    = startsWith(l.scheme, "rascal+");
+
 // Note: this is a duplicate of LogicalLocation in typepal
 // TODO: remove the one in TypePal
 
