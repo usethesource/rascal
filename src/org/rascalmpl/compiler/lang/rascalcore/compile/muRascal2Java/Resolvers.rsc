@@ -52,7 +52,7 @@ alias Name_Arity = tuple[str name, int arity];
 
 // Get all functions and constructors from a given tmodel
 
-rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes, PathConfig pcfg){
+rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes, PathConfig pcfg, JGenie jg){
      if(!tmodel.moduleLocs[tmodel.modelName]?){
         iprintln(tmodel);
         throw "getFunctionsAndConstructors";
@@ -60,7 +60,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] modu
      mname = tmodel.modelName;
     // mscope = tmodel.moduleLocs[tmodel.modelName];
 
-     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, getRascalModuleName(u, pcfg) == mname/*isContainedIn(u, mscope)*/, /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
+     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, getRascalModuleName(u, pcfg) == mname/*jg.isContainedIn(u, mscope)*/, /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>
                                 | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0,
                                   (ov.idRole == functionId() || ov.idRole == constructorId()),
@@ -74,7 +74,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] modu
            { <<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>
            | Define def <- tmodel.defines,
              defType(AType tp) := def.defInfo,
-             (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
+             (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, jg.isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
              !(acons(AType adt, list[AType] _, list[Keyword] _) := tp && isNonTerminalAType(adt))
            };
      return overloads_used_in_module + overloads_created_in_module;
@@ -158,7 +158,8 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
-    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes, pcfg) | mname <- tmodels };
+
+    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mid], module_and_extend_scopes, pcfg, jg) | mid <- tmodels };
 
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
@@ -206,9 +207,9 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
    return sort({ *getExternalRefs(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs });
 }
 
-tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_scopes, set[loc] extend_scopes){
+tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_scopes, set[loc] extend_scopes, JGenie jg){
     for(s <- import_scopes + extend_scopes){
-        if(all(fd <- fun_defs, isContainedIn(fd.defined, s))){
+        if(all(fd <- fun_defs, jg.isContainedIn(fd.defined, s))){
             return <true, s>;
         }
     }
@@ -222,12 +223,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
 
     module_scopes = domain(loc2module);
 
-    set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
+    set[Define] local_fun_defs = {def | def <- fun_defs, /**/jg.isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
 
     nonlocal_fun_defs0 =
         for(def <- fun_defs){
-            if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, isContainedIn(def.defined, ext))) append def;
-            if(!isEmpty(import_scopes) && any(imp <- import_scopes, isContainedIn(def.defined, imp))) append def;
+            if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, jg.isContainedIn(def.defined, ext))) append def;
+            if(!isEmpty(import_scopes) && any(imp <- import_scopes, jg.isContainedIn(def.defined, imp))) append def;
         };
     nonlocal_fun_defs = toSet(nonlocal_fun_defs0);
     set[Define] relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
@@ -235,7 +236,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
 
     implementing_module = "";
     if(isEmpty(local_fun_defs)){
-        <found, im> = findImplementingModule(relevant_fun_defs, import_scopes, extend_scopes);
+        <found, im> = findImplementingModule(relevant_fun_defs, import_scopes, extend_scopes, jg);
         if(found){
             implementing_module = loc2module[im];
         }
@@ -266,7 +267,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     inner_scope = "";
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        for(def <- relevant_fun_defs, getRascalModuleName(def.defined, pcfg) == moduleName/*isContainedIn(def.defined, module_scope)*/){
+        for(def <- relevant_fun_defs, getRascalModuleName(def.defined, pcfg) == moduleName/*jg.isContainedIn(def.defined, module_scope)*/){
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
             break;
@@ -439,7 +440,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         call_code = base_call = "";
         cst = resolver_returns_void ? "" : "(<atype2javatype(resolver_return_type)>)";
         if(isFunctionAType(def_type)){
-            if(isContainedIn(def.defined, module_scope)){
+            if(jg.isContainedIn(def.defined, module_scope)){
                 pref = "";
                 if(def.scope != module_scope){
                     for(odef <- fun_defs){
@@ -449,7 +450,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                     }
                 }
                 call_code = "<cst><pref><uniqueName>(<actuals_text>)";
-            } else if(/*isContainedIn(def.defined, def.scope),*/ loc2module[def.scope]?){
+            } else if(/*jg.isContainedIn(def.defined, def.scope),*/ loc2module[def.scope]?){
                 call_code = "<cst><module2field(loc2module[def.scope])>.<uniqueName>(<actuals_text>)"; // was uniqueName
             } else {
                return; //do nothing

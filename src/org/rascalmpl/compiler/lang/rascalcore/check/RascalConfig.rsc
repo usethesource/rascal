@@ -134,23 +134,23 @@ set[IdRole] defBeforeUseRoles = {variableId(), moduleVariableId(), formalId(), k
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
     Define d = s.getDefine(def);
-    if(isBefore(use.occ, def)){
+    if(s.isBefore(use.occ, def)){
        if(moduleVariableId() == d.idRole){
             // Module variables should adhere to def before use, unless they are used inside a function.
             for(some_def <- s.getAllDefines(), some_def.idRole == functionId()){
-                if(isContainedIn(use.occ, some_def.defined)){
+                if(s.isContainedIn(use.occ, some_def.defined)){
                     return acceptBinding();
                 }
             }
             return ignoreContinue();
        } else 
        if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def
-                 && isContainedIn(def, use.scope)   // in an idRole that requires def before use
+                 && s.isContainedIn(def, use.scope)   // in an idRole that requires def before use
                 ){                                  // and the definition is in the same scope as the use
             // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
             if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
                 list[loc] parts = allowedParts[use.scope];
-                return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
+                return !isEmpty(parts) && any(part <- parts, s.isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
             } else {
                 throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
             }
@@ -158,7 +158,7 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     }
 
     // Uses of a keyword formal inside its initializing expression are rejected
-    if(d.idRole == keywordFormalId() && isContainedIn(use.occ, d.defined)){
+    if(d.idRole == keywordFormalId() && s.isContainedIn(use.occ, d.defined)){
         return ignoreContinue();
     }
     return  acceptBinding();
@@ -166,33 +166,41 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // println("rascalIsAcceptableQualified: <def>, <use>");
-    atype = s.getType(def);
-
-    defPath = def.path;
-    qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
+    assert isLogicalLoc(def): "rascalIsAcceptableQualified: <def>";
+    path = def.path;
+    i = findLast(path, "/");
+    assert i >= 0: " findLast in <path> gives <i>";
+    defPath = def.path[..i];
+    qualPath = "/" + replaceAll(use.ids[0], "::","/");
 
     // qualifier and proposed definition are the same?
-    if(endsWith(defPath, qualAsPath)){
+    if(defPath == qualPath){
        return acceptBinding();
     }
 
+    atype = s.getType(def);
     // Qualifier is a ADT name?
 
     if(acons(aadt(adtName, _, _), list[AType] _fields, list[Keyword] _kwFields) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+    }
+
+    if(afunc(AType _ret, list[AType] _formals, list[Keyword] _kwFormals) := atype){
+        return acceptBinding();
     }
 
     // Qualifier is a Production?
 
     if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
     // Is there another acceptable qualifier via an extend?
-
-    extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
-
-    if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
+    paths = enhancePathRelation(s.getPaths());
+    defPathAsMODID = |rascal+module://<defPath>|;
+    qualPathAsMODID = |rascal+module://<qualPath>|;
+    if(defPathAsMODID in paths[qualPathAsMODID]<1>){
+       //println("acceptBinding: <defPathAsMODID>");
        return acceptBinding();
     }
 
@@ -316,7 +324,7 @@ bool rascalReportUnused(loc def, TModel tm){
 
     if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
 
-    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName])){
+    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName], tm.logical2physical)){
         return false;
     }
 
@@ -377,13 +385,13 @@ bool rascalReportUnused(loc def, TModel tm){
 // Extend the path relation by
 // - adding transitive edges for extend
 // - adding imports via these extends
-rel[loc, PathRole,loc] enhancePathRelation(rel[loc, PathRole,loc] paths){
-    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- paths}+;
-    paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
+    extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
+    paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus};
 
-    imports = {<from, to> | <loc from, importPath(), loc to> <- paths};
+    imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
     delta = { <from, importPath(), to2> 
-            | <loc from, loc to2> <- extendPlus o imports, 
+            | <MODID from, MODID to2> <- extendPlus o imports, 
               <from, extendPath(), to2> notin paths, 
               from != to2
             };
@@ -471,8 +479,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         allDefs = { d.defined | d <- defs };
         for(d1 <- defs, d2 <- defs,
             d1.defined != d2.defined,
-            t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-            t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            d1.defined in facts, t1 := facts[d1.defined],
+            d2.defined in facts, t2 := facts[d2.defined],
             comparableList(t1.fields, t2.fields),
             ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
@@ -529,7 +537,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 // bool isLogicalLoc(loc l)
 //     = startsWith(l.scheme, "rascal+");
 
-loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        if(isLogicalLoc(def.defined)) return def.defined;
        moduleName = getRascalModuleName(def.defined, pcfg);
@@ -576,7 +584,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
         similar = similarWords(w, domain(longNames), tm.config.cutoffForNameSimilarity)[0..10];
         return sort({*longNames[s] | s <- similar }, bool (str a, str b) { return size(a) < size(b); });
     } else {
-        vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) };
+        vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope, tm.logical2physical) };
         similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
         return sort(similar, bool (str a, str b) { return a < b; });
     }
