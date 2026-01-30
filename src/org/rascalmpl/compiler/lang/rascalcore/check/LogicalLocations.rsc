@@ -3,6 +3,9 @@ module lang::rascalcore::check::LogicalLocations
 import String;
 import lang::rascalcore::check::ATypeUtils;
 
+bool isRascalLogicalLoc(loc l)
+    = startsWith(l.scheme, "rascal+");
+    
 alias MODID = loc;   // module identification
 
 bool isModuleId(loc l) = l.scheme == "rascal+module";
