@@ -211,6 +211,3 @@ data TypePalConfig(
     bool optimizeVisit              = true,     // Options for compiler developer
     bool enableAsserts              = true
 );
-
-bool isLogicalLoc(loc l)
-    = startsWith(l.scheme, "rascal+");
