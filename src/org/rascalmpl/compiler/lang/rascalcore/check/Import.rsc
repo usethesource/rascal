@@ -193,7 +193,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
                     ms.status[moduleId] += { rsc_not_found() };
                     return ms;
                 }
-                if(!isLogicalLoc(mloc) && (mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg))) throw "No src or library module 1"; //There is only a tpl file available
+                if(!isRascalLogicalLoc(mloc) && (mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg))) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
                 <incompatible, ms> = isCompatibleBinaryLibrary(tm, ms);
                 incompatibleNames = [ getModuleNameFromAnyLogical(imod) | MODID imod <- incompatible ];
