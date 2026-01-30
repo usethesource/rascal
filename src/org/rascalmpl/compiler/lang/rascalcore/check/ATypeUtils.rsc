@@ -24,17 +24,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-@license{
-  Copyright (c) 2009-2015 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
-@contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
@@ -366,7 +355,7 @@ AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters
 AType symbol2atype1(Symbol::sort(str name)) = aadt(name, [], contextFreeSyntax());
 AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
 AType symbol2atype1(Symbol::keywords(str name)) = aadt(name, [], keywordSyntax());
-AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
+AType symbol2atype1(Symbol::layouts(str name)) = aadt(name, [], layoutSyntax());
 
 AType symbol2atype1(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) =
     aadt(name, symbol2atype(parameters), contextFreeSyntax());

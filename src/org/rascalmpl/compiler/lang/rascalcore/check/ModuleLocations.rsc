@@ -57,6 +57,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;

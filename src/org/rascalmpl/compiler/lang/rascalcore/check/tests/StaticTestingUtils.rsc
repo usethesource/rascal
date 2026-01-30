@@ -189,7 +189,7 @@ bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting(
 }
 
 bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, ModuleStatus ms){
-	<found, pt, ms> = getModuleParseTree(moduleName, ms);
+	<found, pt, ms> = getModuleParseTree(moduleName2moduleId(moduleName), ms);
 	map[str,list[loc]] names = ();
 	top-down-break visit(pt){
 		case Name nm:
@@ -217,7 +217,7 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 			potentialDefs = foundUseDefs[occ[u]];
 			// We us containement here, give how the type chcker works at the moment.
 			// An equality test would be better.
-			if(isEmpty(potentialDefs) || !any(d <- potentialDefs, isContainedIn(occ[def], d))){
+			if(isEmpty(potentialDefs) || !any(d <- potentialDefs, isContainedIn(occ[def], d, tm.logical2physical))){
 				throw "Missing def for use <u> of <v>";
 			}
 		 }
