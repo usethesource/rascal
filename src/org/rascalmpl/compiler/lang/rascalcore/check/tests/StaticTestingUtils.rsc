@@ -46,7 +46,7 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
 
-extend analysis::typepal::Collector;
+extend analysis::typepal::Collector; // for private isContainedIn
 
 bool verbose = false;
 
