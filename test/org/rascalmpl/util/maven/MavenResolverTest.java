@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils.Null;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -121,7 +123,7 @@ public class MavenResolverTest extends AbstractMavenTest {
     }
 
     @Test
-    public void multiModulePomsWork() throws ModelResolutionError {
+    public void multiModulePomsWorkWithSiblings() throws ModelResolutionError {
         var parser = createParser("multi-module/example-ide/pom.xml");
         var project = parser.parseProject();
         var resolved = project.resolveDependencies(Scope.COMPILE, parser);
@@ -135,45 +137,17 @@ public class MavenResolverTest extends AbstractMavenTest {
 
         var maybeCoreLink = locate(resolved, "example-core");
 
+        assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
         assertEquals(maybeCoreLink.get().getCoordinate().getGroupId(), "org.rascalmpl");
         assertEquals(maybeCoreLink.get().getCoordinate().getVersion(), "1.0.0-SNAPSHOT");
-        
-        assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
-        assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
-        String message = maybeCoreLink.get().getMessages().get(0).toString();
-        assertTrue("example-core should have a warning message", message.contains("No downloading & updating logic of SNAPSHOTs yet"));
-        assertTrue("example-core message should have origin information", message.contains("<20,17>"));
-    }
+        assertNotNull("example-core should resolved to a path", maybeCoreLink.get().getResolved());
+        assertTrue("example-core should not have messages", maybeCoreLink.get().getMessages().isEmpty());
 
-    @Test 
-    // this tests the problems associated with #2614
-    public void testMultiModuleDependencyResolution() throws ModelResolutionError {
-        var messages = IRascalValueFactory.getInstance().listWriter();
-        var path = getPomsPath("multi-module/example-ide/pom.xml");
-        var mavenParser = new MavenParser(path);
-        var rootProject = mavenParser.parseProject();
-        messages.appendAll(rootProject.getMessages());
-        
-        // these four asserts were _not_ failing for #2614, but we need them to be
-        // like this for the test to be in the right state for triggering the issue.
-        assertTrue(messages.done().isEmpty());
-        assertEquals(rootProject.getCoordinate().getArtifactId(), "example-ide");
-        assertEquals(rootProject.getCoordinate().getGroupId(), "org.rascalmpl");
-        assertEquals(rootProject.getCoordinate().getVersion(), "1.0.0-SNAPSHOT");
 
-        // depending on how many errors are propagated in #2615 scenario, and the amount
-        // of fixing of error propagation and NULL propagation, this
-        // code either fails completely to resolve any dependencies and produces an empty list,
-        // or it continues with errors and throws an NPE, or it continues and collect errors
-        // where there should not be. The main reason is that the _parent_ of example-ide
-        // is a SNAPSHOT and the SNAPSHOT is not even tried to be resolved.
-        var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
-        // there are two local dependencies, which each may have many dependencies of their own.
-        assertTrue(result.size() >= 2);       
-
-        for (var a : result) {
-            assertTrue(a.getMessages().toString(), a.getMessages().isEmpty());
-        } 
+        // we should also have gotten dependencies that example-core has
+        var maybeJline3Reader = locate(resolved, "jline-reader");
+        assertTrue("jline3 should be found as a dependency", maybeJline3Reader.isPresent());
+        assertNotNull("jline3 should be resolved to a path", maybeJline3Reader.get().getResolved());
     }
 
     @Test
