@@ -231,7 +231,6 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             ms.status[moduleId] += {tpl_uptodate(), checked(), tpl_saved()}; //TODO: maybe check existence of generated java files
             ms.moduleLocs += (moduleName2moduleId(mname) : tm.moduleLocs[mname] | mname <- tm.moduleLocs); // TODO: or not?
             ms.paths += tm.paths;
-            // ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[moduleId] += module_dependencies_extracted();
             ms.messages[moduleId] ? {} += toSet(tm.messages);
             for(<imp, _> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
@@ -250,14 +249,14 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     if(success){
         <ms, imports_and_extends> = getModulePaths(pt, ms);
 
-        for(<_, kind, imp> <- imports_and_extends, rsc_not_found() notin ms.status[imp]){
+        for(<_, _, imp> <- imports_and_extends, rsc_not_found() notin ms.status[imp]){
             ms = getImportAndExtendGraph(imp, ms);
         }
     } else {
          ms.status[moduleId] += rsc_not_found();
     }
 
-    return ms;
+    return completeModuleStatus(ms);
 }
 
 ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
