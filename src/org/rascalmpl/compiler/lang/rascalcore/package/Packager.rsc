@@ -32,7 +32,10 @@ import ValueIO;
 import ParseTree;
 import util::Reflective;
 import Location;
-import lang::rascalcore::check::LogicalLocations;
+//import lang::rascalcore::check::LogicalLocations;
+
+bool isRascalLogicalLoc(loc l)      // TODO: duplicated code from LogicalLocations; temporary fix
+    = startsWith(l.scheme, "rascal+");
 
 void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
