@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     private final Pattern emptyAuthorityPathPattern = Pattern.compile("^\\w+:/\\w+[^/]");
     private final IDEServices services;
     private final ExecutorService ownExecutor;
+    private final ISourceLocation promptLocation;
     private final ColumnMaps columns;
     private int lineBase = 1;   // Default in DAP
     private int columnBase = 1; // Default in DAP
@@ -109,11 +111,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     public static final ISourceLocation DEBUGGER_LOC = URIUtil.rootLocation("debugger");
 
 
-    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool) {
+    public RascalDebugAdapter(DebugHandler debugHandler, Evaluator evaluator, IDEServices services, ExecutorService threadPool, ISourceLocation promptLocation) {
         this.debugHandler = debugHandler;
         this.evaluator = evaluator;
         this.services = services;
         this.ownExecutor = threadPool;
+        this.promptLocation = promptLocation;
         this.suspendedState = new SuspendedState(evaluator, services);
         this.breakpointsCollection = new BreakpointsCollection(debugHandler);
 
@@ -152,12 +155,20 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
             Capabilities capabilities = new Capabilities();
 
             capabilities.setSupportsConfigurationDoneRequest(true);
-            capabilities.setExceptionBreakpointFilters(new ExceptionBreakpointsFilter[]{});
             capabilities.setSupportsStepBack(false);
             capabilities.setSupportsRestartFrame(false);
             capabilities.setSupportsSetVariable(false);
             capabilities.setSupportsRestartRequest(false);
             capabilities.setSupportsCompletionsRequest(true);
+            capabilities.setSupportsConditionalBreakpoints(true);
+
+            ExceptionBreakpointsFilter[] exceptionFilters = new ExceptionBreakpointsFilter[1];
+            ExceptionBreakpointsFilter exFilter = new ExceptionBreakpointsFilter();
+            exFilter.setFilter("rascalExceptions");
+            exFilter.setLabel("Rascal Exceptions");
+            exFilter.setDescription("Break when a Rascal exception is thrown");
+            exceptionFilters[0] = exFilter;
+            capabilities.setExceptionBreakpointFilters(exceptionFilters);
 
             return capabilities;
         }, ownExecutor);
@@ -208,7 +219,12 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
                 ITree treeBreakableLocation = locateBreakableTree(parseTree, breakpoint.getLine());
                 if(treeBreakableLocation != null) {
                     ISourceLocation breakableLocation = TreeAdapter.getLocation(treeBreakableLocation);
-                    breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    if(breakpoint.getCondition() != null){
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource(), breakpoint.getCondition());
+                    }
+                    else {
+                        breakpointsCollection.addBreakpoint(breakableLocation, args.getSource());
+                    }
                 }
                 Breakpoint b = new Breakpoint();
                 b.setId(i);
@@ -291,6 +307,16 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
     }
 
     @Override
+    public CompletableFuture<SetExceptionBreakpointsResponse> setExceptionBreakpoints(SetExceptionBreakpointsArguments args) {
+		return CompletableFuture.supplyAsync(() -> {
+            SetExceptionBreakpointsResponse response = new SetExceptionBreakpointsResponse();
+            debugHandler.setSuspendOnException(Arrays.stream(args.getFilters()).anyMatch("rascalExceptions"::equals));
+            response.setBreakpoints(new Breakpoint[0]);
+            return response;
+        }, ownExecutor);
+	}
+
+    @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         client.initialized();
 
@@ -369,7 +395,7 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         StackFrame frame = new StackFrame();
         frame.setId(id);
         frame.setName(name);
-        if(loc != null){
+        if(loc != null && !loc.getScheme().equals(promptLocation.getScheme())) {
             var offsets = columns.get(loc);
             var line = shiftLine(loc.getBeginLine());
             var column = shiftColumn(offsets.translateColumn(loc.getBeginLine(), loc.getBeginColumn(), false));
