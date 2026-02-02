@@ -768,24 +768,33 @@ public class URIResolverRegistry {
 	 * when a source folder or file can not be read
 	 */
 	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
-		if (isFile(source)) {
+		var sourceResolved = safeResolve(source);
+		var targetResolved = safeResolve(target);
+		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
+			var commonResolver = getOutputResolver(sourceResolved.getScheme());
+			if (commonResolver != null && commonResolver.supportsLocalCopy()) {
+				commonResolver.localCopy(sourceResolved, targetResolved, recursive, overwrite);
+				return;
+			}
+		}
+		if (isFile(sourceResolved)) {
 			copyFile(source, target, overwrite);
 		}
 		else {
-			if (exists(target) && !isDirectory(target)) {
+			if (exists(targetResolved) && !isDirectory(targetResolved)) {
 				if (overwrite) {
-					remove(target, false);
+					remove(targetResolved, false);
 				}
 				else {
 					throw new IOException("can not make directory because file exists: " + target);
 				}
 			}
 			
-			mkDirectory(target);
+			mkDirectory(targetResolved);
 
-			for (String elem : URIResolverRegistry.getInstance().listEntries(source)) {
-				ISourceLocation srcChild = URIUtil.getChildLocation(source, elem);
-				ISourceLocation targetChild = URIUtil.getChildLocation(target, elem);
+			for (String elem : URIResolverRegistry.getInstance().listEntries(sourceResolved)) {
+				ISourceLocation srcChild = URIUtil.getChildLocation(sourceResolved, elem);
+				ISourceLocation targetChild = URIUtil.getChildLocation(targetResolved, elem);
 
 				if (isFile(srcChild) || recursive) {
 					copy(srcChild, targetChild, recursive, overwrite);

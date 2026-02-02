@@ -26,9 +26,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -37,6 +40,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileAttributes;
@@ -263,6 +268,55 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		}
 		throw new IOException("uri has no path: " + uri);
 	}
+
+	@Override
+	public boolean supportsLocalCopy() {
+		return true;
+	}
+
+	@Override
+	public void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+		throws IOException {
+		var src = resolveToFile(from).toPath();
+		var dst = resolveToFile(to).toPath();
+
+		if (Files.isDirectory(src)) {
+			try (Stream<Path> files = Files.walk(src, recursive ? Integer.MAX_VALUE : 1)) {
+				var failures = files.map(source -> {
+						try {
+							var target = dst.resolve(src.relativize(source));
+							if (Files.isDirectory(source)) {
+								Files.createDirectories(dst);
+							}
+							else {
+								copyFile(source, target, overwrite);
+							}
+							return null;
+						} catch (IOException ex) {
+							return ex;
+						}
+					})
+					.filter(Objects::nonNull)
+					.collect(Collectors.toList());
+				if (!failures.isEmpty()) {
+					throw failures.get(0);
+				}
+			}
+		}
+		else {
+			copyFile(src, dst, overwrite);
+		}
+	}
+
+	private static void copyFile(Path source, Path dest, boolean overwrite) throws IOException {
+		if (overwrite) {
+			Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+		}
+		else {
+			Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES);
+		}
+	}
+
 
 	private final ExecutorService watcherPool = DaemonThreadPool.buildConstrainedCached("file:///-watch-handler", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 	

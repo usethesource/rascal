@@ -44,4 +44,14 @@ public interface ISourceLocationOutput {
 	void setLastModified(ISourceLocation uri, long timestamp) throws IOException;
 
 	boolean isWritable(ISourceLocation uri) throws IOException;
+
+	default boolean supportsLocalCopy() {
+		return false;
+	}
+	/**
+	 * Copy a file or directory where the source and target are both in the same scheme
+	 */
+	default void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite) throws IOException {
+		throw new UnsupportedOperationException("The " + scheme() + " scheme does not support local copy.");
+	}
 }
