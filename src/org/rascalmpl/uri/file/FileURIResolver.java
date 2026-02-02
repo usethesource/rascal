@@ -27,10 +27,13 @@ import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
@@ -43,6 +46,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -279,44 +283,28 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		throws IOException {
 		var src = resolveToFile(from).toPath();
 		var dst = resolveToFile(to).toPath();
-
-		if (Files.isDirectory(src)) {
-			try (Stream<Path> files = Files.walk(src, recursive ? Integer.MAX_VALUE : 1)) {
-				var failures = files.map(source -> {
-						try {
-							var target = dst.resolve(src.relativize(source));
-							if (Files.isDirectory(source)) {
-								Files.createDirectories(dst);
-							}
-							else {
-								copyFile(source, target, overwrite);
-							}
-							return null;
-						} catch (IOException ex) {
-							return ex;
-						}
-					})
-					.filter(Objects::nonNull)
-					.collect(Collectors.toList());
-				if (!failures.isEmpty()) {
-					throw failures.get(0);
-				}
+		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
+			private Path calculateDestination(Path cur) {
+				return dst.resolve(src.relativize(cur));
 			}
-		}
-		else {
-			copyFile(src, dst, overwrite);
-		}
-	}
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				Files.createDirectories(calculateDestination(dir));
+				return (dir.equals(src) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SIBLINGS;
+			}
 
-	private static void copyFile(Path source, Path dest, boolean overwrite) throws IOException {
-		if (overwrite) {
-			Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-		}
-		else {
-			Files.copy(source, dest, StandardCopyOption.COPY_ATTRIBUTES);
-		}
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				if (overwrite) {
+					Files.copy(file, calculateDestination(file), StandardCopyOption.REPLACE_EXISTING);
+				}
+				else {
+					Files.copy(file, calculateDestination(file));
+				}
+				return super.visitFile(file, attrs);
+			}
+		});
 	}
-
 
 	private final ExecutorService watcherPool = DaemonThreadPool.buildConstrainedCached("file:///-watch-handler", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 	
