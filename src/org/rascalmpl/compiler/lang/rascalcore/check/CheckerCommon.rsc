@@ -290,7 +290,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
 loc getRascalModuleLocation(MODID moduleId, ModuleStatus ms){
     if(moduleId in ms.moduleLocs){
         loc l = ms.moduleLocs[moduleId];
-        if(!isLogicalLoc(l)) return l;
+        if(!isRascalLogicalLoc(l)) return l;
     }
     return getRascalModuleLocation(moduleId2moduleName(moduleId), ms.pathConfig);
 }
