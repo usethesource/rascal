@@ -95,6 +95,8 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
     
+    Symbol _nl = #[\n].symbol;
+    Symbol notNl = #![\n].symbol;
     
     switch (<delabel(p), args>) {
         // nothing should not produce additional spaces
@@ -227,7 +229,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // We remove all layout node positions to make the number of children predictable
         // Comments can be recovered by `layoutDiff`. By not recursing into layout
         // positions `toBox` becomes more than twice as fast.
-        case <prod(layouts(_), _, _), list[Tree] _>:
+        case <prod(layouts(_), _, _), list[Tree] _content>:
             return NULL();
 
         // lexicals are never split in pieces
@@ -262,7 +264,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
-        case <prod(sort(/[stm]/), [*Symbol pre, lit(_), *Symbol _, lit(_)], _), list[Tree] elements>:
+        case <prod(sort(/[stm]/), [*Symbol pre, _op:lit(_), *Symbol _bl, _cl:lit(_)], _), list[Tree] elements>:
             return V([
                 H([*[toBox(p, opts=opts) | Tree p <- elements[0..size(pre)]], toBox(elements[size(pre)], opts=opts)]),
                 I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),

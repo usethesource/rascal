@@ -27,15 +27,16 @@
 package org.rascalmpl.ideservices;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.StringReader;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.util.base64.StreamingBase64;
-import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +60,8 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.type.Type;
@@ -71,8 +74,8 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class GsonUtils {
     private static final JsonValueWriter writer = new JsonValueWriter();
-    private static final JsonValueReader reader = new JsonValueReader(IRascalValueFactory.getInstance(), new TypeStore(), new NullRascalMonitor(), null);
     private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     
     private static final List<TypeMapping> typeMappings;
 
@@ -80,7 +83,7 @@ public class GsonUtils {
      * Subtypes should be declared before their supertypes; e.g., `Number` and `Value` appear last.
      */
     static {
-        writer.setDatesAsInt(true);
+        writer.setRationalsAsString(true);
         typeMappings = List.of(
             new TypeMapping(IBool.class, tf.boolType()),
             new TypeMapping(ICollection.class), // IList, IMap, ISet
@@ -100,9 +103,26 @@ public class GsonUtils {
     }
 
     public static enum ComplexTypeMode {
+        /**
+         * Complex values are serialized as JSON objects. Automatic deserialization is only supported for primitive types (`bool`,
+         * `datetime`, `int`, `rat`, `real`, `loc`, `str`, `num`); more complex types cannot be automatically deserialized as
+         * the type is not available at deserialization time.
+         */
         ENCODE_AS_JSON_OBJECT,
+
+        /**
+         * Complex values are serialized as a Base64-encoded string. A properly filled {@link TypeStore} is required for deserialization.
+         */
         ENCODE_AS_BASE64_STRING,
+
+        /**
+         * Complex values are serialized as a string. A properly filled {@link TypeStore} is required for deserialization.
+         */
         ENCODE_AS_STRING,
+
+        /**
+         * Only values of primitive type are supported; more complex values are neither serialized nor deserialized.
+         */
         NOT_SUPPORTED
     }
 
@@ -129,35 +149,19 @@ public class GsonUtils {
             return clazz.isAssignableFrom(incoming);
         }
 
-        public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode) {
+        public <T> TypeAdapter<T> createAdapter(ComplexTypeMode complexTypeMode, TypeStore ts) {
+            var reader = new JsonValueReader(vf, ts, new NullRascalMonitor(), null);
             if (isPrimitive) {
                 return new TypeAdapter<T>() {
                     @Override
                     public void write(JsonWriter out, T value) throws IOException {
-                        var needsWrapping = needsWrapping(type, complexTypeMode);
-                        if (needsWrapping) {
-                            out.beginObject();
-                            out.name("val");
-                        }
                         writer.write(out, (IValue) value);
-                        if (needsWrapping) {
-                            out.endObject();
-                        }
                     }
 
                     @SuppressWarnings("unchecked")
                     @Override
                     public T read(JsonReader in) throws IOException {
-                        var needsWrapping = needsWrapping(type, complexTypeMode);
-                        if (needsWrapping) {
-                            in.beginObject();
-                            in.nextName();
-                        }
-                        var ret = (T) reader.read(in, type);
-                        if (needsWrapping) {
-                            in.endObject();
-                        }
-                        return ret;
+                        return (T) reader.read(in, type);
                     }
                 };
             }
@@ -166,15 +170,7 @@ public class GsonUtils {
                 public void write(JsonWriter out, T value) throws IOException {
                     switch (complexTypeMode) {
                         case ENCODE_AS_JSON_OBJECT:
-                            var needsWrapping = needsWrapping(type, complexTypeMode);
-                            if (needsWrapping) {
-                                out.beginObject();
-                                out.name("val");
-                            }
                             writer.write(out, (IValue) value);
-                            if (needsWrapping) {
-                                out.endObject();
-                            }
                             break;
                         case ENCODE_AS_BASE64_STRING:
                             out.value(base64Encode((IValue) value));
@@ -189,29 +185,81 @@ public class GsonUtils {
                     }
                 }
 
+                @SuppressWarnings("unchecked")
                 @Override
                 public T read(JsonReader in) throws IOException {
-                    throw new IOException("Cannot handle complex type");
+                    switch (complexTypeMode) {
+                        case ENCODE_AS_BASE64_STRING:
+                            return base64Decode(in.nextString(), ts);
+                        case ENCODE_AS_STRING:
+                            return (T) new StandardTextReader().read(vf, ts, tf.valueType(), new StringReader(in.nextString()));
+                        default:
+                            throw new IOException("Cannot handle complex type");
+                    }
                 }
             };
         }
     }
-    
+
     /**
-     * IValues that are encoded as a (JSON) list need to be wrapped in an object to avoid Gson accidentally unpacking the list
-     * @param type
-     * @param complexTypeMode
-     * @return whether or not wrapping is required 
+     * Configure Gson to encode complex (non-primitive) values as JSON objects.
+     * 
+     * See {@link ComplexTypeMode.ENCODE_AS_JSON_OBJECT}.
      */
-    private static boolean needsWrapping(Type type, ComplexTypeMode complexTypeMode) {
-        return complexTypeMode == ComplexTypeMode.ENCODE_AS_JSON_OBJECT && type == null || type.isSubtypeOf(tf.rationalType());
+    public static Consumer<GsonBuilder> complexAsJsonObject() {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_JSON_OBJECT, new TypeStore());
     }
 
-    public static void configureGson(GsonBuilder builder) {
-        configureGson(builder, ComplexTypeMode.ENCODE_AS_JSON_OBJECT);
+    /**
+     * Configure Gson to encode complex (non-primitive) values as Base64-encoded strings.
+     * 
+     * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
+     */
+    public static Consumer<GsonBuilder> complexAsBase64String() {
+        return complexAsBase64String(new TypeStore());
     }
 
-    public static void configureGson(GsonBuilder builder, ComplexTypeMode complexTypeMode) {
+    /**
+     * Configure Gson to encode complex (non-primitive) values as Base64-encoded strings.
+     * 
+     * This configuration can be used for both serialization and deserialization.
+     * 
+     * @param ts The {@link TypeStore} to be used during deserialization.
+     */
+    public static Consumer<GsonBuilder> complexAsBase64String(TypeStore ts) {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_BASE64_STRING, ts);
+    }
+
+    /**
+     * Configure Gson to encode complex (non-primitive) values as plain strings.
+     * 
+     * This configurtion should only be used for serialization; deserialization requires a {@link TypeStore).
+     */
+    public static Consumer<GsonBuilder> complexAsString() {
+        return complexAsString(new TypeStore());
+    }
+
+    /**
+     * Configure Gson to encode complex (non-primitive) values as plain strings.
+     * 
+     * This configuration can be used for both serialization and deserialization.
+     * 
+     * @param ts The {@link TypeStore} to be used during deserialization.
+     */
+    public static Consumer<GsonBuilder> complexAsString(TypeStore ts) {
+        return builder -> configureGson(builder, ComplexTypeMode.ENCODE_AS_STRING, ts);
+    }
+
+    /**
+     * Configure Gson to encode encode primitive values only. Complex values raise an exception.
+     * 
+     * @param builder The {@link GsonBuilder} to be configured.
+     */
+    public static Consumer<GsonBuilder> noComplexTypes() {
+        return builder -> configureGson(builder, ComplexTypeMode.NOT_SUPPORTED, new TypeStore());
+    }
+
+    public static void configureGson(GsonBuilder builder, ComplexTypeMode complexTypeMode, TypeStore ts) {
         builder.registerTypeAdapterFactory(new TypeAdapterFactory() {
             @Override
             public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -222,7 +270,7 @@ public class GsonUtils {
                 return typeMappings.stream()
                     .filter(m -> m.supports(rawType))
                     .findFirst()
-                    .map(m -> m.<T>createAdapter(complexTypeMode))
+                    .map(m -> m.<T>createAdapter(complexTypeMode, ts))
                     .orElse(null);
             }
         });
@@ -231,7 +279,7 @@ public class GsonUtils {
     public static String base64Encode(IValue value) {
         var builder = new StringBuilder();
         try (var encoder = StreamingBase64.encode(builder);
-             var out = new IValueOutputStream(encoder, IRascalValueFactory.getInstance())) {
+             var out = new IValueOutputStream(encoder, vf)) {
             out.write(value);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -242,7 +290,7 @@ public class GsonUtils {
     @SuppressWarnings("unchecked")
     public static <T extends IValue> T base64Decode(String string, TypeStore ts) {
         try (var decoder = StreamingBase64.decode(string);
-             var in = new IValueInputStream(decoder, IRascalValueFactory.getInstance(), () -> ts)) {
+             var in = new IValueInputStream(decoder, vf, () -> ts)) {
             return (T) in.read();
         } catch (IOException e) {
             throw new RuntimeException(e);

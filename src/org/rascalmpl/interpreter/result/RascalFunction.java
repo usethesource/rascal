@@ -369,6 +369,9 @@ public class RascalFunction extends NamedFunction {
             if (eval.getCallTracing()) {
                 printExcept(e);
             }
+            if(e instanceof Exception){
+                eval.notifyAboutSuspensionException((Exception)e); // Force call here so we do not loose the current env
+            }
             throw e;
         }
         finally {

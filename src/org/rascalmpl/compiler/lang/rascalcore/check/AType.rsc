@@ -232,7 +232,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
         case avalue():
             return true;
-        case p:aparameter(_, AType bnd):
+        case p:aparameter(_, _):
             return asubtypeRightTypeParam(adt, p);
     }
     fail;
@@ -428,7 +428,7 @@ bool asubtype(areified(AType s), AType b){
             return true;
         case avalue():
             return true;
-        case p: aparameter(_, AType bnd):
+        case p: aparameter(_, _):
             return asubtypeRightTypeParam(s, p);
     }
     fail;

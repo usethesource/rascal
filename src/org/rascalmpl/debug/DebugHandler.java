@@ -18,34 +18,44 @@ package org.rascalmpl.debug;
 
 import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Command;
 import org.rascalmpl.debug.IDebugMessage.Detail;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import java.util.function.Function;
-import org.rascalmpl.semantics.dynamic.Statement.For;
-import org.rascalmpl.semantics.dynamic.Statement.Switch;
-import org.rascalmpl.semantics.dynamic.Statement.Visit;
-import org.rascalmpl.semantics.dynamic.Statement.While;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+
 import io.usethesource.vallang.io.StandardTextWriter;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IValue;
@@ -56,12 +66,24 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 
 	private static final ISourceLocation DEBUGGER_PROMPT_LOCATION = URIUtil.rootLocation("debugger");
 
-	private final Set<ISourceLocation> breakpoints = new java.util.HashSet<>();
+	private final Map<ISourceLocation, String> breakpoints = new java.util.HashMap<>();
 			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
 	 */
 	private boolean suspendRequested;
+
+	private boolean suspendOnException = false;
+
+	private Exception lastExceptionHandled = null;
+
+	public boolean getSuspendOnException() {
+		return suspendOnException;
+	}
+
+	public void setSuspendOnException(boolean suspendOnException) {
+		this.suspendOnException = suspendOnException;
+	}
 
 	/**
 	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
@@ -106,11 +128,32 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation b) {
-		return breakpoints.contains(b);
+		String condition = breakpoints.get(b);
+		if(condition == null) {
+			return false;
+		}
+		if(condition.isEmpty()) {
+			return true;
+		}
+		setSuspended(true);
+		
+		try {
+			Result<IValue> condResult = this.evaluate(condition, (Environment) evaluator.getCurrentStack().lastElement()).result;
+			setSuspended(false);
+			return condResult.isTrue();
+		}
+		catch (Throwable e) {
+			setSuspended(false);
+			return false;
+		}
 	}
 	
 	private void addBreakpoint(ISourceLocation breakpointLocation) {
-		breakpoints.add(breakpointLocation);
+		breakpoints.put(breakpointLocation, "");
+	}
+
+	private void addBreakpoint(ISourceLocation breakpointLocation, String condition) {
+		breakpoints.put(breakpointLocation, condition);
 	}
 
 	private void removeBreakpoint(ISourceLocation breakpointLocation) {
@@ -142,7 +185,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	        updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
 	        getEventTrigger().fireSuspendByClientRequestEvent();			
 	        setSuspendRequested(false);
-	    } 
+	    } else if(getSuspendOnException() && runtime instanceof Evaluator && ((Evaluator) runtime).getCurrentException() != null ) {
+	        // Suspension due to exception
+			Evaluator eval = (Evaluator) runtime;
+			Exception e = eval.getCurrentException();
+			if(lastExceptionHandled != null && e == lastExceptionHandled){
+				return; // already handled this exception
+			}
+			if(handleExceptionSuspension(eval, e)){
+				lastExceptionHandled = e;
+				updateSuspensionState(getCallStackSize.getAsInt(), currentAST);
+				getEventTrigger().fireSuspendByExceptionEvent(e);
+			} else {
+				return;
+			}
+	    }
 	    else {
 	        AbstractAST location = currentAST;
 
@@ -221,7 +278,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	            break;
 	        }
 	    }
-
+		
 	    /*
 	     * Waiting until GUI triggers end of suspension.
 	     */
@@ -232,6 +289,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	            // Ignore
 	        }
 	    }
+	}
+
+	private boolean handleExceptionSuspension(Evaluator eval, Exception e) {
+		if(e instanceof Throw){
+			Throw thr = (Throw) e;
+			IValue excValue = thr.getException();
+			if(excValue.getType().isAbstractData()){
+				// We ignore suspension that happens due in standard library code for RuntimeExceptions
+				if(excValue.getType().getName().equals("RuntimeException")){
+					return !eval.getCurrentAST().getLocation().getScheme().equals("std");
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	protected AbstractAST getReferenceAST() {
@@ -248,6 +320,23 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	
 	public void setEvaluator(Evaluator evaluator) {
 	  this.evaluator = evaluator;
+	}
+
+	public Result<IValue> importModule(String command){
+		// Parse the command and check if it is an import statement
+		// The parsing code is supposed to be the same as in org.rascalmpl.interpreter.Evaluator.eval()
+		// If the parsing fail, the exceptions must be handled by the caller
+		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, DEBUGGER_PROMPT_LOCATION.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+		Command stat = new ASTBuilder().buildCommand(tree);
+        if (!stat.isImport()) {
+            return null;
+        }
+		Environment oldEnvironment = evaluator.getCurrentEnvt();
+		evaluator.setCurrentEnvt(evaluator.__getRootScope()); // For import we set the current module to the root to reload modules properly
+		Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+		evaluator.setCurrentEnvt(oldEnvironment);
+		return result;
 	}
 
 	/**
@@ -278,13 +367,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 			// Save old state
 			AbstractInterpreterEventTrigger oldTrigger = evaluator.getEventTrigger();
 			Environment oldEnvironment = evaluator.getCurrentEnvt();
+			AbstractAST oldAST = evaluator.getCurrentAST();
 			try {
 				// disable suspend triggers while evaluating expressions from the debugger
 				evaluator.removeSuspendTriggerListener(this);
 				evaluator.setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 				evaluator.setCurrentEnvt(evalEnv);
-
-				Result<IValue> result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				Result<IValue> result = importModule(command);
+				if(result == null) {
+					result = evaluator.eval(evaluator.getMonitor(), command, DEBUGGER_PROMPT_LOCATION);
+				}
 
 				ICommandOutput out = printer.outputResult((org.rascalmpl.interpreter.result.IRascalResult) result);
 				return new EvalResult(result, out);
@@ -341,6 +433,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 				evaluator.setCurrentEnvt(oldEnvironment);
 				evaluator.setEventTrigger(oldTrigger);
 				evaluator.addSuspendTriggerListener(this);
+				evaluator.setCurrentAST(oldAST);
 			}
 		}
 	}
@@ -367,14 +460,21 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	  switch (message.getSubject()) {
 
 	  case BREAKPOINT:
-	    ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
-  
 	    switch (message.getAction()) {
 	    case SET:
-	      addBreakpoint(breakpointLocation);
+		  switch (message.getDetail()) {
+			case CONDITIONAL:
+				Pair<ISourceLocation, String> payload = (Pair<ISourceLocation, String>) message.getPayload();		
+	      		addBreakpoint(payload.getFirst(), payload.getSecond());
+				break;
+			case UNKNOWN:
+	      		ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
+	      		addBreakpoint(breakpointLocation);
+		  }
 	      break;
 
 	    case DELETE:
+	      ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
 	      removeBreakpoint(breakpointLocation);
 	      break;
 	    }
