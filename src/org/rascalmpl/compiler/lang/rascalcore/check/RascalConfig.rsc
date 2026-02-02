@@ -166,7 +166,7 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // println("rascalIsAcceptableQualified: <def>, <use>");
-    assert isLogicalLoc(def): "rascalIsAcceptableQualified: <def>";
+    assert isRascalLogicalLoc(def): "rascalIsAcceptableQualified: <def>";
     path = def.path;
     i = findLast(path, "/");
     assert i >= 0: " findLast in <path> gives <i>";
@@ -534,12 +534,12 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-// bool isLogicalLoc(loc l)
+// bool isRascalLogicalLoc(loc l)
 //     = startsWith(l.scheme, "rascal+");
 
 loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
-       if(isLogicalLoc(def.defined)) return def.defined;
+       if(isRascalLogicalLoc(def.defined)) return def.defined;
        moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
