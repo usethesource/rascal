@@ -52,7 +52,7 @@ test bool packagerRewritesTModelsCorrectly () {
     originalBin = tplRoot + "rascal-lib";
     rewrittenBin = tplRoot + "rascal-lib-rewritten";
     rascalLibPcfg =
-        pathConfig(srcs = [|mvn://org.rascalmpl--rascal--0.41.0/|], 
+        pathConfig(srcs = [|mvn://org.rascalmpl--rascal--0.41.0-RC15/|], 
                    bin  = originalBin);
     runChecker(rascalLibPcfg, ["List"]);
     assert validateTModels(rascalLibPcfg.bin) : "Tpls before packager are not correct";
