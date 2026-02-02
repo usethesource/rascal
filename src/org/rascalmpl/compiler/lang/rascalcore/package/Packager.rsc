@@ -32,6 +32,7 @@ import ValueIO;
 import ParseTree;
 import util::Reflective;
 import Location;
+import String;
 //import lang::rascalcore::check::LogicalLocations;
 
 bool isRascalLogicalLoc(loc l)      // TODO: duplicated code from LogicalLocations; temporary fix
