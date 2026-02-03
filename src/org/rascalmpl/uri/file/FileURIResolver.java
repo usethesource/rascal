@@ -278,11 +278,22 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		return true;
 	}
 
+
+
 	@Override
 	public void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
 		throws IOException {
 		var src = resolveToFile(from).toPath();
 		var dst = resolveToFile(to).toPath();
+
+		var createOptions = overwrite 
+			? new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING }
+			: new OpenOption[] { StandardOpenOption.CREATE_NEW };
+		
+		var copyOptions = overwrite
+			? new CopyOption[] {StandardCopyOption.REPLACE_EXISTING}
+			: new CopyOption[] {}
+			;
 		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
 			private Path calculateDestination(Path cur) {
 				return dst.resolve(src.relativize(cur));
@@ -295,11 +306,20 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (overwrite) {
-					Files.copy(file, calculateDestination(file), StandardCopyOption.REPLACE_EXISTING);
+				var dest = calculateDestination(file);
+				Files.createDirectories(dest.getParent());
+				if (attrs.size() < 16 * 1024) {
+					// there is a certain cost of copying small files going via the file system
+					// as the `Files.copy` also does a lot of checks around attributes etc
+					// so instead we use simple open streams for these smaller files
+					try (var in = Files.newInputStream(file)) {
+						try (var out = Files.newOutputStream(dest,  createOptions)) {
+							in.transferTo(out);
+						}
+					}
 				}
 				else {
-					Files.copy(file, calculateDestination(file));
+					Files.copy(file, dest, copyOptions);
 				}
 				return super.visitFile(file, attrs);
 			}
