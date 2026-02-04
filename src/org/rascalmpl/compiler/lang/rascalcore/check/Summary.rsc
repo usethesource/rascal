@@ -171,10 +171,10 @@ str getSynopsis(str docContents){
 
 ModuleSummary example1() {
     pcfg = pathConfig(
-            srcs=[|std:///|], 
-            bin = |project://rascal-core/target/test-classes|,
-            generatedSources = |project://rascal-core/target/generated-test-sources|,
-            generatedResources = |project://rascal-core/target/generated-test-resources|,
+            srcs=[|project://rascal|], 
+            bin = |target://rascal|,
+            generatedSources = |project://rascal/target/generated-test-sources|,
+            generatedResources = |project://rascal/target/generated-test-resources|,
             libs = []);
     return makeSummary("Boolean", pcfg);
 }
@@ -186,14 +186,19 @@ value main(){
 
 // Simple sanity tests. Any change in Boolean.rsc will break these tests.
 test bool synopsis1()
-    = example1().synopses[ |project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1538,254,<80,0>,<94,1>)] == "Convert Boolean value to string.";
+    = bprintln(example1().synopses) && example1().synopses[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1618,268,<80,0>,<94,1>))] == "Convert Boolean value to string.";
 
 test bool vocabulary1()
-    = example1().vocabulary == {"Boolean","toString","toInt","toReal","fromString","arbBool"};
+    = example1().vocabulary ==
+        {"SchemeNotSupported","sentence","ArithmeticException","IO","message","first","MalFormedURI","toReal","classpath","Timeout","JavaCompilation","b","Java","InvalidUseOfDateTime","Boolean",
+         "IndexOutOfBounds","nonterminal","cause","cls","PermissionDenied","StackOverflow","NoParent","name","EmptyList","uri","toString","JavaException","IllegalTypeArgument","Ambiguity","Exception",
+         "NotImplemented","EmptyMap","MultipleKey","index","NoMainFunction","NoSuchField","IllegalArgument","s","DateTimeParsingError","locs","second","InvalidUseOfTime","NoSuchElement","label","toInt",
+         "PathNotFound","line","InvalidURI","InvalidUseOfDate","ParseError","location","EmptySet","v","arguments","column","NoSuchAnnotation","NoSuchKey","RuntimeException","class","ImplodeError",
+         "DateTimePrintingError","source","arbBool","ModuleNotFound","CallFailed","fromString","UnavailableInformation","InvalidUseOfLocation","RegExpSyntaxError","AssertionFailed","key"};
 
 test bool usedef1() 
-    = example1().useDef[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(935,1,<39,6>,<39,7>)] 
-      == {|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(923,1,<37,27>,<37,28>)};
+    = example1().useDef[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(974,1,<39,6>,<39,7>))] 
+      == {resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(960,1,<37,27>,<37,28>))};
 
 test bool locationTypes1()
-    = example1().locationTypes[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1023,48,<45,8>,<45,56>)] == "RuntimeException";
+    = example1().locationTypes[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1068,48,<45,8>,<45,56>))] == "RuntimeException";
