@@ -267,7 +267,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	}
 
 	@Override
-	public boolean supportsLocalCopy() {
+	public boolean supportsCopy() {
 		return true;
 	}
 

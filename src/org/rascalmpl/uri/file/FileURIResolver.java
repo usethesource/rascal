@@ -274,7 +274,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	}
 
 	@Override
-	public boolean supportsLocalCopy() {
+	public boolean supportsCopy() {
 		return true;
 	}
 

@@ -45,7 +45,7 @@ public interface ISourceLocationOutput {
 
 	boolean isWritable(ISourceLocation uri) throws IOException;
 
-	default boolean supportsLocalCopy() {
+	default boolean supportsCopy() {
 		return false;
 	}
 	/**

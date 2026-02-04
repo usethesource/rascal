@@ -772,7 +772,7 @@ public class URIResolverRegistry {
 		var targetResolved = safeResolve(target);
 		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
 			var commonResolver = getOutputResolver(sourceResolved.getScheme());
-			if (commonResolver != null && commonResolver.supportsLocalCopy()) {
+			if (commonResolver != null && commonResolver.supportsCopy()) {
 				commonResolver.copy(sourceResolved, targetResolved, recursive, overwrite);
 				return;
 			}
