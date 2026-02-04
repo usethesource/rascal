@@ -21,12 +21,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.fs.FSEntry;
 import org.rascalmpl.uri.fs.FileSystemTree;
 
@@ -86,6 +88,14 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 				newTimestamp = getLastModified() + 1;
 			}
 			return new MemoryEntry(getCreated(), newTimestamp, newContents);
+		}
+
+		public MemoryEntry copy() {
+			long newTimestamp = System.currentTimeMillis();
+			if (newTimestamp <= getLastModified()) {
+				newTimestamp = getLastModified() + 1;
+			}
+			return new MemoryEntry(newTimestamp, newTimestamp, contents);
 		}
 	}
 
@@ -254,6 +264,52 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 		if (ft.isEmpty()) {
 			fileSystems.remove(uri.getAuthority());
 		}
+	}
+
+	@Override
+	public boolean supportsCopy() {
+		return true;
+	}
+
+	@Override
+	public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+		throws IOException {
+		localCopy(getFS(from), from.getPath(), to, recursive, overwrite);
+	}
+
+
+	private void localCopy(FileSystemTree<MemoryEntry> sourceFS, String sourcePath, ISourceLocation to, boolean recursive, boolean overwrite) throws IOException {
+		var source = sourceFS.getEntry(sourcePath);
+		if (source.contents == null) {
+			mkDirectory(to);
+			// directory
+			for (var child: sourceFS.directChildren(sourcePath)) {
+				var childSource = FileSystemTree.joinPath(sourcePath, child);
+				var childTarget = URIUtil.getChildLocation(to, child);
+				if (sourceFS.isFile(childSource) || recursive) {
+					localCopy(sourceFS, childSource, childTarget, recursive , overwrite);
+				}
+				else {
+					mkDirectory(childTarget);
+				}
+			}
+		}
+		else {
+			copyFile(source, to, overwrite);
+		}
+
+	}
+
+	private void copyFile(MemoryEntry from, ISourceLocation to, boolean overwrite) throws IOException {
+		var target = getFS(to);
+		var toPath = to.getPath();
+		if (target.exists(toPath)) {
+			if (!overwrite) {
+				throw new FileAlreadyExistsException(toPath);
+			}
+			target.replaceFile(toPath, old -> from.copy());
+		}
+		target.addFile(toPath, from.copy(), MemoryEntry::new);
 	}
 
 }
