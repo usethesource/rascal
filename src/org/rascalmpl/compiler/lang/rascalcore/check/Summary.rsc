@@ -36,6 +36,7 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::Import;
 import analysis::typepal::TModel;
+import analysis::typepal::ConvertTModel;
 
 import util::Reflective;
 
@@ -75,6 +76,9 @@ private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
     
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
+    if (!tm.usesPhysicalLocs) {
+        tm = convertTModel2PhysicalLocs(tm);
+    }
     // Extract @doc and @synopsis tags
     map[loc def, str synopsis] synopses = ();
     map[loc def, loc docloc] docLocs = ();
