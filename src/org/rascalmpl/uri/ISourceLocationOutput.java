@@ -51,7 +51,7 @@ public interface ISourceLocationOutput {
 	/**
 	 * Copy a file or directory where the source and target are both in the same scheme
 	 */
-	default void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite) throws IOException {
+	default void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite) throws IOException {
 		throw new UnsupportedOperationException("The " + scheme() + " scheme does not support local copy.");
 	}
 }

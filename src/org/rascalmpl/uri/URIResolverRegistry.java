@@ -773,7 +773,7 @@ public class URIResolverRegistry {
 		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
 			var commonResolver = getOutputResolver(sourceResolved.getScheme());
 			if (commonResolver != null && commonResolver.supportsLocalCopy()) {
-				commonResolver.localCopy(sourceResolved, targetResolved, recursive, overwrite);
+				commonResolver.copy(sourceResolved, targetResolved, recursive, overwrite);
 				return;
 			}
 		}
@@ -816,7 +816,7 @@ public class URIResolverRegistry {
 			remove(target, false);
 		}
 		
-		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
+		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target) && size(source) > 8*1024) {
 			try (FileChannel from = getReadableFileChannel(source)) {
 				try (FileChannel to = getWriteableFileChannel(target, false)) {
 					long transferred = 0;
@@ -830,11 +830,7 @@ public class URIResolverRegistry {
 
 		try (InputStream from = getInputStream(source)) {
 			try (OutputStream to = getOutputStream(target, false)) {
-				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-				int read;
-				while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-					to.write(buffer, 0, read);
-				}
+				from.transferTo(to);
 			}
 		}
 	}

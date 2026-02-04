@@ -281,7 +281,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 
 
 	@Override
-	public void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+	public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
 		throws IOException {
 		var src = resolveToFile(from).toPath();
 		var dst = resolveToFile(to).toPath();
@@ -289,11 +289,11 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		var createOptions = overwrite 
 			? new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING }
 			: new OpenOption[] { StandardOpenOption.CREATE_NEW };
+
+		var copyOptions = overwrite 
+			? new CopyOption[] { StandardCopyOption.REPLACE_EXISTING }
+			: new CopyOption[0];
 		
-		var copyOptions = overwrite
-			? new CopyOption[] {StandardCopyOption.REPLACE_EXISTING}
-			: new CopyOption[] {}
-			;
 		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
 			private Path calculateDestination(Path cur) {
 				return dst.resolve(src.relativize(cur));
@@ -301,19 +301,18 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				Files.createDirectories(calculateDestination(dir));
-				return (dir.equals(src) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SIBLINGS;
+				return (dir.equals(src) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
 			}
 
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				var dest = calculateDestination(file);
 				Files.createDirectories(dest.getParent());
-				if (attrs.size() < 16 * 1024) {
-					// there is a certain cost of copying small files going via the file system
-					// as the `Files.copy` also does a lot of checks around attributes etc
-					// so instead we use simple open streams for these smaller files
+				if (attrs.size() < 1024*1024) {
+					// Files.copy is 2x as slow for most files, unless they're big enough that the overhead
+					// of all the meta data mgmt is worth the kernel-level file-copy
 					try (var in = Files.newInputStream(file)) {
-						try (var out = Files.newOutputStream(dest,  createOptions)) {
+						try (var out = Files.newOutputStream(dest, createOptions)) {
 							in.transferTo(out);
 						}
 					}
@@ -321,7 +320,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 				else {
 					Files.copy(file, dest, copyOptions);
 				}
-				return super.visitFile(file, attrs);
+				return FileVisitResult.CONTINUE;
 			}
 		});
 	}

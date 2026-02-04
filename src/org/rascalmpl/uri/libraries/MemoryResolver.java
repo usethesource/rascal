@@ -272,7 +272,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	}
 
 	@Override
-	public void localCopy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+	public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
 		throws IOException {
 		localCopy(getFS(from), from.getPath(), to, recursive, overwrite);
 	}
@@ -284,10 +284,10 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 			mkDirectory(to);
 			// directory
 			for (var child: sourceFS.directChildren(sourcePath)) {
-				var childPath = sourcePath + "/" + child;
+				var childSource = FileSystemTree.joinPath(sourcePath, child);
 				var childTarget = URIUtil.getChildLocation(to, child);
-				if (sourceFS.isFile(childPath) || recursive) {
-					localCopy(sourceFS, sourcePath + "/" + child, childTarget, recursive , overwrite);
+				if (sourceFS.isFile(childSource) || recursive) {
+					localCopy(sourceFS, childSource, childTarget, recursive , overwrite);
 				}
 				else {
 					mkDirectory(childTarget);
