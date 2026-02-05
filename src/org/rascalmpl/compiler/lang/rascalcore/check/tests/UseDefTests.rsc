@@ -22,6 +22,15 @@ test bool fun1() =
                 int main() = f(3);", 
                 ("f": <0, {1}>)); 
 
+test bool fun2() =
+     useDefOK("module Fun2
+                int f(int n) = n;
+                int f(bool b) = 0;
+                int main1() = f(3);
+                int main2() = f(false);", 
+                ("f": [<0, {2}>, <1, {4}>])); 
+
+
 test bool formal1() =
      useDefOK("module Formal
                 int f(int n) = n;", 
@@ -52,3 +61,12 @@ test bool kwfield1() =
                 }",
                 ("n": <0, {1, 2}>)); 
 
+test bool syntaxField1() =
+    useDefOK("module SyntaxField
+                syntax C = \"c\";
+                syntax D = C c;
+                value main(){
+                    x = [D] \"c\";
+                    return x.c;
+                }",
+                ("c": <0, {1}>));
