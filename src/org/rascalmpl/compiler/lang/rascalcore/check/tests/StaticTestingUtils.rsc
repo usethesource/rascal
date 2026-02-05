@@ -37,7 +37,9 @@ module lang::rascalcore::check::tests::StaticTestingUtils
 import IO;
 import String;
 import Location;
+import Map;
 import Message;
+import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
@@ -205,6 +207,14 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	println("foundUseDefs:");
 	for(<u, d> <- foundUseDefs){
 		println("<readFile(u)>:<u> ==\> <d>");
+	}
+
+	rel[str, loc] usesOfRelevantNames = ident(domain(usedefs)) o (tm.defines<id, defined>) o (tm.useDef<1, 0>);
+	rel[str, str] defNames = usesOfRelevantNames o tm.useDef o (tm.defines<defined, id>);
+	if ({_, _, *_} := defNames<1>) {
+		println("Uses map to definitions with multiple names!");
+		iprintln(toMap(defNames));
+		return false;
 	}
 	for(str v <- usedefs){
 		 <def, uses> = usedefs[v];
