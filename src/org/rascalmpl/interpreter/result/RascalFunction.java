@@ -41,11 +41,13 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.Accumulator;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.control_exceptions.RestartFrameException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -241,147 +243,184 @@ public class RascalFunction extends NamedFunction {
         return getName() == null;
     }
 
+    private boolean handleRestartFrame(RestartFrameException rfe) {
+        // Placeholder for any additional handling needed for frame restarts
+        if(ctx instanceof Evaluator) {
+            Evaluator evaluator = (Evaluator) ctx;
+            var stackTrace = evaluator.getCurrentStack();
+            if(stackTrace.size() == 1){ // should not happen because this is the REPL frame
+                throw new ImplementationError("Cannot restart frame of the REPL");
+            }
+            if (rfe.getTargetFrameId() == stackTrace.size() -1) { // the frame to restart
+                return true; // indicate to restart the frame
+            }
+            else { // not the frame to restart, rethrow to let upper frames handle it
+                throw rfe;
+            }
+        }
+        throw new ImplementationError("Frame restart is only supported in Evaluator contexts");
+    }
+
     @Override
     public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
         Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
         if (result != null) { 
             return result;
         }
+        boolean restartFrame = true;
 
-        Environment old = ctx.getCurrentEnvt();
-        AbstractAST currentAST = ctx.getCurrentAST();
-        AbstractAST oldAST = currentAST;
-        Stack<Accumulator> oldAccus = ctx.getAccumulators();
-        Map<Type, Type> renamings = new HashMap<>();
-        Map<Type, Type> dynamicRenamings = new HashMap<>();
+        // Outer loop to handle frame restarts
+        while (restartFrame) {
+            restartFrame = false; // reset flag
+            Environment old = ctx.getCurrentEnvt();
+            AbstractAST currentAST = ctx.getCurrentAST();
+            AbstractAST oldAST = currentAST;
+            Stack<Accumulator> oldAccus = ctx.getAccumulators();
+            Map<Type, Type> renamings = new HashMap<>();
+            Map<Type, Type> dynamicRenamings = new HashMap<>();
 
-        try {
-            ctx.setCurrentAST(ast);
-            if (eval.getCallTracing()) {
-                printStartTrace(actuals);
-            }
+            try {
+                ctx.setCurrentAST(ast);
+                if (eval.getCallTracing()) {
+                    printStartTrace(actuals);
+                }
 
-            String label = isAnonymous() ? "Anonymous Function" : name;
-            Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
-            environment.markAsFunctionFrame();
-            ctx.setCurrentEnvt(environment);
+                String label = isAnonymous() ? "Anonymous Function" : name;
+                Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
+                environment.markAsFunctionFrame();
+                ctx.setCurrentEnvt(environment);
 
-            IMatchingResult[] matchers = prepareFormals(ctx);
-            ctx.setAccumulators(accumulators);
-            ctx.pushEnv();
+                IMatchingResult[] matchers = prepareFormals(ctx);
+                ctx.setAccumulators(accumulators);
+                ctx.pushEnv();
 
-            Type actualStaticTypesTuple = TF.tupleType(actualStaticTypes);
-            if (hasVarArgs) {
-                if (!mayMatch(actualStaticTypesTuple)) {
+                Type actualStaticTypesTuple = TF.tupleType(actualStaticTypes);
+                if (hasVarArgs) {
+                    if (!mayMatch(actualStaticTypesTuple)) {
+                        throw new MatchFailed();
+                    }
+                    actuals = computeVarArgsActuals(actuals, getFormals());
+                    actualStaticTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
+                }
+             
+                int size = actuals.length;
+                Environment[] olds = new Environment[size];
+                int i = 0;
+
+                if (!hasVarArgs && size != this.formals.size()) {
                     throw new MatchFailed();
                 }
-                actuals = computeVarArgsActuals(actuals, getFormals());
-                actualStaticTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
-            }
-         
-            int size = actuals.length;
-            Environment[] olds = new Environment[size];
-            int i = 0;
+                
+                actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, dynamicRenamings, environment);
 
-            if (!hasVarArgs && size != this.formals.size()) {
-                throw new MatchFailed();
-            }
-            
-            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, dynamicRenamings, environment);
-
-            if (size == 0) {
-                try {
-                    bindKeywordArgs(keyArgValues);
-//                    checkReturnTypeIsNotVoid(formals, actuals);
-                    result = runBody();
-                    result = storeMemoizedResult(actuals,keyArgValues, result);
-                    if (eval.getCallTracing()) {
-                        printEndTrace(result.getValue());
-                    }
-                    return result;
-                }
-                catch (Return e) {
-                    checkReturnTypeIsNotVoid(formals, actuals, renamings);
-                    result = computeReturn(e, renamings, dynamicRenamings);
-                    storeMemoizedResult(actuals,keyArgValues, result);
-                    return result;
-                }
-            }
-
-            matchers[0].initMatch(makeResult(actualStaticTypesTuple.getFieldType(0), actuals[0], ctx));
-            olds[0] = ctx.getCurrentEnvt();
-            ctx.pushEnv();
-
-            // pattern matching requires backtracking due to list, set and map matching and
-            // non-linear use of variables between formal parameters of a function...
-
-            while (i >= 0 && i < size) {
-                if (ctx.isInterrupted()) { 
-                    throw new InterruptException(ctx.getStackTrace(), currentAST.getLocation());
-                }
-                if (matchers[i].hasNext() && matchers[i].next()) {
-                    if (i == size - 1) {
-                        // formals are now bound by side effect of the pattern matcher
-                        try {
-                            bindKeywordArgs(keyArgValues);
-
-                            result = runBody();
-                            storeMemoizedResult(actuals, keyArgValues, result);
-                            return result;
+                if (size == 0) {
+                    try {
+                        bindKeywordArgs(keyArgValues);
+//                        checkReturnTypeIsNotVoid(formals, actuals);
+                        result = runBody();
+                        result = storeMemoizedResult(actuals,keyArgValues, result);
+                        if (eval.getCallTracing()) {
+                            printEndTrace(result.getValue());
                         }
-                        catch (Failure e) {
-                            // backtrack current pattern assignment
-                            if (!e.hasLabel() || e.hasLabel() && e.getLabel().equals(getName())) {
-                                continue;
+                        return result;
+                    }
+                    catch (Return e) {
+                        checkReturnTypeIsNotVoid(formals, actuals, renamings);
+                        result = computeReturn(e, renamings, dynamicRenamings);
+                        storeMemoizedResult(actuals,keyArgValues, result);
+                        return result;
+                    }
+                }
+
+                matchers[0].initMatch(makeResult(actualStaticTypesTuple.getFieldType(0), actuals[0], ctx));
+                olds[0] = ctx.getCurrentEnvt();
+                ctx.pushEnv();
+
+                // pattern matching requires backtracking due to list, set and map matching and
+                // non-linear use of variables between formal parameters of a function...
+
+                while (i >= 0 && i < size) {
+                    if (ctx.isInterrupted()) { 
+                        throw new InterruptException(ctx.getStackTrace(), currentAST.getLocation());
+                    }
+                    if (matchers[i].hasNext() && matchers[i].next()) {
+                        if (i == size - 1) {
+                            // formals are now bound by side effect of the pattern matcher
+                            try {
+                                bindKeywordArgs(keyArgValues);
+
+                                result = runBody();
+                                storeMemoizedResult(actuals, keyArgValues, result);
+                                return result;
                             }
-                            else {
-                                throw new UnguardedFail(getAst(), e);
+                            catch (Failure e) {
+                                // backtrack current pattern assignment
+                                if (!e.hasLabel() || e.hasLabel() && e.getLabel().equals(getName())) {
+                                    continue;
+                                }
+                                else {
+                                    throw new UnguardedFail(getAst(), e);
+                                }
                             }
                         }
-                    }
-                    else {
-                        i++;
-                        matchers[i].initMatch(makeResult(actualStaticTypesTuple.getFieldType(i), actuals[i], ctx));
-                        olds[i] = ctx.getCurrentEnvt();
+                        else {
+                            i++;
+                            matchers[i].initMatch(makeResult(actualStaticTypesTuple.getFieldType(i), actuals[i], ctx));
+                            olds[i] = ctx.getCurrentEnvt();
+                            ctx.pushEnv();
+                        }
+                    } else {
+                        ctx.unwind(olds[i]);
+                        i--;
                         ctx.pushEnv();
                     }
-                } else {
-                    ctx.unwind(olds[i]);
-                    i--;
-                    ctx.pushEnv();
                 }
-            }
 
-            // backtrack to other function body
-            throw new MatchFailed();
+                // backtrack to other function body
+                throw new MatchFailed();
+            }
+            catch (RestartFrameException rfe) {
+                // Handle frame restart at this level
+                // Restore environment state and retry execution
+                // Continue the while loop to retry the call
+                restartFrame = handleRestartFrame(rfe);
+                continue;
+            }
+            catch (Return e) {
+                checkReturnTypeIsNotVoid(formals, actuals, renamings);
+                
+                result = computeReturn(e, renamings, dynamicRenamings);
+                storeMemoizedResult(actuals, keyArgValues, result);
+                if (eval.getCallTracing()) {
+                    printEndTrace(result.getValue());
+                }
+                return result;
+            } 
+            catch (Throwable e) {
+                if (eval.getCallTracing()) {
+                    printExcept(e);
+                }
+                if(e instanceof Exception){
+                    try {
+                        eval.notifyAboutSuspensionException((Exception)e); 
+                    } catch (RestartFrameException rfe){ 
+                        // Special case to handle restart frame on the exception breakpoint
+                        restartFrame = handleRestartFrame(rfe);
+                        continue;
+                    }
+                }
+                throw e;
+            }
+            finally {
+                if (eval.getCallTracing()) {
+                    eval.decCallNesting();
+                }
+                ctx.setCurrentEnvt(old);
+                ctx.setAccumulators(oldAccus);
+                ctx.setCurrentAST(oldAST);
+            }
         }
-        catch (Return e) {
-            checkReturnTypeIsNotVoid(formals, actuals, renamings);
-            
-            result = computeReturn(e, renamings, dynamicRenamings);
-            storeMemoizedResult(actuals, keyArgValues, result);
-            if (eval.getCallTracing()) {
-                printEndTrace(result.getValue());
-            }
-            return result;
-        } 
-        catch (Throwable e) {
-            if (eval.getCallTracing()) {
-                printExcept(e);
-            }
-            if(e instanceof Exception){
-                eval.notifyAboutSuspensionException((Exception)e); // Force call here so we do not loose the current env
-            }
-            throw e;
-        }
-        finally {
-            if (eval.getCallTracing()) {
-                eval.decCallNesting();
-            }
-            ctx.setCurrentEnvt(old);
-            ctx.setAccumulators(oldAccus);
-            ctx.setCurrentAST(oldAST);
-        }
+        throw new ImplementationError("Unreachable code reached after frame restart handling");
     }
 
     private Result<IValue> runBody() {
