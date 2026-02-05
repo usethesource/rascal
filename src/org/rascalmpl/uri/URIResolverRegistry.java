@@ -723,24 +723,33 @@ public class URIResolverRegistry {
 	 * when a source folder or file can not be read
 	 */
 	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
-		if (isFile(source)) {
+		var sourceResolved = safeResolve(source);
+		var targetResolved = safeResolve(target);
+		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
+			var commonResolver = getOutputResolver(sourceResolved.getScheme());
+			if (commonResolver != null && commonResolver.supportsCopy()) {
+				commonResolver.copy(sourceResolved, targetResolved, recursive, overwrite);
+				return;
+			}
+		}
+		if (isFile(sourceResolved)) {
 			copyFile(source, target, overwrite);
 		}
 		else {
-			if (exists(target) && !isDirectory(target)) {
+			if (exists(targetResolved) && !isDirectory(targetResolved)) {
 				if (overwrite) {
-					remove(target, false);
+					remove(targetResolved, false);
 				}
 				else {
 					throw new IOException("can not make directory because file exists: " + target);
 				}
 			}
 			
-			mkDirectory(target);
+			mkDirectory(targetResolved);
 
-			for (String elem : URIResolverRegistry.getInstance().listEntries(source)) {
-				ISourceLocation srcChild = URIUtil.getChildLocation(source, elem);
-				ISourceLocation targetChild = URIUtil.getChildLocation(target, elem);
+			for (String elem : URIResolverRegistry.getInstance().listEntries(sourceResolved)) {
+				ISourceLocation srcChild = URIUtil.getChildLocation(sourceResolved, elem);
+				ISourceLocation targetChild = URIUtil.getChildLocation(targetResolved, elem);
 
 				if (isFile(srcChild) || recursive) {
 					copy(srcChild, targetChild, recursive, overwrite);
@@ -762,7 +771,7 @@ public class URIResolverRegistry {
 			remove(target, false);
 		}
 		
-		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
+		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target) && size(source) > 8*1024) {
 			try (FileChannel from = getReadableFileChannel(source)) {
 				try (FileChannel to = getWriteableFileChannel(target, false)) {
 					long transferred = 0;
@@ -776,11 +785,7 @@ public class URIResolverRegistry {
 
 		try (InputStream from = getInputStream(source)) {
 			try (OutputStream to = getOutputStream(target, false)) {
-				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-				int read;
-				while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-					to.write(buffer, 0, read);
-				}
+				from.transferTo(to);
 			}
 		}
 	}
