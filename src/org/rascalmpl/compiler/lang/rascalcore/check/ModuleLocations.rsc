@@ -32,8 +32,8 @@ import List;
 import String;
 import util::Reflective;
 import util::FileSystem;
-//import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::LogicalLocations;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
