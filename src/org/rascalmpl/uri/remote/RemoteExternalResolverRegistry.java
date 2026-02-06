@@ -41,7 +41,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
@@ -86,7 +85,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             var contents = remote.readFile(loc).get(1, TimeUnit.MINUTES);
             return new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_16));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote for `getInputStream` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote for `getInputStream` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -95,7 +94,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.exists(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `exists` on " + loc + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -104,7 +103,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.lastModified(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `lastModified` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `lastModified` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -113,7 +112,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.size(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `size` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `size` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -122,7 +121,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.isDirectory(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `isDirectory` on " + loc + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -131,7 +130,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.isFile(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `isFile` on " + loc + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -140,7 +139,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.isReadable(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `isReadable` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `isReadable` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -149,7 +148,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return Stream.of(remote.list(loc).get(1, TimeUnit.MINUTES)).map(fwt -> fwt.getName()).toArray(String[]::new);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `list` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `list` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -163,7 +162,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.stat(loc).get(1, TimeUnit.MINUTES).getFileAttributes();
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `stat` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `stat` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -189,7 +188,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             remote.mkDirectory(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `mkDirectory` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `mkDirectory` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -198,7 +197,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             remote.remove(loc, false).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `remove` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `remove` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -212,7 +211,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.isWritable(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `isWritable` on " + loc + ": " + e.getMessage());
+            throw new IOException("Error during remote `isWritable` on " + loc + ": " + e.getMessage());
         }
     }
 
@@ -221,9 +220,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             return remote.resolveLocation(input).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            System.err.println("Error during remote `resolve` on " + input + ": " + e.getMessage());
+            throw new IOException("Error during remote `resolve` on " + input + ": " + e.getMessage());
         }
-        return input;
     }
 
     @Override
@@ -231,7 +229,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         try {
             remote.watch(new WatchRequest(root, recursive, "")).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `watch` on " + root + ": " + e.getMessage());
+            throw new IOException("Could not watch `" + root + "` remotely: " + e.getMessage());
         }
     }
 
@@ -241,7 +239,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             //TODO: arguments are currently not correct
             remote.unwatch(new WatchRequest(root.toString(), true, "")).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw RuntimeExceptionFactory.io("Error during remote `unwatch` on " + root + ": " + e.getMessage());
+            throw new IOException("Could not unwatch `" + root + "` remotely: " + e.getMessage());
         }
     }
 
