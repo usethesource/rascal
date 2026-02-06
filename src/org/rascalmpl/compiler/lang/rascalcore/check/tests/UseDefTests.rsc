@@ -22,13 +22,21 @@ test bool fun1() =
                 int main() = f(3);", 
                 ("f": <0, {1}>)); 
 
-test bool fun2() =
-     useDefOK("module Fun2
-                int f(int n) = n;
+test bool fun2a() =
+     useDefOK("module Fun2a
+                int f(int n) = n; // test uses of this one
                 int f(bool b) = 0;
                 int main1() = f(3);
                 int main2() = f(false);", 
-                ("f": [<0, {2}>, <1, {4}>])); 
+                ("f": <0, {2}>)); 
+
+test bool fun2b() =
+     useDefOK("module Fun2b
+                int f(int n) = n;
+                int f(bool b) = 0;  // test uses of this one
+                int main1() = f(3);
+                int main2() = f(false);", 
+                ("f": <1, {3}>)); 
 
 
 test bool formal1() =

@@ -261,23 +261,6 @@ bool useDefOK(str moduleText, map[str, tuple[int, set[int]]] defuses, PathConfig
 	return validateUseDefs(mname, defuses, ms);
 }
 
-bool useDefOK(str moduleText, map[str, lrel[int, set[int]]] defusesList, PathConfig pathConfig = pathConfigForTesting()) {
-	<mname, mbody> = extractModuleNameAndBody(moduleText);
-	pathConfig.srcs += pathConfigForTesting().srcs;
-	mloc = writeModule(moduleText);
-	ms = rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig)[verbose=verbose], dummy_compile1);
-
-    errors = getErrorMessages(ms);
-    if(size(errors) != 0){
-    	throw abbrev("<errors>");
-	}
-	result = true;
-	for(defuses <- defusesList){
-		result = result &&  validateUseDefs(mname, defuses, ms);
-	}
-	return result;
-}
-
 // ---- unexpectedType --------------------------------------------------------
 
 list[str] unexpectedTypeMsgs = [
