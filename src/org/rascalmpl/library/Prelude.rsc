@@ -58,6 +58,6 @@ extend Node;
 extend ParseTree;
 extend Relation;
 extend Set;
-extend String; 
+extend String;
 extend Type;
-extend ValueIO;  
+extend ValueIO;
