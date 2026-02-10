@@ -171,7 +171,7 @@ public class IValueOverJsonTests {
         }
     }
 
-    private static Set<ComplexTypeMode> asJsonObjectOrNotSupported = new HashSet<>(Arrays.asList(ComplexTypeMode.ENCODE_AS_JSON_OBJECT, ComplexTypeMode.NOT_SUPPORTED));
+    private static final Set<ComplexTypeMode> asJsonObjectOrNotSupported = new HashSet<>(Arrays.asList(ComplexTypeMode.ENCODE_AS_JSON_OBJECT, ComplexTypeMode.NOT_SUPPORTED));
 
     private <T extends IValue> void runTestForPrimitiveType(String type, Supplier<T> supplier, Function<T, CompletableFuture<T>> function) {
         expectSuccessful(type, supplier, function);
