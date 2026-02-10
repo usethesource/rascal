@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -72,6 +73,7 @@ public class IValueOverJsonTests {
     private JsonRpcTestInterface testServer;
     private final PipedInputStream is0, is1;
     private final PipedOutputStream os0, os1;
+    private final ExecutorService exec = Executors.newCachedThreadPool();
 
     @Parameters(name="{0}")
     public static Iterable<Object[]> modesAndConfig() {
@@ -92,7 +94,7 @@ public class IValueOverJsonTests {
             os0 = new PipedOutputStream();
             is1 = new PipedInputStream(os0);
             os1 = new PipedOutputStream(is0);
-            new TestThread(is0, os0, gsonConfig).start();
+            new TestThread(is0, os0, gsonConfig, exec).start();
             new TestClient(is1, os1, gsonConfig);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -101,6 +103,7 @@ public class IValueOverJsonTests {
 
     @After
     public void teardown() throws IOException {
+        exec.shutdownNow();
         if (is0 != null) {
             is0.close();
         }
@@ -123,7 +126,7 @@ public class IValueOverJsonTests {
                 .setInput(is)
                 .setOutput(os)
                 .configureGson(gsonConfig)
-                .setExecutorService(Executors.newCachedThreadPool())
+                .setExecutorService(exec)
                 .create();
 
             clientLauncher.startListening();
@@ -135,11 +138,13 @@ public class IValueOverJsonTests {
         private final InputStream is;
         private final OutputStream os;
         private final Consumer<GsonBuilder> gsonConfig;
+        private final ExecutorService exec;
         
-        public TestThread(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
+        public TestThread(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig, ExecutorService exec) {
             this.is = is;
             this.os = os;
             this.gsonConfig = gsonConfig;
+            this.exec = exec;
             this.setDaemon(true);
         }
 
@@ -155,6 +160,7 @@ public class IValueOverJsonTests {
                     System.err.println(e);
                     return new ResponseError(ResponseErrorCode.InternalError, e.getMessage(), e);
                 })
+                .setExecutorService(exec)
                 .create();
 
             serverLauncher.startListening();
