@@ -103,7 +103,7 @@ public class IValueOverJsonTests {
 
     @After
     public void teardown() throws IOException {
-        exec.shutdownNow();
+        exec.shutdown();
         if (is0 != null) {
             is0.close();
         }
