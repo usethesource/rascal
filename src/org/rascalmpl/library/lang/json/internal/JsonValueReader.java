@@ -75,21 +75,34 @@ import com.google.gson.stream.MalformedJsonException;
 public class JsonValueReader {
     private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
         private final JsonReader in;
-        private int lastPos;
+        private int offset = 0;
+        private int lastPos = 0;
 
         private ExpectedTypeDispatcher(JsonReader in) {
             this.in = in;
         }
 
         /**
-         * Wrapping in.nextString for better error reporting
+         * Wrapping in.nextString and friends for better error reporting and position information
          */
         private String nextString() throws IOException {
-            // need to cache the last position before parsing the string, because
-            // when the string does not have a balancing quote the read accidentally
-            // rewinds the position to 0.
-            lastPos = getPos();
+            // lastPos = getPos();
             return in.nextString();
+        }
+
+        private int nextInt() throws IOException {
+            // lastPos = getPos();
+            return in.nextInt();
+        }
+
+        private boolean nextBoolean() throws IOException {
+            // lastPos = getPos();
+            return in.nextBoolean();
+        }
+
+        private void nextNull() throws IOException {
+            // lastPos = getPos();
+            in.nextNull();
         }
 
         /**
@@ -105,6 +118,7 @@ public class JsonValueReader {
 
         @Override
         public IValue visitInteger(Type type) throws IOException {
+            lastPos = getPos();
             try {
                 switch (in.peek()) {
                     case NUMBER:
@@ -112,7 +126,7 @@ public class JsonValueReader {
                     case STRING:
                         return vf.integer(nextString());
                     case NULL:
-                        in.nextNull();
+                        nextNull();
                         return inferNullValue(nulls, type);
                     default:
                         throw parseErrorHere("Expected integer but got " + in.peek());
@@ -125,6 +139,7 @@ public class JsonValueReader {
 
         @Override
         public IValue visitReal(Type type) throws IOException {
+            lastPos = getPos();
             try {
                 switch (in.peek()) {
                     case NUMBER:
@@ -132,7 +147,7 @@ public class JsonValueReader {
                     case STRING:
                         return vf.real(nextString());
                     case NULL:
-                        in.nextNull();
+                        nextNull();
                         return inferNullValue(nulls, type);
                     default:
                         throw parseErrorHere("Expected real but got " + in.peek());
@@ -175,7 +190,8 @@ public class JsonValueReader {
             }
 
             List<IValue> l = new ArrayList<>();
-            in.beginArray();
+            lastPos = getPos();
+            beginArray();
 
             if (type.hasFieldNames()) {
                 for (int i = 0; i < type.getArity(); i++) {
@@ -188,7 +204,7 @@ public class JsonValueReader {
                 }
             }
 
-            in.endArray();
+            endArray();
 
             // filter all the null values
             l.forEach(e -> {
@@ -228,6 +244,26 @@ public class JsonValueReader {
             }
         }
 
+        void beginArray() throws IOException {
+            lastPos = getPos();
+            in.beginArray();
+        }
+
+        void endArray() throws IOException {
+            lastPos = getPos();
+            in.endArray();
+        }
+
+        void beginObject() throws IOException {
+            lastPos = getPos();
+            in.beginObject();
+        }
+
+        void endObject() throws IOException {
+            lastPos = getPos();
+            in.endObject();
+        }
+
         private IValue sourceLocationObject() throws IOException {
             String scheme = null;
             String authority = null;
@@ -241,7 +277,7 @@ public class JsonValueReader {
             int beginColumn = -1;
             int endColumn = -1;
 
-            in.beginObject();
+            beginObject();
 
             while (in.hasNext()) {
                 String name = nextName();
@@ -263,30 +299,30 @@ public class JsonValueReader {
                         query = nextString();
                         break;
                     case "offset":
-                        offset = in.nextInt();
+                        offset = nextInt();
                         break;
                     case "length":
-                        length = in.nextInt();
+                        length = nextInt();
                         break;
                     case "start":
                     case "begin":
-                        in.beginArray();
-                        beginLine = in.nextInt();
-                        beginColumn = in.nextInt();
-                        in.endArray();
+                        beginArray();
+                        beginLine = nextInt();
+                        beginColumn = nextInt();
+                        endArray();
                         break;
                     case "end":
-                        in.beginArray();
-                        endLine = in.nextInt();
-                        endColumn = in.nextInt();
-                        in.endArray();
+                        beginArray();
+                        endLine = nextInt();
+                        endColumn = nextInt();
+                        endArray();
                         break;
                     default:
                         throw parseErrorHere("unexpected property name " + name + " :" + in.getPath());
                 }
             }
 
-            in.endObject();
+            endObject();
             try {
                 ISourceLocation root;
                 if (scheme != null && authority != null && query != null && fragment != null) {
@@ -332,7 +368,7 @@ public class JsonValueReader {
                     // this would be weird though
                     return vf.string(nextName());
                 case NULL:
-                    in.nextNull();
+                    nextNull();
                     return inferNullValue(nulls, type);
                 default:
                     throw parseErrorHere(
@@ -368,10 +404,10 @@ public class JsonValueReader {
 
             switch (in.peek()) {
                 case BEGIN_ARRAY:
-                    in.beginArray();
+                    beginArray();
                     IInteger numA = (IInteger) TF.integerType().accept(this);
                     IInteger denomA = (IInteger) TF.integerType().accept(this);
-                    in.endArray();
+                    endArray();
                     return vf.rational(numA, denomA);
                 case STRING:
                     return vf.rational(nextString());
@@ -389,7 +425,7 @@ public class JsonValueReader {
 
             switch (in.peek()) {
                 case BEGIN_OBJECT:
-                    in.beginObject();
+                    beginObject();
                     if (!type.getKeyType().isString() && in.peek() != JsonToken.END_OBJECT) {
                         throw parseErrorHere("Can not read JSon object as a map if the key type of the map (" + type
                             + ") is not a string at " + in.getPath());
@@ -402,20 +438,20 @@ public class JsonValueReader {
                             w.put(label, value);
                         }
                     }
-                    in.endObject();
+                    endObject();
                     return w.done();
                 case BEGIN_ARRAY:
-                    in.beginArray();
+                    beginArray();
                     while (in.hasNext()) {
-                        in.beginArray();
+                        beginArray();
                         IValue key = type.getKeyType().accept(this);
                         IValue value = type.getValueType().accept(this);
                         if (key != null && value != null) {
                             w.put(key, value);
                         }
-                        in.endArray();
+                        endArray();
                     }
-                    in.endArray();
+                    endArray();
                     return w.done();
                 default:
                     throw parseErrorHere("Expected a map encoded as an object or an nested array to match " + type);
@@ -436,16 +472,47 @@ public class JsonValueReader {
             if (isNull()) {
                 return inferNullValue(nulls, type);
             }
-            return vf.bool(in.nextBoolean());
+            return vf.bool(nextBoolean());
         }
 
+        /**
+         * @return the offset where the parser cursor is _right now_. 
+         * and `this.lastPos` is set to the last internal `pos` field of the GsonReader `in`
+         * and `offset` is set to the current character offset in the input.
+         * 
+         * This method depends on arbitraire private details of JsonReader from the gson package.
+         * In particular it tries to detect when its internal buffer has wrapped (probably at 1024 characters)
+         * The internal private field `pos` in JsonReader holds the index into the buffer, and it is 
+         * advanced by 1 with every character. We use it to update a locale file offset field, and we
+         * have to watch out for the buffer reset (pos is set to 0 again) while doing this.
+         * 
+         * KNOWN BUG: These tricks break when a comment or whitespace section between normal tokens is larger
+         * than or equal to 1024 Java chars. getPos() will not be able to detect the offset increase,
+         * because it has not been called in between from JsonValueReader to JsonReader and the condition
+         * `internalPos < lastPos` will not have had the opportunity to evaluate to `true`.
+         */
         private int getPos() {
+            var internalPos = (int) posHandler.get(in);
+
+            if (internalPos < lastPos) {
+                // the internal buffer has wrapped and started from 0 again.
+                // so we accumulate the offset here without resetting to 0.
+                offset = offset + internalPos /* gson copies the tail of the buffer to the front */;
+            }
+            else {
+                // the offset advances by the number of parsed characters
+                offset += (internalPos - lastPos);
+            }
+
+            // save the previous state
+            lastPos = internalPos;
+
             if (src == null) {
                 return 0;
             }
 
             try {
-                return Math.max(0, (int) posHandler.get(in) - 1);
+                return Math.max(0, offset - 1);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
@@ -469,13 +536,20 @@ public class JsonValueReader {
             }
         }
 
+        /**
+         * We try to recover the column position. This used internal private fields
+         * of the GsonReader class. 
+         * 
+         *
+         * @return the column position the parser is at currently.
+         */
         private int getCol() {
             if (src == null) {
                 return 0;
             }
 
             try {
-                return getPos() - (int) lineStartHandler.get(in);
+                return ((int) posHandler.get(in)) - ((int) lineStartHandler.get(in));
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
@@ -557,7 +631,7 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            in.beginObject();
+            beginObject();
             int startPos = getPos();
             int startLine = getLine();
             int startCol = getCol();
@@ -571,10 +645,10 @@ public class JsonValueReader {
 
                 // first we read either a cons name or a type name
                 if (explicitConstructorNames && "_constructor".equals(consLabel)) {
-                    consName = in.nextString();
+                    consName = nextString();
                 }
                 else if (explicitDataTypes && "_type".equals(consLabel)) {
-                    typeName = in.nextString();
+                    typeName = nextString();
                 }
 
                 // optionally read the second field
@@ -582,14 +656,14 @@ public class JsonValueReader {
                     // we've read a constructor name, but we still need a type name
                     consLabel = nextName();
                     if (explicitDataTypes && "_type".equals(consLabel)) {
-                        typeName = in.nextString();
+                        typeName = nextString();
                     }
                 }
                 else if (explicitDataTypes && consName == null) {
                     // we've read type name, but we still need a constructor name
                     consLabel = nextName();
                     if (explicitDataTypes && "_constructor".equals(consLabel)) {
-                        consName = in.nextString();
+                        consName = nextString();
                     }
                 }
 
@@ -661,12 +735,12 @@ public class JsonValueReader {
                 else { // its a normal arg, pass its label to the child
                     if (!explicitConstructorNames && "_constructor".equals(label)) {
                         // ignore additional _constructor fields.
-                        in.nextString(); // skip the constructor value
+                        nextString(); // skip the constructor value
                         continue;
                     }
                     else if (!explicitDataTypes && "_type".equals(label)) {
                         // ignore additional _type fields.
-                        in.nextString(); // skip the type value
+                        nextString(); // skip the type value
                         continue;
                     }
                     else {
@@ -676,8 +750,9 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
+            endObject();
             int endPos = getPos();
+            assert endPos >= startPos : "as assumpion on the internals of gson";
             int endLine = getLine();
             int endCol = getCol();
 
@@ -768,7 +843,7 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
+            endObject();
             int endPos = getPos();
             int endLine = getLine();
             int endCol = getCol();
@@ -817,7 +892,6 @@ public class JsonValueReader {
             try {
                 switch (in.peek()) {
                     case STRING:
-                        lastPos = getPos();
                         Date parsedDate = format.get().parse(nextString());
                         return vf.datetime(parsedDate.toInstant().toEpochMilli());
                     case NUMBER:
