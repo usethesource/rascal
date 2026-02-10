@@ -46,6 +46,7 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
+import org.rascalmpl.util.NamedThreadPool;
 
 import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
@@ -246,5 +247,75 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean supportsRecursiveWatch() {
         return true;
-    } 
+    }
+
+    private static final ExecutorService exec = NamedThreadPool.cachedDaemon("RemoteExternalResolverRegistry-watcher");
+
+    /**
+    * The watch api in rascal uses closures identity to keep track of watches.
+    * Since we cannot share the instance via the json-rpc bridge, we keep the
+    * closure around in this collection class.
+    * If there are no more callbacks registered, we unregister the watch at the
+    * VSCode side.
+    */
+    public static class Watchers {
+        private final String id;
+        private final List<Consumer<ISourceLocationWatcher.ISourceLocationChanged>> callbacks = new CopyOnWriteArrayList<>();
+
+        public Watchers() {
+            this.id = UUID.randomUUID().toString();
+        }
+
+        public void addNewWatcher(Consumer<ISourceLocationWatcher.ISourceLocationChanged> watcher) {
+            this.callbacks.add(watcher);
+        }
+
+        public boolean removeWatcher(Consumer<ISourceLocationWatcher.ISourceLocationChanged> watcher) {
+            this.callbacks.remove(watcher);
+            return this.callbacks.isEmpty();
+        }
+
+        public void publish(ISourceLocationWatcher.ISourceLocationChanged changed) {
+            for (Consumer<ISourceLocationWatcher.ISourceLocationChanged> c : callbacks) {
+                //schedule callbacks on different thread
+                exec.submit(() -> c.accept(changed));
+            }
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public List<Consumer<ISourceLocationWatcher.ISourceLocationChanged>> getCallbacks() {
+            return callbacks;
+        }
+    }
+
+    public static class WatchSubscriptionKey {
+        private final ISourceLocation loc;
+        private final boolean recursive;
+        public WatchSubscriptionKey(ISourceLocation loc, boolean recursive) {
+            this.loc = loc;
+            this.recursive = recursive;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(loc, recursive);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if ((obj instanceof WatchSubscriptionKey)) {
+                WatchSubscriptionKey other = (WatchSubscriptionKey) obj;
+                return recursive == other.recursive
+                    && Objects.equals(loc, other.loc)
+                    ;
+            }
+            return false;
+        }
+    }
 }
