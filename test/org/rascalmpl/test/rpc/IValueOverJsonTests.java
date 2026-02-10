@@ -121,11 +121,15 @@ public class IValueOverJsonTests {
     class TestClient {
         public TestClient(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
             Launcher<JsonRpcTestInterface> clientLauncher = new Launcher.Builder<JsonRpcTestInterface>()
-                .setRemoteInterface(JsonRpcTestInterface.class)
                 .setLocalService(this)
+                .setRemoteInterface(JsonRpcTestInterface.class)
                 .setInput(is)
                 .setOutput(os)
                 .configureGson(gsonConfig)
+                .setExceptionHandler(e -> {
+                    System.err.println(e);
+                    return new ResponseError(ResponseErrorCode.InternalError, e.getMessage(), e);
+                })
                 .setExecutorService(exec)
                 .create();
 
