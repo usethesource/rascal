@@ -34,16 +34,26 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
+import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
 import org.rascalmpl.util.NamedThreadPool;
@@ -53,6 +63,9 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry {
     private final IRemoteResolverRegistry remote;
+
+    private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
+    private final Map<String, Watchers> watchersById = new ConcurrentHashMap<>();
 
     public RemoteExternalResolverRegistry(int remoteResolverRegistryPort) {
         this.remote = startClient(remoteResolverRegistryPort);
@@ -228,19 +241,44 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         try {
-            remote.watch(new WatchRequest(root, recursive, "")).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Could not watch `" + root + "` remotely: " + e.getMessage());
+            var watch = watchers.computeIfAbsent(new WatchSubscriptionKey(root, recursive), k -> {
+                System.err.println("Fresh watch, setting up request to server");
+                var result = new Watchers();
+                result.addNewWatcher(watcher);
+                watchersById.put(result.getId(), result);
+                try {
+                    remote.watch(new WatchRequest(root, recursive, result.getId())).get(1, TimeUnit.MINUTES);
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    System.err.println("Could not watch `" + root + "` remotely: " + e.getCause().getMessage());
+                    // throw new IOException("Could not watch `" + root + "` remotely: " + e.getCause().getMessage());
+                }
+                return result;
+            });
+            watch.addNewWatcher(watcher);
+        } catch (CompletionException ce) {
+            throw new IOException("Could not watch `" + root + "` remotely: " + ce.getCause().getMessage());
         }
     }
 
     @Override
     public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
+        var watchKey = new WatchSubscriptionKey(root, recursive);
+        var watch = watchers.get(watchKey);
+        if (watch != null && watch.removeWatcher(watcher)) {
+            System.err.println("No other watchers registered, so unregistering at server");
+            watchers.remove(watchKey);
+            if (!watch.getCallbacks().isEmpty()) {
+                System.err.println("Raced by another thread, canceling unregister");
+                watchers.put(watchKey, watch);
+                return;
+            }
+            watchersById.remove(watch.getId());
+        }
         try {
-            //TODO: arguments are currently not correct
-            remote.unwatch(new WatchRequest(root.toString(), true, "")).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Could not unwatch `" + root + "` remotely: " + e.getMessage());
+            remote.unwatch(new WatchRequest(root, recursive, watch.getId())).join();
+        } catch (CompletionException ce) {
+            System.err.println("Error removing watch: " + ce.getCause().getMessage());
+            throw new IOException(ce.getCause());
         }
     }
 
