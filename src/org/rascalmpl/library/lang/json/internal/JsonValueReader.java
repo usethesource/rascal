@@ -96,6 +96,7 @@ public class JsonValueReader {
         private final OriginTrackingReader tracker;
 
         private int offset = 0;
+        private int readCount = 0;
         private int lastPos = 0;
         private boolean stopTracking = false; 
         
@@ -474,10 +475,11 @@ public class JsonValueReader {
             }
 
             var internalPos = (int) posHandler.get(in);
-            var baseOffset = tracker.getLimitOffset();
+            var trackerCount = tracker.getReadCount();
 
-            if (internalPos < lastPos) {
-                offset = baseOffset + internalPos;
+            if (readCount < trackerCount) {
+                readCount = trackerCount;
+                offset = tracker.getLimitOffset() + internalPos;
             }
             else {
                 // the offset advances by the number of parsed characters
@@ -1120,6 +1122,7 @@ public class JsonValueReader {
     public static class OriginTrackingReader extends FilterReader {
         private int offset = 0;
         private int limit = 0;
+        private int readCount = 0;
 
         protected OriginTrackingReader(Reader in) {
             super(in);
@@ -1132,6 +1135,8 @@ public class JsonValueReader {
 
             // get the new limit
             limit = in.read(cbuf, off, len);
+
+            readCount++;
             
             // and return it.
             return limit;
@@ -1139,6 +1144,10 @@ public class JsonValueReader {
 
         public int getLimitOffset() {
             return offset;
+        }
+
+        public int getReadCount() {
+            return readCount;
         }
     }
 }
