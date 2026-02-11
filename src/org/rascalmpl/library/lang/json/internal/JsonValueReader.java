@@ -23,7 +23,9 @@
 package org.rascalmpl.library.lang.json.internal;
 
 import java.io.EOFException;
+import java.io.FilterReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -91,14 +93,23 @@ public class JsonValueReader {
 
     private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
         private final JsonReader in;
+        private final OriginTrackingReader tracker;
+
         private int offset = 0;
         private int lastPos = 0;
         private int lastLimit = 0;
-        private boolean stopTracking = true; /* origin tracking is turned off while we work on debugging the offsets on another PR */
-
-        private ExpectedTypeDispatcher(JsonReader in, boolean noTracking) {
+        private boolean stopTracking = false; 
+        
+        private ExpectedTypeDispatcher(JsonReader in) {
             this.in = in;
-            this.stopTracking = true; // noTracking; NB origin tracking is turned off while we work on debugging the offsets on another PR 
+            this.stopTracking = true;
+            this.tracker = null;
+        }
+
+        public ExpectedTypeDispatcher(JsonReader in, OriginTrackingReader tracker, boolean disableTracking) {
+            this.in = in;
+            this.tracker = tracker;
+            this.stopTracking = disableTracking;
         }
 
         @Override
@@ -465,11 +476,10 @@ public class JsonValueReader {
 
             var internalPos = (int) posHandler.get(in);
             var internalLimit = getLimit();
+            var baseOffset = tracker.getLimitOffset();
 
             if (internalPos < lastPos) {
-                // so we detected we are in trouble, but we do not have enough information for a solution here.
-                // TODO: fix this code in another PR by wrapping the CharacterReader.
-                offset = offset + (lastLimit - lastPos) + internalPos /* gson copies the tail of the buffer to the front */;
+                offset = baseOffset + internalPos;
             }
             else {
                 // the offset advances by the number of parsed characters
@@ -860,7 +870,7 @@ public class JsonValueReader {
             if (numberString.contains("r")) {
                 return vf.rational(numberString);
             }
-            if (numberString.matches(".*[\\.eE].*")) {
+            if (numberString.matches(".*[\.eE].*")) {
                 return vf.real(numberString);
             }
             else {
@@ -1067,7 +1077,8 @@ public class JsonValueReader {
     }
 
     /**
-     * Read and validate a Json stream as an IValue
+     * Read and validate a Json stream as an IValue. This version does not support accurate error messages
+     * or origin tracking.
      * 
      * @param in json stream
      * @param expected type to validate against (recursively)
@@ -1075,7 +1086,8 @@ public class JsonValueReader {
      * @throws IOException when either a parse error or a validation error occurs
      */
     public IValue read(JsonReader in, Type expected) throws IOException {
-        var dispatch = new ExpectedTypeDispatcher(in, disableTracking);
+        assert !trackOrigins : "use the other read method to track Json origins";
+        var dispatch = new ExpectedTypeDispatcher(in);
 
         try {
             var result = expected.accept(dispatch);
@@ -1088,6 +1100,67 @@ public class JsonValueReader {
         catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException
             | IllegalStateException | NullPointerException e) {
             throw dispatch.parseErrorHere(e.getMessage());
+        }
+    }
+
+    /**
+     * Read and validate a Json stream as an IValue. This version supports accurate error messages
+     * and origin tracking.
+     * 
+     * @param in json stream
+     * @param expected type to validate against (recursively)
+     * @return an IValue of the expected type
+     * @throws IOException when either a parse error or a validation error occurs
+     */
+    public IValue read(Reader in, Type expected) throws IOException {
+        try (OriginTrackingReader wrappedIn = new OriginTrackingReader(in); JsonReader jsonIn = new JsonReader(wrappedIn)) {
+            var dispatch = new ExpectedTypeDispatcher(jsonIn, wrappedIn, disableTracking);
+
+            try {
+                var result = expected.accept(dispatch);
+                if (result == null) {
+                    throw new JsonParseException(
+                        "null occurred outside an optionality context and without a registered representation.");
+                }
+                return result;
+            } catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
+                throw dispatch.parseErrorHere(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * This wraps a normal reader to make it possible for a client to detect accurate
+     * character offsets (> buffersize) in a large file, even if the underlying stream is buffered.
+     * 
+     * This implementation is tightly coupled (semantically) with the internals of JsonReader. It provides
+     * just enough information, together with internal private fields of JsonReader, to compute Rascal-required
+     * offsets. We get only the character offset in the file, at the start of each streamed buffer contents.
+     * That should be just enough information to recompute the actual offset of every Json element, using the
+     * current position in the buffer.
+     */
+    public static class OriginTrackingReader extends FilterReader {
+        private int offset = 0;
+        private int limit = 0;
+
+        protected OriginTrackingReader(Reader in) {
+            super(in);
+        }
+
+        @Override
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            // we've read until here before we were reset to 0.
+            offset += limit;
+
+            // get the new limit
+            limit = in.read(cbuf, off, len);
+            
+            // and return it.
+            return limit;
+        }
+
+        public int getLimitOffset() {
+            return offset;
         }
     }
 }
