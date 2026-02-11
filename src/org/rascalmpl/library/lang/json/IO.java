@@ -63,22 +63,41 @@ public class IO {
             parsers = null;
         }
 
-        try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
-            in.setLenient(lenient.getValue());
-            return new JsonValueReader(values, store, monitor, loc)
-                .setCalendarFormat(dateTimeFormat.getValue())
-                .setParsers(parsers)
-                .setNulls(unreify(nulls))
-                .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                .setExplicitDataTypes(explicitDataTypes.getValue())
-                .setTrackOrigins(trackOrigins.getValue())
-                .read(in, start);
+        if (trackOrigins.getValue()) {
+            try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
+                return new JsonValueReader(values, store, monitor, loc)
+                        .setCalendarFormat(dateTimeFormat.getValue())
+                        .setParsers(parsers)
+                        .setNulls(unreify(nulls))
+                        .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                        .setExplicitDataTypes(explicitDataTypes.getValue())
+                        .setTrackOrigins(trackOrigins.getValue())
+                        .read(in, start);
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+            catch (NullPointerException e) {
+                throw RuntimeExceptionFactory.io("NPE in error handling code");
+            }
         }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-        catch (NullPointerException e) {
-            throw RuntimeExceptionFactory.io("NPE in error handling code");
+        else {
+            try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
+                in.setLenient(lenient.getValue());
+                return new JsonValueReader(values, store, monitor, loc)
+                    .setCalendarFormat(dateTimeFormat.getValue())
+                    .setParsers(parsers)
+                    .setNulls(unreify(nulls))
+                    .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                    .setExplicitDataTypes(explicitDataTypes.getValue())
+                    .read(in, start);
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+            catch (NullPointerException e) {
+                throw RuntimeExceptionFactory.io("NPE in error handling code");
+            }
         }
     }
 
