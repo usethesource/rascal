@@ -13,7 +13,11 @@ import lang::rascalcore::check::LogicalLocations;
 
 str JOB = "Comparing TPLs";
 
-void main() = job(JOB, void(void(str, int) step) {
+void main() {
+    compareTPLs();
+}
+
+rel[loc, loc, loc] compareTPLs() = job(JOB, rel[loc, loc, loc](void(str, int) step) {
     /*
         Preconditions
         1. Make sure the right Rascal release JAR is present in the Maven repository.
@@ -22,7 +26,7 @@ void main() = job(JOB, void(void(str, int) step) {
     loc localTarget = |home:///swat/projects/Rascal/rascal/targetBackup/relocatedClasses|;
     loc remoteTarget = |mvn://org.rascalmpl--rascal--0.41.3-RC8|;
 
-    rel[loc, loc] differentLocations = {};
+    rel[loc, loc, loc] differentLocations = {};
     step("Finding local TPLs", 1);
     allTPLs = sort(find(localTarget, "tpl"), byPathLength);
     jobTodo(JOB, work=size(allTPLs));
@@ -35,19 +39,21 @@ void main() = job(JOB, void(void(str, int) step) {
 
     step("Computing statistics", 1);
 
-    set[str] filesWithDiffs = {l.parent.path | <l, _> <- differentLocations};
+    set[str] filesWithDiffs = {l.parent.path | l <- differentLocations<0>};
     set[loc] defs = differentLocations<0>;
 
     println("Number of tested TPLs: <size(allTPLs)>");
     println("Found <size(defs)> different locations in <size(filesWithDiffs)> files.");;
 
     print("Kinds of different locations: ");
-    iprintln({l.scheme | <l, _> <- differentLocations});
+    iprintln({l.scheme | l <- differentLocations<0>});
+
+    return differentLocations;
 }, totalWork=2);
 
 bool byPathLength(loc a, loc b) = a.path < b.path;
 
-lrel[loc, loc] compareTPL(loc relTplPath, loc localTargetDir, loc unixTargetDir) {
+lrel[loc, loc, loc] compareTPL(loc relTplPath, loc localTargetDir, loc unixTargetDir) {
     loc localTplPath = resolve(localTargetDir, relTplPath);
     loc unixTplPath = resolve(unixTargetDir, relTplPath);
 
@@ -61,11 +67,10 @@ lrel[loc, loc] compareTPL(loc relTplPath, loc localTargetDir, loc unixTargetDir)
     localTpl = readBinaryValueFile(#TModel, localTplPath);
     unixTpl = readBinaryValueFile(#TModel, unixTplPath);
     
-    differentDefs = difference(localTpl.defines.defined, unixTpl.defines.defined);
+    differentDefs = [<ll, ul, localTpl.logical2physical[ll]> | <ll, ul> <- difference(localTpl.defines.defined, unixTpl.defines.defined)];
     if ([_, *_] := differentDefs) {
-        withPhysical = [<ll, ul, localTpl.logical2physical[ll]> | <ll, ul> <- differentDefs];
         println("Differences in defs of <relTplPath> (\<Local logical, Unix logical, local physical\>): ");
-        iprintln(withPhysical);
+        iprintln(differentDefs);
         println();
     }
 
@@ -73,7 +78,7 @@ lrel[loc, loc] compareTPL(loc relTplPath, loc localTargetDir, loc unixTargetDir)
 }
 
 lrel[loc, loc] difference(set[loc] lLocs, set[loc] uLocs) =
-    [p | p:<l, u> <- pairs, !isEqualModuloNewlines(l, u)]
+    [<l, u> | <l, u> <- pairs, !isEqualModuloNewlines(l, u)]
     when lrel[loc, loc] pairs := zip2(sort(lLocs, lessThan), sort(uLocs, lessThan));
 
 bool isEqualModuloNewlines(loc localLoc, loc unixLoc) = isRascalLogicalLoc(localLoc)
