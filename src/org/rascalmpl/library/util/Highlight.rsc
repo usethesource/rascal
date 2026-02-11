@@ -143,8 +143,8 @@ public str toANSI(Tree t, bool underlineAmbiguity=false, int tabSize=4) {
   str underline(str s)  = "<Underline><s><Normal>";
   str comment(str s)    = "<Comment><s><Normal>";
 
-  str \map("Comment", text)         = comment(text);
-  str \map("Keyword", text)         = bold(text);
+  str \map(/[Cc]omment/, text)         = comment(text);
+  str \map(/[Kk]eyword/, text)         = bold(text);
   default str \map(str _, str text) = text;
 
   return rec(t);

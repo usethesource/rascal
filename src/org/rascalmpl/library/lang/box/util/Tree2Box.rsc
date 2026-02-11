@@ -67,7 +67,7 @@ module lang::box::util::Tree2Box
 import ParseTree;
 import lang::box::\syntax::Box;
 import String;
-import IO;
+
 
 @synopsis{Configuration options for toBox}
 data FormatOptions = formatOptions(
@@ -82,6 +82,8 @@ data CaseInsensitivity
     | asIs()
     ;
 
+private Symbol notNl = #![\n].symbol;
+
 @synopsis{This is the generic default formatter}
 @description{
 This generic formatter is to be overridden by someone constructing a formatter tools
@@ -92,6 +94,7 @@ by the user is necessary.
 default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
+    
     Symbol _nl = #[\n].symbol;
     Symbol notNl = #![\n].symbol;
     
@@ -101,39 +104,48 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
             return NULL();
 
         // literals are printed as-is
-        case <prod(lit(_), _, _), _>: 
-            return L("<t>");
+        case <prod(lit(_), _, _), _>: {
+            str yield =  "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
         
         // case-insensitive literals are optionally normalized
-        case <prod(cilit(_), _, _), _>: 
-            return L(ci("<t>", opts.ci));
+        case <prod(cilit(_), _, _), _>: {
+            str yield =  "<t>"; 
+            return yield != "" ?  L(ci("<t>", opts.ci)) : NULL();
+        }
         
         // non-existing content should not generate accidental spaces
         case <regular(opt(_)), []>: 
-            return NULL();
+            return NULL(); 
+
+        case <regular(opt(_)), [Tree present]>: 
+            return U([toBox(present)]); 
         
         // non-separated lists should stick without spacing (probably lexical)
         case <regular(iter(_)), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
+         // non-separated lists should stick without spacing (probably lexical)
         case <regular(\iter-star(_)), list[Tree] elements>:  
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
-        // comma's are usually for parameters separation
+        // comma's are usually for parameters separation. leaving it to 
+        // parent to wrap the box in the right context.
         case <regular(\iter-seps(_, [_, lit(","), _])), list[Tree] elements>:
-            return HOV([
+            return U([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[L(",") | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
         // comma's are usually for parameters separation
         case <regular(\iter-star-seps(_, [_, lit(","), _])), list[Tree] elements>:
-            return HOV([
+            return HV([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[L(",") | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
@@ -141,8 +153,8 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-seps(_, [_, lit(";"), _])), list[Tree] elements>:
             return V([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[L(";") | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
@@ -150,17 +162,16 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
             return V([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[toBox(elements[i+2]) | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
-        // semi-colons are usually for parameters separation
         case <regular(\iter-star-seps(_, [_, lit(";"), _])), list[Tree] elements>:
             return V([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[L(";") | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
@@ -168,75 +179,87 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
             return V([
                 H([
-                    toBox(elements[i], opts=opts),
-                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                    toBox(elements[i], opts=opts),     // element
+                    *[toBox(elements[i+2]) | i + 2 < size(elements)] // separator
                 ], hs=0) | int i <- [0,4..size(elements)]
             ]);
 
-        case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+        // now we have any other literal as separator
+        case <regular(\iter-seps(_, [layouts(_), lit(_), layouts(_)])), list[Tree] elements>:
+            return U([
+                H([
+                    toBox(elements[i], opts=opts),     // element
+                    *[toBox(elements[i+2]) | i + 2 < size(elements)] // separator
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
-        case <regular(\iter-star-seps(_, [_, lit(_), _])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
-          
-        // with only one separator it's probably a lexical
-        case <regular(\iter-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+        case <regular(\iter-star-seps(_, [layouts(_), lit(_), layouts(_)])), list[Tree] elements>:
+            return U([
+                H([
+                    toBox(elements[i], opts=opts),     // element
+                    *[toBox(elements[i+2]) | i + 2 < size(elements)] // separator
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
-        case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
-            return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
+        
+        // this is a normal list
+        case <regular(\iter-seps(_, [layouts(_)])), list[Tree] elements>:
+            return U([toBox(elements[i], opts=opts) | int i <- [0,2..size(elements)]]);
 
+        // this is likely a lexical  
+        case <regular(\iter-seps(_, [!layouts(_)])), list[Tree] elements>:
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+
+        // this is likely a lexical  
+        case <regular(\iter(_)), list[Tree] elements>:
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+    
+        // this is a normal list
+        case <regular(\iter-star-seps(_, [layouts(_)])), list[Tree] elements>:
+            return U([toBox(elements[i], opts=opts) | int i <- [0,2..size(elements)]]);
+
+        // this is likely a lexical  
+        case <regular(\iter-star-seps(_, [!layouts(_)])), list[Tree] elements>:
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+
+        // this is likely a lexical  
+        case <regular(\iter-star(_)), list[Tree] elements>:
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+    
         // We remove all layout node positions to make the number of children predictable
         // Comments can be recovered by `layoutDiff`. By not recursing into layout
         // positions `toBox` becomes more than twice as fast.
         case <prod(layouts(_), _, _), list[Tree] _content>:
             return NULL();
 
-        // if we are given a comment node, then we can format it here for use by layoutDiff
-        case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
-            return V([
-                    H([toBox(elements[0], opts=opts), 
-                        H([L(e) | e <- words("<elements[..-1]>")], hs=1)
-                    ], hs=1)
-                ]);
-
-        // if we are given a comment node, then we can pretty print it here for use by layoutDiff     
-        case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
-            return V([
-                    H([toBox(elements[0], opts=opts), 
-                        H([L(w) | e <- elements[1..], w <- words("<e>")], hs=1)
-                    ], hs=1)
-                ]);
-
-        // multiline comments are rewrapped for the sake of readability and fitting on the page
-        case <prod(_, [lit(_), *_, lit(_)], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
-            return HV([toBox(elements[0], opts=opts),                     // recurse in case its a ci literal 
-                      *[L(w) | e <- elements[1..-1], w <- words("<e>")], // wrap a nice paragraph
-                      toBox(elements[-1], opts=opts)                     // recurse in case its a ci literal 
-                    ], hs=1);
-
-        // lexicals are never split in pieces, unless it's comments but those are handled above.
-        case <prod(lex(_), _, _), _> :
-            return L("<t>");
+        // lexicals are never split in pieces
+        case <prod(lex(_), _, _), _> : {
+            str yield = "<t>";
+            return yield != "" ? L(yield) : NULL();
+        }
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
-        // from their pre-decessors. Watching out not to loose any comments...
+        // from their pre-decessors.
 
-        case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
-            return HOV([toBox(elements[0], opts=opts), H([toBox(e, opts=opts) | e <- elements[1..]])]);
+        // binary operators become flat lists
+        case <prod(sort(str x),[sort(x),layouts(_),lit(str op),layouts(_),sort(x)], _), list[Tree] elements>:
+            return U([toBox(elements[0]), L(op), toBox(elements[-1])]);
 
         // postfix operators stick
-        case <prod(sort(x),[sort(x),_,lit(_)], _), list[Tree] elements>:
+        case <prod(sort(str x),[sort(x),_,lit(_)], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // prefix operators stick
-        case <prod(sort(x),[lit(_), _, sort(x)], _), list[Tree] elements>:
+        case <prod(sort(str x),[lit(_), _, sort(x)], _), list[Tree] elements>:
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // brackets stick
-        case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return H([toBox(e, opts=opts) | e <- elements], hs=0);
+        case <prod(sort(str x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
+            return H(L("("), I(HOV(toBox(elements[2], opts=opts))), L(")"), hs=0);
+
+        case <prod(_,[_],_), [Tree single]>:
+            return toBox(single);
 
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
@@ -247,6 +270,10 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                 I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),
                 toBox(elements[-1], opts=opts)
             ]);
+
+        // this is to simplify the tree structure for efficiency and readability
+        case <prod(_, [_], _), [singleton]>:
+            return toBox(singleton);
     }
 
     return HV([toBox(a, opts=opts) | a <- args]);
@@ -261,18 +288,101 @@ default Box toBox(c:char(_), FormatOptions opts=fo() ) = L("<c>");
 @synopsis{Cycles are invisible and zero length}
 default Box toBox(cycle(_, _), FO opts=fo()) = NULL();
 
+@synopsis{Create a V box of V boxes where the inner boxes are connected and the outer boxes are separated by an empty line.}
+@description{
+This function learns from the input trees how vertical clusters were layout in the original tree.
+The resulting box maintains the original clustering.
+For example, such lists of declarations which are separated by a newline, remain separated after formatting with `toClusterBox`
+```
+int a1 = 1;
+int a2 = 2;
+
+int b1 = 3;
+int b2 = 4;
+```
+}
+@benefits{
+* many programmers use vertical clustering, or "grouping statements", to indicate meaning or intent, by not throwing this
+away we are not throwing away the documentative value of their grouping efforts.
+}
+@pitfalls{
+* ((toClusterBox)) is one of the (very) few Box functions that use layout information from the input tree to 
+influence the layout of the output formatted code. It replaces a call to ((toBox)) for that reason.
+* ((toClusterBox)) does not work on separated lists, yet.
+}
+Box toClusterBox(list[Tree] lst, FO opts=fo()) {
+    list[Box] cluster([])  = [];
+
+    list[Box] cluster([Tree e]) = [V([toBox(e)], vs=0)];
+
+    list[Box] cluster([*Tree pre, Tree last, Tree first, *Tree post])
+        = [V([*[toBox(p, opts=opts) | p <- pre], toBox(last, opts=opts)], vs=0), *cluster([first, *post])]
+        when first@\loc.begin.line - last@\loc.end.line > 1
+        ;
+
+    default list[Box] cluster(list[Tree] l) = [V([toBox(e, opts=opts) | e <- l], vs=0)];
+
+    return V(cluster(lst), vs=1);
+}
+
+Box toClusterBox(&T* lst, FO opts=fo()) = toClusterBox([e | e <- lst], opts=opts);
+Box toClusterBox(&T+ lst, FO opts=fo()) = toClusterBox([e | e <- lst], opts=opts);
+
+@synopsis{Reusable way of dealing with large binary expression trees}
+@description{
+1. the default `toBox` will flatten nested binary expressions to U lists.
+2. the G box groups each operator with the following expression on the right hand-side,
+   * given an initial element (usually L("=") or L(":=")) for the assignment operators
+3. the entire list is indented in case the surrounding context needs more space
+4. the net result is usually in vertical mode:
+```
+    = operand1
+    + operand2
+    + operand3
+```
+or in horizontal mode:
+```
+= operand1 + operand2 + operand3
+```
+
+By default ((toExpBox)) wraps it result in a HOV context, but you can pass
+in a different `wrapper` if you like.
+}
+Box toExpBox(Box prefix, Tree expression, Box wrapper=HOV())
+    = wrapper[boxes=[G(prefix, toBox(expression), gs=2, op=H())]];
+
+@synopsis{Reusable way of dealing with large binary expression trees}
+@description{
+1. the default `toBox` will flatten nested binary expressions to U lists.
+2. the G box groups each operator horizontally with the following expression on the right hand-side.
+4. the net result is usually in vertical mode:
+```
+    operand1 + operand2
+    + operand3
+```
+or in horizontal mode:
+```
+operand1 + operand2 + operand3
+```
+
+By default ((toExpBox)) wraps it result in a HV context, but you can pass
+in a different `wrapper` if you like.
+
+}
+Box toExpBox(Tree expression, Box wrapper=HV())
+    = wrapper[boxes=[G(toBox(expression), gs=2, backwards=true, op=H())]];
+
 @synopsis{Private type alias for legibility's sake}
 private alias FO = FormatOptions;
 
 @synopsis{Removing production labels removes similar patterns in the main toBox function.}
-private Production delabel(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs))
-    = prod(s, delabel(syms), attrs);
+private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs))
+    = prod(delabel(s), [delabel(x) | x <- syms], attrs);
 
-private default Production delabel(Production p) = p;
+private Production delabel(regular(Symbol s)) = regular(delabel(s));
 
-private list[Symbol] delabel(list[Symbol] syms) = [delabel(s) | s <- syms];
-
-private Symbol delabel(label(_, Symbol s)) = s;
+private Symbol delabel(label(_, Symbol s)) = delabel(s);
+private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;
 
 @synopsis{This is a short-hand for legibility's sake}
@@ -283,7 +393,3 @@ private str ci(str word, toLower()) = toLowerCase(word);
 private str ci(str word, toUpper()) = toUpperCase(word);
 private str ci(str word, toCapitalized()) = capitalize(word);
 private str ci(str word, asIs())    = word;
-
-@synopsis{Split a text by the supported whitespace characters}
-private list[str] words(str text)
-    = [ x | /<x:[^\ \t\n]+>/ := text];
