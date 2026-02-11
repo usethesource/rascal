@@ -83,7 +83,7 @@ void collect(Module current, Collector c){
     tagsMap = getTags(header.tags);
 
     if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring module <mname>"));
+        c.report(info(header.name, "Ignoring module <mname>"));
         return;
     }
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
@@ -266,7 +266,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
     if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
+        c.report(info(fname, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
     // Make md5hash of nested functions unique by using all surrounding signatures
