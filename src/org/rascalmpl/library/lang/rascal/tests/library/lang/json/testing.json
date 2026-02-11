@@ -1,0 +1,41 @@
+{
+  "name": "TESTING  Adding one more character to this data causes the test to fail",
+  "type": "type_abcd",
+  "nested_abc": [
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+      },
+    {
+      "type": "line",
+      "property__1": { "y": { "value": 2, "absolute": false } },
+      "property__2": {}
+    }
+  ]
+}
