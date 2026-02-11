@@ -97,7 +97,6 @@ public class JsonValueReader {
 
         private int offset = 0;
         private int lastPos = 0;
-        private int lastLimit = 0;
         private boolean stopTracking = false; 
         
         private ExpectedTypeDispatcher(JsonReader in) {
@@ -475,7 +474,6 @@ public class JsonValueReader {
             }
 
             var internalPos = (int) posHandler.get(in);
-            var internalLimit = getLimit();
             var baseOffset = tracker.getLimitOffset();
 
             if (internalPos < lastPos) {
@@ -488,7 +486,6 @@ public class JsonValueReader {
 
             // save the previous state
             lastPos = internalPos;
-            lastLimit = internalLimit;
 
             try {
                 return Math.max(0, offset - 1);
@@ -496,21 +493,6 @@ public class JsonValueReader {
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
                 // this way we at least can get some form of DOM back.
-                stopTracking = true;
-                return 0;
-            }
-        }
-
-        private int getLimit() {
-            if (stopTracking) {
-                return 0;
-            }
-
-            try {
-                return (int) lineHandler.get(in) + 1;
-            }
-            catch (IllegalArgumentException | SecurityException e) {
-                // stop trying to recover the positions
                 stopTracking = true;
                 return 0;
             }
@@ -870,7 +852,7 @@ public class JsonValueReader {
             if (numberString.contains("r")) {
                 return vf.rational(numberString);
             }
-            if (numberString.matches(".*[\.eE].*")) {
+            if (numberString.matches(".*[\\.eE].*")) {
                 return vf.real(numberString);
             }
             else {
