@@ -473,4 +473,4 @@ void resetClosureCounter(){
     closureCounter = 0;
 }
 
-str normalizedMD5Hash(str s) = md5Hash(replaceAll(replaceAll(s, "\n", ""), "\r", ""));
+str normalizedMD5Hash(str s) = md5Hash(replaceAll(s, "\r", ""));
