@@ -17,6 +17,7 @@ void main() {
     compareTPLs();
 }
 
+@synopsis{Compare locations in two TPLs two verify only expected (OS-specific newline offset) differences.}
 rel[loc, loc, loc] compareTPLs() = job(JOB, rel[loc, loc, loc](void(str, int) step) {
     /*
         Preconditions
