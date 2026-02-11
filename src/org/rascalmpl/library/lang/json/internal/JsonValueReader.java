@@ -93,11 +93,12 @@ public class JsonValueReader {
         private final JsonReader in;
         private int offset = 0;
         private int lastPos = 0;
-        private boolean stopTracking = false;
+        private int lastLimit = 0;
+        private boolean stopTracking = true; /* origin tracking is turned off while we work on debugging the offsets on another PR */
 
         private ExpectedTypeDispatcher(JsonReader in, boolean noTracking) {
             this.in = in;
-            this.stopTracking = noTracking;
+            this.stopTracking = true; // noTracking; NB origin tracking is turned off while we work on debugging the offsets on another PR 
         }
 
         @Override
@@ -110,7 +111,6 @@ public class JsonValueReader {
                     case STRING:
                         return vf.integer(in.nextString());
                     case NULL:
-                        // lastPos = getPos();
                         in.nextNull();
                         return inferNullValue(nulls, type);
                     default:
@@ -132,7 +132,6 @@ public class JsonValueReader {
                     case STRING:
                         return vf.real(in.nextString());
                     case NULL:
-                        // lastPos = getPos();
                         in.nextNull();
                         return inferNullValue(nulls, type);
                     default:
@@ -146,13 +145,14 @@ public class JsonValueReader {
 
         private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
             return nulls.entrySet().stream().map(Entry::getKey).sorted(Type::compareTo)
-                .filter(superType -> expected.isSubtypeOf(superType)).findFirst() // give the most specific match
-                .map(t -> nulls.get(t)) // lookup the corresponding null value
-                .filter(r -> r.getType().isSubtypeOf(expected)) // the value in the table still has to fit the currently
-                                                                // expected type
-                .orElse(null); // or muddle on and throw NPE elsewhere
-
-            // The NPE triggering "elsewhere" should help with fault localization.
+                // give the most specific match:
+                .filter(superType -> expected.isSubtypeOf(superType)).findFirst()
+                // lookup the corresponding null value
+                .map(t -> nulls.get(t)) 
+                // the value in the table still has to fit the currently expected type
+                .filter(r -> r.getType().isSubtypeOf(expected)) 
+                // or we muddle on and throw NPE elsewhere. This NPE is important for fault localization. We don't want to hide it here.
+                .orElse(null); 
         }
 
         @Override
@@ -331,7 +331,8 @@ public class JsonValueReader {
                 case BOOLEAN:
                     return visitBool(TF.boolType());
                 case NAME:
-                    // this would be weird though
+                    // this would be weird though. names are part of objects, not top-level values.
+                    // this is probably unreachable given the rest of this parser.
                     return vf.string(in.nextName());
                 case NULL:
                     in.nextNull();
@@ -463,11 +464,12 @@ public class JsonValueReader {
             }
 
             var internalPos = (int) posHandler.get(in);
+            var internalLimit = getLimit();
 
             if (internalPos < lastPos) {
-                // the internal buffer has wrapped and started from 0 again.
-                // so we accumulate the offset here without resetting to 0.
-                offset = offset + internalPos /* gson copies the tail of the buffer to the front */;
+                // so we detected we are in trouble, but we do not have enough information for a solution here.
+                // TODO: fix this code in another PR by wrapping the CharacterReader.
+                offset = offset + (lastLimit - lastPos) + internalPos /* gson copies the tail of the buffer to the front */;
             }
             else {
                 // the offset advances by the number of parsed characters
@@ -476,6 +478,7 @@ public class JsonValueReader {
 
             // save the previous state
             lastPos = internalPos;
+            lastLimit = internalLimit;
 
             try {
                 return Math.max(0, offset - 1);
@@ -483,6 +486,21 @@ public class JsonValueReader {
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
                 // this way we at least can get some form of DOM back.
+                stopTracking = true;
+                return 0;
+            }
+        }
+
+        private int getLimit() {
+            if (stopTracking) {
+                return 0;
+            }
+
+            try {
+                return (int) lineHandler.get(in) + 1;
+            }
+            catch (IllegalArgumentException | SecurityException e) {
+                // stop trying to recover the positions
                 stopTracking = true;
                 return 0;
             }
@@ -952,6 +970,7 @@ public class JsonValueReader {
                 this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
                 this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
                 this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+                this.limitHandler =  privateLookup.findVarHandle(JsonReader.class, "limit", int.class);
             }
             catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
                 // we disable the origin tracking if we can not get to the fields
@@ -1017,6 +1036,10 @@ public class JsonValueReader {
 
     public JsonValueReader setTrackOrigins(boolean trackOrigins) {
         this.trackOrigins = trackOrigins;
+        if (trackOrigins) {
+            monitor.warning("The origin tracking feature of the JSON parser is temporarily disabled.", src);
+            this.trackOrigins = false;
+        }
         return this;
     }
 
