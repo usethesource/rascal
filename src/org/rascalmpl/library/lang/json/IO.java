@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.json;
 
+import java.io.FilterReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -162,4 +164,6 @@ public class IO {
             throw RuntimeExceptionFactory.io(e);
         }
     }
+
+    
 }
