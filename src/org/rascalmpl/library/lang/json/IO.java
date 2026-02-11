@@ -24,7 +24,6 @@ import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
@@ -64,12 +63,13 @@ public class IO {
 
         try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
             in.setLenient(lenient.getValue());
-            return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
+            return new JsonValueReader(values, store, monitor, loc)
                 .setCalendarFormat(dateTimeFormat.getValue())
                 .setParsers(parsers)
                 .setNulls(unreify(nulls))
                 .setExplicitConstructorNames(explicitConstructorNames.getValue())
                 .setExplicitDataTypes(explicitDataTypes.getValue())
+                .setTrackOrigins(trackOrigins.getValue())
                 .read(in, start);
         }
         catch (IOException e) {
@@ -93,11 +93,11 @@ public class IO {
 
         try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
             in.setLenient(lenient.getValue());
-            return new JsonValueReader(values, store, monitor,
-                trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
+            return new JsonValueReader(values, store, monitor,null)
                     .setCalendarFormat(dateTimeFormat.getValue())
                     .setParsers(parsers)
                     .setNulls(unreify(nulls))
+                    .setTrackOrigins(trackOrigins.getValue())
                     .setExplicitConstructorNames(explicitConstructorNames.getValue())
                     .setExplicitDataTypes(explicitDataTypes.getValue())
                     .read(in, start);

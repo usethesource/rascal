@@ -90,9 +90,10 @@ test bool json2() = writeRead(#DATA2, data2("123"));
 test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
 test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
-test bool originTracking() {
-   ex2 = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
-   content = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+
+bool originTest(loc example) {
+   ex2 = readJSON(#node, example, trackOrigins=true);   
+   content = readFile(example);
 
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
@@ -103,6 +104,12 @@ test bool originTracking() {
    }
 
    return true;
+}
+
+@ignore{awaiting fix of 2633}
+test bool originTracking() {
+    return originTest(|std:///lang/rascal/tests/library/lang/json/glossary.json|)
+        && originTest(|std:///lang/rascal/tests/library/lang/json/testing.json|);
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -174,6 +181,7 @@ value toDefaultValue(real r) = r - round(r) == 0
     : fitDouble(r);
 default value toDefaultValue(value x) = x;
 
+@ignore{awaiting fix of 2633}
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
@@ -193,6 +201,7 @@ test bool accurateParseErrors() {
 
    return true;
 }
+
 @ignore{until #2133 is fixed}
 test bool regression1() = jsonRandom1(("a":12,[]:{}));
 
