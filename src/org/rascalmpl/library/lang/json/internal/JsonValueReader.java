@@ -1027,10 +1027,6 @@ public class JsonValueReader {
 
     public JsonValueReader setTrackOrigins(boolean trackOrigins) {
         this.trackOrigins = trackOrigins;
-        if (trackOrigins) {
-            monitor.warning("The origin tracking feature of the JSON parser is temporarily disabled.", src);
-            this.trackOrigins = false;
-        }
         return this;
     }
 
