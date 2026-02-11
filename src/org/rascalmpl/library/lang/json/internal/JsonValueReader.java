@@ -970,7 +970,6 @@ public class JsonValueReader {
                 this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
                 this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
                 this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
-                this.limitHandler =  privateLookup.findVarHandle(JsonReader.class, "limit", int.class);
             }
             catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
                 // we disable the origin tracking if we can not get to the fields
