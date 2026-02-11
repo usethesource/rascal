@@ -69,7 +69,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     dt = isEmpty(typeParameters) ? defType(aadt(adtName, [], dataSyntax()))
                                  : defType(typeParameters, AType(Solver s) { return aadt(adtName, [ s.getType(tp)[closed=true] | tp <- typeParameters], dataSyntax()); });
     
-    dt.md5 = md5Hash("<adtName><dataCounter>");
+    dt.md5 = normalizedMD5Hash("<adtName><dataCounter>");
     dataCounter += 1;
     if(!isEmpty(commonKeywordParameterList)) dt.commonKeywordFields = commonKeywordParameterList;
     c.define(adtName, dataId(), current, dt);
@@ -141,7 +141,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = md5Hash("<currentModuleName><adtName><name><unparseNoLayout(current)>");
+                dt.md5 = normalizedMD5Hash("<currentModuleName><adtName><name><unparseNoLayout(current)>");
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
@@ -152,7 +152,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             declaredFieldNames += fieldName;
             kwfType = kwf.\type;
             dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
-            dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><consArity><kwfType><fieldName>");
+            dt.md5 = normalizedMD5Hash("<currentModuleName><adtName><dataCounter><name><consArity><kwfType><fieldName>");
             c.define(fieldName, keywordFieldId(), kwf.name, dt);  
         }
     
@@ -166,7 +166,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                     kwFormalTypes = [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
-                })[md5 = md5Hash(md5Contrib)]);
+                })[md5 = normalizedMD5Hash(md5Contrib)]);
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);
                  // The standard rules would declare arguments and kwFormals as variableId();

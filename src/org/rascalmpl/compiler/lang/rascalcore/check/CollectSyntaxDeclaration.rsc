@@ -78,7 +78,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
 
         dt = defType(/*current is language && current.\start is present ? \start(nonterminalType) : */nonterminalType);
         dt.vis = vis;
-        dt.md5 = md5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
+        dt.md5 = normalizedMD5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
         syndefCounter += 1;
 
         // Define the syntax symbol itself and all labelled alternatives as constructors
@@ -199,7 +199,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
-            })[md5=md5Hash("<adt><unparseNoLayout(current)>")]);
+            })[md5=normalizedMD5Hash("<adt><unparseNoLayout(current)>")]);
         beginUseTypeParameters(c,closed=true);
             c.push(currentAlternative, <adt, "<name>", syms>);
                 collect(symbols, c);
@@ -271,7 +271,7 @@ void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
         c.pop(inAlternative);
         if(isEmpty(c.getStack(inAlternative))){
             nalternatives += 1;
-              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=md5Hash(unparseNoLayout(current))]);
+              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=normalizedMD5Hash(unparseNoLayout(current))]);
         }
     } else {
         throw "collect alt: currentAdt not found";

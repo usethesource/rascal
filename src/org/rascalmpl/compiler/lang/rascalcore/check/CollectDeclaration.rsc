@@ -169,7 +169,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
-            dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><varType><var.name>");
+            dt.md5 = normalizedMD5Hash("<md5Contrib4Tags(tags)><visibility><varType><var.name>");
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             vname = prettyPrintName(var.name);
             if(isWildCard(vname)){
@@ -217,7 +217,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 
     dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
     dt.vis = getVis(current.visibility, publicVis());
-    dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><annoType><onType><name>");
+    dt.md5 = normalizedMD5Hash("<md5Contrib4Tags(tags)><visibility><annoType><onType><name>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     // if(isWildCard(pname)){
     //     c.report(error(name, "Annotation names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
@@ -236,7 +236,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     } catch TypeUnavailable(): {
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
-    dt.md5 = md5Hash(unparseNoLayout(current));
+    dt.md5 = normalizedMD5Hash(unparseNoLayout(current));
     c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
@@ -419,7 +419,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 
         endUseBoundedTypeParameters(c);
 
-        dt.md5 = md5Hash(md5Contrib);
+        dt.md5 = normalizedMD5Hash(md5Contrib);
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
     c.leaveScope(decl);
     c.pop(currentFunction);
@@ -719,7 +719,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     //     c.report(warning(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
 
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><base>")]);
+    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash("<md5Contrib4Tags(tags)><visibility><name><base>")]);
     c.enterScope(current);
         collect(tags, base, c);
     c.leaveScope(current);
@@ -754,7 +754,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         }
 
         return aalias(aliasName, params, s.getType(base));
-    })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><parameters><base>")]);
+    })[md5 = normalizedMD5Hash("<md5Contrib4Tags(tags)><visibility><name><parameters><base>")]);
 
     collect(tags, c);
 
