@@ -141,7 +141,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = normalizedMD5Hash("<currentModuleName><adtName><name><unparseNoLayout(current)>");
+                dt.md5 = normalizedMD5Hash("<currentModuleName><adtName><name><current>");
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
