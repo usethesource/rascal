@@ -34,11 +34,17 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -47,11 +53,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
@@ -66,6 +74,7 @@ import org.rascalmpl.util.NamedThreadPool;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.gson.JsonPrimitive;
 
 import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
@@ -102,41 +111,84 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
-    @Override
-    public InputStream getInputStream(ISourceLocation loc) throws IOException {
+    private static <T, U> U call(Function<T, CompletableFuture<U>> function, T argument) throws IOException {
         try {
-            var contents = remote.readFile(loc).get(1, TimeUnit.MINUTES);
-            return new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_16));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote for `getInputStream` on " + loc + ": " + e.getMessage());
+            return function.apply(argument).get(1, TimeUnit.MINUTES);
+        } catch (TimeoutException e) {
+            throw new IOException("Remote resolver took too long to reply; interrupted to avoid deadlocks");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UnsupportedOperationException("Thread should have been interrupted");
+        } catch (CompletionException | ExecutionException e) {
+            var cause = e.getCause();
+            if (cause != null) {
+                if (cause instanceof ResponseErrorException) {
+                    throw translateException((ResponseErrorException) cause);
+                }
+                throw new IOException(cause);
+            }
+            throw new IOException(e);
         }
+    }
+
+    private static IOException translateException(ResponseErrorException cause) {
+        var error = cause.getResponseError();
+        switch (error.getCode()) {
+            case -1:
+                return new IOException("Generic error: " + error.getMessage());
+            case -2: {
+                if (error.getData() instanceof JsonPrimitive) {
+                    var data = (JsonPrimitive) error.getData();
+                    if (data.isString()) {
+                        switch (data.getAsString()) {
+                            case "FileExists": // fall-through
+                            case "EntryExists":
+                                return new FileAlreadyExistsException(error.getMessage());
+                            case "FileNotFound": // fall-through
+                            case "EntryNotFound":
+                                return new NoSuchFileException(error.getMessage());
+                            case "FileNotADirectory": // fall-through
+                            case "EntryNotADirectory":
+                                return new NotDirectoryException(error.getMessage());
+                            case "FileIsADirectory": // fall-through
+                            case "EntryIsADirectory":
+                                return new IOException("File is a directory: " + error.getMessage());
+                            case "NoPermissions":
+                                return new AccessDeniedException(error.getMessage());
+                        }
+                    }
+                }
+                return new IOException("File system error: " + error.getMessage() + " data: " + error.getData());
+            }
+            case -3:
+                return new IOException("Rascal native schemes should not be forwarded");
+            default:
+                return new IOException("Missing case for: " + error);
+        }
+    }
+
+    @Override
+    public InputStream getInputStream(ISourceLocation loc) throws IOException {   
+        return new ByteArrayInputStream(call(remote::readFile, loc).getBytes(StandardCharsets.UTF_16));
     }
 
     @Override
     public boolean exists(ISourceLocation loc) {
         try {
-            return remote.exists(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return call(remote::exists, loc);
+        } catch (IOException e) {
             return false;
         }
     }
 
     @Override
     public long lastModified(ISourceLocation loc) throws IOException {
-        try {
-            return remote.lastModified(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `lastModified` on " + loc + ": " + e.getMessage());
-        }
+        return call(remote::lastModified, loc);
     }
 
     @Override
     public long size(ISourceLocation loc) throws IOException {
-        try {
-            return remote.size(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `size` on " + loc + ": " + e.getMessage());
-        }
+        return call(remote::size, loc);
     }
 
     @Override
@@ -149,8 +201,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return result;
                 }
             }
-            return remote.isDirectory(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return call(remote::isDirectory, loc);
+        } catch (IOException e) {
             return false;
         }
     }
@@ -165,19 +217,15 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return !result;
                 }
             }
-            return remote.isFile(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return call(remote::isFile, loc);
+        } catch (IOException e) {
             return false;
         }
     }
 
     @Override
     public boolean isReadable(ISourceLocation loc) throws IOException {
-        try {
-            return remote.isReadable(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `isReadable` on " + loc + ": " + e.getMessage());
-        }
+        return call(remote::isReadable, loc);
     }
 
     /**
@@ -193,15 +241,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
-        try {
-            var result = remote.list(loc).get(1, TimeUnit.MINUTES);
-            cachedDirectoryListing.put(loc, Lazy.defer(() -> {
-                return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
-            }));
-            return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `list` on " + loc + ": " + e.getMessage());
-        }
+        var result = call(remote::list, loc);
+        cachedDirectoryListing.put(loc, Lazy.defer(() -> {
+            return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
+        }));
+        return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
     }
 
     @Override
@@ -211,11 +255,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public FileAttributes stat(ISourceLocation loc) throws IOException {
-        try {
-            return remote.stat(loc).get(1, TimeUnit.MINUTES).getFileAttributes();
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `stat` on " + loc + ": " + e.getMessage());
-        }
+        return call(remote::stat, loc).getFileAttributes();
     }
 
     @Override
@@ -229,8 +269,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return;
                 }
                 closed = true;
-                var contents = this.toString(StandardCharsets.UTF_16);
-                remote.writeFile(loc, contents, append, true, true);
+                var contents = Base64.getEncoder().encodeToString(this.toByteArray());
+                call(l -> remote.writeFile(l, contents, append, true, true), loc);
                 cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };
@@ -238,46 +278,30 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public void mkDirectory(ISourceLocation loc) throws IOException {
-        try {
-            remote.mkDirectory(loc).get(1, TimeUnit.MINUTES);
-            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `mkDirectory` on " + loc + ": " + e.getMessage());
-        }
+        call(remote::mkDirectory, loc);
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void remove(ISourceLocation loc) throws IOException {
-        try {
-            remote.remove(loc, false).get(1, TimeUnit.MINUTES);
-            cachedDirectoryListing.invalidate(loc);
-            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `remove` on " + loc + ": " + e.getMessage());
-        }
+        call(l -> remote.remove(l, true), loc);
+        cachedDirectoryListing.invalidate(loc);
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void setLastModified(ISourceLocation loc, long timestamp) throws IOException {
-        throw new IOException("setLastModified is not supported remotely");
+        throw new IOException("Remote `setLastModified` is not supported");
     }
 
     @Override
     public boolean isWritable(ISourceLocation loc) throws IOException {
-        try {
-            return remote.isWritable(loc).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `isWritable` on " + loc + ": " + e.getMessage());
-        }
+        return call(remote::isWritable, loc);
     }
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        try {
-            return remote.resolveLocation(input).get(1, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new IOException("Error during remote `resolve` on " + input + ": " + e.getMessage());
-        }
+        return call(remote::resolveLocation, input);
     }
 
     @Override
@@ -288,12 +312,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 var result = new Watchers();
                 result.addNewWatcher(watcher);
                 watchersById.put(result.getId(), result);
-                try {
-                    remote.watch(new WatchRequest(root, recursive, result.getId())).get(1, TimeUnit.MINUTES);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    System.err.println("Could not watch `" + root + "` remotely: " + e.getCause().getMessage());
-                    // throw new IOException("Could not watch `" + root + "` remotely: " + e.getCause().getMessage());
-                }
+                remote.watch(new WatchRequest(root, recursive, result.getId())).join();
                 return result;
             });
             watch.addNewWatcher(watcher);
@@ -316,12 +335,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             }
             watchersById.remove(watch.getId());
         }
-        try {
-            remote.unwatch(new WatchRequest(root, recursive, watch.getId())).join();
-        } catch (CompletionException ce) {
-            System.err.println("Error removing watch: " + ce.getCause().getMessage());
-            throw new IOException(ce.getCause());
-        }
+        call(remote::unwatch, new WatchRequest(root, recursive, watch.getId()));
     }
 
     @Override
