@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -54,9 +56,16 @@ import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.vfs.FileAttributesResult.FileType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileWithType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
+import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
@@ -133,6 +142,13 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean isDirectory(ISourceLocation loc) {
         try {
+            var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
+            if (cached != null) {
+                var result = cached.get().get(URIUtil.getLocationName(loc));
+                if (result != null) {
+                    return result;
+                }
+            }
             return remote.isDirectory(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             return false;
@@ -142,6 +158,13 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean isFile(ISourceLocation loc) {
         try {
+            var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
+            if (cached != null) {
+                var result = cached.get().get(URIUtil.getLocationName(loc));
+                if (result != null) {
+                    return !result;
+                }
+            }
             return remote.isFile(loc).get(1, TimeUnit.MINUTES);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             return false;
@@ -157,10 +180,25 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
+    /**
+     * Rascal's current implementions sometimes ask for a directory listing and then iterate over all entries
+     * checking whether they are a directory. This is very slow for jsonrcp, so we store the last directory listing
+     * and check the cache first
+     */
+    private final Cache<ISourceLocation, Lazy<Map<String, Boolean>>> cachedDirectoryListing
+        = Caffeine.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(5))
+            .maximumSize(1000)
+            .build();
+
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
         try {
-            return Stream.of(remote.list(loc).get(1, TimeUnit.MINUTES)).map(fwt -> fwt.getName()).toArray(String[]::new);
+            var result = remote.list(loc).get(1, TimeUnit.MINUTES);
+            cachedDirectoryListing.put(loc, Lazy.defer(() -> {
+                return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
+            }));
+            return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new IOException("Error during remote `list` on " + loc + ": " + e.getMessage());
         }
@@ -193,6 +231,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 closed = true;
                 var contents = this.toString(StandardCharsets.UTF_16);
                 remote.writeFile(loc, contents, append, true, true);
+                cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };
     }
@@ -201,6 +240,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     public void mkDirectory(ISourceLocation loc) throws IOException {
         try {
             remote.mkDirectory(loc).get(1, TimeUnit.MINUTES);
+            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new IOException("Error during remote `mkDirectory` on " + loc + ": " + e.getMessage());
         }
@@ -210,6 +250,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     public void remove(ISourceLocation loc) throws IOException {
         try {
             remote.remove(loc, false).get(1, TimeUnit.MINUTES);
+            cachedDirectoryListing.invalidate(loc);
+            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new IOException("Error during remote `remove` on " + loc + ": " + e.getMessage());
         }
