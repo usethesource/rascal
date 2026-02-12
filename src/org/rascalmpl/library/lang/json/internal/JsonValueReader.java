@@ -492,7 +492,10 @@ public class JsonValueReader {
             var trackerCount = tracker.getReadCount();
 
             if (readCount < trackerCount) {
+                // the tracker indicates that `read` has happened and so the buffer has been rewound.
                 readCount = trackerCount;
+                // we learn from the tracker how far the offset is until the new first character in the buffer
+                // and we add the current offset since that reset to found our new current offset.
                 offset = tracker.getLimitOffset() + internalPos;
             }
             else {
@@ -504,6 +507,7 @@ public class JsonValueReader {
             lastPos = internalPos;
 
             try {
+                // never go below 0. might happen with a parse error at the first character.
                 return Math.max(0, offset - 1);
             }
             catch (IllegalArgumentException | SecurityException e) {
