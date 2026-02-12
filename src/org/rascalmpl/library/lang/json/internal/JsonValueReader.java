@@ -1160,8 +1160,11 @@ public class JsonValueReader {
      * current position in the buffer.
      */
     public static class OriginTrackingReader extends FilterReader {
+        // offset is always pointing at the point in the file where JsonReader.pos == 0
         private int offset = 0;
+        // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
         private int limit = 0;
+        // readCount increases by 1 with every call to `read`
         private int readCount = 0;
 
         protected OriginTrackingReader(Reader in) {
@@ -1170,16 +1173,19 @@ public class JsonValueReader {
 
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
-            // we've read until here before we were reset to 0.
-            offset += limit;
+            // we've read until here before we were reset to starting point `off`.
+            // the offset of the new current 0-based buffer starts here:
+            offset += limit - off;
 
-            // get the new limit
-            limit = in.read(cbuf, off, len);
+            var charsRead = in.read(cbuf, off, len);
+
+            // get the new limit (to where we've filled the buffer)
+            limit = charsRead + off;
 
             readCount++;
             
-            // and return it.
-            return limit;
+            // and return the number of characters read.
+            return charsRead;
         }
 
         public int getLimitOffset() {
