@@ -265,7 +265,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     ppfname = prettyPrintName(fname);
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
-    if(ignoreCompiler(tagsMap)) {
+    if(ignoreCompiler(tagsMap) && "test" notin modifiers) {
         c.report(info(fname, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
