@@ -981,23 +981,22 @@ public class JsonValueReader {
 
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-        if (src != null) {
-            try {
-                var lookup = MethodHandles.lookup();
-                var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
-                this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
-                this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
-                this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+        
+        try {
+            var lookup = MethodHandles.lookup();
+            var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+            this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+            this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+            this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
 
-                if (posHandler == null || lineHandler == null || lineStartHandler == null) {
-                    stopTracking = true;
-                }
-            }
-            catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-                // we disable the origin tracking if we can not get to the fields
+            if (posHandler == null) {
                 stopTracking = true;
-                monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
             }
+        }
+        catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+            // we disable the origin tracking if we can not get to the fields
+            stopTracking = true;
+            monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
         }
     }
 
@@ -1100,7 +1099,10 @@ public class JsonValueReader {
      */
     public IValue read(JsonReader in, Type expected) throws IOException {
         in.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
-
+        
+        // we can't track accurately because we don't have a handle to the raw buffer under `in`
+        this.stopTracking = true;
+        
         var dispatch = new ExpectedTypeDispatcher(in);
 
         try {
