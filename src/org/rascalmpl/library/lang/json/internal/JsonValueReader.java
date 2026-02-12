@@ -78,15 +78,17 @@ import com.google.gson.stream.MalformedJsonException;
 public class JsonValueReader {
     private static final TypeFactory TF = TypeFactory.getInstance();
     private final TypeStore store;
-    private final IValueFactory vf;
-    private ThreadLocal<SimpleDateFormat> format;
+    private final IValueFactory vf; 
     private final IRascalMonitor monitor;
-    private ISourceLocation src;
-    private boolean trackOrigins = false;
-    private boolean stopTracking = false;
+    private final ISourceLocation src;
     private VarHandle posHandler;
     private VarHandle lineHandler;
     private VarHandle lineStartHandler;
+    
+    /* options */
+    private ThreadLocal<SimpleDateFormat> format;
+    private boolean trackOrigins = false;
+    private boolean stopTracking = false;
     private boolean explicitConstructorNames;
     private boolean explicitDataTypes;
     private boolean lenient;
@@ -101,7 +103,6 @@ public class JsonValueReader {
         private int offset = 0;
         private int readCount = 0;
         private int lastPos = 0;
-        // private boolean stopTracking = false; 
         
         /**
          * In this mode we read directly from a given JsonReader, under which we can not
@@ -111,7 +112,6 @@ public class JsonValueReader {
         private ExpectedTypeDispatcher(JsonReader in) {
             this.in = in;
             this.tracker = null;
-            
         }
 
         /**
@@ -981,7 +981,6 @@ public class JsonValueReader {
 
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-        
         try {
             var lookup = MethodHandles.lookup();
             var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
