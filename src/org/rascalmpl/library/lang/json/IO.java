@@ -5,8 +5,10 @@
  *
  * Contributors:
  * 
- * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Mark Hills - Mark.Hills@cwi.nl (CWI) * Arnold
- * Lankamp - Arnold.Lankamp@cwi.nl * Bert Lisser - Bert.Lisser@cwi.nl
+ * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI 
+ * * Mark Hills - Mark.Hills@cwi.nl (CWI) 
+ * * Arnold - Lankamp - Arnold.Lankamp@cwi.nl 
+ * * Bert Lisser - Bert.Lisser@cwi.nl
  *******************************************************************************/
 package org.rascalmpl.library.lang.json;
 
@@ -54,7 +56,7 @@ public class IO {
     private IValue doReadJSON(Reader in, 
         IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
         IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) throws IOException {
-            
+
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
         
