@@ -44,7 +44,6 @@ import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 
 import Location;
-import analysis::typepal::LocationChecks;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::BuiltinFields;
@@ -54,8 +53,7 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascalcore::check::ATypeInstantiation;
-
-
+import analysis::typepal::LocationChecks;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -268,7 +266,7 @@ private loc findContainer(Define d){
     }
     return cscope;
 }
-  
+
 str findDefiningModule(loc l){
     for(ms <- module_scopes,isContainedIn(l, ms, current_tmodel.logical2physical)){
         return definitions[ms].id;
