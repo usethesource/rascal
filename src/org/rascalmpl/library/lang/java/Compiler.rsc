@@ -57,7 +57,7 @@ list[Message] compileJava(PathConfig pcfg)
 @pitfalls{
 * `file` has to be reachable from `srcs`, because a fully qualified class name is computing by relativizing the source file `loc` against the `srcs` folders.
 * The source files is read using ((readFile)).
-* All classfiles, which could be many in the case of anonymous or nested classes, are written directly to the `bin` folder.
+* All class files, which could be many in the case of anonymous or nested classes, are written directly to the `bin` folder.
 * `libs` is typically a list of `jar+file:///` or `mvn:///` locations, one for each (transitive) compile-time dependency.
 Without these the compiler will complain about missing symbols and return error messages.
 }

@@ -65,7 +65,7 @@ _Step 2_: The type of each field is inferred from the type of all of its occurre
 
 *  If all occurrences have a numeric type, then the smallest possible type is used.
 *  If the occurrences have a mixed type, i.e., numeric, non-numeric, boolean or string, then the type is `str`.
-*  If the requested type for a field is `str` and another type would be inferred by the preceeding two rules, 
+*  If the requested type for a field is `str` and another type would be inferred by the preceding two rules,
 its inferred type will be `str`.
 
 Reading the values in fields is straightforward, except for the case that the text in the field is enclosed between double quotes (`"`):
@@ -74,7 +74,7 @@ Reading the values in fields is straightforward, except for the case that the te
 *  the text may contain escaped double quotes (`""`) which are represented as `\"` in the resulting string value.
 }
 @examples{
-Given is the follwing file `ex1.csv`:
+Given is the following file `ex1.csv`:
 
 ```rascal
 ((|project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|))

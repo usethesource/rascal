@@ -104,7 +104,7 @@ data Type(
 
 @synopsis{Uniform name for everything that is a _modifier_ in programming languages syntax: public, static, final, etc.}
 @description{
-Instances of the Modifer type represent the _syntax_ of modifiers in programming languages.
+Instances of the Modifier type represent the _syntax_ of modifiers in programming languages.
 
 | field name | description |
 | ---------- | ----------- |
