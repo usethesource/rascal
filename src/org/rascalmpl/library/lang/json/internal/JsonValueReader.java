@@ -752,7 +752,8 @@ public class JsonValueReader {
 
             in.endObject();
             int endPos = getPos();
-            assert endPos >= startPos : "as assumpion on the internals of gson";
+            assert endPos >= startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
+
             int endLine = getLine();
             int endCol = getCol();
 
