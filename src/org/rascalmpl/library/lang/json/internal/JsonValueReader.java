@@ -482,6 +482,8 @@ public class JsonValueReader {
          * `internalPos < lastPos` will not have had the opportunity to evaluate to `true`.
          */
         private int getPos() {
+            assert !(!stopTracking && posHandler == null) : "if we don't have the posHandler stopTracking should be true";
+
             if (stopTracking) {
                 return 0;
             }
@@ -986,6 +988,10 @@ public class JsonValueReader {
                 this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
                 this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
                 this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+
+                if (posHandler == null || lineHandler == null || lineStartHandler == null) {
+                    stopTracking = true;
+                }
             }
             catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
                 // we disable the origin tracking if we can not get to the fields
@@ -1093,7 +1099,6 @@ public class JsonValueReader {
      * @throws IOException when either a parse error or a validation error occurs
      */
     public IValue read(JsonReader in, Type expected) throws IOException {
-        assert !trackOrigins : "use the other read method to track Json origins";
         in.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
 
         var dispatch = new ExpectedTypeDispatcher(in);

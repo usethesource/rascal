@@ -106,10 +106,10 @@ bool originTest(loc example) {
    return true;
 }
 
-@ignore{awaiting fix of 2633}
 test bool originTracking() {
-    return originTest(|std:///lang/rascal/tests/library/lang/json/glossary.json|)
-        && originTest(|std:///lang/rascal/tests/library/lang/json/testing.json|);
+    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
+
+    return (true | it && originTest(example) | example <- files, bprintln("testing origins of <example>"));
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -181,7 +181,6 @@ value toDefaultValue(real r) = r - round(r) == 0
     : fitDouble(r);
 default value toDefaultValue(value x) = x;
 
-@ignore{awaiting fix of 2633}
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
