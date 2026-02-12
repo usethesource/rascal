@@ -1,7 +1,7 @@
 // This comment pushes the length of the file beyong the 1024 limit. 
 {
   "name": "TESTING Adding one more character to this data caused the test to fail",
-  "type": "66XU0Cylu7Sur4Iiae/KOiEr7HnJOWgaHqwPTYusrEsX1Imws/Qxpc9EZISLCq+G60OVedHbctmJF1KY2Vx962khn5xcKZ7IpdavqI1Xi5FVz2PB4nNb2SD4zwxFK1Fz6NhS2B80vftdwtik9ya3CGgMV5d8dllRivihC+hhdY4sLAjdUXiFGSgEqhPIZYbRtFHi4kWNBJd0BJHx1gWEuimd6WDbBS0FyVsRqjqLutmKjy6pOiF0s5XHYYHkm+LjFN+eTT1xV6AKvuqslRt8q7cz2Cy2HRGTmfSunlLCei1Q/Bff/jtGEG+sYsfRZy7FQwa1vNxAGXOGUqOaYrQOrg68Y/TbVnQ2Wq/KFjQIxEEZJWq5z5MKRGZfV+EfQ2gLSjE+owPr+y/AAH4QjSehItW6qYGo0k8Vt7ptD95xNg4K/b2ebXOuJh4vOpOdIXUpRuwZfndVacYT61ozLOGzlukdqofQF5zaE1XuegssUUJNPxvT6gpVF1d3P0MoIVSJpCi4boSgM0xpAYYnC+Trl9B+zz74HIvS3oePc+Bm2CrL3Ap2rC9BreJKRljLwzJdWw/Snnb5ssZJtKI1S4EqelMEOg0vxoUQDYiGGysRHxZBsvTU0sHzKEe85m7ovR3iDnd5mnAhx58BS/YVXemd3zefcisnyAnjreW1g+fiDXG66le90C0lGvBPEg15xRPt298AjGulnWylJ3Q4pKZ367x41L134GvAGtnihuYMnPoSuWo2bakvHHDP2iexVobSK64QzlfXFLHydqNyJ/kSPztvsX5QV1kWIIHiqxGZEttOpbP4OvZDP82/5kvnI4hNv92ZcCdu1eKfgCNrd+cSYBeRXvz2W7KH+Ts2FbZDrwHNQWhvkfgBEpDvk+YwQTZFvMwenj4VA6VmYZvw5pzOiS2t3kdOJz60CZsgCqKaF7slaJV/SeG6zfi5rDkioQJZyB97Tjmed8S8etMexEjrq7q1S2Wkn7uAdDY/cEjhwuH1+YvNlECS6naT+oFu3thk",
+  "type": "type_abcd",
   "nested_abc": [
     {
       "type": "line",
