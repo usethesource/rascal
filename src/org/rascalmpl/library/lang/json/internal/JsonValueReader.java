@@ -1102,7 +1102,6 @@ public class JsonValueReader {
         
         // we can't track accurately because we don't have a handle to the raw buffer under `in`
         this.stopTracking = true;
-        
         var dispatch = new ExpectedTypeDispatcher(in);
 
         try {

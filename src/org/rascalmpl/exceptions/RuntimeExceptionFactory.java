@@ -98,6 +98,8 @@ public class RuntimeExceptionFactory {
 
     // NotImplemented
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
+
+	// this comes from lang::json::IO
 	public static final Type NoOffsetParseError = TF.constructor(TS, Exception, "NoOffsetParseError", TF.sourceLocationType(), "location", TF.integerType(), "line", TF.integerType(), "column");
 
 	public static final Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
@@ -686,11 +688,11 @@ public class RuntimeExceptionFactory {
     }   
 
 	public static Throw jsonParseError(ISourceLocation file, int line, int col, String cause, String path) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'jsonParseError'");
+         return new Throw(VF.constructor(NoOffsetParseError, file, VF.integer(line), VF.integer(col))
+			.asWithKeywordParameters().setParameter("reason", VF.string(cause))
+			.asWithKeywordParameters().setParameter("path", VF.string(path)));
     }
 
-	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast != null ? ast.getLocation() : null, trace);
 	}	
