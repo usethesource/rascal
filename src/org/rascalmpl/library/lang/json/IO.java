@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.json;
 
-import java.io.FilterReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -40,7 +39,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 public class IO {
@@ -53,81 +51,54 @@ public class IO {
         this.monitor = monitor;
     }
 
-    public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
-        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
+    private IValue doReadJSON(Reader in, 
+        IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
+        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) throws IOException {
+            
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-
+        
         if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
             // ignore the default parser
             parsers = null;
         }
 
-        if (trackOrigins.getValue()) {
-            try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
-                return new JsonValueReader(values, store, monitor, loc)
-                        .setCalendarFormat(dateTimeFormat.getValue())
-                        .setParsers(parsers)
-                        .setNulls(unreify(nulls))
-                        .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                        .setExplicitDataTypes(explicitDataTypes.getValue())
-                        .setTrackOrigins(trackOrigins.getValue())
-                        .read(in, start);
-            }
-            catch (IOException e) {
-                throw RuntimeExceptionFactory.io(e);
-            }
-            catch (NullPointerException e) {
-                throw RuntimeExceptionFactory.io("NPE in error handling code");
-            }
-        }
-        else {
-            try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
-                in.setLenient(lenient.getValue());
-                return new JsonValueReader(values, store, monitor, loc)
+        try {
+            return new JsonValueReader(values, store, monitor, loc)
                     .setCalendarFormat(dateTimeFormat.getValue())
-                    .setParsers(parsers)
+                    .setLenient(lenient.getValue())
+                    .setParsers(parsers) 
                     .setNulls(unreify(nulls))
                     .setExplicitConstructorNames(explicitConstructorNames.getValue())
                     .setExplicitDataTypes(explicitDataTypes.getValue())
-                    .read(in, start);
-            }
-            catch (IOException e) {
-                throw RuntimeExceptionFactory.io(e);
-            }
-            catch (NullPointerException e) {
-                throw RuntimeExceptionFactory.io("NPE in error handling code");
-            }
-        }
-    }
-
-    private Map<Type, IValue> unreify(IMap nulls) {
-        var tr = new TypeReifier(values);
-        return nulls.stream().map(t -> (ITuple) t)
-            .collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
-    }
-
-    public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
-        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
-        TypeStore store = new TypeStore();
-        Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-
-        try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
-            in.setLenient(lenient.getValue());
-            return new JsonValueReader(values, store, monitor,null)
-                    .setCalendarFormat(dateTimeFormat.getValue())
-                    .setParsers(parsers)
-                    .setNulls(unreify(nulls))
                     .setTrackOrigins(trackOrigins.getValue())
-                    .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                    .setExplicitDataTypes(explicitDataTypes.getValue())
                     .read(in, start);
+        }
+        catch (NullPointerException e) {
+            throw RuntimeExceptionFactory.io("NPE in error handling code");
+        }
+    }
+        
+    public IValue readJSON(
+        IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
+        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
+
+        try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
+            return doReadJSON(in, type, loc, dateTimeFormat, lenient, trackOrigins, parsers, nulls, explicitConstructorNames, explicitDataTypes);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e);
         }
-        catch (NullPointerException e) {
-            throw RuntimeExceptionFactory.io("NPE");
+    }
+
+    public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
+        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
+       
+        try (Reader in = new StringReader(src.getValue())) {
+            return doReadJSON(in, type, null, dateTimeFormat, lenient, trackOrigins, parsers, nulls, explicitConstructorNames, explicitDataTypes);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -184,5 +155,9 @@ public class IO {
         }
     }
 
-    
+    private Map<Type, IValue> unreify(IMap nulls) {
+        var tr = new TypeReifier(values);
+        return nulls.stream().map(t -> (ITuple) t)
+            .collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
+    }    
 }
