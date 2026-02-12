@@ -32,7 +32,7 @@ import Set;
 ```
 Create a map from animals to number of legs.
 ```rascal-shell,continue
-legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
+legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millipede": 1000, "crab": 8, "cat": 4);
 ```
 Define function `nLegs` that returns the number of legs for each animal (or `0` when the animal is unknown):
 ```rascal-shell,continue
@@ -42,7 +42,7 @@ int nLegs(str animal){
 ```
 Now classify a set of animals:
 ```rascal-shell,continue
-classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, nLegs);
+classify({"bird", "dog", "human", "spider", "millipede", "zebra", "crab", "cat"}, nLegs);
 ```
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
@@ -58,7 +58,7 @@ import Set;
 ```
 Create a map from animals to number of legs.
 ```rascal-shell,continue
-legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
+legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millipede": 1000, "crab": 8, "cat": 4);
 ```
 Define function `nLegs` that returns the number of legs fro each animal (or `0` when the animal is unknown):
 ```rascal-shell,continue
@@ -69,7 +69,7 @@ bool similar(str a, str b) = nLegs(a) == nLegs(b);
 ```
 Now group a set of animals:
 ```rascal-shell,continue
-group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
+group({"bird", "dog", "human", "spider", "millipede", "zebra", "crab", "cat"}, similar);
 ```
 WARNING: check compiler.
 }
@@ -251,7 +251,7 @@ public java int size(set[&T] st);
 
 public (&T <:num) sum(set[(&T <:num)] _:{}) {
 	throw ArithmeticException(
-		"For the emtpy set it is not possible to decide the correct precision to return.\n
+		"For the empty set it is not possible to decide the correct precision to return.\n
 		'If you want to call sum on empty set, use sum({0.000}+st) or sum({0r} +st) or sum({0}+st) 
 		'to make the set non-empty and indicate the required precision for the sum of the empty set 
 		");
@@ -493,7 +493,7 @@ This function is fast if `k` is relatively small, say 10 out of a 1000 elements.
 It operates in O(n*k) time where n is the size of the set.
  
 If `k` is a larger value, say `k > 10`, then it's perhaps better to just sort the entire set 
-using the asympotically faster (n*log^2(n)) sort function and take the first `k` elements of the resulting list.
+using the asymptotically faster (n*log^2(n)) sort function and take the first `k` elements of the resulting list.
 
 If `k` is a negative number, `top` will return the largest `abs(k)` elements of the set instead of the smallest.
 }

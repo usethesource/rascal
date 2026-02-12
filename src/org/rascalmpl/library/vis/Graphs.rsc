@@ -51,7 +51,7 @@ the original input `Graph[&T]`; so that is the type of the nodes. Often this wou
 Let's experiment with a number of styling parameters based on the shape of a graph:
 ```rascal-shell
 import vis::Graphs;
-// let's play with the geneology of the "Simpsons"
+// let's play with the genealogy of the "Simpsons"
 g = {
     <"Abraham Simpson", "Homer Simpson">,
     <"Mona Simpson", "Homer Simpson">,
@@ -126,7 +126,7 @@ alias NodeLinker[&T] = loc (&T _id1);
 loc defaultNodeLinker(/loc l) = l;
 default loc defaultNodeLinker(&T _) = |nothing:///|;
 
-@synopsis{A NodeLabeler maps node identies to descriptive node labels}
+@synopsis{A NodeLabeler maps node identities to descriptive node labels}
 alias NodeLabeler[&T]= str (&T _id2);
 
 @synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
@@ -146,7 +146,7 @@ alias EdgeClassifier[&T] = list[str] (&T _from, &T _to);
 @synopsis{The default edge classifier produces no classes}
 list[str] defaultEdgeClassifier(&T _, &T _) = [];
 
-@synopsis{An EdgeLabeler maps edge identies to descriptive edge labels.}
+@synopsis{An EdgeLabeler maps edge identities to descriptive edge labels.}
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
 
 @synopsis{The default edge labeler returns the empty label for all edges.}
@@ -205,7 +205,7 @@ graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
 Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
     = content(cfg.title, graphServer(cytoscape(graphData(v, cfg=cfg), cfg=cfg)));
 
-@synopsis{This core workhorse mixes the graph data with the configuration to obtain visualizable CytoScape.js data-structure.}
+@synopsis{This core workhorse mixes the graph data with the configuration to obtain a visualizable CytoScape.js data-structure.}
 @description{
 This data-structure is serialized to JSON and communicated directly to initialize cytoscape.js.
 The serialization is done by the generic ((lang::json::IO)) library under the hood of a ((util::Webserver)).
@@ -516,7 +516,7 @@ is typically used for an initial exploration of the graph. It is very fast.
 circle is arbitrary. This layout fails on larger collections of nodes because the points on the 
 circle will become really small and indistinguishable. However for graphs with less than 100 nodes 
 it provides a quick and natural overview.
-* `breadthfirst` computes a breadthfirst spanning tree, and uses path length to decide on which
+* `breadthfirst` computes a breadth-first spanning tree, and uses path length to decide on which
 layer each node will reside. Cross-edges (between branches) and back-edges are allowed but if there
 are many the graph will be messy. So this layout is best when you have a mostly hierarchical graph.
 Examples are flow charts and dependency graphs.
