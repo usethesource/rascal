@@ -45,6 +45,7 @@ import util::FileSystem;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names;
 import analysis::typepal::StringSimilarity;
+import analysis::typepal::LocationChecks;
 
 import IO;
 import List;
