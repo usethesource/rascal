@@ -715,7 +715,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
             if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(base, variableId(), name, defLub([statement],
+                c.define(base, variableId(), name, defType([statement],
                     AType(Solver s){
                         // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
                         // handle the combination of return and possible exception thrown by s.getType properly
