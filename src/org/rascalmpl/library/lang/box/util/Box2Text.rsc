@@ -114,7 +114,7 @@ This is used during the algorithm, not for external usage.
 * `vs` is the current separation between vertical elements in V, HV and HOV boxes
 * `is` is the default (additional) indentation for indented boxes
 * `maxWidth` is the number of columns (characters) of a single line on screen or on paper
-* `wrapAfter` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
+* `wrapAfter` is the threshold criterion for line fullness, to go to the next line in a HV box and to switching
 between horizontal and vertical for HOV boxes.
 }
 data Options = options(
@@ -174,15 +174,15 @@ private Text hh([a], Text b) = bar(a, b);
 
 private default Text hh(Text a, Text b) = vv(a[0..-1], bar(a[-1], b));
         
-@synsopsis{Horizontal concatenation, but if the left text is empty return nothing.}
+@synopsis{Horizontal concatenation, but if the left text is empty return nothing.}
 private Text lhh([], Text _) = [];
 private default Text lhh(a, b) = hh(a, b);
 
-@synsopsis{Horizontal concatenation, but if the right text is empty return nothing.}
+@synopsis{Horizontal concatenation, but if the right text is empty return nothing.}
 private Text rhh(Text _, []) = [];
 private Text rhh(Text a, Text b) = hh(a, b);
 
-@synsopsis{Vertical concatenation, but if the right text is empty return nothing.}
+@synopsis{Vertical concatenation, but if the right text is empty return nothing.}
 private Text rvv(Text _, []) = [];
 private default Text rvv(Text a, Text b) = vv(a,b);
     
