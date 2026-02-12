@@ -103,10 +103,10 @@ semantics. Sometimes to connect the merged models also new connections must be m
 When we simulate static composition, these analyses are ground truth, but when we simulate dynamic loading we have to treat the results as heuristic inferences.
 * Not every programming language front-end that creates M3 models has to have implemented all the above relations (yet). Constructing
 such a front-end may take time and incrementally growing models can already be very useful.
-* Even though M3 models can have errors and be partially populated, please be aware that partially correct programs lead to partically correct models and all downstream analysis is correspondingly inaccurate.
+* Even though M3 models can have errors and be partially populated, please be aware that partially correct programs lead to partially correct models and all downstream analysis is correspondingly inaccurate.
 * In statically types programming languages the `declarations` relation is typically one-to-one and the `uses` relation is `many-to-one`,
 which means that name resolution is _unique_ at _compile-time_. However this is not required for other more dynamic languages, and this is fine.
-You will see that one qualified name could potentionally resolve to different artefacts at run-time. This will be reflected by the `uses` relation
+You will see that one qualified name could potentially resolve to different artefacts at run-time. This will be reflected by the `uses` relation
 also having _many-to-many_ tuples in it. **Be careful how you count**, for example, _dependencies_ or _coupling_ in such cases since we
 are literally already over-approximating the reality of the running program.
 }
@@ -288,7 +288,7 @@ _internal_ consistency of an M3 model.
 
 If an M3 instance is a `closedWorld` model, this means that there are no `uses` in the model that 
 are not declared in the current model in `declarations`. A closed world model allows for more
-stringent consistenct checks than a model that depends on external declarations. By selecting
+stringent consistency checks than a model that depends on external declarations. By selecting
 `closedWorld=true` those additional checks are enabled, otherwise these are ignored or weakened
 accordingly. It is advisable to provide at least one closed model per programming language front-end,
 while testing against this spec.
@@ -298,7 +298,7 @@ This is a simple check for knowing if the test covers the language in some form.
 }
 @benefits{
 * Front-end construction is tricky business. This test provides a sanity check before users start depending
-on fawlty models. 
+on faulty models.
 }
 @pitfalls{
 * In `closedWorld` many things can be strictly checked, but in an open world with dependencies outside
