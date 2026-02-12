@@ -1,4 +1,4 @@
-@synopsis{The default formatting rules for _any_ parsetree.}
+@synopsis{The default formatting rules for _any_ parse tree.}
 @description{
 This module is meant to be extended to include rules specific for a language.
 
@@ -221,7 +221,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
-        // from their pre-decessors. Watching out not to loose any comments...
+        // from their predecessors. Watching out not to loose any comments...
 
         case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
             return HOV([toBox(elements[0], opts=opts), H([toBox(e, opts=opts) | e <- elements[1..]])]);
