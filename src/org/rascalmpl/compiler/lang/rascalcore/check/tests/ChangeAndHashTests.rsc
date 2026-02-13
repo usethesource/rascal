@@ -311,6 +311,12 @@ test bool consFieldLayoutChanged1()
 test bool consFieldLayoutChanged2()
     = expectEqual("data D = d(int n);", "data D = d  (int n);");
 
+test bool consDifferentNewlineCount()
+    = expectEqual("data A = a(list[A] children\n\n);", "data A = a(list[A] children\n\n\n);");
+
+test bool consDifferentNewlineChars()
+    = expectEqual("data A = a(list[A] children\n);", "data A = a(list[A] children\r\n);");
+
 
 // Keyword fields n and m generate separate locs, therefore we filter on constructors
 test bool consKwFieldChanged()
