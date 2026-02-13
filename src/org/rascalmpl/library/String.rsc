@@ -262,7 +262,7 @@ Return a copy of `subject` in which all occurrences of Unicode whitespace charac
 ```rascal-shell
 import String;
 removeWhitespace("\rabra\ncada bra\t");
-removeWhiteSpace("Uni\u1680code")
+removeWhitespace("Uni\u1680code")
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
