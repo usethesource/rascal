@@ -756,13 +756,14 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
             int endPos = getPos();
-            assert endPos >= startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
+            assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
 
             int endLine = getLine();
             int endCol = getCol();
 
+            in.endObject();
+            
             for (int i = 0; i < args.length; i++) {
                 if (args[i] == null) {
                     throw parseErrorHere(
@@ -772,7 +773,7 @@ public class JsonValueReader {
 
             if (trackOrigins && !stopTracking) {
                 kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             return vf.constructor(cons, args, kwParams);
@@ -851,14 +852,15 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
             int endPos = getPos();
             int endLine = getLine();
             int endCol = getCol();
 
+            in.endObject();
+            
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             IValue[] argArray = args.entrySet().stream().sorted((e, f) -> e.getKey().compareTo(f.getKey()))
