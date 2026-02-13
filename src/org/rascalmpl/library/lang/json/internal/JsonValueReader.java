@@ -772,7 +772,7 @@ public class JsonValueReader {
 
             if (trackOrigins && !stopTracking) {
                 kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(src, startPos, endPos - startPos, startLine, endLine, startCol, endCol + 1));
             }
 
             return vf.constructor(cons, args, kwParams);
@@ -858,7 +858,7 @@ public class JsonValueReader {
 
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(src, startPos, endPos - startPos, startLine, endLine, startCol, endCol + 1));
             }
 
             IValue[] argArray = args.entrySet().stream().sorted((e, f) -> e.getKey().compareTo(f.getKey()))
@@ -920,6 +920,7 @@ public class JsonValueReader {
             }
 
             IListWriter w = vf.listWriter();
+            getPos();
             in.beginArray();
             while (in.hasNext()) {
                 // here we pass label from the higher context
@@ -932,6 +933,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
+            getPos();
             return w.done();
         }
 
