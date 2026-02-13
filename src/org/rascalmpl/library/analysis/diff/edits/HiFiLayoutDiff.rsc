@@ -4,7 +4,7 @@ This algorithm is the final component of a declarative high fidelity source code
 
 We have the following assumptions:
 1. One original text file exists.
-2. One ((ParseTree)) of the original file to be formatted, containing all orginal layout and source code comments and case-insensitive literals in the exact order of the original text file. In other words,
+2. One ((ParseTree)) of the original file to be formatted, containing all original layout and source code comments and case-insensitive literals in the exact order of the original text file. In other words,
 nothing may have happened to the parse tree after parsing.
 3. One ((ParseTree)) of the _same_ file, but formatted (using a formatting algorithm like ((Tree2Box)) `|` ((Box2Text)), or string templates, and then re-parsing). This is typically obtained by
 translating the tree to a `str` using some formatting tools, and then reparsing the file.

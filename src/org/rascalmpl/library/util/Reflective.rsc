@@ -31,10 +31,10 @@ public java str getLineSeparator();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@synopsis{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Just parse a module at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@synopsis{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Parse a module (including surrounding spaces) at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 

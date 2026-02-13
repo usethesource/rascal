@@ -151,7 +151,7 @@ import Set;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
-A `Tree` defines the trees normally found after parsing; additional constructors exist for execptional cases:
+A `Tree` defines the trees normally found after parsing; additional constructors exist for exceptional cases:
 
 <1> Parse tree constructor when parse succeeded.
 <2> Cyclic parsetree.
@@ -396,7 +396,7 @@ conversion methods to make sure selection and highlighting ranges (for example) 
 character metaphor breaks. It depends on how the editor internally handles graphemes and on the way it is connected to Rascal 
 what the effect for the user is. 
 * @\loc annotations make ((Tree)) instances _unique_ ,where otherwise they could be semantically and syntactically equivalent.
-Therefor if you want to test for ((Tree)) (in)equality, always use `t1 := t2` and `t1 !:= t2`. Pattern matching already automatically
+Therefore if you want to test for ((Tree)) (in)equality, always use `t1 := t2` and `t1 !:= t2`. Pattern matching already automatically
 ignores @\loc annotations and whitespace and comments.
 * Annotated trees are strictly too big for optimal memory usage. Often `@\loc` is the first and only annotation, so it introduces a map for keyword parameters
 for every node. Also more nodes are different, impeding in optimal reference sharing. If you require long time storage of many
@@ -524,7 +524,7 @@ java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=f
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
 @benefits{
-* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+* Instead of trying to build a polynomial-sized parse forest, this function only builds the smallest part of
 the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
 * Use this function for ambiguity diagnostics and regression testing for ambiguity.
 }
@@ -545,7 +545,7 @@ java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
 @benefits{
-* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+* Instead of trying to build a polynomial-sized parse forest, this function only builds the smallest part of
 the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
 * Use this function for ambiguity diagnostics and regression testing for ambiguity.
 }
@@ -585,7 +585,7 @@ for the same grammar, if (and only if) it was stored for the same grammar value.
 }
 @benefits{
 * storing parsers is to cache the work of reifing a grammar, and generating a parser from that grammar.
-* stored parsers are nice for deployment scenerios where the language is fixed and efficiency is appreciated.
+* stored parsers are nice for deployment scenarios where the language is fixed and efficiency is appreciated.
 }
 @pitfalls{
 * caching parsers with `storeParsers` is your responsibility; the cache is not cleaned automatically when the grammar changes.
@@ -625,7 +625,7 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 ```
 }
 @benefits{
-* loaded parsers can be used immediately without the need of loadig and executing a parser generator.
+* loaded parsers can be used immediately without the need of loading and executing a parser generator.
 }
 @pitfalls{
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
@@ -874,7 +874,7 @@ yield of a tree should always produce the exact same locations as ((reposition))
 @benefits{
 * Unlike reparsing, ((reposition)) will maintain all other keyword parameters of ((Tree)) nodes, like resolved qualified names and type attributes.
 * Can be used to erase superfluous annotations for memory efficiency, while keeping the essential ones.
-* The default mark options simulatete the behavior of ((parser)) functions.
+* The default mark options simulate the behavior of ((parser)) functions.
 }
 &T <: Tree reposition(
   &T <: Tree tree, 

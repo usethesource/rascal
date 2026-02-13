@@ -44,7 +44,7 @@ loc relativize(list[loc] haystack, loc needle) throws PathNotFound {
     throw PathNotFound(needle);
 }
 
-@synsopis{Concatenate a relative path to a given surrounding path}
+@synopsis{Concatenate a relative path to a given surrounding path}
 @description{
 * `relative` must be of scheme `relative:///` or `SchemeNotSupported` will be thrown
 * ((resolve)) is the opposite of ((relativize))
@@ -94,7 +94,7 @@ java bool isSameFile(loc l, loc r);
 When the two locations refer to different files, their paths are compared as string.
 When they refer to the same file, their offsets are compared when present.
 }
-@pittfalls{
+@pitfalls{
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l, loc r)

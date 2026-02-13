@@ -39,7 +39,7 @@ public list[str] ascii =
 /* 018 */  "\\a12", // DC2   (Device Control 2)
 /* 019 */  "\\a13", // DC3   (Device Control 3)
 /* 020 */  "\\a14", // DC4   (Device Control 4)
-/* 021 */  "\\a16", // NAK   (Negative Acknowledgemnt)
+/* 021 */  "\\a16", // NAK   (Negative Acknowledgement)
 /* 022 */  "\\a16", // SYN   (Synchronous Idle)
 /* 023 */  "\\a17", // ETB   (End of Trans. Block)
 /* 024 */  "\\a18", // CAN   (Cancel)
