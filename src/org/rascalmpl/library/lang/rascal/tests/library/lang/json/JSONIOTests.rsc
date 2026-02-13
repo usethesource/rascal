@@ -106,10 +106,10 @@ bool originTest(loc example) {
    return true;
 }
 
-@ignore{awaiting fix of 2633}
 test bool originTracking() {
-    return originTest(|std:///lang/rascal/tests/library/lang/json/glossary.json|)
-        && originTest(|std:///lang/rascal/tests/library/lang/json/testing.json|);
+    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
+
+    return (true | it && originTest(example) | example <- files, bprintln("testing origins of <example>"));
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -181,7 +181,6 @@ value toDefaultValue(real r) = r - round(r) == 0
     : fitDouble(r);
 default value toDefaultValue(value x) = x;
 
-@ignore{awaiting fix of 2633}
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
@@ -312,5 +311,37 @@ test bool explicitDataTypes() {
     // here we can't be sure to get z() back, but we will get some Enum
     assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitDataTypes=false);
 
+    return true;
+}
+
+data X(loc src=|unkown:///|) = v1(int x=0, str s = "");
+
+test bool jsonVerifyOriginCorrect() {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+    t1 = [v1(s="hoi"), ref];
+    writeJSON(|memory:///test.json|, t1);
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+    return refExpected == readFile(v[1].src);
+}
+
+test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+    for (sSize <- [900..1024]) {
+        println(sSize);
+        t1 = [v1(s="<for (_ <- [0..sSize]) {>a<}>"), ref];
+        writeJSON(|memory:///test.json|, t1);
+
+        // this throws exceptions and asserts if there are bugs with the
+        // origin tracker. In particular it triggers #2633
+        v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+
+        // checking the last element
+        if (refExpected != readFile(v[1].src)) {
+            println("Failed for <sSize>: <readFile(v[1].src)>");
+            return false;
+        }
+    }
     return true;
 }

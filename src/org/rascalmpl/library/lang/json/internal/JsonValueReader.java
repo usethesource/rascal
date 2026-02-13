@@ -23,7 +23,9 @@
 package org.rascalmpl.library.lang.json.internal;
 
 import java.io.EOFException;
+import java.io.FilterReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -63,6 +65,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 import com.google.gson.JsonParseException;
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
@@ -75,30 +78,50 @@ import com.google.gson.stream.MalformedJsonException;
 public class JsonValueReader {
     private static final TypeFactory TF = TypeFactory.getInstance();
     private final TypeStore store;
-    private final IValueFactory vf;
-    private ThreadLocal<SimpleDateFormat> format;
+    private final IValueFactory vf; 
     private final IRascalMonitor monitor;
-    private ISourceLocation src;
-    private boolean trackOrigins = false;
-    private boolean disableTracking = false;
+    private final ISourceLocation src;
     private VarHandle posHandler;
     private VarHandle lineHandler;
     private VarHandle lineStartHandler;
+    
+    /* options */
+    private ThreadLocal<SimpleDateFormat> format;
+    private boolean trackOrigins = false;
+    private boolean stopTracking = false;
     private boolean explicitConstructorNames;
     private boolean explicitDataTypes;
+    private boolean lenient;
     private IFunction parsers;
     private Map<Type, IValue> nulls = Collections.emptyMap();
+    
 
     private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
         private final JsonReader in;
-        private int offset = 0;
-        private int lastPos = 0;
-        private int lastLimit = 0;
-        private boolean stopTracking = true; /* origin tracking is turned off while we work on debugging the offsets on another PR */
+        private final OriginTrackingReader tracker;
 
-        private ExpectedTypeDispatcher(JsonReader in, boolean noTracking) {
+        private int offset = 0;
+        private int readCount = 0;
+        private int lastPos = 0;
+        
+        /**
+         * In this mode we read directly from a given JsonReader, under which we can not
+         * encapsulate its Reader for counting offsets. This is used by the JSON-RPC bridge.
+         * @param in
+         */
+        private ExpectedTypeDispatcher(JsonReader in) {
             this.in = in;
-            this.stopTracking = true; // noTracking; NB origin tracking is turned off while we work on debugging the offsets on another PR 
+            this.tracker = null;
+        }
+
+        /**
+         * In this mode we have created an OriginTrackingReader which feeds the JsonReader from below.
+         * Accurate offsets can be tracked like this, which enables accurate error locations. When
+         * trackOrigins=true we get accurate origin src fields for objects.
+         */
+        public ExpectedTypeDispatcher(JsonReader in, OriginTrackingReader tracker) {
+            this.in = in;
+            this.tracker = tracker;
         }
 
         @Override
@@ -459,17 +482,21 @@ public class JsonValueReader {
          * `internalPos < lastPos` will not have had the opportunity to evaluate to `true`.
          */
         private int getPos() {
+            assert !(!stopTracking && posHandler == null) : "if we don't have the posHandler stopTracking should be true";
+
             if (stopTracking) {
                 return 0;
             }
 
             var internalPos = (int) posHandler.get(in);
-            var internalLimit = getLimit();
+            var trackerCount = tracker.getReadCount();
 
-            if (internalPos < lastPos) {
-                // so we detected we are in trouble, but we do not have enough information for a solution here.
-                // TODO: fix this code in another PR by wrapping the CharacterReader.
-                offset = offset + (lastLimit - lastPos) + internalPos /* gson copies the tail of the buffer to the front */;
+            if (readCount < trackerCount) {
+                // the tracker indicates that `read` has happened and so the buffer has been rewound.
+                readCount = trackerCount;
+                // we learn from the tracker how far the offset is until the new first character in the buffer
+                // and we add the current offset since that reset to found our new current offset.
+                offset = tracker.getLimitOffset() + internalPos;
             }
             else {
                 // the offset advances by the number of parsed characters
@@ -478,29 +505,14 @@ public class JsonValueReader {
 
             // save the previous state
             lastPos = internalPos;
-            lastLimit = internalLimit;
 
             try {
+                // never go below 0. might happen with a parse error at the first character.
                 return Math.max(0, offset - 1);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
                 // this way we at least can get some form of DOM back.
-                stopTracking = true;
-                return 0;
-            }
-        }
-
-        private int getLimit() {
-            if (stopTracking) {
-                return 0;
-            }
-
-            try {
-                return (int) lineHandler.get(in) + 1;
-            }
-            catch (IllegalArgumentException | SecurityException e) {
-                // stop trying to recover the positions
                 stopTracking = true;
                 return 0;
             }
@@ -549,8 +561,17 @@ public class JsonValueReader {
             int line = getLine();
             int col = getCol();
 
-            return RuntimeExceptionFactory
-                .jsonParseError(vf.sourceLocation(location, offset, 1, line, line, col, col + 1), cause, in.getPath());
+            if (!stopTracking) {
+                return RuntimeExceptionFactory
+                    .jsonParseError(vf.sourceLocation(location, offset, 1, line, line, col, col + 1), cause, in.getPath());
+            }
+            else {
+                // if we didn't track the offset, we can at least produce line and column information, but not as a 
+                // default Rascal ParseError with '0' or '-1' for offset, because that can trigger assertions and 
+                // break other assumptions clients make about the source location values.
+                return RuntimeExceptionFactory
+                    .jsonParseError(location, line, col, cause, in.getPath());
+            }
         }
 
         /**
@@ -735,12 +756,14 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
             int endPos = getPos();
-            assert endPos >= startPos : "as assumpion on the internals of gson";
+            assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
+
             int endLine = getLine();
             int endCol = getCol();
 
+            in.endObject();
+            
             for (int i = 0; i < args.length; i++) {
                 if (args[i] == null) {
                     throw parseErrorHere(
@@ -829,11 +852,12 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
             int endPos = getPos();
             int endLine = getLine();
             int endCol = getCol();
 
+            in.endObject();
+            
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
                     vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
@@ -898,6 +922,7 @@ public class JsonValueReader {
             }
 
             IListWriter w = vf.listWriter();
+            getPos();
             in.beginArray();
             while (in.hasNext()) {
                 // here we pass label from the higher context
@@ -910,6 +935,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
+            getPos();
             return w.done();
         }
 
@@ -959,23 +985,25 @@ public class JsonValueReader {
         this.store = store;
         this.monitor = monitor;
         this.src = src;
-        this.disableTracking = false;
+        this.stopTracking = false;
 
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-        if (src != null) {
-            try {
-                var lookup = MethodHandles.lookup();
-                var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
-                this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
-                this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
-                this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+        try {
+            var lookup = MethodHandles.lookup();
+            var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+            this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+            this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+            this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+
+            if (posHandler == null) {
+                stopTracking = true;
             }
-            catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-                // we disable the origin tracking if we can not get to the fields
-                disableTracking = true;
-                monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
-            }
+        }
+        catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+            // we disable the origin tracking if we can not get to the fields
+            stopTracking = true;
+            monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
         }
     }
 
@@ -1019,7 +1047,7 @@ public class JsonValueReader {
         }
         catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
             // we disable the origin tracking if we can not get to the fields
-            disableTracking = true;
+            stopTracking = true;
             monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
         }
     }
@@ -1035,10 +1063,6 @@ public class JsonValueReader {
 
     public JsonValueReader setTrackOrigins(boolean trackOrigins) {
         this.trackOrigins = trackOrigins;
-        if (trackOrigins) {
-            monitor.warning("The origin tracking feature of the JSON parser is temporarily disabled.", src);
-            this.trackOrigins = false;
-        }
         return this;
     }
 
@@ -1066,8 +1090,14 @@ public class JsonValueReader {
         return this;
     }
 
+    public JsonValueReader setLenient(boolean value) {
+        this.lenient = true;
+        return this;
+    }
+
     /**
-     * Read and validate a Json stream as an IValue
+     * Read and validate a Json stream as an IValue. This version does not support accurate error messages
+     * or origin tracking.
      * 
      * @param in json stream
      * @param expected type to validate against (recursively)
@@ -1075,7 +1105,11 @@ public class JsonValueReader {
      * @throws IOException when either a parse error or a validation error occurs
      */
     public IValue read(JsonReader in, Type expected) throws IOException {
-        var dispatch = new ExpectedTypeDispatcher(in, disableTracking);
+        in.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
+        
+        // we can't track accurately because we don't have a handle to the raw buffer under `in`
+        this.stopTracking = true;
+        var dispatch = new ExpectedTypeDispatcher(in);
 
         try {
             var result = expected.accept(dispatch);
@@ -1088,6 +1122,82 @@ public class JsonValueReader {
         catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException
             | IllegalStateException | NullPointerException e) {
             throw dispatch.parseErrorHere(e.getMessage());
+        }
+    }
+
+    /**
+     * Read and validate a Json stream as an IValue. This version supports accurate error messages
+     * and origin tracking.
+     * 
+     * @param in json stream
+     * @param expected type to validate against (recursively)
+     * @return an IValue of the expected type
+     * @throws IOException when either a parse error or a validation error occurs
+     */
+    public IValue read(Reader in, Type expected) throws IOException {
+        try (OriginTrackingReader wrappedIn = new OriginTrackingReader(in); JsonReader jsonIn = new JsonReader(wrappedIn)) {
+            jsonIn.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
+
+            var dispatch = new ExpectedTypeDispatcher(jsonIn, wrappedIn);
+
+            try {
+                var result = expected.accept(dispatch);
+                if (result == null) {
+                    throw new JsonParseException(
+                        "null occurred outside an optionality context and without a registered representation.");
+                }
+                return result;
+            } catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
+                throw dispatch.parseErrorHere(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * This wraps a normal reader to make it possible for a client to detect accurate
+     * character offsets (> buffersize) in a large file, even if the underlying stream is buffered.
+     * 
+     * This implementation is tightly coupled (semantically) with the internals of JsonReader. It provides
+     * just enough information, together with internal private fields of JsonReader, to compute Rascal-required
+     * offsets. We get only the character offset in the file, at the start of each streamed buffer contents.
+     * That should be just enough information to recompute the actual offset of every Json element, using the
+     * current position in the buffer.
+     */
+    public static class OriginTrackingReader extends FilterReader {
+        // offset is always pointing at the point in the file where JsonReader.pos == 0
+        private int offset = 0;
+        // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
+        private int limit = 0;
+        // readCount increases by 1 with every call to `read`
+        private int readCount = 0;
+
+        protected OriginTrackingReader(Reader in) {
+            super(in);
+        }
+
+        @Override
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            // we've read until here before we were reset to starting point `off`.
+            // the offset of the new current 0-based buffer starts here:
+            offset += limit - off;
+
+            var charsRead = in.read(cbuf, off, len);
+
+            // get the new limit (to where we've filled the buffer)
+            limit = charsRead + off;
+
+            readCount++;
+            
+            // and return the number of characters read.
+            return charsRead;
+        }
+
+        public int getLimitOffset() {
+            return offset;
+        }
+
+        public int getReadCount() {
+            return readCount;
         }
     }
 }
