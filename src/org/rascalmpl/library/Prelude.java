@@ -3487,30 +3487,19 @@ public class Prelude {
 	}
 	
 	private boolean isUnicodeWhitespace(Integer cp) {
-		// Single code points
+		// Check for characters not included in 'space chars', but considered white space
 		switch (cp) {
-			case 0x0020: /* intentional fall-through */
-			case 0x0085: /* intentional fall-through */
-			case 0x00A0: /* intentional fall-through */
-			case 0x1680: /* intentional fall-through */
-			case 0x2028: /* intentional fall-through */
-			case 0x2029: /* intentional fall-through */
-			case 0x202F: /* intentional fall-through */
-			case 0x205F: /* intentional fall-through */
-			case 0x3000: {
+			// intentional fall-through
+			case 0x0009: // \t
+			case 0x000A: // \n
+			case 0x000B: // VT
+			case 0x000C: // FF
+			case 0x000D: // \r
+			case 0x0085: {// NEL
 				return true;
 			}
 		}
-
-		// Ranges
-		if (cp >= 0x0009 && cp <= 0x000D) {
-			return true;
-		}
-		if (cp >= 0x2000 && cp <= 0x200A) {
-			return true;
-		}
-
-		return false;
+		return Character.isSpaceChar(cp);
 	}
 
 	public IString removeWhitespace(IString str) {
