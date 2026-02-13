@@ -254,6 +254,21 @@ public str left(str s, int n, str pad)
 }
 
 
+@synopsis{Remove all whitespace from a string.}
+@description{
+Return a copy of `subject` in which all occurrences of Unicode whitespace characters have been removed.
+}
+@examples{
+```rascal-shell
+import String;
+removeWhitespace("\rabra\ncada bra\t");
+removeWhiteSpace("Uni\u1680code")
+```
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str removeWhitespace(str subject);
+
+
 @synopsis{Replace all occurrences of a string in another string.}
 @description{
 Return a copy of `subject` in which all occurrences of `find` (if any) have been replaced by `replacement`.
