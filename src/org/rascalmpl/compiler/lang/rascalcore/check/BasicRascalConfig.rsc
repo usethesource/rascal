@@ -177,10 +177,10 @@ bool isValidRascalTplVersion(str version)
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
-str currentRascalTplVersion = "2.0.1";
+str currentRascalTplVersion = "3.0.0";
 
 data TModel (
-    str rascalTplVersion = "2.0.1"
+    str rascalTplVersion = "3.0.0"
 );
 
 // Define alias for TypePalConfig
