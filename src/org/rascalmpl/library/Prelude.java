@@ -3486,6 +3486,50 @@ public class Prelude {
 		return true;
 	}
 	
+	// Character.isWhitespace does not cover the complete range that we consider whitespace
+	// (matching `LAYOUT` in Rascal grammar), so we implement it ourselves
+	private boolean isUnicodeWhitespace(Integer cp) {
+		// Single code points
+		switch (cp) {
+			case 0x0020: /* intentional fall-through */
+			case 0x0085: /* intentional fall-through */
+			case 0x00A0: /* intentional fall-through */
+			case 0x1680: /* intentional fall-through */
+			case 0x180E: /* intentional fall-through */
+			case 0x2028: /* intentional fall-through */
+			case 0x2029: /* intentional fall-through */
+			case 0x202F: /* intentional fall-through */
+			case 0x205F: /* intentional fall-through */
+			case 0x3000: {
+				return true;
+			}
+		}
+
+		// Ranges
+		if (cp >= 0x0009 && cp <= 0x000D) {
+			return true;
+		}
+		if (cp >= 0x2000 && cp <= 0x200A) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public IString removeWhitespace(IString str) {
+		StringBuilder b = new StringBuilder(str.length());
+		var iter = str.iterator();
+
+		while (iter.hasNext()) {
+			var codepoint = iter.next();
+			if (!isUnicodeWhitespace(codepoint)) {
+				b.appendCodePoint(codepoint);
+			}
+		}
+
+		return values.string(b.toString());
+	}
+
 	public IValue replaceAll(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){

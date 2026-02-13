@@ -473,4 +473,4 @@ void resetClosureCounter(){
     closureCounter = 0;
 }
 
-str normalizedMD5Hash(str s) = md5Hash("<for(int i <- [0..size(s)]){><s[i] in {" ", "\t", "\n", "\r"} ? "" : s[i]><}>");
+str normalizedMD5Hash(str s) = md5Hash(removeWhitespace(s));
