@@ -467,7 +467,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             tagsMap = getTags(pt.header.tags);
 
             if(ignoreCompiler(tagsMap)) {
-                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt@\loc) };
+                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
                     ms.status[mid] += MStatus::ignored();
             }
             idTrees[mid] = pt;

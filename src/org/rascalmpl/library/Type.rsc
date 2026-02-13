@@ -28,7 +28,7 @@ In other words, the `#` operator will always produce a value of `type[&T]`, wher
 
 The ((subtype)) relation of Rascal has all the mathematical properties of a _finite lattice_; where ((lub)) implements the _join_ and ((glb)) implements the _meet_ operation.
 This is a core design principle of Rascal with the following benefits:
-* Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambigous manner.
+* Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambiguous manner.
 * A _principal type_ can always be computed, which is a most precise and unique solution of a type inference problem. Without the lattice, solution candidates could become incomparable and thus ambiguous. Without
 this principal type property, type inference is predictable for programmers.
 * Solving type inference constraints can be implemented efficiently. The algorithm, based on ((lub)) and ((glb)), makes progress _deterministically_ and does not require backtracking
@@ -113,7 +113,7 @@ Symbol \lrel(list[Symbol] symbols)
      = \list(\tuple(symbols));
 
 
-@synopsis{Overloaded/union types are always reduced to the least upperbound of their constituents.}
+@synopsis{Overloaded/union types are always reduced to the least upper bound of their constituents.}
 @description{
 This semantics of overloading in the type system is essential to make sure it remains a _lattice_.
 }
@@ -249,7 +249,7 @@ bool equivalent(type[value] s, type[value] t) = equivalent(s.symbol, t.symbol);
 The difference between `eq` and `==` is that no implicit coercions are done between values of incomparable types
 at the top-level. 
 
-The `==` operator, for convience, equates `1.0` with `1` but not `[1] with [1.0]`, which can be annoying
+The `==` operator, for convenience, equates `1.0` with `1` but not `[1] with [1.0]`, which can be annoying
 when writing consistent specifications. The new number system that is coming up will not have these issues.
 }
 @examples{
@@ -262,7 +262,7 @@ eq(1,1.0)
 @javaClass{org.rascalmpl.library.Type}
 java bool eq(value x, value y);
 
-@synopsis{The least-upperbound (lub) of two types is the common ancestor in the type lattice that is lowest.}
+@synopsis{The least upper bound (lub) of two types is the common ancestor in the type lattice that is lowest.}
 @description{
 This function implements the lub operation in Rascal's type system, via unreifying the Symbol values
 and calling into the underlying run-time Type implementation.

@@ -682,7 +682,7 @@ public java void remove(loc file, bool recursive=true) throws IO;
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Rename files or directories}
 @benefits{
-* will rename between schemes and within schemes, seemlessly.
+* will rename between schemes and within schemes, seamlessly.
 * within schemes renaming is implemented as close to the operating system rename functionality as possible. This can be very fast.
 }
 @pitfalls{
