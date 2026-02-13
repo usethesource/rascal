@@ -6,7 +6,7 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice,
-this litst of conditions and the following disclaimer.
+this list of conditions and the following disclaimer.
 
 2. Redistributions in binary form must reproduce the above copyright notice,
 this list of conditions and the following disclaimer in the documentation
@@ -45,7 +45,7 @@ On the other hand, ParseTree to ParseTree rewrites are much easier to write and 
 They are "syntax directed" via the shape of the tree that follows the grammar of the language.
 Some if not all of the above aspects are tackled by the rewriting mechanism with concrete patterns.
 Especially the corner cases w.r.t. list separators are all handled by the rewriting mechanisms.
-Also the rules are in "concrete syntax", on both the matching and the substition side. So they are 
+Also the rules are in "concrete syntax", on both the matching and the substitution side. So they are
 readable for all who know the object language. The rules guarantee syntactic correctness of the 
 rewritten source code. However, rewrite rules do quite some noisy damage to the layout, indentation 
 and comments, of the result.
@@ -63,9 +63,9 @@ case-insensitive keywords retain their original shape.
 * Changes to the grammar will be picked up when checking all source and target patterns. 
 * The diff algorithm uses cross-cutting information from the parse tree (what is layout and what not,
  what is case-insensitive, etc.) which would otherwise have to be managed by the language engineer in _every rewrite rule_.
-* The diff algoritm understands what indentation is and brings new sub-trees to the original level
+* The diff algorithm understands what indentation is and brings new sub-trees to the original level
 of indentation (same as the sub-trees they are replacing)
-* Typically the algorithm's run-time is lineair in the size of the tree, or better. Same for memory usage.
+* Typically the algorithm's run-time is linear in the size of the tree, or better. Same for memory usage.
 }
 @pitfalls{
 * ((treeDiff)) only works under the assumption that the second tree was derived from the first
@@ -78,7 +78,7 @@ testing. If the trees are first independently serialized to disk and then deseri
 this optimization is not present and the algorithm will perform (very) poorly.
 * Substitution patterns should be formatted as best as possible. The algorithm will not infer
 spacing or relative indentation inside of the substituted subtree. It will only infer indentation
-for the entire subtree. Another way of resolving this is using a code formatter on the subsituted patterns.
+for the entire subtree. Another way of resolving this is using a code formatter on the substituted patterns.
 }
 module analysis::diff::edits::HiFiTreeDiff
 
@@ -93,7 +93,7 @@ import util::Math;
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
 @description{
 This is a "diff" algorithm of two parse trees to generate a ((TextEdit)) script that applies the differences on 
-the textual level, _with minimal collatoral damage in whitespace_. This is why it is called "HiFi": minimal unnecessary
+the textual level, _with minimal collateral damage in whitespace_. This is why it is called "HiFi": minimal unnecessary
 noise introduction to the original file. It also tries to conserve source code comments; where still possible.
 
 The resulting ((TextEdit))s are an intermediate representation for making changes in source code text files. 
@@ -107,7 +107,7 @@ From the tree node differences between these two trees, ((TextEdit))s are derive
 * when the edited source text is parsed again, the resulting tree would match the derived tree. 
 However, the parsed tree could be different from the derived tree in terms of whitespace, indentation and case-insensitive literals (see below).
 * when tree nodes (grammar rules) are equal, smaller edits are searched by pair-wise comparison of the children
-* differences between respective layout or (case insensitve) literal nodes are always ignored 
+* differences between respective layout or (case insensitive) literal nodes are always ignored
 * when lists have changed, careful editing of possible separators ensures syntactic correctness
 * when new sub-trees are inserted, the replacement will be at the same indentation level as the original. 
 * when case-insensitive literals have been changed under a grammar rule that remained the same, no edits are produced.
@@ -124,7 +124,7 @@ the exactness of syntactic and semantic knowledge of the parse trees.
 * Where possible the algorithm also retains the capitalization of case-insensitive literals.
 * The algorithm retrieves and retains indentation levels from the original tree, even if sub-trees in the
 derived tree have mangled indentation. This allows us to ignore the indentation concern while thinking of rewrite
-rules for source-to-souce transformation, and focus on the semantic effect. 
+rules for source-to-source transformation, and focus on the semantic effect.
 * The algorithm inherits source code comments from the original, wherever sub-trees of the original and the
 rewritten tree still line up. 
 }
@@ -172,7 +172,7 @@ rewritten = visit(original) {
                      '  <{Statement ";"}* ifBranch> 
                      'fi`
 }
-// Check the result as a string. It worked, but we see some collatoral damage in whitespace (indentation).
+// Check the result as a string. It worked, but we see some collateral damage in whitespace (indentation).
 "<rewritten>"
 // Now derive text edits from the two parse trees:
 edits = treeDiff(original, rewritten);
@@ -398,9 +398,9 @@ private loc cover(list[Tree] elems:[_, *_]) = cover([e@\loc | Tree e <- elems, e
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
 
-@synopsis{Make sure the subtitution is at least as far indented as the original}
+@synopsis{Make sure the substitution is at least as far indented as the original}
 @description{
-This algorithm ignores the first line, since the first line is always preceeded by the layout of a parent node.
+This algorithm ignores the first line, since the first line is always preceded by the layout of a parent node.
 
 Then it measures the depth of indentation of every line in the original, and takes the minimum.
 That minimum indentation is stripped off every line that already has that much indentation in the replacement,

@@ -38,6 +38,7 @@ import Message;
 import String;
 import IO;
 import Location;
+import analysis::typepal::LocationChecks;
 
 // WARNING: this module is sensitive to bootstrapping dependencies and implicit contracts:
 // 

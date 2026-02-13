@@ -87,7 +87,7 @@ for the clipboard. This function is thread-friendly, however and will not crash 
 java rel[str humanReadable, str fullMimetype] availableTextMimetypesFor(str shortMimetype);
 
 @javaClass{org.rascalmpl.library.util.Clipboard}
-@synsopsis{Serializes the current contents of the clipboard that matches the given mimetype to a string}
+@synopsis{Serializes the current contents of the clipboard that matches the given mimetype to a string}
 @description{
 This only works for ((availableTextMimetypes)), otherwise an exception is thrown. 
 
