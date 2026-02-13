@@ -316,16 +316,13 @@ test bool explicitDataTypes() {
 
 data X(loc src=|unkown:///|) = v1(int x=0, str s = "");
 
-// BUG: off-by-one in current implementation
-loc origin(X x) = x.src[length = x.src.length -1];
-
 test bool jsonVerifyOriginCorrect() {
     ref = v1(x=123456789);
     refExpected = asJSON(ref);
     t1 = [v1(s="hoi"), ref];
     writeJSON(|memory:///test.json|, t1);
     v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
-    return refExpected == readFile(origin(v[1]));
+    return refExpected == readFile(v[1].src);
 }
 
 test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
@@ -341,8 +338,8 @@ test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
         v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
 
         // checking the last element
-        if (refExpected != readFile(origin(v[1]))) {
-            println("Failed for <sSize>: <readFile(origin(v[1]))>");
+        if (refExpected != readFile(v[1].src)) {
+            println("Failed for <sSize>: <readFile(v[1].src)>");
             return false;
         }
     }
