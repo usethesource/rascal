@@ -3486,8 +3486,6 @@ public class Prelude {
 		return true;
 	}
 	
-	// Character.isWhitespace does not cover the complete range that we consider whitespace
-	// (matching `LAYOUT` in Rascal grammar), so we implement it ourselves
 	private boolean isUnicodeWhitespace(Integer cp) {
 		// Single code points
 		switch (cp) {
@@ -3495,7 +3493,6 @@ public class Prelude {
 			case 0x0085: /* intentional fall-through */
 			case 0x00A0: /* intentional fall-through */
 			case 0x1680: /* intentional fall-through */
-			case 0x180E: /* intentional fall-through */
 			case 0x2028: /* intentional fall-through */
 			case 0x2029: /* intentional fall-through */
 			case 0x202F: /* intentional fall-through */
@@ -3522,6 +3519,7 @@ public class Prelude {
 
 		while (iter.hasNext()) {
 			var codepoint = iter.next();
+			// Character.isWhitespace does not cover the complete range of Unicode whitespace
 			if (!isUnicodeWhitespace(codepoint)) {
 				b.appendCodePoint(codepoint);
 			}
