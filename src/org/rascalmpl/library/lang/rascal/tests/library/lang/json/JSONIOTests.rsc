@@ -313,3 +313,38 @@ test bool explicitDataTypes() {
 
     return true;
 }
+
+data X(loc src=|unkown:///|) = v1(int x=0, str s = "");
+
+// BUG: off-by-one in current implementation
+loc origin(X x) = x.src[length = x.src.length -1];
+
+test bool jsonVerifyOriginCorrect() {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+    t1 = [v1(s="hoi"), ref];
+    writeJSON(|memory:///test.json|, t1);
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+    return refExpected == readFile(origin(v[1]));
+}
+
+test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+    for (sSize <- [900..1024]) {
+        println(sSize);
+        t1 = [v1(s="<for (_ <- [0..sSize]) {>a<}>"), ref];
+        writeJSON(|memory:///test.json|, t1);
+
+        // this throws exceptions and asserts if there are bugs with the
+        // origin tracker. In particular it triggers #2633
+        v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+
+        // checking the last element
+        if (refExpected != readFile(origin(v[1]))) {
+            println("Failed for <sSize>: <readFile(origin(v[1]))>");
+            return false;
+        }
+    }
+    return true;
+}
