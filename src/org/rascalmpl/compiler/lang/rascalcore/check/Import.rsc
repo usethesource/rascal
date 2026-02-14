@@ -147,8 +147,9 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     }
     ms.status[moduleId] += module_dependencies_extracted();
 
-    <found, tm, ms> = getTModelForModule(moduleId, ms);
-    if(found){
+    try {
+      <found, tm, ms> = getTModelForModule(moduleId, ms);
+      if(found){
         allImportsAndExtendsValid = true;
         rel[loc, PathRole] localImportsAndExtends = {};
 
@@ -239,7 +240,9 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             }
             return completeModuleStatus(ms);
          }
-    }
+      }
+    } catch rascalTplVersionError(_):
+        ; // Need to recheck since TModel uses incompatible TPL version
 
     if(rsc_not_found() in ms.status[moduleId]){
         return ms;
