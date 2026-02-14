@@ -424,9 +424,11 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
     <found, tplLoc> = getTPLReadLoc(moduleId, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
+        tmVersion = "0.0.0";
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
+                tmVersion = tm.rascalTplVersion;
                 ms.tmodels[moduleId] = tm;
                 mloc = getRascalModuleLocation(moduleId, ms);
                 if(isModuleLocationInLibs(mloc, pcfg)){
@@ -441,7 +443,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
             qualifiedModuleName = moduleId2moduleName(moduleId);
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
+        msg = "<tplLoc> has outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
         println("INFO: <msg>)");
         throw rascalTplVersionError(msg);
     }
