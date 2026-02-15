@@ -13,6 +13,7 @@ module lang::rascal::tests::library::ValueIO
 
 import ValueIO;
 import util::UUID;
+import util::Reflective;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
@@ -98,9 +99,8 @@ test bool textSet() = textWriteRead(#set[int], {1,2,3});
 test bool textMap() = textWriteRead(#map[int, int], (1:10, 2:20));
  
 test bool textTuple() = textWriteRead(#tuple[int, bool, str], <1,true,"abc">);
- 
-@ignore
-test bool textAdt() = textWriteRead1(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
+
+test bool textAdt() = textWriteRead(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
  
 
 test bool valueText(value v) = textWriteRead(#value, v);
@@ -148,14 +148,14 @@ loc parsetree1 = |memory://test-tmp/parsetree1-<"<uuidi()>">.test|;
 
 @Ignore{FOR NOW}
 test bool writingParseTreeWorks() {
-	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
+	t = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t);
 	return readBinaryValueFile(parsetree1) == t;
 }
 
 @Ignore{FOR NOW}
 test bool writingParseTreeWorksWithoutCompression() {
-	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
+	t = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t, compression=false);
 	return readBinaryValueFile(parsetree1) == t;
 }
