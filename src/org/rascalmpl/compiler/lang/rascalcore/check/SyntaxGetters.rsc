@@ -100,7 +100,7 @@ map[str,str] getTags(Tags tags){
 //    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
 bool hasIgnoreCompilerTag(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"hasIgnoreCompilerTag", "IgnoreCompiler"});
+    = !isEmpty(domain(tagsMap) &  {"ignoreCompiler", "IgnoreCompiler"});
 
 bool hasIgnoreTag(map[str,str] tagsMap)
     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore"});
