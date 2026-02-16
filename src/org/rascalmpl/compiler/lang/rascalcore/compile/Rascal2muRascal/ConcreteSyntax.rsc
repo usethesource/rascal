@@ -68,7 +68,7 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
       }
    }
 
-   ignoredFunctionLocs = {fd@\loc | /FunctionDeclaration fd := M, ignoreCompiler(getTags(fd.tags)) };
+   ignoredFunctionLocs = {fd@\loc | /FunctionDeclaration fd := M, hasIgnoreCompilerTag(getTags(fd.tags)) };
 
    M = top-down-break visit(M) {
      case Tree t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
