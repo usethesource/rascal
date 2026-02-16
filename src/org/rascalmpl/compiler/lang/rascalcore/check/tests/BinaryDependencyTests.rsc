@@ -49,7 +49,7 @@ import util::FileSystem;
 
 // ---- Utilities for test setup ----------------------------------------------
 
-bool verbose = true;
+bool verbose = false;
 
 data PathConfig(loc generatedResources=|unknown:///|, loc generatedSources=|unknown:///|);
 
