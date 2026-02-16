@@ -572,9 +572,9 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
 
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
-    md5Contrib = "";
+    md5Contrib = [];
     if(!isEmpty(c.getStack(currentAlternative)) && <SyntaxDefinition adt, str cname, syms> := c.top(currentAlternative)){
-        md5Contrib += "<adt.defined><cname><syms>";
+        md5Contrib += [adt.defined, cname, syms];
     } else {
         throw "Cannot compute md5 for <current>";
     }
@@ -584,7 +584,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
           return res;
-        })[md5=normalizedMD5Hash("<md5Contrib><current>")]);
+        })[md5=normalizedMD5Hash([*md5Contrib, current])]);
 
     c.fact(current, n);
     collect(symbol, c);
