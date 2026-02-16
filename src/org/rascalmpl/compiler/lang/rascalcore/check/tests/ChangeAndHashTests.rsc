@@ -549,3 +549,29 @@ test bool synUnequalChanged2()
 test bool synUnequalLayoutChanged()
     = expectEqualGrammar("syntax A = \"a\"; syntax B = \"b\"; syntax C = \"c\"; syntax D = A \\ \"b\";",
                   "syntax A = \"a\"; syntax B = \"b\"; syntax C = \"c\"; syntax D =   A   \\   \"b\" ;");
+
+// Hash function properties
+
+test bool normalizedHashLayout(str S1, str S2)
+    = normalizedMD5Hash("<S1> <S2>") == normalizedMD5Hash("<S1><S2>");
+
+test bool normalizedHashParts1(str S1, str S2)
+    = normalizedMD5Hash("<S1><S2>") != normalizedMD5Hash(S1, S2);
+
+test bool normalizedHashParts2(str S1, str S2)
+    = normalizedMD5Hash(S1, "", S2) != normalizedMD5Hash(S1, S2);
+
+test bool normalizedHashParts3(str S1, str S2)
+    = normalizedMD5Hash("<S1>|<S2>") != normalizedMD5Hash(S1, S2);
+
+test bool normalizedHashAnyValues(value V1, value V2)
+    = str _ := normalizedMD5Hash(V1, V2);
+
+test bool normalizedHashIdentity1(str S1)
+    = normalizedMD5Hash(S1) == normalizedMD5Hash(S1);
+
+test bool normalizedHashIdentity2(str S1, str S2)
+    = normalizedMD5Hash(S1) == normalizedMD5Hash(S2)
+    ? removeWhitespace(S1) == removeWhitespace(S2)
+    : S1 != S2
+    ;
