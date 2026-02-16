@@ -469,7 +469,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
         if(success){
             tagsMap = getTags(pt.header.tags);
 
-            if(ignoreCompiler(tagsMap)) {
+            if(hasIgnoreCompilerTag(tagsMap)) {
                     ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
                     ms.status[mid] += MStatus::ignored();
             }
