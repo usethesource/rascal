@@ -553,6 +553,13 @@ loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
      return def.defined;
 }
 
+private str MD5_CONTRIB_SEPARATOR = "@";
+private map[str, str] MD5_ESCAPES = (MD5_CONTRIB_SEPARATOR: "\\<MD5_CONTRIB_SEPARATOR>");
+
+@synopsis{Hash a variable number of contributing values (MD5).}
+str normalizedMD5Hash(value contribs...)
+    = md5Hash(removeWhitespace(intercalate(MD5_CONTRIB_SEPARATOR, [escape("<c>", MD5_ESCAPES) | c <- contribs])));
+
 @memo{expireAfter(minutes=5),maximumSize(1000)}
 rel[str shortName, str longName] getRascalModuleNames(PathConfig pcfg){
     longNames = {};
