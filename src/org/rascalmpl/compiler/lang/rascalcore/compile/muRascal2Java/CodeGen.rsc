@@ -457,8 +457,8 @@ tuple[int secondsTimeout, int maxSize] getMemoSettings(str memoString){
 
 // Copy from RascalDeclaration, move to separate module
 
-bool ignoreCompiler(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+bool hasIgnoreCompilerTag(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
@@ -468,7 +468,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
     
     if(!jg.isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
-    if(ignoreCompiler(fun.tags)) return <"", "", "">;
+    if(hasIgnoreCompilerTag(fun.tags)) return <"", "", "">;
     
     ftype = fun.ftype;
     jg.setFunction(fun);
