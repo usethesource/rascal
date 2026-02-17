@@ -82,8 +82,8 @@ void collect(Module current, Collector c){
 
     tagsMap = getTags(header.tags);
 
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring module <mname>"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(header.name, "Ignoring module <mname>"));
         return;
     }
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
@@ -159,7 +159,7 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
+    if(hasIgnoreCompilerTag(tagsMap)) {
         c.report(info(current, "Ignoring variable declaration"));
         return;
     }
@@ -210,7 +210,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     }
 
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
+    if(hasIgnoreCompilerTag(tagsMap)) {
         c.report(info(current, "Ignoring anno declaration for `<pname>`"));
         return;
     }
@@ -265,8 +265,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     ppfname = prettyPrintName(fname);
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(fname, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
     // Make md5hash of nested functions unique by using all surrounding signatures
@@ -711,8 +711,8 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name> = <Type base>;`, Collector c){
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
     // if(isWildCard(aliasName)){
@@ -729,8 +729,8 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
 
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
 
