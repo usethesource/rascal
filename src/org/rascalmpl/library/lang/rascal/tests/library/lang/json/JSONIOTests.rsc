@@ -94,13 +94,15 @@ test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 bool originTest(loc example) {
    ex2 = readJSON(#node, example, trackOrigins=true);   
    content = readFile(example);
-
+   lines = split("\n", content);
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
       assert p.begin.line == line;
+      assert lines[p.begin.line - 1][p.begin.column] == "{";
+      assert lines[p.end.line - 1][p.end.column - 1] == "}";
    }
 
    return true;
@@ -201,7 +203,7 @@ test bool accurateParseErrors() {
    return true;
 }
 
-@ignore{until #2133 is fixed}
+// @ignore{until #2133 is fixed}
 test bool regression1() = jsonRandom1(("a":12,[]:{}));
 
 data Cons = cons(str bla = "null");
@@ -322,26 +324,39 @@ test bool jsonVerifyOriginCorrect() {
     t1 = [v1(s="hoi"), ref];
     writeJSON(|memory:///test.json|, t1);
     v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+    iprintln(refExpected);
+    iprintln(readFile(v[1].src));
     return refExpected == readFile(v[1].src);
 }
 
+test bool triggerIssue2633() {
+    return jsonVerifyOriginCorrectAcrossBufferBoundaries(1023);
+}
+
 test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
+    /* twice just before and after the 1024 buffer size of JsonReader */
+    for (int sSize <- [1000..1025] + [2000..2050]) {
+        jsonVerifyOriginCorrectAcrossBufferBoundaries(sSize);
+    }
+    return true;
+}
+
+bool jsonVerifyOriginCorrectAcrossBufferBoundaries(int sSize) {
     ref = v1(x=123456789);
     refExpected = asJSON(ref);
-    for (sSize <- [900..1024]) {
-        println(sSize);
-        t1 = [v1(s="<for (_ <- [0..sSize]) {>a<}>"), ref];
-        writeJSON(|memory:///test.json|, t1);
+   
+    t1 = [v1(s="<for (_ <- [0..sSize]) {>a<}>"), ref];
+    writeJSON(|memory:///test.json|, t1);
 
-        // this throws exceptions and asserts if there are bugs with the
-        // origin tracker. In particular it triggers #2633
-        v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+    //s this throws exceptions and asserts if there are bugs with the
+    // origin tracker. In particular it triggers #2633
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
 
-        // checking the last element
-        if (refExpected != readFile(v[1].src)) {
-            println("Failed for <sSize>: <readFile(v[1].src)>");
-            return false;
-        }
+    // checking the last element
+    if (refExpected != readFile(v[1].src)) {
+        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>");
+        return false;
     }
+
     return true;
 }
