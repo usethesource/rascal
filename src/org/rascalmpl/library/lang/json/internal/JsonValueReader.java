@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -100,10 +102,6 @@ public class JsonValueReader {
         private final JsonReader in;
         private final OriginTrackingReader tracker;
 
-        private int offset = 0;
-        private int readCount = 0;
-        private int lastPos = 0;
-        
         /**
          * In this mode we read directly from a given JsonReader, under which we can not
          * encapsulate its Reader for counting offsets. This is used by the JSON-RPC bridge.
@@ -126,7 +124,7 @@ public class JsonValueReader {
 
         @Override
         public IValue visitInteger(Type type) throws IOException {
-            lastPos = getPos();
+            
             try {
                 switch (in.peek()) {
                     case NUMBER:
@@ -147,7 +145,7 @@ public class JsonValueReader {
 
         @Override
         public IValue visitReal(Type type) throws IOException {
-            lastPos = getPos();
+            
             try {
                 switch (in.peek()) {
                     case NUMBER:
@@ -199,7 +197,7 @@ public class JsonValueReader {
             }
 
             List<IValue> l = new ArrayList<>();
-            lastPos = getPos();
+           
             in.beginArray();
 
             if (type.hasFieldNames()) {
@@ -481,34 +479,15 @@ public class JsonValueReader {
          * because it has not been called in between from JsonValueReader to JsonReader and the condition
          * `internalPos < lastPos` will not have had the opportunity to evaluate to `true`.
          */
-        private int getPos() {
-            assert !(!stopTracking && posHandler == null) : "if we don't have the posHandler stopTracking should be true";
-
+        private int getOffset() {
             if (stopTracking) {
                 return 0;
             }
 
-            var internalPos = (int) posHandler.get(in);
-            var trackerCount = tracker.getReadCount();
-
-            if (readCount < trackerCount) {
-                // the tracker indicates that `read` has happened and so the buffer has been rewound.
-                readCount = trackerCount;
-                // we learn from the tracker how far the offset is until the new first character in the buffer
-                // and we add the current offset since that reset to found our new current offset.
-                offset = tracker.getLimitOffset() + internalPos;
-            }
-            else {
-                // the offset advances by the number of parsed characters
-                offset += (internalPos - lastPos);
-            }
-
-            // save the previous state
-            lastPos = internalPos;
-
             try {
-                // never go below 0. might happen with a parse error at the first character.
-                return Math.max(0, offset - 1);
+                assert posHandler != null;
+                var internalPos = (int) posHandler.get(in);
+                return tracker.getOffsetAtBufferStart() + internalPos;
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
@@ -556,8 +535,8 @@ public class JsonValueReader {
         }
 
         protected Throw parseErrorHere(String cause) {
-            var location = src == null ? URIUtil.rootLocation("unknown") : src;
-            int offset = getPos();
+            var location = getRootLoc();
+            int offset = getOffset();
             int line = getLine();
             int col = getCol();
 
@@ -637,11 +616,12 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            in.beginObject();
-            int startPos = getPos();
+            int startPos = getOffset() - 1;
             int startLine = getLine();
-            int startCol = getCol();
+            int startCol = getCol() - 1;
 
+            in.beginObject();
+            
             // use explicit information in the JSON to select and filter constructors from the TypeStore
             // we expect always to have the field _constructor before _type.
             if (explicitConstructorNames || explicitDataTypes) {
@@ -756,11 +736,11 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getPos();
+            int endPos = getOffset() - 1;
             assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
 
             int endLine = getLine();
-            int endCol = getCol();
+            int endCol = getCol() - 1;
 
             in.endObject();
             
@@ -773,10 +753,19 @@ public class JsonValueReader {
 
             if (trackOrigins && !stopTracking) {
                 kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(getRootLoc(), startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             return vf.constructor(cons, args, kwParams);
+        }
+
+        private ISourceLocation getRootLoc() {
+            if (src == null) {
+                return URIUtil.rootLocation("unknown");
+            }
+            else {
+                return src;
+            }
         }
 
         @Override
@@ -815,9 +804,9 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            int startPos = getPos();
+            int startPos = getOffset() - 1;
             int startLine = getLine();
-            int startCol = getCol();
+            int startCol = getCol() - 1;
 
             in.beginObject();
             
@@ -852,15 +841,15 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getPos();
+            int endPos = getOffset() - 1;
             int endLine = getLine();
-            int endCol = getCol();
+            int endCol = getCol() - 1;
 
             in.endObject();
             
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(getRootLoc(), startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             IValue[] argArray = args.entrySet().stream().sorted((e, f) -> e.getKey().compareTo(f.getKey()))
@@ -922,7 +911,7 @@ public class JsonValueReader {
             }
 
             IListWriter w = vf.listWriter();
-            getPos();
+            getOffset();
             in.beginArray();
             while (in.hasNext()) {
                 // here we pass label from the higher context
@@ -935,7 +924,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
-            getPos();
+            getOffset();
             return w.done();
         }
 
@@ -1143,11 +1132,14 @@ public class JsonValueReader {
             try {
                 var result = expected.accept(dispatch);
                 if (result == null) {
-                    throw new JsonParseException(
-                        "null occurred outside an optionality context and without a registered representation.");
+                    throw new JsonParseException("null occurred outside an optionality context and without a registered representation.");
                 }
                 return result;
-            } catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
+            } 
+            catch (NullPointerException e) {
+                throw dispatch.parseErrorHere("Unexpected internal NullPointerException");
+            }
+            catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException e) {
                 throw dispatch.parseErrorHere(e.getMessage());
             }
         }
@@ -1161,7 +1153,7 @@ public class JsonValueReader {
      * just enough information, together with internal private fields of JsonReader, to compute Rascal-required
      * offsets. We get only the character offset in the file, at the start of each streamed buffer contents.
      * That should be just enough information to recompute the actual offset of every Json element, using the
-     * current position in the buffer.
+     * current position in the buffer (the private field `pos` of JsonReader).
      */
     public static class OriginTrackingReader extends FilterReader {
         // offset is always pointing at the point in the file where JsonReader.pos == 0
@@ -1175,24 +1167,62 @@ public class JsonValueReader {
             super(in);
         }
 
+        /* This private method from JsonReader must be mirrored by `read`
+        private boolean fillBuffer(int minimum) throws IOException {
+            char[] buffer = this.buffer;
+            lineStart -= pos;
+            if (limit != pos) {
+                limit -= pos;
+                System.arraycopy(buffer, pos, buffer, 0, limit);
+            } else {
+                limit = 0;
+            }
+
+            pos = 0;
+            int total;
+            while ((total = in.read(buffer, limit, buffer.length - limit)) != -1) {
+                limit += total;
+
+                // if this is the first read, consume an optional byte order mark (BOM) if it exists
+                if (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff') {
+                    pos++;
+                    lineStart++;
+                    minimum++;
+                }
+
+                if (limit >= minimum) {
+                    return true;
+                }
+            }
+            return false;
+        } */
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
-            // we've read until here before we were reset to starting point `off`.
-            // the offset of the new current 0-based buffer starts here:
+            // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
+            // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
+
+            // we know take the previous limit and add it to the
+            // offset, to arrive at the new `pos=0` of `buffer[0]`,
+            // rewinding `off` characters which were reused from the previous buffer
+            // with System.arraycopy.
             offset += limit - off;
 
+            // make sure we are only a facade for the real reader. 
+            // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
 
-            // get the new limit (to where we've filled the buffer)
-            limit = charsRead + off;
+            // the next buffer[0] offset will be after this increment.
+            // Note that `fillBuffer.limit == read.limit`
+            limit = off + charsRead;
 
+            // to help decide if a read happened
             readCount++;
             
-            // and return the number of characters read.
+            // and return only the number of characters read.
             return charsRead;
         }
 
-        public int getLimitOffset() {
+        public int getOffsetAtBufferStart() {
             return offset;
         }
 
