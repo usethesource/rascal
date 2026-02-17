@@ -53,8 +53,7 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascalcore::check::ATypeInstantiation;
-
-
+import analysis::typepal::LocationChecks;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
