@@ -22,7 +22,7 @@ public interface IDebugMessage {
 	 * <code>UNKNOWN</code> if not provided.
 	 */
 	enum Action {
-		UNKNOWN, SET, DELETE, TERMINATE, SUSPEND, RESUME
+		UNKNOWN, SET, DELETE, TERMINATE, SUSPEND, RESUME, RESTART_FRAME
 	}
 
 	/**
@@ -73,7 +73,12 @@ public interface IDebugMessage {
 		 * Indicates a continuation of the execution, caused by a step out
 		 * request.
 		 */
-		STEP_OUT
+		STEP_OUT,
+		
+		/**
+		 * Indicates a conditional breakpoint.
+		 */
+		CONDITIONAL
 	}
 	
 	Action getAction();
