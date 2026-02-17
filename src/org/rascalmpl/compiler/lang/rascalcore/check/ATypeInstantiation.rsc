@@ -42,17 +42,15 @@ module lang::rascalcore::check::ATypeInstantiation
     Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
-import lang::rascalcore::check::ATypeBase; // seemingly redundant to make interpreter happy
-import lang::rascalcore::check::ATypeUtils; // was extend
+extend lang::rascalcore::check::ATypeParamBase;
 extend lang::rascalcore::check::NameUtils;
+extend lang::rascalcore::check::ATypeUtils;
 
 import List;
 import Map;
 import Set;
 import Node;
 import String;
-
-public alias Bindings = map[str varName, AType varType];
 
 public Bindings unifyRascalTypeParams(AType r, AType s, Bindings b){
     b2 = matchRascalTypeParams(r, s, b);
@@ -182,6 +180,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isConstructorAType(r) && isADTAType(s) ) {
         return matchRascalTypeParams0(getConstructorResultType(r), s, b);
     }
+
+    if ( isADTAType(r) && isConstructorAType(s) ) {
+        return matchRascalTypeParams0(r, getConstructorResultType(s), b);
+    }
     
     // For functions, match the return types and the parameter types
     // TODO: kewyword params?
@@ -206,55 +208,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 }
 
 AType invalidInstantiation(str pname, AType bound, AType actual){
-    throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
-}
-
-AType makeClosedTypeParams(AType t){
-    return visit(t) { case par:aparameter(_, _) => par[closed=true] };
-}
-
-void requireClosedTypeParams(AType t){
-    if(hasOpenTypeParams(t)){
-        throw "requireClosedTypeParams: <t>";
-    }
-}
-
-bool hasOpenTypeParams(AType t){
-    return /aparameter(_,_,closed=false) := t;
-}
-
-// Make all type parameters unique with given suffix
-AType makeUniqueTypeParams(AType t, str suffix){
-    return visit(t) { case param:aparameter(str pname, AType _bound): {
-                                if(findLast(pname, ".") < 0){
-                                    param.pname = param.pname + "." + suffix;
-                                    insert param;
-                                }
-                          }
-                     };
-}
-
-// Make all type parameters unique with given suffix
-list[AType] makeUniqueTypeParams(list[AType] ts, str suffix){
-    return [ makeUniqueTypeParams(t, suffix) | t <- ts ];
-}
-
-// Reverse the makeUnique operation
-str deUnique(str s) {
-    i = findLast(s, ".");
-    return i > 0 ? s[0..i] : s;
-}
-
-AType deUnique(AType t){
-    return visit(t) { case param:aparameter(str pname, AType _bound): {
-                                param.pname = deUnique(pname);
-                                insert param;
-                       }
-                    };
-}
-
-Bindings deUniqueTypeParams(Bindings b){ 
-    return (deUnique(key) : deUnique(b[key]) | key <- b);
+    throw invalidInstantiation("Type parameter `&<pname>` should be less than `<prettyAType(deUnique(bound))>`, but is bound to `<prettyAType(deUnique(actual))>`");  
 }
 
 // NOTE used during match, no bounds check is needed since that is already done during the match
@@ -285,7 +239,7 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
                                         insert repl;
                                     }
                                     else {
-                                        s.report(error(selector, "Type parameter %q should be less than %t, found %t", deUnique(pname), bound, bindings[pname]));
+                                        s.report(error(selector, "Type parameter &%q should be less than %t, found %t", deUnique(pname), deUnique(bound), deUnique(bindings[pname])));
                                     }
                                   } else {
                                         insert param;

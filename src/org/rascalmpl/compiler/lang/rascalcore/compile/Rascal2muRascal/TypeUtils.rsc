@@ -53,8 +53,7 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascalcore::check::ATypeInstantiation;
-
-
+import analysis::typepal::LocationChecks;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -214,11 +213,10 @@ bool isUse(UID u){
 }
 
 private AType getDefType(UID d){
-    if(defType(arg) := definitions[d].defInfo){
-        if(AType atype := arg) return atype;
-        if(Tree tree := arg) return getDefType(getLoc(tree));
-        if(loc l := arg) return facts[l];
-    }
+    DefInfo di = definitions[d].defInfo;
+    if(defType(AType atype) := di) return atype;
+    if(defType(Tree tree) := di) return getDefType(getLoc(tree));
+    if(defType(loc l) := di) return facts[l];
     throw "getDefType: <d>";
 }
 
@@ -270,7 +268,7 @@ private loc findContainer(Define d){
 }
 
 str findDefiningModule(loc l){
-    for(ms <- module_scopes,isContainedIn(l, ms)){
+    for(ms <- module_scopes,isContainedIn(l, ms, current_tmodel.logical2physical)){
         return definitions[ms].id;
     }
     throw "No module found for <l>";
@@ -295,7 +293,6 @@ list[AType] dummyFormalsInType(AType t){
 
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
-    tm = convertTModel2PhysicalLocs(tm);
     current_tmodel = tm;
     physical2logical = invertUnique(tm.logical2physical);
 
@@ -645,11 +642,11 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
   else {
     bool found = false;
     for(c <- functions){
-        if(isContainedIn(l, c)){ container = c; found = true; break; }
+        if(isContainedIn(l, c, current_tmodel.logical2physical)){ container = c; found = true; break; }
     }
     if(!found){
         for(c <- module_scopes){
-         if(isContainedIn(l, c)){ container = c; found = true; break; }
+         if(isContainedIn(l, c, current_tmodel.logical2physical)){ container = c; found = true; break; }
         }
     }
     if(!found) throw "No container found for <name>, <l>";

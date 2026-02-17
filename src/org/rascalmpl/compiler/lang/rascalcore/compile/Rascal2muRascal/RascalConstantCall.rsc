@@ -100,7 +100,7 @@ private MuExp tcc("regular", [muCon(Symbol def)]) = muCon(ParseTree::regular(def
 private MuExp tcc("priority", [muCon(Symbol def), muCon(list[Production] choices)]) = muCon(ParseTree::priority(def, choices));
 private MuExp tcc("associativity", [muCon(Symbol def), muCon(ParseTree::Associativity \assoc), muCon(set[Production] alternatives)]) = muCon(ParseTree::associativity(def, \assoc, alternatives));
 private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(ParseTree::reference(def, cons));
-private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(Type::\choice(def, alternatives));
+private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(choice(def, alternatives));
 
 // Attr
 
@@ -141,7 +141,6 @@ private MuExp tcc("lrel", [muCon(list[Symbol] symbols)]) = muCon(\lrel(symbols))
 private MuExp tcc("tuple", [muCon(list[Symbol] symbols)]) = muCon(\tuple(symbols));
 private MuExp tcc("list", [muCon(Symbol symbol)]) = muCon(\list(symbol));
 private MuExp tcc("map", [muCon(Symbol from), muCon(Symbol to)]) = muCon(\map(from, to));
-private MuExp tcc("bag", [muCon(Symbol symbol)]) = muCon(\bag(symbol));
 private MuExp tcc("adt", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\adt(name, parameters));
 private MuExp tcc("cons", [muCon(Symbol adt), muCon(str name), muCon(list[Symbol] parameters)]) = muCon(cons(adt, name, parameters));
 private MuExp tcc("alias", [muCon(str name), muCon(list[Symbol] parameters), muCon(Symbol aliased)]) = muCon(\alias(name, parameters, aliased));
