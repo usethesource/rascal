@@ -74,9 +74,11 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   loc funding           = |unknown:///|, 
   loc releaseNotes      = |unknown:///|,
   loc authors           = |unknown:///|,
+  bool verbose          = false,
   bool errorsAsWarnings = false, 
   bool warningsAsErrors = false, 
   bool isPackageCourse  = false, 
+  bool includeLibraries = false,
   str groupId           = "org.rascalmpl",
   str artifactId        = "rascal",
   str version           = getRascalVersion(),
@@ -99,6 +101,21 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
     pcfg.libs = [];
   }
 
+  if (verbose) iprintln(pcfg);
+ 
+  if (includeLibraries) {
+    jobStart("Including libraries", totalWork=size(pcfg.libs));
+
+    for (loc lib <- pcfg.libs) {
+      jobStep("Including libraries", "<lib>");
+      copy(lib + "docs", pcfg.bin + "docs", recursive=true);
+      remove(pcfg.bin + "docs" + "index.value");
+    }
+
+    jobEnd("Including libraries");
+  }
+
+
   messages = compile(pcfg);
   
   return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
@@ -113,6 +130,7 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
 
   // all documentation ends up nested under the `docs` folder in the target
   pcfg.bin = pcfg.bin + "docs";
+
 
   ind = createConceptIndex(pcfg);
 
@@ -716,6 +734,10 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
 
         exactLinks = exactShortestLinks(ind, removeSpaces(link));
 
@@ -771,6 +793,10 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else if (str sep <- {"-", "::"}, {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>(<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         exactLinks = exactShortestLinks(ind, removeSpaces(link));

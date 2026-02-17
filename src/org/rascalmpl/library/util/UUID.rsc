@@ -18,7 +18,7 @@ The uuid() function generates a location with the authority showing the literal 
 uuid()
 ```
 
-Use it to relate identies to data objects, as in this example which adds a field to a relation:
+Use it to relate identities to data objects, as in this example which adds a field to a relation:
 
 ```rascal-shell,continue
 myData = { <i,i*i> | i <- [1..11] }; 

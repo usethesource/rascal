@@ -30,10 +30,11 @@ module lang::rascalcore::check::ModuleLocations
 import IO;
 import List;
 import String;
+import Message;
 import util::Reflective;
 import util::FileSystem;
-//import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::LogicalLocations;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -57,6 +58,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
@@ -106,7 +108,7 @@ str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    if(isLogicalLoc(moduleLoc)){
+    if(isRascalLogicalLoc(moduleLoc)){
         path = moduleLoc.path;
         if(path[0] == "/"){
             path = path[1..];
