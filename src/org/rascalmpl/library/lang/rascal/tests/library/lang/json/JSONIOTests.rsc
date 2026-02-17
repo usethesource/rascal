@@ -111,7 +111,7 @@ bool originTest(loc example) {
 test bool originTracking() {
     files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
 
-    return (true | it && originTest(example) | example <- files, bprintln("testing origins of <example>"));
+    return (true | it && originTest(example) | loc example <- files);
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -324,8 +324,6 @@ test bool jsonVerifyOriginCorrect() {
     t1 = [v1(s="hoi"), ref];
     writeJSON(|memory:///test.json|, t1);
     v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
-    iprintln(refExpected);
-    iprintln(readFile(v[1].src));
     return refExpected == readFile(v[1].src);
 }
 
