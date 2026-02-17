@@ -1160,9 +1160,7 @@ public class JsonValueReader {
         private int offset = 0;
         // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
         private int limit = 0;
-        // readCount increases by 1 with every call to `read`
-        private int readCount = 0;
-
+       
         protected OriginTrackingReader(Reader in) {
             super(in);
         }
@@ -1215,19 +1213,12 @@ public class JsonValueReader {
             // Note that `fillBuffer.limit == read.limit`
             limit = off + charsRead;
 
-            // to help decide if a read happened
-            readCount++;
-            
             // and return only the number of characters read.
             return charsRead;
         }
 
         public int getOffsetAtBufferStart() {
             return offset;
-        }
-
-        public int getReadCount() {
-            return readCount;
         }
     }
 }
