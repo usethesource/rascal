@@ -233,6 +233,8 @@ bool tplOutdated(MODID moduleId, PathConfig pcfg){
 
 int parseTreeCacheSize = 20;
 
+Module dummyModule = [Module] "module DummyModule";
+
 tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getModuleParseTree: <moduleId>";
     pcfg = ms.pathConfig;
@@ -263,7 +265,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 println(e);
                 ms.messages[moduleId] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
-                return <false, char(0), ms>;
+                return <false, dummyModule, ms>;
             }
             if(traceParseTreeCache) println("*** parsing <moduleId> from <mloc>");
             try {
@@ -277,11 +279,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 ms.messages[moduleId] ? {} = {error("Parse error in <moduleId>", src)};
                 ms.moduleLocs[moduleId] = mloc;
                 ms.status[moduleId] += parse_error();
-                return <false, char(0), ms>;
+                return <false, dummyModule, ms>;
             }
         }
         ms.parseTrees[moduleId] = mpt;
-        return <false, char(0), ms>;
+        return <false, dummyModule, ms>;
    }
 }
 
