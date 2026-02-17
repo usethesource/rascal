@@ -25,7 +25,7 @@ There are several explicit contracts implemented here:
    * fingerprints distinguish the identity of the outermost value construct as much as possible. I.e. production rules and constructors are 
    mapped to different codes as much as possible, without breaking the fingerprinting contract.
    This contract is not automatically tested. Performance regressions may be caused by accidental fingerprinting collisions. 
-   * there is also an equals contract: `value1 equals value2 ==> fingerprint(value1) == fingerprint(value2)`, which is a collorary from the pattern
+   * there is also an equals contract: `value1 equals value2 ==> fingerprint(value1) == fingerprint(value2)`, which is a corollary from the pattern
    matching contract if you consider that patterns may also be equality tests.
 
 As you can read the computation of fingerprints reuses a lot of internal hashcodes. Mainly these boil down to the hash codes of:
