@@ -18,7 +18,7 @@ java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false,
 ((streamXML)) returns a closure function. When you call it repeatedly, it will produce a single value `just(...)` for each
 occurrence of `elementName` tags in the input. The final call will produce `nothing()`, so you know when to stop.
 
-`IO` exceptions can still be thrown even when you are already streaming. This means an entire file has dissappeared,
+`IO` exceptions can still be thrown even when you are already streaming. This means an entire file has disappeared,
 or permissions were revoked during the execution of the stream. Only when you receive `nothing()` it is indicated
 that the `elementName` tag is not further present in the file.
 }

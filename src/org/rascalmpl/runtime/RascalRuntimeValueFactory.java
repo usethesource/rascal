@@ -313,8 +313,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
         checkPreconditions(startSort, reifiedGrammar.getType());
-            
-        String name = getParserMethodName(startSort);
 
         return function(functionType, new ParseFunction(this, caller, allowAmbiguity, null, allowRecovery, maxRecoveryTokens, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
