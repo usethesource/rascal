@@ -282,7 +282,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 return <false, dummyModule, ms>;
             }
         }
-        ms.parseTrees[moduleId] = mpt;
+        ms.parseTrees[moduleId] = dummyModule;
         return <false, dummyModule, ms>;
    }
 }
