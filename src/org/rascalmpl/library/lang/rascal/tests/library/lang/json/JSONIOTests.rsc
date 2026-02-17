@@ -203,7 +203,7 @@ test bool accurateParseErrors() {
    return true;
 }
 
-// @ignore{until #2133 is fixed}
+@ignore{until #2133 is fixed}
 test bool regression1() = jsonRandom1(("a":12,[]:{}));
 
 data Cons = cons(str bla = "null");
