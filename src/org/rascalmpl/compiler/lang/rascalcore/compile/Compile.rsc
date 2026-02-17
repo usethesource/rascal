@@ -48,10 +48,10 @@ import lang::rascalcore::compile::util::Names;
 
 data ModuleStatus;
 
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
+list[Message] compile1(MODID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MODID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
+    qualifiedModuleName = moduleId2moduleName(moduleId);
     pcfg = ms.pathConfig;
-    //<found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    tm = transient_tms[qualifiedModuleName];
+    tm = transient_tms[moduleId];
     //iprintln(tm, lineLimit=10000);
     if(errorsPresent(tm)){
         return tm.messages;
@@ -87,8 +87,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
         
-    imports = { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
-    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
+    imports = { imp | <m1, importPath(), imp> <- ms.paths, m1 == moduleId };
+    extends = { ext | <m1, extendPath(), ext > <- ms.paths, m1 == moduleId };
     tmodels = ();
     for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
         if(m in transient_tms){
@@ -99,7 +99,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         }
     }
     // tmodels[qualifiedModuleName] = tm;
-    ms = addTModel(qualifiedModuleName, tm, ms);
+    ms = addTModel(moduleId, tm, ms);
         
     <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, ms);
     // <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs, pcfg);
@@ -160,10 +160,10 @@ list[Message] compile(list[str] qualifiedModuleNames, RascalCompilerConfig compi
       
     comp_time = (cpuTime() - start_comp)/1000000;
     if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleNames> in <comp_time> ms [total]"); }
-	return [*(ms.messages[m] ? {}) |  m <- qualifiedModuleNames];
+	return [*(ms.messages[moduleName2moduleId(m)] ? {}) |  m <- qualifiedModuleNames];
 }
 
-void main(
+int main(
     PathConfig pcfg               = pathConfig(), 
     list[loc] \modules            = [],
     bool logPathConfig            = false,
@@ -193,13 +193,14 @@ void main(
         infoModuleChecked        = infoModuleChecked
     );
 
+    list[Message] messages = [];
     if (\modules == []) {
         // the `compile` function throws EmptyList() on an empty list of modules
-        messages = info("No modules to compile.");
+        messages = [ info("No modules to compile.", |unknown:///|) ];
     }
     else {      
         messages = compile(\modules, rascalConfig);
     }
     
-    return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors); 
+    return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors); 
 }

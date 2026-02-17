@@ -18,7 +18,7 @@ import Exception;
 
 @synopsis{Intercept of regression line.}
 @description{
-Returns the [interce](http://en.wikipedia.org/wiki/Root_of_a_function) of the estimated regression line.
+Returns the [intercept](http://en.wikipedia.org/wiki/Root_of_a_function) of the estimated regression line.
 The least squares estimate of the intercept is computed using these [normal equations](http://www.xycoon.com/estimation4.htm)
 }
 
@@ -117,7 +117,7 @@ public java num slopeStdErr(lrel[num,num] values) throws IllegalArgument;
 
 @synopsis{Sum of cross products of observations.}
 @description{
-Returns the sum of crossproducts, x__~i~*y__~i~.
+Returns the sum of cross products, x__~i~*y__~i~.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num sumOfCrossProducts(lrel[num,num] values) throws IllegalArgument;

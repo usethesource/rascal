@@ -59,6 +59,20 @@ public class Messages {
         return vf.constructor(type, vf.string(message), loc);
     }
 
+    public static IConstructor addCause(IConstructor msg, String cause, ISourceLocation loc) {
+        if (cause == null || cause.isEmpty()) {
+            return msg;
+        }
+
+        IList causes = (IList) msg.asWithKeywordParameters().getParameter("causes");
+        causes = causes == null 
+            ? vf.list(info(cause, loc))
+            : causes.append(info(cause, loc))
+            ;
+            
+        return msg.asWithKeywordParameters().setParameter("causes", causes);
+    }
+
     public static boolean isError(IValue v) {
         return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_error;
     }
@@ -203,7 +217,7 @@ public class Messages {
 
         return (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
             ? ((IString) msg.get("msg")).getValue()
-            : loc.getPath().substring(1)
+            : (root != null ? loc.getPath().substring(1) : loc)
             + ((line == 0 && col == 0) ? "" : 
             (":"
             + String.format("%0" + lineWidth + "d", line)
