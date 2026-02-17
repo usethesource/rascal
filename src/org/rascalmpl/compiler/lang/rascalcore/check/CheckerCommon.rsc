@@ -262,9 +262,8 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
             } catch e: {
                 println(e);
                 ms.messages[moduleId] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
-                mpt = [Module] "module <qualifiedModuleName>";
                 ms.moduleLocs[moduleId] = mloc;
-                return <false, mpt, ms>;
+                return <false, char(0), ms>;
             }
             if(traceParseTreeCache) println("*** parsing <moduleId> from <mloc>");
             try {
@@ -278,12 +277,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 ms.messages[moduleId] ? {} = {error("Parse error in <moduleId>", src)};
                 ms.moduleLocs[moduleId] = mloc;
                 ms.status[moduleId] += parse_error();
-                return <false, [Module] "module <qualifiedModuleName>", ms>;
+                return <false, char(0), ms>;
             }
         }
-        mpt = [Module] "module <qualifiedModuleName>";
         ms.parseTrees[moduleId] = mpt;
-        return <false, mpt, ms>;
+        return <false, char(0), ms>;
    }
 }
 
