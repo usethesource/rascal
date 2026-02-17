@@ -83,7 +83,7 @@ rel[loc key, IdRole idRole, AType atype]
     
     rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
     rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
-    for(tup:<def, r, tp> <- overloads){
+    for(tup:<_, _, tp> <- overloads){
         if(isValueAType(expected)){
             filteredOverloads += tup;
             if(isConstructorAType(tp) || isADTAType(tp)){
@@ -96,7 +96,7 @@ rel[loc key, IdRole idRole, AType atype]
         } 
     }
     if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | <key, idRole, tp>  <- unResolvedConstructorOverloads };
+        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
@@ -123,7 +123,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){
                     filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
-                    for(<def, r, tp> <- filteredOverloads){
+                    for(<_, _, tp> <- filteredOverloads){
                         s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
                     }
                 } else {
@@ -347,10 +347,11 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     }
     for(p <- parameters){
         if(!bindings[p.pname]?){
-            bindings[p.pname] = avalue(); // was: avoid()
+            bindings[p.pname] = avoid();
         }
     }
-    if(!isEmpty(bindings)){
+    if(!isEmpty(index_formals)){
+      if(!isEmpty(bindings)){
         try {
             ctype_old = makeUniqueTypeParams(s.getType(current), fsuffix);
             ctype_new = instantiateRascalTypeParameters(current, ctype_old, bindings, s); // changed
@@ -365,11 +366,14 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
             return res;
         } catch invalidInstantiation(str msg):
                s.report(error(current, msg));
-    }
-    try {
+      }
+      try {
         return deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(adtType, fsuffix), bindings, s));
-    } catch invalidInstantiation(str msg):
+      } catch invalidInstantiation(str msg):
         s.report(error(current, msg));
+    } else {
+        return instantiateRascalTypeParameters(current, adtType, bindings, s);
+    }
     return adtType;
 }
 
@@ -1120,7 +1124,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
 }
 
 AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
-    //println("instantiateAndCompare: <current>, <patType>, <subjectType>");
+    // println("instantiateAndCompare: <current>, <patType>, <subjectType>");
     if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
       s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
       s.fact(current, patType); // <====

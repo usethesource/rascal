@@ -168,6 +168,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private AbstractAST currentAST;
 
     /**
+     * Used in debugger exception handling
+     */
+    private Exception currentException;
+
+    /**
      * True if we're doing profiling
      */
     private boolean doProfiling = false;
@@ -780,6 +785,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return currentAST;
     }
 
+    public Exception getCurrentException() {
+        return currentException;
+    }
+
     public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
         rascalPathResolver.addPathContributor(contrib);
     }
@@ -1120,6 +1129,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.writeLoadMessages(getErrorPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
@@ -1162,7 +1174,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
-                    onHeap.add(mod);
+                    if (URIResolverRegistry.getInstance().exists(heap.getModule(mod).getLocation())) {
+                        // only if the file was not removed in the mean time
+                        onHeap.add(mod);
+                    }
                     if (recurseToExtending) {
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
@@ -1210,7 +1225,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 affectedModules.add(mod);
                             }
                             else {
-                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
                                 warning("could not reimport " + imp, errorLocation);
                             }
                         }
@@ -1229,7 +1243,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 env.addExtend(ext);
                             }
                             else {
-                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
                                 warning("could not re-extend " + ext, errorLocation);
                             }
                         }
@@ -1249,6 +1262,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         finally {
             setMonitor(old);
+
+            // during reload we don't see any errors being printed, to avoid duplicate reports
+            // so at the end we always report what went wrong to the user.
+            heap.writeLoadMessages(getOutPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
@@ -1583,6 +1602,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
                 listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
+        }
+    }
+
+    @Override
+    public void notifyAboutSuspensionException(Exception t) {
+        currentException = t;
+        try{
+            if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+                for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                    listener.suspended(this, () -> getCallStack().size(), currentAST);
+                }
+            }
+        } finally { // clear the exception after notifying listeners
+            currentException = null;
         }
     }
 

@@ -128,6 +128,14 @@ public abstract class AbstractInterpreterEventTrigger implements IRascalEventTri
 	}
 
 	/**
+	 * Fires a resume event for this debug element with detail
+	 * <code>RascalEvent.Detail.CLIENT_REQUEST</code>.
+	 */
+	public void fireSuspendByRestartFrameEndEvent() {
+		fireSuspendEvent(RascalEvent.Detail.RESTART_FRAME_END);
+	}
+
+	/**
 	 * Fires a suspend event for this debug element with detail
 	 * <code>RascalEvent.Detail.STEP_END</code>.
 	 * 
@@ -139,6 +147,15 @@ public abstract class AbstractInterpreterEventTrigger implements IRascalEventTri
 				RascalEvent.Kind.SUSPEND,
 				RascalEvent.Detail.BREAKPOINT);
 		event.setData(data);
+
+		fireEvent(event);
+	}
+
+	public void fireSuspendByExceptionEvent(Exception exception) {
+		RascalEvent event = new RascalEvent(source,
+				RascalEvent.Kind.SUSPEND,
+				RascalEvent.Detail.EXCEPTION);
+		event.setData(exception);
 
 		fireEvent(event);
 	}

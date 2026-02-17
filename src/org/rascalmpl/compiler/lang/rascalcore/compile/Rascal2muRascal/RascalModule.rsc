@@ -41,6 +41,8 @@ import lang::rascalcore::compile::muRascal::AST;
 //extend lang::rascalcore::check::Checker;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::LogicalLocations;
+
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -67,20 +69,22 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, RascalCompilerConfig compilerConfig){
    try {
       resetModuleInfo(compilerConfig);
-      module_scope = M@\loc;
+      
+      M_module_name = unescape("<M.header.name>");
+      setModuleName(M_module_name);
+
+      module_scope = moduleName2moduleId(M_module_name);
       setModuleScope(module_scope);
-      //setModuleScope(convert2fuid(module_scope));
-      module_name = "<M.header.name>";
-      setModuleName(module_name);
+      
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
-      if(ignoreTest(mtags)){
-            e = info("Ignore tag suppressed compilation", M@\loc);
+      if(hasIgnoreTag(mtags)){
+            e = info("Ignore tag suppressed compilation", M.header.name@\loc);
             tmodel.messages += [e];
-            return <tmodel, errorMuModule(getRascalModuleName(), {e}, M@\loc)>;
+            return <tmodel, errorMuModule(getRascalModuleName(), {e}, M.header.name@\loc)>;
       }
      
-      //if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
+      //if(verbose) println("r2mu: entering ... <M_module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the tmodel returned by the type checker  
    	  extractScopes(tmodel); 
@@ -92,7 +96,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  
    	  translateModule(M);
    	  
-   	  generateAllFieldGetters(module_scope);
+   	  generateAllFieldGetters(module_scope, tmodel.logical2physical);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       
@@ -139,9 +143,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
 //        return visit(tmodel) { case loc l => relocLoc(l, reloc, srcs) };
 //}
 
-void translateModule((Module) `<Header header> <Body body>`) {
-    for(imp <- header.imports) importModule(imp);
-	for( tl <- body.toplevels) translateToplevel(tl);
+void translateModule(Module m) {
+    for(imp <- m.header.imports) importModule(imp);
+	for(tl <- m.body.toplevels) translateToplevel(tl);
 }
 
 /********************************************************************/

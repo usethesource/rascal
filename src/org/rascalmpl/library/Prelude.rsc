@@ -17,14 +17,17 @@ Prelude combines the following modules:
 *  ((Library:module:Boolean))
 *  ((Library:module:DateTime))
 *  ((Library:module:Exception))
+*  ((Library:module:Grammar))
 *  ((Library:module:IO))
 *  ((Library:module:List))
+*  ((Library:module:ListRelation))
 *  ((Library:module:Map))
 *  ((Library:module:Node))
 *  ((Library:module:ParseTree))
 *  ((Library:module:Relation))
 *  ((Library:module:Set))
 *  ((Library:module:String))
+*  ((Library:module:Type))
 *  ((Library:module:ValueIO))
 }
 @examples{
@@ -55,6 +58,6 @@ extend Node;
 extend ParseTree;
 extend Relation;
 extend Set;
-extend String; 
+extend String;
 extend Type;
-extend ValueIO;  
+extend ValueIO;
