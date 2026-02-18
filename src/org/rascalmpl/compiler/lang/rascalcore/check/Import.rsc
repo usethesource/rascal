@@ -100,10 +100,6 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
 // TODO: reuse enhancePathRelation from RascalConfig here
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
-    // extra safeguard against physical locations (due to erroneous packager)
-    paths = visit(ms.paths){
-        case loc l => moduleName2moduleId(getRascalModuleName(l,pcfg)) when !isModuleId(l)
-    }
 
     ms = reportSelfImport(paths, ms);
     
