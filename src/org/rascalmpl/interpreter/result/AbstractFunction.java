@@ -346,7 +346,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
-			    actualStaticTypes = renameType(actualStaticTypes, renamings, env.getLocation());
+			    actualStaticTypes = renameType(actualStaticTypes, renamings, env.getCreatorLocation());
 			}
 
 			
