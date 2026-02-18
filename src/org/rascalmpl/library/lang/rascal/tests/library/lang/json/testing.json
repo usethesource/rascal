@@ -1,5 +1,6 @@
+// This comment pushes the length of the file beyong the 1024 limit. 
 {
-  "name": "TESTING  Adding one more character to this data causes the test to fail",
+  "name": "TESTING Adding one more character to this data caused the test to fail",
   "type": "type_abcd",
   "nested_abc": [
     {
