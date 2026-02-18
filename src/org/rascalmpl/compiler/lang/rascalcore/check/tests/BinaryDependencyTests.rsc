@@ -45,6 +45,7 @@ import ParseTree;
 import String;
 import lang::rascalcore::check::ModuleLocations;
 import util::FileSystem;
+import util::SemVer;
 
 
 // ---- Utilities for test setup ----------------------------------------------
