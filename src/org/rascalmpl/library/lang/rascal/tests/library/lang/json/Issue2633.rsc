@@ -51,7 +51,7 @@ test bool failsOnCertainJSON() {
                 '";
 
     // Fails when the original data above is increased by even one character (e.g. the name, or changing a 2 to 20, or even adding a meaningless space anywhere)
-    parsedVFD = parseJSON(#OuterData, input);
+    parsedVFD = parseJSON(#OuterData, input, trackOrigins=true, lenient=true);
     println("Parsed VisualFormData (After)");
     iprintln(parsedVFD);
 
