@@ -97,7 +97,7 @@ test bool RedeclaredVarDeclaration(){
 test bool ModuleVarReDeclaration(){ 
 	writeModule("module MMM
 					public int n = 1; 
-					public int n = 2;"); 
+					public str n = \"a\";"); 
 	return redeclaredVariableInModule("
 		module ModuleVarReDeclaration
 			import MMM;

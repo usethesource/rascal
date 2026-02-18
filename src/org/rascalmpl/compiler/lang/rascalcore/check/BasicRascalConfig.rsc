@@ -71,7 +71,7 @@ public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] localVariableRoles = formalRoles + {variableId(), patternVariableId()};
 public set[IdRole] variableRoles = localVariableRoles + { moduleVariableId() };
-public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] inferrableRoles = variableRoles;
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
                                                              moduleVariableId(), productionId()
@@ -172,15 +172,22 @@ public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
 
+private str MD5_CONTRIB_SEPARATOR = "@";
+private map[str, str] MD5_ESCAPES = (MD5_CONTRIB_SEPARATOR: "\\<MD5_CONTRIB_SEPARATOR>");
+
+@synopsis{Hash a variable number of contributing values (MD5).}
+str normalizedMD5Hash(value contribs...)
+    = md5Hash(removeWhitespace(intercalate(MD5_CONTRIB_SEPARATOR, [escape("<c>", MD5_ESCAPES) | c <- contribs])));
+
 bool isValidRascalTplVersion(str version)
     = equalVersion(version, currentRascalTplVersion);
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
-str currentRascalTplVersion = "2.0.0";
+str currentRascalTplVersion = "3.0.0";
 
 data TModel (
-    str rascalTplVersion = "2.0.0"
+    str rascalTplVersion = "3.0.0"
 );
 
 // Define alias for TypePalConfig
@@ -211,6 +218,3 @@ data TypePalConfig(
     bool optimizeVisit              = true,     // Options for compiler developer
     bool enableAsserts              = true
 );
-
-bool isLogicalLoc(loc l)
-    = startsWith(l.scheme, "rascal+");

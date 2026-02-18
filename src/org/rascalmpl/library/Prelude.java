@@ -2626,7 +2626,6 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
 		}
 		
-		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
 			if (type.isList() || splicing || isUntypedNodeType(type)) {
 				// if in node space, we also make a list; 
@@ -2655,7 +2654,6 @@ public class Prelude {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot match list with " + type));
 			}
 		}
-		//Changes end here
 		
 		if (TreeAdapter.isOpt(tree) && type.isBool()) {
 			IList args = TreeAdapter.getArgs(tree);
@@ -2726,21 +2724,7 @@ public class Prelude {
 			}
 			args = aw.done();
 			int length = args.length();
-			IMap comments = cw.done();
-			
-//			// this could be optimized.
-//			i = 0;
-//			int length = args.length();
-//			while (i < length) {
-//				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
-//					length--;
-//					args = args.delete(i);
-//				}
-//				else {
-//					i++;
-//				}
-//			}
-			
+			IMap comments = cw.done();			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
 			
@@ -2748,8 +2732,7 @@ public class Prelude {
 				if (length == 1) {
 					// jump over injection
 					return implode(store, type, (ITree) args.get(0), splicing);
-				}
-				
+				}		
 				
 				// make a tuple if we're in node space
 				if (isUntypedNodeType(type)) {
@@ -3503,6 +3486,32 @@ public class Prelude {
 		return true;
 	}
 	
+	private boolean isUnicodeWhitespace(Integer cp) {
+		return Character.isSpaceChar(cp)
+			// Check for characters not included in 'space chars', but considered white space
+			|| cp == 0x0009 // \t
+			|| cp == 0x000A // \n
+			|| cp == 0x000B // VT
+			|| cp == 0x000C // FF
+			|| cp == 0x000D // \r
+			|| cp == 0x0085;// NEL
+	}
+
+	public IString removeWhitespace(IString str) {
+		StringBuilder b = new StringBuilder(str.length());
+		var iter = str.iterator();
+
+		while (iter.hasNext()) {
+			var codepoint = iter.next();
+			// Character.isWhitespace does not cover the complete range of Unicode whitespace
+			if (!isUnicodeWhitespace(codepoint)) {
+				b.appendCodePoint(codepoint);
+			}
+		}
+
+		return values.string(b.toString());
+	}
+
 	public IValue replaceAll(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){

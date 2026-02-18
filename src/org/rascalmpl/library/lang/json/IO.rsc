@@ -74,7 +74,14 @@ import Exception;
 * `cause` is a factual diagnosis of what was expected at that position, versus what was found.
 * `path` is a path query string into the JSON value from the root down to the leaf where the error was detected.
 }
-data RuntimeException(str cause="", str path="");
+@benefits{
+* ((NoOffsetParseError)) is for when accurate offset tracking is turned off. Typically this is _on_
+even if `trackOrigins=false`, when we call the json parsers from Rascal.
+}
+data RuntimeException(str cause="", str path="")
+  = ParseError(loc location)
+  | NoOffsetParseError(loc location, int line, int column)
+  ;
 
 private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
 
@@ -162,7 +169,8 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
   str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
-  bool dateTimeAsInt=false, 
+  bool dateTimeAsInt=false,
+  bool rationalsAsString=false,
   int indent=0, 
   bool dropOrigins=true, 
   JSONFormatter[value] formatter = str (value _) { fail; }, 
@@ -176,7 +184,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{

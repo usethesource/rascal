@@ -75,8 +75,10 @@ str prefixLast(str pref, str qname){
     return res;
 }
 
+str getCompiledPackage() = "rascal";
+
 str getCompiledPackage(str _qname, PathConfig _pcfg)
-    = "rascal";
+    = getCompiledPackage();
 
 str asClassRef(str qname, PathConfig pcfg){
     //return prefixLast("$", qname);
@@ -114,6 +116,11 @@ loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
 }
 str makeDirName(str qualifiedModuleName){
     parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
+    return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
+}
+
+str makeDirName(list[str] parts){
+    parts =  escapeJavaKeywords(normalize(parts));
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
@@ -214,3 +221,4 @@ bool isEqualModule(str name1, name2){
     //println("isEqualModule(<name1>, <name2>) =\> <res>");
     return res;
 }
+

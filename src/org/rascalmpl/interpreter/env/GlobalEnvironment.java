@@ -14,9 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +31,11 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.IRascalValueFactory;
+
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IString;
 
 
 /**
@@ -40,6 +45,8 @@ import org.rascalmpl.interpreter.utils.Names;
  * 
  */
 public class GlobalEnvironment {
+	private final Deque<String> loadStack = new ArrayDeque<>();
+
 	/** The heap of Rascal */
 	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		
@@ -48,29 +55,12 @@ public class GlobalEnvironment {
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
 	/**
-	 * For extend cycle detector
-	 */
-	private final Deque<String> extendStack = new ArrayDeque<>();
-	
-	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
 	
 	private boolean bootstrapper;
-	
-	public void pushExtend(String module) {
-	    extendStack.push(module);
-	}
-	
-	public void popExtend() {
-	    extendStack.pop();
-	}
-	
-	public boolean isCyclicExtend(String module) {
-	    return extendStack.contains(module);
-	}
-  
+
 	public void clear() {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
@@ -78,6 +68,34 @@ public class GlobalEnvironment {
 		sourceResolvers.clear();
 	}
 	
+	/**
+	 * Push a module on the load stack and
+	 * return true iff its already on the stack.
+	 * @param name
+	 * @return
+	 */
+	public boolean pushModuleLoading(String name) {
+		var preExists = loadStack.contains(name);
+		loadStack.push(name);
+		return preExists;
+	}
+
+	public String popModuleLoading() {
+		return loadStack.pop();
+	}
+
+	public boolean onLoadingStack(String name) {
+		return loadStack.contains(name);
+	}
+
+	public void writeLoadMessages(PrintWriter out) {
+		moduleEnvironment.values().stream().forEach(m -> m.writeLoadMessages(out));
+	}
+
+	public List<String> getLoadStack() {
+		return loadStack.stream().collect(Collectors.toList());
+	}
+
 	/**
 	 * Register a source resolver for a specific scheme. Will overwrite the previously
 	 * registered source resolver for this scheme.
@@ -131,11 +149,9 @@ public class GlobalEnvironment {
 		return module;
 	}
 	
-
 	public boolean existsModule(String name) {
 		return moduleEnvironment.containsKey(name);
 	}
-
 	
 	@Override
 	public String toString(){
@@ -197,7 +213,11 @@ public class GlobalEnvironment {
 		
 		return result;
 	}
-	
+
+	public SetMultimap.Transient<String, String> getExtendGraphFrom(String mod) {
+		return getModule(mod).collectExtendsGraph();
+	}
+
 	public Set<String> getExtendingModules(String mod) {
 		Set<String> result = new HashSet<>();
 		Deque<String> todo = new ArrayDeque<>();
@@ -240,11 +260,73 @@ public class GlobalEnvironment {
 	    return bootstrapper;
 	}
 
-	public List<String> getExtendCycle() {
-        return Collections.unmodifiableList(extendStack.stream().collect(Collectors.toList()));
+	/**
+	 * This starts with an edge that is not yet in the graph because we are loading these
+	 * modules. Then the rest of graph is loaded from what we already have in memory.
+	 * @param parent the first and last node of a detected cycle.
+	 * @return
+	 */
+    public List<String> findCyclicExtendPathFrom(String parent, String child) {
+        SetMultimap.Transient<String, String> graph = getExtendGraphFrom(child);
+		graph.__put(parent, child); // add the last edge that was not yet registered
+		IRascalValueFactory vf = IRascalValueFactory.getInstance();
+		return depthFirstCycleSearch(parent, new HashSet<>(), vf.list(vf.string(parent)), graph)
+			.stream()
+			.map(IString.class::cast)
+			.map(IString::getValue)
+			.collect(Collectors.toList());
+    }
+
+	/*
+	 * dfs uses an immutable IList for the path such that we don't have to maintain a stack, next to the 
+	 * recursion.
+	 * otherwise this is a standard depth-first search for a directed graph
+	 */
+	public IList depthFirstCycleSearch(String parent, Set<String> visited, IList path,  SetMultimap.Transient<String, String> graph) {
+		visited.add(parent);
+		var vf = IRascalValueFactory.getInstance();
+
+		for (String child : graph.get(parent)) {
+			if (!visited.contains(child)) {
+				// a new node but not cyclic (yet) 
+				IList result = depthFirstCycleSearch(child, visited, path.append(vf.string(child)), graph);
+				if (!result.isEmpty()) {
+					// then this is the first cycle we found, so we're done
+					return result;
+				}
+				else {
+					continue; // searching with the other nodes
+				}
+			}
+			else if (path.contains(vf.string(child))) {
+				// cycle detected, drop the prefix and report it!
+				return path.stream().dropWhile(e -> !e.equals(vf.string(child))).collect(vf.listWriter());
+			}
+			else {
+				// already visited but not cyclic
+				continue; // with the neighbors
+			}
+		}
+
+		// no cycle found here
+		return vf.list();
+	}
+
+	public List<String> nonInitializedModules() {
+		return moduleEnvironment.entrySet().stream()
+			.filter(e -> !e.getValue().isInitialized())
+			.map(e -> e.getKey())
+			.collect(Collectors.toList());
 	}
 
 	public void clearLookupChaches() {
 		moduleEnvironment.values().forEach(ModuleEnvironment::clearLookupCaches);
+	}
+
+	/**
+	 * This is for the tutor and eval; sometimes we do not want to keep seeing old messages
+	 */
+	public void clearModuleLoadMessage() {
+		moduleEnvironment.values().forEach(ModuleEnvironment::clearLoadMessages);
 	}
 }
