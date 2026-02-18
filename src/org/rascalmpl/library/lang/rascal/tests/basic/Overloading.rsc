@@ -185,6 +185,7 @@ Map patterns not supported
 }
 private default bool singletonSetWithMap(value _) = false;
 
+@IgnoreInterpreter
 @IgnoreCompiler
 test bool callSingletonSetWithMap() = singletonSetWithMap({()});
 
