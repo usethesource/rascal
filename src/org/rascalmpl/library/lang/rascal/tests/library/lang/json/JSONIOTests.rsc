@@ -94,22 +94,24 @@ test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 bool originTest(loc example) {
    ex2 = readJSON(#node, example, trackOrigins=true);   
    content = readFile(example);
-
+   lines = split("\n", content);
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
       assert p.begin.line == line;
+      assert lines[p.begin.line - 1][p.begin.column] == "{";
+      assert lines[p.end.line - 1][p.end.column - 1] == "}";
    }
 
    return true;
 }
 
-@ignore{awaiting fix of 2633}
 test bool originTracking() {
-    return originTest(|std:///lang/rascal/tests/library/lang/json/glossary.json|)
-        && originTest(|std:///lang/rascal/tests/library/lang/json/testing.json|);
+    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
+
+    return (true | it && originTest(example) | loc example <- files);
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -181,7 +183,6 @@ value toDefaultValue(real r) = r - round(r) == 0
     : fitDouble(r);
 default value toDefaultValue(value x) = x;
 
-@ignore{awaiting fix of 2633}
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
@@ -311,6 +312,49 @@ test bool explicitDataTypes() {
 
     // here we can't be sure to get z() back, but we will get some Enum
     assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitDataTypes=false);
+
+    return true;
+}
+
+data X(loc src=|unkown:///|) = v1(int x=0, str s = "");
+
+test bool jsonVerifyOriginCorrect() {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+    t1 = [v1(s="hoi"), ref];
+    writeJSON(|memory:///test.json|, t1);
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+    return refExpected == readFile(v[1].src);
+}
+
+test bool triggerIssue2633() {
+    return jsonVerifyOriginCorrectAcrossBufferBoundaries(1023);
+}
+
+test bool jsonVerifyOriginCorrectAcrossBufferBoundaries() {
+    /* twice just before and after the 1024 buffer size of JsonReader */
+    for (int sSize <- [1000..1025] + [2000..2050]) {
+        jsonVerifyOriginCorrectAcrossBufferBoundaries(sSize);
+    }
+    return true;
+}
+
+bool jsonVerifyOriginCorrectAcrossBufferBoundaries(int sSize) {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+   
+    t1 = [v1(s="<for (_ <- [0..sSize]) {>a<}>"), ref];
+    writeJSON(|memory:///test.json|, t1);
+
+    //s this throws exceptions and asserts if there are bugs with the
+    // origin tracker. In particular it triggers #2633
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+
+    // checking the last element
+    if (refExpected != readFile(v[1].src)) {
+        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>");
+        return false;
+    }
 
     return true;
 }
