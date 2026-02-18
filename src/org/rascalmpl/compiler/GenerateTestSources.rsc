@@ -45,7 +45,7 @@ void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs);
 
 void main() = main([]);
 
-loc REPO = |file:///Users/paulklint/git/|;
+loc GIT_REPO = |file:///Users/paulklint/git/|;
 
 list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
   = [ getModuleName(file, pcfg) //replaceAll(file[extension=""].path[1..], "/", "::") 
@@ -66,12 +66,12 @@ void generateTestSources(list[str] cmdLineArgs) {
    list[str] modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-      modulesToCompile = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);     
+      modulesToCompile = getRascalModules(GIT_REPO + "rascal/src/org/rascalmpl/library", pcfg);     
    } else {              
-       testFolders = [   REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
-                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
-                       , REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
-                      // , REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
+       testFolders = [   GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
+                       , GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests"
+                       , GIT_REPO + "rascal/src/org/rascalmpl/library/lang/rascalcore/agrammar/tests"
+                      // , GIT_REPO + "rascal/src/org/rascalmpl/compiler/lang/rascalcore/check/tests"
                      ];
        
        modulesToCompile = [ *getRascalModules(testFolder, pcfg)

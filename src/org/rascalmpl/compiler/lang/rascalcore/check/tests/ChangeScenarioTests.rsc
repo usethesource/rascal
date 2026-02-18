@@ -597,6 +597,20 @@ test bool changedExtendedModule(){
     return checkModuleOK(ScratchLoc);
 }
 
+// Issue #2562, ht @sungshik (Sung-Shik Jongmans)
+
+test bool changedExtendedModules(){
+    ALoc = writeModule("module A extend B;");
+    BLoc = writeModule("module B extend C;");
+    CLoc = writeModule("module C");
+  
+    assert checkModuleOK(ALoc);
+    writeModule("module A extend B; "); // extra space
+    writeModule("module C "); // extra space
+   
+    return checkModulesOK([ALoc, ALoc]);
+}
+
 @ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){
     clearMemory();

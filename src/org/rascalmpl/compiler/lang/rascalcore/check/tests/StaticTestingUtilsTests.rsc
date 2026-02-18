@@ -116,8 +116,8 @@ test bool TestUtils12() = checkModuleOK("
 test bool tmodelWrittenWhenNoErrors() {
 	ms = checkModule("module A");
 	<found, tm, ms> = getTModelForModule("A", ms);
-	assert found : "A not found: <tm.messages>";
 	errors = getErrorMessages(ms);
+	assert found : "A not found: <errors>";
 	assert isEmpty(errors) : "<errors>";
 	return true;
 }
@@ -125,8 +125,8 @@ test bool tmodelWrittenWhenNoErrors() {
 test bool tmodelWrittenWhenErrors() {
 	ms = checkModule("module A int a = x;");
 	<found, tm, ms> = getTModelForModule("A", ms);
-	assert found : "A not found: <tm.messages>";
 	errors = getErrorMessages(ms);
+	assert found : "A not found: <errors>";
 	assert !isEmpty(errors) : "<errors>";
 	return true;
 }

@@ -34,7 +34,7 @@ module lang::rascalcore::check::AType
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::agrammar::definition::Characters;
 
-import lang::rascalcore::check::ATypeInstantiation;
+import lang::rascalcore::check::ATypeParamBase;
 
 import IO;
 import Node;
@@ -214,7 +214,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
         case avalue():
             return true;
-        case p:aparameter(_, AType bnd):
+        case p:aparameter(_, _):
             return asubtypeRightTypeParam(adt, p);
     }
     fail;
@@ -410,7 +410,7 @@ bool asubtype(areified(AType s), AType b){
             return true;
         case avalue():
             return true;
-        case p: aparameter(_, AType bnd):
+        case p: aparameter(_, _):
             return asubtypeRightTypeParam(s, p);
     }
     fail;
@@ -453,11 +453,6 @@ bool asubtype(l:\achar-class(_), AType r){
     }
     fail;
 }
-
-bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
-
-bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges))
-    = difference(ranges, [arange(c,c)]) == [arange(c,c)];
 
 bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtypeList(l, r);
 

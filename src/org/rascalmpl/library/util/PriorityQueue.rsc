@@ -44,7 +44,7 @@ module util::PriorityQueue
  * - PriorityQueue insertElement(PriorityQueue Q, int priority, int val):
  *		insert pair in queue.
  * - int findMinimum(PriorityQueue Q):
- *		find the minmium priority.
+ *		find the minimum priority.
  * - tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q):
  *		find the pair with minimum priority and delete it.
  */

@@ -66,7 +66,7 @@ import Content;
 import Set;
 import List;
 
-@synopsis{A scatterplot from a binary numerical relation.}
+@synopsis{A scatter plot from a binary numerical relation.}
 
 Content scatterChart(lrel[num x,num y] v, str title="Scatterplot", ChartAutoColorMode colorMode=\dataset()) 
     = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode, legend=false));
@@ -80,7 +80,7 @@ Content scatterChart(rel[num x ,num y] v, str title="Scatterplot", ChartAutoColo
 Content scatterChart(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
 
-@synopsis{A bubblechart from a binary numerical list relation.}
+@synopsis{A bubble chart from a binary numerical list relation.}
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
@@ -161,7 +161,7 @@ Content pieChart(list[str] labels, rel[str label, num val] values..., str title=
 Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title, colorMode=colorMode, legend=true));  
 
-@synopsis{A dougnut chart from labeled numbers}
+@synopsis{A doughnut chart from labeled numbers}
 Content doughnutChart(rel[str label, num val] values, str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\doughnut(), title=title, colorMode=colorMode, legend=true));
 
@@ -334,7 +334,7 @@ data ChartData
 The `data` field is a list of supported values, of which the constraints
 are not expressible by data types. These are currently supported:
 
-* ((ChartDataPoint)), with an without a `r`adius
+* ((ChartDataPoint)), with and without a `r`adius
 * `num`, but within `double` precision (!) and no `rat`
 }
 data ChartDataSet(
