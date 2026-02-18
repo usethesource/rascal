@@ -202,7 +202,7 @@ public class JavaMethod extends NamedFunction {
 				// we have to make the environment hygenic now, because the caller scope
 				// may have the same type variable names as the current scope
 				renamings = new HashMap<>();
-				actualStaticTypes = fastRenameType(actualStaticTypes, renamings, env.getLocation());
+				actualStaticTypes = fastRenameType(actualStaticTypes, renamings, env.getCreatorLocation());
 			}
 			else {
  				renamings = Collections.emptyMap();
