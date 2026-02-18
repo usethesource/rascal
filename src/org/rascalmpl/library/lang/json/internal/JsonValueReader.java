@@ -107,8 +107,7 @@ public class JsonValueReader {
          * @param in
          */
         private ExpectedTypeDispatcher(JsonReader in) {
-            this.in = in;
-            this.tracker = null;
+            this(in, null);
         }
 
         /**
