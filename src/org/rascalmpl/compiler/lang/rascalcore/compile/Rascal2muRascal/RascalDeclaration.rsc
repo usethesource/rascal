@@ -59,9 +59,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalPattern;
 import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
 
 import lang::rascalcore::compile::muRascal2Java::Conversions;   // TODO:undesired dependency
-
-
-
+import analysis::typepal::LocationChecks;
 
 /********************************************************************/
 /*                  Translate declarations in a module              */
