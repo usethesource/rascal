@@ -487,6 +487,7 @@ public class JsonValueReader {
             try {
                 assert posHandler != null;
                 var internalPos = (int) posHandler.get(in);
+                
                 return tracker.getOffsetAtBufferStart() + internalPos;
             }
             catch (IllegalArgumentException | SecurityException e) {
@@ -1208,6 +1209,14 @@ public class JsonValueReader {
             // make sure we are only a facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
+
+            // for every high surrogate we assume a low surrogate will follow,
+            // and we count only one of them for the character offset
+            for (int i = off; i < charsRead + off; i++) {
+                if (Character.isHighSurrogate(cbuf[i])) {
+                    offset--;
+                }
+            }
 
             // the next buffer[0] offset will be after this increment.
             // Note that `fillBuffer.limit == read.limit`
