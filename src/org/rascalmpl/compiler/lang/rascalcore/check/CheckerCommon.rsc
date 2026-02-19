@@ -263,7 +263,6 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                     throw "No src or library module";
                 }
             } catch e: {
-                println(e);
                 ms.messages[moduleId] ? {} += {error("Module `<qualifiedModuleName>` not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
                 return <false, dummyModule, ms>;
