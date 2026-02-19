@@ -428,7 +428,7 @@ test bool removedTPLInBinaryLibrary(){
                      createPathConfig(clientName)
                         [libs = [bin(libName)] ]
          );
-    return checkExpectErrors("M2", ["Module M1 not found"], client.pcfg, remove = [lib, client]);
+    return checkExpectErrors("M2", ["Module `M1` not found"], client.pcfg, remove = [lib, client]);
 }
 
 // Scenarios with outdated TPL versions
