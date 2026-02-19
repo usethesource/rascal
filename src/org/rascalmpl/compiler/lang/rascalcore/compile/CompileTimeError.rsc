@@ -31,5 +31,5 @@ import Message;
 data Exception
     = CompileTimeError(Message msg)
     | InternalCompilerError(Message msg)
-    | rascalTplVersionError(str txt)
+    | rascalTplVersionError(str moduleName, loc tpl, str version, str txt)
     ;

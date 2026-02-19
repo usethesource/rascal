@@ -241,10 +241,19 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             return completeModuleStatus(ms);
          }
       }
-    } catch rascalTplVersionError(_):
-        ; // Need to recheck since TModel uses incompatible TPL version
+    } catch rascalTplVersionError(str moduleName, loc tplLoc, str version, str txt):{
+        ms.status[moduleName2moduleId(moduleName)] += { tpl_version_error() };
+        // Need to recheck since TModel uses incompatible TPL version
+    }
 
     if(rsc_not_found() in ms.status[moduleId]){
+        if(tpl_version_error() in ms.status[moduleId]){
+            iName = moduleId2moduleName(moduleId);
+            for(<MODID m, _, moduleId> <- ms.paths){
+                mName = moduleId2moduleName(m);
+                ms.messages[m] ? {} += { error("For import/extend `<iName>` of `<mName>` is no source available and TPL has wrong version", m) };
+            }
+        }
         return ms;
     }
 

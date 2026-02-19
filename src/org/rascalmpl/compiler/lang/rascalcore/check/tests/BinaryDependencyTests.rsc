@@ -130,6 +130,11 @@ Project removeSourceOfModule(str mname, Project pd){
     return pd;
 }
 
+Project removeTPLOfModule(str mname, Project pd){
+    remove(bin(pd.name) + "rascal/$<mname>.tpl", recursive=true);
+    return pd;
+}
+
 Project setTPLVersionOfProject(str v, Project pd){
     try {
         for(loc f <- find(bin(pd.name), "tpl")){
@@ -175,6 +180,7 @@ bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
 }
 
 bool expectErrors(list[ModuleMessages] modMsgs, list[str] expected){
+    if(verbose) iprintln(modMsgs);
     errors = {e | /e:error(_,_) := modMsgs};
 
     for(e <- errors){
@@ -382,7 +388,7 @@ test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
 
     
     lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
-    lib = setTPLVersionOfProject("0.0.0", lib);     // set rascalTplVersion to incompatible version number
+    lib = setTPLVersionOfProject("0.0.1", lib);     // set rascalTplVersion to incompatible version number
 
     // Create project "client" and module "M2" and then compile "M2"
     // "client" uses "lib" as binary library
@@ -394,7 +400,35 @@ test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
                      createPathConfig(clientName)
                         [libs = [bin(libName)] ]
          );
-    return checkExpectErrors("M2", ["has outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
+    return checkExpectErrors("M2", ["outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
+}
+
+
+
+test bool removedTPLInBinaryLibrary(){
+    // Create project "lib" and module "M1" and then compile "M1"
+    libName = "lib";
+    lib = createProject(libName,
+                     ("M1": "int f(int n) = n;"),
+                     createPathConfig(libName)
+         );
+    assert checkExpectNoErrors("M1", lib.pcfg);
+
+    
+    lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
+    lib = removeTPLOfModule("M1", lib);             // remove M1's tpl file
+
+    // Create project "client" and module "M2" and then compile "M2"
+    // "client" uses "lib" as binary library
+    clientName = "client";
+    client = createProject(clientName,
+                     ("M2": "import M1;        // binary import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(clientName)
+                        [libs = [bin(libName)] ]
+         );
+    return checkExpectErrors("M2", ["Module M1 not found"], client.pcfg, remove = [lib, client]);
 }
 
 // Scenarios with outdated TPL versions
