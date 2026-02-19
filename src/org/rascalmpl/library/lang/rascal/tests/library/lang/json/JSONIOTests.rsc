@@ -109,7 +109,7 @@ bool originTest(loc example) {
 }
 
 test bool originTracking() {
-    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
+    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json", bprintln(l)];
 
     return (true | it && originTest(example) | loc example <- files);
 }
