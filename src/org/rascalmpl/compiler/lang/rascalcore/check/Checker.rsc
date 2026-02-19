@@ -279,7 +279,10 @@ ModuleStatus rascalTModelForLocs(
                                 ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
                             }
                         }
-                    } catch rascalTplVersionError(e): ;// m_compatible remains false
+                    } catch rascalTplVersionError(_,_,_,_): {
+                        ms.status[m] += { tpl_version_error() };
+                        // m_compatible remains false
+                    };
                     
                     compatible_with_all_imports = compatible_with_all_imports && m_compatible;
                 }
@@ -327,6 +330,9 @@ ModuleStatus rascalTModelForLocs(
                                 inameId = moduleName2moduleId(iname);
                                 if(!ms.status[inameId]?){
                                     ms.status[inameId] = {};
+                                }
+                                if({tpl_version_error(), rsc_not_found()} <= ms.status[inameId]){
+                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
                                 }
                                 if(inameId notin usedModules){
                                    if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){
@@ -389,9 +395,13 @@ ModuleStatus rascalTModelForLocs(
         for(MODID mid <- topModuleIds){
             ms.messages[mid] = { error("Parse error", src) };
         }
-    } catch rascalTplVersionError(str txt):{
+    } catch rascalTplVersionError(str moduleName, loc tpl, str version, str txt):{
         for(MODID mid <- topModuleIds){
-            ms.messages[mid] = { error("<txt>", ms.moduleLocs[mid] ? |unknown:///|) };
+            causes = [ info("Module `<moduleName>` has outdated Rascal TPL version <version>, no source found", tpl) ];
+            ms.messages[mid] ? {} += { error("Import/extend of `<moduleName>` has <txt>", 
+                                              ms.moduleLocs[mid] ? |unknown:///|,
+                                               causes= causes) 
+                                     };
         }
     } catch Message msg: {
         for(MODID mid <- topModuleIds){
