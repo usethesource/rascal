@@ -486,7 +486,7 @@ public class JsonValueReader {
                 assert posHandler != null;
                 var internalPos = (int) posHandler.get(in);
                 
-                return tracker.getOffsetAtBufferStart() + internalPos;
+                return tracker.getOffsetAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
@@ -615,7 +615,7 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            int startPos = getOffset() - 1;
+            int startPos = Math.max(getOffset() - 1, 0);
             int startLine = getLine();
             int startCol = getCol() - 1;
 
@@ -735,7 +735,7 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getOffset() - 1;
+            int endPos = Math.max(getOffset() - 1, 0);
             assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
 
             int endLine = getLine();
@@ -803,7 +803,7 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            int startPos = getOffset() - 1;
+            int startPos = Math.max(getOffset() - 1, 0);
             int startLine = getLine();
             int startCol = getCol() - 1;
 
@@ -840,7 +840,7 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getOffset() - 1;
+            int endPos = Math.max(getOffset() - 1, 0);
             int endLine = getLine();
             int endCol = getCol() - 1;
 
@@ -923,7 +923,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
-            getOffset();
+            
             return w.done();
         }
 
@@ -1209,7 +1209,7 @@ public class JsonValueReader {
             // offset, to arrive at the new `pos=0` of `buffer[0]`,
             // rewinding `off` characters which were reused from the previous buffer
             // with System.arraycopy. The codepoints array maps char offsets to codepoint offsets.
-            offset += (limit != 0 ? codepoints[limit - 1] : 0) - off;
+            offset += (limit != 0 ? codepoints[limit - 1] + 1 : 0) - off;
 
             // make sure we are only a facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
@@ -1249,8 +1249,7 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
-            assert pos < limit;
-            return offset + codepoints[pos];
+            return offset + codepoints[pos == 0 ? 0 : Math.min(limit - 1, pos)];
         }
     }
 }
