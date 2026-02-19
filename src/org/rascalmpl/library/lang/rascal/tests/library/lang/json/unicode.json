@@ -1,0 +1,29 @@
+{
+    /* €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€ */
+    "glossary": {
+        "title": "exam€le glossary",
+        "line" : 2,
+		"GlossDiv": {
+            "line" : 5,
+            "title": "S",
+			"GlossList": {
+                "line" : 8,
+                /* 🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕 */
+                "GlossEntry": {
+                    "line" : 10,
+                    "ID": "S🍕🍕L",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "line" : 17,
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "m🍕🍕🍕🍕up"
+                }
+            }
+        }
+    }
+}
