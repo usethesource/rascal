@@ -1160,7 +1160,7 @@ public class JsonValueReader {
         // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
         private int limit = 0;
         // the codepoints array maps char offsets to codepoint offsets
-        private int[] codepoints = new int[1024];
+        private int[] codepoints = null;
        
         protected OriginTrackingReader(Reader in) {
             super(in);
@@ -1200,7 +1200,10 @@ public class JsonValueReader {
         } */
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
-            assert cbuf.length == codepoints.length;
+            if (codepoints == null) {
+                codepoints = new int[cbuf.length];
+                assert codepoints[0] == 0;
+            }
 
             // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
             // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
@@ -1226,6 +1229,7 @@ public class JsonValueReader {
                 if (Character.isHighSurrogate(cbuf[i])) { 
                     shift++;
                 }
+                // do not assume the low surrogate is in the current buffer yet (boundary condition)
             }
 
             // the next buffer[0] offset will be after this increment.
