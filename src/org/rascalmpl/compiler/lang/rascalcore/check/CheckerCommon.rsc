@@ -420,7 +420,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != moduleId){
         ms = removeOldestTModelFromCache(ms);
     }
-
+    qualifiedModuleName = moduleId2moduleName(moduleId);
     <found, tplLoc> = getTPLReadLoc(moduleId, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
@@ -440,14 +440,11 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
                 return <true, tm, ms>;
              }
         } catch e: {
-            qualifiedModuleName = moduleId2moduleName(moduleId);
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "<tplLoc> has outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
-        println("INFO: <msg>)");
+        msg = "<tplLoc> for <qualifiedModuleName> has outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
         throw rascalTplVersionError(msg);
     }
-    qualifiedModuleName = moduleId2moduleName(moduleId);
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
 }
 
