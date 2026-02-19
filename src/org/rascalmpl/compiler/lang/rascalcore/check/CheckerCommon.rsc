@@ -73,6 +73,7 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
 data MStatus =
       rsc_not_found()
     | tpl_not_found()
+    | tpl_version_error()
     | rsc_changed()
     | parsed()
     | parse_error()
@@ -263,7 +264,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 }
             } catch e: {
                 println(e);
-                ms.messages[moduleId] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
+                ms.messages[moduleId] ? {} += {error("Module `<qualifiedModuleName>` not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
                 return <false, dummyModule, ms>;
             }
@@ -427,8 +428,8 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
         tmVersion = "0.0.0";
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
-            if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
-                tmVersion = tm.rascalTplVersion;
+            tmVersion = tm.rascalTplVersion;
+            if(isValidRascalTplVersion(tmVersion)){
                 ms.tmodels[moduleId] = tm;
                 mloc = getRascalModuleLocation(moduleId, ms);
                 if(isModuleLocationInLibs(mloc, pcfg)){
@@ -442,10 +443,14 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
         } catch e: {
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "<tplLoc> for <qualifiedModuleName> has outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
-        throw rascalTplVersionError(msg);
+        msg = "outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
+        throw rascalTplVersionError(qualifiedModuleName, tplLoc, tmVersion, msg);
     }
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
+    mloc = tplLoc;
+    try {
+        mloc = getRascalModuleLocation(moduleId, ms);
+    } catch _: /* ignore when this fails */;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", mloc)]), ms>;
 }
 
 rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to] paths, ModuleStatus ms){
