@@ -485,7 +485,8 @@ public class JsonValueReader {
             try {
                 assert posHandler != null;
                 var internalPos = (int) posHandler.get(in);
-                return tracker.getOffsetAtBufferStart() + internalPos;
+                
+                return tracker.getOffsetAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
@@ -497,16 +498,17 @@ public class JsonValueReader {
 
         private int getLine() {
             if (stopTracking) {
-                return 0;
+                return 1;
             }
 
             try {
-                return (int) lineHandler.get(in) + 1;
+                var internalPos = (int) posHandler.get(in);
+                return tracker.getLineAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
                 stopTracking = true;
-                return 0;
+                return 1;
             }
         }
 
@@ -523,7 +525,10 @@ public class JsonValueReader {
             }
 
             try {
-                return ((int) posHandler.get(in)) - ((int) lineStartHandler.get(in));
+                assert posHandler != null;
+                var internalPos = (int) posHandler.get(in);
+
+                return tracker.getColumnAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
@@ -614,7 +619,7 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            int startPos = getOffset() - 1;
+            int startPos = Math.max(getOffset() - 1, 0);
             int startLine = getLine();
             int startCol = getCol() - 1;
 
@@ -734,7 +739,7 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getOffset() - 1;
+            int endPos = Math.max(getOffset() - 1, 0);
             assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
 
             int endLine = getLine();
@@ -802,7 +807,7 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            int startPos = getOffset() - 1;
+            int startPos = Math.max(getOffset() - 1, 0);
             int startLine = getLine();
             int startCol = getCol() - 1;
 
@@ -839,7 +844,7 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = getOffset() - 1;
+            int endPos = Math.max(getOffset() - 1, 0);
             int endLine = getLine();
             int endCol = getCol() - 1;
 
@@ -922,7 +927,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
-            getOffset();
+            
             return w.done();
         }
 
@@ -1158,7 +1163,17 @@ public class JsonValueReader {
         private int offset = 0;
         // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
         private int limit = 0;
-       
+        // the codepoints array maps char offsets to codepoint offsets
+        private int[] codepoints = null;
+        // the codepoint position of the current beginning of the line
+        private int[] columns = null;
+        private int[] lines = null;
+
+        // the current column position
+        private int column = 0;
+        // the current line
+        private int line = 1;
+
         protected OriginTrackingReader(Reader in) {
             super(in);
         }
@@ -1194,18 +1209,48 @@ public class JsonValueReader {
         } */
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
+            initializeBuffers(cbuf);
+
             // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
             // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
 
             // we know take the previous limit and add it to the
             // offset, to arrive at the new `pos=0` of `buffer[0]`,
             // rewinding `off` characters which were reused from the previous buffer
-            // with System.arraycopy.
-            offset += limit - off;
+            // with System.arraycopy. The codepoints array maps char offsets to codepoint offsets.
+            offset += (limit != 0 ? codepoints[limit - 1] + 1 : 0) - off;
 
             // make sure we are only a facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
+
+            // shift the remaining characters to the left
+            System.arraycopy(codepoints, codepoints.length - off, codepoints, 0, off);
+            System.arraycopy(columns, columns.length - off, columns, 0, off);
+            System.arraycopy(lines, lines.length - off, lines, 0, off);
+            
+            // for every high surrogate we assume a low surrogate will follow,
+            // and we count only one of them for the character offset
+            int shift = 0;
+            int columnShift = 0;
+            for (int i = 0; i < charsRead + off; i++) {
+                codepoints[i] = i - shift;
+                if (Character.isHighSurrogate(cbuf[i])) { 
+                    shift++;
+                    columnShift++;
+                }
+                // do not assume the low surrogate is in the current buffer yet (boundary condition)
+                // TODO add code for recording  that we saw a high surrogate here at the end of the buffer
+
+                columns[i] = column - columnShift;
+                lines[i] = line;
+                if (cbuf[i] == '\n') {
+                    line++;
+                    column = 0;
+                    columnShift = 0;
+                }
+                column++;
+            }
 
             // the next buffer[0] offset will be after this increment.
             // Note that `fillBuffer.limit == read.limit`
@@ -1215,8 +1260,42 @@ public class JsonValueReader {
             return charsRead;
         }
 
+        private void initializeBuffers(char[] cbuf) {
+            if (codepoints == null) {
+                codepoints = new int[cbuf.length];
+            }
+
+            if (columns == null) {
+                columns = new int[cbuf.length];
+            }
+
+            if (lines == null) {
+                lines = new int[cbuf.length];
+            }
+        }
+
+        /**
+         * @return the codepoint offset (from the start of the streaming content) 
+         * for the start of the last buffered content (cbuf[0])
+         */
         public int getOffsetAtBufferStart() {
             return offset;
         }
+
+        /**
+         * @return the codepoint offset (from the start of the streaming content)
+         * for the character at char position `pos` in the last buffered content.
+         */
+        public int getOffsetAtBufferPos(int pos) {
+            return pos >= limit ? offset : codepoints[pos];
+        }
+
+        public int getColumnAtBufferPos(int pos) {
+            return pos >= limit ? column : columns[pos];
+        } 
+        
+        public int getLineAtBufferPos(int pos) {
+            return pos >= limit ? line : lines[pos];
+        } 
     }
 }
