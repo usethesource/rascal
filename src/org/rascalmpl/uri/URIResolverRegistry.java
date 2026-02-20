@@ -44,6 +44,7 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.uri.remote.RemoteExternalResolverRegistry;
 import org.rascalmpl.uri.watch.WatchRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -115,11 +116,17 @@ public class URIResolverRegistry {
 		catch (IOException e) {
 			throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
 		}
-	}
 
-	public void setExternalResolverRegistry(IExternalResolverRegistry externalRegistry) {
-		this.externalRegistry = externalRegistry;
-		watchers.setExternalRegistry(externalRegistry);
+		var remoteResolverRegistryPortProperty = System.getProperty("rascal.remoteResolverRegistryPort");
+        if (remoteResolverRegistryPortProperty != null) {
+            try {
+                var remoteResolverRegistryPort = Integer.parseInt(remoteResolverRegistryPortProperty);
+				this.externalRegistry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
+				watchers.setExternalRegistry(this.externalRegistry);
+            } catch (NumberFormatException e) {
+                System.err.println("WARNING: Invalid remoteResolverRegistryPort environment variable: " + remoteResolverRegistryPortProperty + " is not parseable as integer");
+            }
+        }
 	}
 
 	public Set<String> getRegisteredInputSchemes() {
