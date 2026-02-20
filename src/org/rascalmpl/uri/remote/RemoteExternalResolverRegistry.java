@@ -294,7 +294,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public void setLastModified(ISourceLocation loc, long timestamp) throws IOException {
-        throw new IOException("Remote `setLastModified` is not supported");
+        call(l -> remote.setLastModified(l, timestamp), loc);
     }
 
     @Override
