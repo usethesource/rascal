@@ -173,7 +173,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public InputStream getInputStream(ISourceLocation loc) throws IOException {   
-        return new ByteArrayInputStream(call(remote::readFile, loc).getBytes(StandardCharsets.UTF_16));
+        return StreamingBase64.decode(call(remote::readFile, loc));
     }
 
     @Override
