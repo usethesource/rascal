@@ -96,6 +96,11 @@ public interface IRemoteResolverRegistry {
         throw new UnsupportedOperationException();
     }
 
+    @JsonRequest("rascal/vfs/output/setLastModified")
+    default CompletableFuture<Void> setLastModified(ISourceLocation loc, long timestamp) {
+        throw new UnsupportedOperationException();
+    }
+
     @JsonRequest("rascal/vfs/input/isWritable")
     default CompletableFuture<Boolean> isWritable(ISourceLocation loc) {
         throw new UnsupportedOperationException();
