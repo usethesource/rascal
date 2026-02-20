@@ -314,16 +314,18 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         try {
-            var watch = watchers.computeIfAbsent(new WatchSubscriptionKey(root, recursive), k -> {
-                System.err.println("Fresh watch, setting up request to server");
-                var result = new Watchers();
-                result.addNewWatcher(watcher);
-                watchersById.put(result.getId(), result);
-                remote.watch(new WatchRequest(root, recursive, result.getId())).join();
-                return result;
-            });
-            watch.addNewWatcher(watcher);
-        } catch (CompletionException ce) {
+            synchronized (watchers) {
+                var key = new WatchSubscriptionKey(root, recursive);
+                if (!watchers.containsKey(key)) {
+                    System.err.println("Fresh watch, setting up request to server");
+                    var result = new Watchers();
+                    result.addNewWatcher(watcher);
+                    watchersById.put(result.getId(), result);
+                    remote.watch(new WatchRequest(root, recursive, result.getId())).get(1, TimeUnit.MINUTES);
+                }
+                watchers.get(key).addNewWatcher(watcher);
+            }
+        } catch (CompletionException | InterruptedException | ExecutionException | TimeoutException ce) {
             throw new IOException("Could not watch `" + root + "` remotely: " + ce.getCause().getMessage());
         }
     }
