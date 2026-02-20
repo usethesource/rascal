@@ -343,7 +343,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean supportsRecursiveWatch() {
-        return true;
+        try {
+            return call(n -> remote.supportsRecursiveWatch(), null);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private static final ExecutorService exec = NamedThreadPool.cachedDaemon("RemoteExternalResolverRegistry-watcher");
