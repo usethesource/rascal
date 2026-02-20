@@ -498,16 +498,17 @@ public class JsonValueReader {
 
         private int getLine() {
             if (stopTracking) {
-                return 0;
+                return 1;
             }
 
             try {
-                return (int) lineHandler.get(in) + 1;
+                var internalPos = (int) posHandler.get(in);
+                return tracker.getLineAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
                 stopTracking = true;
-                return 0;
+                return 1;
             }
         }
 
@@ -1166,8 +1167,12 @@ public class JsonValueReader {
         private int[] codepoints = null;
         // the codepoint position of the current beginning of the line
         private int[] columns = null;
+        private int[] lines = null;
+
         // the current column position
         private int column = 0;
+        // the current line
+        private int line = 1;
 
         protected OriginTrackingReader(Reader in) {
             super(in);
@@ -1204,14 +1209,7 @@ public class JsonValueReader {
         } */
         @Override
         public int read(char[] cbuf, int off, int len) throws IOException {
-            if (codepoints == null) {
-                codepoints = new int[cbuf.length];
-                assert codepoints[0] == 0;
-            }
-
-            if (columns == null) {
-                columns = new int[cbuf.length];
-            }
+            initializeBuffers(cbuf);
 
             // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
             // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
@@ -1228,7 +1226,8 @@ public class JsonValueReader {
 
             // shift the remaining characters to the left
             System.arraycopy(codepoints, codepoints.length - off, codepoints, 0, off);
-            System.arraycopy(columns, codepoints.length - off, columns, 0, off);
+            System.arraycopy(columns, columns.length - off, columns, 0, off);
+            System.arraycopy(lines, lines.length - off, lines, 0, off);
             
             // for every high surrogate we assume a low surrogate will follow,
             // and we count only one of them for the character offset
@@ -1244,7 +1243,9 @@ public class JsonValueReader {
                 // TODO add code for recording  that we saw a high surrogate here at the end of the buffer
 
                 columns[i] = column - columnShift;
+                lines[i] = line;
                 if (cbuf[i] == '\n') {
+                    line++;
                     column = 0;
                     columnShift = 0;
                 }
@@ -1257,6 +1258,20 @@ public class JsonValueReader {
 
             // and return only the number of characters read.
             return charsRead;
+        }
+
+        private void initializeBuffers(char[] cbuf) {
+            if (codepoints == null) {
+                codepoints = new int[cbuf.length];
+            }
+
+            if (columns == null) {
+                columns = new int[cbuf.length];
+            }
+
+            if (lines == null) {
+                lines = new int[cbuf.length];
+            }
         }
 
         /**
@@ -1272,11 +1287,15 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
-            return offset + codepoints[pos == 0 ? 0 : Math.min(limit - 1, pos)];
+            return pos >= limit ? offset : codepoints[pos];
         }
 
         public int getColumnAtBufferPos(int pos) {
-            return pos >= columns.length ? column : columns[pos];
-        }   
+            return pos >= limit ? column : columns[pos];
+        } 
+        
+        public int getLineAtBufferPos(int pos) {
+            return pos >= limit ? line : lines[pos];
+        } 
     }
 }
