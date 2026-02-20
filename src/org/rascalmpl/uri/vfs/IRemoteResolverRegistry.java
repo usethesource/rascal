@@ -140,6 +140,11 @@ public interface IRemoteResolverRegistry {
         throw new UnsupportedOperationException();
     }
 
+    @JsonRequest("rascal/vfs/watcher/supportsRecursiveWatch")
+    default CompletableFuture<Boolean> supportsRecursiveWatch() {
+        throw new UnsupportedOperationException();
+    }
+
     @JsonRequest("rascal/vfs/logical/resolveLocation")
     default CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
         throw new UnsupportedOperationException();
