@@ -100,8 +100,12 @@ bool originTest(loc example) {
    for (<loc p, int line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
+      println(p.begin.line);
+      println(line);
       assert p.begin.line == line;
+      println(lines[p.begin.line - 1][p.begin.column]);
       assert lines[p.begin.line - 1][p.begin.column] == "{";
+      println(lines[p.end.line - 1][p.end.column - 1]);
       assert lines[p.end.line - 1][p.end.column - 1] == "}";
    }
 
