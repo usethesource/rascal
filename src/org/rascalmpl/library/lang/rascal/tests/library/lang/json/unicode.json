@@ -7,17 +7,17 @@
             "line" : 5,
             "title": "S",
 			"GlossList": {
-                "line" : 8,
+                "line" : 9,
                 /* 🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕 */
                 "GlossEntry": {
-                    "l🍕ne" : 10,
+                    "line" : 12,
                     "ID": "S🍕🍕L",
 					"SortAs": "S🍕ML",
 					"GlossTerm": "Standard Generalized Markup Language",
 					"Acronym": "SGML",
 					"Abbrev": "ISO 8879:1986",
 					"GlossDef": {
-                        "line" : 17,
+                        "line" : 19,
                         "para": "A meta-markup language, used to create markup languages such as DocBook.",
 						"GlossSeeAlso": ["GML", "XML"]
                     },
