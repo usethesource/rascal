@@ -75,7 +75,6 @@ public interface IRemoteResolverRegistry {
     }
 
     @JsonRequest("rascal/vfs/input/list")
-    //TODO (Rodin): return type not "the same" as in ISourceLocationInput
     default CompletableFuture<FileWithType[]> list(ISourceLocation loc) {
         throw new UnsupportedOperationException();
     }
@@ -129,13 +128,11 @@ public interface IRemoteResolverRegistry {
     }
 
     @JsonRequest("rascal/vfs/watcher/watch")
-    //TODO (Rodin): uitzoeken
     default CompletableFuture<Void> watch(WatchRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/watcher/unwatch")
-    //TODO (Rodin): uitzoeken
     default CompletableFuture<Void> unwatch(WatchRequest req) {
         throw new UnsupportedOperationException();
     }
@@ -171,7 +168,6 @@ public interface IRemoteResolverRegistry {
         }
 
         public WatchRequest(@NonNull String uri, boolean recursive, @NonNull String watcher) {
-            //TODO (RA): make defensive
             this.loc = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
             this.recursive = recursive;
             this.watcher = watcher;
@@ -179,7 +175,6 @@ public interface IRemoteResolverRegistry {
         }
 
         public WatchRequest(String uri, boolean recursive, String[] excludes) {
-            //TODO (RA): make defensive
             this.loc = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
             this.recursive = recursive;
             this.watcher = "";
@@ -187,7 +182,6 @@ public interface IRemoteResolverRegistry {
         }
 
         public ISourceLocation getLocation() {
-            //TODO (RA): make defensive
             return loc;
         }
 
@@ -239,126 +233,6 @@ public interface IRemoteResolverRegistry {
         }
     }
 
-    public static class SourceLocation {
-        @NonNull private final String uri;
-        private final int @Nullable[] offsetLength;
-        private final int @Nullable[] beginLineColumn;
-        private final int @Nullable[] endLineColumn;
-
-        public static SourceLocation fromRascalLocation(ISourceLocation loc) {
-            //TODO (RA): hier stond iets defensievers
-            // var uri = Locations.toUri(loc).toString();
-            var uri = loc.getURI().toASCIIString();
-            if (loc.hasOffsetLength()) {
-                if (loc.hasLineColumn()) {
-                    return new SourceLocation(uri, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn());
-                }
-                else {
-                    return new SourceLocation(uri, loc.getOffset(), loc.getLength());
-                }
-            }
-            else {
-                return new SourceLocation(uri);
-            }
-        }
-
-        public ISourceLocation toRascalLocation() throws URISyntaxException {
-            final IValueFactory VF = IRascalValueFactory.getInstance();
-            //TODO (RA): hier stond iets defensievers
-            // ISourceLocation tmp = Locations.toCheckedLoc(uri);
-            var tmp = ValueFactoryFactory.getValueFactory().sourceLocation(URI.create(uri));
-
-            if (hasOffsetLength()) {
-                if (hasLineColumn()) {
-                    tmp = VF.sourceLocation(tmp,getOffset(), getLength(), getBeginLine(), getEndLine(), getBeginColumn(), getEndColumn());
-                }
-                else {
-                    tmp = VF.sourceLocation(tmp, getOffset(), getLength());
-                }
-            }
-
-            return tmp;
-        }
-
-        private SourceLocation(String uri, int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn) {
-            this.uri = uri;
-            this.offsetLength = new int[] {offset, length};
-            this.beginLineColumn = new int [] {beginLine, beginColumn};
-            this.endLineColumn = new int [] {endLine, endColumn};
-        }
-
-        private SourceLocation(String uri, int offset, int length) {
-            this.uri = uri;
-            this.offsetLength = new int[] {offset, length};
-            this.beginLineColumn = null;
-            this.endLineColumn = null;
-        }
-
-        private SourceLocation(String uri) {
-            this.uri = uri;
-            this.offsetLength = null;
-            this.beginLineColumn = null;
-            this.endLineColumn = null;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        @EnsuresNonNullIf(expression = "this.offsetLength", result = true)
-        public boolean hasOffsetLength() {
-            return offsetLength != null;
-        }
-
-        @EnsuresNonNullIf(expression = "this.endLineColumn", result = true)
-        @EnsuresNonNullIf(expression = "this.beginLineColumn", result = true)
-        public boolean hasLineColumn() {
-            return beginLineColumn != null && endLineColumn != null;
-        }
-
-        public int getOffset() {
-            if (!hasOffsetLength()) {
-                throw new IllegalStateException("This location has no offset");
-            }
-            return offsetLength[0];
-        }
-
-        public int getLength() {
-            if (!hasOffsetLength()) {
-                throw new IllegalStateException("This location has no length");
-            }
-            return offsetLength[1];
-        }
-
-        public int getBeginLine() {
-            if (!hasLineColumn()) {
-                throw new IllegalStateException("This location has no line and columns");
-            }
-            return beginLineColumn[0];
-        }
-
-        public int getBeginColumn() {
-            if (!hasLineColumn()) {
-                throw new IllegalStateException("This location has no line and columns");
-            }
-            return beginLineColumn[1];
-        }
-
-        public int getEndLine() {
-            if (!hasLineColumn()) {
-                throw new IllegalStateException("This location has no line and columns");
-            }
-            return endLineColumn[0];
-        }
-
-        public int getEndColumn() {
-            if (!hasLineColumn()) {
-                throw new IllegalStateException("This location has no line and columns");
-            }
-            return endLineColumn[1];
-        }
-    }
-    
     public static class FileChangeEvent {
         @NonNull private final FileChangeType type;
         @NonNull private final String uri;
@@ -373,8 +247,6 @@ public interface IRemoteResolverRegistry {
         }
 
         public ISourceLocation getLocation() throws URISyntaxException {
-            //TODO (RA): hier stond iets defensievers
-            // return Locations.toCheckedLoc(uri);
             return ValueFactoryFactory.getValueFactory().sourceLocation(URI.create(uri));
         }
     }
