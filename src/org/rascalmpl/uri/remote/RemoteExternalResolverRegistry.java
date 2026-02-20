@@ -76,7 +76,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.JsonPrimitive;
 
-import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry {
@@ -100,7 +99,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
                 .configureGson(GsonUtils.complexAsJsonObject())
-                .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-remote-resolver-registry", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2))))
+                .setExecutorService(NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry"))
                 .create();
 
                 clientLauncher.startListening();
