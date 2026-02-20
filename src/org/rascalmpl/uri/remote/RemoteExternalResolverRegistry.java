@@ -71,6 +71,7 @@ import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileWithType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
 import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
+import org.rascalmpl.util.base64.StreamingBase64;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -272,8 +273,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return;
                 }
                 closed = true;
-                var contents = Base64.getEncoder().encodeToString(this.toByteArray());
-                call(l -> remote.writeFile(l, contents, append, true, true), loc);
+                var content = new StringBuilder();
+                try (var input = new ByteArrayInputStream(this.toByteArray())) {
+                    StreamingBase64.encode(input, content, true);
+                }
+                call(l -> remote.writeFile(l, content.toString(), append, true, true), loc);
                 cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };
