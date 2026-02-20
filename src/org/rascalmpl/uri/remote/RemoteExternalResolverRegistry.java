@@ -130,12 +130,16 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
+    private static final int JsonRpcErrorCode_Generic = -1;
+    private static final int JsonRpcErrorCode_FileSystem = -2;
+    private static final int JsonRpcErrorCode_NativeRascal = -3;
+
     private static IOException translateException(ResponseErrorException cause) {
         var error = cause.getResponseError();
         switch (error.getCode()) {
-            case -1:
+            case JsonRpcErrorCode_Generic:
                 return new IOException("Generic error: " + error.getMessage());
-            case -2: {
+            case JsonRpcErrorCode_FileSystem: {
                 if (error.getData() instanceof JsonPrimitive) {
                     var data = (JsonPrimitive) error.getData();
                     if (data.isString()) {
@@ -159,7 +163,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 }
                 return new IOException("File system error: " + error.getMessage() + " data: " + error.getData());
             }
-            case -3:
+            case JsonRpcErrorCode_NativeRascal:
                 return new IOException("Rascal native schemes should not be forwarded");
             default:
                 return new IOException("Missing case for: " + error);
