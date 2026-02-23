@@ -1169,7 +1169,7 @@ public class JsonValueReader {
         private int columnShift = 0;
         // limit is always pointing to the amount of no-junk chars in the underlying buffer below buffer.length
         private int limit = 0;
-        // the codepoints array maps char offsets to codepoint offsets.
+        // the codepoints array maps char offsets to the number of codepoints since the start of the buffer
         private int[] codepoints = null;
         // columns maps char offsets to codepoint column positions
         private int[] columns = null;
@@ -1222,9 +1222,9 @@ public class JsonValueReader {
 
             // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
             // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
-            offset += (limit != 0 ? codepoints[limit - off - 1] + 1 : 0);
+            offset += (limit == 0 ? 0 : codepoints[limit - off - 1] + 1);
 
-            // make sure we are only a facade for the real reader. 
+            // make sure we are only a transparant facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
 
@@ -1235,7 +1235,7 @@ public class JsonValueReader {
             // Note that `fillBuffer.limit == read.limit`
             limit = off + charsRead;
 
-            // and then we can fill our administrsation of surrogate pairs quickly
+            // and then we can fill our administration of surrogate pairs quickly
             precomputeSurrogatePairCompensation(cbuf, off, limit);
 
             // and return only the number of characters read.
