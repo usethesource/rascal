@@ -1159,15 +1159,22 @@ public class JsonValueReader {
      * current position in the buffer (the private field `pos` of JsonReader).
      */
     public static class OriginTrackingReader extends FilterReader {
-        // offset is always pointing at the point in the file where JsonReader.pos == 0
+        // TODO: some of these fields may be derived from one another for speed or space reasons.
+
+        // offset is a codepoint counter which always represents the point in the file where JsonReader.pos == 0
         private int offset = 0;
+        // shift is the amount of high surrogate pairs encountered so far
+        private int shift = 0;
+        // columnShift is the amount of high surrogate pairs encountered on the current line
+        private int columnShift = 0;
         // limit is always pointing to the amount of no-junk chars in the underlying buffer below buffer.length
         private int limit = 0;
-        // the codepoints array maps char offsets to codepoint offsets
+        // the codepoints array maps char offsets to codepoint offsets.
         private int[] codepoints = null;
         // columns maps char offsets to codepoint column positions
         private int[] columns = null;
         // lines maps char offsets to codepoint line numbers
+        // TODO: lines may be superfluous if GsonReader can compute line numbers accurately for Unicode content already
         private int[] lines = null;
 
         // the current column position
@@ -1213,25 +1220,49 @@ public class JsonValueReader {
         public int read(char[] cbuf, int off, int len) throws IOException {
             initializeBuffers(cbuf);
 
-            // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
-            // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
-
-            // we know take the previous limit and add it to the
-            // offset, to arrive at the new `pos=0` of `buffer[0]`,
-            offset += (limit != 0 ? codepoints[limit - 1] + 1 : 0) - off;
+            // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
+            // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
+            offset += (limit != 0 ? codepoints[limit - off - 1] + 1 : 0);
 
             // make sure we are only a facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
 
+            // now we simulate exactly what JsonReader does to `cbuf` on our administration of surrogate pairs:
             shiftRemaindersLeft(off);
             
-            // reconstruct the character shift from the start of the new buffer to the offset we kept:
-            int shift = off == 0 ? 0 : off - codepoints[off - 1];
-            int columnShift = off == 0 ?  0 : off - (columns[off - 1] - columns[0]);
+            // the next buffer[0] offset will be after this increment.
+            // Note that `fillBuffer.limit == read.limit`
+            limit = off + charsRead;
 
-            for (int i = off; i < charsRead + off; i++) {
+            // and then we can fill our administrsation of surrogate pairs quickly
+            precomputeSurrogatePairCompensation(cbuf, off, limit);
+
+            // and return only the number of characters read.
+            return charsRead;
+        }
+
+        /**
+         * The cbuf char buffer may contain "surrogate pairs", where two int16 chars represent
+         * one unicode codepoint. We want to count in codepoints so we store here for every
+         * character in cbuf what it's codepoint offset is, what its codepoint column is
+         * and what its codepoint line is. 
+         * 
+         * Later when the JSONValueReader needs to know "current positions", this OriginTrackerReader
+         * will have the answers stored in its buffers.
+         * 
+         * @param cbuf
+         * @param off
+         * @param charsRead
+         */
+        private void precomputeSurrogatePairCompensation(char[] cbuf, int off, int limit) {
+            // NB we assume here that the remainder of the content pos..limit has already been shifted to cbuf[0];
+            // So codepoints[0..off], columns[0..off] and lines[0..off] have been filled already.
+            for (int i = off; i < limit; i++) {
                 codepoints[i] = i - shift;
+                columns[i] = column - columnShift;
+                lines[i] = line;
+
                 if (Character.isHighSurrogate(cbuf[i])) { 
                     // for every high surrogate we assume a low surrogate will follow,
                     // and we count only one of them for the character offset by increasing `shift`
@@ -1239,11 +1270,7 @@ public class JsonValueReader {
                     columnShift++;
                     // do not assume the low surrogate is in the current buffer yet (boundary condition)
                 }
-            
-                columns[i] = column - columnShift;
-                lines[i] = line;
-
-                if (cbuf[i] == '\n') {
+                else if (cbuf[i] == '\n') {
                     line++;
                     column = 0;
                     columnShift = 0;
@@ -1252,13 +1279,6 @@ public class JsonValueReader {
                     column++;
                 }
             }
-
-            // the next buffer[0] offset will be after this increment.
-            // Note that `fillBuffer.limit == read.limit`
-            limit = off + charsRead;
-
-            // and return only the number of characters read.
-            return charsRead;
         }
 
         private void shiftRemaindersLeft(int off) {
@@ -1293,7 +1313,6 @@ public class JsonValueReader {
             return offset;
         }
 
-        int prevPos = -1;
         /**
          * @return the codepoint offset (from the start of the streaming content)
          * for the character at char position `pos` in the last buffered content.
@@ -1302,10 +1321,18 @@ public class JsonValueReader {
             return pos >= limit ? offset : offset + codepoints[pos];
         }
 
+        /**
+         * @return the codepoint column (from the start of the current line)
+         * for the character at char position `pos` in the last buffered content.
+         */
         public int getColumnAtBufferPos(int pos) {
             return pos >= limit ? column : columns[pos];
         } 
         
+        /**
+         * @return the codepoint line (from the start of the entire content)
+         * for the character at char position `pos` in the last buffered content.
+         */
         public int getLineAtBufferPos(int pos) {
             return pos >= limit ? line : lines[pos];
         } 
