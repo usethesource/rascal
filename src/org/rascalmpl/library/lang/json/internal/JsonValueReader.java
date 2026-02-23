@@ -807,11 +807,12 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            int startPos = Math.max(getOffset() - 1, 0);
-            int startLine = getLine();
-            int startCol = getCol() - 1;
-
             in.beginObject();
+
+            int startPos = Math.max(getOffset(), 0);
+            int startLine = getLine();
+            int startCol = getCol();
+
             
             Map<String, IValue> kws = new HashMap<>();
             Map<String, IValue> args = new HashMap<>();
@@ -844,11 +845,13 @@ public class JsonValueReader {
                 }
             }
 
-            int endPos = Math.max(getOffset() - 1, 0);
+            
+            in.endObject();
+
+            int endPos = Math.max(getOffset(), 0);
             int endLine = getLine();
             int endCol = getCol() - 1;
 
-            in.endObject();
             
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
@@ -1222,7 +1225,7 @@ public class JsonValueReader {
 
             // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
             // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
-            offset += (limit == 0 ? 0 : codepoints[limit - off - 1] + 1);
+            offset += (limit == 0 ? 0 : codepoints[limit - off - 1] + 1) ;
 
             // make sure we are only a transparant facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
@@ -1306,19 +1309,11 @@ public class JsonValueReader {
         }
 
         /**
-         * @return the codepoint offset (from the start of the streaming content) 
-         * for the start of the last buffered content (cbuf[0])
-         */
-        public int getOffsetAtBufferStart() {
-            return offset;
-        }
-
-        /**
          * @return the codepoint offset (from the start of the streaming content)
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
-            return pos >= limit ? offset : offset + codepoints[pos];
+            return (pos >= limit) ? offset + codepoints[pos - 1] + 1 : (offset + codepoints[pos]);
         }
 
         /**
@@ -1326,7 +1321,7 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getColumnAtBufferPos(int pos) {
-            return pos >= limit ? column : columns[pos];
+            return (pos >= limit) ? column : columns[pos];
         } 
         
         /**
@@ -1334,7 +1329,7 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getLineAtBufferPos(int pos) {
-            return pos >= limit ? line : lines[pos];
+            return (pos >= limit) ? line : lines[pos];
         } 
     }
 }
