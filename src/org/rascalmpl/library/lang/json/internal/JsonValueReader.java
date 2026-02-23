@@ -1313,7 +1313,7 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
-            return (pos >= limit) ? offset + codepoints[pos - 1] + 1 : (offset + codepoints[pos]);
+            return (pos >= limit) ? (offset + codepoints[pos - 1] + 1) : (offset + codepoints[pos]);
         }
 
         /**
