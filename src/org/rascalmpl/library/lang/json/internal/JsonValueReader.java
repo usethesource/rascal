@@ -1256,8 +1256,8 @@ public class JsonValueReader {
         }
 
         /*
-         * We keep our own buffers of int offsets instead of reference or copy of the cbuf:
-         *   * a quick and dirty reference to cbuf won't do because the GsonReader client uses System.arrayCopy to 
+         * We keep our own buffers of int offsets instead of a reference or a copy of the cbuf:
+         *   * a quick and dirty reference to cbuf won't do because the {@see GsonReader} client uses System.arrayCopy to 
          *     overwrite the buffer before we can get to it.
          *   * a copy/clone of the buffer could work to have access to the previous version. However,
          *     we would still need to loop over it and compute the offsets. So that adds copying the entire buffer
