@@ -1178,13 +1178,14 @@ public class JsonValueReader {
         public int read(char[] cbuf, int off, int len) throws IOException {
             initializeBuffers(cbuf);
 
-            // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
-            // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
+            // `codepoints[prevBufferLimit - 1] - 1` is the offset of the last character read with the previous call to read.
+            // So the new codepointOffset starts there. We look back `off` chars because of possible left-overs before the limit.
             codepointOffset += (prevBufferLimit == 0 
                 ? 0 
                 : charPosToCodepoints[Math.max(0, prevBufferLimit - off - 1)] + 1);
 
-            // the accumlated shift is present in the previous codepointOffset, so we start from scratch now.
+            // The accumlated surrogatePairs is included in the codepointOffset and codepointColumn counters, 
+            // so we start from scratch again.
             surrogatePairs = 0;
             surrogatePairsThisLine = 0;
 
@@ -1192,15 +1193,16 @@ public class JsonValueReader {
             // parameters are mapped one-to-one without mutations.
             var charsRead = in.read(cbuf, off, len);
 
-            // now we simulate exactly what JsonReader does to `cbuf` on our administration of surrogate pairs:
+            // Now we simulate exactly what JsonReader does to `cbuf` on our administration of surrogate pairs.
+            // It DOES happen that {@see GsonValueReader} asks for `charPosToCodepoints[0]`.
             shiftRemaindersLeft(off);
             
-            // the next buffer[0] offset will be after this increment.
-            // Note that `fillBuffer.limit == read.limit`
+            // The next buffer[0] offset will be right after this increment.
+            // Note that `GsonReader::fillBuffer.limit == this.prevBufferLimit`
             prevBufferLimit = off + charsRead;
 
             // and then we can fill our administration of surrogate pairs quickly
-            precomputeSurrogatePairCompensation(cbuf, off, prevBufferLimit);
+            precomputeSurrogatePairCounts(cbuf, off, prevBufferLimit);
 
             // and return only the number of characters read.
             return charsRead;
@@ -1215,11 +1217,11 @@ public class JsonValueReader {
          * Later when the JSONValueReader needs to know "current positions", this OriginTrackerReader
          * will have the answers stored in its buffers.
          * 
-         * @param cbuf
-         * @param off
-         * @param charsRead
+         * @param cbuf  buffer to detect surrogate pairs in
+         * @param off   where we left off the last time
+         * @param limit until which index the buffer is filled 
          */
-        private void precomputeSurrogatePairCompensation(char[] cbuf, int off, int limit) {
+        private void precomputeSurrogatePairCounts(char[] cbuf, int off, int limit) {
             // NB we assume here that the remainder of the content pos..limit has already been shifted to cbuf[0];
             // So codepoints[0..off], columns[0..off] and lines[0..off] have been filled already.
             for (int i = off; i < limit; i++) {
@@ -1228,11 +1230,11 @@ public class JsonValueReader {
                 charPosToLines[i] = codepointLine;
 
                 if (Character.isHighSurrogate(cbuf[i])) { 
-                    // for every high surrogate we assume a low surrogate will follow,
+                    // For every high surrogate we assume a low surrogate will follow,
                     // and we count only one of them for the character offset by increasing `shift`
                     surrogatePairs++;
                     surrogatePairsThisLine++;
-                    // do not assume the low surrogate is in the current buffer yet (boundary condition)
+                    // Do not assume the low surrogate is in the current buffer yet (boundary condition)
                 }
                 else if (cbuf[i] == '\n') {
                     codepointLine++;
