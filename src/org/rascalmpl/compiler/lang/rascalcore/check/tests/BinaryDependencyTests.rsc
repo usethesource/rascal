@@ -37,12 +37,15 @@ import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::TestConfigs;
 import util::Reflective;
 import IO;
+import ValueIO;
 import lang::rascalcore::check::Import;
 import Map;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
 import lang::rascalcore::check::ModuleLocations;
+import util::FileSystem;
+import util::SemVer;
 
 
 // ---- Utilities for test setup ----------------------------------------------
@@ -127,6 +130,34 @@ Project removeSourceOfModule(str mname, Project pd){
     return pd;
 }
 
+Project removeTPLOfModule(str mname, Project pd){
+    remove(bin(pd.name) + "rascal/$<mname>.tpl", recursive=true);
+    return pd;
+}
+
+Project setTPLVersionOfProject(str v, Project pd){
+    try {
+        for(loc f <- find(bin(pd.name), "tpl")){
+            tm = readBinaryValueFile(#TModel, f);
+            tm.rascalTplVersion = v;
+            writeBinaryValueFile(f, tm);
+        }
+    } catch e: throw "setTPLVersionOfProject: <e>";
+    return pd;
+}
+
+bool validateTPLVersionOfProject(Project pd){
+    try {
+        for(loc f <- find(bin(pd.name), "tpl")){
+            tm = readBinaryValueFile(#TModel, f);
+            if(!satisfiesVersion(tm.rascalTplVersion, "2.0.0-3.0.0")){
+                return false;
+            }
+        }
+    } catch e: throw "setTPLVersionOfProject: <e>";
+    return true;
+}
+
 bool expectNoErrors(list[ModuleMessages] modMsgs){
     present = (/error(_,_) := modMsgs);
     if(present){
@@ -149,6 +180,7 @@ bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
 }
 
 bool expectErrors(list[ModuleMessages] modMsgs, list[str] expected){
+    if(verbose) iprintln(modMsgs);
     errors = {e | /e:error(_,_) := modMsgs};
 
     for(e <- errors){
@@ -182,6 +214,7 @@ TModel check(str mname, RascalCompilerConfig cfg){
 
 // ---  Tests for source libraries --------------------------------------------
 
+@ignore{Loads TModel with version 2.0.0 while it is 3.0.0 since a22dcd4416. TODO Make this test more robust.}
 test bool importSimpleSourceModuleWithRascalAsLib(){
     libName = "test-lib";
     lib =
@@ -343,6 +376,110 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
     return checkExpectErrors("M2", ["Expected 2 argument(s), found 1"], client.pcfg, remove = [lib, client]);
 }
 
+
+test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
+    // Create project "lib" and module "M1" and then compile "M1"
+    libName = "lib";
+    lib = createProject(libName,
+                     ("M1": "int f(int n) = n;"),
+                     createPathConfig(libName)
+         );
+    assert checkExpectNoErrors("M1", lib.pcfg);
+
+    
+    lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
+    lib = setTPLVersionOfProject("0.0.1", lib);     // set rascalTplVersion to incompatible version number
+
+    // Create project "client" and module "M2" and then compile "M2"
+    // "client" uses "lib" as binary library
+    clientName = "client";
+    client = createProject(clientName,
+                     ("M2": "import M1;        // binary import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(clientName)
+                        [libs = [bin(libName)] ]
+         );
+    return checkExpectErrors("M2", ["outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
+}
+
+
+
+test bool removedTPLInBinaryLibrary(){
+    // Create project "lib" and module "M1" and then compile "M1"
+    libName = "lib";
+    lib = createProject(libName,
+                     ("M1": "int f(int n) = n;"),
+                     createPathConfig(libName)
+         );
+    assert checkExpectNoErrors("M1", lib.pcfg);
+
+    
+    lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
+    lib = removeTPLOfModule("M1", lib);             // remove M1's tpl file
+
+    // Create project "client" and module "M2" and then compile "M2"
+    // "client" uses "lib" as binary library
+    clientName = "client";
+    client = createProject(clientName,
+                     ("M2": "import M1;        // binary import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(clientName)
+                        [libs = [bin(libName)] ]
+         );
+    return checkExpectErrors("M2", ["Module `M1` not found"], client.pcfg, remove = [lib, client]);
+}
+
+// Scenarios with outdated TPL versions
+
+test bool recompileModulesInSameProjectWithIncompatibleTPLs(){
+    // Create project "m" with modules "M1" and "M2"
+    // m's sources remain available while tpl version is downgraded and made incompatible
+    mName = "m";
+    m = createProject(mName,
+                     ("M1": "int f(int n) = n;",
+                      "M2": "import M1;        // import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(mName)
+         );
+    assert checkExpectNoErrors("M2", m.pcfg);
+    m = setTPLVersionOfProject("0.0.0", m);   // set rascalTplVersion to incompatible version number
+                                              // tpl is more recent than source
+    // expect seamless recompilation of M1 and M2
+    assert checkExpectNoErrors("M2", m.pcfg, remove = [m]);
+    return validateTPLVersionOfProject(m);
+}
+
+test bool recompileLibraryModulesWithIncompatibleTPLVersionWhenSourceIsAvailable(){
+    // Create project "lib" and module "M1" and then compile "M1"
+    libName = "lib";
+    lib = createProject(libName,
+                     ("M1": "int f(int n) = n;"),
+                     createPathConfig(libName)
+         );
+    assert checkExpectNoErrors("M1", lib.pcfg);
+
+    touch(getRascalModuleLocation("M1", lib.pcfg)); // keep src of M1 but change modification time
+    lib = setTPLVersionOfProject("0.0.0", lib);     // set rascalTplVersion to incompatible version number
+                                                    // tpl is more recent than source
+
+    // Create project "client" and module "M2" and then compile "M2"
+    // "client" uses "lib" as library but lib's sources remain available
+    clientName = "client";
+    client = createProject(clientName,
+                     ("M2": "import M1;        // binary import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(clientName)
+                        [srcs = [src(clientName), src(libName)]]
+                        [libs = [bin(libName)] ]
+         );
+    assert checkExpectNoErrors("M2", client.pcfg, remove = [lib, client]);
+    return validateTPLVersionOfProject(lib) && validateTPLVersionOfProject(client);
+}
+
 /*
  *   rascal:  IO -+        rascal: IO'
  *     extend |   |                |
@@ -398,7 +535,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
 
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
-    // Update Checks' modifcation time to make sure it will rechecked
+    // Update Checks' modification time to make sure it will rechecked
     touch(getRascalModuleLocation("Check", core.pcfg));
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
@@ -417,6 +554,7 @@ AGrammar getGrammar(TModel tm){
         throw "`grammar` has incorrect format in store";
     }
 }
+
 // The binary compatibility test for TModels
 
 bool binaryCompatible(tuple[TModel old, TModel new] tms){

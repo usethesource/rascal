@@ -79,7 +79,7 @@ public class ConstructorFunction extends NamedFunction {
 		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		IWithKeywordParameters<? extends IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
-		Environment resultEnv = new Environment(declarationEnvironment, callerEnvironment, callerEnvironment.getLocation(), URIUtil.rootLocation("initializer"), "keyword parameter initializer");
+		Environment resultEnv = new Environment(declarationEnvironment, callerEnvironment, callerEnvironment.getCreatorLocation(), URIUtil.rootLocation("initializer"), "keyword parameter initializer");
 
 		// first we compute the keyword parameters for the abstract data-type:
 		for (GenericKeywordParameters gkw : kws) {

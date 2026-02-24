@@ -100,11 +100,7 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
 // TODO: reuse enhancePathRelation from RascalConfig here
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
-    // extra safeguard against physical locations (due to erroneous packager)
-    paths = visit(ms.paths){
-        case loc l => moduleName2moduleId(getRascalModuleName(l,pcfg)) when !isModuleId(l)
-    }
-
+    paths = ms.paths;
     ms = reportSelfImport(paths, ms);
     
     imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
@@ -147,8 +143,9 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     }
     ms.status[moduleId] += module_dependencies_extracted();
 
-    <found, tm, ms> = getTModelForModule(moduleId, ms);
-    if(found){
+    try {
+      <found, tm, ms> = getTModelForModule(moduleId, ms);
+      if(found){
         allImportsAndExtendsValid = true;
         rel[loc, PathRole] localImportsAndExtends = {};
 
@@ -239,9 +236,20 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             }
             return completeModuleStatus(ms);
          }
+      }
+    } catch rascalTplVersionError(str moduleName, loc tplLoc, str version, str txt):{
+        ms.status[moduleName2moduleId(moduleName)] += { tpl_version_error() };
+        // Need to recheck since TModel uses incompatible TPL version
     }
 
     if(rsc_not_found() in ms.status[moduleId]){
+        if(tpl_version_error() in ms.status[moduleId]){
+            iName = moduleId2moduleName(moduleId);
+            for(<MODID m, _, moduleId> <- ms.paths){
+                mName = moduleId2moduleName(m);
+                ms.messages[m] ? {} += { error("For import/extend `<iName>` of `<mName>` is no source available and TPL has wrong version", m) };
+            }
+        }
         return ms;
     }
 
