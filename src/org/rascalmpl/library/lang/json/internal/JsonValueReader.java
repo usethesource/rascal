@@ -485,8 +485,10 @@ public class JsonValueReader {
             try {
                 assert posHandler != null;
                 var internalPos = (int) posHandler.get(in);
-                
-                return tracker.getOffsetAtBufferPos(internalPos);
+                // System.err.println("   pos: " + internalPos);
+                var o =  tracker.getOffsetAtBufferPos(internalPos);
+                // System.err.println("offset: " + o);
+                return o;
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
@@ -619,12 +621,13 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            int startPos = Math.max(getOffset() - 1, 0);
+            int startPos = Math.max(getOffset() - 1 /* pos cursor is at { */, 0);
             int startLine = getLine();
             int startCol = getCol() - 1;
 
             in.beginObject();
-            
+           
+
             // use explicit information in the JSON to select and filter constructors from the TypeStore
             // we expect always to have the field _constructor before _type.
             if (explicitConstructorNames || explicitDataTypes) {
@@ -739,14 +742,14 @@ public class JsonValueReader {
                 }
             }
 
+
             int endPos = Math.max(getOffset() - 1, 0);
             assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
-
             int endLine = getLine();
             int endCol = getCol() - 1;
 
             in.endObject();
-            
+
             for (int i = 0; i < args.length; i++) {
                 if (args[i] == null) {
                     throw parseErrorHere(
@@ -807,13 +810,12 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
+            int startPos = Math.max(getOffset() - 1, 0);
+            int startLine = getLine();
+            int startCol = getCol() - 1;
+
             in.beginObject();
 
-            int startPos = Math.max(getOffset(), 0);
-            int startLine = getLine();
-            int startCol = getCol();
-
-            
             Map<String, IValue> kws = new HashMap<>();
             Map<String, IValue> args = new HashMap<>();
 
@@ -845,13 +847,11 @@ public class JsonValueReader {
                 }
             }
 
-            
-            in.endObject();
-
-            int endPos = Math.max(getOffset(), 0);
+            int endPos = Math.max(getOffset() - 1, 0);
             int endLine = getLine();
             int endCol = getCol() - 1;
 
+            in.endObject();
             
             if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
@@ -917,7 +917,7 @@ public class JsonValueReader {
             }
 
             IListWriter w = vf.listWriter();
-            getOffset();
+            
             in.beginArray();
             while (in.hasNext()) {
                 // here we pass label from the higher context
@@ -1225,7 +1225,7 @@ public class JsonValueReader {
 
             // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
             // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
-            offset += (limit == 0 ? 0 : codepoints[limit - off - 1] + 1) ;
+            offset += (limit == 0 ? 0 : codepoints[Math.max(0, limit - off - 1)] + 1) ;
 
             // make sure we are only a transparant facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
@@ -1313,6 +1313,7 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
+            // System.err.println("limit: " + pos);
             return (pos >= limit) ? (offset + codepoints[pos - 1] + 1) : (offset + codepoints[pos]);
         }
 

@@ -98,7 +98,8 @@ bool originTest(loc example) {
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
-      assert content[p.offset] == "{";                // all nodes start with a {
+      println(p);
+      assert content[p.offset] == "{" : "content(<content[p.offset]>): <content[p.offset - 1 .. p.offset + 1]>";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
       assert p.begin.line == line;
       assert lines[p.begin.line - 1][p.begin.column] == "{";
