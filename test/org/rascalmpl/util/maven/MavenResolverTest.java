@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -115,6 +114,18 @@ public class MavenResolverTest extends AbstractMavenTest {
     }
 
     @Test
+    public void resolveParentDependencies() throws ModelResolutionError {
+        var parser = createParser("multi-module/example-core/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeRascalLsp = locate(resolved, "rascal-lsp");
+
+        assertTrue("rascal-lsp dependency should be found", maybeRascalLsp.isPresent());
+        var rascalLsp = maybeRascalLsp.get();
+        assertNotNull("rascal-lsp should be resolved to a path", rascalLsp.getResolved());
+    }
+
+    @Test
     public void multiModulePomsWorkWithSiblings() throws ModelResolutionError {
         var parser = createParser("multi-module/example-ide/pom.xml");
         var project = parser.parseProject();
@@ -126,6 +137,7 @@ public class MavenResolverTest extends AbstractMavenTest {
        
         assertTrue("Rascal-lsp should be found", maybeRascalLsp.isPresent());
         assertEquals("rascal-lsp should be resolved to the right version", "2.21.2", maybeRascalLsp.get().getCoordinate().getVersion());
+        assertNotNull("rascal-lsp should resolved to a path", maybeRascalLsp.get().getResolved());
 
         var maybeCoreLink = locate(resolved, "example-core");
 
