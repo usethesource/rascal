@@ -359,3 +359,36 @@ bool jsonVerifyOriginCorrectAcrossBufferBoundaries(int sSize) {
 
     return true;
 }
+
+test bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries() {
+    /* twice just before and after the 1024 buffer size of JsonReader */
+    for (int sSize <- [1000..1025] + [2000..2050]) {
+        // we try different shapes across the boundary, where also the high surrogate and
+        // the low surrogate will end up on either side of the buffer limit
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, false, false);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, true, false);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, false, true);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, true, true);
+    }
+    return true;
+}
+
+bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(int sSize, bool offbyoneChar, bool switchBackAndForth) {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+   
+    t1 = [v1(s="<if (offbyoneChar) {>a<}><for (_ <- [0..sSize]) {>🍕<if (switchBackAndForth) {>a<}><}>"), ref];
+    writeJSON(|memory:///test.json|, t1);
+
+    //s this throws exceptions and asserts if there are bugs with the
+    // origin tracker. In particular it triggers #2633
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+
+    // checking the last element
+    if (refExpected != readFile(v[1].src)) {
+        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>");
+        return false;
+    }
+
+    return true;
+}
