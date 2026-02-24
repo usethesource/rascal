@@ -83,8 +83,6 @@ public class JsonValueReader {
     private final IRascalMonitor monitor;
     private final ISourceLocation src;
     private VarHandle posHandler;
-    private VarHandle lineHandler;
-    private VarHandle lineStartHandler;
     
     /* options */
     private ThreadLocal<SimpleDateFormat> format;
@@ -96,7 +94,6 @@ public class JsonValueReader {
     private IFunction parsers;
     private Map<Type, IValue> nulls = Collections.emptyMap();
     
-
     private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
         private final JsonReader in;
         private final OriginTrackingReader tracker;
@@ -485,10 +482,7 @@ public class JsonValueReader {
             try {
                 assert posHandler != null;
                 var internalPos = (int) posHandler.get(in);
-                // System.err.println("   pos: " + internalPos);
-                var o =  tracker.getOffsetAtBufferPos(internalPos);
-                // System.err.println("offset: " + o);
-                return o;
+                return tracker.getOffsetAtBufferPos(internalPos);
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // we stop trying to track positions if it fails so hard,
@@ -1316,7 +1310,6 @@ public class JsonValueReader {
          * for the character at char position `pos` in the last buffered content.
          */
         public int getOffsetAtBufferPos(int pos) {
-            // System.err.println("limit: " + pos);
             return (pos >= limit) ? (offset + codepoints[pos - 1] + 1) : (offset + codepoints[pos]);
         }
 
