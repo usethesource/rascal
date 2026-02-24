@@ -138,6 +138,7 @@ public class MavenResolverTest extends AbstractMavenTest {
        
         assertTrue("Rascal-lsp should be found", maybeRascalLsp.isPresent());
         assertEquals("rascal-lsp should be resolved to the right version", "2.21.2", maybeRascalLsp.get().getCoordinate().getVersion());
+        assertNotNull("rascal-lsp should resolved to a path", maybeRascalLsp.get().getResolved());
 
         var maybeCoreLink = locate(resolved, "example-core");
 

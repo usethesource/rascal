@@ -112,8 +112,8 @@ public class Artifact {
     }
 
     /**
-     * The path where the jar is located, can be null in case we couldn't resolve it
-     * Note, for the root project, it's will always be null, as we won't resolve it to a location in the repository.
+     * The path where the jar is located, can be null in case we could not resolve it.
+     * Note, for the root project, it is always null, as it will not be resolved to a location in the repository.
      */
     public @Nullable Path getResolved() {
         return resolved;
