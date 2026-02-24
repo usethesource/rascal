@@ -98,21 +98,20 @@ bool originTest(loc example) {
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
-      println(p);
-      assert content[p.offset] == "{" : "content(<content[p.offset]>): <content[p.offset - 1 .. p.offset + 1]>";                // all nodes start with a {
-      assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
-      assert p.begin.line == line;
-      assert lines[p.begin.line - 1][p.begin.column] == "{";
-      assert lines[p.end.line - 1][p.end.column - 1] == "}";
+      assert content[p.offset] == "{" : "<p>";                // all nodes start with a {
+      assert content[p.offset + p.length - 1] == "}" : "<p>"; // all nodes end with a }
+      assert p.begin.line == line : "<p> <line>";
+      assert lines[p.begin.line - 1][p.begin.column] == "{" : "<p>";
+      assert lines[p.end.line - 1][p.end.column - 1] == "}" : "<p>";
    }
 
    return true;
 }
 
 test bool originTracking() {
-    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json", bprintln(l)];
+    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
 
-    return (true | it && originTest(example) | loc example <- files, bprintln(example));
+    return (true | it && originTest(example) | loc example <- files);
 }
 
 value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
@@ -376,8 +375,9 @@ test bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries() {
 bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(int sSize, bool offbyoneChar, bool switchBackAndForth) {
     ref = v1(x=123456789);
     refExpected = asJSON(ref);
-   
+
     t1 = [v1(s="<if (offbyoneChar) {>a<}><for (_ <- [0..sSize]) {>🍕<if (switchBackAndForth) {>a<}><}>"), ref];
+
     writeJSON(|memory:///test.json|, t1);
 
     //s this throws exceptions and asserts if there are bugs with the
@@ -386,7 +386,7 @@ bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(int sSize, bool offbyo
 
     // checking the last element
     if (refExpected != readFile(v[1].src)) {
-        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>");
+        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>, offbyoneChar: <offbyoneChar>, switchBackAndForth: <switchBackAndForth>");
         return false;
     }
 
