@@ -24,6 +24,13 @@
         <example.version>1.0.0-SNAPSHOT</example.version>
     </properties>
 
+    <dependencies>
+      <dependency>
+        <groupId>org.rascalmpl</groupId>
+        <artifactId>rascal-lsp</artifactId>
+      </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
           <dependency>
