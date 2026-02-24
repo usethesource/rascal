@@ -1226,6 +1226,9 @@ public class JsonValueReader {
             // `codepoints[limit - 1] - 1` is the offset of the last character read with the previous call to read.
             // So the new offset starts there. We look back `off` chars because of possible left-overs before the limit.
             offset += (limit == 0 ? 0 : codepoints[Math.max(0, limit - off - 1)] + 1) ;
+            // the accumlated shift is present in the previous offset, so we start from scratch now.
+            shift = 0;
+            columnShift = 0;
 
             // make sure we are only a transparant facade for the real reader. 
             // parameters are mapped one-to-one without mutations.
