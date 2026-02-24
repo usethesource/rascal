@@ -1287,6 +1287,19 @@ public class JsonValueReader {
             }
         }
 
+        /*
+         * We keep our own buffers of int offsets instead of reference or copy of the cbuf:
+         *   * a quick and dirty reference to cbuf won't do because the GsonReader client uses System.arrayCopy to 
+         *     overwrite the buffer before we can get to it.
+         *   * a copy/clone of the buffer could work to have access to the previous version. However,
+         *     we would still need to loop over it and compute the offsets. So that adds copying the entire buffer
+         *     at every `read` to the load. 
+         *   * Also the GsonReader does not guarantee that `pos` grows (strictly) monotically, which means we 
+         *     sometimes might have to look back and only having the last offset at the parsing frontier is not sufficient.
+         *   * the current solution requires more memory, but it is faster while streaming.
+         *   * the line buffer is strictly not required, but beats the reflective access we need to 
+         *     _two_ private variables in GsonReader.
+         */
         private void initializeBuffers(char[] cbuf) {
             if (codepoints == null) {
                 assert columns == null;
