@@ -205,7 +205,7 @@ public class Environment implements IRascalFrame {
 	/**
 	 * @return the location where this environment was created (i.e. call site) for use in tracing
 	 */
-	public ISourceLocation getLocation() {
+	public ISourceLocation getCreatorLocation() {
 		return loc;
 	}
 

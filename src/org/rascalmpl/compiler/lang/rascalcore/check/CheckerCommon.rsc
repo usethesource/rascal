@@ -73,6 +73,7 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
 data MStatus =
       rsc_not_found()
     | tpl_not_found()
+    | tpl_version_error()
     | rsc_changed()
     | parsed()
     | parse_error()
@@ -233,6 +234,8 @@ bool tplOutdated(MODID moduleId, PathConfig pcfg){
 
 int parseTreeCacheSize = 20;
 
+Module dummyModule = [Module] "module DummyModule";
+
 tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getModuleParseTree: <moduleId>";
     pcfg = ms.pathConfig;
@@ -260,11 +263,9 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                     throw "No src or library module";
                 }
             } catch e: {
-                println(e);
-                ms.messages[moduleId] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
-                mpt = [Module] "module <qualifiedModuleName>";
+                ms.messages[moduleId] ? {} += {error("Module `<qualifiedModuleName>` not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
-                return <false, mpt, ms>;
+                return <false, dummyModule, ms>;
             }
             if(traceParseTreeCache) println("*** parsing <moduleId> from <mloc>");
             try {
@@ -278,12 +279,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 ms.messages[moduleId] ? {} = {error("Parse error in <moduleId>", src)};
                 ms.moduleLocs[moduleId] = mloc;
                 ms.status[moduleId] += parse_error();
-                return <false, [Module] "module <qualifiedModuleName>", ms>;
+                return <false, dummyModule, ms>;
             }
         }
-        mpt = [Module] "module <qualifiedModuleName>";
-        ms.parseTrees[moduleId] = mpt;
-        return <false, mpt, ms>;
+        ms.parseTrees[moduleId] = dummyModule;
+        return <false, dummyModule, ms>;
    }
 }
 
@@ -420,13 +420,15 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != moduleId){
         ms = removeOldestTModelFromCache(ms);
     }
-
+    qualifiedModuleName = moduleId2moduleName(moduleId);
     <found, tplLoc> = getTPLReadLoc(moduleId, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
+        tmVersion = "0.0.0";
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
-            if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
+            tmVersion = tm.rascalTplVersion;
+            if(isValidRascalTplVersion(tmVersion)){
                 ms.tmodels[moduleId] = tm;
                 mloc = getRascalModuleLocation(moduleId, ms);
                 if(isModuleLocationInLibs(mloc, pcfg)){
@@ -438,15 +440,16 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
                 return <true, tm, ms>;
              }
         } catch e: {
-            qualifiedModuleName = moduleId2moduleName(moduleId);
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
-        println("INFO: <msg>)");
-        throw rascalTplVersionError(msg);
+        msg = "outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
+        throw rascalTplVersionError(qualifiedModuleName, tplLoc, tmVersion, msg);
     }
-    qualifiedModuleName = moduleId2moduleName(moduleId);
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
+    mloc = tplLoc;
+    try {
+        mloc = getRascalModuleLocation(moduleId, ms);
+    } catch _: /* ignore when this fails */;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", mloc)]), ms>;
 }
 
 rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to] paths, ModuleStatus ms){

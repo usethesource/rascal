@@ -149,11 +149,9 @@ public class GlobalEnvironment {
 		return module;
 	}
 	
-
 	public boolean existsModule(String name) {
 		return moduleEnvironment.containsKey(name);
 	}
-
 	
 	@Override
 	public String toString(){

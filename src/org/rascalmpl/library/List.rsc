@@ -362,12 +362,12 @@ Optional, a comparison function `lessOrEqual` may be given for a user-defined or
 ```rascal-shell
 import List;
 merge([1, 3, 5], [2, 7, 9, 15]);
-merge(["ape", "elephant", "owl", "snale", "zebra"], ["apple", "berry", "orange", "pineapple"]);
+merge(["ape", "elephant", "owl", "snail", "zebra"], ["apple", "berry", "orange", "pineapple"]);
 ```
 Merge two lists of strings and use their length as ordering:
 ```rascal-shell,continue
 import String;
-merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
+merge(["ape", "owl", "snail", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
 ```
 }
 list[&T] merge(list[&T] left, list[&T] right){

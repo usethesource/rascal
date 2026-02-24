@@ -269,15 +269,21 @@ ModuleStatus rascalTModelForLocs(
             } else {
                 for(m <- component){
                     m_compatible = false;
-                    <found, tm, ms> = getTModelForModule(m, ms);
-                    if(found && !tplOutdated(m, pcfg)){
-                        imports_extends_m = imports_and_extends[m];
+                    try {
+                        <found, tm, ms> = getTModelForModule(m, ms);
+                        if(found && !tplOutdated(m, pcfg)){
+                            imports_extends_m = imports_and_extends[m];
                    
-                        <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
-                        if(m_compatible){
-                            ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
+                            <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
+                            if(m_compatible){
+                                ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
+                            }
                         }
-                    }
+                    } catch rascalTplVersionError(_,_,_,_): {
+                        ms.status[m] += { tpl_version_error() };
+                        // m_compatible remains false
+                    };
+                    
                     compatible_with_all_imports = compatible_with_all_imports && m_compatible;
                 }
             }
@@ -324,6 +330,9 @@ ModuleStatus rascalTModelForLocs(
                                 inameId = moduleName2moduleId(iname);
                                 if(!ms.status[inameId]?){
                                     ms.status[inameId] = {};
+                                }
+                                if({tpl_version_error(), rsc_not_found()} <= ms.status[inameId]){
+                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
                                 }
                                 if(inameId notin usedModules){
                                    if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){
@@ -386,9 +395,13 @@ ModuleStatus rascalTModelForLocs(
         for(MODID mid <- topModuleIds){
             ms.messages[mid] = { error("Parse error", src) };
         }
-    } catch rascalTplVersionError(str txt):{
+    } catch rascalTplVersionError(str moduleName, loc tpl, str version, str txt):{
         for(MODID mid <- topModuleIds){
-            ms.messages[mid] = { error("<txt>", ms.moduleLocs[mid] ? |unknown:///|) };
+            causes = [ info("Module `<moduleName>` has outdated Rascal TPL version <version>, no source found", tpl) ];
+            ms.messages[mid] ? {} += { error("Import/extend of `<moduleName>` has <txt>", 
+                                              ms.moduleLocs[mid] ? |unknown:///|,
+                                               causes= causes) 
+                                     };
         }
     } catch Message msg: {
         for(MODID mid <- topModuleIds){
@@ -466,8 +479,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
         if(success){
             tagsMap = getTags(pt.header.tags);
 
-            if(ignoreCompiler(tagsMap)) {
-                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt@\loc) };
+            if(hasIgnoreCompilerTag(tagsMap)) {
+                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
                     ms.status[mid] += MStatus::ignored();
             }
             idTrees[mid] = pt;
@@ -550,14 +563,18 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
 tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[MODID] candidates, ModuleStatus ms){
     pcfg = ms.pathConfig;
     for(candidate <- candidates){
-        <found, tm, ms> = getTModelForModule(candidate, ms);
-        if(found){ // TODO: needed?
-            imports_and_extends = ms.paths<0,2>[candidate];
-            <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
-            if(!compatible){
+        try {
+            <found, tm, ms> = getTModelForModule(candidate, ms);
+            if(found){ // TODO: needed?
+                imports_and_extends = ms.paths<0,2>[candidate];
+                <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
+                if(!compatible){
+                    return <false, ms>;
+                }
+            } else {
                 return <false, ms>;
             }
-        }
+        } catch _: return <false, ms>;
     }
     return <true, ms>;
 }

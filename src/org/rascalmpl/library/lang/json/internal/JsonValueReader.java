@@ -23,7 +23,9 @@
 package org.rascalmpl.library.lang.json.internal;
 
 import java.io.EOFException;
+import java.io.FilterReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -63,6 +66,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 import com.google.gson.JsonParseException;
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
@@ -73,44 +77,58 @@ import com.google.gson.stream.MalformedJsonException;
  * for documentation.
  */
 public class JsonValueReader {
+    private static final TypeFactory TF = TypeFactory.getInstance();
+    private final TypeStore store;
+    private final IValueFactory vf; 
+    private final IRascalMonitor monitor;
+    private final ISourceLocation src;
+    private VarHandle posHandler;
+    private VarHandle lineHandler;
+    private VarHandle lineStartHandler;
+    
+    /* options */
+    private ThreadLocal<SimpleDateFormat> format;
+    private boolean trackOrigins = false;
+    private boolean stopTracking = false;
+    private boolean explicitConstructorNames;
+    private boolean explicitDataTypes;
+    private boolean lenient;
+    private IFunction parsers;
+    private Map<Type, IValue> nulls = Collections.emptyMap();
+    
+
     private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
         private final JsonReader in;
-        private int lastPos;
+        private final OriginTrackingReader tracker;
 
+        /**
+         * In this mode we read directly from a given JsonReader, under which we can not
+         * encapsulate its Reader for counting offsets. This is used by the JSON-RPC bridge.
+         * @param in
+         */
         private ExpectedTypeDispatcher(JsonReader in) {
+            this(in, null);
+        }
+
+        /**
+         * In this mode we have created an OriginTrackingReader which feeds the JsonReader from below.
+         * Accurate offsets can be tracked like this, which enables accurate error locations. When
+         * trackOrigins=true we get accurate origin src fields for objects.
+         */
+        public ExpectedTypeDispatcher(JsonReader in, OriginTrackingReader tracker) {
             this.in = in;
-        }
-
-        /**
-         * Wrapping in.nextString for better error reporting
-         */
-        private String nextString() throws IOException {
-            // need to cache the last position before parsing the string, because
-            // when the string does not have a balancing quote the read accidentally
-            // rewinds the position to 0.
-            lastPos = getPos();
-            return in.nextString();
-        }
-
-        /**
-         * Wrapping in.nextName for better error reporting
-         */
-        private String nextName() throws IOException {
-            // need to cache the last position before parsing the string, because
-            // when the string does not have a balancing quote the read accidentally
-            // rewinds the position to 0.
-            lastPos = getPos();
-            return in.nextName();
+            this.tracker = tracker;
         }
 
         @Override
         public IValue visitInteger(Type type) throws IOException {
+            
             try {
                 switch (in.peek()) {
                     case NUMBER:
                         // fallthrough
                     case STRING:
-                        return vf.integer(nextString());
+                        return vf.integer(in.nextString());
                     case NULL:
                         in.nextNull();
                         return inferNullValue(nulls, type);
@@ -125,12 +143,13 @@ public class JsonValueReader {
 
         @Override
         public IValue visitReal(Type type) throws IOException {
+            
             try {
                 switch (in.peek()) {
                     case NUMBER:
                         // fallthrough
                     case STRING:
-                        return vf.real(nextString());
+                        return vf.real(in.nextString());
                     case NULL:
                         in.nextNull();
                         return inferNullValue(nulls, type);
@@ -145,13 +164,14 @@ public class JsonValueReader {
 
         private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
             return nulls.entrySet().stream().map(Entry::getKey).sorted(Type::compareTo)
-                .filter(superType -> expected.isSubtypeOf(superType)).findFirst() // give the most specific match
-                .map(t -> nulls.get(t)) // lookup the corresponding null value
-                .filter(r -> r.getType().isSubtypeOf(expected)) // the value in the table still has to fit the currently
-                                                                // expected type
-                .orElse(null); // or muddle on and throw NPE elsewhere
-
-            // The NPE triggering "elsewhere" should help with fault localization.
+                // give the most specific match:
+                .filter(superType -> expected.isSubtypeOf(superType)).findFirst()
+                // lookup the corresponding null value
+                .map(t -> nulls.get(t)) 
+                // the value in the table still has to fit the currently expected type
+                .filter(r -> r.getType().isSubtypeOf(expected)) 
+                // or we muddle on and throw NPE elsewhere. This NPE is important for fault localization. We don't want to hide it here.
+                .orElse(null); 
         }
 
         @Override
@@ -165,7 +185,7 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            return vf.string(nextString());
+            return vf.string(in.nextString());
         }
 
         @Override
@@ -175,6 +195,7 @@ public class JsonValueReader {
             }
 
             List<IValue> l = new ArrayList<>();
+           
             in.beginArray();
 
             if (type.hasFieldNames()) {
@@ -244,23 +265,23 @@ public class JsonValueReader {
             in.beginObject();
 
             while (in.hasNext()) {
-                String name = nextName();
+                String name = in.nextName();
 
                 switch (name) {
                     case "scheme":
-                        scheme = nextString();
+                        scheme = in.nextString();
                         break;
                     case "authority":
-                        authority = nextString();
+                        authority = in.nextString();
                         break;
                     case "path":
-                        path = nextString();
+                        path = in.nextString();
                         break;
                     case "fragment":
-                        fragment = nextString();
+                        fragment = in.nextString();
                         break;
                     case "query":
-                        query = nextString();
+                        query = in.nextString();
                         break;
                     case "offset":
                         offset = in.nextInt();
@@ -329,8 +350,9 @@ public class JsonValueReader {
                 case BOOLEAN:
                     return visitBool(TF.boolType());
                 case NAME:
-                    // this would be weird though
-                    return vf.string(nextName());
+                    // this would be weird though. names are part of objects, not top-level values.
+                    // this is probably unreachable given the rest of this parser.
+                    return vf.string(in.nextName());
                 case NULL:
                     in.nextNull();
                     return inferNullValue(nulls, type);
@@ -342,7 +364,7 @@ public class JsonValueReader {
 
         private IValue sourceLocationString() throws IOException {
             try {
-                String val = nextString().trim();
+                String val = in.nextString().trim();
 
                 if (val.startsWith("|") && (val.endsWith("|") || val.endsWith(")"))) {
                     return new StandardTextReader().read(vf, new StringReader(val));
@@ -374,7 +396,7 @@ public class JsonValueReader {
                     in.endArray();
                     return vf.rational(numA, denomA);
                 case STRING:
-                    return vf.rational(nextString());
+                    return vf.rational(in.nextString());
                 default:
                     throw parseErrorHere("Expected rational but got " + in.peek());
             }
@@ -396,7 +418,7 @@ public class JsonValueReader {
                     }
 
                     while (in.hasNext()) {
-                        IString label = vf.string(nextName());
+                        IString label = vf.string(in.nextName());
                         IValue value = type.getValueType().accept(this);
                         if (value != null) {
                             w.put(label, value);
@@ -439,23 +461,42 @@ public class JsonValueReader {
             return vf.bool(in.nextBoolean());
         }
 
-        private int getPos() {
-            if (src == null) {
+        /**
+         * @return the offset where the parser cursor is _right now_. 
+         * and `this.lastPos` is set to the last internal `pos` field of the GsonReader `in`
+         * and `offset` is set to the current character offset in the input.
+         * 
+         * This method depends on arbitraire private details of JsonReader from the gson package.
+         * In particular it tries to detect when its internal buffer has wrapped (probably at 1024 characters)
+         * The internal private field `pos` in JsonReader holds the index into the buffer, and it is 
+         * advanced by 1 with every character. We use it to update a locale file offset field, and we
+         * have to watch out for the buffer reset (pos is set to 0 again) while doing this.
+         * 
+         * KNOWN BUG: These tricks break when a comment or whitespace section between normal tokens is larger
+         * than or equal to 1024 Java chars. getPos() will not be able to detect the offset increase,
+         * because it has not been called in between from JsonValueReader to JsonReader and the condition
+         * `internalPos < lastPos` will not have had the opportunity to evaluate to `true`.
+         */
+        private int getOffset() {
+            if (stopTracking) {
                 return 0;
             }
 
             try {
-                return Math.max(0, (int) posHandler.get(in) - 1);
+                assert posHandler != null;
+                var internalPos = (int) posHandler.get(in);
+                return tracker.getOffsetAtBufferStart() + internalPos;
             }
             catch (IllegalArgumentException | SecurityException e) {
-                // stop trying to recover the positions
-                src = null;
+                // we stop trying to track positions if it fails so hard,
+                // this way we at least can get some form of DOM back.
+                stopTracking = true;
                 return 0;
             }
         }
 
         private int getLine() {
-            if (src == null) {
+            if (stopTracking) {
                 return 0;
             }
 
@@ -464,34 +505,50 @@ public class JsonValueReader {
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
-                src = null;
+                stopTracking = true;
                 return 0;
             }
         }
 
+        /**
+         * We try to recover the column position. This used internal private fields
+         * of the GsonReader class. 
+         * 
+         *
+         * @return the column position the parser is at currently.
+         */
         private int getCol() {
-            if (src == null) {
+            if (stopTracking) {
                 return 0;
             }
 
             try {
-                return getPos() - (int) lineStartHandler.get(in);
+                return ((int) posHandler.get(in)) - ((int) lineStartHandler.get(in));
             }
             catch (IllegalArgumentException | SecurityException e) {
                 // stop trying to recover the positions
-                src = null;
+                stopTracking = true;
                 return 0;
             }
         }
 
         protected Throw parseErrorHere(String cause) {
-            var location = src == null ? URIUtil.rootLocation("unknown") : src;
-            int offset = Math.max(getPos(), lastPos);
+            var location = getRootLoc();
+            int offset = getOffset();
             int line = getLine();
             int col = getCol();
 
-            return RuntimeExceptionFactory
-                .jsonParseError(vf.sourceLocation(location, offset, 1, line, line, col, col + 1), cause, in.getPath());
+            if (!stopTracking) {
+                return RuntimeExceptionFactory
+                    .jsonParseError(vf.sourceLocation(location, offset, 1, line, line, col, col + 1), cause, in.getPath());
+            }
+            else {
+                // if we didn't track the offset, we can at least produce line and column information, but not as a 
+                // default Rascal ParseError with '0' or '-1' for offset, because that can trigger assertions and 
+                // break other assumptions clients make about the source location values.
+                return RuntimeExceptionFactory
+                    .jsonParseError(location, line, col, cause, in.getPath());
+            }
         }
 
         /**
@@ -507,7 +564,7 @@ public class JsonValueReader {
          * passed in. If that does not fly, we can interpret strings as nullary ADT constructors.
          */
         private IValue visitStringAsAbstractData(Type type) throws IOException {
-            var stringInput = nextString();
+            var stringInput = in.nextString();
 
             // might be a parsable string. let's see.
             if (parsers != null) {
@@ -557,17 +614,18 @@ public class JsonValueReader {
         private IValue visitObjectAsAbstractData(Type type) throws IOException {
             Set<Type> alternatives = null;
 
-            in.beginObject();
-            int startPos = getPos();
+            int startPos = getOffset() - 1;
             int startLine = getLine();
-            int startCol = getCol();
+            int startCol = getCol() - 1;
 
+            in.beginObject();
+            
             // use explicit information in the JSON to select and filter constructors from the TypeStore
             // we expect always to have the field _constructor before _type.
             if (explicitConstructorNames || explicitDataTypes) {
                 String consName = null;
                 String typeName = null; // this one is optional, and the order with cons is not defined.
-                String consLabel = nextName();
+                String consLabel = in.nextName();
 
                 // first we read either a cons name or a type name
                 if (explicitConstructorNames && "_constructor".equals(consLabel)) {
@@ -580,14 +638,14 @@ public class JsonValueReader {
                 // optionally read the second field
                 if (explicitDataTypes && typeName == null) {
                     // we've read a constructor name, but we still need a type name
-                    consLabel = nextName();
+                    consLabel = in.nextName();
                     if (explicitDataTypes && "_type".equals(consLabel)) {
                         typeName = in.nextString();
                     }
                 }
                 else if (explicitDataTypes && consName == null) {
                     // we've read type name, but we still need a constructor name
-                    consLabel = nextName();
+                    consLabel = in.nextName();
                     if (explicitDataTypes && "_constructor".equals(consLabel)) {
                         consName = in.nextString();
                     }
@@ -632,7 +690,7 @@ public class JsonValueReader {
             }
 
             while (in.hasNext()) {
-                String label = nextName();
+                String label = in.nextName();
                 if (cons.hasField(label)) {
                     IValue val = cons.getFieldType(label).accept(this);
                     if (val != null) {
@@ -676,11 +734,14 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
-            int endPos = getPos();
-            int endLine = getLine();
-            int endCol = getCol();
+            int endPos = getOffset() - 1;
+            assert endPos > startPos : "offset tracking messed up while stopTracking is " + stopTracking + " and trackOrigins is " + trackOrigins;
 
+            int endLine = getLine();
+            int endCol = getCol() - 1;
+
+            in.endObject();
+            
             for (int i = 0; i < args.length; i++) {
                 if (args[i] == null) {
                     throw parseErrorHere(
@@ -688,12 +749,21 @@ public class JsonValueReader {
                 }
             }
 
-            if (src != null) {
+            if (trackOrigins && !stopTracking) {
                 kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(getRootLoc(), startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             return vf.constructor(cons, args, kwParams);
+        }
+
+        private ISourceLocation getRootLoc() {
+            if (src == null) {
+                return URIUtil.rootLocation("unknown");
+            }
+            else {
+                return src;
+            }
         }
 
         @Override
@@ -732,18 +802,19 @@ public class JsonValueReader {
                 return inferNullValue(nulls, type);
             }
 
-            in.beginObject();
-            int startPos = getPos();
+            int startPos = getOffset() - 1;
             int startLine = getLine();
-            int startCol = getCol();
+            int startCol = getCol() - 1;
 
+            in.beginObject();
+            
             Map<String, IValue> kws = new HashMap<>();
             Map<String, IValue> args = new HashMap<>();
 
             String name = "object";
 
             while (in.hasNext()) {
-                String kwName = nextName();
+                String kwName = in.nextName();
 
                 if (kwName.equals("_name")) {
                     name = ((IString) TF.stringType().accept(this)).getValue();
@@ -768,14 +839,15 @@ public class JsonValueReader {
                 }
             }
 
-            in.endObject();
-            int endPos = getPos();
+            int endPos = getOffset() - 1;
             int endLine = getLine();
-            int endCol = getCol();
+            int endCol = getCol() - 1;
 
-            if (originTracking) {
+            in.endObject();
+            
+            if (trackOrigins && !stopTracking) {
                 kws.put(kws.containsKey("src") ? "rascal-src" : "src",
-                    vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+                    vf.sourceLocation(getRootLoc(), startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
             }
 
             IValue[] argArray = args.entrySet().stream().sorted((e, f) -> e.getKey().compareTo(f.getKey()))
@@ -817,8 +889,7 @@ public class JsonValueReader {
             try {
                 switch (in.peek()) {
                     case STRING:
-                        lastPos = getPos();
-                        Date parsedDate = format.get().parse(nextString());
+                        Date parsedDate = format.get().parse(in.nextString());
                         return vf.datetime(parsedDate.toInstant().toEpochMilli());
                     case NUMBER:
                         return vf.datetime(in.nextLong());
@@ -838,6 +909,7 @@ public class JsonValueReader {
             }
 
             IListWriter w = vf.listWriter();
+            getOffset();
             in.beginArray();
             while (in.hasNext()) {
                 // here we pass label from the higher context
@@ -850,6 +922,7 @@ public class JsonValueReader {
             }
 
             in.endArray();
+            getOffset();
             return w.done();
         }
 
@@ -886,20 +959,6 @@ public class JsonValueReader {
         }
     }
 
-    private static final TypeFactory TF = TypeFactory.getInstance();
-    private final TypeStore store;
-    private final IValueFactory vf;
-    private ThreadLocal<SimpleDateFormat> format;
-    private final IRascalMonitor monitor;
-    private ISourceLocation src;
-    private boolean originTracking;
-    private VarHandle posHandler;
-    private VarHandle lineHandler;
-    private VarHandle lineStartHandler;
-    private boolean explicitConstructorNames;
-    private boolean explicitDataTypes;
-    private IFunction parsers;
-    private Map<Type, IValue> nulls = Collections.emptyMap();
 
     /**
      * @param vf factory which will be used to construct values
@@ -913,23 +972,25 @@ public class JsonValueReader {
         this.store = store;
         this.monitor = monitor;
         this.src = src;
+        this.stopTracking = false;
+
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-        if (src != null) {
-            try {
-                var lookup = MethodHandles.lookup();
-                var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
-                this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
-                this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
-                this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
-                this.originTracking = (src != null);
+        try {
+            var lookup = MethodHandles.lookup();
+            var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+            this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+            this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+            this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+
+            if (posHandler == null) {
+                stopTracking = true;
             }
-            catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-                // we disable the origin tracking if we can not get to the fields
-                src = null;
-                originTracking = false;
-                monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
-            }
+        }
+        catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+            // we disable the origin tracking if we can not get to the fields
+            stopTracking = true;
+            monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
         }
     }
 
@@ -959,7 +1020,7 @@ public class JsonValueReader {
         this.vf = vf;
         this.store = store;
         this.monitor = monitor;
-        this.src = (src == null) ? URIUtil.rootLocation("unknown") : src;
+        this.src = src;
 
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -970,12 +1031,10 @@ public class JsonValueReader {
             this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
             this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
             this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
-            this.originTracking = (src != null);
         }
         catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
             // we disable the origin tracking if we can not get to the fields
-            originTracking = false;
-            src = null;
+            stopTracking = true;
             monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
         }
     }
@@ -986,6 +1045,11 @@ public class JsonValueReader {
 
     public JsonValueReader setNulls(Map<Type, IValue> nulls) {
         this.nulls = nulls;
+        return this;
+    }
+
+    public JsonValueReader setTrackOrigins(boolean trackOrigins) {
+        this.trackOrigins = trackOrigins;
         return this;
     }
 
@@ -1013,8 +1077,14 @@ public class JsonValueReader {
         return this;
     }
 
+    public JsonValueReader setLenient(boolean value) {
+        this.lenient = true;
+        return this;
+    }
+
     /**
-     * Read and validate a Json stream as an IValue
+     * Read and validate a Json stream as an IValue. This version does not support accurate error messages
+     * or origin tracking.
      * 
      * @param in json stream
      * @param expected type to validate against (recursively)
@@ -1022,6 +1092,10 @@ public class JsonValueReader {
      * @throws IOException when either a parse error or a validation error occurs
      */
     public IValue read(JsonReader in, Type expected) throws IOException {
+        in.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
+        
+        // we can't track accurately because we don't have a handle to the raw buffer under `in`
+        this.stopTracking = true;
         var dispatch = new ExpectedTypeDispatcher(in);
 
         try {
@@ -1035,6 +1109,114 @@ public class JsonValueReader {
         catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException
             | IllegalStateException | NullPointerException e) {
             throw dispatch.parseErrorHere(e.getMessage());
+        }
+    }
+
+    /**
+     * Read and validate a Json stream as an IValue. This version supports accurate error messages
+     * and origin tracking.
+     * 
+     * @param in json stream
+     * @param expected type to validate against (recursively)
+     * @return an IValue of the expected type
+     * @throws IOException when either a parse error or a validation error occurs
+     */
+    public IValue read(Reader in, Type expected) throws IOException {
+        try (OriginTrackingReader wrappedIn = new OriginTrackingReader(in); JsonReader jsonIn = new JsonReader(wrappedIn)) {
+            jsonIn.setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
+
+            var dispatch = new ExpectedTypeDispatcher(jsonIn, wrappedIn);
+
+            try {
+                var result = expected.accept(dispatch);
+                if (result == null) {
+                    throw new JsonParseException("null occurred outside an optionality context and without a registered representation.");
+                }
+                return result;
+            } 
+            catch (NullPointerException e) {
+                throw dispatch.parseErrorHere("Unexpected internal NullPointerException");
+            }
+            catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException e) {
+                throw dispatch.parseErrorHere(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * This wraps a normal reader to make it possible for a client to detect accurate
+     * character offsets (> buffersize) in a large file, even if the underlying stream is buffered.
+     * 
+     * This implementation is tightly coupled (semantically) with the internals of JsonReader. It provides
+     * just enough information, together with internal private fields of JsonReader, to compute Rascal-required
+     * offsets. We get only the character offset in the file, at the start of each streamed buffer contents.
+     * That should be just enough information to recompute the actual offset of every Json element, using the
+     * current position in the buffer (the private field `pos` of JsonReader).
+     */
+    public static class OriginTrackingReader extends FilterReader {
+        // offset is always pointing at the point in the file where JsonReader.pos == 0
+        private int offset = 0;
+        // limit is always pointing to the amount of no-junk characters in the underlying buffer below buffer.length
+        private int limit = 0;
+       
+        protected OriginTrackingReader(Reader in) {
+            super(in);
+        }
+
+        /* This private method from JsonReader must be mirrored by `read`
+        private boolean fillBuffer(int minimum) throws IOException {
+            char[] buffer = this.buffer;
+            lineStart -= pos;
+            if (limit != pos) {
+                limit -= pos;
+                System.arraycopy(buffer, pos, buffer, 0, limit);
+            } else {
+                limit = 0;
+            }
+
+            pos = 0;
+            int total;
+            while ((total = in.read(buffer, limit, buffer.length - limit)) != -1) {
+                limit += total;
+
+                // if this is the first read, consume an optional byte order mark (BOM) if it exists
+                if (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff') {
+                    pos++;
+                    lineStart++;
+                    minimum++;
+                }
+
+                if (limit >= minimum) {
+                    return true;
+                }
+            }
+            return false;
+        } */
+        @Override
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            // Note that `fillBuffer.limit != fillBuffer.pos <==> reader.off != 0`.
+            // Moreover, `fillBuffer.limit == reader.off` at the start of this method.
+
+            // we know take the previous limit and add it to the
+            // offset, to arrive at the new `pos=0` of `buffer[0]`,
+            // rewinding `off` characters which were reused from the previous buffer
+            // with System.arraycopy.
+            offset += limit - off;
+
+            // make sure we are only a facade for the real reader. 
+            // parameters are mapped one-to-one without mutations.
+            var charsRead = in.read(cbuf, off, len);
+
+            // the next buffer[0] offset will be after this increment.
+            // Note that `fillBuffer.limit == read.limit`
+            limit = off + charsRead;
+
+            // and return only the number of characters read.
+            return charsRead;
+        }
+
+        public int getOffsetAtBufferStart() {
+            return offset;
         }
     }
 }
