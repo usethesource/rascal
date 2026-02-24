@@ -115,6 +115,18 @@ public class MavenResolverTest extends AbstractMavenTest {
     }
 
     @Test
+    public void resolveParentDependencies() throws ModelResolutionError {
+        var parser = createParser("multi-module/example-core/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeRascalLsp = locate(resolved, "rascal-lsp");
+
+        assertTrue("rascal-lsp dependency should be found", maybeRascalLsp.isPresent());
+        var rascalLsp = maybeRascalLsp.get();
+        assertNotNull("rascal-lsp should be resolved to a path", rascalLsp.getResolved());
+    }
+
+    @Test
     public void multiModulePomsWorkWithSiblings() throws ModelResolutionError {
         var parser = createParser("multi-module/example-ide/pom.xml");
         var project = parser.parseProject();
