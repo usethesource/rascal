@@ -231,7 +231,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 changes.addAll(dirtyModules);
                 if (!changes.isEmpty()) {
                     dirtyModules.removeAll(changes);
-                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("prompt"));
                 }
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
