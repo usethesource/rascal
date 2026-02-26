@@ -1175,9 +1175,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
                     var uri = heap.getModuleURI(mod);
-                    assert uri != null : "guaranteed by Import::loadModule";
-                    System.err.println("URI: " + uri);
-                    if (uri != null /* REPL $ module */ && resolverRegistry.exists(vf.sourceLocation(uri))) {
+                    
+                    if (mod.equals(ModuleEnvironment.SHELL_MODULE) || resolverRegistry.exists(vf.sourceLocation(uri))) {
                         // otherwise the file has been renamed or deleted, and we do
                         // not add it to the todo list.
                         onHeap.add(mod);
@@ -1189,8 +1188,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
 
-                    // this module starts with a clean slate
-                    heap.removeModule(heap.getModule(mod));
+                    if (!mod.equals(ModuleEnvironment.SHELL_MODULE)) {
+                        // this module starts with a clean slate
+                        heap.removeModule(heap.getModule(mod));
+                    }
                 }
             }
 
@@ -1324,7 +1325,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             found.addAll(dependingModules);
             todo.addAll(dependingModules);
         }
-
+        
         return found;
     }
 
