@@ -71,14 +71,14 @@ import Exception;
 @synopsis{JSON parse errors have more information than general parse errors}
 @description{
 * `location` is the place where the parsing got stuck (going from left to right).
-* `cause` is a factual diagnosis of what was expected at that position, versus what was found.
+* `reason` is a factual diagnosis of what was expected at that position, versus what was found.
 * `path` is a path query string into the JSON value from the root down to the leaf where the error was detected.
 }
 @benefits{
 * ((NoOffsetParseError)) is for when accurate offset tracking is turned off. Typically this is _on_
 even if `trackOrigins=false`, when we call the json parsers from Rascal.
 }
-data RuntimeException(str cause="", str path="")
+data RuntimeException(str reason="", str path="")
   = ParseError(loc location)
   | NoOffsetParseError(loc location, int line, int column)
   ;
