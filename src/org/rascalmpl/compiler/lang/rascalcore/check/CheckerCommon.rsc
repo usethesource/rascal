@@ -435,7 +435,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
                     ms.status[moduleId] ? {} += {rsc_not_found()};
                 }
                 ms.status[moduleId] ? {} += {tpl_uptodate(), tpl_saved()};
-                ms.messages[moduleId] = toSet(tm.messages);
+                //do not include errors from tm in ModuleStatus to avoid that they become persistent
                 ms.tmodelLIFO = [moduleId, *ms.tmodelLIFO];
                 return <true, tm, ms>;
              }

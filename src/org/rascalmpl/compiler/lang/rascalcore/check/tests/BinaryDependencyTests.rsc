@@ -403,8 +403,6 @@ test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
     return checkExpectErrors("M2", ["outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
 }
 
-
-
 test bool removedTPLInBinaryLibrary(){
     // Create project "lib" and module "M1" and then compile "M1"
     libName = "lib";
