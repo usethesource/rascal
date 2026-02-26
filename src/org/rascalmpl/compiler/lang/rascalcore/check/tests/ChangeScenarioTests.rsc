@@ -469,6 +469,92 @@ test bool breakingChange1(){
     return expectReChecks(D, ["C", "D"]);
 }
 
+test bool fixedErrorsDisappear() {  // ht @toinehartman
+    clearMemory();
+    pcfg = getReleasedStandardLibraryTestingPathConfig();
+    pcfg = pcfg[libs = [|mvn://org.rascalmpl--rascal--0.42.0-RC2|]];
+
+    iprintln(pcfg);
+
+    // Write a set of modules with imports, that should type-check without errors
+    mlocs = writeModules("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree; // module does not exist
+
+        import Debugging;
+        import FileUtility;
+    ", "
+        module FileLocations
+    ", "
+        module Debugging
+
+        import DateTime;
+        import FileLocations;
+
+        import FileUtility;
+        import StringUtility;
+    ", "
+        module FileUtility
+
+        import FileLocations;
+
+        import Debugging;
+        import ListUtility;
+        import StringUtility;
+    ", "
+        module ListUtility
+    ", "
+        module StringUtility
+
+
+        import Debugging;
+        import ListUtility;
+        import MathUtility;
+    ", "
+        module MathUtility
+    ");
+
+    // Type-check everything
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        import vis::ParseTree; // module does not exist -\> error
+
+        import Debugging;
+        import FileUtility;
+    ");
+
+    // Type-check only the changed module
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    // Fix the error again, by removing the import. Now, we are at exactly the same state as where we started (without errors).
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree;
+
+        import Debugging;
+        import FileUtility;
+    ");
+    
+    // Type-check only the changed module
+    assert checkModuleOK(l, pathConfig=pcfg) : "Expected no errors after reverting, but got some!";
+    return true;
+}
+
 // ---- touch and recheck modules ---------------------------------------------
 
 bool touchAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg){
