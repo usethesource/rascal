@@ -423,7 +423,8 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
         tm.definitions = ( def.defined : def | Define def <- tm.defines);
 
         transient_tms[m] = tm;
-        <tm, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
+        <found, tm1, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
+        if(found) { tm = tm1; }
         ms.messages[m] = toSet(tm.messages);
         transient_tms[m] = tm;
     }
