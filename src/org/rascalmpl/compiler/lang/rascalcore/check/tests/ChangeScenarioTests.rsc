@@ -472,7 +472,7 @@ test bool breakingChange1(){
 test bool fixedErrorsDisappear() {  // ht @toinehartman
     clearMemory();
     pcfg = getReleasedStandardLibraryTestingPathConfig();
-    pcfg = pcfg[libs = [|mvn://org.rascalmpl--rascal--0.42.0-RC2|]];
+    pcfg = pcfg[libs = [RASCAL42]];
 
     iprintln(pcfg);
 
