@@ -1176,8 +1176,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 if (heap.existsModule(mod)) {
                     var uri = heap.getModuleURI(mod);
                     assert uri != null : "guaranteed by Import::loadModule";
-
-                    if (resolverRegistry.exists(vf.sourceLocation(uri))) {
+                    System.err.println("URI: " + uri);
+                    if (uri != null /* REPL $ module */ && resolverRegistry.exists(vf.sourceLocation(uri))) {
                         // otherwise the file has been renamed or deleted, and we do
                         // not add it to the todo list.
                         onHeap.add(mod);
