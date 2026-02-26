@@ -93,11 +93,8 @@ loc writeModule(str moduleText){
     return mloc;
 }
 
-void writeModules(str modules...){
-	for(mname <- modules){
-		writeModule(mname);
-	}
-}
+list[loc] writeModules(str modules...)
+	= [ writeModule(mname) | mname <- modules ];
 
 void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();

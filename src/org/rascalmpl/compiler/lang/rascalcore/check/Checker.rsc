@@ -188,7 +188,7 @@ ModuleStatus rascalTModelForLocs(
         }
        
         ms.moduleLocs[mid] = mloc;
-        msgs += (ms.messages[mid] ? {});
+        ms.messages[mid] = {};
     }
 
     str jobName = "";
