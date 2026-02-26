@@ -218,6 +218,14 @@ test bool TUPLE4() = checkOK("
                     ltail == [2,3];
                }");
 
+test bool TUPLE5() = checkOK("
+     void main(){
+          if(true){
+               \<x, _\> = \<123, false\>;
+          }
+          x = 456;
+     }");
+
 test bool E1() = checkOK("value zz = 1 + 2;");
 test bool E2() = checkOK("value zz = 1 + 2.5; ");
 test bool E3() = unexpectedType("value zz = 1 + true; ");
@@ -318,7 +326,6 @@ test bool AssignIntModuleVarOk() {
      ");
 }
 
-// @ignore{Test needs typepal version > 0.15.1}
 test bool AssignAndIncrementIntModuleVarOk() {
      clearMemory();
      writeModule("module A public int X = 1;");
@@ -349,7 +356,6 @@ test bool AssignAndIncrementListIntModuleVarOk() {
      ");
 }
 
-//@ignore{Test needs typepal version > 0.15.1}
 test bool InferredVarAndModuleVarOk(){
      clearMemory();
      return checkModuleOK("
@@ -362,7 +368,6 @@ test bool InferredVarAndModuleVarOk(){
      ");
 }
 
-// @ignore{Test needs typepal version > 0.15.1}
 test bool InferredVarAndImportedModuleVarOk(){
      clearMemory();
      writeModule("module A public int X = 1;");

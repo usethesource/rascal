@@ -7,7 +7,8 @@ function download() {
 }
 
 # these should be synced with `TestConfigs.rsc`
-download "org.rascalmpl" "rascal" "0.41.0-RC15" 
+download "org.rascalmpl" "rascal" "0.41.0-RC15"
+download "org.rascalmpl" "rascal" "0.42.0-RC2"
 download "org.rascalmpl" "typepal" "0.14.8" 
 download "org.rascalmpl" "typepal" "0.14.1" 
 download "org.rascalmpl" "drambiguity" "0.1.2" 
