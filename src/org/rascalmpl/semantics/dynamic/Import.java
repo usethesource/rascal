@@ -197,7 +197,15 @@ public abstract class Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-      extendCurrentModule(this.getLocation(), name, eval);
+
+      if (!eval.getCurrentModuleEnvironment().getName().equals(ModuleEnvironment.SHELL_MODULE)) {
+        extendCurrentModule(this.getLocation(), name, eval);
+      }
+      else {
+        eval.warning("importing " + name + ", instead of extending.", URIUtil.rootLocation("prompt"));
+        importModule(name, this.getLocation(), eval);
+      }
+
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}
