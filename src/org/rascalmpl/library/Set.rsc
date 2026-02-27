@@ -509,3 +509,53 @@ public set[&T] union(set[set[&T]] sets) = {*s | s <- sets};
 
 @synopsis{Compute the Jaccard similarity between two sets.}
 real jaccard(set[value] x, set[value] y) = (1. * size(x & y)) / size(x + y);
+
+
+@synopsis{Calculate the intersection of a set of sets.}
+@description{
+  Can only be applied to sets that contain at least two sets,
+  because the intersection is generally a binary operator.
+  Empty sets or sets with one set throw an exception.
+}
+public set[&T] intersection(wholeSet:{set[&T] firstSet, *set[&T] otherSets}) {
+  if (otherSets == {}) {
+    throw IllegalArgument(wholeSet, "Intersection only possible with at least two sets.");
+  }
+  return (firstSet | it & elem | elem <- otherSets);
+}
+public set[&T] intersection(wholeSet:{}) {
+  throw IllegalArgument(wholeSet, "Intersection only possible with at least two sets.");
+}
+
+
+@synopsis{Checks if all sets in the list are pairwise disjoint.}
+@description{
+  We follow one definition of pairwise disjoint sets, which does not allow identical sets.
+  For example, `[{1}, {1}]` is not pairwise disjoint, because it contains two times the same sets.
+
+  Can only be applied to lists that contain at least two sets,
+  because no or only a single set can not be pairwise disjoint.
+  Empty lists or lists with one set throw an exception.
+}
+@examples{
+```rascal-shell
+import Set;
+isPairwiseDisjoint([{1,2}, {3,4}, {5,6}]);
+isPairwiseDisjoint([{1,2}, {1,4}, {5,6}]);
+isPairwiseDisjoint([{1,2}, {1,4}, {1,6}]);
+```
+}
+public bool isPairwiseDisjoint(wholeInput:list[set[&T]] sets) {
+  int sizeSets = size(sets);
+  if (sizeSets == 0 || sizeSets == 1) {
+    throw IllegalArgument(wholeInput, "Only two or more sets can be pairwise disjoint.");
+  }
+
+  for (i <- [0..sizeSets-1]) {
+    for (j <- [i+1..sizeSets]) {
+      if (sets[i] & sets[j] != {}) return false;
+    }
+  }
+
+  return true;
+}
