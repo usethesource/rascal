@@ -73,7 +73,7 @@ public class WatchRegistry {
     private final URIResolverRegistry reg;
     public final ReferenceQueue<? super Consumer<ISourceLocationChanged>> clearedReferences = new ReferenceQueue<>();
     private final UnaryOperator<ISourceLocation> resolver;
-    private volatile @Nullable ISourceLocationWatcher fallback;
+    private volatile @Nullable ISourceLocationWatcher externalRegistry;
 
     public WatchRegistry(URIResolverRegistry reg, UnaryOperator<ISourceLocation> resolver) {
         this.reg = reg;
@@ -85,12 +85,12 @@ public class WatchRegistry {
     public void registerNative(String scheme, ISourceLocationWatcher watcher) {
         watchers.put(scheme, watcher);
     }
-    public void setFallback(ISourceLocationWatcher fallback) {
-        this.fallback = fallback;
+    public void setExternalRegistry(ISourceLocationWatcher externalRegistry) {
+        this.externalRegistry = externalRegistry;
     }
 
-    public boolean hasFallback() {
-        return fallback != null;
+    public boolean hasExternalRegistry() {
+        return externalRegistry != null;
     }
 
     private ISourceLocation safeResolve(ISourceLocation loc) {
@@ -122,8 +122,8 @@ public class WatchRegistry {
         else if (hasResolvers.test(resolvedLoc)) {
             startSimulatedWatch(loc, recursive, callback, resolvedLoc);
         }
-        else if (fallback != null) {
-            fallback.watch(resolvedLoc, callback, recursive);
+        else if (externalRegistry != null) {
+            externalRegistry.watch(resolvedLoc, callback, recursive);
         }
     }
 
@@ -220,8 +220,8 @@ public class WatchRegistry {
                 entries.removeIf(p -> p.isRecursive() == recursive && p.getHandler() == finalCallback);
             }
         }
-        else if (fallback != null) {
-            fallback.unwatch(loc, callback, recursive);
+        else if (externalRegistry != null) {
+            externalRegistry.unwatch(loc, callback, recursive);
         }
     }
 
