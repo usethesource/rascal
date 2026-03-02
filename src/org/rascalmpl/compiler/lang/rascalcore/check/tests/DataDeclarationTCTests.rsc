@@ -552,3 +552,17 @@ test bool clashingFieldNamesInImportsOk(){
 
     return checkModuleOK("module C import A;import B;");
 }
+test bool fieldSelectionFromDestructuringAssignment(){ // ht @toinehartman
+    writeModule("module A data TModel = tmodel();");
+    writeModule("module B
+                 extend A;
+                 data TModel(set[str] kwArg = {});");
+    return checkModuleOK(
+                "module C
+                 import B;
+                 value main() {
+                    \<tm, _\> = \<tmodel(), true\>; // tm\'s type is a tvar, is it handled below?
+
+                    return tm.kwArg; // Potential error: Unresolved type for useViaType `kwArg` in |file:.....|
+                 }");
+}
