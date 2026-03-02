@@ -251,27 +251,27 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-      if(ignoreTest(ttags)){
-          // The type checker does not generate type information for ignored functions
-           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
-                                         prettyPrintName(fd.signature.name), 
-                                         afunc(abool(),[],[]),
-                                         [],
-                                         [],
-                                         [],
-                                         inScope, 
-                                         false, 
-                                         true,
-                                         false,
-                                         {},
-                                         {},
-                                         {},
-                                         fd.src, 
-                                         tmods, 
-                                         ttags,
-                                         muReturn1(abool(), muCon(false))));
-          	return;
-      }
+    //   if(ignoreTest(ttags)){
+    //       // The type checker does not generate type information for ignored functions
+    //        addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
+    //                                      prettyPrintName(fd.signature.name), 
+    //                                      afunc(abool(),[],[]),
+    //                                      [],
+    //                                      [],
+    //                                      [],
+    //                                      inScope, 
+    //                                      false, 
+    //                                      true,
+    //                                      false,
+    //                                      {},
+    //                                      {},
+    //                                      {},
+    //                                      fd.src, 
+    //                                      tmods, 
+    //                                      ttags,
+    //                                      muReturn1(abool(), muCon(false))));
+    //       	return;
+    //   }
       fname = prettyPrintName(fd.signature.name);
       ftype = getFunctionType(funsrc);
       resultType = ftype.ret;
