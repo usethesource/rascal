@@ -37,7 +37,9 @@ module lang::rascalcore::check::tests::StaticTestingUtils
 import IO;
 import String;
 import Location;
+import Map;
 import Message;
+import Relation;
 import Relation;
 import Set;
 import util::Reflective;

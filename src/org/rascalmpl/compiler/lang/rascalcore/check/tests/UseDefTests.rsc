@@ -65,7 +65,17 @@ test bool overloadedField() {
           && useDefOK(mtext, ("n": <1, {3}>)) // check uses of second declaration of n
           ;
 }
-                
+
+test bool syntaxField1() =
+    useDefOK("module Field
+                syntax D = d: N n;
+                syntax N = \"n\";
+                value main(){
+                    x = [D] \"n\";
+                    return x.n;
+                }",
+                ("n": <0, {1}>));
+
 @ignore{to be fixed in typechecker}
 
 test bool kwfield1() =
