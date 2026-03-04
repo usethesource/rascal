@@ -26,22 +26,18 @@
  */
 package org.rascalmpl.uri.vfs;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.vfs.FileAttributesResult.FileType;
-import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 
 public interface IRemoteResolverRegistry {
     @JsonRequest("rascal/vfs/input/readFile")
@@ -147,8 +143,8 @@ public interface IRemoteResolverRegistry {
         throw new UnsupportedOperationException();
     }
 
-    //TODO (Rodin): @JsonRequest tag, plus wat betekent dit binnen Rascal?
-    default void onDidChangeFile(FileChangeEvent event) {
+    @JsonNotification("rascal/vfs/watcher/fileChanged")
+    default void onDidChangeFile(ISourceLocation loc, int type, String watchId) {
         throw new UnsupportedOperationException();
     }
 
@@ -230,39 +226,6 @@ public interface IRemoteResolverRegistry {
 
         public FileType getType() {
             return type;
-        }
-    }
-
-    public static class FileChangeEvent {
-        @NonNull private final FileChangeType type;
-        @NonNull private final String uri;
-
-        public FileChangeEvent(FileChangeType type, @NonNull String uri) {
-            this.type = type;
-            this.uri = uri;
-        }
-
-        public FileChangeType getType() {
-            return type;
-        }
-
-        public ISourceLocation getLocation() throws URISyntaxException {
-            return ValueFactoryFactory.getValueFactory().sourceLocation(URI.create(uri));
-        }
-    }
-
-    public enum FileChangeType {
-        Changed(1), Created(2), Deleted(3);
-
-        private final int value;
-
-        private FileChangeType(int val) {
-            assert val == 1 || val == 2 || val == 3;
-            this.value = val;
-        }
-
-        public int getValue() {
-            return value;
         }
     }
 }
