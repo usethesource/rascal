@@ -106,7 +106,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   if (includeLibraries) {
     jobStart("Including libraries", totalWork=size(pcfg.libs));
 
-    for (loc lib <- pcfg.libs) {
+    for (loc lib <- pcfg.libs, exists((lib + "docs") + "index.value") ) {
       jobStep("Including libraries", "<lib>");
       copy(lib + "docs", pcfg.bin + "docs", recursive=true);
       remove(pcfg.bin + "docs" + "index.value");
