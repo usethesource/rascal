@@ -58,6 +58,7 @@ import java.util.stream.Stream;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
@@ -316,10 +317,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 var key = new WatchSubscriptionKey(root, recursive);
                 if (!watchers.containsKey(key)) {
                     System.err.println("Fresh watch, setting up request to server");
-                    var result = new Watchers();
-                    result.addNewWatcher(watcher);
-                    watchersById.put(result.getId(), result);
-                    remote.watch(new WatchRequest(root, recursive, result.getId())).get(1, TimeUnit.MINUTES);
+                    var freshWatchers = new Watchers();
+                    freshWatchers.addNewWatcher(watcher);
+                    watchersById.put(freshWatchers.getId(), freshWatchers);
+                    remote.watch(new WatchRequest(root, recursive, freshWatchers.getId())).get(1, TimeUnit.MINUTES);
+                    watchers.put(key, freshWatchers);
                 }
                 watchers.get(key).addNewWatcher(watcher);
             }
@@ -354,14 +356,36 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
+    private static final int FileChangeType_Changed = 1;
+    private static final int FileChangeType_Created = 2;
+    private static final int FileChangeType_Deleted = 3;
+
+    @JsonNotification("rascal/vfs/watcher/fileChanged")
+    public void emitWatch(ISourceLocation root, int type, String watchId) throws IOException {
+        synchronized (watchers) {
+            var watcher = watchersById.get(watchId);
+            switch (type) {
+                case FileChangeType_Changed:
+                    watcher.publish(ISourceLocationWatcher.modified(root));
+                    break;
+                case FileChangeType_Created:
+                    watcher.publish(ISourceLocationWatcher.created(root));
+                    break;
+                case FileChangeType_Deleted:
+                    watcher.publish(ISourceLocationWatcher.deleted(root));
+                    break;
+                default:
+                    throw new IOException("Unexpected FileChangeType " + type);
+            }
+        }
+    }
+
     private static final ExecutorService exec = NamedThreadPool.cachedDaemon("RemoteExternalResolverRegistry-watcher");
 
     /**
-    * The watch api in rascal uses closures identity to keep track of watches.
-    * Since we cannot share the instance via the json-rpc bridge, we keep the
-    * closure around in this collection class.
-    * If there are no more callbacks registered, we unregister the watch at the
-    * VSCode side.
+    * The watch API in Rascal uses closures identity to keep track of watches. Since we cannot share the instance
+    * via the JSON-RPC bridge, we keep the closure around in this collection class.
+    * If there are no more callbacks registered, we unregister the watch at the remote side.
     */
     public static class Watchers {
         private final String id;
