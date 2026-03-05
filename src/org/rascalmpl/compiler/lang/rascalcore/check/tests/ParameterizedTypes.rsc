@@ -174,6 +174,27 @@ test bool MaybeInPattern3NOTOK() = unexpectedTypeInModule("
             just(3) := tryParseAs(T);
     ");
 
+test bool MaybeInIterator1OK() = checkModuleOK("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | i \<- [none(), just(1)]];
+    ");
+
+test bool MaybeInIterator2OK() = checkModuleOK("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | Maybe[int] i \<- [none(), just(1)]];
+    ");
+
+test bool MaybeInIterator3NOTOK() = cannotMatchInModule("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | Maybe[str] i \<- [none(), just(1)]];
+    ");
+
 test bool BoundViolatedInCall() = unexpectedTypeInModule("
     module BoundViolatedInCall
         bool strange(&L \<: num _, &R \<: &L _) = false;
