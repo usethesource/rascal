@@ -194,6 +194,12 @@ test bool MaybeInIterator3NOTOK() = cannotMatchInModule("
 
         value f() = [true | Maybe[str] i \<- [none(), just(1)]];
     ");
+test bool MaybeInIterator4OK()  = checkModuleOK("
+    module MaybeInIterator4OK   
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f(&T v) = [true | Maybe[&T] i \<- [none(), just(v)]];
+    ");
 
 test bool BoundViolatedInCall() = unexpectedTypeInModule("
     module BoundViolatedInCall
