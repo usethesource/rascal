@@ -141,6 +141,39 @@ test bool MaybeMatchNothingOK() = checkModuleOK("
         bool f() = just(&T \<: node t) := none();
     ");
 
+test bool MaybeInPattern1OK() = checkModuleOK("
+    module MaybeInPattern1OK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        Tree parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(Tree t) := tryParseAs(T) ? t : empty();
+    ");
+
+test bool MaybeInPattern2OK() = checkModuleOK("
+    module MaybeInPattern2OK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        bool parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(empty()) := tryParseAs(T);
+    ");
+
+test bool MaybeInPattern3NOTOK() = unexpectedTypeInModule("
+    module MaybeInPattern3NOTOK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        bool parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(3) := tryParseAs(T);
+    ");
+
 test bool BoundViolatedInCall() = unexpectedTypeInModule("
     module BoundViolatedInCall
         bool strange(&L \<: num _, &R \<: &L _) = false;
