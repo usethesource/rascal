@@ -1058,7 +1058,6 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
     base = prettyPrintBaseName(name);
     if(!isWildCard(base)){
        nameType = s.getType(name);
-       nameType = instantiateAndCompare(current, nameType, subjectType, s);
        return nameType[alabel=unescape("<name>")];
     } else
        return subjectType[alabel=unescape("<name>")];
