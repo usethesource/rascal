@@ -34,7 +34,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
-import org.rascalmpl.uri.vfs.FileAttributesResult.FileType;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -81,8 +81,7 @@ public interface IRemoteResolverRegistry {
     }
 
     @JsonRequest("rascal/vfs/input/stat")
-    //TODO (Rodin): merge/replace FileAttributesResult with FileAttributes
-    default CompletableFuture<FileAttributesResult> stat(ISourceLocation loc) {
+    default CompletableFuture<FileAttributes> stat(ISourceLocation loc) {
         throw new UnsupportedOperationException();
     }
 
@@ -226,6 +225,21 @@ public interface IRemoteResolverRegistry {
 
         public FileType getType() {
             return type;
+        }
+    }
+
+    public enum FileType {
+        Unknown(0), File(1), Directory(2), SymbolicLink(64);
+
+        private final int value;
+
+        private FileType(int val) {
+            assert val == 0 || val == 1 || val == 2 || val == 64;
+            this.value = val;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 }
