@@ -276,7 +276,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 try (var input = new ByteArrayInputStream(this.toByteArray())) {
                     StreamingBase64.encode(input, content, true);
                 }
-                call(l -> remote.writeFile(l, content.toString(), append, true, true), loc);
+                call(l -> remote.writeFile(l, content.toString(), append), loc);
                 cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };

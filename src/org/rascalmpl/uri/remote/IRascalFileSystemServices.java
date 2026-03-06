@@ -165,25 +165,13 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append, boolean create, boolean overwrite) {
+    default public CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
         return CompletableFuture.runAsync(() -> {
             try {
-                boolean fileExists = reg.exists(loc);
-                if (!fileExists && !create) {
-                    throw new FileNotFoundException(loc.toString());
-                }
-                if (fileExists && reg.isDirectory(loc)) {
+                if (reg.exists(loc) && reg.isDirectory(loc)) {
                     throw VSCodeFSError.isADirectory(loc);
                 }
 
-                ISourceLocation parentFolder = URIUtil.getParentLocation(loc);
-                if (!reg.exists(parentFolder) && create) {
-                    throw new FileNotFoundException(parentFolder.toString());
-                }
-
-                if (fileExists && create && !overwrite) {
-                    throw new FileAlreadyExistsException(loc.toString());
-                }
                 try (OutputStream target = reg.getOutputStream(loc, false)) {
                     target.write(Base64.getDecoder().decode(content));
                 }
