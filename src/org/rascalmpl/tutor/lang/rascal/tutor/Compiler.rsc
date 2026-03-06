@@ -612,7 +612,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
     return [ 
         Output::empty(), // must have an empty line
         out("```rascal <rest1>"),
-        *[out(l) | l <- block],
+        *[out(l) | str l <- block],
         out("```"),
         *[
           out(":::danger"),
@@ -840,9 +840,6 @@ rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) 
   map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
   map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
 
-  // debug print
-  iprintln(prioritizedReverseIndex);
-
   // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
   // and each unique key itself is the shortest possible:
   return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex};
@@ -922,12 +919,21 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
   errorsDetected = false;
   lineOffsetHere = 0;
   list[Output] result = [];
+  bool restartCodeBlock = false;
   
   result = OUT:for (str line <- block) {
-    if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
+    if (restartCodeBlock) {
+      // this happens when a screenshot was inlined previously, and there is more lines to execute,
+      // or a comment line happened that ended the code block and there is still more to do.
+      append OUT: out("```rascal-shell");
+      restartCodeBlock = false;
+    }
+
+    if (/^\s*\/\/<comment:.*>$/ := line) { // a comment line splits the block
       append OUT : out("```");
       append OUT : out(trim(comment));
-      append OUT : out("```rascal-shell");
+      restartCodeBlock = true;
+      lineOffsetHere +=1;
       continue OUT;
     }
     append out("<exec.prompt()><line>");
@@ -948,11 +954,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       if (!allowErrors) {
         append OUT : err(error("Code execution failed:
                                '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
-        append OUT : out("```");      
-        append OUT : out(":::danger");
-        append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
-        append OUT : out(":::");
-        append OUT : out("```rascal-shell");
+        append OUT : out("[ERROR] Rascal code execution failed (unexpectedly) during compilation of this documentation.");
         for (errLine <- split("\n", stderr)) {
            append OUT : out(errLine);
         }
@@ -973,7 +975,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       writeBase64(targetFile, shot);
       append OUT: out("```");
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
-      append OUT: out("```rascal-shell");
+      restartCodeBlock = true;
     }
     else if (result != "") {
       for (str resultLine <- split("\n", result)) {
