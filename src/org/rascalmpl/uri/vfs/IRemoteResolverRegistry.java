@@ -101,8 +101,7 @@ public interface IRemoteResolverRegistry {
     }
 
     @JsonRequest("rascal/vfs/output/writeFile")
-    //TODO (Rodin): terug naar loc, content, append; create+overwrite in TS oplossen
-    default CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append, boolean create, boolean overwrite) {
+    default CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
         throw new UnsupportedOperationException();
     }
 
