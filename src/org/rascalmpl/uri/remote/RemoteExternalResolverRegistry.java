@@ -64,8 +64,8 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.vfs.FileAttributesResult.FileType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileWithType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
 import org.rascalmpl.util.Lazy;
@@ -258,7 +258,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public FileAttributes stat(ISourceLocation loc) throws IOException {
-        return call(remote::stat, loc).getFileAttributes();
+        return call(remote::stat, loc);
     }
 
     @Override
