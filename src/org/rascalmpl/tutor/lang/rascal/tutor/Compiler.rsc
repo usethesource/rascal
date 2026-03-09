@@ -632,9 +632,8 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [ Output::empty(), // must have an empty line
-      out("```rascal-shell <rest1>"),
-      *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
-      out("```"),
+      *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
+      Output::empty(),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
@@ -911,33 +910,44 @@ default list[Output] compileMarkdown([str head, *str tail], int line, int offset
       *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
-list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
+list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, str config, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
   if (!isContinued) {
     exec.reset();
   }
 
   errorsDetected = false;
-  lineOffsetHere = 0;
+  int lineOffsetHere = 0;
+  list[Output] leadingComments = [];
   list[Output] result = [];
-  bool restartCodeBlock = false;
+  bool restartCodeBlock = true;
+  bool firstCommandYetToCome = true;
   
   result = OUT:for (str line <- block) {
-    if (restartCodeBlock) {
-      // this happens when a screenshot was inlined previously, and there is more lines to execute,
-      // or a comment line happened that ended the code block and there is still more to do.
-      append OUT: out("```rascal-shell");
-      restartCodeBlock = false;
-    }
-
     if (/^\s*\/\/<comment:.*>$/ := line) { // a comment line splits the block
-      append OUT : out("```");
-      append OUT : out(trim(comment));
-      restartCodeBlock = true;
+      if (!firstCommandYetToCome) {
+        append OUT : out("```");
+        append OUT : out(trim(comment));
+        restartCodeBlock = true;  
+      }
+      else {
+        leadingComments += out(trim(comment));
+      }
+
       lineOffsetHere +=1;
       continue OUT;
     }
+
+    if (restartCodeBlock) {
+      // this happens when a screenshot was inlined previously, and there is more lines to execute,
+      // or a comment line happened that ended the code block and there is still more to do.
+      append OUT: out("```rascal-shell <config>");
+      restartCodeBlock = false;
+    }
+
     append out("<exec.prompt()><line>");
     
+    firstCommandYetToCome = false;
+
     output = exec.eval(line);
     str result = output["text/plain"]?"";
     str stderr = output["application/rascal+stderr"]?"";
@@ -954,7 +964,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       if (!allowErrors) {
         append OUT : err(error("Code execution failed:
                                '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
-        append OUT : out("[ERROR] Rascal code execution failed (unexpectedly) during compilation of this documentation.");
+        
         for (errLine <- split("\n", stderr)) {
            append OUT : out(errLine);
         }
@@ -976,6 +986,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       append OUT: out("```");
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
       restartCodeBlock = true;
+      firstCommandYetToCome = true;
     }
     else if (result != "") {
       for (str resultLine <- split("\n", result)) {
@@ -986,12 +997,27 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     lineOffsetHere +=1;
   }
 
-  if (allowErrors && !errorsDetected) {
-    result += [
-      out(":::warning"),
-      out("The above code block was declared to expect errors, but no errors were detected during its execution."),
+  if (!restartCodeBlock) {
+    result += [out("```")];
+  }
+ 
+  result = [*leadingComments, *result];
+
+  if (errorsDetected && !allowErrors) {
+    result = [
+      out(":::danger"),
+      out("The following code block code _failed unexpectedly:"),
       out(":::"),
-      err(error("Code execution failed to produce an expected error", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>)))
+      *result
+    ];
+  } 
+  else if (allowErrors && !errorsDetected) {
+    result = [
+      err(error("The following code block failed to produce an expected error:", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>))),
+      out(":::danger"),
+      out("The following code block was declared to expect errors, but no errors were detected during its execution."),
+      out(":::"),
+      *result 
     ];
   }
 
