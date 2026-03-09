@@ -660,11 +660,9 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
 list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [
      out(":::caution"),
-     out("There is a \"TODO\" in the documentation source:"),
-     out("\t<msg>"),
-     out(first),
+     out("**TODO** <trim(msg)>"),
      out(":::"),
-     err(warning("TODO: <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
+     err(warning("TODO <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ];
 
