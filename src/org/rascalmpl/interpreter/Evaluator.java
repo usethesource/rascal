@@ -1129,6 +1129,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.clearLookupChaches();
             heap.writeLoadMessages(getErrorPrinter());
             // the repl is not a persistent file, so errors do not persist either
             rootScope.clearLoadMessages();
