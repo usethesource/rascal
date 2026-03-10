@@ -1058,7 +1058,12 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
     base = prettyPrintBaseName(name);
     if(!isWildCard(base)){
        nameType = s.getType(name);
-       nameType = instantiateAndCompare(current, nameType, subjectType, s);
+       if(isConstructorAType(nameType)){
+        ;   // complete constructor with arguments will be checked later on
+       } else {
+            // a name of a non-constructor type needs a check here
+            nameType = instantiateAndCompare(current, nameType, subjectType, s);
+       }
        return nameType[alabel=unescape("<name>")];
     } else
        return subjectType[alabel=unescape("<name>")];
