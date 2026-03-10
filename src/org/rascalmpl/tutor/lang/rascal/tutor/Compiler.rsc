@@ -594,7 +594,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str
 list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *str block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   str code = "<for (l <- block) {><l>
              '<}>";
-  
+
   try {
     commands = ([start[Commands]] code).top.commands;
  
@@ -609,11 +609,34 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
       stderr += output["application/rascal+stderr"]?"";
     }
 
+    list[str] splitc([]) = [];
+    list[str] splitc([/^\s*\/\/<comment:.*>$/, *str tail]) 
+      = [trim(comment),  *splitc(tail)];
+
+    default list[str] splitc(list[str] bl) {
+      int i = 0;
+      result = ["```rascal <rest1>"]; 
+
+      for (str line <- bl) {
+        if (/^\s*\/\/<comment:.*>$/ := line) {
+          return [
+            *result,
+            "```",
+            *splitc(bl[i..])
+          ];
+        }
+
+        result += [line];
+
+        i += 1;
+      }
+
+      return [*result, "```"];
+    }
+
     return [ 
         Output::empty(), // must have an empty line
-        out("```rascal <rest1>"),
-        *[out(l) | str l <- block],
-        out("```"),
+        *[out(fl) | str fl <- splitc(block)],
         *[
           out(":::danger"),
           *[out(errLine) | errLine <- split("\n", stderr)],
