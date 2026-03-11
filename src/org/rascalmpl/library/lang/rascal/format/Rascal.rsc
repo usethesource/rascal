@@ -295,11 +295,25 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
         H(toBox(vis), H0(toBox(sig), L(";")))
     );
 
-// TODO: add special case for closure definition
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
         HOV(H(toBox(vis), toBox(sig)),
-            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H([]))), L(";"), hs=0)))) when !(exp is \visit);
+            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H([]))), L(";"), hs=0)))) when !(exp is \visit || exp is voidClosure || exp is closure);
+
+Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Type typ> <Parameters parameters> { <Statement+ statements> };`)
+    = V(toBox(tags),
+        HOV(H(toBox(vis), toBox(sig)),
+            I(H(HOV(L("="), toBox(typ), toBox(parameters), L("{"))))), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(";")));
+
+Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Parameters parameters> { <Statement+ statements> };`)
+    = V(toBox(tags),
+        HOV(H(toBox(vis), toBox(sig)),
+            I(H(HOV(L("="), toBox(parameters), L("{"))))), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(";")));
+
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Label l> <Visit vst>;`)
     = V(toBox(tags),
@@ -334,14 +348,18 @@ Box toBox((Parameters) `( <{Pattern ","}* formals> )`)
     = H0(L("("), HOV(toBox(formals)), L(")"));
 
 // with comma, we try horizontal if both formals and kw formals fit on one line
-Box toBox((Parameters) `( <{Pattern ","}* formals>, <{KeywordFormal ","}+ keywordFormals>)`)
+Box toBox((Parameters) `( <{Pattern ","}+ formals>, <{KeywordFormal ","}+ keywordFormals>)`)
     = HOV(
         I(H0(L("("), HOV(toBox(formals)), L(","))),
         I(H0(HOV(toBox(keywordFormals)), L(")")))
     );
 
+// only keyword formals
+Box toBox((Parameters) `(<{KeywordFormal ","}+ keywordFormals>)`)
+    = I(H0(L("("), HOV(toBox(keywordFormals)), L(")")));
+
 // no comma, use vertical to separate the formals from the keyword formals
-Box toBox((Parameters) `( <{Pattern ","}* formals> <{KeywordFormal ","}+ keywordFormals>)`)
+Box toBox((Parameters) `( <{Pattern ","}+ formals> <{KeywordFormal ","}+ keywordFormals>)`)
     = V(
         I(H0(L("("), HOV(toBox(formals)))),
         I(H0(HOV(toBox(keywordFormals)), L(")")))
@@ -751,7 +769,7 @@ Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement
 
 // call without kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
-    = HV(
+    = HOV(
         H0(toBox(caller), L("(")), 
         I(HOV(toBox(arguments))), 
         L(")"), 
@@ -760,7 +778,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
 
 // call with only kwargs
 Box toBox((Expression) `<Expression caller>(<{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HV(
+    = HOV(
         H0(toBox(caller), L("(")), 
         I(HOV( toBox(kwargs), 
         hs=1)),
@@ -769,7 +787,7 @@ Box toBox((Expression) `<Expression caller>(<{KeywordArgument[Expression] ","}+ 
  
 // call with kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HV(
+    = HOV(
         H0(toBox(caller), L("(")), 
         I(HOV(
             H0(toBox(arguments), L(",")), 
@@ -780,7 +798,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
 
 // call with kwargs and a final non-void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HV(
+    = HOV(
         H0(toBox(caller), L("(")), 
         I(V(HOV(
             H0(toBox(arguments), L(","))),
@@ -796,7 +814,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HV(
+    = HOV(
         H0(toBox(caller), L("(")), 
         I(HOV(
             toBox(arguments), 
