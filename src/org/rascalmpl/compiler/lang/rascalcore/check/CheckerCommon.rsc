@@ -165,7 +165,7 @@ tuple[bool,loc] getTPLReadLoc(MODID moduleId, PathConfig pcfg){
 tuple[bool,loc] getTPLWriteLoc(MODID moduleId, PathConfig pcfg){
     assert isModuleId(moduleId) : "getTPLWriteLoc: <moduleId>";
     qualifiedModuleName = moduleId2moduleName(moduleId);
-    fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
+    fileName = "<asFileName(qualifiedModuleName)>.tpl";
     tplLoc = getGeneratedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
 }
