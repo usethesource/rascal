@@ -42,6 +42,7 @@ import lang::rascalcore::compile::muRascal::AST;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::LogicalLocations;
+import lang::rascalcore::check::SyntaxGetters;
 
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
