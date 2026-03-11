@@ -166,6 +166,7 @@ str asNTName(str adtName){
 }   
     
 set[str] javaKeywords = {
+    // Reserved keywords (including unused ones)
     "abstract", "continue", "for",        "new",       "switch",
     "assert",   "default",  "goto",       "package",   "synchronized",
     "boolean",  "do",       "if",         "private",   "this",
@@ -175,7 +176,19 @@ set[str] javaKeywords = {
     "catch",    "extends",  "int",        "short",     "try",
     "char",     "final",    "interface",  "static",    "void",
     "class",    "finally",  "long",       "strictfp",  "volatile",
-    "const",    "float",    "native",     "super",     "while",  "true", "false", "null"};
+    "const",    "float",    "native",     "super",     "while",  
+    
+    // Literal values
+    "true",     "false",    "null",
+
+    // Contextual keywords
+    "exports",      "provides",     "uses",
+    "module",       "record",       "var",
+    "non-sealed",   "requires",     "when",
+    "open",         "sealed",       "with",
+    "opens",        "to",           "yield",
+    "permits",      "transitive"
+};
     
 
 str asJavaName(str fname, bool completeId = true){
