@@ -709,14 +709,63 @@ Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Express
         I(H(L("?"), toExpBox(thenExp))),
         I(H(L(":"), toExpBox(elseExp))));
 
+// nullary call
+Box toBox((Expression) `<Expression caller>()`)
+    = H0(toBox(caller), L("("), L(")"));
+
+// call without kwargs but ends with a final normal closure
+Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> })`)
+    = V([
+        H0(toBox(caller), L("(")), 
+        I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), toBox(parameters), L("{")))), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(")"))]
+    );
+
+// call without kwargs but ends with a final void closure
+Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Parameters parameters> { <Statement+ statements> })`)
+    = V([
+        H0(toBox(caller), L("(")), 
+        V(
+        I(H(H0(HOV(toBox(arguments)), L(",")), H(toBox(parameters), L("{")))), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(")")))]
+    );
+
+// call without kwargs no normal parameters but ends with a final normal closure
+Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> { <Statement+ statements> })`)
+    = V([
+        H(H0(toBox(caller), L("("), toBox(typ), toBox(parameters)), L("{")), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(")"))]
+    );
+
+// call without kwargs no normal parameters but ends with a final void closure
+Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement+ statements> })`)
+    = V([
+        H(H0(toBox(caller), L("("), toBox(parameters)), L("{")), 
+        I(V(toBox(statements))),
+        H0(L("}"), L(")"))]
+    );
+
 // call without kwargs
-Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>)`)
+Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
     = HV(
         H0(toBox(caller), L("(")), 
         I(HOV(toBox(arguments))), 
         L(")"), 
-        hs=0);
+        hs=0)
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
 
+// call with only kwargs
+Box toBox((Expression) `<Expression caller>(<{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = HV(
+        H0(toBox(caller), L("(")), 
+        I(HOV( toBox(kwargs), 
+        hs=1)),
+        L(")"), hs=0);
+
+ 
 // call with kwargs
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HV(
@@ -725,10 +774,27 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
             H0(toBox(arguments), L(",")), 
             toBox(kwargs), 
         hs=1)),
-        L(")"), hs=0);
+        L(")"), hs=0)
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
+
+// call with kwargs and a final non-void closure
+Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = HV(
+        H0(toBox(caller), L("(")), 
+        I(V(HOV(
+            H0(toBox(arguments), L(","))),
+            V(
+            H0(toBox(typ), toBox(parameters), L("{")),
+            I(toBox(statements)),
+            H0(L("}"), L(","))),
+            toBox(kwargs), 
+        hs=1)),
+        L(")"), hs=0)
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
+
 
 // call with kwargs no-comma
-Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
+Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HV(
         H0(toBox(caller), L("(")), 
         I(HOV(
