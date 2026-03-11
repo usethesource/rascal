@@ -105,17 +105,17 @@ data ModuleStatus =
    );
 
 ModuleStatus moduleStatus(          // TEMPORARY FOR COMPATIBILITY BETWEEN VERSIONS
-      rel[str, PathRole, str] strPaths,
-      rel[MODID, PathRole, MODID] paths,
-      map[MODID, Module] parseTrees,
-      list[MODID] parseTreeLIFO,
-      map[MODID, TModel] tmodels,
-      list[MODID] tmodelLIFO,
-      set[MODID] changedModules,
-      map[MODID,loc] moduleLocs,
-      map[MODID,datetime] moduleLastModified,
-      map[MODID, set[Message]] messages,
-      map[MODID, set[MStatus]] status,
+      rel[str, PathRole, str] _strPaths,
+      rel[MODID, PathRole, MODID] _paths,
+      map[MODID, Module] _parseTrees,
+      list[MODID] _parseTreeLIFO,
+      map[MODID, TModel] _tmodels,
+      list[MODID] _tmodelLIFO,
+      set[MODID] _changedModules,
+      map[MODID,loc] _moduleLocs,
+      map[MODID,datetime] _moduleLastModified,
+      map[MODID, set[Message]] _messages,
+      map[MODID, set[MStatus]] _status,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig)
       = newModuleStatus(pathConfig, compilerConfig);
