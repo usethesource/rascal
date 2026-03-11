@@ -33,10 +33,6 @@ import ParseTree;
 import util::Reflective;
 import Location;
 import String;
-//import lang::rascalcore::check::LogicalLocations;
-
-bool isRascalLogicalLoc(loc l)      // TODO: duplicated code from LogicalLocations; temporary fix
-    = startsWith(l.scheme, "rascal+");
 
 void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
@@ -101,13 +97,11 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
     = visit(model) {
           // any location in the wild:
           case loc l => inheritPosition(sourceLookup + paths[l.top], l)
-              when !isRascalLogicalLoc(l),
-                   l.top in paths
+              when l.top in paths
 
           // \loc annotations on Trees are not visited by `visit` automatically
           case Tree t => t[@\loc = inheritPosition(sourceLookup + paths[Top], t@\loc)]
               when t@\loc?, 
-                   !isRascalLogicalLoc(t@\loc), 
                    loc Top := t@\loc.top, 
                    Top in paths
 

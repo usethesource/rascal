@@ -38,6 +38,7 @@ import IO;
 import String;
 import Location;
 import Message;
+import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
@@ -92,11 +93,8 @@ loc writeModule(str moduleText){
     return mloc;
 }
 
-void writeModules(str modules...){
-	for(mname <- modules){
-		writeModule(mname);
-	}
-}
+list[loc] writeModules(str modules...)
+	= [ writeModule(mname) | mname <- modules ];
 
 void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();
@@ -190,14 +188,28 @@ bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting(
 	return checkModuleOK(mloc, pathConfig=pathConfig);
 }
 
-bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, ModuleStatus ms){
+bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] defuses, ModuleStatus ms){
 	<found, pt, ms> = getModuleParseTree(moduleName2moduleId(moduleName), ms);
 	map[str,list[loc]] names = ();
+	map[loc, str] loc2name = ();
 	top-down-break visit(pt){
-		case Name nm:
+		case Name nm: {
 			names["<nm>"] ? [] += [nm@\loc];
-		case QualifiedName nm:
+			loc2name[nm@\loc] = "<nm>";
+		}
+		case QualifiedName nm: {
 			names["<nm>"] ? [] += [nm@\loc];
+			loc2name[nm@\loc] = "<nm>";
+		}
+		case Nonterminal nm: {
+			names["<nm>"] ? [] += [nm@\loc];
+			loc2name[nm@\loc] = "<nm>";
+		}
+
+		case NonterminalLabel nm: {
+			names["<nm>"] ? [] += [nm@\loc];
+			loc2name[nm@\loc] = "<nm>";
+		}
 	}
 	println("names:"); iprintln(names);
 	<found, tm, ms> = getTModelForModule(moduleName, ms);
@@ -206,11 +218,17 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	for(<u, d> <- foundUseDefs){
 		println("<readFile(u)>:<u> ==\> <d>");
 	}
-	for(str v <- usedefs){
-		 <def, uses> = usedefs[v];
+	for(u <- domain(foundUseDefs)){
+		defs = foundUseDefs[u];
+		if(size(defs) != 1){
+			throw "Use of name <loc2name[u]> (<u>) has multiple defines <defs>";
+		}
+	}
+	for(str v <- defuses){
+		 <def, uses> = defuses[v];
 		 list[loc] occ = [];
-		 if(names[v]?) occ = names[v]; else throw "<v> not found in tree";
-		 if(!occ[def]?) throw "Missing define <def> for <v>";
+		 if(names[v]?) occ = names[v]; else throw "Name <v> not found in tree";
+		 if(!occ[def]?) throw "Missing define <def> for name <v>";
 		 for(int u <- uses){
 			println("u = <u>");
 			if(!occ[u]?){
@@ -227,7 +245,7 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] usedefs, Mod
 	return true;
 }
 
-bool useDefOK(str moduleText, map[str, tuple[int, set[int]]] usedefs, PathConfig pathConfig = pathConfigForTesting()) {
+bool useDefOK(str moduleText, map[str, tuple[int, set[int]]] defuses, PathConfig pathConfig = pathConfigForTesting()) {
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
 	pathConfig.srcs += pathConfigForTesting().srcs;
 	mloc = writeModule(moduleText);
@@ -237,7 +255,7 @@ bool useDefOK(str moduleText, map[str, tuple[int, set[int]]] usedefs, PathConfig
     if(size(errors) != 0){
     	throw abbrev("<errors>");
 	}
-	return validateUseDefs(mname, usedefs, ms);
+	return validateUseDefs(mname, defuses, ms);
 }
 
 // ---- unexpectedType --------------------------------------------------------

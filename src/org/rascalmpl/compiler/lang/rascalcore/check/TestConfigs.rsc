@@ -47,6 +47,7 @@ data PathConfig(
 // (and make sure to KEEP THE VERSIONS up to date)
 
 public loc RASCAL       = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
+public loc RASCAL42     = |mvn://org.rascalmpl--rascal--0.42.0-RC2/|;
 loc TYPEPAL             = |mvn://org.rascalmpl--typepal--0.14.8/|;
 loc OUTDATED_TYPEPAL    = |mvn://org.rascalmpl--typepal--0.14.1/|;
 
@@ -161,7 +162,8 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
                             REPO + "typepal/src",
                             LSP_REPO + "src/main/rascal/library",
                             LSP_REPO + "src/main/rascal/lsp",
-                            LSP_REPO + "src/test/rascal"
+                            LSP_REPO + "src/test/rascal",
+                            REPO + "php-analysis/src/main/rascal"
                         ],
                         [ ], 
                         keep=keep);

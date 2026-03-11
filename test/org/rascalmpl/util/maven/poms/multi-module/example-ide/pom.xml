@@ -15,10 +15,6 @@
   <dependencies>
     <dependency>
       <groupId>org.rascalmpl</groupId>
-      <artifactId>rascal-lsp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.rascalmpl</groupId>
       <artifactId>example-core</artifactId>
       <version>${example.version}</version>
     </dependency>

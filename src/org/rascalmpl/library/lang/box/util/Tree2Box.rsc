@@ -1,4 +1,4 @@
-@synopsis{The default formatting rules for _any_ parsetree.}
+@synopsis{The default formatting rules for _any_ parse tree.}
 @description{
 This module is meant to be extended to include rules specific for a language.
 

@@ -578,7 +578,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ModuleEnvironment modEnv = getHeap().getModule(module);
             setCurrentEnvt(modEnv);
 
-            Name name = Names.toName(function, modEnv.getLocation());
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
             Result<IValue> func = getCurrentEnvt().getVariable(name);
 
@@ -633,7 +633,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ModuleEnvironment modEnv = getHeap().getModule(module);
             setCurrentEnvt(modEnv);
 
-            Name name = Names.toName(function, modEnv.getLocation());
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
             Result<IValue> func = getCurrentEnvt().getVariable(name);
 
@@ -690,7 +690,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
-        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
+        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getCreatorLocation());
         setCurrentAST(qualifiedName);
         return call(qualifiedName, kwArgs, args);
     }
@@ -807,7 +807,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         StackTrace trace = new StackTrace();
         Environment env = currentEnvt;
         while (env != null) {
-            trace.add(env.getLocation(), env.getName());
+            trace.add(env.getCreatorLocation(), env.getName());
             env = env.getCallerScope();
         }
         return trace.freeze();
@@ -1129,6 +1129,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.clearLookupChaches();
             heap.writeLoadMessages(getErrorPrinter());
             // the repl is not a persistent file, so errors do not persist either
             rootScope.clearLoadMessages();
@@ -1174,16 +1175,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
-                    if (URIResolverRegistry.getInstance().exists(heap.getModule(mod).getLocation())) {
-                        // only if the file was not removed in the mean time
+                    var uri = heap.getModuleURI(mod);
+                    
+                    if (mod.equals(ModuleEnvironment.SHELL_MODULE) || resolverRegistry.exists(vf.sourceLocation(uri))) {
+                        // otherwise the file has been renamed or deleted, and we do
+                        // not add it to the todo list.
                         onHeap.add(mod);
                     }
+
                     if (recurseToExtending) {
+                        // even if a module was renamed, or deleted, the modules that were
+                        // previously extending it have to be re-evaluated.
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    heap.removeModule(heap.getModule(mod));
+
+                    if (!mod.equals(ModuleEnvironment.SHELL_MODULE)) {
+                        // this module starts with a clean slate
+                        heap.removeModule(heap.getModule(mod));
+                    }
                 }
             }
+
+            // all extending modules start with a clean slate too.
             extendingModules.removeAll(names);
 
             job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
@@ -1225,7 +1238,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 affectedModules.add(mod);
                             }
                             else {
-                                warning("could not reimport " + imp, errorLocation);
+                                warning("File of previously imported module " + imp + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1243,7 +1256,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 env.addExtend(ext);
                             }
                             else {
-                                warning("could not re-extend " + ext, errorLocation);
+                                warning("File of previously extended module " + ext + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1313,7 +1326,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             found.addAll(dependingModules);
             todo.addAll(dependingModules);
         }
-
+        
         return found;
     }
 
@@ -1329,7 +1342,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private ISourceLocation getCurrentLocation() {
-        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getLocation();
+        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override  
@@ -1608,12 +1621,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override
     public void notifyAboutSuspensionException(Exception t) {
         currentException = t;
-        if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
-            for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST);
+        try{
+            if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+                for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                    listener.suspended(this, () -> getCallStack().size(), currentAST);
+                }
             }
+        } finally { // clear the exception after notifying listeners
+            currentException = null;
         }
-        currentException = null;
     }
 
     public AbstractInterpreterEventTrigger getEventTrigger() {
@@ -1774,7 +1790,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override
     public ISourceLocation getCurrentPointOfExecution() {
         AbstractAST cpe = getCurrentAST();
-        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getLocation();
+        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override

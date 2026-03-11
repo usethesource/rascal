@@ -17,7 +17,7 @@ import IO;
 
 @synopsis{Results encode the output of a call to `eval`}
 @description{
-* `ok` reflects the execution was succesful while there was no output. For example a call to `println` would produce `ok()`.
+* `ok` reflects the execution was successful while there was no output. For example a call to `println` would produce `ok()`.
 * `result` captures a value of a certain type, which is parameterized as `&T`.
 }
 data Result[&T] 
@@ -25,7 +25,7 @@ data Result[&T]
   | result(&T val)
   ;
 
-@synsopsis{Normally static errors are not run-time exceptions, but `eval` wraps them due to its dynamic nature.}
+@synopsis{Normally static errors are not run-time exceptions, but `eval` wraps them due to its dynamic nature.}
 @description{
 `eval` will throw the first static error that is blocking the execution of a command.
 }
@@ -65,7 +65,7 @@ e.eval(#void, "println(a)");
 * Creating a single run-time engine is an expensive operation. By reusing it you
 can safe a lot of time and space. Use `.reset()` to reuse the configuration while dropping
 all other state and returning to an initial runtime.
-* The PathConfig parameter completelu defines the configuration of the ((RascalRuntime)).
+* The PathConfig parameter completely defines the configuration of the ((RascalRuntime)).
 }
 @pitfalls{
 * To turn a value string into an actual value, it's better and faster to use ((readTextValueString)) or ((readTextValueFile)).
@@ -218,7 +218,7 @@ test bool evalTimeoutWorks() {
   return true;
 }
 
-@synsopis{Tests and demonstrates the use of PathConfig to configure a Rascal runtime.}
+@synopsis{Tests and demonstrates the use of PathConfig to configure a Rascal runtime.}
 test bool evalWithOwnPathConfig() {
   e = createRascalRuntime(
     pcfg=pathConfig(
