@@ -47,13 +47,18 @@ private list[str] normalize(list[str] parts)
 private list[str] escapeJavaKeywords(list[str] parts)
     = [ p in javaKeywords ? "$<p>" : p | p <- parts ];
     
-private str normalizeQName(str qname){
+private str normalizeQNameAndEscapeKeywords(str qname){
     parts = escapeJavaKeywords(normalize(split(qname)));
     return intercalate(".", parts);
 }
 
+private str normalizeQName(str qname){
+    parts = normalize(split(qname));
+    return intercalate(".", parts);
+}
+
 str asQualifiedClassName(str qname){
-    return normalizeQName(qname);
+    return normalizeQNameAndEscapeKeywords(qname);
 }
 
 str asUnqualifiedName(str qname){
@@ -67,7 +72,7 @@ str asClassName(str qname){
 }
 
 str prefixLast(str pref, str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywordsAndEscapeKeywords(qname);
     parts = split(".", qname);
     parts = parts[0 .. size(parts)-1] + "<pref><parts[-1]>";
     res = intercalate(".", parts);
@@ -86,7 +91,7 @@ str asClassRef(str qname, PathConfig pcfg){
 }
 
 str asPackageName(str qname, PathConfig pcfg){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     //return n >= 0 ? "<className[0 .. n]>" : ""; //compiled_rascal_package;
     package = getCompiledPackage(qname, pcfg);
@@ -94,7 +99,7 @@ str asPackageName(str qname, PathConfig pcfg){
 }
 
 str asPackagePath(str qname){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     return n >= 0 ? "<className[0 .. n]>" : "";
 }
@@ -115,17 +120,17 @@ loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
     return (pcfg.generatedResources ? pcfg.bin) + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
-    parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
+    parts = normalize(split(qualifiedModuleName));
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
 str makeDirName(list[str] parts){
-    parts =  escapeJavaKeywords(normalize(parts));
+    parts =  normalize(parts);
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
 str asBaseClassName(str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(qname, ".");
     return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
 }
@@ -136,9 +141,15 @@ str asBaseModuleName(str qname){
 }
 
 str asBaseInterfaceName(str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(qname, ".");
     return n >= 0 ? "$<qname[n+1 ..]>_$I" : "$<qname>_$I";
+}
+
+str asFileName(str qname){
+    qname = normalizeQName(qname);
+    n = findLast(qname, ".");
+    return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
 }
 
 str asADTName(str adtName)
@@ -177,11 +188,11 @@ str module2class(str qname){
 }
 
 str module2field(str qname){
-    return "M_" + replaceAll(normalizeQName(qname), ".", "_");
+    return "M_" + replaceAll(normalizeQNameAndEscapeKeywords(qname), ".", "_");
 }
 
 str module2interface(str qname, PathConfig pcfg){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     package = getCompiledPackage(qname, pcfg);
     return n >= 0 ? "<package>.<className[0 .. n]>.$<className[n+1..]>_$I" : "<package>.$<className>_$I";
