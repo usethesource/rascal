@@ -124,7 +124,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 if (cause instanceof ResponseErrorException) {
                     throw translateException((ResponseErrorException) cause);
                 }
-                throw new IOException(cause);
             }
             throw new IOException(e);
         }
