@@ -72,7 +72,7 @@ str asClassName(str qname){
 }
 
 str prefixLast(str pref, str qname){
-    qname = normalizeQNameAndEscapeKeywordsAndEscapeKeywords(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     parts = split(".", qname);
     parts = parts[0 .. size(parts)-1] + "<pref><parts[-1]>";
     res = intercalate(".", parts);
