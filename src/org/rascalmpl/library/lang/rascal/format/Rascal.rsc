@@ -295,6 +295,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
         H(toBox(vis), H0(toBox(sig), L(";")))
     );
 
+// TODO: add special case for closure definition
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
         HOV(H(toBox(vis), toBox(sig)),
@@ -856,7 +857,7 @@ Box toBox((Expression) `<Expression exp>.<Name field>`)
 
 Box toBox((Expression)`<Expression exp>[<Name key> = <Expression repl>]`)
     = H0(toBox(exp), L("["),H(toBox(key), L("="), toBox(repl)), L("]"));
-
+    
 Box toBox((Expression) `<Expression exp>\<<{Field ","}+ fields>\>`)
     = H0(toBox(exp),L("\<"), toBox(fields), L("\>"));
 
