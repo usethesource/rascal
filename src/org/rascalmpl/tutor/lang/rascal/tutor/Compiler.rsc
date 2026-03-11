@@ -1018,6 +1018,8 @@ list[Output] compileRascalShell(list[str] block:[str head, *str tail], bool allo
     lineOffsetHere +=1;
   }
 
+  result += [out("```")];
+
   if (errorsDetected && !allowErrors) {
     result = [
       out(":::danger"),
