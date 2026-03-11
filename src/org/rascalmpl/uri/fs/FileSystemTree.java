@@ -178,6 +178,10 @@ public class FileSystemTree<T extends FSEntry> {
         return entry.directory.children.keySet().toArray(String[]::new);
     }
 
+    public static String joinPath(String... elements) {
+        return String.join("/", elements);
+    }
+
 
     @FunctionalInterface
     private interface ThrowableEntryAction<T extends FSEntry, R> {
@@ -204,9 +208,9 @@ public class FileSystemTree<T extends FSEntry> {
             if (path.hasNext() || !isFile) {
                 // it's a directory
                 var child = children.computeIfAbsent(currentPart, s -> 
-                    new Child<>(new Directory<>(inferDirectory.apply(entry.created, entry.created), prefix + "/" + s)));
+                    new Child<>(new Directory<>(inferDirectory.apply(entry.created, entry.created), joinPath(prefix, s))));
                 if (child.directory == null) {
-                    throw new NotDirectoryException(prefix + "/" + currentPart);
+                    throw new NotDirectoryException(joinPath(prefix, currentPart));
                 }
                 if (path.hasNext()) {
                     child.directory.add(path, entry, inferDirectory, isFile);
@@ -215,7 +219,7 @@ public class FileSystemTree<T extends FSEntry> {
             else {
                 var existing = children.putIfAbsent(currentPart, new Child<>(entry));
                 if (existing != null) {
-                    throw new FileExistsException(prefix + "/" + currentPart);
+                    throw new FileExistsException(joinPath(prefix, currentPart));
                 }
                 self.lastModified = Math.max(self.lastModified, entry.lastModified);
             }
@@ -232,11 +236,11 @@ public class FileSystemTree<T extends FSEntry> {
             if (path.hasNext()) {
                 var result = children.get(childPath);
                 if (result == null) {
-                    throw new FileNotFoundException(prefix + "/" + childPath);
+                    throw new FileNotFoundException(joinPath(prefix, childPath));
                 }
                 // we're looking for a subdirectory
                 if (result.directory == null) {
-                    throw new NotDirectoryException(prefix + "/" + childPath);
+                    throw new NotDirectoryException(joinPath(prefix, childPath));
                 }
                 return result.directory.execute(path, operation);
             }

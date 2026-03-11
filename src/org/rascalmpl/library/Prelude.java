@@ -3486,6 +3486,32 @@ public class Prelude {
 		return true;
 	}
 	
+	private boolean isUnicodeWhitespace(Integer cp) {
+		return Character.isSpaceChar(cp)
+			// Check for characters not included in 'space chars', but considered white space
+			|| cp == 0x0009 // \t
+			|| cp == 0x000A // \n
+			|| cp == 0x000B // VT
+			|| cp == 0x000C // FF
+			|| cp == 0x000D // \r
+			|| cp == 0x0085;// NEL
+	}
+
+	public IString removeWhitespace(IString str) {
+		StringBuilder b = new StringBuilder(str.length());
+		var iter = str.iterator();
+
+		while (iter.hasNext()) {
+			var codepoint = iter.next();
+			// Character.isWhitespace does not cover the complete range of Unicode whitespace
+			if (!isUnicodeWhitespace(codepoint)) {
+				b.appendCodePoint(codepoint);
+			}
+		}
+
+		return values.string(b.toString());
+	}
+
 	public IValue replaceAll(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){

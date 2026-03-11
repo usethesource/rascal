@@ -59,9 +59,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalPattern;
 import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
 
 import lang::rascalcore::compile::muRascal2Java::Conversions;   // TODO:undesired dependency
-
-
-
+import analysis::typepal::LocationChecks;
 
 /********************************************************************/
 /*                  Translate declarations in a module              */
@@ -253,27 +251,27 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-      if(ignoreTest(ttags)){
-          // The type checker does not generate type information for ignored functions
-           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
-                                         prettyPrintName(fd.signature.name), 
-                                         afunc(abool(),[],[]),
-                                         [],
-                                         [],
-                                         [],
-                                         inScope, 
-                                         false, 
-                                         true,
-                                         false,
-                                         {},
-                                         {},
-                                         {},
-                                         fd.src, 
-                                         tmods, 
-                                         ttags,
-                                         muReturn1(abool(), muCon(false))));
-          	return;
-      }
+    //   if(ignoreTest(ttags)){
+    //       // The type checker does not generate type information for ignored functions
+    //        addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
+    //                                      prettyPrintName(fd.signature.name), 
+    //                                      afunc(abool(),[],[]),
+    //                                      [],
+    //                                      [],
+    //                                      [],
+    //                                      inScope, 
+    //                                      false, 
+    //                                      true,
+    //                                      false,
+    //                                      {},
+    //                                      {},
+    //                                      {},
+    //                                      fd.src, 
+    //                                      tmods, 
+    //                                      ttags,
+    //                                      muReturn1(abool(), muCon(false))));
+    //       	return;
+    //   }
       fname = prettyPrintName(fd.signature.name);
       ftype = getFunctionType(funsrc);
       resultType = ftype.ret;
@@ -559,12 +557,12 @@ public map[str,str] translateTags(Tags tags){
    return m;
 }
 
-public bool ignoreCompiler(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+// public bool hasIgnoreCompilerTag(map[str,str] tagsMap)
+//     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
-//private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
+//private bool hasIgnoreCompilerTagTest(map[str, str] tags) = !isEmpty(domain(tags) & {"hasIgnoreCompilerTag", "IgnoreCompiler"});
 
-public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+// public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */

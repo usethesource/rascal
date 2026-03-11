@@ -30,7 +30,6 @@ import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +92,7 @@ import org.apache.maven.settings.Server;
     }
 
     public SimpleResolver createSiblingResolver(String parentGroupId, Path parentPath) {
-        return new SiblingResolver(rootRepository, client, mirrors, servers, parentResolver, parentGroupId, parentPath);
+        return new SiblingResolver(rootRepository, client, mirrors, servers, this, parentGroupId, parentPath);
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
