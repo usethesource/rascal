@@ -9,7 +9,8 @@
             "name": "BreakTest",
             "request": "launch",
             "mainClass": "org.rascalmpl.compiler.BreakTest",
-            "projectName": "rascal"
+            "projectName": "rascal",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",

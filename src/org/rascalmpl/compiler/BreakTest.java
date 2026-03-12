@@ -5,31 +5,61 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class BreakTest {
 
     private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::ChangeScenarioTests";
+    private static final String BREAKING_TEST = "fixedErrorsDisappear";
 
-    public static void main(String[] args) throws IOException {
+    private static final int PARALLEL_RUNS = 8; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
+
+    public static void main(String[] args) throws IOException, InterruptedException {
         RascalShell.setupJavaProcessForREPL();
         
         var term = RascalShell.connectToTerminal();
         var monitor = IRascalMonitor.buildConsoleMonitor(term);
         var error = monitor instanceof PrintWriter ? (PrintWriter) monitor : new PrintWriter(System.err, false);
         try {
-            for (int round = 0; round < 100; round++) {
-                if (runTest(monitor, error, "round-"+round)) {
-                    break;
-                }
+            AtomicBoolean failed = new AtomicBoolean(false);
+            AtomicInteger done = new AtomicInteger(0);
+            for (int t = 0; t < PARALLEL_RUNS; t++) {
+                var name = "T" + t;
+                var tr = new Thread(() -> {
+                    try {
+                        monitor.job(name, 100, (jobName, step) -> {
+                            for (int round = 0; round < 100; round++) {
+                                step.accept("round " + round, 1);
+                                if (runTest(monitor, error, jobName +"-round-" + round)) {
+                                    failed.set(true);
+                                    System.exit(1);
+                                    break;
+                                }
+                                if (failed.get()) {
+                                    break;
+
+                                }
+                            }
+                            return null;
+                        });
+                    } finally {
+
+                        done.incrementAndGet();
+                    }
+                });
+                tr.start();
+            }
+            while (done.get() < PARALLEL_RUNS && !failed.get()) {
+                Thread.sleep(100);
             }
         } finally {
             error.close();
@@ -46,34 +76,26 @@ public class BreakTest {
             // make sure we're writing to the outputs
             evaluator.overwritePrintWriter(out, err);
 
-            evaluator.job(name, 2, () -> {
-                evaluator.doNextImport(name, BREAKING_MODULE);
-                new TestEvaluator(evaluator, new ITestResultListener() {
+            evaluator.doImport(monitor, BREAKING_MODULE);
 
-                    @Override
-                    public void start(String context, int count) {
-                    }
+            try {
+                for (int i = 0; i < 10; i++) {
+                    evaluator.call(BREAKING_TEST);
+                }
+            } catch (Throwable e ) {
+                failed.set(true);
+                err.println("❌ test fail ");
+                err.println(e);
+            }
+            // clean up memory
+            var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
+            var testRoot = memoryModule.getFrameVariable("testRoot");
+            try {
+                URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
+            }
+            catch (IOException e) {
+            }
 
-                    @Override
-                    public void report(boolean successful, String test, ISourceLocation loc, String message,
-                        Throwable exception) {
-                            if (!successful) {
-                                failed.set(true);
-                                err.println("!!!!! Failed test: " + test);
-                                err.println("message: " + message);
-                            }
-                    }
-
-                    @Override
-                    public void ignored(String test, ISourceLocation loc) {
-                    }
-
-                    @Override
-                    public void done() {
-                    }
-                }).test();
-                return null;
-            });
         }
 
         if (failed.get()) {

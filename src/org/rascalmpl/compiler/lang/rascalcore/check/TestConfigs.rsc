@@ -32,6 +32,7 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::ModuleLocations;
+import lang::rascalcore::check::TestShared;
 // import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
@@ -74,10 +75,10 @@ public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(
-        srcs = [ |memory:///test-modules/|, |std:///|  ],
-        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        srcs = [ testModulesRoot, |std:///|  ],
+        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
+        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
         libs = [ ]
     );
 }
@@ -92,10 +93,10 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(
-        srcs = [ |memory:///test-modules/| ],
-        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        srcs = [ testModulesRoot ],
+        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
+        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
         libs = [ |lib://rascal| ]
     );
 }
@@ -108,7 +109,7 @@ public PathConfig getRascalProjectTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [|project://rascal/src/org/rascalmpl/library|],
-        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|,
+        bin = testModulesRoot + "rascal-lib-bin-<snpc>",
         libs = []
     );
 }
