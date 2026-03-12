@@ -469,6 +469,29 @@ test bool breakingChange1(){
     return expectReChecks(D, ["C", "D"]);
 }
 
+test bool fixedErrorsDisappear2() {  // ht @toinehartman
+    clearMemory();
+    pcfg = getDefaultTestingPathConfig();
+
+    mlocs = writeModules("
+        module ParserBase
+    ");
+
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import vis::ParseTree; // module does not exist -\> error
+
+    ");
+
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    return true;
+}
+
 test bool fixedErrorsDisappear() {  // ht @toinehartman
     clearMemory();
     pcfg = getReleasedStandardLibraryTestingPathConfig();

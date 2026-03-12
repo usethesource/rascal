@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -19,9 +21,10 @@ import io.usethesource.vallang.ISourceLocation;
 public class BreakTest {
 
     private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::ChangeScenarioTests";
-    private static final String BREAKING_TEST = "fixedErrorsDisappear";
+    private static final String BREAKING_TEST = "fixedErrorsDisappear2";
 
     private static final int PARALLEL_RUNS = 8; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
+    private static final int TRIES = 1000 / PARALLEL_RUNS;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         RascalShell.setupJavaProcessForREPL();
@@ -33,26 +36,19 @@ public class BreakTest {
             AtomicBoolean failed = new AtomicBoolean(false);
             AtomicInteger done = new AtomicInteger(0);
             for (int t = 0; t < PARALLEL_RUNS; t++) {
-                var name = "T" + t;
+                var name = "Thread " + (t + 1);
                 var tr = new Thread(() -> {
                     try {
-                        monitor.job(name, 100, (jobName, step) -> {
-                            for (int round = 0; round < 100; round++) {
-                                step.accept("round " + round, 1);
-                                if (runTest(monitor, error, jobName +"-round-" + round)) {
-                                    failed.set(true);
-                                    System.exit(1);
-                                    break;
-                                }
-                                if (failed.get()) {
-                                    break;
-
-                                }
-                            }
-                            return null;
-                        });
+                        if (crashTest(monitor, error, name, failed)) {
+                            failed.set(true);
+                            System.err.println("We got a failure, exiting now!");
+                            Thread.sleep(1000);
+                            System.exit(1);
+                        }
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     } finally {
-
                         done.incrementAndGet();
                     }
                 });
@@ -66,9 +62,9 @@ public class BreakTest {
         }
     }
     
-    static boolean runTest(IRascalMonitor monitor, PrintWriter errorPrinter, String name) {
+    static boolean crashTest(IRascalMonitor monitor, PrintWriter errorPrinter, String name, AtomicBoolean failed) {
         var output = new StringWriter();
-        var failed = new AtomicBoolean(false);
+        var iFailed = new AtomicBoolean(false);
         try (var err = new PrintWriter(output, true); var out= new PrintWriter(output, false)) {
             var projectRoot = RascalJUnitTestRunner.inferProjectRootFromClass(BreakTest.class);
             var evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), err, out, monitor, "$test-"+name+"$");
@@ -77,28 +73,40 @@ public class BreakTest {
             evaluator.overwritePrintWriter(out, err);
 
             evaluator.doImport(monitor, BREAKING_MODULE);
+            try {
+                monitor.job(name, TRIES, (jobname, step) -> {
+                    try {
+                        for (int i = 0; i < TRIES; i++) {
+                            if (failed.get()) {
+                                return false;
+                            }
+                            monitor.jobStep(jobname, "Running: try " + (i + 1));
+                            evaluator.call(BREAKING_TEST);
+                        }
 
-            try {
-                for (int i = 0; i < 10; i++) {
-                    evaluator.call(BREAKING_TEST);
+                    } catch (Throwable e ) {
+                        failed.set(true);
+                        iFailed.set(true);
+                        err.println("❌ test fail ");
+                        err.println(e);
+                    }
+                    return null;
+                });
+            } finally {
+                // clean up memory
+                var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
+                var testRoot = memoryModule.getFrameVariable("testRoot");
+                try {
+                    URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
                 }
-            } catch (Throwable e ) {
-                failed.set(true);
-                err.println("❌ test fail ");
-                err.println(e);
-            }
-            // clean up memory
-            var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
-            var testRoot = memoryModule.getFrameVariable("testRoot");
-            try {
-                URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
-            }
-            catch (IOException e) {
+                catch (Throwable e) {
+                    err.println("Failure to cleanup the cache");
+                }
             }
 
         }
 
-        if (failed.get()) {
+        if (iFailed.get()) {
             errorPrinter.println("❌❌❌ Test run failed: " + name);
             errorPrinter.println("Job output:");
             errorPrinter.println(output.toString());
