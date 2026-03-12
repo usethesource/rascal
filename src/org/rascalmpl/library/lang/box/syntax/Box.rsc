@@ -150,14 +150,20 @@ Box debUG(Box b) {
     }
 }
 
-@synopsis{Short-hand for H(hs=0)}
+@synopsis{Short-hand for `H(hs=0)``}
 Box H0(Box boxes...) = H_(boxes, hs=0);
 
-@synopsis{Short-hand for H(hs=1)}
+@synopsis{Short-hand for `HOV(hs=0)``}
+Box HOV0(Box boxes ...) = HOV_(boxes, hs=0);
+
+@synopsis{Short-hand for `H(hs=1)``}
 Box H1(Box boxes...) = H_(boxes, hs=1);
 
-@synopsis{Short-hand for V(vs=0)}
+@synopsis{Short-hand for `HOV(hs=1)``}
+Box HOV1(Box boxes...) = HOV_(boxes, hs=1);
+
+@synopsis{Short-hand for `V(vs=0)``}
 Box V0(Box boxes...) = V_(boxes, vs=0);
 
-@synopsis{Short-hand for V(vs=1)}
+@synopsis{Short-hand for `V(vs=1)``}
 Box V1(Box boxes...) = V_(boxes, vs=1);

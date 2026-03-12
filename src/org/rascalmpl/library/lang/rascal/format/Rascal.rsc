@@ -38,6 +38,17 @@ import Location;
 import util::Monitor;
 import Set;
 import util::FileSystem;
+import analysis::grammars::LOC;
+import util::Reflective;
+
+void sizeStats() {
+    syn = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
+    synSloc = countSLOC(syn);
+    form = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Rascal.rsc|);
+    formSloc = countSLOC(form);
+    println("The formatter is <formSloc - 108 /* utility functions */> lines.");
+    println("The grammar is <synSloc> lines.");
+}
 
 @synopsis{Format an entire Rascal file, in-place.}
 void formatRascalFile(loc \module) {
@@ -283,11 +294,16 @@ Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters> throws <{Type ","}+ exs>`)
     = HOV([
-        H(toBox(modifiers), toBox(typ), H0(toBox(name), toBox(parameters))), 
-        H([L("throws"), SL([toBox(e) | e <- exs], L(","))], hs=1)]);
+        H(toBox(modifiers), toBox(typ), H0(toBox(name), L("("))),
+        G(toBox(parameters), gs=1, op=I()),
+        H([L(")"), L("throws"), SL([toBox(e) | e <- exs], L(","))], hs=1)], hs=0);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters>`)
-    = H(toBox(modifiers), toBox(typ), H0(toBox(name), toBox(parameters)));
+    = HOV(
+        H(toBox(modifiers), toBox(typ), H0(toBox(name), L("("))),
+        G(toBox(parameters), gs=1, op=I()),
+        L(")"),
+        hs=0);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`)
     = V(
@@ -297,20 +313,30 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
-        HOV(H(toBox(vis), toBox(sig)),
-            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H([]))), L(";"), hs=0)))) when !(exp is \visit || exp is voidClosure || exp is closure);
+        HOV(H1(toBox(vis), toBox(sig)),
+            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H())), L(";"), hs=0)))) when !(exp is \visit || exp is voidClosure || exp is closure);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Type typ> <Parameters parameters> { <Statement+ statements> };`)
     = V(toBox(tags),
-        HOV(H(toBox(vis), toBox(sig)),
-            I(H(HOV(L("="), toBox(typ), toBox(parameters), L("{"))))), 
+        HOV(
+            H(toBox(vis), toBox(sig)),
+            I(HOV(
+                H(L("="), H0(toBox(typ), L("("))),
+                G(toBox(parameters), gs=1, op=I()), 
+                H(L(")"), L("{"))
+            ))), 
         I(V(toBox(statements))),
         H0(L("}"), L(";")));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Parameters parameters> { <Statement+ statements> };`)
     = V(toBox(tags),
-        HOV(H(toBox(vis), toBox(sig)),
-            I(H(HOV(L("="), toBox(parameters), L("{"))))), 
+        HOV(
+            H(toBox(vis), toBox(sig)),
+            I(HOV(
+                H(L("="), L("(")),
+                G(toBox(parameters), gs=1, op=I()), 
+                H(L(")"), L("{"))
+            ))), 
         I(V(toBox(statements))),
         H0(L("}"), L(";")));
 
@@ -345,38 +371,39 @@ Box toBox((Tag) `@<Name n> <TagString c>`)
 
 // no keyword parameters
 Box toBox((Parameters) `( <{Pattern ","}* formals> )`)
-    = H0(L("("), HOV(toBox(formals)), L(")"));
+    = toBox(formals);
 
 // with comma, we try horizontal if both formals and kw formals fit on one line
 Box toBox((Parameters) `( <{Pattern ","}+ formals>, <{KeywordFormal ","}+ keywordFormals>)`)
-    = HOV(
-        I(H0(L("("), HOV(toBox(formals)), L(","))),
-        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    = U(
+        G([toBox(f), L(",") | f <- formals], gs=2, op=H0()), 
+        toBox(keywordFormals)
     );
 
 // only keyword formals
 Box toBox((Parameters) `(<{KeywordFormal ","}+ keywordFormals>)`)
-    = I(H0(L("("), HOV(toBox(keywordFormals)), L(")")));
+    = toBox(keywordFormals);
 
 // no comma, use vertical to separate the formals from the keyword formals
 Box toBox((Parameters) `( <{Pattern ","}+ formals> <{KeywordFormal ","}+ keywordFormals>)`)
-    = V(
-        I(H0(L("("), HOV(toBox(formals)))),
-        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    = U( 
+        toBox(formals),
+        toBox(keywordFormals)
     );
 
 // varags, with comma, we try horizontal if both formals and kw formals fit on one line
 Box toBox((Parameters) `( <{Pattern ","}* formals> ..., <{KeywordFormal ","}+ keywordFormals>)`)
-    = HOV(
-        I(H0(L("("), HOV(toBox(formals)), L("..."), L(","))),
-        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    = U(
+        G([toBox(f), L(",") | f <- formals][..-1] + [H0(L("..."), L(","))], gs=2, op=H0()),
+        toBox(keywordFormals)
     );
 
 // varargs, no comma, use vertical to separate the formals from the keyword formals
 Box toBox((Parameters) `( <{Pattern ","}* formals> ... <{KeywordFormal ","}+ keywordFormals>)`)
-    = V(
-        I(H0(L("("), HOV(toBox(formals)), L("..."))),
-        I(H0(HOV(toBox(keywordFormals)), L(")")))
+    = U(
+        toBox(formals), 
+        L("..."),
+        toBox(keywordFormals)
     );
 
 
@@ -736,7 +763,7 @@ Box toBox((Expression) `<Expression caller>()`)
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> })`)
     = V([
         H0(toBox(caller), L("(")), 
-        I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), toBox(parameters), L("{")))), 
+        I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), I(HOV0(toBox(parameters))), L("{")))), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -746,7 +773,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Para
     = V([
         H0(toBox(caller), L("(")), 
         V(
-        I(H(H0(HOV(toBox(arguments)), L(",")), H(toBox(parameters), L("{")))), 
+        I(H(H0(HOV(toBox(arguments)), L(",")), H(I(HOV0(toBox(parameters))), L("{")))), 
         I(V(toBox(statements))),
         H0(L("}"), L(")")))]
     );
@@ -754,7 +781,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Para
 // call without kwargs no normal parameters but ends with a final normal closure
 Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), toBox(typ), toBox(parameters)), L("{")), 
+        H(H0(toBox(caller), L("("), toBox(typ), I(HOV0(toBox(parameters)))), L("{")), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -762,7 +789,7 @@ Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> {
 // call without kwargs no normal parameters but ends with a final void closure
 Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), toBox(parameters)), L("{")), 
+        H(H0(toBox(caller), L("("), I(HOV0(toBox(parameters)))), L("{")), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -771,7 +798,7 @@ Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
     = HOV(
         H0(toBox(caller), L("(")), 
-        I(HOV(toBox(arguments))), 
+        G(toBox(arguments), gs=1, op=I()), 
         L(")"), 
         hs=0)
     when !(arguments[-1] is closure || arguments[-1] is voidClosure);
@@ -803,7 +830,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type
         I(V(HOV(
             H0(toBox(arguments), L(","))),
             V(
-            H0(toBox(typ), toBox(parameters), L("{")),
+            H0(toBox(typ), I(HOV0(toBox(parameters))), L("{")),
             I(toBox(statements)),
             H0(L("}"), L(","))),
             toBox(kwargs), 
