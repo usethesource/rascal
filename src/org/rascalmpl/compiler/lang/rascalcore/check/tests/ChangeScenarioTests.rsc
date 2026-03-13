@@ -752,6 +752,48 @@ test bool onlyChangedModulesAreReChecked2(){
     return true;
 }
 
+test bool changeMultipleTimes() {
+    loc projDir = |memory:///incremental-test/proj|;
+    loc checkerModule = projDir + "src" + "Checker.rsc";
+
+    PathConfig pcfg = pathConfig(
+        projectRoot = projDir,
+        srcs = [projDir + "src"],
+        bin = projDir + "target",
+        // There might be incompatibility here, since Rascal uses typepal--0.16.6-RC2 at the time of writing.
+        // However, I would still expect that errors caused by that appear on the first type-check.
+        libs = [TYPEPAL166, |target://rascal|]
+    );
+
+    iprintln(pcfg);
+
+    // Clean
+    remove(projDir);
+    writeFile(checkerModule, "
+        module Checker
+        extend analysis::typepal::TypePal;
+        void collect(Collector c) { ; }
+    ");
+
+    // First check
+    println("Initial check");
+    if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+        throw "First check failed; supposed to be OK.";
+    }
+
+    int N_TRIES = 10;
+    // Since this seems sporadically succeed, we run this a couple of times until it fails
+    for (i <- [1..N_TRIES + 1]) {
+        // Follow-up check
+        println("Follow-up check #<i>");
+        touch(checkerModule);
+        if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // Benchmarks for incremental type checking
 
 void benchmark(str title, lrel[str, void()] cases){
