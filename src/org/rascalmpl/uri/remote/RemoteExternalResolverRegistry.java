@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
@@ -79,16 +80,149 @@ import com.google.gson.JsonPrimitive;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry {
-    private final IRemoteResolverRegistry remote;
+    private volatile IRemoteResolverRegistry remote = null;
 
     private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
     private final Map<String, Watchers> watchersById = new ConcurrentHashMap<>();
 
+    private final int remoteResolverRegistryPort;
+
     public RemoteExternalResolverRegistry(int remoteResolverRegistryPort) {
-        this.remote = startClient(remoteResolverRegistryPort);
+        this.remoteResolverRegistryPort = remoteResolverRegistryPort;
+        connect();
     }
 
-    private IRemoteResolverRegistry startClient(int remoteResolverRegistryPort) {
+    private static final Duration LONGEST_TIMEOUT = Duration.ofMinutes(1);
+
+    private void connect() {
+        var timeout = Duration.ZERO;
+        while (true) {
+            try {
+                Thread.sleep(timeout.toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            var remote = startClient();
+            if (remote != null) {
+                this.remote = remote;
+                return;
+            } else {
+                timeout = timeout.plusMillis(10);
+                if (timeout.compareTo(LONGEST_TIMEOUT) >= 0) {
+                    timeout = LONGEST_TIMEOUT;
+                }
+            }
+        }
+    }
+
+    private void scheduleReconnect() {
+        CompletableFuture.runAsync(() -> connect());
+    }
+    
+    private InputStream errorDetectingInputStream(InputStream original) {
+        return new InputStream() {
+            @Override
+            public int read() throws IOException {
+                try {
+                    return original.read();
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                try {
+                    return original.read(b, off, len);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public int available() throws IOException {
+                return original.available();
+            }
+            
+            @Override
+            public long skip(long n) throws IOException {
+                try {
+                    return original.skip(n);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                original.close();
+            }
+            
+            @Override
+            public byte[] readNBytes(int len) throws IOException {
+                try {
+                    return original.readNBytes(len);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public int readNBytes(byte[] b, int off, int len) throws IOException {
+                try {
+                    return original.readNBytes(b, off, len);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+        };
+    }
+
+    private OutputStream errorDetectingOutputStream(OutputStream original) {
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                try {
+                    original.write(b);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+            
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                try {
+                    original.write(b, off, len);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public void flush() throws IOException {
+                try {
+                    original.flush();
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                original.close();
+            }
+        };
+    }
+    
+    private IRemoteResolverRegistry startClient() {
         try {
             @SuppressWarnings("resource")
             var socket = new Socket(InetAddress.getLoopbackAddress(), remoteResolverRegistryPort);
@@ -96,16 +230,16 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             Launcher<IRemoteResolverRegistry> clientLauncher = new Launcher.Builder<IRemoteResolverRegistry>()
                 .setRemoteInterface(IRemoteResolverRegistry.class)
                 .setLocalService(this)
-                .setInput(socket.getInputStream())
-                .setOutput(socket.getOutputStream())
+                .setInput(errorDetectingInputStream(socket.getInputStream()))
+                .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
                 .configureGson(GsonUtils.complexAsJsonObject())
                 .setExecutorService(NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry"))
                 .create();
 
                 clientLauncher.startListening();
                 return clientLauncher.getRemoteProxy();
-        } catch (Throwable e) {
-            System.err.println("Error setting up remote resolver registry connection: " + e.getMessage());
+        } catch (RuntimeException | IOException e) {
+            System.err.println("Error setting up remote resolver registry connection, will reconnect: " + e.getMessage());
             return null;
         }
     }
