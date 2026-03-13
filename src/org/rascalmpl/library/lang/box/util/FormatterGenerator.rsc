@@ -106,16 +106,24 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style) {
 @synopsis{Generates an HTML-based preview of the result of formatting.}
 @benefits{
 * uses ((util::Highight)) to create an HTML preview of the formatted code
+* can also print directly to the console with ANSI coloring
 * regenerates parser and style functions every time to avoid looking at stale code.
 }
 @pitfalls{
 * not useful for production contexts
 }
-void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input) {
+void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, bool console=false) {
     str(str) formatter = stringFormatter(grammar, style);
     str pretty = formatter(readFile(input));
-    str highlighted = toHTML(parse(grammar, pretty, input), withStyle=true);
-    showInteractiveContent(html(highlighted)[title="formatted <input>"]);
+
+    if (!console) {
+        str highlighted = toHTML(parse(grammar, pretty, input), withStyle=true);
+        showInteractiveContent(html(highlighted)[title="formatted <input>"]);
+    }
+    else {
+        str highlighted = toANSI(parse(grammar, pretty, input));
+        println(highlighted);
+    }
 }
 
 @synopsis{Generates previews of the result of formatting for all files in a directory structure.}
