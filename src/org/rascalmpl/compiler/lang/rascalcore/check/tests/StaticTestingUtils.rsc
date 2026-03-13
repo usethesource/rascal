@@ -42,7 +42,10 @@ import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
+import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
+
+import lang::rascalcore::check::TestShared;
 
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
@@ -81,14 +84,14 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(|memory:///test-modules/| recursive = true);
+	remove(testModulesRoot, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
 loc writeModule(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
-    mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
+    mloc = testModulesRoot +  "<cleanName(mname)>.rsc";
     writeFile(mloc, moduleText);
     return mloc;
 }
@@ -99,8 +102,18 @@ list[loc] writeModules(str modules...)
 void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();
 	name = cleanName(mname);
-	remove(|memory:///test-modules/<name>.rsc|);
+	remove(testModulesRoot + "<name>.rsc");
 	remove(pcfg.generatedResources + "<name>.tpl");
+}
+
+void printModules(){
+	for(f <- find(testModulesRoot, "rsc")){
+		println("<f> <lastModified(f)>:
+		        '<readFile(f)>");
+	}
+	for(f <- find(testModulesRoot, "tpl")){
+		println("<f>: <lastModified(f)>");
+	}
 }
 
 set[Message] getErrorMessages(ModuleStatus r)

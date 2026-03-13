@@ -6,6 +6,14 @@
     "configurations": [
         {
             "type": "java",
+            "name": "BreakTest",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.compiler.BreakTest",
+            "projectName": "rascal",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
             "name": "RascalCheck",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalCheck",
