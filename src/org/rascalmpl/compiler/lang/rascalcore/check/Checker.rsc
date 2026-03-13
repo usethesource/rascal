@@ -553,7 +553,7 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     for(int i <- index(candidates)){
         mloc = candidates[i];
         <found, tpl> = getTPLReadLoc(mnames[i], pcfg);
-        if(!found || lastModified(mloc) > lastModified(tpl)){
+        if(!found || lastModified(mloc) >= lastModified(tpl)){
             return false;
         }
     }
