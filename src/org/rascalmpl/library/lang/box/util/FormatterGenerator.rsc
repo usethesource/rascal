@@ -47,7 +47,7 @@ str(str) stringFormatter(type[&G <: Tree] grammar, Style style = toBox) {
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s for downstream processing.}
 list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style = toBox, bool needsConfirmation=false) {
-    &G(loc, loc) p = parser(grammar);
+    &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (loc input) {
         &G tree = p(input, input);
