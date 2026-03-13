@@ -167,12 +167,7 @@ bool checkOK(str stmts) {
      throw errors;
 }
 
-bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) {
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));
-     if(size(errors) == 0)
-        return true;
-     throw abbrev("<errors>");
-}
+bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) = checkModulesOK([moduleToCheck], pathConfig = pathConfig);
 
 bool checkModulesOK(list[loc] modulesToCheck, PathConfig pathConfig = pathConfigForTesting()) {
      errors = getErrorMessages(rascalTModelForLocs(modulesToCheck, rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));
