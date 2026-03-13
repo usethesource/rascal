@@ -62,7 +62,7 @@ void debugFormatRascalFile(loc \module) {
 }
 
 void testOnLibrary() {
-    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|);
+    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc");
 }
 
 /* Modules */
