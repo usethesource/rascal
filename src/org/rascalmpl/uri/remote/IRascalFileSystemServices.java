@@ -85,7 +85,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
 
                 URIResolverRegistry.getInstance().watch(loc, params.isRecursive(), changed -> {
                     try {
-                        onDidChangeFile(changed.getLocation(), changed.getChangeType().getValue(), null);
+                        onDidChangeFile(changed.getLocation(), changed.getChangeType().getValue(), params.getWatcher());
                     } catch (/*IO*/Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -205,7 +205,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
 
     @Override
     default public void onDidChangeFile(ISourceLocation loc, int type, String watchId) {
-        // reg.watch(loc, false, null);
+        //TODO
     }
 
     public static class FileChangeEvent {
