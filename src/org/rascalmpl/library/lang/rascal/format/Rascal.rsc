@@ -57,12 +57,12 @@ void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
 str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
-void debugFormatRascalFile(loc \module) {
-    debugFileFormat(#start[Module], toBox, \module);
+void debugFormatRascalFile(loc \module, bool console=false) {
+    debugFileFormat(#start[Module], toBox, \module, console=console);
 }
 
 void testOnLibrary() {
-    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc");
+    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc", ansi=true, console=true);
 }
 
 /* Modules */
