@@ -45,6 +45,7 @@ import ParseTree;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::TestConfigs;
 import lang::rascal::\syntax::Rascal;
 
 import analysis::typepal::LocationChecks;
