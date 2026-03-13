@@ -5,6 +5,10 @@
 * accuracy: the generated formatters retain all comments as long as comments are annotated with `@category("Comment")` in
 * practicality: the generated formatters can produce ((TextEdit))s which are consumed by IDEs such as VScode.
 }
+@pitfalls{
+* the formatters capture the current state of the grammar and the style function, so if you
+change their source code, you have to regenerate the formatters.
+}
 module lang::box::util::FormatterGenerator
 
 import ParseTree;
@@ -18,8 +22,11 @@ import util::IDEServices;
 import util::Monitor;
 import util::PathConfig;
 import util::Reflective;
+import util::FileSystem;
 import IO;
+import Set;
 import Exception;
+import Content;
 
 @synopsis{A style specification maps a ((Tree)) to a ((data:Box)) expression.}
 alias Style = Box(Tree);
@@ -28,8 +35,8 @@ alias Style = Box(Tree);
 data FileSystemChange(bool needsConfirmation = false);
 
 @synopsis{Generates a file formatter that immediately applies the new style to the input.}
-void(loc) fileFormatter(type[&G <: Tree] grammar, Style style = toBox, bool needsConfirmation=false) {
-    list[TextEdit](loc) toEdits = fileEdits(grammar, style=style);
+void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, bool needsConfirmation=false) {
+    list[TextEdit](loc) toEdits = fileEdits(grammar, style);
 
     return void (loc input) {  
         executeFileSystemChanges([changed(input, toEdits(input), needsConfirmation=needsConfirmation)]);
@@ -37,8 +44,8 @@ void(loc) fileFormatter(type[&G <: Tree] grammar, Style style = toBox, bool need
 }
 
 @synopsis{Generates a string formatter}
-str(str) stringFormatter(type[&G <: Tree] grammar, Style style = toBox) {
-    list[TextEdit](str) toEdits = stringEdits(grammar, style=style);
+str(str) stringFormatter(type[&G <: Tree] grammar, Style style) {
+    list[TextEdit](str) toEdits = stringEdits(grammar, style);
 
     return str (str input) {
         return executeTextEdits(input, toEdits(input));
@@ -46,20 +53,20 @@ str(str) stringFormatter(type[&G <: Tree] grammar, Style style = toBox) {
 } 
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s for downstream processing.}
-list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style = toBox, bool needsConfirmation=false) {
+list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (loc input) {
         &G tree = p(input, input);
         try {
-            return layoutDiff(tree, p(format(style(tree)), input), needsConfirmation=needsConfirmation);
+            return layoutDiff(tree, p(format(style(tree)), input));
         }
-        catch e:ParseError(loc place): { 
+        catch ParseError(loc place): { 
             writeFile(|tmp:///<input.file>|, format(style(tree)));
             warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
         }
-        catch e:Ambiguity(loc place, str _, str _): { 
+        catch Ambiguity(loc place, str _, str _): { 
             writeFile(|tmp:///<input.file>|, format(style(tree)));
             warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
@@ -68,24 +75,84 @@ list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style = toBox, boo
 }
     
 @synopsis{Generates a string formatter that produces ((TextEdit))s for downstream processing.}
-list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style = toBox) {
+list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style) {
     &G(str, loc) p = parser(grammar);
+    loc stub = |memory:///formatted.txt|;
     
     return list[TextEdit] (str input) {
-        &G tree = p(input, |tmp:///unknown.txt|);
+        &G tree = p(input, stub);
         try {
-            return layoutDiff(tree, p(grammar, format(toBox(tree)), |tmp:///unknown.txt|));
+            return layoutDiff(tree, p(format(toBox(tree)), stub));
         }
-        catch e:ParseError(loc place): { 
-            writeFile(|tmp:///unknown.txt|, format(toBox(tree)));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///unknown.txt|(place.offset, place.length));
+        catch ParseError(loc place): { 
+            writeFile(stub, format(toBox(tree)));
+            warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
-        catch e:Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<input.file>|, format(style(tree)));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///unknown.txt|(place.offset, place.length));
+        catch Ambiguity(loc place, str _, str _): { 
+            writeFile(stub, format(style(tree)));
+            warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
-        }   
+        } 
+        catch AssertionFailed(str msg): {
+            writeFile(stub, format(style(tree)));
+            warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
+            return [];
+        }  
     };
 }
     
+@synopsis{Generates an HTML-based preview of the result of formatting.}
+@benefits{
+* uses ((util::Highight)) to create an HTML preview of the formatted code
+* regenerates parser and style functions every time to avoid looking at stale code.
+}
+@pitfalls{
+* not useful for production contexts
+}
+void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input) {
+    str(str) formatter = stringFormatter(grammar, style);
+    str pretty = formatter(readFile(input));
+    str highlighted = toHTML(parse(grammar, pretty, input));
+    showInteractiveContent(html(highlighted)[title="formatted <input>"]);
+}
+
+@synopsis{Generates an HTML-based previews of the result of formatting for all files in a directory structure.}
+@benefits{
+* uses ((util::Highight)) to create an HTML preview of the formatted code
+* regenerates parser and style functions every time to avoid looking at stale code.
+}
+@pitfalls{
+* not useful for production contexts
+* may produce an enormous amount of webview tabs to close
+}
+void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension) {
+    str(str) formatter = stringFormatter(grammar, style);
+    &G(value, loc) p = parser(grammar);
+    files = sort(find(root, extension));
+
+    job("formatting", bool (void (str message, int worked) step) {
+        for (loc input <- files) {
+            str pretty = formatter(readFile(input));
+            str highlighted = toHTML(p(pretty, input));
+            showInteractiveContent(html(highlighted)[title="formatted <input>"]);;
+        }
+
+        return true;
+    }, totalWork=size(files));   
+}
+
+@synopsis{Generates an in-memory preview of the result of formatting and opens an editor for it.}
+@benefits{
+* opens the new file with the same file extension to activate possible language servers (syntax highlighting)
+* regenerates parser and style functions every time to avoid looking at stale code.
+}
+@pitfalls{
+* not useful for production contexts
+}
+void debugStringFormat(type[&G <: Tree] grammar, Style style, str input) {
+    str(str) formatter = stringFormatter(grammar, style);
+    str pretty = formatter(input);
+    str highlighted = toHTML(parse(grammar, pretty, |unknown:///|));
+    showInteractiveContent(html(highlighted)[title="formatted string"]);
+}
