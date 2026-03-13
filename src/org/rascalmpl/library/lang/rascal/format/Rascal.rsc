@@ -30,6 +30,7 @@ import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
 import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
+import lang::box::util::FormatterGenerator;
 import String;
 import IO;
 import util::IDEServices;
@@ -46,65 +47,22 @@ void sizeStats() {
     synSloc = countSLOC(syn);
     form = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Rascal.rsc|);
     formSloc = countSLOC(form);
-    println("The formatter is <formSloc - 108 /* utility functions */> lines.");
+    println("The formatter is <formSloc - 67 /* utility functions */> lines.");
     println("The grammar is <synSloc> lines.");
 }
 
 @synopsis{Format an entire Rascal file, in-place.}
-void formatRascalFile(loc \module) {
-    start[Module] tree = parse(#start[Module], \module);
-    edits = formatRascalModule(tree);
-    executeFileSystemChanges([changed(edits)]);
-}
+void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
+@synopsis{Format a Rascal module string}
+str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
 void debugFormatRascalFile(loc \module) {
-    newFile = executeTextEdits(readFile(\module), formatRascalModule(parse(#start[Module], \module)));
-    newLoc = |tmp:///| + relativize(|project://rascal|, \module).path;
-    writeFile(newLoc, newFile);
-    edit(newLoc);
-    return;
-    // |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/DataType.rsc| is really slow
+    debugFileFormat(#start[Module], toBox, \module);
 }
 
 void testOnLibrary() {
-    rootFolder = |project://rascal/src/org/rascalmpl/library/|;
-    targetFolder = |project://rascal/src/org/rascalmpl/formattedLibrary/|;
-    remove(targetFolder, recursive=true);
-    // &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
-    mods = sort(find(rootFolder, "rsc"));
-
-    job("formatting", bool (void (str message, int worked) step) {
-        for (loc m <- mods) {
-            step("formatting <m>", 1);
-            println(m);
-            newFile = executeTextEdits(readFile(m), formatRascalModule(parse(#start[Module], m)));
-            writeFile(targetFolder + relativize(rootFolder, m).path, newFile);
-            appendToFile(targetFolder + "ALL.rsc", toANSI(parse(#start[Module], newFile)));
-        }
-
-        return true;
-    }, totalWork=size(mods));   
-}
-
-@synopsis{Format a Rascal module string}
-str formatRascalString(str \module) 
-    = executeTextEdits(\module, formatRascalModule(parse(#start[Module], \module, |tmp:///temporary.rsc|)));
-
-@synopsis{Top-level work-horse for formatting Rascal modules}
-@benefits{
-* retains source code comments 
-* uses Box for adaptive nested formatting
-}
-list[TextEdit] formatRascalModule(start[Module] \module) {
-    try {
-        return layoutDiff(\module, parse(#start[Module], format(toBox(\module)), \module@\loc.top));
-    }
-    catch e:ParseError(loc place): { 
-        writeFile(|tmp:///temporary.rsc|, format(toBox(\module)));
-        println("Formatted module contains a parse error here: <|tmp:///temporary.rsc|(place.offset, place.length)>");
-        throw e;
-    }
+    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|);
 }
 
 /* Modules */
