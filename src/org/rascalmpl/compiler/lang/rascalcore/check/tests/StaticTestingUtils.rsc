@@ -42,6 +42,7 @@ import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
+import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::TestShared;
@@ -103,6 +104,16 @@ void removeModule(str mname){
 	name = cleanName(mname);
 	remove(testModulesRoot + "<name>.rsc");
 	remove(pcfg.generatedResources + "<name>.tpl");
+}
+
+void printModules(){
+	for(f <- find(testModulesRoot, "rsc")){
+		println("<f> <lastModified(f)>:
+		        '<readFile(f)>");
+	}
+	for(f <- find(testModulesRoot, "tpl")){
+		println("<f>: <lastModified(f)>");
+	}
 }
 
 set[Message] getErrorMessages(ModuleStatus r)
