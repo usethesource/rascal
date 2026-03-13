@@ -33,10 +33,10 @@ public interface ISourceLocationInput {
 	/** In bytes !only for internal use! */
 	long size(ISourceLocation uri)  throws IOException; 
 	boolean isDirectory(ISourceLocation uri);  
-	boolean isFile(ISourceLocation uri) ;
+	boolean isFile(ISourceLocation uri);
 	boolean isReadable(ISourceLocation uri) throws IOException;
 
-	String[] list(ISourceLocation uri)  throws IOException;
+	String[] list(ISourceLocation uri) throws IOException;
 	String scheme();
 	boolean supportsHost();
 	default boolean supportsReadableFileChannel() {
