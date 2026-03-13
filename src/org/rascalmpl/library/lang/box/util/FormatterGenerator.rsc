@@ -11,22 +11,23 @@ change their source code, you have to regenerate the formatters.
 }
 module lang::box::util::FormatterGenerator
 
+import Content;
+import Exception;
+import IO;
+import Location;
 import ParseTree;
+import Set;
 import analysis::diff::edits::ExecuteTextEdits;
 import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
 import lang::box::util::Box2Text;
 import lang::box::util::Tree2Box;
+import util::FileSystem;
 import util::Highlight;
 import util::IDEServices;
 import util::Monitor;
 import util::PathConfig;
 import util::Reflective;
-import util::FileSystem;
-import IO;
-import Set;
-import Exception;
-import Content;
 
 @synopsis{A style specification maps a ((Tree)) to a ((data:Box)) expression.}
 alias Style = Box(Tree);
@@ -113,29 +114,40 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style) {
 void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input) {
     str(str) formatter = stringFormatter(grammar, style);
     str pretty = formatter(readFile(input));
-    str highlighted = toHTML(parse(grammar, pretty, input));
+    str highlighted = toHTML(parse(grammar, pretty, input), withStyle=true);
     showInteractiveContent(html(highlighted)[title="formatted <input>"]);
 }
 
-@synopsis{Generates an HTML-based previews of the result of formatting for all files in a directory structure.}
+@synopsis{Generates previews of the result of formatting for all files in a directory structure.}
 @benefits{
-* uses ((util::Highight)) to create an HTML preview of the formatted code
+* uses ((IO::writeFile)) to generate a file preview of the formatted code in a shadow directory structure (easy for using `git` or `diff`)
+* can also stream to the console with ANSI colors for quickly checking formatted style.
 * regenerates parser and style functions every time to avoid looking at stale code.
 }
 @pitfalls{
 * not useful for production contexts
-* may produce an enormous amount of webview tabs to close
+* may have a very long running time
 }
-void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension) {
+void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension, bool ansi=false, bool console=false) {
+    loc shadowRoot = root.parent + "formatted-<root.file>";
     str(str) formatter = stringFormatter(grammar, style);
     &G(value, loc) p = parser(grammar);
-    files = sort(find(root, extension));
+    list[loc] files = sort(find(root, extension));
 
     job("formatting", bool (void (str message, int worked) step) {
         for (loc input <- files) {
+            step("<input>", 1);
             str pretty = formatter(readFile(input));
-            str highlighted = toHTML(p(pretty, input));
-            showInteractiveContent(html(highlighted)[title="formatted <input>"]);;
+            if (ansi) {
+                pretty = toANSI(p(pretty, input));
+            }
+            if (console) {
+                println("###$ <input>");
+                println(pretty);
+            }
+            else {
+                writeFile(shadowRoot + relativize(root, input).path, pretty);;
+            }
         }
 
         return true;
