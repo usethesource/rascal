@@ -127,7 +127,7 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources       = COMPILED + "/src/main/java",
         generatedTestSources   = COMPILED + "/src/test/java/",
         generatedResources     = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        generatedTestResources = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedTestResources = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                   = libraries
     ); 
 }
@@ -190,7 +190,7 @@ public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
                             TMP_TYPEPAL
                         ],
                         [ ], 
-                        keep=true);
+                        keep=keep);
 }
 
 public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool keep=true){
