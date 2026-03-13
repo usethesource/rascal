@@ -58,7 +58,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
-    public static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
+    static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
 
     @Override
     default public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
