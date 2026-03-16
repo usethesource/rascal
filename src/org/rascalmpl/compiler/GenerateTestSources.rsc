@@ -38,6 +38,7 @@ import util::Monitor;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 import util::SystemAPI;
+import lang::rascalcore::check::TestConfigs;
 
 // if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
 // otherwise only standard library and test files (~200 files) 
