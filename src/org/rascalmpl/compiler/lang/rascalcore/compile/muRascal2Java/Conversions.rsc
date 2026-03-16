@@ -736,7 +736,7 @@ str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
     case /\-<l:[a-z]>/ => capitalize(l) 
 });
 
-str doValue2IValue(achar(int i), map[value, int] constants)  = "$RVF.character(<i>)";
+// str doValue2IValue(achar(int i), map[value, int] constants)  = "$RVF.character(<i>)";
 
 str doValue2IValue(Tree t:appl(Production prod, list[Tree] args), map[value, int] constants) {
     childrenContrib = isEmpty(args) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- args ])>";
