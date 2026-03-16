@@ -46,7 +46,6 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::check::ModuleLocations;
-extend lang::rascalcore::check::TestConfigs;
 
 import analysis::typepal::Exception;
 
