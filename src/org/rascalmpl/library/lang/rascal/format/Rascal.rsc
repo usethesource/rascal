@@ -24,16 +24,15 @@ module lang::rascal::format::Rascal
 extend lang::box::util::Tree2Box;
 extend lang::rascal::\syntax::Rascal;
 
+import IO;
 import ParseTree;
+import String;
 import analysis::diff::edits::ExecuteTextEdits;
 import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
 import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
-import lang::box::util::FormatterGenerator;
-import String;
-import IO;
-
+import util::Formatters;
 import util::Reflective;
 
 @synopsis{Format an entire Rascal file, in-place.}
@@ -47,7 +46,15 @@ void debugFormatRascalFile(loc \module, bool console=false) {
 }
 
 void testOnLibrary() {
-    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc", ansi=true, shadowFiles=false, appendFile=true, console=true);
+    debugFilesFormat(
+        #start[Module], 
+        toBox, 
+        |project://rascal/src/org/rascalmpl/library/|, 
+        "rsc", 
+        ansi=true, 
+        shadowFiles=false, 
+        appendFile=true, 
+        console=false);
 }
 
 /* Modules */
