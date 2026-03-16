@@ -36,7 +36,7 @@ public class RascalStackOverflowError extends RuntimeException {
         Environment env = deepestEnvironment;
 
         while (env != null) {
-            trace.add(env.getLocation(), env.getName());
+            trace.add(env.getCreatorLocation(), env.getName());
             env = env.getCallerScope();
         }
 

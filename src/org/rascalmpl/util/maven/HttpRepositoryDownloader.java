@@ -220,10 +220,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
             return false;
         } finally {
             try {
-                // Delete temperory file if something went wrong
+                // Delete temporary file if something went wrong
                 Files.deleteIfExists(from);
             } catch (IOException ignored) {
-                // Beste effort
+                // Best effort
             }
         }
     }

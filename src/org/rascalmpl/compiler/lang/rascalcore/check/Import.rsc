@@ -100,11 +100,7 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
 // TODO: reuse enhancePathRelation from RascalConfig here
 ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
-    // extra safeguard against physical locations (due to erroneous packager)
-    paths = visit(ms.paths){
-        case loc l => moduleName2moduleId(getRascalModuleName(l,pcfg)) when !isModuleId(l)
-    }
-
+    paths = ms.paths;
     ms = reportSelfImport(paths, ms);
     
     imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
@@ -241,10 +237,19 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             return completeModuleStatus(ms);
          }
       }
-    } catch rascalTplVersionError(_):
-        ; // Need to recheck since TModel uses incompatible TPL version
+    } catch rascalTplVersionError(str moduleName, loc tplLoc, str version, str txt):{
+        ms.status[moduleName2moduleId(moduleName)] += { tpl_version_error() };
+        // Need to recheck since TModel uses incompatible TPL version
+    }
 
     if(rsc_not_found() in ms.status[moduleId]){
+        if(tpl_version_error() in ms.status[moduleId]){
+            iName = moduleId2moduleName(moduleId);
+            for(<MODID m, _, moduleId> <- ms.paths){
+                mName = moduleId2moduleName(m);
+                ms.messages[m] ? {} += { error("For import/extend `<iName>` of `<mName>` is no source available and TPL has wrong version", m) };
+            }
+        }
         return ms;
     }
 
@@ -418,7 +423,8 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
         tm.definitions = ( def.defined : def | Define def <- tm.defines);
 
         transient_tms[m] = tm;
-        <tm, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
+        <found, tm1, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
+        if(found) { tm = tm1; }
         ms.messages[m] = toSet(tm.messages);
         transient_tms[m] = tm;
     }
