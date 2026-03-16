@@ -39,7 +39,7 @@ format(V(L("A"), L("B"), L("C"), vs=2))
 format(V(L("A"), L("B"), L("C"), vs=1))
 format(V(L("A"), L("B"), L("C"), vs=0))
 format(H(L("A"), V(L("B"), L("C"))))
-format(H(L("A"), I(L("B")]), L("C")))
+format(H(L("A"), I(L("B")), L("C")))
 format(H(L("A"), V(L("B"), H(L("C"), L("D")))))
 ```
 
