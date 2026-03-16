@@ -82,8 +82,6 @@ data CaseInsensitivity
     | asIs()
     ;
 
-private Symbol notNl = #![\n].symbol;
-
 @synopsis{This is the generic default formatter}
 @description{
 This generic formatter is to be overridden by someone constructing a formatter tools
@@ -94,9 +92,6 @@ by the user is necessary.
 default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
-    
-    Symbol _nl = #[\n].symbol;
-    Symbol notNl = #![\n].symbol;
     
     switch (<delabel(p), args>) {
         // nothing should not produce additional spaces

@@ -33,23 +33,8 @@ import lang::box::util::Box2Text;
 import lang::box::util::FormatterGenerator;
 import String;
 import IO;
-import util::IDEServices;
-import util::Highlight;
-import Location;
-import util::Monitor;
-import Set;
-import util::FileSystem;
-import analysis::grammars::LOC;
-import util::Reflective;
 
-void sizeStats() {
-    syn = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
-    synSloc = countSLOC(syn);
-    form = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Rascal.rsc|);
-    formSloc = countSLOC(form);
-    println("The formatter is <formSloc - 67 /* utility functions */> lines.");
-    println("The grammar is <synSloc> lines.");
-}
+import util::Reflective;
 
 @synopsis{Format an entire Rascal file, in-place.}
 void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
@@ -62,7 +47,7 @@ void debugFormatRascalFile(loc \module, bool console=false) {
 }
 
 void testOnLibrary() {
-    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc", ansi=true, console=true);
+    debugFilesFormat(#start[Module], toBox, |project://rascal/src/org/rascalmpl/library/|, "rsc", ansi=true, shadowFiles=false, appendFile=true, console=true);
 }
 
 /* Modules */
@@ -791,8 +776,8 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type
             H0(toBox(typ), I(HOV0(toBox(parameters))), L("{")),
             I(toBox(statements)),
             H0(L("}"), L(","))),
-            toBox(kwargs), 
-        hs=1)),
+            toBox(kwargs)
+        )),
         L(")"), hs=0)
     when !(arguments[-1] is closure || arguments[-1] is voidClosure);
 
@@ -820,7 +805,7 @@ Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>, <{KeywordArgum
 
 // call with kwargs no-comma
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = V([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), I(HOV(toBox(kwargs))), L(")")], hs=0);
+    = V([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), I(HOV(toBox(kwargs))), L(")")]);
 
 /* continue with expressions */
 
