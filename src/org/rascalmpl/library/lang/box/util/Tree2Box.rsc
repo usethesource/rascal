@@ -370,16 +370,6 @@ Box toExpBox(Tree expression, Box wrapper=HV())
 @synopsis{Private type alias for legibility's sake}
 private alias FO = FormatOptions;
 
-@synopsis{Removing production labels removes similar patterns in the main toBox function.}
-private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs))
-    = prod(delabel(s), [delabel(x) | x <- syms], attrs);
-
-private Production delabel(regular(Symbol s)) = regular(delabel(s));
-
-private Symbol delabel(label(_, Symbol s)) = delabel(s);
-private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
-private default Symbol delabel(Symbol s) = s;
-
 @synopsis{This is a short-hand for legibility's sake}
 private FO fo() = formatOptions();
 

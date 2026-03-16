@@ -150,11 +150,11 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style) {
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s from sub((Trees)s for downstream processing.}
 list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style) {
-    (&T <: Tree) (type[&T <: Tree], value, loc) p = parsers(grammar);
+    Tree (type[Tree], value, loc) p = parsers(grammar);
 
-    return list[TextEdit] (&T <: Tree tree) {
+    return list[TextEdit] (Tree tree) {
         try {
-            return layoutDiff(tree, p(type(tree.prod.def, ()), format(style(tree)), tree@\loc));
+            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), format(style(tree)), tree@\loc));
         }
         catch ParseError(loc place): { 
             writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree)));
@@ -177,10 +177,10 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style) {
     return list[TextEdit] (str input) {
         &G tree = p(input, stub);
         try {
-            return layoutDiff(tree, p(format(toBox(tree)), stub));
+            return layoutDiff(tree, p(format(style(tree)), stub));
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(toBox(tree)));
+            writeFile(stub, format(style(tree)));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
@@ -211,10 +211,10 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         &G tree = p(nonterminal, input, stub);
         try {
-            return layoutDiff(tree, p(nonterminal, format(toBox(tree)), stub));
+            return layoutDiff(tree, p(nonterminal, format(style(tree)), stub));
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(toBox(tree)));
+            writeFile(stub, format(style(tree)));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
@@ -313,7 +313,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
     }, totalWork=size(files));   
 }
 
-@synopsis{Generates an in-memory preview of the result of formatting and opens an editor for it.}
+@synopsis{Generates an in-memory preview of the result of formatting and opens an HTML viewer for it, or prints the results directly to the console.}
 @benefits{
 * opens the new file with the same file extension to activate possible language servers (syntax highlighting)
 * regenerates parser and style functions every time to avoid looking at stale code.
