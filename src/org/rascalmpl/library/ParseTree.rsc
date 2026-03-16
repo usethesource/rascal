@@ -1156,11 +1156,3 @@ yield of a tree should always produce the exact same locations as ((reposition))
 }
 
 
-@synopsis{Removing production labels helps with case distinctions on ((Symbol)) kinds.}
-Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs)) = prod(delabel(s), [delabel(x) | x <- syms], attrs);
-Production delabel(regular(Symbol s)) = regular(delabel(s));
-
-@synopsis{Removing symbol labels helps with case distinctions on ((Symbol)) kinds.}
-Symbol delabel(label(_, Symbol s)) = delabel(s);
-Symbol delabel(conditional(Symbol s, _)) = delabel(s);
-default Symbol delabel(Symbol s) = s;

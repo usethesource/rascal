@@ -378,3 +378,12 @@ private str ci(str word, toLower()) = toLowerCase(word);
 private str ci(str word, toUpper()) = toUpperCase(word);
 private str ci(str word, toCapitalized()) = capitalize(word);
 private str ci(str word, asIs())    = word;
+
+@synopsis{Removing production labels helps with case distinctions on ((Symbol)) kinds.}
+private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs)) = prod(delabel(s), [delabel(x) | x <- syms], attrs);
+private Production delabel(regular(Symbol s)) = regular(delabel(s));
+
+@synopsis{Removing symbol labels helps with case distinctions on ((Symbol)) kinds.}
+private Symbol delabel(label(_, Symbol s)) = delabel(s);
+private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
+private default Symbol delabel(Symbol s) = s;
