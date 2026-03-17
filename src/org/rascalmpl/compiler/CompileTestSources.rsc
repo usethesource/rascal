@@ -40,6 +40,7 @@ import lang::rascalcore::compile::Compile;
 import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::check::TestConfigs;
 
 loc GIT_REPO = |file:///Users/paulklint/git/|;
 
