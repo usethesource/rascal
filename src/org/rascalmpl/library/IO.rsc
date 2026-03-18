@@ -140,8 +140,9 @@ Append a textual representation of some values to an existing or a newly created
 *  All other values are printed as-is.
 *  Each value is terminated by a newline character.
 
-The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
-Else the same method of deciding the character set is used as in ((readFile)).
+The existing file can be stored using any character set possible. 
+If you know the character set, please use the `charset` keyword parameter.
+Otherwise, the same method of deciding the character set is used as in ((readFile)).
 }
 @pitfalls{
 *  The same encoding pitfalls as the ((readFile)) function.
