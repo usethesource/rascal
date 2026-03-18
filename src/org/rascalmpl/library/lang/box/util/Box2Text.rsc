@@ -346,7 +346,7 @@ The next box is either configured by itself. Options are transferred from the
 box to the opts parameter for easy passing on to recursive calls.
 }
 private Text \continue(Box b, Box c, Options opts, int m)
-    = continueWith(b, c, opts[hs=b.hs][vs=b.vs][is=b.is], m);
+    = continueWith(b, c, opts[hs=b.hs][vs=b.vs][is=(b.is?)?b.is:opts.is], m);
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
@@ -458,23 +458,23 @@ private bool noWidthOverflow(list[Box] hv, Options opts)
 
 @synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
 private Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
-    case HV_(list[Box] boxes, hs=h, is=i, vs=v) => H_(boxes, hs=h, is=i, vs=v) 
+    case Box B:HV_(list[Box] boxes, hs=h, is=i, vs=v) => H_(boxes, hs=h, is=(B.is?)?i:opts.is, vs=v) 
         when noWidthOverflow(boxes, opts)
 };
 
 @synopsis{Changes all HOV boxes that do fit horizontally into hard H boxes,
 and the others into hard V boxes.}
 private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
-    case HOV_(list[Box] boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
-        ? H_(boxes, hs=h, is=i, vs=v)
-        : V_(boxes, hs=h, is=i, vs=v)      
+    case Box B:HOV_(list[Box] boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
+        ? H_(boxes, hs=h, is=(B.is?)?i:opts.is, vs=v)
+        : V_(boxes, hs=h, is=(B.is?)?i:opts.is, vs=v)      
 };
 
 @synopsis{Workhorse, that first applies hard HV and HOV limits and then starts the general algorithm}
 private Text box2data(Box b, Options opts) {
     b = applyHVconstraints(b, opts);
     b = applyHOVconstraints(b, opts);
-    return \continue(b, V_([]), options(), opts.maxWidth);
+    return \continue(b, V_([]), options(is=opts.is), opts.maxWidth);
 }
     
 ///////////////// regression tests ////////////////////////////////
@@ -563,13 +563,13 @@ test bool blockIndent()
        '";
 
 test bool wrappingIgnoreIndent()
-    = format(HV(L("A"), I(L("B")), L("C"), hs=0), maxWidth=2, wrapAfter=2)
+    = format(HV(L("A"), I(L("B")), L("C"), hs=0), opts=formatOptions(maxWidth=2, wrapAfter=2))
     == "AB
        'C
        '";
 
 test bool wrappingWithIndent()
-    = format(HV(L("A"), I(L("B")), I(L("C")), hs=0), maxWidth=2, wrapAfter=2)
+    = format(HV(L("A"), I(L("B")), I(L("C")), hs=0),opts=formatOptions( maxWidth=2, wrapAfter=2))
     == "AB
        '    C
        '";
@@ -581,7 +581,7 @@ test bool multiBoxIndentIsVertical()
        '";
 
 test bool flipping1NoIndent()
-    = format(HOV(L("A"), L("B"), L("C"), hs=0, vs=0), maxWidth=2, wrapAfter=2)
+    = format(HOV(L("A"), L("B"), L("C"), hs=0, vs=0), opts=formatOptions(maxWidth=2, wrapAfter=2))
     == "A
        'B
        'C
@@ -657,7 +657,7 @@ test bool noDegenerateHVSeparators1()
        '";
 
 test bool noDegenerateHVSeparators2()
-    = format(HV(L("a"),V(),L("b")), maxWidth=1, wrapAfter=1) 
+    = format(HV(L("a"),V(),L("b")), opts=formatOptions(maxWidth=1, wrapAfter=1)) 
     == "a
        'b
        '";
@@ -668,7 +668,7 @@ test bool noDegenerateHOVSeparators1()
        '";
 
 test bool noDegenerateHOVSeparators2()
-    = format(HOV(L("a"),V(),L("b")), maxWidth=1, wrapAfter=1) 
+    = format(HOV(L("a"),V(),L("b")), opts=formatOptions(maxWidth=1, wrapAfter=1))
     == "a
        'b
        '";
