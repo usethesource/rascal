@@ -15,6 +15,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 This module composes and describes a "standard" formatting style for Rascal.
 There could be other styles of course. Other styles can be build by 
 writing different `toBox` rules.
+
+TODO's:
+    // * HOV instead of HV for constructor parameters (this is probably a good thing)
+    * global variable assignment indentation too deep (has todo with visibility keywords?)
+    * alias has no spacing around =
+    * `public` indents function declarations too deeply if there is no function body `;` (see also globals)
+    // * parse error in IO output:
+    //    *  multiple empty lines between function definitions in IO.rsc
+    //    * copyFile has is=2?
+    // * missing brackets around parameters in final closure calls
+    * parameter lists of function calls go to vertical too soon
+    * single line comment at end of line should not go to its own line
+    * if brackets go vertical of call syntax, parameters also always go vertical. not necessary.
+    * "if" can get "\{" below it (HV?) in some corner cases. Not good.
+    * in Set ArithmeticException a string template ends with an unindented quote?
+    * too many spaces around = in kwparams default binding
 }
 @bootstrapParser
 module lang::rascal::format::Rascal
@@ -258,18 +274,25 @@ Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Pa
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`)
     = V(
         toBox(tags),
-        H(toBox(vis), H0(toBox(sig), L(";")))
+        HOV(
+            toBox(vis), 
+            H0(toBox(sig), L(";"))
+        )
     );
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
     = V(toBox(tags),
-        HOV(H1(toBox(vis), toBox(sig)),
-            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H())), L(";"), hs=0)))) when !(exp is \visit || exp is voidClosure || exp is closure);
+        HOV(
+            toBox(vis), 
+            toBox(sig),
+            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H())), L(";"), hs=0)))) 
+    when !(exp is \visit || exp is voidClosure || exp is closure);
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Type typ> <Parameters parameters> { <Statement+ statements> };`)
     = V(toBox(tags),
         HOV(
-            H(toBox(vis), toBox(sig)),
+            toBox(vis), 
+            toBox(sig),
             I(HOV(
                 H(L("="), H0(toBox(typ), L("("))),
                 G(toBox(parameters), gs=1, op=I()), 
@@ -281,7 +304,8 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Parameters parameters> { <Statement+ statements> };`)
     = V(toBox(tags),
         HOV(
-            H(toBox(vis), toBox(sig)),
+            toBox(vis),
+            toBox(sig),
             I(HOV(
                 H(L("="), L("(")),
                 G(toBox(parameters), gs=1, op=I()), 
@@ -293,30 +317,33 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Label l> <Visit vst>;`)
     = V(toBox(tags),
-        H(toBox(vis), toBox(sig)),
-        I(H(L("="), H0(toBox(l), toBox(vst), L(";")))));
+        HOV(
+            toBox(vis), 
+            toBox(sig),
+            I(H(L("="), H0(toBox(l), toBox(vst), L(";")))))
+    );
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`)
     = V(toBox(tags),
-        HOV(H(toBox(vis), toBox(sig)),
+        HOV(
+            toBox(vis), 
+            toBox(sig),
             I(G(L("="), toBox(exp), gs=2, op=H([])))),
         I(H(L("when"), H0(toBox(conds), L(";")))));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> { <Statement* stats> }`)
     = V(toBox(tags),
-        H(toBox(vis), toBox(sig), L("{")),
+        HOV(toBox(vis), H(toBox(sig), L("{"))),
         I(toClusterBox(stats)),
         L("}"));
     
 Box toBox(Tag* tags) = V([toBox(t) | Tag t <- tags]);
 
 Box toBox((Tag) `@synopsis<TagString c>`) 
-    = H0(L("@"), L("synopsis"), 
-        toBox(c));
+    = H0(L("@"), L("synopsis"), toBox(c));
 
 Box toBox((Tag) `@<Name n> <TagString c>`) 
-    = HOV(H0(L("@"), L("<n>")),
-        toBox(c))
+    = HOV(H0(L("@"), L("<n>")), toBox(c))
     when "<n>" != "synopsis";
 
 // no keyword parameters
@@ -347,6 +374,10 @@ Box toBox((Parameters) `( <{Pattern ","}* formals> ..., <{KeywordFormal ","}+ ke
         G([toBox(f), L(",") | f <- formals][..-1] + [H0(L("..."), L(","))], gs=2, op=H0()),
         toBox(keywordFormals)
     );
+
+// varags, with comma, we try horizontal if both formals and kw formals fit on one line
+Box toBox((Parameters) `( <{Pattern ","}* formals> ...)`)
+    = G([toBox(f), L(",") | f <- formals][..-1] + [L("...")], gs=2, op=H0());
 
 // varargs, no comma, use vertical to separate the formals from the keyword formals
 Box toBox((Parameters) `( <{Pattern ","}* formals> ... <{KeywordFormal ","}+ keywordFormals>)`)
@@ -712,8 +743,8 @@ Box toBox((Expression) `<Expression caller>()`)
 // call without kwargs but ends with a final normal closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H0(toBox(caller), L("(")), 
-        I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), I(HOV0(toBox(parameters))), L("{")))), 
+        HV(H0(toBox(caller), L("(")), 
+        I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), H0(L("("), I(HOV0(toBox(parameters))), L(")")), L("{")))), hs=0), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -721,17 +752,16 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Type
 // call without kwargs but ends with a final void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H0(toBox(caller), L("(")), 
-        V(
-        I(H(H0(HOV(toBox(arguments)), L(",")), H(I(HOV0(toBox(parameters))), L("{")))), 
-        I(V(toBox(statements))),
+        HV(H0(toBox(caller), L("(")), 
+        I(H(H0(HOV(toBox(arguments)), L(",")), H0(L("("), H(I(HOV0(toBox(parameters))), L(")")), L("{")))), hs=0), 
+        I(V(toBox(statements)),
         H0(L("}"), L(")")))]
     );
 
 // call without kwargs no normal parameters but ends with a final normal closure
 Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), toBox(typ), I(HOV0(toBox(parameters)))), L("{")), 
+        H(H0(toBox(caller), L("("), toBox(typ), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -739,7 +769,7 @@ Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> {
 // call without kwargs no normal parameters but ends with a final void closure
 Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), I(HOV0(toBox(parameters)))), L("{")), 
+        H(H0(toBox(caller), L("("), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
         I(V(toBox(statements))),
         H0(L("}"), L(")"))]
     );
@@ -748,7 +778,7 @@ Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
     = HOV(
         H0(toBox(caller), L("(")), 
-        G(toBox(arguments), gs=1, op=I()), 
+        I(HOV(toBox(arguments))), 
         L(")"), 
         hs=0)
     when !(arguments[-1] is closure || arguments[-1] is voidClosure);
