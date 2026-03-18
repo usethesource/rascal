@@ -40,6 +40,7 @@ As ((FormatOptions)) you can configure different parts of the pipeline in one go
 * `breakAfter` - indicates hard limit under which HV and HOV constraints must say in horizontal mode 
 * `is` - indicates the default indentation size
 * `ci` - ((CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
+* `needsConfirmation` - triggers UI behavior with confirmation dialogs and possible previews
 }
 @benefits{
 * speed: 
@@ -81,15 +82,20 @@ import util::Reflective;
 @synopsis{A style specification maps a ((Tree)) to a ((Box-Box)) expression.}
 alias Style = Box(Tree);
 
+@synopsis{Additional formatter option}
+data FormatOptions(
+    bool needsConfirmation=false
+);
+
 @synopsis{Repeats this option from ((util::LanguageServer)) to avoid a cyclic dependency.}
 data FileSystemChange(bool needsConfirmation = false);
 
 @synopsis{Generates a file formatter that immediately applies the new style to the input.}
-void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, bool needsConfirmation=false, FormatOptions opts=formatOptions()) {
+void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
     list[TextEdit](loc) toEdits = fileEdits(grammar, style, opts=opts);
 
     return void (loc input) {  
-        executeFileSystemChanges([changed(input, toEdits(input), needsConfirmation=needsConfirmation)]);
+        executeFileSystemChanges([changed(input, toEdits(input), needsConfirmation=opts.needsConfirmation)]);
     };
 }
 
