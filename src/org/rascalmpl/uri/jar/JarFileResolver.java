@@ -39,10 +39,19 @@ public class JarFileResolver  {
             .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
             .softValues().build();
 
-    protected CompressedFSTree getFileHierchyCache(ISourceLocation jar) {
+
+    private File jarFile(ISourceLocation jar) {
+        return new File(jar.getPath());
+    }
+
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation jar) throws IOException {
         try {
-            final File jarFile = new File(jar.getPath());
-            return fsCache.get(URIUtil.changeQuery(jar, "mod=" + jarFile.lastModified()), j -> new JarFileTree(jarFile));
+            var jarFile = jarFile(jar);
+            var lastModified = jarFile.lastModified();
+            if (lastModified == 0) {
+                throw new FileNotFoundException("The file " + jar + "does not exist or is a directory");
+            }
+            return fsCache.get(URIUtil.changeQuery(jar, "mod=" + lastModified), j -> new JarFileTree(jarFile));
         }
         catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -60,21 +69,21 @@ public class JarFileResolver  {
         return jarFile.getInputStream(jarEntry);
     }
 
-    public boolean exists(ISourceLocation jar, String path) {
+    public boolean exists(ISourceLocation jar, String path) throws IOException {
         if (path == null || path.isEmpty() || path.equals("/")) {
-            return true;
+            return jarFile(jar).isFile();
         }
         return getFileHierchyCache(jar).exists(path);
     }
 
-    public boolean isDirectory(ISourceLocation jar, String path) {
+    public boolean isDirectory(ISourceLocation jar, String path) throws IOException {
         if (!path.endsWith("/")) {
             path = path + "/";
         }
         return getFileHierchyCache(jar).isDirectory(path);
     }
 
-    public boolean isFile(ISourceLocation jar, String path) {
+    public boolean isFile(ISourceLocation jar, String path) throws IOException {
         return getFileHierchyCache(jar).isFile(path);
     }
 
