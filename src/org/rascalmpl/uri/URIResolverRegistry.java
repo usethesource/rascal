@@ -66,7 +66,7 @@ public class URIResolverRegistry {
 	private final Map<String, Map<String, ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 
-	public volatile @Nullable IExternalResolverRegistry externalRegistry;
+	private volatile @Nullable IExternalResolverRegistry externalRegistry;
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
