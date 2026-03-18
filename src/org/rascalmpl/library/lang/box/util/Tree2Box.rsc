@@ -70,9 +70,9 @@ import String;
 
 
 @synopsis{Configuration options for toBox}
-data FormatOptions = formatOptions(
+data FormatOptions(
     CaseInsensitivity ci = asIs()
-);
+) = formatOptions();
 
 @synopsis{Normalization choices for case-insensitive literals.}
 data CaseInsensitivity

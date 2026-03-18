@@ -73,6 +73,18 @@ import String;
 import lang::box::\syntax::Box;
 import IO;
 
+@synopsis{formatting options for ((Box2Text))}
+@description{
+    * `maxWidth` is the constraint that makes HV and HOV boxes switch to vertical mode
+    * `wrapAfter` is the lowerbound that makes HV and HOV stay horizontal
+    * `is` is the default indentation used when an `I` box does not have an explicit `is` parameter
+}
+data FormatOptions(
+    int maxWidth=80, 
+    int wrapAfter=70,
+    int is=4
+) = formatOptions();
+
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
@@ -85,8 +97,8 @@ fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 * HV and HOV are the soft constraints that allow for better solutions, so use them where you can to allow for 
 flexible layout that can handle deeply nested expressions and statements.
 } 
-public str format(Box b, int maxWidth=80, int wrapAfter=70)
-    = "<for (line <- box2text(b, maxWidth=maxWidth, wrapAfter=wrapAfter)) {><line>
+public str format(Box b, FormatOptions opts = formatOptions())
+    = "<for (line <- box2text(b, opts=opts)) {><line>
       '<}>";
 
 @synopsis{Box2text uses list[str] as intermediate representation of the output during formatting}
@@ -101,8 +113,8 @@ ANSI escape codes, and characters like \r and \n in `L` boxes _will break_ the a
 alias Text = list[str];
 
 @synopsis{Converts boxes into list of lines (Unicode)}      
-public Text box2text(Box b, int maxWidth=80, int wrapAfter=70) 
-    = box2data(b, options(maxWidth=maxWidth, wrapAfter=wrapAfter));
+public Text box2text(Box b, FormatOptions opts = formatOptions()) 
+    = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.is));
 
 ////////// private functions below implement the intermediate data-structures
 ////////// and the constraint solver
@@ -118,7 +130,7 @@ This is used during the algorithm, not for external usage.
 * `wrapAfter` is the threshold criterion for line fullness, to go to the next line in a HV box and to switching
 between horizontal and vertical for HOV boxes.
 }
-data Options = options(
+private data Options = options(
     int hs = 1, 
     int vs = 0, 
     int is = 4, 
