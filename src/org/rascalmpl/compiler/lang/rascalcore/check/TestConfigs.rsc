@@ -76,9 +76,9 @@ public PathConfig getDefaultTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ testModulesRoot, |std:///|  ],
-        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
-        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
-        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ ]
     );
 }
@@ -94,9 +94,9 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ testModulesRoot ],
-        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
-        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
-        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ |lib://rascal| ]
     );
 }
