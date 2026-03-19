@@ -224,7 +224,7 @@ bool tplOutdated(MODID moduleId, PathConfig pcfg){
         <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
-        res = !found || lmMloc >= lmTpl;
+        res = !found || lmMloc > lmTpl;
         // println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
         return res;
     } catch _: {
