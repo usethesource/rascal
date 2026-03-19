@@ -46,6 +46,8 @@ import String;
 import lang::rascalcore::check::ModuleLocations;
 import util::FileSystem;
 import util::SemVer;
+import lang::rascalcore::check::TestShared;
+import lang::rascalcore::check::tests::StaticTestingUtils;
 
 
 // ---- Utilities for test setup ----------------------------------------------
@@ -99,6 +101,9 @@ str writeModule(str mname, str mtext){
         throw "Parse error in <msrc>";
 }
 
+loc getModuleLoc(str mname, Project pd)
+    = src(pd.name) + "<mname>.rsc";
+
 PathConfig createPathConfig(str pname){
     return pathConfig(
         srcs=[src(pname)],
@@ -111,7 +116,9 @@ PathConfig createPathConfig(str pname){
 
 Project addModule(str mname, str mtext, Project pd){
     pd.modules[mname] = writeModule(mname, mtext);
-    writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
+    mloc = getModuleLoc(mname, pd);
+    writeFile(mloc, pd.modules[mname]);
+    assert exists(mloc) : "<mloc> does not exist after write";
     return pd;
 }
 
@@ -119,14 +126,18 @@ Project changeModule(str mname, str mtext, Project pd){
     if(!pd.modules[mname]?) throw "Module <mname> does not exist in <pd.name>";
 
     pd.modules[mname] = writeModule(mname, mtext);
-    writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
+    mloc = getModuleLoc(mname, pd);
+    writeFile(mloc, pd.modules[mname]);
+    assert exists(mloc) : "<mloc> does not exist after write";
     return pd;
 }
 
 Project removeSourceOfModule(str mname, Project pd){
     if(!pd.modules[mname]?) throw "Cannot remove non-existing module <mname>";
     pd.modules = delete(pd.modules, mname);
-    remove(src(pd.name) + "<mname>.rsc", recursive=true);
+    mloc = getModuleLoc(mname, pd);
+    remove(mloc, recursive=true);
+    assert !exists(mloc): "<mloc> not removed";
     return pd;
 }
 
@@ -533,7 +544,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
 
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
-    // Update Checks' modification time to make sure it will rechecked
+    // Update Checks' modification time to make sure it will be rechecked
     touch(getRascalModuleLocation("Check", core.pcfg));
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
