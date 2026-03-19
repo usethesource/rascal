@@ -84,7 +84,7 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(testModulesRoot, recursive = true);
+	remove(testRoot, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
@@ -107,13 +107,15 @@ void removeModule(str mname){
 }
 
 void printModules(){
-	for(f <- find(testModulesRoot, "rsc")){
+	println("\<\<\<\<");
+	for(f <- find(testRoot, "rsc")){
 		println("<f> <lastModified(f)>:
 		        '<readFile(f)>");
 	}
-	for(f <- find(testModulesRoot, "tpl")){
+	for(f <- find(testRoot, "tpl")){
 		println("<f>: <lastModified(f)>");
 	}
+	println("\>\>\>\>");
 }
 
 set[Message] getErrorMessages(ModuleStatus r)
