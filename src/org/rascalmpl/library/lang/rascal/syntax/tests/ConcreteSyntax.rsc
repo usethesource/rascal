@@ -1,5 +1,7 @@
 module lang::rascal::\syntax::tests::ConcreteSyntax
 
+import Node;
+
 syntax A 
   = a:"a" 
   | b:"b"
@@ -78,3 +80,9 @@ public test bool matchstar4() = (S) `star <S* _>.` := star_two;
 public test bool matchstar5() = (S) `star <S _> <S* _>.` := star_two;
 
 public test bool splicestar1() = (S*) x := star_two.\list && (S) `star s s s s.` := (S) `star <S x> <S* x>.` ;
+
+test bool noLocAnnos() {
+  a = (A) `a b`;
+  kwParams = {kw | /node t := a, kw <- getKeywordParameters(t)};
+  return "loc" notin kwParams;
+}
