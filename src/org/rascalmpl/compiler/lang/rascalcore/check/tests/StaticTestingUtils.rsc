@@ -76,7 +76,7 @@ tuple[str,str] extractModuleNameAndBody(str moduleText){
 
 loc composeModule(str stmts){
     return writeModule(
-        "module TestModule
+        "module TestModule<md5Hash(stmts)[..5]>
         'value main(){
         '    <stmts>\n
         '    return true;
