@@ -34,7 +34,7 @@ public class BreakTest {
     // notCompatibleAfterChangingFunctionArgument
     // notCompatibleAfterChangingFunctionArgument
 
-    private static final int PARALLEL_RUNS = 8; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
+    private static final int PARALLEL_RUNS = 1; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
     private static final int TRIES = 1000 / PARALLEL_RUNS;
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -120,16 +120,17 @@ public class BreakTest {
                         }
 
                     } catch (Throwable e ) {
-                        failed.set(true);
-                        iFailed.set(true);
                         err.println("❌ test fail :" + currentTest);
                         err.println(e);
+                        e.printStackTrace(err);
+                        iFailed.set(true);
                     }
                     return null;
                 });
             } finally {
                 // clean up memory
                 var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
+                if (memoryModule != null ) {
                 var testRoot = memoryModule.getFrameVariable("testRoot");
                 try {
                     URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
@@ -138,6 +139,7 @@ public class BreakTest {
                     err.println("Failure to cleanup the cache");
                 }
             }
+            }
 
         }
 
@@ -145,6 +147,7 @@ public class BreakTest {
             errorPrinter.println("❌❌❌ Test run failed: " + name);
             errorPrinter.println("Job output:");
             errorPrinter.println(output.toString());
+            failed.set(true);
             return true;
         }
         return false;
@@ -196,22 +199,24 @@ public class BreakTest {
                             } finally {
                                 // clean up memory
                                 var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
-                                var testRoot = memoryModule.getFrameVariable("testRoot");
-                                try {
-                                    URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
-                                }
-                                catch (Throwable e) {
-                                    err.println("Failure to cleanup the cache");
+                                if (memoryModule != null) {
+                                    var testRoot = memoryModule.getFrameVariable("testRoot");
+                                    try {
+                                        URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
+                                    }
+                                    catch (Throwable e) {
+                                        err.println("Failure to cleanup the cache");
+                                    }
                                 }
                             }
                         }
 
                 } catch (Throwable e ) {
-                    failed.set(true);
                     iFailed.set(true);
                     err.println("tests: " + Arrays.deepToString(tests.stream().map(AbstractFunction::getName).toArray()));
                     err.println("❌ test fail :" + currentTest);
                     err.println(e);
+                    e.printStackTrace(err);
                 }
                 return null;
             });
@@ -221,6 +226,8 @@ public class BreakTest {
             errorPrinter.println("❌❌❌ Test run failed: " + name);
             errorPrinter.println("Job output:");
             errorPrinter.println(output.toString());
+            errorPrinter.flush();
+            failed.set(true);
             return true;
         }
         return false;
