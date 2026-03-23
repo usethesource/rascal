@@ -530,7 +530,7 @@ private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
 private Text box2data(Box b, Options opts) {
     b = applyHVconstraints(b, opts);
     b = applyHOVconstraints(b, opts);
-    return \continue(b, V_([]), options(is=opts.is), opts.maxWidth);
+    return \continue(b, V_([]), options(is=opts.is, insertSpaces=opts.insertSpaces, trimTrailingWhitespace=opts.trimTrailingWhitespace), opts.maxWidth);
 }
     
 ///////////////// regression tests ////////////////////////////////
