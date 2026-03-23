@@ -76,9 +76,9 @@ public PathConfig getDefaultTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ testModulesRoot, |std:///|  ],
-        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
-        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
-        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ ]
     );
 }
@@ -94,9 +94,9 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ testModulesRoot ],
-        bin = testModulesRoot + "rascal-tests-bin-<snpc>",
-        generatedSources = testModulesRoot + "generated-test-sources-<snpc>",
-        generatedResources = testModulesRoot + "generated-test-resources-<snpc>",
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ |lib://rascal| ]
     );
 }
@@ -128,7 +128,7 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources       = COMPILED + "/src/main/java",
         generatedTestSources   = COMPILED + "/src/test/java/",
         generatedResources     = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        generatedTestResources = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedTestResources = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                   = libraries
     ); 
 }
@@ -191,7 +191,7 @@ public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
                             TMP_TYPEPAL
                         ],
                         [ ], 
-                        keep=true);
+                        keep=keep);
 }
 
 public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool keep=true){
