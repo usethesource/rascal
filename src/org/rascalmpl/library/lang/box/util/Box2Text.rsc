@@ -186,8 +186,8 @@ private Text vv(Text a, Text b) = [*a, *b];
 private str blank(str a, Options opts) = hskip(size(a), opts)[0];
 
 @synopsis{Computes a white line with the length of the last line of a}
-Text wd([])             = [];
-Text wd([*_, str x])    = [blank(x)];
+Text wd([], Options _)             = [];
+Text wd([*_, str x], Options opts) = [blank(x, opts)];
      
 @synopsis{Computes the maximum width of text t}
 private int twidth([]) = 0;
@@ -198,13 +198,13 @@ private int hwidth([])             = 0;
 private int hwidth([*_, str last]) = size(last);
 
 @synopsis{Prepends str a before text b, all lines of b will be shifted}
-private Text bar(str a, [])                = [a];
-private Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
+private Text bar(str a, [], Options _) = [a];
+private Text bar(str a, [str bh, *str bt], Options opts) = vv(["<a><bh>"], prepend(blank(a, opts), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
 Text hskip(int n, Options opts) = opts.insertSpaces 
     ? [right("", n)]
-    : ["<for (_ <- [0 .. n / opts.tabSize]) {>\t<}><for (_ <- [0 .. n % opts.tabSize]) {> <}>"];
+    : ["<for (_ <- [0 .. n / opts.is]) {>\t<}><for (_ <- [0 .. n % opts.is]) {> <}>"];
     
 @synopsis{Produces text consisting of n white lines at length 0}
 private Text vskip(int n) = ["" | _ <- [0..n]];
@@ -213,19 +213,19 @@ private Text vskip(int n) = ["" | _ <- [0..n]];
 private Text prepend(str a, Text b) = ["<a><line>" | line <- b];
 
 @synopsis{Implements horizontal concatenation, also for multiple lines}
-private Text hh([], Text b)  = b;
-private Text hh(Text a, [])  = a;
-private Text hh([a], Text b) = bar(a, b);
+private Text hh([], Text b, Options _)  = b;
+private Text hh(Text a, [], Options _)  = a;
+private Text hh([a], Text b, Options opts) = bar(a, b, opts);
 
-private default Text hh(Text a, Text b) = vv(a[0..-1], bar(a[-1], b));
+private default Text hh(Text a, Text b, Options opts) = vv(a[0..-1], bar(a[-1], b, opts));
         
 @synopsis{Horizontal concatenation, but if the left text is empty return nothing.}
-private Text lhh([], Text _) = [];
-private default Text lhh(a, b) = hh(a, b);
+private Text lhh([], Text _, Options _) = [];
+private default Text lhh(a, b, Options opts) = hh(a, b, opts);
 
 @synopsis{Horizontal concatenation, but if the right text is empty return nothing.}
-private Text rhh(Text _, []) = [];
-private Text rhh(Text a, Text b) = hh(a, b);
+private Text rhh(Text _, [], Options _) = [];
+private Text rhh(Text a, Text b, Options opts) = hh(a, b, opts);
 
 @synopsis{Vertical concatenation, but if the right text is empty return nothing.}
 private Text rvv(Text _, []) = [];
@@ -244,7 +244,7 @@ private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     for (a <- b) {
         Text t = \continue(a, H([]), opts, m);
         int s = hwidth(t); 
-        r = hh(t, rhh(hskip(opts.hs, opts), r));
+        r = hh(t, rhh(hskip(opts.hs, opts), r, opts), opts);
         m  = m - s - opts.hs;
     }
    
@@ -285,7 +285,7 @@ private Text II(list[Box] b:[_, *_]              , c:H_(list[Box] _), Options op
     = HH(b, c, opts, m);
 
 private Text II(list[Box] b:[Box _, *Box _], c:V_(list[Box] _), Options opts, int m) 
-    = rhh(hskip(opts.is, opts), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
+    = rhh(hskip(opts.is, opts), \continue(V(b, vs=opts.vs), c, opts, m - opts.is), opts);
 
 private Text WDWD([], Box _c , Options _opts, int _m) 
     = [];
@@ -294,7 +294,7 @@ private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
     int h  = head.hs ? opts.hs;
     Text t = \continue(head, c, opts, m);
     int s  = hwidth(t);
-    return  hh(wd(t), rhh(hskip(h, opts) , WDWD(tail, c, opts, m - s - h)));
+    return  hh(wd(t, opts), rhh(hskip(h, opts) , WDWD(tail, c, opts, m - s - h), opts), opts);
 }
 
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
@@ -321,7 +321,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     }
 
     if (n <= s) {  // Box A fits in current line
-        return HVHV(hh(lhh(T, hskip(h,opts)), a), s-n, B, opts, m, H_([]));
+        return HVHV(hh(lhh(T, hskip(h,opts), opts), a, opts), s-n, B, opts, m, H_([]));
     }
     else {
         n -= h; // n == size(a)
@@ -434,7 +434,7 @@ private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1
 private Box align(fl(), Box cell, int maxWidth) = cell;
 
 // the last center box should not fill up to the right, only to the left to help implement `trimTrailingWhitespace`
-private Box align(lc(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
+private Box align(fc(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
     ? H_([SPACE((maxWidth - cell.width) / 2),  cell], hs=0)
     : maxWidth - cell.width == 1 ?
         align(l(), cell, maxWidth)
