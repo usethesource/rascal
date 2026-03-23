@@ -57,8 +57,8 @@ void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
 str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
-void debugFormatRascalFile(loc \module, bool console=false) {
-    debugFileFormat(#start[Module], toBox, \module, console=console, opts=formatOptions(is=8));
+void debugFormatRascalFile(loc \module, bool console=false, FormatOptions opts = formatOptions()) {
+    debugFileFormat(#start[Module], toBox, \module, console=console, opts=opts);
 }
 
 void testOnLibrary() {

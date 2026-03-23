@@ -75,15 +75,26 @@ import IO;
 
 @synopsis{formatting options for ((Box2Text))}
 @description{
-    * `maxWidth` is the constraint that makes HV and HOV boxes switch to vertical mode
-    * `wrapAfter` is the lowerbound that makes HV and HOV stay horizontal
-    * `is` is the default indentation used when an `I` box does not have an explicit `is` parameter
+    * `maxWidth` is the constraint that makes HV and HOV boxes switch to vertical mode (origin: ((Box2Text))
+    * `wrapAfter` is the lowerbound that makes HV and HOV stay horizontal (origin ((Box2Text)))
+    * `tabSize` is the default indentation used when an `I` box does not have an explicit `is` parameter (origin: ((util::LanguageServer)))
+    * `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
+    * `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
+    when false it does not matter. (origin: ((util::LanguageServer)))
+    * `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. (origin: ((util::LanguageServer)))
+    * `trimFinalNewlines`, trim all newlines after the final newline at the end of the file. (origin: ((util::LanguageServer))
+
+Note that there may be more FormattingOptions due to other elements of a formatting pipeline, such as ((layoutDiff)).
 }
-data FormatOptions(
+data FormattingOptions(
     int maxWidth=80, 
     int wrapAfter=70,
-    int is=4
-) = formatOptions();
+    int tabSize = 4,
+    bool insertSpaces = true,
+    bool trimTrailingWhitespace = true,
+	bool insertFinalNewline = true,
+    bool trimFinalNewlines = true
+) = formattingOptions();
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -97,7 +108,7 @@ fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 * HV and HOV are the soft constraints that allow for better solutions, so use them where you can to allow for 
 flexible layout that can handle deeply nested expressions and statements.
 } 
-public str format(Box b, FormatOptions opts = formatOptions())
+public str format(Box b, FormattingOptions opts = formattingOptions())
     = "<for (line <- box2text(b, opts=opts)) {><line>
       '<}>";
 
@@ -113,7 +124,7 @@ ANSI escape codes, and characters like \r and \n in `L` boxes _will break_ the a
 alias Text = list[str];
 
 @synopsis{Converts boxes into list of lines (Unicode)}      
-public Text box2text(Box b, FormatOptions opts = formatOptions()) 
+public Text box2text(Box b, FormattingOptions opts = formattingOptions()) 
     = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.is));
 
 ////////// private functions below implement the intermediate data-structures
@@ -563,13 +574,13 @@ test bool blockIndent()
        '";
 
 test bool wrappingIgnoreIndent()
-    = format(HV(L("A"), I(L("B")), L("C"), hs=0), opts=formatOptions(maxWidth=2, wrapAfter=2))
+    = format(HV(L("A"), I(L("B")), L("C"), hs=0), opts=formattingOptions(maxWidth=2, wrapAfter=2))
     == "AB
        'C
        '";
 
 test bool wrappingWithIndent()
-    = format(HV(L("A"), I(L("B")), I(L("C")), hs=0),opts=formatOptions( maxWidth=2, wrapAfter=2))
+    = format(HV(L("A"), I(L("B")), I(L("C")), hs=0),opts=formattingOptions( maxWidth=2, wrapAfter=2))
     == "AB
        '    C
        '";
@@ -581,7 +592,7 @@ test bool multiBoxIndentIsVertical()
        '";
 
 test bool flipping1NoIndent()
-    = format(HOV(L("A"), L("B"), L("C"), hs=0, vs=0), opts=formatOptions(maxWidth=2, wrapAfter=2))
+    = format(HOV(L("A"), L("B"), L("C"), hs=0, vs=0), opts=formattingOptions(maxWidth=2, wrapAfter=2))
     == "A
        'B
        'C
@@ -657,7 +668,7 @@ test bool noDegenerateHVSeparators1()
        '";
 
 test bool noDegenerateHVSeparators2()
-    = format(HV(L("a"),V(),L("b")), opts=formatOptions(maxWidth=1, wrapAfter=1)) 
+    = format(HV(L("a"),V(),L("b")), opts=formattingOptions(maxWidth=1, wrapAfter=1)) 
     == "a
        'b
        '";
@@ -668,7 +679,7 @@ test bool noDegenerateHOVSeparators1()
        '";
 
 test bool noDegenerateHOVSeparators2()
-    = format(HOV(L("a"),V(),L("b")), opts=formatOptions(maxWidth=1, wrapAfter=1))
+    = format(HOV(L("a"),V(),L("b")), opts=formattingOptions(maxWidth=1, wrapAfter=1))
     == "a
        'b
        '";

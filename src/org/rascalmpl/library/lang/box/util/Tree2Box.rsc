@@ -47,7 +47,7 @@ b = toBox(program);
 import lang::box::util::Box2Text;
 format(b)
 // If you are not happy, then you should produce a specialization:
-Box toBox((Program) `begin <Declarations decls> <{Statement ";"}* body> end`, FormatOptions opts=formatOptions())
+Box toBox((Program) `begin <Declarations decls> <{Statement ";"}* body> end`, FormattingOptions opts=formattingOptions())
     = V([
         L("begin"),
         I([
@@ -70,9 +70,9 @@ import String;
 
 
 @synopsis{Configuration options for toBox}
-data FormatOptions(
+data FormattingOptions(
     CaseInsensitivity ci = asIs()
-) = formatOptions();
+) = formattingOptions();
 
 @synopsis{Normalization choices for case-insensitive literals.}
 data CaseInsensitivity
@@ -107,7 +107,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // case-insensitive literals are optionally normalized
         case <prod(cilit(_), _, _), _>: {
             str yield =  "<t>"; 
-            return yield != "" ?  L(ci("<t>", opts.ci)) : NULL();
+            return yield != "" ?  L(opts.ci, ci("<t>")) : NULL();
         }
         
         // non-existing content should not generate accidental spaces
@@ -278,7 +278,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 default Box toBox(amb({Tree t, *Tree _}), FO opts=fo()) = toBox(t);
 
 @synopsis{When we end up here we simply render the unicode codepoint back.}
-default Box toBox(c:char(_), FormatOptions opts=fo() ) = L("<c>");
+default Box toBox(c:char(_), FormattingOptions opts=fo() ) = L("<c>");
 
 @synopsis{Cycles are invisible and zero length}
 default Box toBox(cycle(_, _), FO opts=fo()) = NULL();
@@ -368,16 +368,16 @@ Box toExpBox(Tree expression, Box wrapper=HV())
     = wrapper[boxes=[G(toBox(expression), gs=2, backwards=true, op=H())]];
 
 @synopsis{Private type alias for legibility's sake}
-private alias FO = FormatOptions;
+private alias FO = FormattingOptions;
 
 @synopsis{This is a short-hand for legibility's sake}
-private FO fo() = formatOptions();
+private FO fo() = formattingOptions();
 
 @synopsis{Implements normalization of case-insensitive literals}
-private str ci(str word, toLower()) = toLowerCase(word);
-private str ci(str word, toUpper()) = toUpperCase(word);
-private str ci(str word, toCapitalized()) = capitalize(word);
-private str ci(str word, asIs())    = word;
+private str ci(toLower(), str word) = toLowerCase(word);
+private str ci(toUpper(), str word) = toUpperCase(word);
+private str ci(toCapitalized(), str word) = capitalize(word);
+private str ci(asIs(), str word) = word;
 
 @synopsis{Removing production labels helps with case distinctions on ((Symbol)) kinds.}
 private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs)) = prod(delabel(s), [delabel(x) | x <- syms], attrs);

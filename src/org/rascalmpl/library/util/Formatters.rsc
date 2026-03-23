@@ -35,7 +35,7 @@ the activity of developing a style incrementally, or by trial-and-error, the fol
 The debug functions always take the grammar and the ((Tree2Box-toBox)) style parameter and these are never captured. This guarantees
 that while you are debugging you are always looking at the current version of your specifications.
 
-As ((FormatOptions)) you can configure different parts of the pipeline in one go using the `formatOptions()` constructor and these optional parameters:
+As ((FormattingOptions)) you can configure different parts of the pipeline in one go using the `formattingOptions()` constructor and these optional parameters:
 * `maxWidth` - indicates a hard limit for HV and HOV constraints to switch to vertical mode
 * `breakAfter` - indicates hard limit under which HV and HOV constraints must say in horizontal mode 
 * `is` - indicates the default indentation size
@@ -83,15 +83,21 @@ import util::Reflective;
 alias Style = Box(Tree);
 
 @synopsis{Additional formatter option}
-data FormatOptions(
+@description{
+* `needsConfirmation` when set to true triggers a confirmation dialog for applying the proposed edits. The UI may even show a preview or a diff editor.
+}
+data FormattingOptions(
     bool needsConfirmation=false
 );
+
+@synopsis{short-hand}
+private FormattingOptions fo() = formattingOptions();
 
 @synopsis{Repeats this option from ((util::LanguageServer)) to avoid a cyclic dependency.}
 data FileSystemChange(bool needsConfirmation = false);
 
 @synopsis{Generates a file formatter that immediately applies the new style to the input.}
-void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](loc) toEdits = fileEdits(grammar, style, opts=opts);
 
     return void (loc input) {  
@@ -100,7 +106,7 @@ void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormatOptions opt
 }
 
 @synopsis{Generates a string formatter}
-str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](str) toEdits = stringEdits(grammar, style, opts=opts);
 
     return str (str input) {
@@ -109,7 +115,7 @@ str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormatOptions op
 }
 
 @synopsis{Generates a substring formatter}
-str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](type[Tree], str) toEdits = subStringEdits(grammar, style, opts=opts);
 
     return str (type[Tree] nonterminal, str input) {
@@ -118,7 +124,7 @@ str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, F
 }
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s for downstream processing.}
-list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (loc input) {
@@ -140,7 +146,7 @@ list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormatOptio
 }
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s from a ((Tree)) for downstream processing.}
-list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (&G <: Tree tree) {
@@ -161,7 +167,7 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, Form
 }
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s from sub((Trees)s for downstream processing.}
-list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree (type[Tree], value, loc) p = parsers(grammar);
 
     return list[TextEdit] (Tree tree) {
@@ -182,7 +188,7 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormatO
 }
     
 @synopsis{Generates a string formatter that produces ((TextEdit))s for downstream processing.}
-list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(str, loc) p = parser(grammar);
     loc stub = |tmp:///formatted.txt|;
     
@@ -218,7 +224,7 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormatOpt
 * the function returns a binary function that asks for the right non-terminal of the language to use to parse the second
 parameter (a substring). For example: `#Statement` and `if (true) false;`.
 }
-list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormatOptions opts=formatOptions()) {
+list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
     loc stub = |tmp:///formatted.txt|;
     
@@ -254,7 +260,7 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
 @pitfalls{
 * not useful for production contexts
 }
-void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, FormatOptions opts=formatOptions(), bool HTML=true, bool console=!HTML) {
+void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, FormattingOptions opts=fo(), bool HTML=true, bool console=!HTML) {
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
     str pretty = formatter(readFile(input));
     &G reparsed = parse(grammar, pretty, input);
@@ -278,7 +284,7 @@ void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, FormatOpt
 * not useful for production contexts
 * may have a very long running time
 }
-void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension, FormatOptions opts=formatOptions(), bool shadowFiles = true, bool appendFile=!shadowFiles, bool console=!shadowFiles && !appendFile, bool ansi=console || appendFile) {
+void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension, FormattingOptions opts=fo(), bool shadowFiles = true, bool appendFile=!shadowFiles, bool console=!shadowFiles && !appendFile, bool ansi=console || appendFile) {
     loc shadowRoot = root.parent + "formatted-<root.file>";
     loc appendLoc = root + "format.log";
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
@@ -337,7 +343,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
 @pitfalls{
 * not useful for production contexts
 }
-void debugStringFormat(type[&G <: Tree] grammar, Style style, str input, FormatOptions opts=formatOptions(), bool HTML = true, bool console = !HTML) {
+void debugStringFormat(type[&G <: Tree] grammar, Style style, str input, FormattingOptions opts=fo(), bool HTML = true, bool console = !HTML) {
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
     str pretty = formatter(input);
     &G reparsed = parse(grammar, pretty, |unknown:///|);
