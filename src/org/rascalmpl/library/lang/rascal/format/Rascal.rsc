@@ -288,6 +288,20 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
             I(H(HOV(G(L("="), toBox(exp), gs=2, op=H())), L(";"), hs=0)))) 
     when !(exp is \visit || exp is voidClosure || exp is closure);
 
+Box toBox((Expression) `<Type typ> <Parameters parameters> { <Statement+ statements> }`)
+    =   HOV(
+            toBox(typ), H0(L("("), HOV(G(toBox(parameters), gs=1, op=I())), H(L(")")), L("{")), 
+            I(V(toBox(statements))),
+            L("}")
+        );
+
+Box toBox((Expression) `<Parameters parameters> { <Statement+ statements> }`)
+    =   HOV(
+            H0(L("("), HOV(G(toBox(parameters), gs=1, op=I())), H(L(")"), L("{"))), 
+            I(V(toBox(statements))),
+            L("}")
+        );
+    
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Type typ> <Parameters parameters> { <Statement+ statements> };`)
     = V(toBox(tags),
         HOV(
