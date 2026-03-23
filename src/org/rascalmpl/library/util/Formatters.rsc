@@ -36,11 +36,16 @@ The debug functions always take the grammar and the ((Tree2Box-toBox)) style par
 that while you are debugging you are always looking at the current version of your specifications.
 
 As ((FormattingOptions)) you can configure different parts of the pipeline in one go using the `formattingOptions()` constructor and these optional parameters:
-* `maxWidth` - indicates a hard limit for HV and HOV constraints to switch to vertical mode
-* `breakAfter` - indicates hard limit under which HV and HOV constraints must say in horizontal mode 
-* `is` - indicates the default indentation size
-* `ci` - ((CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
+* `maxWidth` - indicates a hard limit for wrapping and switching to vertical mode
+* `breakAfter` - indicates hard limit under which wrapping and switching to vertical mode must be avoided
+* `tabSize` - indicates the default indentation size
+* `caseInsensitivity` - ((CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
 * `needsConfirmation` - triggers UI behavior with confirmation dialogs and possible previews
+* `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
+* `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
+when false it does not matter. (origin: ((util::LanguageServer)))
+* `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. (origin: ((util::LanguageServer)))
+* `trimFinalNewlines`, trim all newlines after the final newline at the end of the file. (origin: ((util::LanguageServer))
 }
 @benefits{
 * speed: 
@@ -58,6 +63,10 @@ As ((FormattingOptions)) you can configure different parts of the pipeline in on
 @pitfalls{
 * the formatters capture the current state of the grammar and the style function, so if you
 change their source code, you have to regenerate the formatters.
+* case insensitivy normalization is implemented by both ((Tree2Box)) and ((HiFiLayoutDiff)), for efficiency reasons we only use the ((HiFiLayoutDiff)) implementation here.
+* all pipelines here use ((Tree2Box)), then ((Box2Text)), and then parse again and then produce diffs using ((HiFiLayoutDiff)). Strictly speaking if you only need the full string, then
+you can use ((Tree2Box)) and ((Box2Text)) and get the formatted result a bit faster. We include ((HiFiLayoutDiff)) here always because debugging and testing IDE features like formatting
+is then simulated as accurately as possible.
 }
 module util::Formatters
 
@@ -82,12 +91,14 @@ import util::Reflective;
 @synopsis{A style specification maps a ((Tree)) to a ((Box-Box)) expression.}
 alias Style = Box(Tree);
 
-@synopsis{Additional formatter option}
+@synopsis{Additional formatter options}
 @description{
 * `needsConfirmation` when set to true triggers a confirmation dialog for applying the proposed edits. The UI may even show a preview or a diff editor.
+* `caseInsensitivity` can be used to keep or normalize the style of case insensitivy keywords. See ((CaseInsensitivity)) for the options.
 }
 data FormattingOptions(
-    bool needsConfirmation=false
+    bool needsConfirmation=false,
+    CaseInsensitivity caseInsensitivity = asIs()
 );
 
 @synopsis{short-hand}
@@ -130,15 +141,15 @@ list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingO
     return list[TextEdit] (loc input) {
         &G tree = p(input, input);
         try {
-            return layoutDiff(tree, p(format(style(tree, opts=opts), opts=opts), input, ci=opts.ci));
+            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), input), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<input.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<input.file>|, format(style(tree)));
             warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<input.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<input.file>|, format(style(tree)));
             warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
         }  
@@ -151,15 +162,15 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, Form
 
     return list[TextEdit] (&G <: Tree tree) {
         try {
-            return layoutDiff(tree, p(format(style(tree, opts=opts), opts=opts), tree@\loc.top), ci=opts.ci);
+            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), tree@\loc.top), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree@\loc.top.file>|(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree@\loc.top.file>|(place.offset, place.length));
             return [];
         }  
@@ -172,15 +183,15 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, Formatt
 
     return list[TextEdit] (Tree tree) {
         try {
-            return layoutDiff(tree, p(type(unlabel(tree.prod.def), ()), format(style(tree, opts=opts), opts=opts), tree@\loc), ci=opts.ci);
+            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), format(style(tree), opts=opts[ci=asIs()]), tree@\loc), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree@\loc.top.file>|(tree@\loc.offset + place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree, opts=opts)));
+            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree@\loc.file>|(tree@\loc.offset + place.offset, place.length));
             return [];
         }  
@@ -195,16 +206,16 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, Formattin
     return list[TextEdit] (str input) {
         &G tree = p(input, stub);
         try {
-            return layoutDiff(tree, p(format(style(tree, opts=opts), opts=opts), stub), ci=opts.ci);
+            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             println("Ignoring formatter output, which contained a new parse error. <stub(place.offset, place.length)>");
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
@@ -231,20 +242,20 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         &G tree = p(nonterminal, input, stub);
         try {
-            return layoutDiff(tree, p(nonterminal, format(style(tree, opts=opts), opts=opts), stub), ci=opts.ci);
+            return layoutDiff(tree, p(nonterminal, format(style(tree), opts=opts[ci=asIs(())]), stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
         catch AssertionFailed(str msg): {
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts[ci=asIs()]));
             warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
             return [];
         }  
