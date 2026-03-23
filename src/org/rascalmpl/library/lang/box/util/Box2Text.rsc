@@ -142,7 +142,7 @@ alias Text = list[str];
 
 @synopsis{Converts boxes into list of lines (Unicode)}      
 public Text box2text(Box b, FormattingOptions opts = formattingOptions()) 
-    = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.tabSize));
+    = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.tabSize, trimTrailingWhitespace=opts.trimTrailingWhitespace, insertSpaces=opts.insertSpaces));
 
 ////////// private functions below implement the intermediate data-structures
 ////////// and the constraint solver
@@ -163,7 +163,9 @@ private data Options = options(
     int vs = 0, 
     int is = 4, 
     int maxWidth = 80, 
-    int wrapAfter = 70
+    int wrapAfter = 70,
+    bool trimTrailingWhitespace = true,
+    bool insertSpaces = true
 );
 
 @synopsis{Quickly splice in any nested U boxes, and empty H, V, HV, I or HOV boxes}
@@ -178,7 +180,7 @@ private bool isDegenerate(Box b) = b has boxes && b.boxes == [];
 private Text vv(Text a, Text b) = [*a, *b];
 
 @synopsis{Create a string of spaces just as wide as the parameter a}
-private str blank(str a) = right("", size(a));
+private str blank(str a, Options opts) = hskip(size(a), opts)[0];
 
 @synopsis{Computes a white line with the length of the last line of a}
 Text wd([])             = [];
@@ -197,7 +199,9 @@ private Text bar(str a, [])                = [a];
 private Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
-Text hskip(int n) = [right("", n)];
+Text hskip(int n, Options opts) = opts.insertSpaces 
+    ? [right("", n)]
+    : ["<for (_ <- [0 .. n / opts.tabSize]) {>\t<}><for (_ <- [0 .. n % opts.tabSize]) {> <}>"];
     
 @synopsis{Produces text consisting of n white lines at length 0}
 private Text vskip(int n) = ["" | _ <- [0..n]];
@@ -237,7 +241,7 @@ private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     for (a <- b) {
         Text t = \continue(a, H([]), opts, m);
         int s = hwidth(t); 
-        r = hh(t, rhh(hskip(opts.hs), r));
+        r = hh(t, rhh(hskip(opts.hs, opts), r));
         m  = m - s - opts.hs;
     }
    
@@ -278,7 +282,7 @@ private Text II(list[Box] b:[_, *_]              , c:H_(list[Box] _), Options op
     = HH(b, c, opts, m);
 
 private Text II(list[Box] b:[Box _, *Box _], c:V_(list[Box] _), Options opts, int m) 
-    = rhh(hskip(opts.is), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
+    = rhh(hskip(opts.is, opts), \continue(V(b, vs=opts.vs), c, opts, m - opts.is));
 
 private Text WDWD([], Box _c , Options _opts, int _m) 
     = [];
@@ -287,7 +291,7 @@ private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
     int h  = head.hs ? opts.hs;
     Text t = \continue(head, c, opts, m);
     int s  = hwidth(t);
-    return  hh(wd(t), rhh(hskip(h) , WDWD(tail, c, opts, m - s - h)));
+    return  hh(wd(t), rhh(hskip(h, opts) , WDWD(tail, c, opts, m - s - h)));
 }
 
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
@@ -314,7 +318,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     }
 
     if (n <= s) {  // Box A fits in current line
-        return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H_([]));
+        return HVHV(hh(lhh(T, hskip(h,opts)), a), s-n, B, opts, m, H_([]));
     }
     else {
         n -= h; // n == size(a)
@@ -354,7 +358,7 @@ private Text continueWith(Box b:I_(list[Box] bl)  , Box c, Options opts, int m) 
 private Text continueWith(Box b:WD_(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
 private Text continueWith(Box b:HOV_(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
 private Text continueWith(Box b:HV_(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
-private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
+private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n, opts);
 
 // This is a degenerate case, an outermost U-Box without a wrapper around it.
 private Text continueWith(Box b:U_(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
