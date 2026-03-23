@@ -109,8 +109,12 @@ fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 flexible layout that can handle deeply nested expressions and statements.
 } 
 public str format(Box b, FormattingOptions opts = formattingOptions())
-    = "<for (line <- box2text(b, opts=opts)) {><line>
-      '<}>";
+    = finalNewLine("<for (line <- box2text(b, opts=opts)) {><line>
+                   '<}>", opts.insertFinalNewline
+    );
+
+private str finalNewline(str lines, true) = lines;
+private str finalNewline(str lines, false) = lines[..-1];
 
 @synopsis{Box2text uses list[str] as intermediate representation of the output during formatting}
 @benefits{
@@ -125,7 +129,7 @@ alias Text = list[str];
 
 @synopsis{Converts boxes into list of lines (Unicode)}      
 public Text box2text(Box b, FormattingOptions opts = formattingOptions()) 
-    = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.is));
+    = box2data(b, options(maxWidth=opts.maxWidth, wrapAfter=opts.wrapAfter, is=opts.tabSize));
 
 ////////// private functions below implement the intermediate data-structures
 ////////// and the constraint solver
