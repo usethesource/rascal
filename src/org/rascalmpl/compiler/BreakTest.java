@@ -50,7 +50,7 @@ public class BreakTest {
                 var name = "Thread " + (t + 1);
                 var tr = new Thread(() -> {
                     try {
-                        if (crashTest(monitor, error, name, failed)) {
+                        if (crashTestFreshEval(monitor, error, name, failed)) {
                             failed.set(true);
                             error.flush();
                             System.err.println("We got a failure, exiting now!");
