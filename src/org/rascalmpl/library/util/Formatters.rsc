@@ -202,15 +202,13 @@ private Symbol delabel(label(_, Symbol s)) = delabel(s);
 private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;
 
-int stubCounter = 1;
-
 @synopsis{Generates a string formatter that produces ((TextEdit))s for downstream processing.}
 list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(str, loc) p = parser(grammar);
-    loc stub = |tmp:///| + "formatted<stubCounter>.txt";
-    stubCounter = stubCounter + 1;
     
     return list[TextEdit] (str input) {
+        loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
+
         &G tree = p(input, stub);
         try {
             return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
@@ -244,10 +242,10 @@ parameter (a substring). For example: `#Statement` and `if (true) false;`.
 }
 list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
-    loc stub = |tmp:///| + "formatted-<stubCounter>.txt";
-    stubCounter = stubCounter + 1;
 
     return list[TextEdit] (type[Tree] nonterminal, str input) {
+        loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
+
         &G tree = p(nonterminal, input, stub);
         try {
             return layoutDiff(tree, p(nonterminal, format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
