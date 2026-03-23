@@ -45,8 +45,6 @@ import ParseTree;
 import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 
-import lang::rascalcore::check::TestShared;
-
 import lang::rascalcore::check::Checker;
 import lang::rascalcore::check::TestConfigs;
 import lang::rascal::\syntax::Rascal;
