@@ -109,12 +109,25 @@ fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 flexible layout that can handle deeply nested expressions and statements.
 } 
 public str format(Box b, FormattingOptions opts = formattingOptions())
-    = finalNewLine("<for (line <- box2text(b, opts=opts)) {><line>
-                   '<}>", opts.insertFinalNewline
+    = finalNewlineOptions("<for (line <- box2text(b, opts=opts)) {><line>
+                          '<}>", opts.insertFinalNewline, opts.trimFinalNewlines
     );
 
-private str finalNewline(str lines, true) = lines;
-private str finalNewline(str lines, false) = lines[..-1];
+private str finalNewlineOptions(str lines, bool insertFinalNewline, bool trimFinalNewlines) {
+    if (!insertFinalNewline) {
+        lines = lines[..-1];
+
+        if (trimFinalNewlines, /<prefix:.*>\s+$/ := lines) {
+           lines = prefix;
+        }
+    }
+    else if (trimFinalNewlines, /<prefix:.*>\s+$/ := lines) {
+        lines = "<prefix>\n";
+    }
+
+    return lines;
+}
+
 
 @synopsis{Box2text uses list[str] as intermediate representation of the output during formatting}
 @benefits{
