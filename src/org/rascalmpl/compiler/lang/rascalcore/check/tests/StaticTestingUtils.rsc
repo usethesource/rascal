@@ -42,11 +42,13 @@ import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
+import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::TestShared;
 
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::TestConfigs;
 import lang::rascal::\syntax::Rascal;
 
 import analysis::typepal::LocationChecks;
@@ -75,7 +77,7 @@ tuple[str,str] extractModuleNameAndBody(str moduleText){
 
 loc composeModule(str stmts){
     return writeModule(
-        "module TestModule
+        "module TestModule<md5Hash(stmts)[..5]>
         'value main(){
         '    <stmts>\n
         '    return true;
@@ -83,7 +85,7 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(testModulesRoot, recursive = true);
+	remove(testRoot, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
@@ -105,6 +107,18 @@ void removeModule(str mname){
 	remove(pcfg.generatedResources + "<name>.tpl");
 }
 
+void printModules(){
+	println("\<\<\<\<");
+	for(f <- find(testRoot, "rsc")){
+		println("<f> <lastModified(f)>:
+		        '<readFile(f)>");
+	}
+	for(f <- find(testRoot, "tpl")){
+		println("<f>: <lastModified(f)>");
+	}
+	println("\>\>\>\>");
+}
+
 set[Message] getErrorMessages(ModuleStatus r)
     =  { m | m <- getAllMessages(r), m is error };
 
@@ -117,7 +131,7 @@ set[Message] getAllMessages(ModuleStatus r)
 ModuleStatus checkStatements(str stmts) {
 	clearMemory();
 	mloc = composeModule(stmts);
-  return  	rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true][verbose=verbose], dummy_compile1);
+	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true][verbose=verbose], dummy_compile1);
 }
 
 ModuleStatus checkModule(str moduleText){
@@ -169,12 +183,7 @@ bool checkOK(str stmts) {
      throw errors;
 }
 
-bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) {
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));
-     if(size(errors) == 0)
-        return true;
-     throw abbrev("<errors>");
-}
+bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) = checkModulesOK([moduleToCheck], pathConfig = pathConfig);
 
 bool checkModulesOK(list[loc] modulesToCheck, PathConfig pathConfig = pathConfigForTesting()) {
      errors = getErrorMessages(rascalTModelForLocs(modulesToCheck, rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));

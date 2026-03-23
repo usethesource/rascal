@@ -38,10 +38,17 @@ public class ZipFileResolver  {
             .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
             .softValues().build();
 
-    protected CompressedFSTree getFileHierchyCache(ISourceLocation zip) {
+    private File zipFile(ISourceLocation zip) {
+        return new File(zip.getPath());
+    }
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation zip) throws IOException {
         try {
-            final File zipFile = new File(zip.getPath());
-            return fsCache.get(URIUtil.changeQuery(zip, "mod=" + zipFile.lastModified()), j -> new ZipFileTree(zipFile));
+            var zipFile = zipFile(zip);
+            var lastModified = zipFile.lastModified();
+            if (lastModified == 0) {
+                throw new FileNotFoundException("File " + zip + " not found");
+            }
+            return fsCache.get(URIUtil.changeQuery(zip, "mod=" + lastModified), j -> new ZipFileTree(zipFile));
         }
         catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -59,21 +66,21 @@ public class ZipFileResolver  {
         return zipFile.getInputStream(zipEntry);
     }
 
-    public boolean exists(ISourceLocation zip, String path) {
+    public boolean exists(ISourceLocation zip, String path)  throws IOException {
         if (path == null || path.isEmpty() || path.equals("/")) {
-            return true;
+            return zipFile(zip).isFile();
         }
         return getFileHierchyCache(zip).exists(path);
     }
 
-    public boolean isDirectory(ISourceLocation zip, String path) {
+    public boolean isDirectory(ISourceLocation zip, String path)  throws IOException{
         if (!path.endsWith("/")) {
             path = path + "/";
         }
         return getFileHierchyCache(zip).isDirectory(path);
     }
 
-    public boolean isFile(ISourceLocation zip, String path) {
+    public boolean isFile(ISourceLocation zip, String path) throws IOException {
         return getFileHierchyCache(zip).isFile(path);
     }
 
