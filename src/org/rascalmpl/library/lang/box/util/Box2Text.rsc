@@ -120,11 +120,11 @@ private str finalNewlineOptions(str lines, bool insertFinalNewline, bool trimFin
     if (!insertFinalNewline) {
         lines = lines[..-1];
 
-        if (trimFinalNewlines, /<prefix:.*>\s+$/ := lines) {
+        if (trimFinalNewlines, /^<prefix:.*>\s+$/ := lines) {
            lines = prefix;
         }
     }
-    else if (trimFinalNewlines, /<prefix:.*>\s+$/ := lines) {
+    else if (trimFinalNewlines, /^<prefix:.*>\s*$/ := lines) {
         lines = "<prefix>\n";
     }
 
