@@ -78,7 +78,7 @@ import IO;
     * `maxWidth` is the constraint that makes HV and HOV boxes switch to vertical mode (origin: ((Box2Text))
     * `wrapAfter` is the lowerbound that makes HV and HOV stay horizontal (origin ((Box2Text)))
     * `tabSize` is the default indentation used when an `I` box does not have an explicit `is` parameter (origin: ((util::LanguageServer)))
-    * `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
+    * `insertSpaces`, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
     * `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
     when false it does not matter. (origin: ((util::LanguageServer)))
     * `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. (origin: ((util::LanguageServer)))

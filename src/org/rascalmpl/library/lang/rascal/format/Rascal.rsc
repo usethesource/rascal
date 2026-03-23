@@ -291,14 +291,14 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
 Box toBox((Expression) `<Type typ> <Parameters parameters> { <Statement+ statements> }`)
     =   HOV(
             toBox(typ), H0(L("("), HOV(G(toBox(parameters), gs=1, op=I())), H(L(")")), L("{")), 
-            I(V(toBox(statements))),
+            I(V(toClusterBox(statements))),
             L("}")
         );
 
 Box toBox((Expression) `<Parameters parameters> { <Statement+ statements> }`)
     =   HOV(
             H0(L("("), HOV(G(toBox(parameters), gs=1, op=I())), H(L(")"), L("{"))), 
-            I(V(toBox(statements))),
+            I(V(toClusterBox(statements))),
             L("}")
         );
     
@@ -312,7 +312,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
                 G(toBox(parameters), gs=1, op=I()), 
                 H(L(")"), L("{"))
             ))), 
-        I(V(toBox(statements))),
+        I(V(toClusterBox(statements))),
         H0(L("}"), L(";")));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Parameters parameters> { <Statement+ statements> };`)
@@ -325,7 +325,7 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = 
                 G(toBox(parameters), gs=1, op=I()), 
                 H(L(")"), L("{"))
             ))), 
-        I(V(toBox(statements))),
+        I(V(toClusterBox(statements))),
         H0(L("}"), L(";")));
 
 
@@ -759,7 +759,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Type
     = V([
         HV(H0(toBox(caller), L("(")), 
         I(HOV(H0(toBox(arguments), L(",")), H(toBox(typ), H0(L("("), I(HOV0(toBox(parameters))), L(")")), L("{")))), hs=0), 
-        I(V(toBox(statements))),
+        I(V(toClusterBox(statements))),
         H0(L("}"), L(")"))]
     );
 
@@ -768,23 +768,23 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>, <Para
     = V([
         HV(H0(toBox(caller), L("(")), 
         I(H(H0(HOV(toBox(arguments)), L(",")), H0(L("("), H(I(HOV0(toBox(parameters))), L(")")), L("{")))), hs=0), 
-        I(V(toBox(statements)),
+        I(V(toClusterBox(statements)),
         H0(L("}"), L(")")))]
     );
 
 // call without kwargs no normal parameters but ends with a final normal closure
 Box toBox((Expression) `<Expression caller>(<Type typ> <Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), toBox(typ), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
-        I(V(toBox(statements))),
+        H(H0(toBox(caller), L("("), toBox(typ), L("("), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
+        I(V(toClusterBox(statements))),
         H0(L("}"), L(")"))]
     );
 
 // call without kwargs no normal parameters but ends with a final void closure
 Box toBox((Expression) `<Expression caller>(<Parameters parameters> { <Statement+ statements> })`)
     = V([
-        H(H0(toBox(caller), L("("), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
-        I(V(toBox(statements))),
+        H(H0(toBox(caller), L("("), L("("), I(HOV0(toBox(parameters)))), L(")"), L("{")), 
+        I(V(toClusterBox(statements))),
         H0(L("}"), L(")"))]
     );
 
@@ -819,19 +819,25 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
 
 // call with kwargs and a final non-void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
-    = HOV(
-        H0(toBox(caller), L("(")), 
-        I(V(HOV(
-            H0(toBox(arguments), L(","))),
-            V(
-            H0(toBox(typ), I(HOV0(toBox(parameters))), L("{")),
-            I(toBox(statements)),
-            H0(L("}"), L(","))),
-            toBox(kwargs)
-        )),
-        L(")"), hs=0)
-    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
+    = HOV0(
+        H0(toBox(caller), L("("), H(toBox(typ), L("("))), 
+        I(HOV0(toBox(parameters))), 
+        H(L(")"), L("{")), 
+        I(V(toClusterBox(statements))),
+        H0(L("}"), L(",")), 
+        toBox(kwargs),
+        L(")"));
 
+// call with kwargs and a final non-void closure
+Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = HOV0(
+        H0(toBox(caller), L("("), L("(")), 
+        I(HOV0(toBox(parameters))), 
+        H(L(")"), L("{")), 
+        I(V(toClusterBox(statements))),
+        H0(L("}"), L(",")),
+        toBox(kwargs),
+        L(")"));
 
 // call with kwargs no-comma
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
@@ -841,7 +847,8 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{Keyw
             toBox(arguments), 
             toBox(kwargs), 
         hs=1)),
-        L(")"), hs=0);
+        L(")"), hs=0)
+        when !(arguments[-1] is closure || arguments[-1] is voidClosure);
 
 Box toBox({KeywordArgument[&T] ","}+ args) 
     = SL([toBox(a) | a <- args], L(","));
@@ -1105,9 +1112,3 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
             toBox(n)),
         L("\<:"), 
         toBox(bound));
- 
-// this should not be necessary
-// Box HV_([H_([])]) = U_([]);
-// Box HV_([V_([])]) = U_([]);
-// Box HV_([U_([])]) = U_([]);
-
