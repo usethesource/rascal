@@ -107,7 +107,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // case-insensitive literals are optionally normalized
         case <prod(cilit(_), _, _), _>: {
             str yield =  "<t>"; 
-            return yield != "" ?  L(opts.ci, ci("<t>")) : NULL();
+            return yield != "" ?  L(ci(opts.ci, "<t>")) : NULL();
         }
         
         // non-existing content should not generate accidental spaces
