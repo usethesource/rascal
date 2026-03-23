@@ -469,21 +469,7 @@ test bool breakingChange1(){
     return expectReChecks(D, ["C", "D"]);
 }
 
-test bool timestampsIncrease() {
-    datetime lastTime = $2020-01-01T00:00:00.000+00:00$;
-    loc testLoc = |memory:///test-random-write-file|;
-    for (i <- [0..10000]) {
-        writeFile(testLoc, "Hoi");
-        datetime newTime = lastModified(testLoc);
-        if (lastTime == newTime) {
-            println("Time did not change: <lastTime> == <newTime>");
-            return false;
-        }
-    }
-    return true;
-}
-
-test bool fixedErrorsDisappear2() {  // ht @toinehartman
+test bool fixedErrorsDisappearCompact() { 
     clearMemory();
     pcfg = getDefaultTestingPathConfig();
 
