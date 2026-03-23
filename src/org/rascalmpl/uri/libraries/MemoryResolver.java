@@ -25,6 +25,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -62,8 +64,29 @@ import io.usethesource.vallang.ISourceLocation;
  */
 
 public class MemoryResolver implements ISourceLocationInputOutput {
+
     
 	private static class MemoryEntry extends FSEntry {
+		/** keep track of the timestamp across entries */
+		private static final AtomicLong now = new AtomicLong(System.currentTimeMillis());
+
+		/**
+		 * Every time we're called, we get a new timestamp, to make sure file written at roughly the same
+		 * time don't get the same modification timestamp
+		 * @return
+		 */
+		private static long timestamp() {
+			return now.accumulateAndGet(System.currentTimeMillis(), (now, prev) -> {
+				if (now > prev) {
+					return now;
+				}
+				if (now == prev) {
+					return now + 1;
+				}
+				// else : prev > now
+				return prev + 1;
+			});
+		}
 		private final @Nullable byte[] contents;
 
 		public MemoryEntry() {
@@ -71,7 +94,11 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 		}
 
 		public MemoryEntry(@Nullable byte[] contents) {
-			this(System.currentTimeMillis(), System.currentTimeMillis(), contents);
+			this(timestamp(), contents);
+		}
+
+		private MemoryEntry(long created, @Nullable byte[] contents) {
+			this(created, created, contents);
 		}
 
 		public MemoryEntry(long created, long lastModified) {
@@ -83,19 +110,11 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 		}
 
 		public MemoryEntry newContents(byte[] newContents) {
-			long newTimestamp = System.currentTimeMillis();
-			if (newTimestamp <= getLastModified()) {
-				newTimestamp = getLastModified() + 1;
-			}
-			return new MemoryEntry(getCreated(), newTimestamp, newContents);
+			return new MemoryEntry(getCreated(), timestamp(), newContents);
 		}
 
 		public MemoryEntry copy() {
-			long newTimestamp = System.currentTimeMillis();
-			if (newTimestamp <= getLastModified()) {
-				newTimestamp = getLastModified() + 1;
-			}
-			return new MemoryEntry(newTimestamp, newTimestamp, contents);
+			return new MemoryEntry(timestamp(), contents);
 		}
 	}
 
