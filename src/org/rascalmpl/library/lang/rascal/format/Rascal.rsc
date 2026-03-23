@@ -1068,25 +1068,6 @@ list[Box] flatString((StringTemplate) `if(<{Expression ","}+ conds>) { <Statemen
         L("}")
     ];
 
-/* Concrete fragments*/
-
-// "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
-// Box toBox((Concrete) `(<LAYOUTLIST _><Sym symbol><LAYOUTLIST _>)<LAYOUTLIST _>\`<ConcretePart* parts>\`)`)
-//     = V();
-
-
-/*
-lexical ConcretePart
-  = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
-  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="variable" hole : ConcreteHole hole
-  | @category="string" lt: "\\\<"
-  | @category="string" gt: "\\\>"
-  | @category="string" bq: "\\`"
-  | @category="string" bs: "\\\\"
-  ;
-*/
-
 /* Types */
 
 Box toBox((FunctionType) `<Type typ>(<{TypeArg ","}* args>)`)
