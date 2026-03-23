@@ -46,7 +46,6 @@ import String;
 import lang::rascalcore::check::ModuleLocations;
 import util::FileSystem;
 import util::SemVer;
-import lang::rascalcore::check::TestShared;
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
 
