@@ -109,7 +109,7 @@ public PathConfig getRascalProjectTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [|project://rascal/src/org/rascalmpl/library|],
-        bin = testModulesRoot + "rascal-lib-bin-<snpc>",
+        bin = testRoot + "rascal-lib-bin-<snpc>",
         libs = []
     );
 }
