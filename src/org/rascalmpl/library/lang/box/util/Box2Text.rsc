@@ -96,6 +96,9 @@ data FormattingOptions(
     bool trimFinalNewlines = true
 ) = formattingOptions();
 
+@synopsis{Specialized alignments for the final column to implement `trimTrailingWhitespace`}
+private data Alignment = fl() | fc();
+
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
@@ -415,12 +418,24 @@ private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0
     ? H_([cell, SPACE(maxWidth - cell.width)], hs=0)
     : cell;
 
+@synopsis{Helper function for aligning Text inside an array cell}
 private Box align(r(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
     ? H_([SPACE(maxWidth - cell.width), cell], hs=0)
     : cell;
 
 private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
     ? H_([SPACE((maxWidth - cell.width) / 2),  cell, SPACE((maxWidth - cell.width) / 2)], hs=0)
+    : maxWidth - cell.width == 1 ?
+        align(l(), cell, maxWidth)
+        : cell;
+
+
+// the last left box should not fill up to the right for the next non-existing column, to help implement `trimTrailingWhitespace`
+private Box align(fl(), Box cell, int maxWidth) = cell;
+
+// the last center box should not fill up to the right, only to the left to help implement `trimTrailingWhitespace`
+private Box align(lc(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
+    ? H_([SPACE((maxWidth - cell.width) / 2),  cell], hs=0)
     : maxWidth - cell.width == 1 ?
         align(l(), cell, maxWidth)
         : cell;
@@ -452,6 +467,10 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Box rs, Opti
     // and we infer alignments where not provided
     alignments = AcompleteAlignments(alignments, maxColumns);
 
+    if (opts.trimTrailingWhitespace) {
+        alignments = AfinalColumnSpecials(alignments);
+    }
+
     // finally we compute alignment information
     list[int] maxWidths  = Awidth(rows);
 
@@ -482,6 +501,11 @@ private list[Row] groupRows(list[Box] boxes:[Box _, *_], int gs)
 }
 private list[Alignment] AcompleteAlignments(list[Alignment] alignments, int maxColumns) 
     = [*alignments[..maxColumns], *[l() | _ <- [0..maxColumns - size(alignments)]]];
+
+@synopsis{Translate l() and c() to fl() and fc() for the final columns to help implement `trimTrailingWhitespace`}
+private list[Alignment] AfinalColumnSpecials([*Alignment pre, l()]) = [*pre, fl()];
+private list[Alignment] AfinalColumnSpecials([*Alignment pre, c()]) = [*pre, fc()];
+private default list[Alignment] AfinalColumnSpecials(list[Alignment] as) = as;
 
 @synopsis{Check soft limit for HV and HOV boxes}
 // TODO this seems to ignore SPACE boxes?
