@@ -197,6 +197,10 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, Formatt
         }  
     };
 }
+
+private Symbol delabel(label(_, Symbol s)) = delabel(s);
+private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
+private default Symbol delabel(Symbol s) = s;
     
 @synopsis{Generates a string formatter that produces ((TextEdit))s for downstream processing.}
 list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
@@ -209,18 +213,18 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, Formattin
             return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree), opts[ci=asIs()]));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             println("Ignoring formatter output, which contained a new parse error. <stub(place.offset, place.length)>");
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree), opts[ci=asIs()]));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
         catch AssertionFailed(str msg): {
-            writeFile(stub, format(style(tree, opts=opts)));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
             println("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>, <stub>");
             return [];
@@ -242,20 +246,20 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         &G tree = p(nonterminal, input, stub);
         try {
-            return layoutDiff(tree, p(nonterminal, format(style(tree), opts=opts[ci=asIs(())]), stub), ci=opts.caseInsensitivity);
+            return layoutDiff(tree, p(nonterminal, format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree), opts[ci=asIs()]));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree), opts[ci=asIs()]));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
         catch AssertionFailed(str msg): {
-            writeFile(stub, format(style(tree), opts[ci=asIs()]));
+            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
             warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
             return [];
         }  
