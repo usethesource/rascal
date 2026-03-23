@@ -28,8 +28,8 @@ public class BreakTest {
 
     // private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::ChangeScenarioTests";
     // private static final String BREAKING_TEST = "fixedErrorsDisappear2";
-    private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::BinaryDependencyTests";
-    private static final String BREAKING_TEST = "notCompatibleAfterRemovingConstructor";
+    private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::FunctionTCTests";
+    private static final String BREAKING_TEST = "BoundOK1";
 
     // notCompatibleAfterChangingFunctionArgument
     // notCompatibleAfterChangingFunctionArgument
@@ -43,8 +43,8 @@ public class BreakTest {
         var term = RascalShell.connectToTerminal();
         var monitor = IRascalMonitor.buildConsoleMonitor(term);
         var error = monitor instanceof PrintWriter ? (PrintWriter) monitor : new PrintWriter(System.err, false);
+        AtomicBoolean failed = new AtomicBoolean(false);
         try {
-            AtomicBoolean failed = new AtomicBoolean(false);
             AtomicInteger done = new AtomicInteger(0);
             for (int t = 0; t < PARALLEL_RUNS; t++) {
                 var name = "Thread " + (t + 1);
@@ -52,9 +52,9 @@ public class BreakTest {
                     try {
                         if (crashTest(monitor, error, name, failed)) {
                             failed.set(true);
+                            error.flush();
                             System.err.println("We got a failure, exiting now!");
                             Thread.sleep(1000);
-                            System.exit(1);
                         }
                     }
                     catch (InterruptedException e) {
@@ -69,7 +69,13 @@ public class BreakTest {
                 Thread.sleep(100);
             }
         } finally {
+            error.flush();
             error.close();
+        }
+        if (failed.get()) {
+            System.out.flush();
+            System.err.flush();
+            System.exit(1);
         }
     }
     
@@ -116,7 +122,6 @@ public class BreakTest {
                     } catch (Throwable e ) {
                         failed.set(true);
                         iFailed.set(true);
-                        err.println("tests" + tests.stream().map(AbstractFunction::getName).toArray());
                         err.println("❌ test fail :" + currentTest);
                         err.println(e);
                     }
