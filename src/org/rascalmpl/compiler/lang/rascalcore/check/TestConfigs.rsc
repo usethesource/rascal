@@ -32,8 +32,11 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::ModuleLocations;
-import lang::rascalcore::check::TestShared;
 // import lang::rascalcore::CompilerPathConfig;
+
+import util::UUID;
+
+
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
@@ -64,6 +67,9 @@ loc COMPILED_RASCAL     =  REPO + "compiled-rascal";
 loc TMP_COMPILED_RASCAL = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
+
+public loc testRoot = uuid()[scheme="memory"];
+public loc testModulesRoot = testRoot + "src";
 
 private int npc = 0;
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}

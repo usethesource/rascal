@@ -129,7 +129,7 @@ public class BreakTest {
                 });
             } finally {
                 // clean up memory
-                var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
+                var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestConfigs");
                 if (memoryModule != null ) {
                 var testRoot = memoryModule.getFrameVariable("testRoot");
                 try {
@@ -198,7 +198,7 @@ public class BreakTest {
                                 }
                             } finally {
                                 // clean up memory
-                                var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestShared");
+                                var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestConfigs");
                                 if (memoryModule != null) {
                                     var testRoot = memoryModule.getFrameVariable("testRoot");
                                     try {
