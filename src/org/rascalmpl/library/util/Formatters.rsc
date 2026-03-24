@@ -242,6 +242,7 @@ parameter (a substring). For example: `#Statement` and `if (true) false;`.
 }
 list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
+    
 
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";

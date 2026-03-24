@@ -820,7 +820,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
 // call with kwargs and a final non-void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HOV0(
-        H0(toBox(caller), L("("), H(toBox(typ), L("("))), 
+        H0(toBox(caller), L("("), HOV(toBox(arguments)), H(L(","), toBox(typ), L("("))), 
         I(HOV0(toBox(parameters))), 
         H(L(")"), L("{")), 
         I(V(toClusterBox(statements))),
@@ -831,7 +831,8 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type
 // call with kwargs and a final non-void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HOV0(
-        H0(toBox(caller), L("("), L("(")), 
+        H0(toBox(caller), L("(")), 
+        I(HOV(toBox(arguments)), L(","), L("(")), 
         I(HOV0(toBox(parameters))), 
         H(L(")"), L("{")), 
         I(V(toClusterBox(statements))),
@@ -843,9 +844,8 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Para
 Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{KeywordArgument[Expression] ","}+ kwargs>)`)
     = HOV(
         H0(toBox(caller), L("(")), 
-        I(HOV(
-            toBox(arguments), 
-            toBox(kwargs), 
+        I(HOV(toBox(arguments)), 
+        I(HOV(toBox(kwargs)), 
         hs=1)),
         L(")"), hs=0)
         when !(arguments[-1] is closure || arguments[-1] is voidClosure);
