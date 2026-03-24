@@ -14,9 +14,17 @@ void prepareStorage(PathConfig pcfg) {
 test bool testStorageAndUse() {
     pcfg = getProjectPathConfig(|project://rascal|);
     prepareStorage(pcfg);
+
+    // first we run in the source environment. There is no cached parser 
+    // there necause it is written to the target folder
     rt = createRascalRuntime(pcfg=pcfg);
     rt.eval(#void, "import lang::rascal::tests::functionality::storedParsers::ExampleModule;");
     
+    // we create a runtime which includes the generate .parser file, and we run again
+    pcfg.srcs = [resolveLocation(|target:///|)];
+    rt = createRascalRuntime(pcfg=pcfg);
+    rt.eval(#void, "import lang::rascal::tests::functionality::storedParsers::ExampleModule;");
+
     return result(true) := rt.eval(#bool, "testCompute()");
 }
 
