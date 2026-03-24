@@ -4,30 +4,28 @@ import IO;
 import String;
 import Location;
 import Message;
-import Relation;
 import Set;
 import util::Reflective;
 import ParseTree;
-import util::FileSystem;
 import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
 
-import analysis::typepal::LocationChecks;
 
-
+// this uuid matters
 loc root = |memory://6e17d46a-06e9-42aa-bd98-182ca2dbd8d3/|;
 PathConfig pcfg = pathConfig(
     srcs = [root + "src"],
     bin = root + "bin",
     libs = []
 );
+// this name matters
 str moduleName = "TestModule612d1";
 
 loc writeModule() {
     loc moduleLoc = pcfg.srcs[0] + "<moduleName>.rsc";
-    // the space before &T seems to matter!
+    // the spaces before &T seems to matter?
     writeFile(moduleLoc, 
         "module <moduleName>
         '   &T \<: int f(&T \<: num _) = 42;
@@ -35,6 +33,7 @@ loc writeModule() {
     );
     return moduleLoc;
 }
+
 
 set[Message] getErrorMessages(ModuleStatus r)
     =  { m | m <- getAllMessages(r), m is error };
@@ -61,8 +60,27 @@ bool typecheckModule(loc m) {
     }
 }
 
+void findCollission(loc l) {
+    m = parseModule(l);
+    locs = [ t.src | /Tree t := m, t.src?];
+    println("Found <size(locs)> locs");
+    locsSet = {*locs};
+    println("Became: <size(locsSet)> locs when putting in set");
+    for (l <- locs) {
+        bool found = false;
+        for (l2 <- locsSet, "<l2>" == "<l>") {
+            found = true;
+        }
+        if (!found) {
+            println("❌ <l> got dropped from set");
+        }
+    }
+}
+
 
 void main() {
+    remove(root, recursive = true);
     l = writeModule();
     typecheckModule(l);
+    findCollission(l);
 }
