@@ -59,16 +59,18 @@ import java.util.stream.Stream;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileType;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.FileWithType;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistry.WatchRequest;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileType;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileWithType;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.WatchRequest;
 import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
 import org.rascalmpl.util.base64.StreamingBase64;
@@ -79,8 +81,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class RemoteExternalResolverRegistry implements IExternalResolverRegistry {
-    private volatile IRemoteResolverRegistry remote = null;
+public class RemoteExternalResolverRegistry implements IExternalResolverRegistry, IRemoteResolverRegistryClient {
+    private volatile IRemoteResolverRegistryServer remote = null;
 
     private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
     private final Map<String, Watchers> watchersById = new ConcurrentHashMap<>();
@@ -222,13 +224,13 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         };
     }
     
-    private IRemoteResolverRegistry startClient() {
+    private IRemoteResolverRegistryServer startClient() {
         try {
             @SuppressWarnings("resource")
             var socket = new Socket(InetAddress.getLoopbackAddress(), remoteResolverRegistryPort);
             socket.setTcpNoDelay(true);
-            Launcher<IRemoteResolverRegistry> clientLauncher = new Launcher.Builder<IRemoteResolverRegistry>()
-                .setRemoteInterface(IRemoteResolverRegistry.class)
+            Launcher<IRemoteResolverRegistryServer> clientLauncher = new Launcher.Builder<IRemoteResolverRegistryServer>()
+                .setRemoteInterface(IRemoteResolverRegistryServer.class)
                 .setLocalService(this)
                 .setInput(errorDetectingInputStream(socket.getInputStream()))
                 .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
@@ -440,7 +442,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        return call(remote::resolveLocation, input);
+        var resolved = call(remote::resolveLocation, input);
+        return resolved;
     }
 
     @Override
