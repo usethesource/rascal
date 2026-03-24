@@ -88,7 +88,7 @@ public class IRascalFileSystemServices implements IRemoteResolverRegistryServer 
                 ISourceLocation loc = params.getLocation();
 
                 URIResolverRegistry.getInstance().watch(loc, params.isRecursive(), changed -> {
-                    onDidChangeFile(changed.getLocation(), changed.getChangeType().getValue(), params.getWatcher());
+                    client.sourceLocationChanged(changed.getLocation(), changed.getChangeType(), "");
                 });
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
@@ -97,20 +97,7 @@ public class IRascalFileSystemServices implements IRemoteResolverRegistryServer 
     }
 
     static FileChangeEvent convertChangeEvent(ISourceLocationChanged changed) throws IOException {
-        return new FileChangeEvent(convertFileChangeType(changed.getChangeType()), changed.getLocation().getURI().toASCIIString());
-    }
-
-    static FileChangeType convertFileChangeType(ISourceLocationChangeType changeType) throws IOException {
-        switch (changeType) {
-            case CREATED:
-                return FileChangeType.Created;
-            case DELETED:
-                return FileChangeType.Deleted;
-            case MODIFIED:
-                return FileChangeType.Changed;
-            default:
-                throw new IOException("unknown change type: " + changeType);
-        }
+        return new FileChangeEvent(changed.getChangeType(), changed.getLocation().getURI().toASCIIString());
     }
 
     @Override
@@ -196,41 +183,21 @@ public class IRascalFileSystemServices implements IRemoteResolverRegistryServer 
         }, executor);
     }
 
-    @Override
-    default public void onDidChangeFile(ISourceLocation loc, int type, String watchId) {
-        //TODO
-    }
-
     public static class FileChangeEvent {
-        @NonNull private final FileChangeType type;
+        @NonNull private final ISourceLocationChangeType type;
         @NonNull private final String uri;
 
-        public FileChangeEvent(FileChangeType type, @NonNull String uri) {
+        public FileChangeEvent(ISourceLocationChangeType type, @NonNull String uri) {
             this.type = type;
             this.uri = uri;
         }
 
-        public FileChangeType getType() {
+        public ISourceLocationChangeType getType() {
             return type;
         }
 
         public ISourceLocation getLocation() throws URISyntaxException {
             return null;
-        }
-    }
-
-    public enum FileChangeType {
-        Changed(1), Created(2), Deleted(3);
-
-        private final int value;
-
-        private FileChangeType(int val) {
-            assert val == 1 || val == 2 || val == 3;
-            this.value = val;
-        }
-
-        public int getValue() {
-            return value;
         }
     }
 }
