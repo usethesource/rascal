@@ -58,7 +58,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs, "<t>" != "<u>" /* avoid useless edits */] 
+        = [replace(t@\loc, repl) | tArgs != uArgs, str repl := (recoverComments ? learnComments(t, u) : "<u>"), repl != "<t>" /* do not edit anything if nothing has changed */] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
