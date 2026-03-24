@@ -117,16 +117,33 @@ public class URIResolverRegistry {
 			throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
 		}
 
-		var remoteResolverRegistryPortProperty = System.getProperty("rascal.remoteResolverRegistryPort");
-        if (remoteResolverRegistryPortProperty != null) {
-            try {
-                var remoteResolverRegistryPort = Integer.parseInt(remoteResolverRegistryPortProperty);
-				this.externalRegistry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
-				watchers.setExternalRegistry(this.externalRegistry);
-            } catch (NumberFormatException e) {
-                System.err.println("WARNING: Invalid remoteResolverRegistryPort environment variable: " + remoteResolverRegistryPortProperty + " is not parseable as integer");
-            }
+		var remoteResolverRegistryPort = getRemoteResolverRegistryPort();
+        if (remoteResolverRegistryPort != null) {
+			synchronized (this.externalRegistry) {
+				if (this.externalRegistry == null) {
+					registerRemoteResolverRegistry(new RemoteExternalResolverRegistry(remoteResolverRegistryPort));
+				}
+			}
         }
+	}
+
+	public static Integer getRemoteResolverRegistryPort() {
+		var remoteResolverRegistryPortProperty = System.getProperty("rascal.remoteResolverRegistryPort");
+		if (remoteResolverRegistryPortProperty != null) {
+			try {
+				return Integer.parseInt(remoteResolverRegistryPortProperty);
+			} catch (NumberFormatException e) {
+				System.err.println("WARNING: Invalid remoteResolverRegistryPort environment variable: " + remoteResolverRegistryPortProperty + " is not parseable as integer");
+			}
+		}
+		return null;
+	}
+
+	public synchronized void registerRemoteResolverRegistry(RemoteExternalResolverRegistry registry) {
+		synchronized (this.externalRegistry) {
+			this.externalRegistry = registry;
+			watchers.setExternalRegistry(registry);
+		}
 	}
 
 	public Set<String> getRegisteredInputSchemes() {
