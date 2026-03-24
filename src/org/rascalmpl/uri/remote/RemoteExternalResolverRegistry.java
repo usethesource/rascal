@@ -469,18 +469,20 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         var watchKey = new WatchSubscriptionKey(root, recursive);
-        var watch = watchers.get(watchKey);
-        if (watch != null && watch.removeWatcher(watcher)) {
-            System.err.println("No other watchers registered, so unregistering at server");
-            watchers.remove(watchKey);
-            if (!watch.getCallbacks().isEmpty()) {
-                System.err.println("Raced by another thread, canceling unregister");
-                watchers.put(watchKey, watch);
-                return;
+        synchronized (watchers) {
+            var watch = watchers.get(watchKey);
+            if (watch != null && watch.removeWatcher(watcher)) {
+                System.err.println("No other watchers registered, so unregistering at server");
+                watchers.remove(watchKey);
+                if (!watch.getCallbacks().isEmpty()) {
+                    System.err.println("Raced by another thread, canceling unregister");
+                    watchers.put(watchKey, watch);
+                    return;
+                }
+                watchersById.remove(watch.getId());
+                call(remote::unwatch, new WatchRequest(root, recursive, watch.getId()));
             }
-            watchersById.remove(watch.getId());
         }
-        call(remote::unwatch, new WatchRequest(root, recursive, watch.getId()));
     }
 
     @Override
@@ -492,27 +494,24 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
-    private static final int FileChangeType_Changed = 1;
-    private static final int FileChangeType_Created = 2;
-    private static final int FileChangeType_Deleted = 3;
-
-    @JsonNotification("rascal/vfs/watcher/fileChanged")
-    public void emitWatch(ISourceLocation root, int type, String watchId) throws IOException {
-        synchronized (watchers) {
-            var watcher = watchersById.get(watchId);
-            switch (type) {
-                case FileChangeType_Changed:
-                    watcher.publish(ISourceLocationWatcher.modified(root));
-                    break;
-                case FileChangeType_Created:
-                    watcher.publish(ISourceLocationWatcher.created(root));
-                    break;
-                case FileChangeType_Deleted:
-                    watcher.publish(ISourceLocationWatcher.deleted(root));
-                    break;
-                default:
-                    throw new IOException("Unexpected FileChangeType " + type);
-            }
+    @Override
+    public void sourceLocationChanged(ISourceLocation root, ISourceLocationChangeType type, String watchId) {
+        var watcher = watchersById.get(watchId);
+        if (watcher == null) {
+            throw new ResponseErrorException(new ResponseError(ResponseErrorCode.RequestFailed, "Received notification for unregistered watch", root)); 
+        }
+        switch (type) {
+            case MODIFIED:
+                watcher.publish(ISourceLocationWatcher.modified(root));
+                break;
+            case CREATED:
+                watcher.publish(ISourceLocationWatcher.created(root));
+                break;
+            case DELETED:
+                watcher.publish(ISourceLocationWatcher.deleted(root));
+                break;
+            default:
+                throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + type, root)); 
         }
     }
 

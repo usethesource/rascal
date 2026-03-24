@@ -62,9 +62,9 @@ public interface ISourceLocationWatcher {
 	}
 
 	public enum ISourceLocationChangeType {
-		CREATED(1),
-		DELETED(2),
-		MODIFIED(3);
+		CREATED(2),
+		DELETED(3),
+		MODIFIED(1);
 
 		int value;
 
