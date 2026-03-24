@@ -39,23 +39,33 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.codec.binary.Base64InputStream;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistry;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
+import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
 import org.rascalmpl.util.NamedThreadPool;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
+public class IRascalFileSystemServices implements IRemoteResolverRegistryServer {
     static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
 
+    private volatile @MonotonicNonNull IRemoteResolverRegistryClient client = null;
+
+    @EnsuresNonNull("this.client")
+    protected void provideClient(IRemoteResolverRegistryClient client) {
+        this.client = client;
+    }
+
     @Override
-    default public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
+    public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 ISourceLocation resolved = reg.logicalToPhysical(loc);
@@ -72,7 +82,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> watch(WatchRequest params) {
+    public CompletableFuture<Void> watch(WatchRequest params) {
         return CompletableFuture.runAsync(() -> {
             try {
                 ISourceLocation loc = params.getLocation();
@@ -104,7 +114,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<FileAttributes> stat(ISourceLocation loc) {
+    public CompletableFuture<FileAttributes> stat(ISourceLocation loc) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return reg.stat(loc);
@@ -115,7 +125,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<FileWithType[]> list(ISourceLocation loc) {
+    public CompletableFuture<FileWithType[]> list(ISourceLocation loc) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 if (!reg.isDirectory(loc)) {
@@ -130,7 +140,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> mkDirectory(ISourceLocation loc) {
+    public CompletableFuture<Void> mkDirectory(ISourceLocation loc) {
         return CompletableFuture.runAsync(() -> {
             try {
                 reg.mkDirectory(loc);
@@ -141,7 +151,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<String> readFile(ISourceLocation loc) {
+    public CompletableFuture<String> readFile(ISourceLocation loc) {
         return CompletableFuture.supplyAsync(() -> {
             try (InputStream source = new Base64InputStream(reg.getInputStream(loc), true)) {
                 return new String(source.readAllBytes(), StandardCharsets.US_ASCII);
@@ -152,7 +162,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
+    public CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
         return CompletableFuture.runAsync(() -> {
             try {
                 try (OutputStream target = reg.getOutputStream(loc, false)) {
@@ -165,7 +175,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> remove(ISourceLocation loc, boolean recursive) {
+    public CompletableFuture<Void> remove(ISourceLocation loc, boolean recursive) {
         return CompletableFuture.runAsync(() -> {
             try {
                 reg.remove(loc, recursive);
@@ -176,7 +186,7 @@ public interface IRascalFileSystemServices extends IRemoteResolverRegistry {
     }
 
     @Override
-    default public CompletableFuture<Void> rename(ISourceLocation from, ISourceLocation to, boolean overwrite) {
+    public CompletableFuture<Void> rename(ISourceLocation from, ISourceLocation to, boolean overwrite) {
         return CompletableFuture.runAsync(() -> {
             try {
                 reg.rename(from, to, overwrite);
