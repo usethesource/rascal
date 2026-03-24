@@ -56,8 +56,8 @@ public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
 public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
-void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(), bool dumpDiff=false) {
-    debugFileFormat(#start[Module], toBox, \module, console=console, HTML=HTML, opts=opts, dumpDiff=dumpDiff);
+void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(), bool dumpEdits=false) {
+    debugFileFormat(#start[Module], toBox, \module, console=console, HTML=HTML, opts=opts, dumpEdits=dumpEdits);
 }
 
 void testOnLibrary() {
@@ -500,8 +500,7 @@ Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)
         indentedBlock(sts),
         blockClose(sts));
 
-Box toBox((Statement) `<Label label> do <Statement sts> while (Expression cond);)
-                      '  <Statement sts>`)
+Box toBox((Statement) `<Label label> do <Statement sts> while (<Expression cond>);`)
     = V(H(H0(toBox(label), L("do")), blockOpen(sts)),
             indentedBlock(sts),
         blockClose(sts),
@@ -801,7 +800,26 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
         I(HOV(toBox(arguments))), 
         L(")"), 
         hs=0)
-    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure || arguments[-1] is \list);
+
+
+// call with single list 
+Box toBox((Expression) `<Expression caller>([<{Expression ","}* arguments>])`)
+    = HOV(
+        H0(toBox(caller), L("("), L("[")), 
+        I(HOV(toBox(arguments))), 
+        H0(L("]"), L(")")), 
+    hs=0);
+
+// call with single list and kwargs 
+Box toBox((Expression) `<Expression caller>([<{Expression ","}* arguments>], <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = HOV(
+        H0(toBox(caller), L("("), L("[")), 
+        I(HOV(toBox(arguments))), 
+        I(H0(L("]"), L(","))), 
+        I(HOV(toBox(kwargs))),
+        L(")")
+    hs=1);    
 
 // call with only kwargs
 Box toBox((Expression) `<Expression caller>(<{KeywordArgument[Expression] ","}+ kwargs>)`)
@@ -820,8 +838,9 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <{Key
             H0(toBox(arguments), L(",")), 
             toBox(kwargs), 
         hs=1)),
-        L(")"), hs=0)
-    when !(arguments[-1] is closure || arguments[-1] is voidClosure);
+        L(")")
+    , hs=0)
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure || arguments[-1] is \list);
 
 // call with kwargs and a final non-void closure
 Box toBox((Expression) `<Expression caller>(<{Expression ","}* arguments>, <Type typ> <Parameters parameters> { <Statement+ statements> }, <{KeywordArgument[Expression] ","}+ kwargs>)`)
