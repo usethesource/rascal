@@ -242,7 +242,7 @@ parameter (a substring). For example: `#Statement` and `if (true) false;`.
 }
 list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
-    
+
 
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
@@ -278,10 +278,14 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
 @pitfalls{
 * not useful for production contexts
 }
-void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, FormattingOptions opts=fo(), bool HTML=true, bool console=!HTML) {
+void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, FormattingOptions opts=fo(), bool HTML=true, bool console=!HTML, bool dumpEdits=false) {
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
     str pretty = formatter(readFile(input));
     &G reparsed = parse(grammar, pretty, input);
+
+    if (dumpEdits) {
+        iprintln(fileEdits(grammar, style, opts=opts)(input));
+    }
 
     if (HTML) {
         showInteractiveContent(html(toHTML(reparsed, withStyle=true))[title="formatted <input>"]);
@@ -302,25 +306,26 @@ void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, Formattin
 * not useful for production contexts
 * may have a very long running time
 }
-void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension, FormattingOptions opts=fo(), bool shadowFiles = true, bool appendFile=!shadowFiles, bool console=!shadowFiles && !appendFile, bool ansi=console || appendFile) {
+void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str extension, FormattingOptions opts=fo(), bool shadowFiles = true, bool appendFile=!shadowFiles, bool console=!shadowFiles && !appendFile, bool ansi=console || appendFile, bool dumpEdits = false) {
     loc shadowRoot = root.parent + "formatted-<root.file>";
     loc appendLoc = root + "format.log";
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
+    list[TextEdit](str) diffs = dumpEdits ? stringEdits(grammar, style, opts=opts) : list[void](str _) { return [];};
     &G(value, loc) p = parser(grammar);
     list[loc] files = sort(find(root, extension));
 
     if (shadowFiles) {
         remove(shadowRoot, recursive=true);
-        println("The shadow file hierarchy is being written under <shadowRoot> and ANSI codes are <if (!ansi) {>not<}> used.");
+        println("The shadow file hierarchy is being written under <shadowRoot> and ANSI codes are <if (!ansi) {>not<}>used.");
     }
 
     if (appendFile) {
         remove(appendLoc);
-        println("The append file is <appendLoc> and does <if (!ansi) {>not<}> use ANSI codes.");
+        println("The append file is <appendLoc> and does <if (!ansi) {>not<}>use ANSI codes.");
     }
 
     if (console) {
-        println("All formatted files are written to the console and ANSI is <if (!ansi) {>not<}> being used");
+        println("All formatted files are written to the console and ANSI is <if (!ansi) {>not<}>being used");
     }
 
     job("formatting", bool (void (str message, int worked) step) {
@@ -333,7 +338,11 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
             }
 
             if (shadowFiles) {
-                writeFile(shadowRoot + relativize(root, input).path, pretty);;
+                writeFile(shadowRoot + relativize(root, input).path, pretty);
+
+                if (dumpEdits) {
+                    iprintToFile((shadowRoot + relativize(root, input).path)[extension="edits"], diffs(readFile(input)));
+                }
             }
             
             if (console) {

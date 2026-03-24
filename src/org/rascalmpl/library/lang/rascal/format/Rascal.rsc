@@ -29,8 +29,7 @@ TODO's:
     * single line comment at end of line should not go to its own line
     * if brackets go vertical of call syntax, parameters also always go vertical. not necessary.
     * "if" can get "\{" below it (HV?) in some corner cases. Not good.
-    * in Set ArithmeticException a string template ends with an unindented quote?
-    * too many spaces around = in kwparams default binding
+    * do-while
 }
 @bootstrapParser
 module lang::rascal::format::Rascal
@@ -52,13 +51,13 @@ import util::Formatters;
 import util::Reflective;
 
 @synopsis{Format an entire Rascal file, in-place.}
-void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
+public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
 @synopsis{Format a Rascal module string}
-str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
+public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
-void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(insertSpaces=false)) {
-    debugFileFormat(#start[Module], toBox, \module, console=console, HTML=HTML, opts=opts);
+void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(), bool dumpDiff=false) {
+    debugFileFormat(#start[Module], toBox, \module, console=console, HTML=HTML, opts=opts, dumpDiff=dumpDiff);
 }
 
 void testOnLibrary() {
@@ -500,6 +499,13 @@ Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)
             blockOpen(sts)),
         indentedBlock(sts),
         blockClose(sts));
+
+Box toBox((Statement) `<Label label> do <Statement sts> while (Expression cond);)
+                      '  <Statement sts>`)
+    = V(H(H0(toBox(label), L("do")), blockOpen(sts)),
+            indentedBlock(sts),
+        blockClose(sts),
+        H0(L("("), toBox(cond), L(")")));
 
 Box toBox((Statement) `<Expression exp>;`)
     = H0(toBox(exp), L(";"));
