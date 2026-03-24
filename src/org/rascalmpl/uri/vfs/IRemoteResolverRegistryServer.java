@@ -31,7 +31,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.FileAttributes;
@@ -39,7 +38,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public interface IRemoteResolverRegistry {
+public interface IRemoteResolverRegistryServer {
     @JsonRequest("rascal/vfs/input/readFile")
     default CompletableFuture<String> readFile(ISourceLocation loc) {
         throw new UnsupportedOperationException();
@@ -138,11 +137,6 @@ public interface IRemoteResolverRegistry {
 
     @JsonRequest("rascal/vfs/logical/resolveLocation")
     default CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
-        throw new UnsupportedOperationException();
-    }
-
-    @JsonNotification("rascal/vfs/watcher/fileChanged")
-    default void onDidChangeFile(ISourceLocation loc, int type, String watchId) {
         throw new UnsupportedOperationException();
     }
 
