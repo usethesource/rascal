@@ -9,7 +9,10 @@ import util::PathConfig;
 
 void prepareStorage(PathConfig pcfg) {
     storeParsersForModules(
-        {resolveLocation(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/storedParsers/ExampleModule.rsc|)}, 
+        {
+            resolveLocation(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/storedParsers/ExampleModule.rsc|),
+            resolveLocation(|project://rascal/src/org/rascalmpl/library/lang/pico/syntax/Main.rsc|)
+        },
         pcfg);
 }
 
