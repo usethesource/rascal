@@ -328,10 +328,11 @@ str getModuleNameFromAnyLogical(loc l){
 tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[MODID] importsAndExtends, ModuleStatus ms){
     moduleName = tm.modelName;
     physical2logical = invertUnique(tm.logical2physical);
-
-    modRequires = { lg | l <- range(tm.useDef),
-                        physical2logical[l]?, lg := physical2logical[l],
-                        moduleName !:= getModuleNameFromAnyLogical(lg) };
+    modRequires = {lg | l <- range(tm.useDef), 
+                        l in physical2logical, 
+                        lg := physical2logical[l], 
+                        moduleName != getModuleNameFromAnyLogical(lg)
+                  };
     provided = {};
     if(!isEmpty(modRequires)){
         for(m <- importsAndExtends){
@@ -341,8 +342,6 @@ tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[MO
             }
         }
     }
-
-    //println("<moduleName> requires <modRequires>");
 
     if(isEmpty(modRequires - provided)){
         //println("importsAndExtendsAreBinaryCompatible <moduleName>: satisfied");
