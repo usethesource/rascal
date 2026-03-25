@@ -495,23 +495,25 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @Override
-    public void sourceLocationChanged(ISourceLocation root, ISourceLocationChangeType type, String watchId) {
+    public void sourceLocationChanged(ISourceLocation root, int type, String watchId) {
         var watcher = watchersById.get(watchId);
         if (watcher == null) {
             throw new ResponseErrorException(new ResponseError(ResponseErrorCode.RequestFailed, "Received notification for unregistered watch", root)); 
         }
-        switch (type) {
-            case MODIFIED:
-                watcher.publish(ISourceLocationWatcher.modified(root));
-                break;
-            case CREATED:
-                watcher.publish(ISourceLocationWatcher.created(root));
-                break;
-            case DELETED:
-                watcher.publish(ISourceLocationWatcher.deleted(root));
-                break;
-            default:
-                throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + type, root)); 
+        try {
+            switch (ISourceLocationChangeType.fromValue(type)) {
+                case CREATED:
+                    watcher.publish(ISourceLocationWatcher.created(root));
+                    break;
+                case DELETED:
+                    watcher.publish(ISourceLocationWatcher.deleted(root));
+                    break;
+                case MODIFIED:
+                    watcher.publish(ISourceLocationWatcher.modified(root));
+                    break;
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + type, root)); 
         }
     }
 
