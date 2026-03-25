@@ -88,7 +88,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
                 ISourceLocation loc = params.getLocation();
 
                 URIResolverRegistry.getInstance().watch(loc, params.isRecursive(), changed -> {
-                    client.sourceLocationChanged(changed.getLocation(), changed.getChangeType(), "");
+                    client.sourceLocationChanged(changed.getLocation(), changed.getChangeType().getValue(), "");
                 });
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);

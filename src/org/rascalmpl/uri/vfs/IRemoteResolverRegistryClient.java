@@ -1,11 +1,10 @@
 package org.rascalmpl.uri.vfs;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRemoteResolverRegistryClient {
     @JsonNotification("rascal/vfs/watcher/sourceLocationChanged")
-    void sourceLocationChanged(ISourceLocation root, ISourceLocationChangeType type, String watchId);
+    void sourceLocationChanged(ISourceLocation root, int type, String watchId);
 }
