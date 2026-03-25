@@ -107,11 +107,11 @@ void removeModule(str mname){
 
 void printModules(){
 	println("\<\<\<\<");
-	for(f <- find(testRoot, "rsc")){
+	for(f <- find(|memory:///|, "rsc")){
 		println("<f> <lastModified(f)>:
 				'<readFile(f)>");
 	}
-	for(f <- find(testRoot, "tpl")){
+	for(f <- find(|memory:///|, "tpl")){
 		println("<f>: <lastModified(f)>");
 	}
 	println("\>\>\>\>");
