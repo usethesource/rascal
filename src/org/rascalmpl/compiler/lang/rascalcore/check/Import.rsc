@@ -113,7 +113,7 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
              | < MODID c, MODID b> <- imports 
              };
 
-    ms.paths = paths;                                   
+    ms.paths = paths;                                
     return ms;
 }
 
@@ -187,6 +187,9 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
             try {
                 try {
                     mloc = getRascalModuleLocation(moduleId, ms);
+                    if(endsWith(mloc.path, "tpl")){
+                        ms.status[moduleId] += { tpl_from_library() };
+                    }
                 } catch Message err: {
                     ms.messages[moduleId] = { err };
                     tm = tmodel(modelName=moduleId2moduleName(moduleId), messages=[ err ]);
@@ -242,7 +245,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
         // Need to recheck since TModel uses incompatible TPL version
     }
 
-    if(rsc_not_found() in ms.status[moduleId]){
+    if(rsc_not_found() in ms.status[moduleId] || tpl_from_library() in ms.status[moduleId]){
         if(tpl_version_error() in ms.status[moduleId]){
             iName = moduleId2moduleName(moduleId);
             for(<MODID m, _, moduleId> <- ms.paths){
@@ -396,11 +399,11 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
     pcfg = ms.pathConfig;
 
     dependencies_ok = true;
-    for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+    for(m <- component, rsc_not_found() notin ms.status[m], ModuleProperty::ignored() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
             return <(m : tmodel(modelName=moduleId2moduleName(m),messages=toList(ms.messages[m]))) ,ms>;
         }
-        for(imp <- m_imports[m] + m_extends[m], rsc_not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
+        for(imp <- m_imports[m] + m_extends[m], rsc_not_found() notin ms.status[imp], ModuleProperty::ignored() notin ms.status[m]){
             imp_status = ms.status[imp];
             if(parse_error() in imp_status || checked() notin imp_status){
                 dependencies_ok = false;
@@ -414,7 +417,7 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
     }
     transient_tms = (m : tm | m <- component);
     org_tm = tm;
-    for(MODID m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+    for(MODID m <- component, rsc_not_found() notin ms.status[m], ModuleProperty::ignored() notin ms.status[m]){
         tm = org_tm;
         mname = moduleId2moduleName(m);
         tm.modelName = mname;
@@ -433,7 +436,7 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
 ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports, map[MODID,set[MODID]] m_extends, ModuleStatus ms, map[MODID, TModel] transient_tms, RascalCompilerConfig compilerConfig){
     pcfg = ms.pathConfig;
 
-    component = { m | m <- component, MStatus::ignored() notin ms.status[m] };
+    component = { m | m <- component, ModuleProperty::ignored() notin ms.status[m] };
     if(isEmpty(component)) return ms;
 
     //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
