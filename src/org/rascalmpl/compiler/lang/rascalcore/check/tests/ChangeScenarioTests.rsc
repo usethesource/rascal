@@ -786,7 +786,7 @@ test bool changeMultipleTimes() { // ht @toinehartman
         bin = projDir + "target",
         // There might be incompatibility here, since Rascal uses typepal--0.16.6-RC2 at the time of writing.
         // However, I would still expect that errors caused by that appear on the first type-check.
-        libs = [TYPEPAL166, |target://rascal|]
+        libs = [TYPEPAL166, RASCAL42]
     );
     iprintln(pcfg);
 
