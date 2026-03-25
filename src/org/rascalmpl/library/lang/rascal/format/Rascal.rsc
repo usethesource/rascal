@@ -50,10 +50,6 @@ import lang::box::util::Box2Text;
 import util::Formatters;
 import util::Reflective;
 
-@synopsis{Format an entire Rascal file, in-place.}
-public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
-@synopsis{Format a Rascal module string}
-public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
 void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(), bool dumpEdits=false) {
@@ -453,12 +449,12 @@ Box toBox((Statement) `return <Statement e>`)
 Box toBox(s:(Statement) `<Label label> if (<{Expression ","}+ cs>) 
                       '  <Statement sts>`)
     = (Statement) `if (<Expression cond>) println(<Expression log>);` := s ? 
-    H1(H0([H1(L("if"), L("(")), toExpBox(cond), L(")")]),
+    H1(H0([H1(L("if"), L("(")), I(HOV(toBox(cs))), L(")")]),
         H0(L("println"), L("("), toExpBox(log), L(")"), L(";")))
     : (Statement) `if (<Expression cond>) { println(<Expression log>); }` := s ?
-     H1(H0(H0(H1(L("if"), L("(")), toBox(cond), L(")"))),
+     H1(H0(H0(H1(L("if"), L("(")), I(HOV(toBox(cs))), L(")"))),
         L("{"),
-        H0(L("println"), L("("), toBox(log), L(")"), L(";")),
+        H0(L("println"), L("("), I(HOV(toExpBox(log))), L(")"), L(";")),
         L("}"))
     :
     V(HV(H0(toBox(label), H(L("if"), L("(")), toBox(cs), L(")")),
@@ -490,13 +486,12 @@ Box toBox((Statement) `<Label label> if (<{Expression ","}+ cs>)
         H(L("else"), nested[0]), *nested[1..]]) when ests is \ifThenElse || ests is \ifThen, nested := toBox(ests).boxes;
 
 Box toBox({Expression ","}+ cs)
-    = SL([toExpBox(c) | Expression c <- cs], L(","));
+    = SL([I(toExpBox(c)) | Expression c <- cs], L(","));
 
-Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)
-                      '  <Statement sts>`)
-    = V(H(H0(toBox(label), L("while")), 
-            H0(L("("), toBox(cs), L(")")),
-            blockOpen(sts)),
+Box toBox((Statement) `<Label label> while (<{Expression ","}+ cs>)  <Statement sts>`)
+    = V(
+        HOV(H(H0(toBox(label), L("while"), L("("))), 
+        I(H0(HOV(toBox(cs)), H(L(")"), blockOpen(sts)))), hs=0), 
         indentedBlock(sts),
         blockClose(sts));
 
@@ -1118,3 +1113,14 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
             toBox(n)),
         L("\<:"), 
         toBox(bound));
+
+// TODO: put these functions on top after the function cache issue has been resolved:
+
+@synopsis{Format an entire Rascal file, in-place.}
+public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
+
+@synopsis{Format a Rascal module string}
+public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
+
+@synopsis{Format a Rascal statement string}
+public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
