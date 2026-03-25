@@ -29,7 +29,6 @@ package org.rascalmpl.uri.remote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
@@ -41,10 +40,7 @@ import java.util.concurrent.ExecutorService;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.rascalmpl.uri.FileAttributes;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
@@ -94,10 +90,6 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
                 throw new CompletionException(e);
             }
         }, executor);
-    }
-
-    static FileChangeEvent convertChangeEvent(ISourceLocationChanged changed) throws IOException {
-        return new FileChangeEvent(changed.getChangeType(), changed.getLocation().getURI().toASCIIString());
     }
 
     @Override
@@ -181,23 +173,5 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
                 throw new CompletionException(e);
             }
         }, executor);
-    }
-
-    public static class FileChangeEvent {
-        @NonNull private final ISourceLocationChangeType type;
-        @NonNull private final String uri;
-
-        public FileChangeEvent(ISourceLocationChangeType type, @NonNull String uri) {
-            this.type = type;
-            this.uri = uri;
-        }
-
-        public ISourceLocationChangeType getType() {
-            return type;
-        }
-
-        public ISourceLocation getLocation() throws URISyntaxException {
-            return null;
-        }
     }
 }
