@@ -178,7 +178,7 @@ tuple[bool, TModel, ModuleStatus] addGrammar(MODID moduleId, set[MODID] imports,
                 <found, tm1, ms> = getTModelForModule(m, ms);
                 if(!found) {
                     msg = error("Cannot add grammar or tmodel since `<moduleId2moduleName(m)>` is not found", ms.moduleLocs[moduleId] ? |unknown:///|);
-                    println(msg); // TODO: Just to record this event; this should probably go to a log file
+                    //println(msg); // TODO: Just to record this event; this should probably go to a log file
                     ms.messages[moduleId] ? {} += { msg };
                     tm1 = tmodel(modelName=qualifiedModuleName, messages=[msg]);
                     return <false, tm1, ms>;

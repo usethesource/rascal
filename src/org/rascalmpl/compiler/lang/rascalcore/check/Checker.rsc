@@ -46,7 +46,6 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::check::ModuleLocations;
-extend lang::rascalcore::check::TestConfigs;
 
 import analysis::typepal::Exception;
 
@@ -553,7 +552,7 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     for(int i <- index(candidates)){
         mloc = candidates[i];
         <found, tpl> = getTPLReadLoc(mnames[i], pcfg);
-        if(!found || lastModified(mloc) > lastModified(tpl)){
+        if(!found || lastModified(mloc) >= lastModified(tpl)){
             return false;
         }
     }

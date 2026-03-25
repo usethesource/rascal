@@ -48,7 +48,7 @@ private void runChecker(PathConfig pcfg, list[str] mnames) {
 
 test bool packagerRewritesTModelsCorrectly () {
     println("**** Checking List");
-    tplRoot = |memory:///|;
+    tplRoot = |memory://packager-test/|;
     originalBin = tplRoot + "rascal-lib";
     rewrittenBin = tplRoot + "rascal-lib-rewritten";
     rascalLibPcfg =
