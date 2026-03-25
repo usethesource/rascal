@@ -122,9 +122,6 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
     // with import and extend. Each main module has a different grammar because of this.
     def = modules2definition(main, modules);
 
-println("storeParserForModule def:");
-iprintln(def);
-
     // here the layout semantics comes really into action
     gr = resolve(fuse(layouts(def)));
 
