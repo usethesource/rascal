@@ -521,12 +521,12 @@ Box toBox((Case) `case <Pattern p>:  <Statement block>`)
     = V(H(L("case"), H0(toBox(p), L(":")), blockOpen(block)), indentedBlock(block), blockClose(block));
 
 Box toBox((Case) `case <Pattern p> =\> <Expression repl>`)
-    = HOV(H(L("case"), toBox(p)), I(H(SPACE(2), L("=\>"), toBox(repl))));
+    = HOV(H(L("case"), toBox(p)), I(H(L("=\>"), toBox(repl))));
 
 Box toBox((Case) `case <Pattern p> =\> <Expression repl> when <{Expression ","}+ conditions>`)
     = HOV(
         H(L("case"), toBox(p)), 
-        I(H(SPACE(2), L("=\>"), toBox(repl))), 
+        I(H(H0(SPACE(2), L("=\>")), toBox(repl))), 
         I(H(L("when"), HOV(toBox(conditions)))));
 
 Box toBox((Case) `default: <Statement block>`)
