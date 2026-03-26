@@ -214,7 +214,7 @@ Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Name na
             toBox(tags), 
             H1(toBox(visibility), toBox(typ), toBox(name))
         ), 
-        I(HOV(G(L("="), U([toBox(initial)])))), L(";"));
+        I(H0(HOV(G(L("="), U([toBox(initial)]))), L(";"))));
 
 Box toBox((Declaration) `<Tags tags> <Visibility visibility> <Type typ> <Variable first>, <{Variable ","}+ variables>;`)
     = HV(V(toBox(tags), H1(toBox(visibility), toBox(typ))), I(HOV(H0(toBox(first), L(",")), SL([toBox(v) | v <- variables], L(",")))), L(";"));
