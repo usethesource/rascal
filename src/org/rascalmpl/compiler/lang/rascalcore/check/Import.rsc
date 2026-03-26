@@ -169,7 +169,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
                if(dependencyChanged || mchanged){
                     allImportsAndExtendsValid = false;
                     ms = addProperty(mid, ms, rsc_changed());
-                    ms = deleteProperty(mid, tpl_uptodate(), checked());
+                    ms = deleteProperty(mid, ms, tpl_uptodate(), checked());
                     ms = deleteProperty(moduleId, ms, tpl_saved());
                     ms.messages[moduleId] = {};
                     if(ms.compilerConfig.verbose){
