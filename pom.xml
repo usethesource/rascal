@@ -173,7 +173,7 @@
                         </goals>
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
-                            <errorsAsWarnings>true</errorsAsWarnings>
+                            <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
