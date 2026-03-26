@@ -15,21 +15,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 This module composes and describes a "standard" formatting style for Rascal.
 There could be other styles of course. Other styles can be build by 
 writing different `toBox` rules.
-
-TODO's:
-    // * HOV instead of HV for constructor parameters (this is probably a good thing)
-    * global variable assignment indentation too deep (has todo with visibility keywords?)
-    * alias has no spacing around =
-    * `public` indents function declarations too deeply if there is no function body `;` (see also globals)
-    // * parse error in IO output:
-    //    *  multiple empty lines between function definitions in IO.rsc
-    //    * copyFile has is=2?
-    // * missing brackets around parameters in final closure calls
-    * parameter lists of function calls go to vertical too soon
-    * single line comment at end of line should not go to its own line
-    * if brackets go vertical of call syntax, parameters also always go vertical. not necessary.
-    * "if" can get "\{" below it (HV?) in some corner cases. Not good.
-    * do-while
 }
 @bootstrapParser
 module lang::rascal::format::Rascal
@@ -65,6 +50,18 @@ void testOnLibrary() {
         ansi=false, 
         shadowFiles=true, 
         appendFile=false, 
+        console=false);
+}
+
+void testOnCompiler() {
+    debugFilesFormat(
+        #start[Module], 
+        toBox, 
+        |project://rascal/src/org/rascalmpl/compiler/|, 
+        "rsc", 
+        ansi=true, 
+        shadowFiles=false, 
+        appendFile=true, 
         console=false);
 }
 
