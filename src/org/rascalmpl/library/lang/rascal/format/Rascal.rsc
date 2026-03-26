@@ -755,7 +755,7 @@ Box toBox((LocationLiteral) `<ProtocolPart protocolPart><PathPart pathPart>`)
     = H0(toBox(protocolPart), toBox(pathPart));
 
 Box toBox((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`)
-    = HOV(toBox(condition),
+    = HOV(HV(toBox(condition)),
         I(H(L("?"), toExpBox(thenExp))),
         I(H(L(":"), toExpBox(elseExp))));
 
@@ -1151,7 +1151,3 @@ public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 @synopsis{Format a Rascal statement string}
 public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
 
-public Box testToBox(loc file, bool flatten=true) {
-    m = parse(#start[Module], file);
-    return flatten ? debUG(toBox(m)) : toBox(m);
-}

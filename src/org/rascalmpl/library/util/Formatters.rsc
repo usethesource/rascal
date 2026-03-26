@@ -81,6 +81,7 @@ import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
 import lang::box::util::Box2Text;
 import lang::box::util::Tree2Box;
+import lang::box::\syntax::Box;
 import util::FileSystem;
 import util::Highlight;
 import util::IDEServices;
@@ -382,4 +383,22 @@ void debugStringFormat(type[&G <: Tree] grammar, Style style, str input, Formatt
     if (console) {
         println(toANSI(reparsed));
     }
+}
+
+void debugFileToBox(type[&G <: Tree] grammar, Style style, loc input, bool flatten = true) {
+    &G tree = parse(grammar, input);
+    Box box =  flatten 
+        ? debUG(style(tree))
+        : style(tree)
+        ;
+    iprintln(box, lineLimit=-1);
+}
+
+void debugStringToBox(type[&G <: Tree] grammar, Style style, str input, bool flatten = true) {
+    &G tree = parse(grammar, input, |unknown:///|);
+    Box box =  flatten 
+        ? debUG(style(tree))
+        : style(tree)
+        ;
+    iprintln(box, lineLimit=-1);
 }
