@@ -110,7 +110,6 @@ public interface IRemoteResolverRegistryServer {
     }
 
     @JsonRequest("rascal/vfs/output/remove")
-    //TODO (Rodin): ISourceLocationOutput heeft geen `recursive`, URIResolverRegistry wel
     default CompletableFuture<Void> remove(ISourceLocation loc, boolean recursive) {
         throw new UnsupportedOperationException();
     }
