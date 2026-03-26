@@ -499,7 +499,7 @@ Box toBox((Statement) `<Label label> do <Statement sts> while (<Expression cond>
     = V(H(H0(toBox(label), L("do")), blockOpen(sts)),
             indentedBlock(sts),
         blockClose(sts),
-        H0(L("("), toBox(cond), L(")")));
+        H(L("while"), H0(L("("), toBox(cond), L(")"))));
 
 Box toBox((Statement) `<Expression exp>;`)
     = H0(toBox(exp), L(";"));
