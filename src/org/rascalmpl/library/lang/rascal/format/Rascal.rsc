@@ -183,6 +183,12 @@ Box toBox((Tag) `@<Name n>`)
 
 Box toBox(QualifiedName n) = L("<n>");
 
+Box toBox((Declaration) `<Tags t> <Visibility v> anno <Type annoType> <Type onType>@<Name n>;`)
+    = V(
+        toBox(t),
+        H(toBox(v), L("anno"), toBox(annoType), H0(toBox(onType), L("@"),  toBox(n)))
+    );
+
 Box toBox((Declaration) `<Tags t> <Visibility v> alias  <UserType user> = <Type base>;`)
     = V(toBox(t),
         H(toBox(v), L("alias"), toBox(user), L("="), H0(toBox(base), L(";"))));
@@ -254,17 +260,17 @@ Box toBox((Variant) `<Name n>(<{TypeArg ","}* args>
 Box toBox(FunctionModifier* modifiers) = H([toBox(b) | b <- modifiers]);
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters> throws <{Type ","}+ exs>`)
-    = HOV([
-        H(toBox(modifiers), toBox(typ), H0(toBox(name), L("("))),
-        G(toBox(parameters), gs=1, op=I()),
-        H([L(")"), L("throws"), SL([toBox(e) | e <- exs], L(","))], hs=1)], hs=0);
+    = H0(
+        HOV([
+            H(toBox(modifiers), toBox(typ), H0(toBox(name), L("("))),
+            G(toBox(parameters), gs=1, op=I())], hs=0),
+        H([L(")"), L("throws"), SL([toBox(e) | e <- exs], L(","))], hs=1));
 
 Box toBox((Signature) `<FunctionModifiers modifiers> <Type typ>  <Name name> <Parameters parameters>`)
-    = HOV(
+    = H0(HOV(
         H(toBox(modifiers), toBox(typ), H0(toBox(name), L("("))),
-        G(toBox(parameters), gs=1, op=I()),
-        L(")"),
-        hs=0);
+        G(toBox(parameters), gs=1, op=I())
+        hs=0), L(")"));
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`)
     = V(
@@ -499,7 +505,7 @@ Box toBox((Statement) `<Label label> do <Statement sts> while (<Expression cond>
     = V(H(H0(toBox(label), L("do")), blockOpen(sts)),
             indentedBlock(sts),
         blockClose(sts),
-        H(L("while"), H0(L("("), toBox(cond), L(")"))));
+        H(L("while"), H0(L("("), toBox(cond), L(")"), L(";"))));
 
 Box toBox((Statement) `<Expression exp>;`)
     = H0(toBox(exp), L(";"));
@@ -876,8 +882,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments> <{Keyw
     = HOV(
         H0(toBox(caller), L("(")), 
         I(HOV(toBox(arguments)), 
-        I(HOV(toBox(kwargs)), 
-        hs=1)),
+        I(HOV(toBox(kwargs)))),
         L(")"), hs=0)
         when !(arguments[-1] is closure || arguments[-1] is voidClosure);
 
@@ -886,15 +891,22 @@ Box toBox({KeywordArgument[&T] ","}+ args)
 
 // call without kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>)`)
-    = HOV([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), L(")")], hs=0);
+    = H0(HOV(
+        H0(toBox(caller), L("(")), 
+        I(HV(toBox(arguments))), hs=0),
+        L(")"));
 
 // call with kwargs
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments>, <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = HOV([H(HOV([H0(toBox(caller), L("(")), I(H0(HV(toBox(arguments)), L(",")))], hs=0)), HOV(toBox(kwargs)), L(")")], hs=0);
+    = H0(HOV(
+        H(HOV(
+            H0(toBox(caller), L("(")), 
+            I(H0(HV(toBox(arguments)), L(","))), hs=0)), 
+            HOV(toBox(kwargs)), hs=0), L(")"));
 
 // call with kwargs no-comma
 Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgument[Pattern] ","}+ kwargs>)`)
-    = V([H0(toBox(caller), L("(")), I(HV(toBox(arguments))), I(HOV(toBox(kwargs))), L(")")]);
+    = H0(HOV(H0(toBox(caller), L("(")), I(HV(toBox(arguments))), I(HOV(toBox(kwargs)))), L(")"));
 
 /* continue with expressions */
 

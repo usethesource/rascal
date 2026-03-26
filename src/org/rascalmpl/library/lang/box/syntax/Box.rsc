@@ -150,20 +150,26 @@ Box debUG(Box b) {
     }
 }
 
-@synopsis{Short-hand for `H(hs=0)``}
+@synopsis{Short-hand for `H(hs=0)`}
 Box H0(Box boxes...) = H_(boxes, hs=0);
+
+@synopsis{Short-hand for `H(hs=1)`}
+Box H1(Box boxes...) = H_(boxes, hs=1);
 
 @synopsis{Short-hand for `HOV(hs=0)``}
 Box HOV0(Box boxes ...) = HOV_(boxes, hs=0);
 
-@synopsis{Short-hand for `H(hs=1)``}
-Box H1(Box boxes...) = H_(boxes, hs=1);
+@synopsis{Short-hand for `HV(hs=0)``}
+Box HV0(Box boxes...) = HV_(boxes, hs=0);
 
-@synopsis{Short-hand for `HOV(hs=1)``}
-Box HOV1(Box boxes...) = HOV_(boxes, hs=1);
+@synopsis{Short-hand for indented H}
+Box IH(Box boxes..., int hs=1) = I(H_(boxes, hs=hs));
 
-@synopsis{Short-hand for `V(vs=0)``}
-Box V0(Box boxes...) = V_(boxes, vs=0);
+@synopsis{Short-hand for indented V}
+Box IV(Box boxes..., int hs=1) = I(V_(boxes, hs=hs));
 
-@synopsis{Short-hand for `V(vs=1)``}
-Box V1(Box boxes...) = V_(boxes, vs=1);
+@synopsis{Short-hand for indented HOV}
+Box IHOV(Box boxes..., int hs=1, int vs=0) = I(HOV_(boxes, hs=hs, vs=vs));
+
+@synopsis{Short-hand for indented HV}
+Box IHV(Box boxes..., int hs=1, int vs=0) = I(HV_(boxes, hs=hs, vs=vs));
