@@ -258,7 +258,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     if(success){
         <ms, imports_and_extends> = getModulePaths(pt, ms);
 
-        for(<_, _, imp> <- imports_and_extends, hasNotProperty(imp. ms, rsc_not_found())){
+        for(<_, _, imp> <- imports_and_extends, hasNotProperty(imp, ms, rsc_not_found())){
             ms = getImportAndExtendGraph(imp, ms);
         }
     } else {
