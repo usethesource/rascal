@@ -62,9 +62,9 @@ void testOnLibrary() {
         toBox, 
         |project://rascal/src/org/rascalmpl/library/|, 
         "rsc", 
-        ansi=true, 
-        shadowFiles=false, 
-        appendFile=true, 
+        ansi=false, 
+        shadowFiles=true, 
+        appendFile=false, 
         console=false);
 }
 
@@ -799,12 +799,15 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
 
 
 // call with single list 
-Box toBox((Expression) `<Expression caller>([<{Expression ","}* arguments>])`)
+Box toBox((Expression) `<Expression caller>([<{Expression ","}+ arguments>])`)
     = HOV(
         H0(toBox(caller), L("("), L("[")), 
         I(HOV(toBox(arguments))), 
         H0(L("]"), L(")")), 
     hs=0);
+
+Box toBox((Expression) `<Expression caller>([])`)
+    = H0(toBox(caller), L("("), L("["), L("]"), L(")"));
 
 // call with single list and kwargs 
 Box toBox((Expression) `<Expression caller>([<{Expression ","}* arguments>], <{KeywordArgument[Expression] ","}+ kwargs>)`)
@@ -812,6 +815,14 @@ Box toBox((Expression) `<Expression caller>([<{Expression ","}* arguments>], <{K
         H0(toBox(caller), L("("), L("[")), 
         I(HOV(toBox(arguments))), 
         I(H0(L("]"), L(","))), 
+        I(HOV(toBox(kwargs))),
+        L(")")
+    hs=1);    
+
+// call with single list and kwargs 
+Box toBox((Expression) `<Expression caller>([], <{KeywordArgument[Expression] ","}+ kwargs>)`)
+    = HOV(
+        H0(toBox(caller), L("("), L("["), L("]"), L(")"), L(",")), 
         I(HOV(toBox(kwargs))),
         L(")")
     hs=1);    
