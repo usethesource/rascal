@@ -279,11 +279,14 @@ Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> ;`
     );
 
 Box toBox((FunctionDeclaration) `<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`)
-    = V(toBox(tags),
-        HOV(
+    = V(
+        toBox(tags),
+        H0(HOV(
             toBox(vis), 
             toBox(sig),
-            I(H(HOV(G(L("="), toBox(exp), gs=2, op=H())), L(";"), hs=0)))) 
+            I(toExpBox(L("="), exp))),
+        L(";"))
+    ) 
     when !(exp is \visit || exp is voidClosure || exp is closure);
 
 Box toBox((Expression) `<Type typ> <Parameters parameters> { <Statement+ statements> }`)
@@ -627,8 +630,8 @@ Box toBox((Expression) `<Expression a> \<= <Expression b>`)
     = H1(HOV(toBox(a)), L("\<="), HOV(toBox(b)));
 Box toBox((Expression) `<Expression a> \< <Expression b>`)
     = H1(HOV(toBox(a)), L("\<"), HOV(toBox(b)));
-Box toBox((Expression) `<Expression a> == <Expression b>`)
-    = H1(HOV(toBox(a)), L("=="), HOV(toBox(b)));
+// Box toBox((Expression) `<Expression a> == <Expression b>`)
+//     = H1(HOV(toBox(a)), L("=="), HOV(toBox(b)));
 Box toBox((Expression) `<Expression a> \>= <Expression b>`)
     = H1(HOV(toBox(a)), L("\>="), HOV(toBox(b)));
 Box toBox((Expression) `<Expression a> \> <Expression b>`)
@@ -689,10 +692,13 @@ Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
         A([toRow(e) | e <- elems], rs=L(",")),
         L("}")) when elems[0] is \tuple;
 
+// TODO this not right
 Box toBox((Expression) `{ <{Expression ","}+ elems>}`)
-    = H0(L("{"),
-        HV(toBox(elems)),
-        L("}")) when !(elems[0] is \tuple); 
+    = HOV(
+        L("{"),
+        I(HOV(toBox(elems))),
+        L("}")) 
+    when !(elems[0] is \tuple); 
 
 Box toBox((Pattern) `{ <{Pattern ","}+ elems>}`)
     = H0(L("{"),
@@ -798,7 +804,7 @@ Box toBox((Expression) `<Expression caller>(<{Expression ","}+ arguments>)`)
         I(HOV(toBox(arguments))), 
         L(")"), 
         hs=0)
-    when !(arguments[-1] is closure || arguments[-1] is voidClosure || arguments[-1] is \list);
+    when !(arguments[-1] is closure || arguments[-1] is voidClosure || (arguments[0] == arguments[-1] && arguments[0] is \list));
 
 
 // call with single list 
@@ -1144,3 +1150,8 @@ public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 
 @synopsis{Format a Rascal statement string}
 public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
+
+public Box testToBox(loc file, bool flatten=true) {
+    m = parse(#start[Module], file);
+    return flatten ? debUG(toBox(m)) : toBox(m);
+}
