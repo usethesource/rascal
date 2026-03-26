@@ -316,7 +316,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
 
     if (shadowFiles) {
         remove(shadowRoot, recursive=true);
-        println("The shadow file hierarchy is being written under <shadowRoot> and ANSI codes are <if (!ansi) {>not<}>used.");
+        println("The shadow file hierarchy is being written under <shadowRoot> and ANSI codes are <if (!ansi) {>not <}>used.");
     }
 
     if (appendFile) {
@@ -325,7 +325,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
     }
 
     if (console) {
-        println("All formatted files are written to the console and ANSI is <if (!ansi) {>not<}>being used");
+        println("All formatted files are written to the console and ANSI is <if (!ansi) {>not <}>being used");
     }
 
     job("formatting", bool (void (str message, int worked) step) {

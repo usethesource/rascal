@@ -87,8 +87,8 @@ import IO;
 Note that there may be more FormattingOptions due to other elements of a formatting pipeline, such as ((layoutDiff)).
 }
 data FormattingOptions(
-    int maxWidth=80, 
-    int wrapAfter=70,
+    int maxWidth=120, 
+    int wrapAfter=90,
     int tabSize = 4,
     bool insertSpaces = true,
     bool trimTrailingWhitespace = true,
