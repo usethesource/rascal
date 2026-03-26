@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.interpreter.BatchProgressMonitor;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
