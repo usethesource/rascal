@@ -244,7 +244,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
         // Need to recheck since TModel uses incompatible TPL version
     }
     if(hasAnyProperty(moduleId, ms, rsc_not_found(), tpl_from_library())){
-        if(hasProperty(moduleId, ms, tpl_version_error()){
+        if(hasProperty(moduleId, ms, tpl_version_error())){
             iName = moduleId2moduleName(moduleId);
             for(<MODID m, _, moduleId> <- ms.paths){
                 mName = moduleId2moduleName(m);
