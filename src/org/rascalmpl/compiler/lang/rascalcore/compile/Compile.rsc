@@ -90,7 +90,7 @@ list[Message] compile1(MODID moduleId, lang::rascal::\syntax::Rascal::Module M, 
     imports = { imp | <m1, importPath(), imp> <- ms.paths, m1 == moduleId };
     extends = { ext | <m1, extendPath(), ext > <- ms.paths, m1 == moduleId };
     tmodels = ();
-    for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
+    for(m <- imports + extends, hasProperty(m, ms, tpl_uptodate()){
         if(m in transient_tms){
             tmodels[m] = transient_tms[m];
         } else {

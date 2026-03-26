@@ -103,18 +103,21 @@ data ModuleStatus =
       RascalCompilerConfig compilerConfig
    );
 
+// p1 in status && p2 in status ...
 bool hasProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
     if(mid notin ms.status) return false;
     mstatus = ms.status[mid];
     return !isEmpty(mstatus) && all(p <- properties, p in mstatus);
 }
 
+// p1 in status || p2 in status ...
 bool hasAnyProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
     if(mid notin ms.status) return false;
     mstatus = ms.status[mid];
     return !isEmpty(mstatus) && any(p <- properties, p in mstatus);
 }
 
+// p1 notin status && p2 notin status ...
 bool hasNotProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
     if(mid notin ms.status) return true;
     mstatus = ms.status[mid];
@@ -276,11 +279,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
         if(traceParseTreeCache) println("*** using cached parse tree for <moduleId>");
         return <true, ms.parseTrees[moduleId], ms>;
     } else {
-        // if(!ms.status[moduleId]?){
-        //     ms.status[moduleId] = {};
-        // }
         if(hasNotProperty(moduleId, ms, parse_error())){
-        // if(parse_error() notin ms.status[moduleId]){
             if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
                 ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
                 if(traceParseTreeCache) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
@@ -293,7 +292,6 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(isModuleLocationInLibs(mloc, pcfg)) {
                     ms = addProperty(moduleId, ms, tpl_from_library());
-                    // ms.status[moduleId] += {tpl_from_library()};
                     throw "No src or library module";
                 }
             } catch e: {
@@ -307,13 +305,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 ms.parseTrees[moduleId] = pt;
                 newLoc = getLoc(pt);
                 ms.moduleLocs[moduleId] = newLoc;
-                // ms.status[moduleId] ? {} += {parsed()};
                 return <true, pt, ms>;
             } catch ParseError(loc src): {
                 ms.messages[moduleId] ? {} = {error("Parse error in <moduleId>", src)};
                 ms.moduleLocs[moduleId] = mloc;
                 ms = addProperty(moduleId, ms, parse_error());
-                // ms.status[moduleId] += parse_error();
                 return <false, dummyModule, ms>;
             }
         }
@@ -343,7 +339,6 @@ int tmodelCacheSize = 30; // should be > 0
 
 ModuleStatus clearTModelCache(ModuleStatus ms){
     todo = { mname | mname <- ms.status, hasProperty(mname, ms, bom_update_needed())};
-    // todo = { mname | mname <- ms.status, bom_update_needed() in ms.status[mname]};
     for(candidate <- ms.tmodelLIFO){
         ms = removeOldestTModelFromCache(ms/*, updateBOMneeded=true*/);
         todo -= candidate;
@@ -351,7 +346,6 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
     for(candidate <- todo){
         ms = removeTModel(candidate, ms/*, updateBOMneeded=true*/);
         ms = deleteProperty(candidate, ms, bom_update_needed());
-        // ms.status[candidate] -= bom_update_needed();
     }
     return ms;
 }
@@ -368,7 +362,6 @@ rel[str,datetime,PathRole] makeBom(MODID moduleId, ModuleStatus ms){
 
 ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
     if(hasAnyProperty(moduleId, ms, rsc_not_found(), tpl_from_library())){
-    // if(rsc_not_found() in ms.status[moduleId] || tpl_from_library() in ms.status[moduleId]){
         return ms;
     }
     <found, tm, ms> = getTModelForModule(moduleId, ms);
@@ -378,7 +371,6 @@ ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
         if(newBom != tm.store[key_bom]){
             tm.store[key_bom] = newBom;
             ms = deleteProperty(moduleId, ms, tpl_saved(), bom_update_needed());
-            // ms.status[moduleId] -= {tpl_saved(), bom_update_needed()};
             ms = addTModel(moduleId, tm, ms);
 
             if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <moduleId>");
@@ -392,24 +384,18 @@ ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
 ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded = false){
     assert isModuleId(candidate) : "removeTModel: <candidate>";
     if(   updateBOMneeded
-       || (   candidate in ms.tmodels 
-              && !hasAnyProperty(candidate, ms, tpl_saved(), rsc_not_found(), tpl_from_library()))
-        //    && candidate in ms.status
-        //    && tpl_saved() notin ms.status[candidate] 
-        //    && rsc_not_found() notin ms.status[candidate]
-        //    && tpl_from_library() notin ms.status[candidate])
+       ||    candidate in ms.tmodels 
+          && !hasAnyProperty(candidate, ms, tpl_saved(), rsc_not_found(), tpl_from_library())
       ){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
             ms = updateBOM(candidate, ms);
          } 
          ms = deleteProperty(candidate, ms,  bom_update_needed());
-        // ms.status[candidate] -= bom_update_needed();
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
         //tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
         ms = addProperty(candidate, ms, tpl_saved());
-        ms.status[candidate] += tpl_saved();
         if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
             writeBinaryValueFile(tplLoc, tm);
@@ -476,10 +462,8 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
                 mloc = getRascalModuleLocation(moduleId, ms);
                 if(isModuleLocationInLibs(mloc, pcfg)){
                     ms = addProperty(moduleId, ms, tpl_from_library());
-                    // ms.status[moduleId] ? {} += {tpl_from_library()};
                 }
                 ms = addProperty(moduleId, ms, tpl_uptodate(), tpl_saved());
-                // ms.status[moduleId] ? {} += {tpl_uptodate(), tpl_saved()};
                 //do not include errors from tm in ModuleStatus to avoid that they become persistent
                 ms.tmodelLIFO = [moduleId, *ms.tmodelLIFO];
                 return <true, tm, ms>;

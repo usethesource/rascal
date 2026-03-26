@@ -184,7 +184,6 @@ ModuleStatus rascalTModelForLocs(
         mname = mnames[i];
         if(isModuleLocationInLibs(mloc, pcfg)){
             ms = addProperty(mloc, ms, tpl_from_library());
-            // ms.status[mloc] ? {} += {tpl_from_library()};
         }
        
         ms.moduleLocs[mid] = mloc;
@@ -242,21 +241,18 @@ ModuleStatus rascalTModelForLocs(
             
             jobStep(jobName, intercalate(" + ", [*componentNames]), work=size(componentNames));
 
-            recheck = !all(m <- component, hasProperty(m, ms, tpl_uptodate(), checked()));
-            // recheck = !all(m <- component, m in ms.status, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
+            recheck = !all(m <- component, hasAnyProperty(m, ms, tpl_uptodate(), checked()));
             for(m <- component){
                
-                if(m notin ms.status){
-                    ms.status[m] = {};
-                }
+                // if(m notin ms.status){
+                //     ms.status[m] = {};
+                // }
                 mi += 1;
                 if(!recheck){
-                    if(!hasProperty(m, ms, tpl_uptodate())){
-                    // if(tpl_uptodate() notin ms.status[m]){
+                    if(hasNotProperty(m, ms, tpl_uptodate())){
                         <found, tm, ms> = getTModelForModule(m, ms);
                         if(found){
                             ms = addProperty(m, ms, tpl_uptodate(), checked());
-                            // ms.status[m] += {tpl_uptodate(), checked()};
                         }
                     }
                }
@@ -267,8 +263,6 @@ ModuleStatus rascalTModelForLocs(
             if(any_tpl_outdated){
                 for(m <- component){
                     ms = deleteProperty(m, ms, tpl_uptodate(), checked());
-                    // ms.status[m] -= {tpl_uptodate(), checked()};
-                    //ms.status[m] += {rsc_changed()};
                 }
             } else {
                 for(m <- component){
@@ -281,12 +275,10 @@ ModuleStatus rascalTModelForLocs(
                             <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
                             if(m_compatible){
                                 ms = addProperty(m, ms, tpl_uptodate(), checked(), bom_update_needed());
-                                // ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
                             }
                         }
                     } catch rascalTplVersionError(_,_,_,_): {
                          ms = addProperty(m, ms, tpl_version_error());
-                        // ms.status[m] += { tpl_version_error() };
                         // m_compatible remains false
                     };
                     
@@ -295,15 +287,12 @@ ModuleStatus rascalTModelForLocs(
             }
 
             any_rsc_changed = any(m <- component, hasProperty(m, ms, rsc_changed()));
-            // any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
-            all_rsc_found = !any(m <- component, hasProperty(m, ms, rsc_not_found()));
+            all_rsc_found = all(m <- component, hasNotProperty(m, ms, rsc_not_found()));
             // all_rsc_found = !any(m <- component, rsc_not_found() in ms.status[m]);
             any_from_lib = any(m <- component, hasProperty(m, ms, tpl_from_library()));
-            // any_from_lib = any(m <- component, tpl_from_library() in ms.status[m]);
             all_tmodels_uptodate = true;
             for(m <- component){
                 if(hasNotProperty(m, ms, tpl_uptodate(), checked()))
-                // if(tpl_uptodate() notin ms.status[m] && checked() notin ms.status[m])
                     all_tmodels_uptodate = false;
             }
             recheckCond = !any_from_lib && all_rsc_found && (!compatible_with_all_imports || any_rsc_changed || !all_tmodels_uptodate);
@@ -319,7 +308,6 @@ ModuleStatus rascalTModelForLocs(
                 map[MODID,set[MODID]] m_imports = ();
                 map[MODID,set[MODID]] m_extends = ();
                 for(m <- component, hasNotProperty(m, ms, rsc_not_found(), ModuleProperty::ignored())){
-                // for(m <- component, rsc_not_found() notin ms.status[m], ModuleProperty::ignored() notin ms.status[m]){
                     imports =  { imp | <m1, importPath(), imp> <- ms.paths, m1 == m, hasNotProperty(imp, ms, ModuleProperty::ignored())};
                     m_imports[m] =  imports;
                     extends = { ext | <m1, extendPath(), ext > <- ms.paths, m1 == m, hasNotProperty(ext, ms, ModuleProperty::ignored()) };
@@ -340,11 +328,10 @@ ModuleStatus rascalTModelForLocs(
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");
                                 inameId = moduleName2moduleId(iname);
-                                if(!ms.status[inameId]?){
-                                    ms.status[inameId] = {};
-                                }
+                                // if(!ms.status[inameId]?){
+                                //     ms.status[inameId] = {};
+                                // }
                                 if(hasProperty(inameId, ms, tpl_version_error(), rsc_not_found())){
-                                // if({tpl_version_error(), rsc_not_found()} <= ms.status[inameId]){
                                      imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
                                 }
                                 if(inameId notin usedModules){
@@ -358,8 +345,7 @@ ModuleStatus rascalTModelForLocs(
                                     continue check_imports;
                                    }
                                    if((inameId in component || hasProperty(inameId, ms, checked())) && hasNotProperty(inameId, ms, rsc_not_found())){
-                                //    if((inameId in component || checked() in ms.status[inameId]) && rsc_not_found() notin ms.status[inameId]){
-                                       if(imod is \default){
+                                    if(imod is \default){
                                          imsgs += warning("Unused import of `<iname>`", imod@\loc);
                                        } //else { //TODO: maybe add option to turn off info messages?
                                          //imsgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
@@ -376,10 +362,8 @@ ModuleStatus rascalTModelForLocs(
                     ms.messages[m] ? {} += toSet(tm.messages);
 
                     ms = addProperty(m, ms, tpl_uptodate(), checked());
-                    // ms.status[m] += {tpl_uptodate(), checked()};
                     if(errorsPresent(ms.messages[m])){
                         ms = addProperty(m, ms, check_error());
-                        // ms.status[m]  += {check_error()};
                     }
                 }
                 // prepare the TModels of the modules in this component for compilation
@@ -388,21 +372,17 @@ ModuleStatus rascalTModelForLocs(
 
                 // generate code for the modules in this component
                 for(MODID m <- component, hasNotProperty(m, ms, ModuleProperty::ignored())){
-                // for(MODID m <- component, ModuleProperty::ignored() notin ms.status[m]){
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
                         lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
                         ms.messages[m] += toSet(lmsgs);
                         ms = addProperty(m, ms, errorsPresent(lmsgs) ? code_generation_error() : code_generated());
-                        // ms.status[m] += errorsPresent(lmsgs) ? {code_generation_error()} : {code_generated()};
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, transient_tms, compilerConfig);
                 for(m <- component){
                     ms = deleteProperty(m, ms, rsc_changed());
-                    // ms.status[m] -= {rsc_changed()};
                     ms = addProperty(m, ms, tpl_uptodate());
-                    // ms.status[m] += {tpl_uptodate()};
                 }
             } else {
                 ;//  for(m <- component){  
@@ -454,7 +434,6 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
         if(imp notin added, imp notin moduleIds){
             if(hasProperty(imp, ms, tpl_uptodate())){
-            // if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms);
                 try {
@@ -487,12 +466,10 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             mloc = getRascalModuleLocation(mid, ms);
             if(endsWith(mloc.path, "tpl")){
                 ms = addProperty(mid, ms, tpl_from_library());
-                // ms.status[mid] += { tpl_from_library() };
             }
         } catch Message err: {
             ms.messages[mid] = { err };
             ms = addProperty(mid, ms, rsc_not_found());
-            // ms.status[mid] += { rsc_not_found() };
             tm = tmodel(modelName=mname, messages=[ err ]);
             ms = addTModel(mid, tm, ms);
             return <tm, ms>;
@@ -507,7 +484,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             if(hasIgnoreCompilerTag(tagsMap)) {
                     ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
                     ms = addProperty(mid, ms, ModuleProperty::ignored());
-                    // ms.status[mid] += ModuleProperty::ignored();
             }
             idTrees[mid] = pt;
         }
@@ -550,8 +526,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
     } else {
         oneOfComponent = getOneFrom(moduleIds);
         ms = addProperty(oneOfComponent, ms, tpl_saved());
-        // ms.status[oneOfComponent]? {} += { tpl_saved() };            // TODO check this, when is this executed?
-        <found, tm, ms> = getTModelForModule(oneOfComponent, ms);
+       <found, tm, ms> = getTModelForModule(oneOfComponent, ms);
         return <tm, ms>;
     }
 }
