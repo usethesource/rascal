@@ -83,7 +83,7 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(|memory:///test-modules/| recursive = true);
+	remove(|memory:///test-modules/|, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
