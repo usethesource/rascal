@@ -83,7 +83,7 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(|memory:///test-modules/| recursive = true);
+	remove(|memory:///test-modules/|, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
@@ -107,11 +107,11 @@ void removeModule(str mname){
 
 void printModules(){
 	println("\<\<\<\<");
-	for(f <- find(testRoot, "rsc")){
+	for(f <- find(|memory:///test-modules/|, "rsc")){
 		println("<f> <lastModified(f)>:
 				'<readFile(f)>");
 	}
-	for(f <- find(testRoot, "tpl")){
+	for(f <- find(|memory:///test-modules/|, "tpl")){
 		println("<f>: <lastModified(f)>");
 	}
 	println("\>\>\>\>");
