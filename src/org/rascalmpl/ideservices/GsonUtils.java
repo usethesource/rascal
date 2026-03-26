@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.util.base64.StreamingBase64;
