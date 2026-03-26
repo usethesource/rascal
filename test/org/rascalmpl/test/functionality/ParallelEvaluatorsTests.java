@@ -15,9 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 
 import io.usethesource.vallang.ISourceLocation;
