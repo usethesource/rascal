@@ -92,6 +92,7 @@ public class PathConfig {
     private static final List<IConstructor> defaultMessages = Collections.emptyList();
     private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
+    private static final String DEFAULT_RESOURCES_PATH = "src/main/resources";
     
     public static enum RascalConfigMode {
         INTERPRETER,
@@ -547,7 +548,7 @@ public class PathConfig {
         }
     }
 
-    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
+    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages, IListWriter resources) throws IOException, URISyntaxException {
         if (isRoot) {
             if (mode == RascalConfigMode.INTERPRETER) {
                 srcs.append(URIUtil.rootLocation("std")); // you'll always get rascal from standard in case of interpreter mode
@@ -557,10 +558,11 @@ public class PathConfig {
                 assert mode == RascalConfigMode.COMPILER: "should be compiler";
                 // untill we go pom.xml first, you'll always get the rascal jar from our runtime
                 // not the one you requested in the pom.xml
-                libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar())); 
+                libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()));
             }
         }
 
+        resources.append(URIUtil.getChildLocation(manifestRoot, DEFAULT_RESOURCES_PATH));
 
         // This processes Rascal libraries we can find in maven dependencies,
         // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
@@ -664,7 +666,8 @@ public class PathConfig {
         IListWriter messages, ISourceLocation projectLoc) throws IOException, URISyntaxException {
         projectLoc = safeResolve(projectLoc); // for now, remove the project loc, later we can undo this and keep the project loc around
         var childMavenClasspath = getPomXmlCompilerClasspath(projectLoc, messages);
-        buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
+        IListWriter resourcesWriter = (IListWriter) vf.listWriter().unique();
+        buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages, resourcesWriter);
     }
 
     private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation jarLocation, Artifact artifact) throws IOException {
@@ -760,7 +763,7 @@ public class PathConfig {
                 buildRascalLSPConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
             else {
-                buildNormalProjectConfig(manifestRoot, mode, mavenClasspath, isRoot, srcsWriter, libsWriter, messages);
+                buildNormalProjectConfig(manifestRoot, mode, mavenClasspath, isRoot, srcsWriter, libsWriter, messages, resourcesWriter);
             }
         }
         catch (IOException | URISyntaxException e) {
