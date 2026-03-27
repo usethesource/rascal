@@ -43,6 +43,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChangeType;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
 import org.rascalmpl.util.NamedThreadPool;
@@ -61,8 +68,9 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
+    public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
+            ISourceLocation loc = req.getLocation();
             try {
                 ISourceLocation resolved = reg.logicalToPhysical(loc);
 
@@ -84,7 +92,9 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
                 ISourceLocation loc = params.getLocation();
 
                 URIResolverRegistry.getInstance().watch(loc, params.isRecursive(), changed -> {
-                    client.sourceLocationChanged(changed.getLocation(), changed.getChangeType().getValue(), params.getWatcher());
+                    client.sourceLocationChanged(new ISourceLocationChanged(
+                        changed.getLocation(), ISourceLocationChangeType.forValue(changed.getChangeType().getValue()), params.getWatcher()
+                    ));
                 });
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
@@ -93,10 +103,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<FileAttributes> stat(ISourceLocation loc) {
+    public CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return reg.stat(loc);
+                return reg.stat(req.getLocation());
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
             }
@@ -104,9 +114,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<FileWithType[]> list(ISourceLocation loc) {
+    public CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                ISourceLocation loc = req.getLocation();
                 if (!reg.isDirectory(loc)) {
                     throw new NotDirectoryException(loc.toString());
                 }
@@ -119,10 +130,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<Void> mkDirectory(ISourceLocation loc) {
+    public CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
         return CompletableFuture.runAsync(() -> {
             try {
-                reg.mkDirectory(loc);
+                reg.mkDirectory(req.getLocation());
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
             }
@@ -130,9 +141,9 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<String> readFile(ISourceLocation loc) {
+    public CompletableFuture<String> readFile(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
-            try (InputStream source = new Base64InputStream(reg.getInputStream(loc), true)) {
+            try (InputStream source = new Base64InputStream(reg.getInputStream(req.getLocation()), true)) {
                 return new String(source.readAllBytes(), StandardCharsets.US_ASCII);
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
@@ -141,11 +152,11 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
+    public CompletableFuture<Void> writeFile(WriteFileRequest req) {
         return CompletableFuture.runAsync(() -> {
             try {
-                try (OutputStream target = reg.getOutputStream(loc, false)) {
-                    target.write(Base64.getDecoder().decode(content));
+                try (OutputStream target = reg.getOutputStream(req.getLocation(), req.isAppend())) {
+                    target.write(Base64.getDecoder().decode(req.getContent()));
                 }
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
@@ -154,10 +165,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<Void> remove(ISourceLocation loc, boolean recursive) {
+    public CompletableFuture<Void> remove(RemoveRequest req) {
         return CompletableFuture.runAsync(() -> {
             try {
-                reg.remove(loc, recursive);
+                reg.remove(req.getLocation(), req.isRecursive());
             } catch (IOException e) {
                 throw new CompletionException(e);
             }
@@ -165,10 +176,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<Void> rename(ISourceLocation from, ISourceLocation to, boolean overwrite) {
+    public CompletableFuture<Void> rename(RenameRequest req) {
         return CompletableFuture.runAsync(() -> {
             try {
-                reg.rename(from, to, overwrite);
+                reg.rename(req.getFrom(), req.getTo(), req.isOverwrite());
             } catch (IOException e) {
                 throw new CompletionException(e);
             }
