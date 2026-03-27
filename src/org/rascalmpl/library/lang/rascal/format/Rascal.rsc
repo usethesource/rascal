@@ -913,6 +913,25 @@ Box toBox((Pattern) `<Pattern caller>(<{Pattern ","}* arguments> <{KeywordArgume
 
 /* continue with expressions */
 
+// <=, <, ==, >, >= are not associative so we override the defau
+// Box toBox((Expression) `<Expression a> in <Expression b>`)
+//     = H1(HOV(toBox(a)), L("in"), HOV(toBox(b)));
+
+// Box toBox((Expression) `<Expression a> \<= <Expression b>`)
+//     = H1(HOV(toBox(a)), L("\<="), HOV(toBox(b)));
+
+// Box toBox((Expression) `<Expression a> \< <Expression b>`)
+//     = H1(HOV(toBox(a)), L("\<"), HOV(toBox(b)));
+
+// Box toBox((Expression) `<Expression a> == <Expression b>`)
+//     = H1(HOV(toBox(a)), L("=="), HOV(toBox(b)));
+
+// Box toBox((Expression) `<Expression a> \>= <Expression b>`)
+//     = H1(HOV(toBox(a)), L("\>="), HOV(toBox(b)));
+
+// Box toBox((Expression) `<Expression a> \> <Expression b>`)
+//     = H1(HOV(toBox(a)), L("\>"), HOV(toBox(b)));
+
 Box toBox((Expression) `[ ]`)
     = H0(L("["), L("]"));
 

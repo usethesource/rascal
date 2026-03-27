@@ -237,9 +237,11 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // Those kinds of structures appear again and again as many languages share inspiration
         // from their pre-decessors.
 
-        // binary operators become flat lists
-        case <prod(sort(str x),[sort(x),layouts(_),lit(str op),layouts(_),sort(x)], _), list[Tree] elements>:
-            return U([toBox(elements[0]), L(op), toBox(elements[-1])]);
+        // binary operators become flat lists, but only if they are associative
+        case <prod(sort(str x),[sort(x),layouts(_),lit(str op),layouts(_),sort(x)], attrs), list[Tree] elements>:
+            if ({\assoc(\left()), \assoc(\right()), \assoc(\assoc())} & attrs != {})
+                return U([toBox(elements[0]), L(op), toBox(elements[-1])]) ;
+            
 
         // postfix operators stick
         case <prod(sort(str x),[sort(x),_,lit(_)], _), list[Tree] elements>:
@@ -251,7 +253,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // brackets stick
         case <prod(sort(str x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return H(L("("), I(HOV(toBox(elements[2], opts=opts))), L(")"), hs=0);
+            return H(L("("), I(toExpBox(elements[2], wrapper=HOV(), opts=opts)), L(")"), hs=0);
 
         case <prod(_,[_],_), [Tree single]>:
             return toBox(single);
@@ -343,8 +345,8 @@ or in horizontal mode:
 By default ((toExpBox)) wraps it result in a HOV context, but you can pass
 in a different `wrapper` if you like.
 }
-Box toExpBox(Box prefix, Tree expression, Box wrapper=HOV())
-    = wrapper[boxes=[G(prefix, toBox(expression), gs=2, op=H())]];
+Box toExpBox(Box prefix, Tree expression, Box wrapper=HOV(), FO opts=fo())
+    = wrapper[boxes=[G(prefix, toBox(expression, opts=opts), gs=2, op=H())]];
 
 @synopsis{Reusable way of dealing with large binary expression trees}
 @description{
@@ -364,8 +366,8 @@ By default ((toExpBox)) wraps it result in a HV context, but you can pass
 in a different `wrapper` if you like.
 
 }
-Box toExpBox(Tree expression, Box wrapper=HV())
-    = wrapper[boxes=[G(toBox(expression), gs=2, backwards=true, op=H())]];
+Box toExpBox(Tree expression, Box wrapper=HV(), FO opts=fo())
+    = wrapper[boxes=[G(toBox(expression, opts=opts), gs=2, backwards=true, op=H())]];
 
 @synopsis{Private type alias for legibility's sake}
 private alias FO = FormattingOptions;
