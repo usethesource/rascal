@@ -244,9 +244,6 @@ ModuleStatus rascalTModelForLocs(
             recheck = !all(m <- component, hasAnyProperty(m, ms, tpl_uptodate(), checked()));
             for(m <- component){
                
-                // if(m notin ms.status){
-                //     ms.status[m] = {};
-                // }
                 mi += 1;
                 if(!recheck){
                     if(hasNotProperty(m, ms, tpl_uptodate())){
@@ -288,7 +285,6 @@ ModuleStatus rascalTModelForLocs(
 
             any_rsc_changed = any(m <- component, hasProperty(m, ms, rsc_changed()));
             all_rsc_found = all(m <- component, hasNotProperty(m, ms, rsc_not_found()));
-            // all_rsc_found = !any(m <- component, rsc_not_found() in ms.status[m]);
             any_from_lib = any(m <- component, hasProperty(m, ms, tpl_from_library()));
             all_tmodels_uptodate = true;
             for(m <- component){
@@ -328,9 +324,6 @@ ModuleStatus rascalTModelForLocs(
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");
                                 inameId = moduleName2moduleId(iname);
-                                // if(!ms.status[inameId]?){
-                                //     ms.status[inameId] = {};
-                                // }
                                 if(hasProperty(inameId, ms, tpl_version_error(), rsc_not_found())){
                                      imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
                                 }
@@ -384,10 +377,6 @@ ModuleStatus rascalTModelForLocs(
                     ms = deleteProperty(m, ms, rsc_changed());
                     ms = addProperty(m, ms, tpl_uptodate());
                 }
-            } else {
-                ;//  for(m <- component){  
-                //     ms.status[m] += bom_update_needed();
-                //  }
             }
         }
     } catch ParseError(loc src): {
@@ -458,8 +447,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
     map[MODID, Module] idTrees = ();
     for(MODID mid <- moduleIds){
         mname = moduleId2moduleName(mid);
-        //ms.status[mid] = {};
-        //ms.messages[mid] = {};
         ms = removeTModel(mid, ms);
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
