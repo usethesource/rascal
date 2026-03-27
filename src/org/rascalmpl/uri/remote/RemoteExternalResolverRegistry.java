@@ -66,11 +66,15 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
+import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileType;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileWithType;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.WatchRequest;
 import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
 import org.rascalmpl.util.base64.StreamingBase64;
@@ -306,14 +310,14 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @Override
-    public InputStream getInputStream(ISourceLocation loc) throws IOException {   
-        return StreamingBase64.decode(call(remote::readFile, loc));
+    public InputStream getInputStream(ISourceLocation loc) throws IOException {
+        return StreamingBase64.decode(call(remote::readFile, new ISourceLocationRequest(loc)));
     }
 
     @Override
     public boolean exists(ISourceLocation loc) {
         try {
-            return call(remote::exists, loc);
+            return call(remote::exists, new ISourceLocationRequest(loc));
         } catch (IOException e) {
             return false;
         }
@@ -321,12 +325,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public long lastModified(ISourceLocation loc) throws IOException {
-        return call(remote::lastModified, loc);
+        return call(remote::lastModified, new ISourceLocationRequest(loc));
     }
 
     @Override
     public long size(ISourceLocation loc) throws IOException {
-        return call(remote::size, loc);
+        return call(remote::size, new ISourceLocationRequest(loc));
     }
 
     @Override
@@ -339,7 +343,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return result;
                 }
             }
-            return call(remote::isDirectory, loc);
+            return call(remote::isDirectory, new ISourceLocationRequest(loc));
         } catch (IOException e) {
             return false;
         }
@@ -355,7 +359,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return !result;
                 }
             }
-            return call(remote::isFile, loc);
+            return call(remote::isFile, new ISourceLocationRequest(loc));
         } catch (IOException e) {
             return false;
         }
@@ -363,7 +367,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isReadable(ISourceLocation loc) throws IOException {
-        return call(remote::isReadable, loc);
+        return call(remote::isReadable, new ISourceLocationRequest(loc));
     }
 
     /**
@@ -379,7 +383,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
-        var result = call(remote::list, loc);
+        var result = call(remote::list, new ISourceLocationRequest(loc));
         cachedDirectoryListing.put(loc, Lazy.defer(() -> {
             return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
         }));
@@ -393,7 +397,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public FileAttributes stat(ISourceLocation loc) throws IOException {
-        return call(remote::stat, loc);
+        return call(remote::stat, new ISourceLocationRequest(loc));
     }
 
     @Override
@@ -411,7 +415,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 try (var input = new ByteArrayInputStream(this.toByteArray())) {
                     StreamingBase64.encode(input, content, true);
                 }
-                call(l -> remote.writeFile(l, content.toString(), append), loc);
+                call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
                 cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };
@@ -419,31 +423,30 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public void mkDirectory(ISourceLocation loc) throws IOException {
-        call(remote::mkDirectory, loc);
+        call(remote::mkDirectory, new ISourceLocationRequest(loc));
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void remove(ISourceLocation loc) throws IOException {
-        call(l -> remote.remove(l, true), loc);
+        call(remote::remove, new RemoveRequest(loc, true));
         cachedDirectoryListing.invalidate(loc);
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void setLastModified(ISourceLocation loc, long timestamp) throws IOException {
-        call(l -> remote.setLastModified(l, timestamp), loc);
+        call(remote::setLastModified, new SetLastModifiedRequest(loc, timestamp));
     }
 
     @Override
     public boolean isWritable(ISourceLocation loc) throws IOException {
-        return call(remote::isWritable, loc);
+        return call(remote::isWritable, new ISourceLocationRequest(loc));
     }
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        var resolved = call(remote::resolveLocation, input);
-        return resolved;
+        return call(remote::resolveLocation, new ISourceLocationRequest(input));
     }
 
     @Override
@@ -495,13 +498,14 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @Override
-    public void sourceLocationChanged(ISourceLocation root, int type, String watchId) {
-        var watcher = watchersById.get(watchId);
+    public void sourceLocationChanged(org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged changed) {
+        var watcher = watchersById.get(changed.getWatchId());
+        var root = changed.getRoot();
         if (watcher == null) {
             throw new ResponseErrorException(new ResponseError(ResponseErrorCode.RequestFailed, "Received notification for unregistered watch", root)); 
         }
         try {
-            switch (ISourceLocationChangeType.fromValue(type)) {
+            switch (ISourceLocationChangeType.fromValue(changed.getChangeType().getValue())) {
                 case CREATED:
                     watcher.publish(ISourceLocationWatcher.created(root));
                     break;
@@ -513,7 +517,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     break;
             }
         } catch (IllegalArgumentException e) {
-            throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + type, root)); 
+            throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + changed.getChangeType().getValue(), root)); 
         }
     }
 

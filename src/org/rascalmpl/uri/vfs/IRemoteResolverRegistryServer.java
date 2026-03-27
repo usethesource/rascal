@@ -26,96 +26,98 @@
  */
 package org.rascalmpl.uri.vfs;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.FileAttributes;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
+import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
+import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRemoteResolverRegistryServer {
     @JsonRequest("rascal/vfs/input/readFile")
-    default CompletableFuture<String> readFile(ISourceLocation loc) {
+    default CompletableFuture<String> readFile(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/exists")
-    default CompletableFuture<Boolean> exists(ISourceLocation loc) {
+    default CompletableFuture<Boolean> exists(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/lastModified")
-    default CompletableFuture<Long> lastModified(ISourceLocation loc) {
+    default CompletableFuture<Long> lastModified(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/created")
-    default CompletableFuture<Long> created(ISourceLocation loc) {
+    default CompletableFuture<Long> created(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/isDirectory")
-    default CompletableFuture<Boolean> isDirectory(ISourceLocation loc) {
+    default CompletableFuture<Boolean> isDirectory(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/isFile")
-    default CompletableFuture<Boolean> isFile(ISourceLocation loc) {
+    default CompletableFuture<Boolean> isFile(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/list")
-    default CompletableFuture<FileWithType[]> list(ISourceLocation loc) {
+    default CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/size")
-    default CompletableFuture<Long> size(ISourceLocation loc) {
+    default CompletableFuture<Long> size(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/stat")
-    default CompletableFuture<FileAttributes> stat(ISourceLocation loc) {
+    default CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/isReadable")
-    default CompletableFuture<Boolean> isReadable(ISourceLocation loc) {
+    default CompletableFuture<Boolean> isReadable(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/output/setLastModified")
-    default CompletableFuture<Void> setLastModified(ISourceLocation loc, long timestamp) {
+    default CompletableFuture<Void> setLastModified(SetLastModifiedRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/input/isWritable")
-    default CompletableFuture<Boolean> isWritable(ISourceLocation loc) {
+    default CompletableFuture<Boolean> isWritable(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/output/writeFile")
-    default CompletableFuture<Void> writeFile(ISourceLocation loc, String content, boolean append) {
+    default CompletableFuture<Void> writeFile(WriteFileRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/output/mkDirectory")
-    default CompletableFuture<Void> mkDirectory(ISourceLocation loc) {
+    default CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/output/remove")
-    default CompletableFuture<Void> remove(ISourceLocation loc, boolean recursive) {
+    default CompletableFuture<Void> remove(RemoveRequest req) {
         throw new UnsupportedOperationException();
     }
 
     @JsonRequest("rascal/vfs/output/rename")
-    default CompletableFuture<Void> rename(ISourceLocation from, ISourceLocation to, boolean overwrite) {
+    default CompletableFuture<Void> rename(RenameRequest req) {
         throw new UnsupportedOperationException();
     }
 
@@ -135,71 +137,8 @@ public interface IRemoteResolverRegistryServer {
     }
 
     @JsonRequest("rascal/vfs/logical/resolveLocation")
-    default CompletableFuture<ISourceLocation> resolveLocation(ISourceLocation loc) {
+    default CompletableFuture<ISourceLocation> resolveLocation(ISourceLocationRequest loc) {
         throw new UnsupportedOperationException();
-    }
-
-    public static class WatchRequest {
-        @NonNull private ISourceLocation loc;
-        @NonNull private String watcher;
-
-        private boolean recursive;
-
-        private final String[] excludes;
-
-        public WatchRequest(ISourceLocation loc, boolean recursive, String watcher) {
-            this.loc = loc;
-            this.recursive = recursive;
-            this.watcher = watcher;
-            this.excludes = new String[0];
-        }
-
-        public WatchRequest(@NonNull String uri, boolean recursive, @NonNull String watcher) {
-            this.loc = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
-            this.recursive = recursive;
-            this.watcher = watcher;
-            this.excludes = new String[0];
-        }
-
-        public WatchRequest(String uri, boolean recursive, String[] excludes) {
-            this.loc = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
-            this.recursive = recursive;
-            this.watcher = "";
-            this.excludes = excludes;
-        }
-
-        public ISourceLocation getLocation() {
-            return loc;
-        }
-
-        public String getWatcher() {
-            return watcher;
-        }
-
-        public boolean isRecursive() {
-            return recursive;
-        }
-
-        public String[] getExcludes() {
-            return excludes;
-        }
-
-        @Override
-        public boolean equals(@Nullable Object obj) {
-            if (obj instanceof WatchRequest) {
-                var other = (WatchRequest)obj;
-                return super.equals(other)
-                    && other.recursive == recursive
-                    && Objects.equals(watcher, other.watcher)
-                    && Arrays.equals(excludes, other.excludes);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode(), watcher, recursive, excludes);
-        }
     }
 
     public static class FileWithType {
