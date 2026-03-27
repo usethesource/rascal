@@ -134,10 +134,6 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     pcfg = ms.pathConfig;
     qualifiedModuleName = moduleId2moduleName(moduleId);
 
-    // if(!ms.status[moduleId]?){
-    //     ms.status[moduleId] = {};
-    // }
-
     if(hasProperty(moduleId, ms, module_dependencies_extracted())){
         return ms;
     }
@@ -156,9 +152,6 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
         if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
            for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                mid = moduleName2moduleId(m);
-            //    if(!ms.status[mid]?){
-            //         ms.status[mid] = {};
-            //    }
                if(mid != moduleId){
                     localImportsAndExtends += <mid, pathRole>;
                }
@@ -361,15 +354,6 @@ tuple[ModuleStatus, rel[loc, PathRole, loc]] getModulePaths(Module m, ModuleStat
         iname = unescape("<imod.\module.name>");
         inameId = moduleName2moduleId(iname);
         imports_and_extends += <moduleId, imod is \default ? importPath() : extendPath(), inameId>;
-        //ms.status[inameId] = ms.status[inameId] ? {};
-        // try {
-        //    // mloc = getRascalModuleLocation(iname, ms);
-        //     ms.paths += {<moduleId, imod is \default ? importPath() : extendPath(), inameId>};
-        //  } catch Message err: {
-        //     err.at = imod@\loc;
-        //     ms.messages[moduleId] ? {} += { err };
-        //     ms.status[inameId] += { rsc_not_found() };
-        //  }
     }
     ms.paths += imports_and_extends;
     return <ms, imports_and_extends>;
