@@ -92,7 +92,6 @@ public class PathConfig {
     private static final List<IConstructor> defaultMessages = Collections.emptyList();
     private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
-    private static final String DEFAULT_RESOURCES_PATH = "src/main/resources";
     
     public static enum RascalConfigMode {
         INTERPRETER,
@@ -562,7 +561,7 @@ public class PathConfig {
             }
         }
 
-        resources.append(URIUtil.getChildLocation(manifestRoot, DEFAULT_RESOURCES_PATH));
+        resources.append(URIUtil.getChildLocation(manifestRoot, "src/main/resources"));
 
         // This processes Rascal libraries we can find in maven dependencies,
         // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
