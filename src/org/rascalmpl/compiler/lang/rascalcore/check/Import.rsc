@@ -57,7 +57,7 @@ ModuleStatus reportSelfImport(rel[loc, PathRole, loc] paths, ModuleStatus ms){
     for(<from, importPath(), from> <- paths){
        // mname = getRascalModuleName(from, ms.pathConfig);
         ms.messages[from] ? {} += {error("Self import not allowed", from)};
-        ms = addProperty(from, ns, check_error());
+        ms = addProperty(from, ms, check_error());
     }
     return ms;
 }
