@@ -34,7 +34,7 @@ public class BreakTest {
     // notCompatibleAfterChangingFunctionArgument
     // notCompatibleAfterChangingFunctionArgument
 
-    private static final int PARALLEL_RUNS = 1; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
+    private static final int PARALLEL_RUNS = 8; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
     private static final int TRIES = 1000 / PARALLEL_RUNS;
 
     public static void main(String[] args) throws IOException, InterruptedException {
