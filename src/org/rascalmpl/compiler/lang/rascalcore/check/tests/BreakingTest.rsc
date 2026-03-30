@@ -1,6 +1,7 @@
 module lang::rascalcore::check::tests::BreakingTest
 
 import IO;
+import ValueIO;
 import String;
 import Location;
 import Message;
@@ -62,13 +63,13 @@ bool typecheckModule(loc m) {
 
 void findCollission(loc l) {
     m = parseModule(l);
-    locs = [ t.src | /Tree t := m, t.src?];
-    println("Found <size(locs)> locs");
+    locs = [ v | /value v := m ];
+    println("Found <size(locs)> subvalues");
     locsSet = {*locs};
-    println("Became: <size(locsSet)> locs when putting in set");
+    println("Became: <size(locsSet)> subvalues when putting in set");
     for (l <- locs) {
         bool found = false;
-        for (l2 <- locsSet, "<l2>" == "<l>") {
+        for (l2 <- locsSet, l1 == l2, "<l2>" == "<l>") {
             found = true;
         }
         if (!found) {
@@ -77,10 +78,39 @@ void findCollission(loc l) {
     }
 }
 
+void findTModelCollisions() {
+    t = readBinaryValueFile(pcfg.bin + "rascal/$<moduleName>.tpl");
+    map[int, str] seen = ();
+    for (/value v := t) {
+        h = getHashCode(v);
+        s = "<v>";
+        if (h notin seen) {
+            seen[h] = s;
+            continue;
+        }
+        e = seen[h];
+        if (s != e && v != {} && v != []) {
+            if ("[<v>]" == e || "{<v>}" == e) {
+                continue;
+            }
+            if ("[<e>]" == s || "{<e>}" == s) {
+                continue;
+            }
+
+            println("⚠️ hash collision between: ");
+            println(e);
+            println("and");
+            println(s);
+        }
+    }
+
+}
+
 
 void main() {
     remove(root, recursive = true);
     l = writeModule();
     typecheckModule(l);
     findCollission(l);
+    findTModelCollisions();
 }
