@@ -54,6 +54,7 @@ public loc RASCAL       = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
 public loc RASCAL42     = |mvn://org.rascalmpl--rascal--0.42.0-RC2/|;
 loc TYPEPAL             = |mvn://org.rascalmpl--typepal--0.14.8/|;
 loc OUTDATED_TYPEPAL    = |mvn://org.rascalmpl--typepal--0.14.1/|;
+loc TYPEPAL166          = |mvn://org.rascalmpl--typepal--0.16.6-RC1/|;
 
 loc DRAMBIGUITY         = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
 loc FLYBYTES            = |mvn://org.rascalmpl--flybytes--0.1.5/|;
