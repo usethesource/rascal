@@ -46,6 +46,7 @@ import String;
 import lang::rascalcore::check::ModuleLocations;
 import util::FileSystem;
 import util::SemVer;
+import lang::rascalcore::check::tests::StaticTestingUtils;
 
 
 // ---- Utilities for test setup ----------------------------------------------
@@ -99,6 +100,9 @@ str writeModule(str mname, str mtext){
         throw "Parse error in <msrc>";
 }
 
+loc getModuleLoc(str mname, Project pd)
+    = src(pd.name) + "<mname>.rsc";
+
 PathConfig createPathConfig(str pname){
     return pathConfig(
         srcs=[src(pname)],
@@ -111,7 +115,9 @@ PathConfig createPathConfig(str pname){
 
 Project addModule(str mname, str mtext, Project pd){
     pd.modules[mname] = writeModule(mname, mtext);
-    writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
+    mloc = getModuleLoc(mname, pd);
+    writeFile(mloc, pd.modules[mname]);
+    assert exists(mloc) : "<mloc> does not exist after write";
     return pd;
 }
 
@@ -119,14 +125,23 @@ Project changeModule(str mname, str mtext, Project pd){
     if(!pd.modules[mname]?) throw "Module <mname> does not exist in <pd.name>";
 
     pd.modules[mname] = writeModule(mname, mtext);
-    writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
+    mloc = getModuleLoc(mname, pd);
+    writeFile(mloc, pd.modules[mname]);
+    assert exists(mloc) : "<mloc> does not exist after write";
     return pd;
 }
 
 Project removeSourceOfModule(str mname, Project pd){
     if(!pd.modules[mname]?) throw "Cannot remove non-existing module <mname>";
     pd.modules = delete(pd.modules, mname);
-    remove(src(pd.name) + "<mname>.rsc", recursive=true);
+    mloc = getModuleLoc(mname, pd);
+    remove(mloc, recursive=true);
+    assert !exists(mloc): "<mloc> not removed";
+    return pd;
+}
+
+Project removeTPLOfModule(str mname, Project pd){
+    remove(bin(pd.name) + "rascal/$<mname>.tpl", recursive=true);
     return pd;
 }
 
@@ -175,6 +190,7 @@ bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
 }
 
 bool expectErrors(list[ModuleMessages] modMsgs, list[str] expected){
+    if(verbose) iprintln(modMsgs);
     errors = {e | /e:error(_,_) := modMsgs};
 
     for(e <- errors){
@@ -382,7 +398,7 @@ test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
 
     
     lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
-    lib = setTPLVersionOfProject("0.0.0", lib);     // set rascalTplVersion to incompatible version number
+    lib = setTPLVersionOfProject("0.0.1", lib);     // set rascalTplVersion to incompatible version number
 
     // Create project "client" and module "M2" and then compile "M2"
     // "client" uses "lib" as binary library
@@ -394,7 +410,33 @@ test bool incompatibleWithBinaryLibraryDueToTPLVersion(){
                      createPathConfig(clientName)
                         [libs = [bin(libName)] ]
          );
-    return checkExpectErrors("M2", ["has outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
+    return checkExpectErrors("M2", ["outdated Rascal TPL version"], client.pcfg, remove = [lib, client]);
+}
+
+test bool removedTPLInBinaryLibrary(){
+    // Create project "lib" and module "M1" and then compile "M1"
+    libName = "lib";
+    lib = createProject(libName,
+                     ("M1": "int f(int n) = n;"),
+                     createPathConfig(libName)
+         );
+    assert checkExpectNoErrors("M1", lib.pcfg);
+
+    
+    lib = removeSourceOfModule("M1", lib);          // remove source of M1 completely, to be sure
+    lib = removeTPLOfModule("M1", lib);             // remove M1's tpl file
+
+    // Create project "client" and module "M2" and then compile "M2"
+    // "client" uses "lib" as binary library
+    clientName = "client";
+    client = createProject(clientName,
+                     ("M2": "import M1;        // binary import
+                      'int main() = f(42);     // compatible call fo f
+                    "),
+                     createPathConfig(clientName)
+                        [libs = [bin(libName)] ]
+         );
+    return checkExpectErrors("M2", ["Module `M1` not found"], client.pcfg, remove = [lib, client]);
 }
 
 // Scenarios with outdated TPL versions
@@ -501,7 +543,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
 
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
-    // Update Checks' modification time to make sure it will rechecked
+    // Update Checks' modification time to make sure it will be rechecked
     touch(getRascalModuleLocation("Check", core.pcfg));
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Review of dependencies, reconfiguration or recompilation needed: binary module `TP` depends (indirectly) on incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);

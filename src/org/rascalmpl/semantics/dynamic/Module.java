@@ -62,10 +62,6 @@ public abstract class Module {
 				l.interpret(eval);
 			  }
 			}
-			catch (RuntimeException e) {
-			  env.setInitialized(false);
-			  throw e;
-			}
 			finally {
 			  eval.setCurrentEnvt(oldEnv);
 			}

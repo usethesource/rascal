@@ -22,7 +22,8 @@ test bool reifyValue() = #value.symbol == \value();
 test bool reifyList() = #list[int].symbol == \list(\int());
 test bool reifySet() = #set[int].symbol == \set(\int());
 
-@ignore{Not implemented}
+@ignoreInterpreter{Not implemented}
+@ignoreCompiler{Not implemented}
 test bool reifyBag() = #bag[int].symbol == \bag(\int());
 
 test bool reifyMap() = #map[int,str].symbol == \map(\int(),\str());

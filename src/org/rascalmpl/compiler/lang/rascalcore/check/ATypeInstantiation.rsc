@@ -233,16 +233,13 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
         return t;
     else
         return visit(t) { case param:aparameter(str pname, AType bound): {
-                                if(bindings[pname]?){
-                                    if(asubtype(bindings[pname], bound)){
-                                        repl = param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname]; //TODO simplified for compiler
-                                        insert repl;
+                                if(pname in bindings){
+                                    ult = bindings[pname];
+                                    if(asubtype(ult, bound)){
+                                        insert param.alabel? ? ult[alabel=param.alabel] : ult;
+                                    } else {
+                                        s.report(error(selector, "Type parameter &%q should be less than %t, found %t", deUnique(pname), deUnique(bound), deUnique(ult)));
                                     }
-                                    else {
-                                        s.report(error(selector, "Type parameter &%q should be less than %t, found %t", deUnique(pname), deUnique(bound), deUnique(bindings[pname])));
-                                    }
-                                  } else {
-                                        insert param;
                                   }
                                }
                         };

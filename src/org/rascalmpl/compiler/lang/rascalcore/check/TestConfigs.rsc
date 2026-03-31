@@ -47,8 +47,10 @@ data PathConfig(
 // (and make sure to KEEP THE VERSIONS up to date)
 
 public loc RASCAL       = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
+public loc RASCAL42     = |mvn://org.rascalmpl--rascal--0.42.0-RC2/|;
 loc TYPEPAL             = |mvn://org.rascalmpl--typepal--0.14.8/|;
 loc OUTDATED_TYPEPAL    = |mvn://org.rascalmpl--typepal--0.14.1/|;
+loc TYPEPAL166          = |mvn://org.rascalmpl--typepal--0.16.6-RC1/|;
 
 loc DRAMBIGUITY         = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
 loc FLYBYTES            = |mvn://org.rascalmpl--flybytes--0.1.5/|;
@@ -126,7 +128,7 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources       = COMPILED + "/src/main/java",
         generatedTestSources   = COMPILED + "/src/test/java/",
         generatedResources     = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        generatedTestResources = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedTestResources = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                   = libraries
     ); 
 }
@@ -189,7 +191,7 @@ public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
                             TMP_TYPEPAL
                         ],
                         [ ], 
-                        keep=true);
+                        keep=keep);
 }
 
 public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool keep=true){
