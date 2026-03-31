@@ -39,7 +39,7 @@ As ((FormattingOptions)) you can configure different parts of the pipeline in on
 * `maxWidth` - indicates a hard limit for wrapping and switching to vertical mode
 * `breakAfter` - indicates hard limit under which wrapping and switching to vertical mode must be avoided
 * `tabSize` - indicates the default indentation size
-* `caseInsensitivity` - ((CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
+* `caseInsensitivity` - ((HiFiLayoutDiff-CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
 * `needsConfirmation` - triggers UI behavior with confirmation dialogs and possible previews
 * `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
 * `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
@@ -114,7 +114,7 @@ data FileSystemChange(bool needsConfirmation = false);
 The formatter function this generates will produce formatted string directly and replace the original file with it.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 }
 @benefits{
@@ -142,7 +142,7 @@ void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions
 The formatter function this generates will produce formatted string directly.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 }
 @benefits{
@@ -170,7 +170,7 @@ str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOption
 The formatter function this generates will produce a formatted substring.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 
 The subStringFormatter does not have to be called on a top-level parse tree (with a start non-terminal), but
@@ -208,7 +208,7 @@ The formatter function this generates will produce a list of ((TextEdit))s. The 
 input to the formatted output. 
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 }
 @benefits{
@@ -250,7 +250,7 @@ The formatter function this generates will produce a list of ((TextEdit))s. The 
 input to the formatted output. 
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 }
 @benefits{
@@ -347,7 +347,7 @@ The formatter function this generates will produce a list of ((TextEdit))s. The 
 input to the formatted output.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 }
 @benefits{
@@ -398,7 +398,7 @@ The formatter function this generates will produce a list of ((TextEdit))s. The 
 input to the formatted output.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 
 The subTreeEdits formatter does not have to be called on a top-level parse tree (with a start non-terminal), but
