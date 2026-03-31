@@ -140,8 +140,9 @@ Append a textual representation of some values to an existing or a newly created
 *  All other values are printed as-is.
 *  Each value is terminated by a newline character.
 
-The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
-Else the same method of deciding the character set is used as in ((readFile)).
+The existing file can be stored using any character set possible. 
+If you know the character set, please use the `charset` keyword parameter.
+Otherwise, the same method of deciding the character set is used as in ((readFile)).
 }
 @pitfalls{
 *  The same encoding pitfalls as the ((readFile)) function.
@@ -239,6 +240,8 @@ public java bool isDirectory(loc file);
 See ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline
 and ((IO-iprintToFile)) for a version that prints to a file.
+
+With a negative `lineLimit` the limit is ignored and the entire value will be printed.
 }
 @examples{
 ```rascal-shell
@@ -254,6 +257,7 @@ public java void iprint(value arg, int lineLimit = 1000);
 See ((IO-iprint)) for a version that displays the result on the console
 and ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline.
+
 }
 @examples{
 ```rascal-shell
@@ -308,6 +312,8 @@ and ((IO-iprint)) for a version that does not add a newline.
 
 By default we only print the first 1000 lines, if you want to print larger values, either 
 use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
+
+With a negative `lineLimit` the limit is ignored and the entire value will be printed.
 }
 @examples{
 ```rascal-shell
