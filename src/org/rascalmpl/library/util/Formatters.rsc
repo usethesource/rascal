@@ -43,9 +43,9 @@ As ((FormattingOptions)) you can configure different parts of the pipeline in on
 * `needsConfirmation` - triggers UI behavior with confirmation dialogs and possible previews
 * `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
 * `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
-when false it does not matter. (origin: ((util::LanguageServer)))
-* `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. (origin: ((util::LanguageServer)))
-* `trimFinalNewlines`, trim all newlines after the final newline at the end of the file. (origin: ((util::LanguageServer))
+when false it does not matter. 
+* `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. 
+* `trimFinalNewlines`, trim all newlines after the final newline at the end of the file.
 }
 @benefits{
 * speed: 
@@ -96,7 +96,7 @@ alias Style = Box(Tree);
 @synopsis{Additional formatter options}
 @description{
 * `needsConfirmation` when set to true triggers a confirmation dialog for applying the proposed edits. The UI may even show a preview or a diff editor.
-* `caseInsensitivity` can be used to keep or normalize the style of case insensitivy keywords. See ((CaseInsensitivity)) for the options.
+* `caseInsensitivity` can be used to keep or normalize the style of case insensitivy keywords. See ((HiFiLayoutDiff-CaseInsensitivity)) for the options.
 }
 data FormattingOptions(
     bool needsConfirmation=false,
@@ -291,7 +291,7 @@ The formatter function this generates will produce a list of ((TextEdit))s. The 
 input to the formatted output.
 
 * `grammar` should be the grammar for the entire language (a start non-terminal preferably)
-* `style` is typically an extended version of ((toBox))
+* `style` is typically an extended version of ((Tree2Box-toBox))
 * `opts` provides the ((FormattingOptions))
 
 The subTreeEdits formatter does not have to be called on a top-level parse tree (with a start non-terminal), but
