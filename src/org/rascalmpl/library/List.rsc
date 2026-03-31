@@ -19,7 +19,6 @@ module List
 
 import Exception;
 import Map;
-import String;
 
 @synopsis{Concatenate a list of lists.}
 @examples{
@@ -259,7 +258,7 @@ intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 ```
 }
 str intercalate(str sep, list[value] l) = 
-  "<for (value e <- l) {><e><sep><}>"[..-size(sep)];
+  "<for(int i <- index(l)){><i == 0 ? "" : sep><l[i]><}>";
 
 @synopsis{Intersperses a list of values with a separator.}
 @examples{
