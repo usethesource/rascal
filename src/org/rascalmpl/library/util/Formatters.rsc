@@ -109,6 +109,25 @@ private FormattingOptions fo() = formattingOptions();
 data FileSystemChange(bool needsConfirmation = false);
 
 @synopsis{Generates a file formatter that immediately applies the new style to the input.}
+@description{
+The formatter function this generates will produce formatted string directly and replace the original file with it.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format file"-purposes.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](loc) toEdits = fileEdits(grammar, style, opts=opts);
 
@@ -118,6 +137,25 @@ void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions
 }
 
 @synopsis{Generates a string formatter}
+@description{
+The formatter function this generates will produce formatted string directly.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format selection"-purposes.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](str) toEdits = stringEdits(grammar, style, opts=opts);
 
@@ -127,6 +165,34 @@ str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOption
 }
 
 @synopsis{Generates a substring formatter}
+@description{
+The formatter function this generates will produce a formatted substring.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+
+The subStringFormatter does not have to be called on a top-level parse tree (with a start non-terminal), but
+rather works on any sub-sentence:
+1. first the given sub-sentence will be parsed and formatted with its left-most margin at column 0.
+2. then the original indentation of the old sub-string will be computed.
+3. then the formatted output will be indented (expect the first line).
+4. then the whitespace differences between the old and the new string will be computed. Also lost comments will be re-inserted.
+5. finally the resulting string is produced.
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format selection"-purposes.
+* learns the appropriate indentation level for the sub-tree from the input.
+* learns the non-terminal to use for parsing from the input sub-tree.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     list[TextEdit](type[Tree], str) toEdits = subStringEdits(grammar, style, opts=opts);
 
@@ -136,6 +202,26 @@ str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, F
 }
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s for downstream processing.}
+@description{
+The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
+input to the formatted output. 
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format selection"-purposes.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
@@ -158,6 +244,26 @@ list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingO
 }
 
 @synopsis{Generates a file formatter that produces ((TextEdit))s from a ((Tree)) for downstream processing.}
+@description{
+The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
+input to the formatted output. 
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format string"-purposes.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
@@ -178,13 +284,44 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, Form
     };
 }
 
-@synopsis{Generates a file formatter that produces ((TextEdit))s from sub((Trees)s for downstream processing.}
+@synopsis{Generates a file formatter that produces ((TextEdit))s from sub((Trees)s}
+@description{
+The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
+input to the formatted output.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+
+The subTreeEdits formatter does not have to be called on a top-level parse tree (with a start non-terminal), but
+rather works on any sub-tree:
+1. first the given sub-tree will be formatted with its left-most margin at column 0.
+2. then the original indentation of the old sub-tree will be computed.
+3. then the formatted output will be indented (expect the first line).
+4. then the whitespace differences between the old and the new tree will be computed. Also lost comments will be re-inserted.
+5. finally the resulting edits are produced.
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format selection"-purposes.
+* learns the appropriate indentation level for the sub-tree from the input.
+* learns the non-terminal to use for parsing from the input sub-tree.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
 list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree (type[Tree], value, loc) p = parsers(grammar);
 
     return list[TextEdit] (Tree tree) {
         try {
-            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), format(style(tree), opts=opts[ci=asIs()]), tree@\loc), ci=opts.caseInsensitivity);
+            str formatted = format(style(tree));
+            str indented = subIndent(tree@\loc, "<formatted>", input);
+            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), indented, tree@\loc), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
             writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
@@ -204,6 +341,26 @@ private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;
 
 @synopsis{Generates a string formatter that produces ((TextEdit))s for downstream processing.}
+@description{
+The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
+input to the formatted output.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format-string"-purposes.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
+}
+
 list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(str, loc) p = parser(grammar);
     
@@ -236,10 +393,33 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, Formattin
 
 @synopsis{Generates a string formatter that produces ((TextEdit))s, from substrings with a given nonterminal, for downstream processing.}
 @description{
-* `grammar` should be the entire grammar for the language
-* `style` should be the entire `toBox` function for this formatter
-* the function returns a binary function that asks for the right non-terminal of the language to use to parse the second
-parameter (a substring). For example: `#Statement` and `if (true) false;`.
+The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
+input to the formatted output.
+
+* `grammar` should be the grammar for the entire language (a start non-terminal preferably)
+* `style` is typically an extended version of ((toBox))
+* `opts` provides the ((FormattingOptions))
+
+The subTreeEdits formatter does not have to be called on a top-level parse tree (with a start non-terminal), but
+rather works on any sub-tree:
+1. first the given sub-tree will be formatted with its left-most margin at column 0.
+2. then the original indentation of the old sub-tree will be computed.
+3. then the formatted output will be indented (expect the first line).
+4. then the whitespace differences between the old and the new tree will be computed. Also lost comments will be re-inserted.
+5. finally the resulting edits are produced.
+}
+@benefits{
+* can be used to seemlessly integrate a box-based formatter in an IDE for "format selection"-purposes.
+* learns the appropriate indentation level for the sub-tree from the input.
+* learns the non-terminal to use for parsing from the input sub-tree.
+* will do nothing if the formatter breaks syntax rules or introduces ambiguity.
+* will never lose any comments.
+* is parameterized by a ((Style)) function to support different styles of formatting for the same language
+* can be used to normalize case-insensitive literals in one go
+}
+@pitfalls{
+* in rare case the recovered comments are positioned in awkward places.
+* can be slow for very very large input
 }
 list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
