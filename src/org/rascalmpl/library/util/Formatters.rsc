@@ -76,12 +76,13 @@ import IO;
 import Location;
 import ParseTree;
 import Set;
+import String;
 import analysis::diff::edits::ExecuteTextEdits;
 import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
+import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
 import lang::box::util::Tree2Box;
-import lang::box::\syntax::Box;
 import util::FileSystem;
 import util::Highlight;
 import util::IDEServices;
@@ -320,7 +321,7 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, Formatt
     return list[TextEdit] (Tree tree) {
         try {
             str formatted = format(style(tree));
-            str indented = subIndent(tree@\loc, "<formatted>", input);
+            str indented = subIndent(tree@\loc, "<formatted>", "<tree>");
             return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), indented, tree@\loc), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
@@ -465,7 +466,7 @@ private str subIndent(loc span, str replacement, str original) {
     }
 
     // note that box2text can only produce ASCII spaces or tabs
-    indents = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", original)];
+    indents = [ind | /^<ind:[\t\ ]*>[^\ \t]/ <- split("\n", original)];
 
     minIndent = [_] := indents
         ? "<for (_ <- [0..(span.begin?) ? span.begin.column : 0]) {> <}>"
