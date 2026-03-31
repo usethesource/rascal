@@ -27,7 +27,6 @@ import IO;
 import vis::Text;
 import Set;
 import Exception;
-import List;
 
 // Ambiguous syntax to check amb memoization
 syntax Amb = AmbWord () | () AmbWord;
