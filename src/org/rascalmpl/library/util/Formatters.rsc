@@ -280,34 +280,18 @@ That minimum indentation is stripped off every line that already has that much i
 and then _all_ lines are re-indented with the discovered minimum.
 }
 private str subIndent(loc span, str replacement, str original) {
-    list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
-
-    origIndents = indents(original);
-    replLines   = split("\n", replacement);
-
-    if (replLines == []) {
+    if (trim(replacement) == "") {
         return "";
     }
 
-    minIndent = "";
+    // note that box2text can only produce ASCII spaces or tabs
+    indents = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", original)];
 
-    if ([_] := origIndents) {
-        // only one line. have to invent indentation from span
-        minIndent = "<for (_ <- [0..(span.begin?) ? span.begin.column : 0]) {> <}>";
-    }
-    else {
-        // we skip the first line for learning indentation, because that one would typically be embedded in a previous line.
-        minIndent = sort(origIndents[1..])[0]? "";
-    }
+    minIndent = [_] := indents
+        ? "<for (_ <- [0..(span.begin?) ? span.begin.column : 0]) {> <}>"
+        : sort(indents[1..])[0]? "";
 
-    // we remove the leading spaces _up to_ the minimal indentation of the original, 
-    // keep the rest of the indentation from the replacement (if any is left), and then the actual content.
-    // that entire multiline result is then lazily indented with the minimal indentation we learned from the original.
-    return indent(
-        minIndent, 
-        "<for (/^<theInd:[\t\ ]*><rest:[^\t\ ]+.*>$/ <- replLines) {><theInd[..max(size(minIndent), span.begin? ? span.begin.column : 0)]><rest>
-        '<}>"[..-1])
-    ;
+    return indent(minIndent, replacement);
 }
    
 @synopsis{Generates an HTML-based preview of the result of formatting.}
