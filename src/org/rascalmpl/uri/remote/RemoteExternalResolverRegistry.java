@@ -311,13 +311,13 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public InputStream getInputStream(ISourceLocation loc) throws IOException {
-        return StreamingBase64.decode(call(remote::readFile, new ISourceLocationRequest(loc)));
+        return StreamingBase64.decode(call(remote::readFile, new ISourceLocationRequest(loc)).getContent());
     }
 
     @Override
     public boolean exists(ISourceLocation loc) {
         try {
-            return call(remote::exists, new ISourceLocationRequest(loc));
+            return call(remote::exists, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -325,12 +325,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public long lastModified(ISourceLocation loc) throws IOException {
-        return call(remote::lastModified, new ISourceLocationRequest(loc));
+        return call(remote::lastModified, new ISourceLocationRequest(loc)).getTimestamp();
     }
 
     @Override
     public long size(ISourceLocation loc) throws IOException {
-        return call(remote::size, new ISourceLocationRequest(loc));
+        return call(remote::size, new ISourceLocationRequest(loc)).getNumber();
     }
 
     @Override
@@ -343,7 +343,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return result;
                 }
             }
-            return call(remote::isDirectory, new ISourceLocationRequest(loc));
+            return call(remote::isDirectory, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -359,7 +359,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return !result;
                 }
             }
-            return call(remote::isFile, new ISourceLocationRequest(loc));
+            return call(remote::isFile, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -367,7 +367,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isReadable(ISourceLocation loc) throws IOException {
-        return call(remote::isReadable, new ISourceLocationRequest(loc));
+        return call(remote::isReadable, new ISourceLocationRequest(loc)).getValue();
     }
 
     /**
@@ -441,12 +441,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isWritable(ISourceLocation loc) throws IOException {
-        return call(remote::isWritable, new ISourceLocationRequest(loc));
+        return call(remote::isWritable, new ISourceLocationRequest(loc)).getValue();
     }
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        return call(remote::resolveLocation, new ISourceLocationRequest(input));
+        return call(remote::resolveLocation, new ISourceLocationRequest(input)).getLocation();
     }
 
     @Override
@@ -491,7 +491,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean supportsRecursiveWatch() {
         try {
-            return call(n -> remote.supportsRecursiveWatch(), null);
+            return call(n -> remote.supportsRecursiveWatch(), null).getValue();
         } catch (IOException e) {
             return false;
         }

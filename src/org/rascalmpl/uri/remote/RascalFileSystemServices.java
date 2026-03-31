@@ -46,8 +46,10 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChangeType;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
 import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
+import org.rascalmpl.uri.remote.jsonrpc.SourceLocationResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
@@ -68,19 +70,19 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<ISourceLocation> resolveLocation(ISourceLocationRequest req) {
+    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
             ISourceLocation loc = req.getLocation();
             try {
                 ISourceLocation resolved = reg.logicalToPhysical(loc);
 
                 if (resolved == null) {
-                    return loc;
+                    return new SourceLocationResponse(loc);
                 }
 
-                return resolved;
+                return new SourceLocationResponse(resolved);
             } catch (Exception e) {
-                return loc;
+                return new SourceLocationResponse(loc);
             }
         }, executor);
     }
@@ -141,10 +143,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<String> readFile(ISourceLocationRequest req) {
+    public CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
         return CompletableFuture.supplyAsync(() -> {
             try (InputStream source = new Base64InputStream(reg.getInputStream(req.getLocation()), true)) {
-                return new String(source.readAllBytes(), StandardCharsets.US_ASCII);
+                return new LocationContentResponse(new String(source.readAllBytes(), StandardCharsets.US_ASCII));
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
             }
