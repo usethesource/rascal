@@ -10,6 +10,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+
 @synopsis{Library functions for parse trees.}
 @description{
 A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
@@ -138,6 +139,7 @@ for the type of source locations. Therefore the annotation name has to be escape
 * We are in transition from deprecating the annotation `@\loc` with the keyword field `.src=|unknown:///|`. Currently the
 run-time already uses `.src` while the source code still uses `@\loc`.
 }
+
 module ParseTree
 
 extend List;
@@ -156,17 +158,14 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <3> Ambiguous subtree.
 <4> A single character.
 }
-data Tree (loc parseError = |unknown:///|(0, 0, <0, 0>, <0, 0>))
-    //loc src = |unknown:///|(0,0,<0,0>,<0,0>)
-    = appl(Production prod, list[Tree] args)
-    // <1>
-    | cycle(Symbol symbol, int cycleLength)
-    // <2>
-    | amb(set[Tree] alternatives)
-    // <3>
-    | char(int character)
-    // <4>
-    ;
+
+data Tree(loc parseError = |unknown:///|(0,0,<0,0>,<0,0>)) //loc src = |unknown:///|(0,0,<0,0>,<0,0>)
+     = appl(Production prod, list[Tree] args) // <1>
+     | cycle(Symbol symbol, int cycleLength)  // <2>
+     | amb(set[Tree] alternatives) // <3> 
+     | char(int character) // <4>
+     ;
+
 
 @synopsis{Production in ParseTrees}
 @description{
@@ -185,28 +184,21 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 <6> `error` means a node produced by error recovery.
 <7> `skipped` means characters skipped during error recovery, always the last child of an `appl` with a `error` production.
-}
-data Production
-    = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-    // <1>
-    | regular(Symbol def)
-    // <2>
-    ;
+} 
+data Production 
+     = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
+     | regular(Symbol def) // <2>
+     ;
+     
+data Production 
+     = \priority(Symbol def, list[Production] choices) // <3>
+     | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <4>
+     | \reference(Symbol def, str cons) // <5>
+     ;
 
 data Production
-    = \priority(Symbol def, list[Production] choices)
-    // <3>
-    | \associativity(
-          Symbol def, Associativity \assoc, set[Production] alternatives)
-    // <4>
-    | \reference(Symbol def, str cons)
-    // <5>
-    ;
-
-data Production
-    = \error(Symbol def, Production prod, int dot)
-    | \skipped(Symbol def)
-    ;
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol def);
 
 @synopsis{A special exception that wraps errors that are (almost) certainly caused by unexpected parse errors}
 @description{
@@ -223,6 +215,7 @@ using try/catch you can make a language processor robust against (deeply nested)
 @pitfalls{
 it is advised to try/catch these exception high up in the call graph of your language processor, otherwise you'll have to write try/catch in many different places
 }
+
 data RuntimeException = ParseErrorRecovery(RuntimeException trigger, loc src);
 
 @synopsis{Attributes in productions.}
@@ -231,21 +224,23 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though.
 }
-data Attr
-    = \bracket()
-    | \assoc(Associativity \assoc)
-    ;
+data Attr 
+  = \bracket() 
+  | \assoc(Associativity \assoc)
+  ;
+
 
 @synopsis{Associativity attribute.}
 @description{
 Associativity defines the various kinds of associativity of a specific production.
-}
-data Associativity
+}  
+data Associativity 
     = \left()
-    | \right()
-    | \assoc()
+    | \right() 
+    | \assoc() 
     | \non-assoc()
     ;
+
 
 @synopsis{Character ranges and character class}
 @description{
@@ -255,6 +250,7 @@ data Associativity
 data CharRange = range(int begin, int end);
 
 alias CharClass = list[CharRange];
+
 
 @synopsis{Symbols that can occur in a ParseTree}
 @description{
@@ -283,58 +279,42 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 <19> Conditional occurrence of a symbol.
 }
 data Symbol // <1>
-           = \start(Symbol symbol);
+     = \start(Symbol symbol);
 
 // These symbols are the named non-terminals.
-data Symbol
-    = \sort(str name)
-    // <2>
-    | \lex(str name)
-    // <3>
-    | \layouts(str name)
-    // <4>
-    | \keywords(str name)
-    // <5>
-    | \parameterized-sort(str name, list[Symbol] parameters)
-    // <6>
-    | \parameterized-lex(str name, list[Symbol] parameters)
-    // <7>
-    ;
+data Symbol 
+     = \sort(str name) // <2> 
+     | \lex(str name)  // <3>
+     | \layouts(str name)  // <4>
+     | \keywords(str name) // <5>
+     | \parameterized-sort(str name, list[Symbol] parameters) // <6>
+     | \parameterized-lex(str name, list[Symbol] parameters)  // <7>
+     ; 
 
 // These are the terminal symbols.
-data Symbol
-    = \lit(str string)
-    // <8>
-    | \cilit(str string)
-    // <9>
-    | \char-class(list[CharRange] ranges)
-    // <10>
-    ;
-
+data Symbol 
+     = \lit(str string)   // <8>
+     | \cilit(str string) // <9>
+     | \char-class(list[CharRange] ranges) // <10>
+     ;
+    
 // These are the regular expressions.
 data Symbol
-    = \empty()
-    // <11>
-    | \opt(Symbol symbol)
-    // <12>
-    | \iter(Symbol symbol)
-    // <13>
-    | \iter-star(Symbol symbol)
-    // <14>
-    | \iter-seps(Symbol symbol, list[Symbol] separators)
-    // <15>
-    | \iter-star-seps(Symbol symbol, list[Symbol] separators)
-    // <16>
-    | \alt(set[Symbol] alternatives)
-    // <17>
-    | \seq(list[Symbol] symbols)
-    // <18>
-    ;
-
+     = \empty() // <11>
+     | \opt(Symbol symbol)  // <12>
+     | \iter(Symbol symbol) // <13>
+     | \iter-star(Symbol symbol)  // <14>
+     | \iter-seps(Symbol symbol, list[Symbol] separators)      // <15> 
+     | \iter-star-seps(Symbol symbol, list[Symbol] separators) // <16>
+     | \alt(set[Symbol] alternatives) // <17>
+     | \seq(list[Symbol] symbols)     // <18>
+     ;
+  
 data Symbol // <19>
-           = \conditional(Symbol symbol, set[Condition] conditions);
+     = \conditional(Symbol symbol, set[Condition] conditions);
 
 bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+
 
 @synopsis{Datatype for declaring preconditions and postconditions on symbols}
 @description{
@@ -344,23 +324,22 @@ is followed by another symbol and `at-column` requires that it occurs
 at a certain position in the current line of the input text.
 }
 data Condition
-    = \follow(Symbol symbol)
-    | \not-follow(Symbol symbol)
-    | \precede(Symbol symbol)
-    | \not-precede(Symbol symbol)
-    | \delete(Symbol symbol)
-    | \at-column(int column)
-    | \begin-of-line()
-    | \end-of-line()
-    | \except(str label)
-    ;
+     = \follow(Symbol symbol)
+     | \not-follow(Symbol symbol)
+     | \precede(Symbol symbol)
+     | \not-precede(Symbol symbol)
+     | \delete(Symbol symbol)
+     | \at-column(int column) 
+     | \begin-of-line()  
+     | \end-of-line()  
+     | \except(str label)
+     ;
+
 
 @synopsis{Nested priority is flattened.}
-Production priority(
-    Symbol s,
-    [*Production a, priority(Symbol _, list[Production] b), *Production c]
-)
-    = priority(s, a + b + c);
+Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
+  = priority(s,a+b+c);
+   
 
 @synopsis{Normalization of associativity.}
 @description{
@@ -368,24 +347,15 @@ Production priority(
 * Nested (equal) associativity is flattened.
 * ((ParseTree-priority)) under an associativity group defaults to choice.
 }
-Production associativity(
-    Symbol s, Associativity as,
-    {*Production a, choice(Symbol t, set[Production] b)}
-)
-    = associativity(s, as, a + b);
+Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
+  = associativity(s, as, a+b); 
+            
+Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+  = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
-Production associativity(
-    Symbol rhs, Associativity a,
-    {associativity(rhs, Associativity b, set[Production] alts), *Production rest}
-)
-    = associativity(rhs, a, rest + alts);
-
-// the nested associativity, even if contradictory, is lost
-Production associativity(
-    Symbol s, Associativity as,
-    {*Production a, priority(Symbol t, list[Production] b)}
-)
-    = associativity(s, as, {*a, *b});
+Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
+  = associativity(s, as, {*a, *b}); 
+        
 
 @synopsis{Annotate a parse tree node with a source location.}
 @description{
@@ -431,12 +401,8 @@ ignores @\loc annotations and whitespace and comments.
 * Annotated trees are strictly too big for optimal memory usage. Often `@\loc` is the first and only annotation, so it introduces a map for keyword parameters
 for every node. Also more nodes are different, impeding in optimal reference sharing. If you require long time storage of many
 parse trees it may be useful to strip them of annotations for selected categories of nodes, using ((reposition)).
-} anno
-    loc
-    Tree
-    @
-    \loc
-;
+}
+anno loc Tree@\loc;
 
 @synopsis{Parse input text (from a string or a location) and return a parse tree.}
 @description{
@@ -511,81 +477,16 @@ catch ParseError(loc l): {
 }
 ```
 }
-&T <: Tree parse(
-    type[&T <: Tree] begin,
-    str input,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-)
-    = parser(
-          begin,
-          allowAmbiguity = allowAmbiguity,
-          maxAmbDepth = maxAmbDepth,
-          allowRecovery = allowRecovery,
-          maxRecoveryAttempts = maxRecoveryAttempts,
-          maxRecoveryTokens = maxRecoveryTokens,
-          hasSideEffects = hasSideEffects,
-          filters = filters
-      )(
-          input,
-          |unknown:///|
-      );
 
-&T <: Tree parse(
-    type[&T <: Tree] begin,
-    str input,
-    loc origin,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-)
-    = parser(
-          begin,
-          allowAmbiguity = allowAmbiguity,
-          maxAmbDepth = maxAmbDepth,
-          allowRecovery = allowRecovery,
-          maxRecoveryAttempts = maxRecoveryAttempts,
-          maxRecoveryTokens = maxRecoveryTokens,
-          hasSideEffects = hasSideEffects,
-          filters = filters
-      )(
-          input,
-          origin
-      );
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-&T <: Tree parse(
-    type[&T <: Tree] begin,
-    loc input,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-)
-    = parser(
-          begin,
-          allowAmbiguity = allowAmbiguity,
-          maxAmbDepth = maxAmbDepth,
-          allowRecovery = allowRecovery,
-          maxRecoveryAttempts = maxRecoveryAttempts,
-          maxRecoveryTokens = maxRecoveryTokens,
-          hasSideEffects = hasSideEffects,
-          filters = filters
-      )(
-          input,
-          input
-      );
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+  
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, input);
+
 
 @synopsis{Generates a parser from an input grammar.}
 @description{
@@ -618,16 +519,7 @@ The parse function behaves differently depending of the given keyword parameters
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &T(value input, loc origin) parser(
-    type[&T] grammar,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -640,11 +532,7 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree(value input, loc origin) firstAmbiguityFinder(
-    type[Tree] grammar,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
 @description{
@@ -652,16 +540,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U(type[&U] nonterminal, value input, loc origin) parsers(
-    type[&T] grammar,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -674,11 +553,7 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree(type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(
-    type[Tree] grammar,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
 @description{
@@ -689,10 +564,10 @@ the cost of constructing nested ambiguity clusters.
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
 Tree firstAmbiguity(type[Tree] begin, str input)
-    = firstAmbiguityFinder(begin)(input, |unknown:///|);
+  = firstAmbiguityFinder(begin)(input, |unknown:///|);
 
 Tree firstAmbiguity(type[Tree] begin, loc input)
-    = firstAmbiguityFinder(begin)(input, input);
+  = firstAmbiguityFinder(begin)(input, input);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generate a parser and store it in serialized form for later reuse.}
@@ -756,16 +631,7 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
 this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
-java &U(type[&U] nonterminal, value input, loc origin) loadParsers(
-    loc savedParsers,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
 @description{
@@ -773,17 +639,7 @@ This loader behaves just like ((loadParsers)), except that the resulting parser 
 bound to a specific non-terminal. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U(value input, loc origin) loadParser(
-    type[&U] nonterminal,
-    loc savedParsers,
-    bool allowAmbiguity = false,
-    int maxAmbDepth = 2,
-    bool allowRecovery = false,
-    int maxRecoveryAttempts = 30,
-    int maxRecoveryTokens = 3,
-    bool hasSideEffects = false,
-    set[Tree(Tree)] filters = {}
-);
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{
@@ -810,6 +666,7 @@ str unparse(Tree tree) = "<tree>";
 java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
+
 @synopsis{Implode a parse tree according to a given (ADT) type.}
 @description{
 Given a grammar for a language, its sentences can be parsed and the result is a parse tree
@@ -928,57 +785,47 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 ```
 }
-java &T <: value implode(type[&T <: value] t, Tree tree);
+java &T<:value implode(type[&T<:value] t, Tree tree);
 
 @synopsis{Tree search result type for ((treeAt)).}
-data TreeSearchResult[&T <: Tree]
-    = treeFound(&T tree)
-    | treeNotFound()
-    ;
+data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
+
+
 
 @synopsis{Select the innermost Tree of a given type which is enclosed by a given location.}
 @description{
 
 }
-TreeSearchResult[&T <: Tree] treeAt(
-    type[&T <: Tree] t, loc l, Tree a: appl(_, _)
-) {
-    if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length)
-    {
-        for (arg <- a.args, TreeSearchResult[&T <: Tree] r: treeFound(&T <: Tree _) := treeAt(t, l, arg)) {
-            return r;
-        }
-        
-        if (&T <: Tree tree := a) {
-            return treeFound(tree);
-        }
-    }
-    return treeNotFound();
+TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
+	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
+			return r;
+		}
+		
+		if (&T<:Tree tree := a) {
+			return treeFound(tree);
+		}
+	}
+	return treeNotFound();
 }
 
-default TreeSearchResult[&T <: Tree] treeAt(
-    type[&T <: Tree] t, loc l, Tree root
-)
-    = treeNotFound();
+default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
 
-bool sameType(label(_, Symbol s), Symbol t) = sameType(s, t);
-bool sameType(Symbol s, label(_, Symbol t)) = sameType(s, t);
-bool sameType(Symbol s, conditional(Symbol t, _)) = sameType(s, t);
-bool sameType(conditional(Symbol s, _), Symbol t) = sameType(s, t);
+bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
+bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
+bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
+bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 bool sameType(Symbol s, s) = true;
 default bool sameType(Symbol s, Symbol t) = false;
+
 
 @synopsis{Determine if the given type is a non-terminal type.}
 bool isNonTerminalType(Symbol::\sort(str _)) = true;
 bool isNonTerminalType(Symbol::\lex(str _)) = true;
 bool isNonTerminalType(Symbol::\layouts(str _)) = true;
 bool isNonTerminalType(Symbol::\keywords(str _)) = true;
-bool isNonTerminalType(
-    Symbol::\parameterized-sort(str _, list[Symbol] _)
-)
-    = true;
-bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _))
-    = true;
+bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
@@ -1030,129 +877,119 @@ yield of a tree should always produce the exact same locations as ((reposition))
 * The default mark options simulate the behavior of ((parser)) functions.
 }
 &T <: Tree reposition(
-    &T <: Tree tree,
-    loc file = tree@\loc.top,
-    bool \markStart = true,
-    bool \markSyntax = true,
-    bool \markLexical = true,
-    bool \markSubLexical = true,
-    bool \markRegular = true,
-    bool \markLayout = true,
-    bool \markSubLayout = true,
-    bool \markLit = false,
-    bool \markSubLit = false,
-    bool \markAmb = false,
-    bool \markCycle = false,
-    bool \markChar = false
-) {
+  &T <: Tree tree, 
+  loc file = tree@\loc.top, 
+  bool \markStart = true,
+  bool \markSyntax = true,
+  bool \markLexical = true,
+  bool \markSubLexical = true, 
+  bool \markRegular = true,
+  bool \markLayout = true,
+  bool \markSubLayout = true,
+  bool \markLit = false,
+  bool \markSubLit = false,
+  bool \markAmb = false,
+  bool \markCycle = false,
+  bool \markChar = false
+  ) {
     // the cur variables are shared state by the `rec` local function that recurses over the entire tree
     int curOffset = 0;
     int curLine = 1;
     int curColumn = 0;
-    
+
     @synopsis{Check if this rule is configured to be annotated}
-    default bool doAnno(Production _) = false;
-    bool doAnno(prod(\lex(_), _, _)) = markLexical;
-    bool doAnno(prod(\label(_, \lex(_)), _, _)) = markLexical;
-    bool doAnno(prod(\parameterized-lex(_, _), _, _)) = markLexical;
+    default bool doAnno(Production _)               = false;
+    bool doAnno(prod(\lex(_), _, _))                = markLexical;
+    bool doAnno(prod(\label(_, \lex(_)), _, _))     = markLexical;
+    bool doAnno(prod(\parameterized-lex(_, _), _, _))            = markLexical;
     bool doAnno(prod(\label(_, \parameterized-lex(_, _)), _, _)) = markLexical;
-    bool doAnno(prod(\layouts(_), _, _)) = markLayout;
+    bool doAnno(prod(\layouts(_), _, _))            = markLayout;
     bool doAnno(prod(\label(_, \layouts(_)), _, _)) = markLayout;
-    bool doAnno(prod(\sort(_), _, _)) = markSyntax;
-    bool doAnno(prod(\label(_, \sort(_)), _, _)) = markSyntax;
-    bool doAnno(prod(\parameterized-sort(_, _), _, _)) = markSyntax;
+    bool doAnno(prod(\sort(_), _, _))               = markSyntax;
+    bool doAnno(prod(\label(_, \sort(_)), _, _))    = markSyntax;
+    bool doAnno(prod(\parameterized-sort(_, _), _, _))            = markSyntax;
     bool doAnno(prod(\label(_, \parameterized-sort(_, _)), _, _)) = markSyntax;
-    bool doAnno(\regular(_)) = markRegular;
-    bool doAnno(prod(\lit(_), _, _)) = markLit;
-    bool doAnno(prod(\cilit(_), _, _)) = markLit;
-    bool doAnno(prod(\start(_), _, _)) = markStart;
-    
+    bool doAnno(\regular(_))                        = markRegular;
+    bool doAnno(prod(\lit(_), _, _))                = markLit;
+    bool doAnno(prod(\cilit(_), _, _))              = markLit;
+    bool doAnno(prod(\start(_), _, _))              = markStart;
+
     @synopsis{Check if sub-structure of this rule is configured to be annotated}
-    default bool doSub(Production _) = true;
-    bool doSub(prod(\lex(_), _, _)) = \markSubLexical;
-    bool doSub(prod(\label(_, lex(_)), _, _)) = \markSubLexical;
-    bool doSub(prod(\layouts(_), _, _)) = \markSubLayout;
+    default bool doSub(Production _)               = true;
+    bool doSub(prod(\lex(_), _, _))                = \markSubLexical;
+    bool doSub(prod(\label(_, lex(_)), _, _))      = \markSubLexical;
+    bool doSub(prod(\layouts(_), _, _))            = \markSubLayout;
     bool doSub(prod(\label(_, \layouts(_)), _, _)) = \markSubLayout;
-    bool doSub(prod(\lit(_), _, _)) = \markSubLit;
-    bool doSub(prod(\cilit(_), _, _)) = \markSubLit;
-    
+    bool doSub(prod(\lit(_), _, _))                = \markSubLit;
+    bool doSub(prod(\cilit(_), _, _))              = \markSubLit;
+
     // the character nodes drive the actual current position: offset, line and column
-    Tree rec(Tree t: char(int ch), bool _sub) {
-        beginOffset = curOffset;
-        beginLine = curLine;
-        beginColumn = curColumn;
-        
-        curOffset += 1;
-        curColumn += 1;
-        
-        switch(t) {
-            case NewLineChar _: {
-                curLine += 1;
-                curColumn = 0;
-            }
+    Tree rec(Tree t:char(int ch), bool _sub) {
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      curOffset += 1;
+      curColumn += 1;
+
+      switch (t) {
+        case NewLineChar _ : {
+          curLine += 1;
+          curColumn = 0;
         }
-        
-        Tree washCC(Tree x) = x;
-        
-        // workaround for issue #2342
-        return
-            markChar
-                ? washCC(char(ch))[@\loc = file(
-                                               beginOffset,
-                                               1,
-                                               <beginLine, beginColumn>,
-                                               <curLine, max([curColumn, beginColumn + 1])/* for \r */                                                                                          >
-                                           )]
-                : washCC(char(ch));
+      }
+
+      Tree washCC(Tree x) = x; // workaround for issue #2342
+
+      return markChar 
+        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, max([curColumn, beginColumn + 1]) /* for \r */>)]
+        : washCC(char(ch))
+        ;
     }
-    
+
     // cycles take no space
-    Tree rec(cycle(Symbol s, int up), bool _sub)
-        = markCycle
-              ? cycle(s, up)[@\loc = file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
-              : cycle(s, up);
-    
+    Tree rec(cycle(Symbol s, int up), bool _sub) = markCycle
+      ? cycle(s, up)[@\loc=file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
+      : cycle(s, up)
+      ;
+
     // application nodes always have children to traverse, to get to the individual characters eventually
     // different types of nodes lead to annotation, or not, depending on the parameters of ((reposition))
     Tree rec(appl(Production prod, list[Tree] args), bool sub) {
-        beginOffset = curOffset;
-        beginLine = curLine;
-        beginColumn = curColumn;
-        
-        // once `sub` is false, going down, we can never turn it on again
-        newArgs = [mergeRec(a, sub && doSub(prod)) | a <- args];
-        
-        return
-            (sub && doAnno(prod))
-                ? appl(prod, newArgs)[@\loc = file(
-                                                  beginOffset,
-                                                  curOffset - beginOffset,
-                                                  <beginLine, beginColumn>,
-                                                  <curLine, curColumn>
-                                              )]
-                : appl(prod, newArgs);
-    }
-    
+      beginOffset = curOffset;
+      beginLine   = curLine;
+      beginColumn = curColumn;
+
+      // once `sub` is false, going down, we can never turn it on again
+      newArgs = [mergeRec(a, sub && doSub(prod)) | a <- args];
+
+      return (sub && doAnno(prod)) 
+        ? appl(prod, newArgs)[@\loc=file(beginOffset, curOffset - beginOffset, <beginLine, beginColumn>, <curLine, curColumn>)]
+        : appl(prod, newArgs)
+        ;
+    } 
+
     // ambiguity nodes are simply choices between alternatives which each receive their own positions.
     Tree rec(amb(set[Tree] alts), bool sub) {
-        newAlts = {mergeRec(a, sub)| a <- alts};
-        
-        // inherit the outermost positions from one of the alternatives, since they are all the same by definition.
-        Tree x = getFirstFrom(newAlts);
-        return markAmb && x@\loc? ? amb(newAlts)[@\loc = x@\loc] : amb(newAlts);
+      newAlts = {mergeRec(a, sub) | a <- alts};  
+      // inherit the outermost positions from one of the alternatives, since they are all the same by definition.  
+      Tree x = getFirstFrom(newAlts);  
+      return markAmb && x@\loc? 
+        ? amb(newAlts)[@\loc=x@\loc]  
+        : amb(newAlts)  
+        ;   
     }
-    
+
     @synopsis{Recurse, but not without recovering all other keyword parameters except "src" a.k.a. @\loc from the original.}
     Tree mergeRec(Tree t, bool sub) {
-        oldParams = getKeywordParameters(t);
-        t = rec(t, sub);
-        newParams = getKeywordParameters(t);
-        mergedParams = (oldParams - ("src" : |unknown:///|)) + newParams;
-        return setKeywordParameters(t, mergedParams);
+      oldParams = getKeywordParameters(t);
+      t = rec(t, sub); 
+      newParams = getKeywordParameters(t);
+      mergedParams = (oldParams - ("src" : |unknown:///|)) + newParams;
+      return setKeywordParameters(t, mergedParams);
     }
-    
+
     // we start recursion at the top, not forgetting to merge its other keyword fields
     return mergeRec(tree, true);
 }
-
-
+ 
