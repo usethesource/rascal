@@ -68,13 +68,10 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
     });
  }
 
-
-
-data MStatus =
+data ModuleProperty =
       rsc_not_found()
-    | tpl_not_found()
     | rsc_changed()
-    | parsed()
+    // | parsed()
     | parse_error()
     | module_dependencies_extracted()
     | checked()
@@ -82,7 +79,10 @@ data MStatus =
     | code_generated()
     | code_generation_error()
     | tpl_uptodate()
+    | tpl_from_library()
     | tpl_saved()
+    | tpl_not_found()
+    | tpl_version_error()
     | ignored()
     | bom_update_needed()
     ;
@@ -98,23 +98,58 @@ data ModuleStatus =
       map[MODID,loc] moduleLocs,
       map[MODID,datetime] moduleLastModified,
       map[MODID, set[Message]] messages,
-      map[MODID, set[MStatus]] status,
+      map[MODID, set[ModuleProperty]] status,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig
    );
 
+// p1 in status && p2 in status ...
+bool hasProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
+    if(mid notin ms.status) return false;
+    mstatus = ms.status[mid];
+    return !isEmpty(mstatus) && all(p <- properties, p in mstatus);
+}
+
+// p1 in status || p2 in status ...
+bool hasAnyProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
+    if(mid notin ms.status) return false;
+    mstatus = ms.status[mid];
+    return !isEmpty(mstatus) && any(p <- properties, p in mstatus);
+}
+
+// p1 notin status && p2 notin status ...
+bool hasNotProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
+    if(mid notin ms.status) return true;
+    mstatus = ms.status[mid];
+    return isEmpty(mstatus) || all(ModuleProperty p <- properties, p notin mstatus);
+}
+
+ModuleStatus addProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
+    mstatus = mid notin ms.status ? {} : ms.status[mid];
+    mstatus += toSet(properties);
+    ms.status[mid] = mstatus;
+    return ms;
+}
+
+ModuleStatus deleteProperty(MODID mid, ModuleStatus ms, ModuleProperty properties...){
+    mstatus = mid notin ms.status ? {} : ms.status[mid];
+    mstatus -= toSet(properties);
+    ms.status[mid] = mstatus;
+    return ms;
+}
+
 ModuleStatus moduleStatus(          // TEMPORARY FOR COMPATIBILITY BETWEEN VERSIONS
-      rel[str, PathRole, str] strPaths,
-      rel[MODID, PathRole, MODID] paths,
-      map[MODID, Module] parseTrees,
-      list[MODID] parseTreeLIFO,
-      map[MODID, TModel] tmodels,
-      list[MODID] tmodelLIFO,
-      set[MODID] changedModules,
-      map[MODID,loc] moduleLocs,
-      map[MODID,datetime] moduleLastModified,
-      map[MODID, set[Message]] messages,
-      map[MODID, set[MStatus]] status,
+      rel[str, PathRole, str] _strPaths,
+      rel[MODID, PathRole, MODID] _paths,
+      map[MODID, Module] _parseTrees,
+      list[MODID] _parseTreeLIFO,
+      map[MODID, TModel] _tmodels,
+      list[MODID] _tmodelLIFO,
+      set[MODID] _changedModules,
+      map[MODID,loc] _moduleLocs,
+      map[MODID,datetime] _moduleLastModified,
+      map[MODID, set[Message]] _messages,
+      map[MODID, set[ModuleProperty]] _status,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig)
       = newModuleStatus(pathConfig, compilerConfig);
@@ -164,7 +199,7 @@ tuple[bool,loc] getTPLReadLoc(MODID moduleId, PathConfig pcfg){
 tuple[bool,loc] getTPLWriteLoc(MODID moduleId, PathConfig pcfg){
     assert isModuleId(moduleId) : "getTPLWriteLoc: <moduleId>";
     qualifiedModuleName = moduleId2moduleName(moduleId);
-    fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
+    fileName = "<asFileName(qualifiedModuleName)>.tpl";
     tplLoc = getGeneratedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
 }
@@ -220,11 +255,12 @@ bool tplOutdated(MODID moduleId, PathConfig pcfg){
     try {
         qualifiedModuleName = moduleId2moduleName(moduleId);
         mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+        if(endsWith(mloc.path, "tpl")) return false;
         <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
         res = !found || lmMloc > lmTpl;
-        //println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
+        // println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
         return res;
     } catch _: {
         return false;
@@ -243,10 +279,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
         if(traceParseTreeCache) println("*** using cached parse tree for <moduleId>");
         return <true, ms.parseTrees[moduleId], ms>;
     } else {
-        if(!ms.status[moduleId]?){
-            ms.status[moduleId] = {};
-        }
-        if(parse_error() notin ms.status[moduleId]){
+        if(hasNotProperty(moduleId, ms, parse_error())){
             if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
                 ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
                 if(traceParseTreeCache) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
@@ -258,12 +291,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 mloc = getRascalModuleLocation(moduleId, ms);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(isModuleLocationInLibs(mloc, pcfg)) {
-                    ms.status[moduleId] += {rsc_not_found()};
+                    ms = addProperty(moduleId, ms, tpl_from_library());
                     throw "No src or library module";
                 }
             } catch e: {
-                println(e);
-                ms.messages[moduleId] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
+                ms.messages[moduleId] ? {} += {error("Module `<qualifiedModuleName>` not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
                 return <false, dummyModule, ms>;
             }
@@ -273,12 +305,11 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
                 ms.parseTrees[moduleId] = pt;
                 newLoc = getLoc(pt);
                 ms.moduleLocs[moduleId] = newLoc;
-                ms.status[moduleId] ? {} += {parsed()};
                 return <true, pt, ms>;
             } catch ParseError(loc src): {
                 ms.messages[moduleId] ? {} = {error("Parse error in <moduleId>", src)};
                 ms.moduleLocs[moduleId] = mloc;
-                ms.status[moduleId] += parse_error();
+                ms = addProperty(moduleId, ms, parse_error());
                 return <false, dummyModule, ms>;
             }
         }
@@ -307,14 +338,14 @@ loc getRascalModuleLocation(MODID moduleId, ModuleStatus ms){
 int tmodelCacheSize = 30; // should be > 0
 
 ModuleStatus clearTModelCache(ModuleStatus ms){
-    todo = { mname | mname <- ms.status, bom_update_needed() in ms.status[mname]};
+    todo = { mname | mname <- ms.status, hasProperty(mname, ms, bom_update_needed())};
     for(candidate <- ms.tmodelLIFO){
         ms = removeOldestTModelFromCache(ms/*, updateBOMneeded=true*/);
         todo -= candidate;
     }
     for(candidate <- todo){
         ms = removeTModel(candidate, ms/*, updateBOMneeded=true*/);
-        ms.status[candidate] -= bom_update_needed();
+        ms = deleteProperty(candidate, ms, bom_update_needed());
     }
     return ms;
 }
@@ -330,7 +361,7 @@ rel[str,datetime,PathRole] makeBom(MODID moduleId, ModuleStatus ms){
 }
 
 ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
-    if(rsc_not_found() in ms.status[moduleId]){
+    if(hasAnyProperty(moduleId, ms, rsc_not_found(), tpl_from_library())){
         return ms;
     }
     <found, tm, ms> = getTModelForModule(moduleId, ms);
@@ -339,7 +370,7 @@ ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
         newBom = makeBom(moduleId, ms);
         if(newBom != tm.store[key_bom]){
             tm.store[key_bom] = newBom;
-            ms.status[moduleId] -= {tpl_saved(), bom_update_needed()};
+            ms = deleteProperty(moduleId, ms, tpl_saved(), bom_update_needed());
             ms = addTModel(moduleId, tm, ms);
 
             if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <moduleId>");
@@ -353,20 +384,18 @@ ModuleStatus updateBOM(MODID moduleId, ModuleStatus ms){
 ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded = false){
     assert isModuleId(candidate) : "removeTModel: <candidate>";
     if(   updateBOMneeded
-       || (   candidate in ms.tmodels 
-           && candidate in ms.status
-           && tpl_saved() notin ms.status[candidate] 
-           && rsc_not_found() notin ms.status[candidate])
+       ||    candidate in ms.tmodels 
+          && !hasAnyProperty(candidate, ms, tpl_saved(), rsc_not_found(), tpl_from_library())
       ){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
             ms = updateBOM(candidate, ms);
          } 
-        ms.status[candidate] -= bom_update_needed();
+         ms = deleteProperty(candidate, ms,  bom_update_needed());
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
         //tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
-        ms.status[candidate] += tpl_saved();
+        ms = addProperty(candidate, ms, tpl_saved());
         if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
             writeBinaryValueFile(tplLoc, tm);
@@ -420,35 +449,36 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != moduleId){
         ms = removeOldestTModelFromCache(ms);
     }
-
+    qualifiedModuleName = moduleId2moduleName(moduleId);
     <found, tplLoc> = getTPLReadLoc(moduleId, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         tmVersion = "0.0.0";
         try {
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
-            if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
-                tmVersion = tm.rascalTplVersion;
+            tmVersion = tm.rascalTplVersion;
+            if(isValidRascalTplVersion(tmVersion)){
                 ms.tmodels[moduleId] = tm;
                 mloc = getRascalModuleLocation(moduleId, ms);
                 if(isModuleLocationInLibs(mloc, pcfg)){
-                    ms.status[moduleId] ? {} += {rsc_not_found()};
+                    ms = addProperty(moduleId, ms, tpl_from_library());
                 }
-                ms.status[moduleId] ? {} += {tpl_uptodate(), tpl_saved()};
-                ms.messages[moduleId] = toSet(tm.messages);
+                ms = addProperty(moduleId, ms, tpl_uptodate(), tpl_saved());
+                //do not include errors from tm in ModuleStatus to avoid that they become persistent
                 ms.tmodelLIFO = [moduleId, *ms.tmodelLIFO];
                 return <true, tm, ms>;
              }
         } catch e: {
-            qualifiedModuleName = moduleId2moduleName(moduleId);
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "<tplLoc> has outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
-        println("INFO: <msg>)");
-        throw rascalTplVersionError(msg);
+        msg = "outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
+        throw rascalTplVersionError(qualifiedModuleName, tplLoc, tmVersion, msg);
     }
-    qualifiedModuleName = moduleId2moduleName(moduleId);
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", tplLoc)]), ms>;
+    mloc = tplLoc;
+    try {
+        mloc = getRascalModuleLocation(moduleId, ms);
+    } catch _: /* ignore when this fails */;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", mloc)]), ms>;
 }
 
 rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to] paths, ModuleStatus ms){

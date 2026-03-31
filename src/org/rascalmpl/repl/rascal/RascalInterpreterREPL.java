@@ -49,6 +49,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
@@ -57,7 +58,6 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.ideservices.RemoteIDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -231,7 +231,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 changes.addAll(dirtyModules);
                 if (!changes.isEmpty()) {
                     dirtyModules.removeAll(changes);
-                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("prompt"));
                 }
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }

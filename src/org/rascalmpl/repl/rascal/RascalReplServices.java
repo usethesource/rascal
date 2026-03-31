@@ -38,6 +38,7 @@ import org.jline.reader.Completer;
 import org.jline.reader.CompletionMatcher;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
@@ -83,9 +84,9 @@ public class RascalReplServices implements IREPLService {
         }
         this.term = term;
         this.unicodeSupported = unicodeSupported;
-        var monitor = new TerminalProgressBarMonitor(term);
-        out = monitor;
-        err = StreamUtil.generateErrorStream(term, monitor);
+        var monitor = IRascalMonitor.buildConsoleMonitor(term);
+        out = monitor instanceof PrintWriter ? (PrintWriter)monitor : term.writer();
+        err = StreamUtil.generateErrorStream(term, out);
         return lang.initialize(term.reader(), out, err, monitor, term);
     }
 

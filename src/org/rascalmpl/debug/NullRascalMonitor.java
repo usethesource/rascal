@@ -8,9 +8,7 @@
  * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
  * * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.interpreter;
-
-import org.rascalmpl.debug.IRascalMonitor;
+package org.rascalmpl.debug;
 
 import io.usethesource.vallang.ISourceLocation;
 

@@ -469,6 +469,115 @@ test bool breakingChange1(){
     return expectReChecks(D, ["C", "D"]);
 }
 
+test bool fixedErrorsDisappearCompact() { 
+    clearMemory();
+    pcfg = getDefaultTestingPathConfig();
+
+    mlocs = writeModules("
+        module ParserBase
+    ");
+
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import vis::ParseTree; // module does not exist -\> error
+
+    ");
+
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    return true;
+}
+
+test bool fixedErrorsDisappear() {  // ht @toinehartman
+    clearMemory();
+    pcfg = getReleasedStandardLibraryTestingPathConfig();
+    pcfg = pcfg[libs = [RASCAL42]];
+
+    iprintln(pcfg);
+
+    // Write a set of modules with imports, that should type-check without errors
+    mlocs = writeModules("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree; // module does not exist
+
+        import Debugging;
+        import FileUtility;
+    ", "
+        module FileLocations
+    ", "
+        module Debugging
+
+        import DateTime;
+        import FileLocations;
+
+        import FileUtility;
+        import StringUtility;
+    ", "
+        module FileUtility
+
+        import FileLocations;
+
+        import Debugging;
+        import ListUtility;
+        import StringUtility;
+    ", "
+        module ListUtility
+    ", "
+        module StringUtility
+
+
+        import Debugging;
+        import ListUtility;
+        import MathUtility;
+    ", "
+        module MathUtility
+    ");
+
+    // Type-check everything
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        import vis::ParseTree; // module does not exist -\> error
+
+        import Debugging;
+        import FileUtility;
+    ");
+
+    // Type-check only the changed module
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    // Fix the error again, by removing the import. Now, we are at exactly the same state as where we started (without errors).
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree;
+
+        import Debugging;
+        import FileUtility;
+    ");
+    
+    // Type-check only the changed module
+    assert checkModuleOK(l, pathConfig=pcfg) : "Expected no errors after reverting, but got some!";
+    return true;
+}
+
 // ---- touch and recheck modules ---------------------------------------------
 
 bool touchAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg){
@@ -663,6 +772,47 @@ test bool onlyChangedModulesAreReChecked2(){
     assert validateBOMs(pcfg);
     restoreModules(["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                     "lang::rascalcore::check::CollectType"], pcfg);
+    return true;
+}
+
+loc TYPEPAL166 = |mvn://org.rascalmpl--typepal--0.16.6-RC1/|;
+test bool changeMultipleTimes() { // ht @toinehartman
+    loc projDir = |memory:///incremental-test/proj|;
+    loc checkerModule = projDir + "src" + "Checker.rsc";
+
+    PathConfig pcfg = pathConfig(
+        projectRoot = projDir,
+        srcs = [projDir + "src"],
+        bin = projDir + "target",
+        // There might be incompatibility here, since Rascal uses typepal--0.16.6-RC2 at the time of writing.
+        // However, I would still expect that errors caused by that appear on the first type-check.
+        libs = [TYPEPAL166, RASCAL42]
+    );
+    iprintln(pcfg);
+
+    // Clean
+    remove(projDir);
+    writeFile(checkerModule, "
+        module Checker
+        extend analysis::typepal::TypePal;
+        void collect(Collector c) { ; }
+    ");
+
+    // First check
+    println("Initial check");
+    if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+        throw "First check failed; supposed to be OK.";
+    }
+    int N_TRIES = 10;
+    // Since this seems sporadically succeed, we run this a couple of times until it fails
+    for (i <- [1..N_TRIES + 1]) {
+        // Follow-up check
+        println("Follow-up check #<i>");
+        touch(checkerModule);
+        if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+            return false;
+        }
+    }
     return true;
 }
 
