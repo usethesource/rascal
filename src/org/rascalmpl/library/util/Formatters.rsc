@@ -244,13 +244,14 @@ parameter (a substring). For example: `#Statement` and `if (true) false;`.
 list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
 
-
     return list[TextEdit] (type[Tree] nonterminal, str input) {
         loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
 
         &G tree = p(nonterminal, input, stub);
         try {
-            return layoutDiff(tree, p(nonterminal, format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
+            str formatted = format(style(tree));
+            str indented = subIndent(tree@\loc, "<formatted>", input);
+            return layoutDiff(tree, p(nonterminal, indented, stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
             writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
@@ -269,7 +270,46 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
         }  
     };
 }
-    
+
+@synopsis{Restores indentation for formatted sub-trees}
+@description{
+This algorithm ignores the first line, since the first line is always preceded by the layout of a parent node.
+
+Then it measures the depth of indentation of every line in the original, and takes the minimum.
+That minimum indentation is stripped off every line that already has that much indentation in the replacement,
+and then _all_ lines are re-indented with the discovered minimum.
+}
+private str subIndent(loc span, str replacement, str original) {
+    list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
+
+    origIndents = indents(original);
+    replLines   = split("\n", replacement);
+
+    if (replLines == []) {
+        return "";
+    }
+
+    minIndent = "";
+
+    if ([_] := origIndents) {
+        // only one line. have to invent indentation from span
+        minIndent = "<for (_ <- [0..(span.begin?) ? span.begin.column : 0]) {> <}>";
+    }
+    else {
+        // we skip the first line for learning indentation, because that one would typically be embedded in a previous line.
+        minIndent = sort(origIndents[1..])[0]? "";
+    }
+
+    // we remove the leading spaces _up to_ the minimal indentation of the original, 
+    // keep the rest of the indentation from the replacement (if any is left), and then the actual content.
+    // that entire multiline result is then lazily indented with the minimal indentation we learned from the original.
+    return indent(
+        minIndent, 
+        "<for (/^<theInd:[\t\ ]*><rest:[^\t\ ]+.*>$/ <- replLines) {><theInd[..max(size(minIndent), span.begin? ? span.begin.column : 0)]><rest>
+        '<}>"[..-1])
+    ;
+}
+   
 @synopsis{Generates an HTML-based preview of the result of formatting.}
 @benefits{
 * uses ((util::Highlight)) to create an HTML preview of the formatted code
