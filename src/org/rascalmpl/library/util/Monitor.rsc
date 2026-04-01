@@ -11,9 +11,11 @@
 @bootstrapParser
 module util::Monitor
 
-import util::Math;
-import IO;
 import Exception;
+import IO;
+import List;
+import Set;
+import util::Math;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -86,6 +88,48 @@ with a parameterized workload and the same label as the job name.
   finally {
     jobEnd(label);
   }
+}
+
+@synopsis{Convenience function for reporting progress on a for loop over a list, with a list of results}
+list[&U] loopJob(list[&T] work, &U(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
+  return job(label, list[&U] (void (str message, int worked) step) {
+    return for (&T w <- work) {
+      step(stepLabel(w), 1);
+      append consumer(w);
+    }
+  }, totalWork=size(work));
+}
+
+@synopsis{Convenience function for reporting progress on a for loop over a list, no results computed}
+void loopVoidJob(list[&T] work, void(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
+  job(label, bool (void (str message, int worked) step) {
+    for (&T w <- work) {
+      step(stepLabel(w), 1);
+      consumer(w);
+    }
+    return true;
+  }, totalWork=size(work));
+}
+
+@synopsis{Convenience function for reporting progress on a for loop over a set, with a list of results.}
+list[&U] loopJob(set[&T] work, &U(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
+  return job(label, list[&U] (void (str message, int worked) step) {
+    return for (&T w <- work) {
+      step(stepLabel(w), 1);
+      append consumer(w);
+    }
+  }, totalWork=size(work));
+}
+
+@synopsis{Convenience function for reporting progress on a for loop over a list, no results computed}
+void loopVoidJob(set[&T] work, void(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
+  job(label, bool (void (str message, int worked) step) {
+    for (&T w <- work) {
+      step(stepLabel(w), 1);
+      consumer(w);
+    }
+    return true;
+  }, totalWork=size(work));
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}

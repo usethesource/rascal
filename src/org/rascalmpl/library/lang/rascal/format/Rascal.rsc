@@ -32,7 +32,9 @@ import analysis::diff::edits::HiFiLayoutDiff;
 import analysis::diff::edits::TextEdits;
 import lang::box::\syntax::Box;
 import lang::box::util::Box2Text;
+import util::FileSystem;
 import util::Formatters;
+import util::Monitor;
 import util::Reflective;
 
 
@@ -1170,3 +1172,4 @@ public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
 @synopsis{Format a Rascal statement string}
 public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
 
+public void(loc) formatAllRascalFiles = allFilesFormatter(#start[Module], toBox);
