@@ -59,8 +59,8 @@ import org.rascalmpl.util.NamedThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
-    static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
-    static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
+    private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+    private static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
 
     private volatile @MonotonicNonNull IRemoteResolverRegistryClient client = null;
 
