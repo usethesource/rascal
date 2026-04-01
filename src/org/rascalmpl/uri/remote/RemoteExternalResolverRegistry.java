@@ -496,7 +496,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             synchronized (watchers) {
                 var key = new WatchSubscriptionKey(root, recursive);
                 if (!watchers.containsKey(key)) {
-                    System.err.println("Fresh watch, setting up request to server");
                     var freshWatchers = new Watchers();
                     freshWatchers.addNewWatcher(watcher);
                     watchersById.put(freshWatchers.getId(), freshWatchers);
@@ -516,10 +515,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         synchronized (watchers) {
             var watch = watchers.get(watchKey);
             if (watch != null && watch.removeWatcher(watcher)) {
-                System.err.println("No other watchers registered, so unregistering at server");
                 watchers.remove(watchKey);
                 if (!watch.getCallbacks().isEmpty()) {
-                    System.err.println("Raced by another thread, canceling unregister");
                     watchers.put(watchKey, watch);
                     return;
                 }
