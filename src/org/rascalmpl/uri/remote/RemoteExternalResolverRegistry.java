@@ -112,11 +112,10 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             if (remote != null) {
                 this.remote = remote;
                 return;
-            } else {
-                timeout = timeout.plusMillis(10);
-                if (timeout.compareTo(LONGEST_TIMEOUT) >= 0) {
-                    timeout = LONGEST_TIMEOUT;
-                }
+            }
+            timeout = timeout.plusMillis(10);
+            if (timeout.compareTo(LONGEST_TIMEOUT) >= 0) {
+                timeout = LONGEST_TIMEOUT;
             }
         }
     }
