@@ -90,6 +90,23 @@ with a parameterized workload and the same label as the job name.
   }
 }
 
+@synopsis{Like ((job)) but does not return a value.}
+void voidJob(str label, void (void (str message, int worked) step) block, int totalWork=100) {
+  try {
+    jobStart(label, totalWork=totalWork);
+    block(void (str message, int worked) { 
+      jobStep(label, message, work=worked);
+    });
+  }
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
+  }
+  finally {
+    jobEnd(label);
+  }
+}
+
 @synopsis{Convenience function for reporting progress on a for loop over a list, with a list of results}
 list[&U] loopJob(list[&T] work, &U(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
   return job(label, list[&U] (void (str message, int worked) step) {
@@ -102,12 +119,11 @@ list[&U] loopJob(list[&T] work, &U(&T) consumer, str label = "", str (&T) stepLa
 
 @synopsis{Convenience function for reporting progress on a for loop over a list, no results computed}
 void loopVoidJob(list[&T] work, void(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
-  job(label, bool (void (str message, int worked) step) {
+  voidJob(label, void (void (str message, int worked) step) {
     for (&T w <- work) {
       step(stepLabel(w), 1);
       consumer(w);
     }
-    return true;
   }, totalWork=size(work));
 }
 
@@ -123,12 +139,11 @@ list[&U] loopJob(set[&T] work, &U(&T) consumer, str label = "", str (&T) stepLab
 
 @synopsis{Convenience function for reporting progress on a for loop over a list, no results computed}
 void loopVoidJob(set[&T] work, void(&T) consumer, str label = "", str (&T) stepLabel = str(&T w) { return "<w>"; }) {
-  job(label, bool (void (str message, int worked) step) {
+  voidJob(label, void (void (str message, int worked) step) {
     for (&T w <- work) {
       step(stepLabel(w), 1);
       consumer(w);
     }
-    return true;
   }, totalWork=size(work));
 }
 
@@ -164,6 +179,24 @@ with a parameterized workload and the same label as the job name.
   }
 }
 
+@synopsis{Like ((job)) but does not return a value.}
+void voidJob(str label, void (void (int worked) step) block, int totalWork=1) {
+  try {
+    jobStart(label, totalWork=totalWork);
+    block(void (int worked) { 
+      jobStep(label, label, work=worked);
+    });
+  }
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
+  }
+  finally {
+    jobEnd(label);
+  }
+}
+
+
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
 @description{
 The convenience function that is passed to the block can be used inside the block to register steps
@@ -192,6 +225,24 @@ with workload `1` and the same label as the job name.
   }
 }
 
+@synopsis{Like ((job)) but does not return a value.}
+void voidJob(str label, void (void () step) block, int totalWork=1) {
+  try {
+    jobStart(label, totalWork=totalWork);
+    block(void () {
+      jobStep(label, label, work=1);
+    });
+  }
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
+  }
+  finally {
+    jobEnd(label);
+  }
+}
+
+
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
 @benefits{
 * the block code does not need to remember to end the job with the same job name.
@@ -201,6 +252,21 @@ with workload `1` and the same label as the job name.
   try {
     jobStart(label, totalWork=totalWork);
     return block();
+  }  
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
+  }
+  finally {
+    jobEnd(label);
+  }
+}
+
+@synopsis{Like ((job)) but does not return a value.}
+void voidJob(str label, void () block, int totalWork=1) {
+  try {
+    jobStart(label, totalWork=totalWork);
+    block();
   }
   catch "Never caught": {
     // This is only here because we cannot have a "finally" clause in Rascal without a catch
