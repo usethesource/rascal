@@ -137,6 +137,15 @@ void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions
     };
 }
 
+@synopsis{Convenience function for batch formatting with ((fileFormatter))}
+void(loc) allFilesFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo(), str extension="rsc") {
+    void(loc) fmtFunc = fileFormatter(grammar, style, opts=opts);
+
+    return void (loc root) {
+        loopVoidJob(find(root, "rsc"), fmtFunc, label="formatting all <extension> files in <root>");
+    };
+}
+
 @synopsis{Generates a string formatter}
 @description{
 The formatter function this generates will produce formatted string directly.
