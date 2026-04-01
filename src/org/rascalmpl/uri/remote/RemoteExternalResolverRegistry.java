@@ -303,10 +303,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             throw new UnsupportedOperationException("Thread should have been interrupted");
         } catch (CompletionException | ExecutionException e) {
             var cause = e.getCause();
-            if (cause != null) {
-                if (cause instanceof ResponseErrorException) {
-                    throw translateException((ResponseErrorException) cause);
-                }
+            if (cause instanceof ResponseErrorException) {
+                throw translateException((ResponseErrorException) cause);
             }
             throw new IOException(e);
         }
