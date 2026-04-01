@@ -124,27 +124,74 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     private void scheduleReconnect() {
         CompletableFuture.runAsync(() -> connect());
     }
+
+    @FunctionalInterface
+    private interface ThrowingSupplier<T, E extends Exception> {
+        T get() throws E;
+    }
     
+    @FunctionalInterface
+    private interface ThrowingFunction<T, R, E extends Exception> {
+        R apply(T t) throws E;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingTriFunction<T, U, V, R, E extends Exception> {
+        R apply(T t, U u, V v) throws E;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingConsumer<T, E extends Exception> {
+        void accept(T t) throws E;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingTriConsumer<T, U, V, E extends Exception> {
+        void accept(T t, U u, V v) throws E;
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable<E extends Exception> {
+        void run() throws E;
+    }
+
     private InputStream errorDetectingInputStream(InputStream original) {
         return new InputStream() {
-            @Override
-            public int read() throws IOException {
+            private <T> T socketExceptionCatcher(ThrowingSupplier<T, IOException> function) throws IOException {
                 try {
-                    return original.read();
+                    return function.get();
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+            
+            private <T, R> R socketExceptionCatcher(ThrowingFunction<T, R, IOException> function, T arg) throws IOException {
+                try {
+                    return function.apply(arg);
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
                 }
             }
 
-            @Override
-            public int read(byte[] b, int off, int len) throws IOException {
+            private <T, U, V, R> R socketExceptionCatcher(ThrowingTriFunction<T, U, V, R, IOException> function, T t, U u, V v) throws IOException {
                 try {
-                    return original.read(b, off, len);
+                    return function.apply(t, u, v);
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
                 }
+            }
+            
+            @Override
+            public int read() throws IOException {
+                return socketExceptionCatcher(original::read);
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                return socketExceptionCatcher(original::read, b, off, len);
             }
 
             @Override
@@ -154,12 +201,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             
             @Override
             public long skip(long n) throws IOException {
-                try {
-                    return original.skip(n);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
+                return socketExceptionCatcher(original::skip, n);
             }
 
             @Override
@@ -169,42 +211,39 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             
             @Override
             public byte[] readNBytes(int len) throws IOException {
-                try {
-                    return original.readNBytes(len);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
+                return socketExceptionCatcher(original::readNBytes, len);
             }
 
             @Override
             public int readNBytes(byte[] b, int off, int len) throws IOException {
-                try {
-                    return original.readNBytes(b, off, len);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
+                return socketExceptionCatcher(original::readNBytes, b, off, len);
             }
         };
     }
 
     private OutputStream errorDetectingOutputStream(OutputStream original) {
         return new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
+            private <T> void socketExceptionCatcher(ThrowingConsumer<T, IOException> consumer, T arg) throws IOException {
                 try {
-                    original.write(b);
+                    consumer.accept(arg);
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
                 }
             }
-            
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
+
+            private <T, U, V> void socketExceptionCatcher(ThrowingTriConsumer<T, U, V, IOException> consumer, T t, U u, V v) throws IOException {
                 try {
-                    original.write(b, off, len);
+                    consumer.accept(t, u, v);
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            private void socketExceptionCatcher(ThrowingRunnable<IOException> runnable) throws IOException {
+                try {
+                    runnable.run();
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
@@ -212,13 +251,18 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             }
 
             @Override
+            public void write(int b) throws IOException {
+                socketExceptionCatcher(original::write, b);
+            }
+            
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                socketExceptionCatcher(original::write, b, off, len);
+            }
+
+            @Override
             public void flush() throws IOException {
-                try {
-                    original.flush();
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
+                socketExceptionCatcher(original::flush);
             }
 
             @Override
