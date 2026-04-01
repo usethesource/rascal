@@ -58,8 +58,18 @@ public abstract class Module {
 			  List<Toplevel> decls = this.getBody().getToplevels();
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
+			  // first everything that is not a global
 			  for (Toplevel l : decls) {
-				l.interpret(eval);
+				if (!l.getDeclaration().isVariable()) {
+					l.interpret(eval);
+				}
+			  }
+
+			  // then the globals which may depend on the previous
+			  for (Toplevel l : decls) {
+				if (l.getDeclaration().isVariable()) {
+					l.interpret(eval);
+				}
 			  }
 			}
 			finally {
