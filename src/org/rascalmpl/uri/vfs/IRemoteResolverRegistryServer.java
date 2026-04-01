@@ -44,104 +44,104 @@ import org.rascalmpl.uri.remote.jsonrpc.TimestampResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 
-@JsonSegment("rascal/vfs/input")
+@JsonSegment("rascal/vfs")
 public interface IRemoteResolverRegistryServer {
-    @JsonRequest
+    @JsonRequest("input/readFile")
     default CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/exists")
     default CompletableFuture<BooleanResponse> exists(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/lastModified")
     default CompletableFuture<TimestampResponse> lastModified(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/created")
     default CompletableFuture<TimestampResponse> created(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/isDirectory")
     default CompletableFuture<BooleanResponse> isDirectory(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/isFile")
     default CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/list")
     default CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/size")
     default CompletableFuture<NumberResponse> size(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/stat")
     default CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("input/isReadable")
     default CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/setLastModified")
     default CompletableFuture<Void> setLastModified(SetLastModifiedRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/isWritable")
     default CompletableFuture<BooleanResponse> isWritable(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/writeFile")
     default CompletableFuture<Void> writeFile(WriteFileRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/mkDirectory")
     default CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/remove")
     default CompletableFuture<Void> remove(RemoveRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("output/rename")
     default CompletableFuture<Void> rename(RenameRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("watcher/watch")
     default CompletableFuture<Void> watch(WatchRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("watcher/unwatch")
     default CompletableFuture<Void> unwatch(WatchRequest req) {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("watcher/supportsRecursiveWatch")
     default CompletableFuture<BooleanResponse> supportsRecursiveWatch() {
         throw new UnsupportedOperationException();
     }
 
-    @JsonRequest
+    @JsonRequest("logical/resolveLocation")
     default CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc) {
         throw new UnsupportedOperationException();
     }
