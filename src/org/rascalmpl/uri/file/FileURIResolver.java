@@ -26,9 +26,15 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.CopyOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -37,7 +43,10 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -262,6 +271,58 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 			return FileChannel.open(new File(path).toPath(), options);
 		}
 		throw new IOException("uri has no path: " + uri);
+	}
+
+	@Override
+	public boolean supportsCopy() {
+		return true;
+	}
+
+
+
+	@Override
+	public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+		throws IOException {
+		var src = resolveToFile(from).toPath();
+		var dst = resolveToFile(to).toPath();
+
+		var createOptions = overwrite 
+			? new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING }
+			: new OpenOption[] { StandardOpenOption.CREATE_NEW };
+
+		var copyOptions = overwrite 
+			? new CopyOption[] { StandardCopyOption.REPLACE_EXISTING }
+			: new CopyOption[0];
+		
+		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
+			private Path calculateDestination(Path cur) {
+				return dst.resolve(src.relativize(cur));
+			}
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				Files.createDirectories(calculateDestination(dir));
+				return (dir.equals(src) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				var dest = calculateDestination(file);
+				Files.createDirectories(dest.getParent());
+				if (attrs.size() < 1024*1024) {
+					// Files.copy is 2x as slow for most files, unless they're big enough that the overhead
+					// of all the meta data mgmt is worth the kernel-level file-copy
+					try (var in = Files.newInputStream(file)) {
+						try (var out = Files.newOutputStream(dest, createOptions)) {
+							in.transferTo(out);
+						}
+					}
+				}
+				else {
+					Files.copy(file, dest, copyOptions);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 
 	private final ExecutorService watcherPool = DaemonThreadPool.buildConstrainedCached("file:///-watch-handler", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));

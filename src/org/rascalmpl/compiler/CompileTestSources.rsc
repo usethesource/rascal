@@ -40,12 +40,13 @@ import lang::rascalcore::compile::Compile;
 import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::check::TestConfigs;
 
-loc REPO = |file:///Users/paulklint/git/|;
+loc GIT_REPO = |file:///Users/paulklint/git/|;
 
-PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/classes",
-                                        generatedSources = REPO + "generated-sources/target/generated-sources",
-                                        generatedResources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
+PathConfig manualTestConfig= pathConfig(bin= GIT_REPO + "generated-sources/target/classes",
+                                        generatedSources = GIT_REPO + "generated-sources/target/generated-sources",
+                                        generatedResources = GIT_REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
                                        );
 void main() = compileTestSources(manualTestConfig);
 
