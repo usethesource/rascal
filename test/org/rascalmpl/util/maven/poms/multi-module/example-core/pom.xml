@@ -18,10 +18,6 @@
         </dependency>
         <dependency>
           <groupId>org.rascalmpl</groupId>
-          <artifactId>rascal-lsp</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.rascalmpl</groupId>
           <artifactId>typepal</artifactId>
         </dependency>
         <dependency>

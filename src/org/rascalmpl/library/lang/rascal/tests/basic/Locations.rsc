@@ -649,6 +649,7 @@ private bool testLocWorksRoot(loc existing,bool isWritable = true) {
     println("Not existing: <nonExisting>");
     assert !exists(nonExisting) : "Subpath should exist";
     testLocWorks(nonExisting, isWritable);
+
     return true;
 }
 
@@ -692,6 +693,14 @@ private void testLocWorks(loc l, bool shouldWrite) {
             remove(l);
         }
         catch IO(_): throw "Removing file that does not exist should not cause an exception";
+        if (isFile(l)) {
+            copyLoc = l.parent + "nested";
+            copy(l.parent, copyLoc, recursive=true, overwrite=true);
+            sameContents = readFile(l) == readFile(copyLoc + l.file);
+            println("\tcopy: <sameContents>");
+            assert sameContents: "It should be possible to copy a file";
+        }
+
     }
 
     if (!exists(l) || !isDirectory(l)) {

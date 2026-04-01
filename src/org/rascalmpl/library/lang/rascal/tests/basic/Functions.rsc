@@ -228,36 +228,36 @@ test bool higherOrderFunctionCompatibility2() {
    return true;
 }
 
-@ignore{this fails also in the interpreter because the algorithm
-for binding type parameter uses `match` in two directions which 
-implements comparability rather than intersectability}
-test bool higherOrderFunctionCompatibility3() {
-   // the parameter function is specific for tuple[int, value]
-   int parameter(tuple[int, value] _) { return 0; }
+// @ignore{this fails also in the interpreter because the algorithm
+// for binding type parameter uses `match` in two directions which 
+// implements comparability rather than intersectability}
+// test bool higherOrderFunctionCompatibility3() {
+//    // the parameter function is specific for tuple[int, value]
+//    int parameter(tuple[int, value] _) { return 0; }
    
-   // the higher order function expects to call the
-   // parameter function with tuple[value, int]
-   int hof(int (tuple[value, int]) p, tuple[value,int] i) { return p(i); }
+//    // the higher order function expects to call the
+//    // parameter function with tuple[value, int]
+//    int hof(int (tuple[value, int]) p, tuple[value,int] i) { return p(i); }
    
-   // this is ok, the parameter function's type has a non-empty
-   // intersection at tuple[int, int], so at least for such 
-   // tuples the function should succeed
-   if (hof(parameter, <1,1>) != 0) {
-     return false;
-   }
+//    // this is ok, the parameter function's type has a non-empty
+//    // intersection at tuple[int, int], so at least for such 
+//    // tuples the function should succeed
+//    if (hof(parameter, <1,1>) != 0) {
+//      return false;
+//    }
    
-   // however, when called with other tuples the parameter fails
-   // at run-time:
-   try {
-     // statically allowed! but dynamically failing
-     hof(parameter, <"1", 1>);
-     return false;
-   } 
-   catch CallFailed(_):
-     return true; 
+//    // however, when called with other tuples the parameter fails
+//    // at run-time:
+//    try {
+//      // statically allowed! but dynamically failing
+//      hof(parameter, <"1", 1>);
+//      return false;
+//    } 
+//    catch CallFailed(_):
+//      return true; 
      
-   return false;
-}
+//    return false;
+// }
 
 test bool higherOrderVoidFunctionCompatibility() {
    bool hof (void(int s) g) { g(0); return true; }
@@ -623,4 +623,18 @@ test bool javaFunctionsKeepLabels() {
 alias Entry = tuple[int a, int b];
 test bool javaFunctionsLaterBindings() {
     return sort([<3,4>,<1,2>], bool (Entry left, Entry right) { return left.a < right.a; }).a == [1,3];
+}
+
+int aFunction() = 42;
+default int bFunction() = 84; /* must be default to force the choice to `aFunction` in this test */
+int testFunction(int () aFunction /* must be the same as `aFunction` */) = aFunction();
+
+test bool functionParameterNameEqualToFunctionName() {
+    assert testFunction(aFunction) == 42;
+    // issue #2575 made `aFunction` in `testFunction` merge the parameter
+    // function `aFunction` with the defined function `aFunction`, such that 
+    // it becomes a cached prefix in `testFunction` and always produce the 
+    // result when it was called with `aFunction` for the last time.
+    assert testFunction(bFunction) == 84; /* expect 42 when buggy */
+    return true;
 }

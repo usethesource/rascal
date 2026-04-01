@@ -28,7 +28,7 @@ specific task will be increased by the given amount.
 
 }
 @benefits{
-* It is adviced to use the "block" functions `job` instead of the raw `jobStart`, `jobStep` and `jobEnd`
+* It is advised to use the "block" functions `job` instead of the raw `jobStart`, `jobStep` and `jobEnd`
 functions because these guarantee each started task is always ended, with and without exceptions. This improves
 the user experience for your users. Also these functions help by providing the job label in the scope of the task,
 such that this "magic constant" does not need to be repeated.
@@ -49,7 +49,7 @@ java void jobStep(str label, str message, int work = 1);
 java int jobEnd(str label, bool success=true);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-@synopsis{Register additional work for the identied job.}
+@synopsis{Register additional work for the identified job.}
 java void jobTodo(str label, int work=1);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
@@ -239,7 +239,7 @@ test bool unfinishedLinesAtTheEndTest() {
 // repo of issue #2138
 test bool printLongUnfinishedLine() {
   jobStart("job", totalWork=1);
-  singleString = iprintToString(("" | it + "ab" | i <- [0..1000000])); // avoid concat tree printing in chunks
+  singleString = iprintToString(("" | it + "ab" | _ <- [0..1000000])); // avoid concat tree printing in chunks
   println(singleString);
   jobStep("job", "prog", work=1);
   println("Done");

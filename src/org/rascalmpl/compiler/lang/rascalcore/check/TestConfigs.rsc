@@ -46,23 +46,22 @@ data PathConfig(
 // use the `download-test-jars.sh` to download these dependencies 
 // (and make sure to KEEP THE VERSIONS up to date)
 
-public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
-public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
-public loc OUTDATED_TYPEPAL 
-                  = |mvn://org.rascalmpl--typepal--0.14.1/|;
+public loc RASCAL       = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
+public loc RASCAL42     = |mvn://org.rascalmpl--rascal--0.42.0-RC2/|;
+loc TYPEPAL             = |mvn://org.rascalmpl--typepal--0.14.8/|;
+loc OUTDATED_TYPEPAL    = |mvn://org.rascalmpl--typepal--0.14.1/|;
+loc TYPEPAL166          = |mvn://org.rascalmpl--typepal--0.16.6-RC1/|;
 
-public loc DRAMBIGUITY   = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
-public loc FLYBYTES      = |mvn://org.rascalmpl--flybytes--0.1.5/|;
-public loc SALIX_CORE    = |mvn://org.rascalmpl--salix-core--0.2.7/|;
-public loc SALIX_CONTRIB = |mvn://org.rascalmpl--salix-contrib--0.2.7/|;
-public loc RASCAL_LSP    = |mvn://org.rascalmpl--rascal-lsp--2.21.2/|;
-public loc PHP_ANALYSIS  = |mvn://org.rascalmpl--php-analysis--0.2.5-SNAPSHOT/|;
+loc DRAMBIGUITY         = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
+loc FLYBYTES            = |mvn://org.rascalmpl--flybytes--0.1.5/|;
+loc SALIX_CORE          = |mvn://org.rascalmpl--salix-core--0.2.7/|;
+loc SALIX_CONTRIB       = |mvn://org.rascalmpl--salix-contrib--0.2.7/|;
+loc RASCAL_LSP          = |mvn://org.rascalmpl--rascal-lsp--2.21.2/|;
+loc PHP_ANALYSIS        = |mvn://org.rascalmpl--php-analysis--0.2.5-SNAPSHOT/|;
 
-public loc REPO          =  |file:///Users/paulklint/git/|;
-public loc COMPILED_RASCAL 
-                  =  REPO + "compiled-rascal";
-public loc TMP_COMPILED_RASCAL 
-                  = |tmp:///compiled-rascal/|;
+loc REPO                =  |file:///Users/paulklint/git/|;
+loc COMPILED_RASCAL     =  REPO + "compiled-rascal";
+loc TMP_COMPILED_RASCAL = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
@@ -129,7 +128,7 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
         generatedSources       = COMPILED + "/src/main/java",
         generatedTestSources   = COMPILED + "/src/test/java/",
         generatedResources     = COMPILED + (keep ? "/src/main/java" : "rascal"),
-        generatedTestResources = COMPILED_RASCAL + (keep ? "/src/test/java/" : "rascal"),
+        generatedTestResources = COMPILED + (keep ? "/src/test/java/" : "rascal"),
         libs                   = libraries
     ); 
 }
@@ -160,9 +159,12 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
     return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
                             REPO + "rascal/test/org/rascalmpl/benchmark/",
                             REPO + "rascal/src/org/rascalmpl/compiler",
+                            REPO + "rascal/src/org/rascalmpl/tutor",
                             REPO + "typepal/src",
-                            LSP_REPO + "src/main/rascal/library", 
-                            LSP_REPO + "src/main/rascal/lsp"
+                            LSP_REPO + "src/main/rascal/library",
+                            LSP_REPO + "src/main/rascal/lsp",
+                            LSP_REPO + "src/test/rascal",
+                            REPO + "php-analysis/src/main/rascal"
                         ],
                         [ ], 
                         keep=keep);
@@ -189,7 +191,7 @@ public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
                             TMP_TYPEPAL
                         ],
                         [ ], 
-                        keep=true);
+                        keep=keep);
 }
 
 public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool keep=true){

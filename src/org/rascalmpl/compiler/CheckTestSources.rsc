@@ -36,6 +36,7 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::TestConfigs;
 
 
 void main() = checkTestSources([]);
