@@ -294,7 +294,12 @@ public class PathConfig {
     public PathConfig setBin(ISourceLocation bin) {
         return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, messages);
     }
-    
+
+    private static boolean isLibraryLike(ISourceLocation root) {
+        var scheme = root.getScheme();
+        return scheme.equals("std") || scheme.equals("mvn") || scheme.equals("jar+file");
+    }
+
     /**
      * This will create a PathConfig by learning from the MANIFEST/RASCAL.MF file where the sources
      * are, which libraries to reference and which classpath entries to add. If this PathConfig is
@@ -555,12 +560,11 @@ public class PathConfig {
             }
             else {
                 assert mode == RascalConfigMode.COMPILER: "should be compiler";
-                // untill we go pom.xml first, you'll always get the rascal jar from our runtime
+                // until we go pom.xml first, you'll always get the rascal jar from our runtime
                 // not the one you requested in the pom.xml
                 libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar())); 
             }
         }
-
 
         // This processes Rascal libraries we can find in maven dependencies,
         // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
@@ -569,8 +573,10 @@ public class PathConfig {
             addArtifactToPathConfig(art, manifestRoot, mode, srcs, libs, messages);
         }
         if (isRoot || mode == RascalConfigMode.INTERPRETER) {
-            // we have to fill our own src folder
-            translateSources(manifestRoot, srcs, messages);
+            if (!isLibraryLike(manifestRoot)) {
+                // we have to fill our own src folder
+                translateSources(manifestRoot, srcs, messages);
+            }
         }
         else /* for clarity these conditions hold true: if (!isRoot && mode == RascalConfigMode.COMPILER)*/ {
             // we have to write our own target folder to the lib path of the parent
@@ -700,7 +706,7 @@ public class PathConfig {
      * some level of backward compatibility until everybody has moved to using pom.xml.
      * 
      * If library dependencies exist for _open_ projects in the same IDE, via the `project://<artifactId>`
-     * correspondence with `mvn://<groupId>~<artifactId>~<version>`, then the target and source folders of 
+     * correspondence with `mvn://<groupId>--<artifactId>--<version>`, then the target and source folders of
      * those projects are added to the configuration instead of the jar files.
      * For compiler configs this works differently than for interpreter configs.
      * The latter adds source folders to the `srcs` while the former adds target folders to the `libs`.
@@ -720,7 +726,7 @@ public class PathConfig {
      * or problems view in an IDE, an error LOG for a CI and stderr or stdout for console applications.
      * 
      * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
-     * @param RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
+     * @param mode RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
      * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
      * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
      */
@@ -744,8 +750,10 @@ public class PathConfig {
         
         if (manifestRoot.getScheme().equals("project")) {
             target = URIUtil.correctLocation("target", projectName, "");
-        } 
-        else {
+        } else if (isLibraryLike(manifestRoot)) {
+            // `std` and `mvn` resolve to this as well
+            target = URIUtil.unknownLocation();
+        } else {
             target = URIUtil.getChildLocation(manifestRoot, "target/classes");
         }
 
