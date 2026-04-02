@@ -695,7 +695,7 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
         if(signatureInfo(Type returnType) := scopeInfo){
-           c.require("check return type", current, [statement], makeReturnRequirement(statement, returnType));
+           c.require("check return type", current, [statement, returnType], makeReturnRequirement(statement, returnType));
            c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
            collect(statement, c);
            return;
