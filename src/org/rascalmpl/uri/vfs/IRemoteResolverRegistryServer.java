@@ -44,6 +44,9 @@ import org.rascalmpl.uri.remote.jsonrpc.TimestampResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 
+/**
+ * This interface defines the JSON-RPC interface for remote access to the Rascal file system.
+ */
 @JsonSegment("rascal/vfs")
 public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/readFile")

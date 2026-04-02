@@ -58,6 +58,9 @@ import org.rascalmpl.util.NamedThreadPool;
 
 import io.usethesource.vallang.ISourceLocation;
 
+/**
+ * RascalFileSystemServices offers remote access to the Rascal file system.
+ */
 public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     private static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
