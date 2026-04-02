@@ -85,6 +85,9 @@ import com.google.gson.JsonPrimitive;
 
 import io.usethesource.vallang.ISourceLocation;
 
+/**
+ * Default implementation for access to a remote file system.
+ */
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry, IRemoteResolverRegistryClient {
     private volatile IRemoteResolverRegistryServer remote = null;
 
@@ -417,7 +420,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     /**
      * Rascal's current implementions sometimes ask for a directory listing and then iterate over all entries
-     * checking whether they are a directory. This is very slow for jsonrcp, so we store the last directory listing
+     * checking whether they are a directory. This is very slow for JSON-RPC, so we store the last directory listing
      * and check the cache first
      */
     private final Cache<ISourceLocation, Lazy<Map<String, Boolean>>> cachedDirectoryListing

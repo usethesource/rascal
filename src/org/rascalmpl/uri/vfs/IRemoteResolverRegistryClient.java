@@ -4,6 +4,9 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 
+/**
+ * This interface defines the JSON-RPC interface for callbacks related to remote file systems.
+ */
 @JsonSegment("rascal/vfs/watcher")
 public interface IRemoteResolverRegistryClient {
     @JsonNotification
