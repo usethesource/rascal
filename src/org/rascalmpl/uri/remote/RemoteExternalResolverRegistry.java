@@ -98,7 +98,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     public RemoteExternalResolverRegistry(int remoteResolverRegistryPort) {
         this.remoteResolverRegistryPort = remoteResolverRegistryPort;
-        connect();
+        scheduleReconnect();
     }
 
     private static final Duration LONGEST_TIMEOUT = Duration.ofMinutes(1);
