@@ -35,18 +35,18 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class WatchRequest extends ISourceLocationRequest {
     @NonNull
-    private String watcher;
+    private String watchId;
 
     private boolean recursive;
 
-    public WatchRequest(ISourceLocation loc, boolean recursive, String watcher) {
+    public WatchRequest(ISourceLocation loc, boolean recursive, String watchId) {
         super(loc);
         this.recursive = recursive;
-        this.watcher = watcher;
+        this.watchId = watchId;
     }
 
-    public String getWatcher() {
-        return watcher;
+    public String getWatchId() {
+        return watchId;
     }
 
     public boolean isRecursive() {
@@ -59,13 +59,13 @@ public class WatchRequest extends ISourceLocationRequest {
             var other = (WatchRequest)obj;
             return super.equals(other)
                 && other.recursive == recursive
-                && Objects.equals(watcher, other.watcher);
+                && Objects.equals(watchId, other.watchId);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), watcher, recursive);
+        return Objects.hash(super.hashCode(), watchId, recursive);
     }
 }
