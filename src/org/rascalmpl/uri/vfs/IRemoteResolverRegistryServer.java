@@ -50,104 +50,64 @@ import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 @JsonSegment("rascal/vfs")
 public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/readFile")
-    default CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req);
 
     @JsonRequest("input/exists")
-    default CompletableFuture<BooleanResponse> exists(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> exists(ISourceLocationRequest req);
 
     @JsonRequest("input/lastModified")
-    default CompletableFuture<TimestampResponse> lastModified(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<TimestampResponse> lastModified(ISourceLocationRequest req);
 
     @JsonRequest("input/created")
-    default CompletableFuture<TimestampResponse> created(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<TimestampResponse> created(ISourceLocationRequest req);
 
     @JsonRequest("input/isDirectory")
-    default CompletableFuture<BooleanResponse> isDirectory(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> isDirectory(ISourceLocationRequest req);
 
     @JsonRequest("input/isFile")
-    default CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req);
 
     @JsonRequest("input/list")
-    default CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<FileWithType[]> list(ISourceLocationRequest req);
 
     @JsonRequest("input/size")
-    default CompletableFuture<NumberResponse> size(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<NumberResponse> size(ISourceLocationRequest req);
 
     @JsonRequest("input/stat")
-    default CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<FileAttributes> stat(ISourceLocationRequest req);
 
     @JsonRequest("input/isReadable")
-    default CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req);
 
     @JsonRequest("output/setLastModified")
-    default CompletableFuture<Void> setLastModified(SetLastModifiedRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> setLastModified(SetLastModifiedRequest req);
 
     @JsonRequest("output/isWritable")
-    default CompletableFuture<BooleanResponse> isWritable(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> isWritable(ISourceLocationRequest req);
 
     @JsonRequest("output/writeFile")
-    default CompletableFuture<Void> writeFile(WriteFileRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> writeFile(WriteFileRequest req);
 
     @JsonRequest("output/mkDirectory")
-    default CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> mkDirectory(ISourceLocationRequest req);
 
     @JsonRequest("output/remove")
-    default CompletableFuture<Void> remove(RemoveRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> remove(RemoveRequest req);
 
     @JsonRequest("output/rename")
-    default CompletableFuture<Void> rename(RenameRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> rename(RenameRequest req);
 
     @JsonRequest("watcher/watch")
-    default CompletableFuture<Void> watch(WatchRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> watch(WatchRequest req);
 
     @JsonRequest("watcher/unwatch")
-    default CompletableFuture<Void> unwatch(WatchRequest req) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<Void> unwatch(WatchRequest req);
 
     @JsonRequest("watcher/supportsRecursiveWatch")
-    default CompletableFuture<BooleanResponse> supportsRecursiveWatch() {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<BooleanResponse> supportsRecursiveWatch();
 
     @JsonRequest("logical/resolveLocation")
-    default CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc) {
-        throw new UnsupportedOperationException();
-    }
+    CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc);
 
     public static class FileWithType {
         @NonNull private final String name;
