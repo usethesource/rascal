@@ -104,19 +104,23 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
         [vocabulary=getVocabulary(tm)]
         [synopses=synopses]
         [docLocs=docLocs];
-}    
-    
+}
+
+ModuleSummary makeSummary(str qualifiedModuleName, loc tplLoc) {
+    try {
+        return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
+    } catch IO(_): {
+        return moduleSummary();
+    }
+}
+
 @doc{
 .Synopsis
 Make a ModuleSummary.
 }
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
     if(<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)){
-        try {
-            return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
-        } catch IO(_): {
-            return moduleSummary();
-        }
+        return makeSummary(qualifiedModuleName, tplLoc);
     }
     else {
         return moduleSummary();
