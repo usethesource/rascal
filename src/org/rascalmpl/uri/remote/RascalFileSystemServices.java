@@ -38,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChangeType;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
@@ -174,5 +175,10 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     @Override
     public CompletableFuture<Void> rename(RenameRequest req) {
         return async(() -> reg.rename(req.getFrom(), req.getTo(), req.isOverwrite()));
+    }
+
+    @Override
+    public CompletableFuture<Void> copy(CopyRequest req) {
+        return async(() -> reg.copy(req.getFrom(), req.getTo(), req.isRecursive(), req.isOverwrite()));
     }
 }

@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
+import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
 import org.rascalmpl.uri.remote.jsonrpc.NumberResponse;
@@ -96,6 +97,9 @@ public interface IRemoteResolverRegistryServer {
 
     @JsonRequest("output/rename")
     CompletableFuture<Void> rename(RenameRequest req);
+
+    @JsonRequest("output/copy")
+    CompletableFuture<Void> copy(CopyRequest req);
 
     @JsonRequest("watcher/watch")
     CompletableFuture<Void> watch(WatchRequest req);
