@@ -60,6 +60,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 /**
  * RascalFileSystemServices offers remote access to the Rascal file system.
+ * Currently, this is limited to a single client-server connection.
  */
 public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
