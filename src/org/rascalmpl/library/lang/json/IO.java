@@ -106,7 +106,7 @@ public class IO {
 
     public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat,
         IBool dateTimeAsInt, IBool rationalsAsString, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
-        IBool explicitDataTypes) {
+        IBool explicitDataTypes, IBool fileLocationsAsPathOnly) {
         try (JsonWriter out =
             new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false),
                 Charset.forName("UTF8")))) {
@@ -123,6 +123,7 @@ public class IO {
                 .setFormatters(formatter)
                 .setExplicitConstructorNames(explicitConstructorNames.getValue())
                 .setExplicitDataTypes(explicitDataTypes.getValue())
+                .setFileLocationsAsPathOnly(fileLocationsAsPathOnly.getValue())
                 .write(out, value);
         }
         catch (IOException e) {
@@ -132,7 +133,7 @@ public class IO {
 
     public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IBool rationalsAsString,
         IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
-        IBool explicitDataTypes) {
+        IBool explicitDataTypes, IBool fileLocationsAsPathOnly) {
         StringWriter string = new StringWriter();
 
         try (JsonWriter out = new JsonWriter(string)) {
@@ -148,6 +149,7 @@ public class IO {
                 .setFormatters(formatter)
                 .setExplicitConstructorNames(explicitConstructorNames.getValue())
                 .setExplicitDataTypes(explicitDataTypes.getValue())
+                .setFileLocationsAsPathOnly(fileLocationsAsPathOnly.getValue())
                 .write(out, value);
 
             return values.string(string.toString());
