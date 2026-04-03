@@ -55,6 +55,7 @@ import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
 import org.rascalmpl.util.NamedThreadPool;
+import org.rascalmpl.util.base64.StreamingBase64;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -154,17 +155,18 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     @Override
     public CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
         return async(() -> {
-            try (InputStream source = new Base64InputStream(reg.getInputStream(req.getLocation()), true)) {
-                return new LocationContentResponse(new String(source.readAllBytes(), StandardCharsets.US_ASCII));
-            }
+            StringBuilder builder = new StringBuilder();
+            StreamingBase64.encode(reg.getInputStream(req.getLocation()), builder, true);
+            return new LocationContentResponse(builder.toString());
         });
     }
 
     @Override
     public CompletableFuture<Void> writeFile(WriteFileRequest req) {
         return async(() -> {
-            try (OutputStream target = reg.getOutputStream(req.getLocation(), req.isAppend())) {
-                target.write(Base64.getDecoder().decode(req.getContent()));
+            try (var decoder = StreamingBase64.decode(req.getContent());
+                    var target = reg.getOutputStream(req.getLocation(), req.isAppend())) {
+                decoder.transferTo(target);
             }
         });
     }
