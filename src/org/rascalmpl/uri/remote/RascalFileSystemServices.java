@@ -27,17 +27,12 @@
 package org.rascalmpl.uri.remote;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.uri.FileAttributes;
