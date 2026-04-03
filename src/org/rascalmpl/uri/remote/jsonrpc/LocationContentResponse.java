@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
+import java.util.Objects;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class LocationContentResponse {
@@ -38,5 +40,18 @@ public class LocationContentResponse {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LocationContentResponse) {
+            return content.equals(((LocationContentResponse)obj).content);
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(content);
     }
 }

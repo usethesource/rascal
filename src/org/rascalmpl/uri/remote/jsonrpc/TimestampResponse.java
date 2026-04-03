@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
+import java.util.Objects;
+
 public class TimestampResponse {
     private final long timestamp;
 
@@ -35,5 +37,18 @@ public class TimestampResponse {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TimestampResponse) {
+            return timestamp == ((TimestampResponse)obj).timestamp;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(timestamp);
     }
 }
