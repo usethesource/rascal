@@ -73,122 +73,109 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
         this.client = client;
     }
 
-    @Override
-    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
+    @FunctionalInterface
+    private interface IOSupplier<T> {
+        T supply() throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface IORunner {
+        void run() throws IOException;
+    }
+
+    private <T> CompletableFuture<T> async(IOSupplier<T> job) {
         return CompletableFuture.supplyAsync(() -> {
-            ISourceLocation loc = req.getLocation();
             try {
-                ISourceLocation resolved = reg.logicalToPhysical(loc);
-
-                if (resolved == null) {
-                    return new SourceLocationResponse(loc);
-                }
-
-                return new SourceLocationResponse(resolved);
-            } catch (Exception e) {
-                return new SourceLocationResponse(loc);
+                return job.supply();
+            } catch (IOException | RuntimeException e) {
+                throw new CompletionException(e);
             }
         }, executor);
+    }
+
+    private CompletableFuture<Void> async(IORunner job) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                job.run();
+            } catch (IOException | RuntimeException e) {
+                throw new CompletionException(e);
+            }
+        }, executor);
+    }
+
+    @Override
+    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
+        return async(() -> {
+            ISourceLocation loc = req.getLocation();
+            ISourceLocation resolved = reg.logicalToPhysical(loc);
+
+            if (resolved == null) {
+                resolved = loc;
+            }
+
+            return new SourceLocationResponse(resolved);
+        });
     }
 
     @Override
     public CompletableFuture<Void> watch(WatchRequest params) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                ISourceLocation loc = params.getLocation();
-
-                URIResolverRegistry.getInstance().watch(loc, params.isRecursive(), changed -> {
-                    client.sourceLocationChanged(new ISourceLocationChanged(
-                        changed.getLocation(), ISourceLocationChangeType.forValue(changed.getChangeType().getValue()), params.getWatchId()
-                    ));
-                });
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
+        return async(() -> {
+            URIResolverRegistry.getInstance().watch(params.getLocation(), params.isRecursive(), changed -> 
+                client.sourceLocationChanged(new ISourceLocationChanged(
+                    changed.getLocation(), ISourceLocationChangeType.forValue(changed.getChangeType().getValue()), params.getWatchId()
+                ))
+            );
+        });
     }
 
     @Override
     public CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return reg.stat(req.getLocation());
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
+        return async(() -> reg.stat(req.getLocation()));
     }
 
     @Override
     public CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                ISourceLocation loc = req.getLocation();
-                if (!reg.isDirectory(loc)) {
-                    throw new NotDirectoryException(loc.toString());
-                }
-                return Arrays.stream(reg.list(loc)).map(l -> new FileWithType(URIUtil.getLocationName(l),
-                        reg.isDirectory(l) ? FileType.Directory : FileType.File)).toArray(FileWithType[]::new);
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
+        return async(() -> {
+            ISourceLocation loc = req.getLocation();
+            if (!reg.isDirectory(loc)) {
+                throw new NotDirectoryException(loc.toString());
             }
-        }, executor);
+            return Arrays.stream(reg.list(loc))
+                    .map(l -> new FileWithType(URIUtil.getLocationName(l), reg.isDirectory(l) ? FileType.Directory : FileType.File))
+                    .toArray(FileWithType[]::new);
+        });
     }
 
     @Override
     public CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                reg.mkDirectory(req.getLocation());
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
+        return async(() -> reg.mkDirectory(req.getLocation()));
     }
 
     @Override
     public CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
-        return CompletableFuture.supplyAsync(() -> {
+        return async(() -> {
             try (InputStream source = new Base64InputStream(reg.getInputStream(req.getLocation()), true)) {
                 return new LocationContentResponse(new String(source.readAllBytes(), StandardCharsets.US_ASCII));
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
             }
-        }, executor);
+        });
     }
 
     @Override
     public CompletableFuture<Void> writeFile(WriteFileRequest req) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                try (OutputStream target = reg.getOutputStream(req.getLocation(), req.isAppend())) {
-                    target.write(Base64.getDecoder().decode(req.getContent()));
-                }
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
+        return async(() -> {
+            try (OutputStream target = reg.getOutputStream(req.getLocation(), req.isAppend())) {
+                target.write(Base64.getDecoder().decode(req.getContent()));
             }
-        }, executor);
+        });
     }
 
     @Override
     public CompletableFuture<Void> remove(RemoveRequest req) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                reg.remove(req.getLocation(), req.isRecursive());
-            } catch (IOException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
+        return async(() -> reg.remove(req.getLocation(), req.isRecursive()));
     }
 
     @Override
     public CompletableFuture<Void> rename(RenameRequest req) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                reg.rename(req.getFrom(), req.getTo(), req.isOverwrite());
-            } catch (IOException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
+        return async(() -> reg.rename(req.getFrom(), req.getTo(), req.isOverwrite()));
     }
 }
