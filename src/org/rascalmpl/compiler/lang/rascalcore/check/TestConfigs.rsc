@@ -69,7 +69,6 @@ loc TMP_COMPILED_RASCAL = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
-//public loc testRoot = |memory://6e17d46a-06e9-42aa-bd98-182ca2dbd8d3/|;// uuid()[scheme="memory"];
 public loc testRoot = uuid()[scheme="memory"];
 public loc testModulesRoot = testRoot + "src";
 
