@@ -44,7 +44,6 @@ import IO;
 import Relation;
 import String;
 import ValueIO;
-// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
