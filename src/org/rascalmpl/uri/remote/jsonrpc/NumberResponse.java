@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
+import java.util.Objects;
+
 public class NumberResponse {
     private final long number;
 
@@ -35,5 +37,18 @@ public class NumberResponse {
 
     public long getNumber() {
         return number;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NumberResponse) {
+            return number == ((NumberResponse)obj).number;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
     }
 }

@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
+import java.util.Objects;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -41,4 +43,17 @@ public class SourceLocationResponse {
     public ISourceLocation getLocation() {
         return loc;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SourceLocationResponse) {
+            return loc.equals(((SourceLocationResponse)obj).loc);
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(loc);
+    }    
 }

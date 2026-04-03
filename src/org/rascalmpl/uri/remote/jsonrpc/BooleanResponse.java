@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
+import java.util.Objects;
+
 public class BooleanResponse {
     private final boolean value;
 
@@ -36,4 +38,17 @@ public class BooleanResponse {
     public boolean getValue() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BooleanResponse) {
+            return value == ((BooleanResponse)obj).value;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }   
 }
