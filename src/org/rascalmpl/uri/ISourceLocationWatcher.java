@@ -44,7 +44,6 @@ public interface ISourceLocationWatcher {
 	 */
 	boolean supportsRecursiveWatch();
 
-
 	public interface ISourceLocationChanged {
 		ISourceLocation getLocation();
 		ISourceLocationChangeType getChangeType();
@@ -63,9 +62,28 @@ public interface ISourceLocationWatcher {
 	}
 
 	public enum ISourceLocationChangeType {
-		CREATED(),
-		DELETED(),
-		MODIFIED()
+		CREATED(2),
+		DELETED(3),
+		MODIFIED(1);
+
+		private final int value;
+
+		public int getValue() {
+			return value;
+		}
+
+		ISourceLocationChangeType(int value) {
+			this.value = value;
+		}
+
+		public static ISourceLocationChangeType fromValue(int value) {
+			switch (value) {
+				case 2: return CREATED;
+				case 3: return DELETED;
+				case 1: return MODIFIED;
+				default: throw new IllegalArgumentException("Unknown ISourceLocationChangeType value " + value);
+			}
+		}
 	}
 
 	static ISourceLocationChanged created(ISourceLocation loc) {
