@@ -98,11 +98,11 @@ bool originTest(loc example) {
    poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
-      assert content[p.offset] == "{";                // all nodes start with a {
-      assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
-      assert p.begin.line == line;
-      assert lines[p.begin.line - 1][p.begin.column] == "{";
-      assert lines[p.end.line - 1][p.end.column - 1] == "}";
+      assert content[p.offset] == "{" : "<p>";                // all nodes start with a {
+      assert content[p.offset + p.length - 1] == "}" : "<p>"; // all nodes end with a }
+      assert p.begin.line == line : "<p> <line>";
+      assert lines[p.begin.line - 1][p.begin.column] == "{" : "<p>";
+      assert lines[p.end.line - 1][p.end.column - 1] == "}" : "<p>";
    }
 
    return true;
@@ -353,6 +353,40 @@ bool jsonVerifyOriginCorrectAcrossBufferBoundaries(int sSize) {
     // checking the last element
     if (refExpected != readFile(v[1].src)) {
         println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>");
+        return false;
+    }
+
+    return true;
+}
+
+test bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries() {
+    /* twice just before and after the 1024 buffer size of JsonReader */
+    for (int sSize <- [1000..1025] + [2000..2050]) {
+        // we try different shapes across the boundary, where also the high surrogate and
+        // the low surrogate will end up on either side of the buffer limit
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, false, false);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, true, false);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, false, true);
+        jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(sSize, true, true);
+    }
+    return true;
+}
+
+bool jsonUnicodeVerifyOriginCorrectAcrossBufferBoundaries(int sSize, bool offbyoneChar, bool switchBackAndForth) {
+    ref = v1(x=123456789);
+    refExpected = asJSON(ref);
+
+    t1 = [v1(s="<if (offbyoneChar) {>a<}><for (_ <- [0..sSize]) {>🍕<if (switchBackAndForth) {>a<}><}>"), ref];
+
+    writeJSON(|memory:///test.json|, t1);
+
+    //s this throws exceptions and asserts if there are bugs with the
+    // origin tracker. In particular it triggers #2633
+    v = readJSON(#list[X],|memory:///test.json|, trackOrigins=true);
+
+    // checking the last element
+    if (refExpected != readFile(v[1].src)) {
+        println("Failed for <sSize>: <readFile(v[1].src)> != <refExpected>, offbyoneChar: <offbyoneChar>, switchBackAndForth: <switchBackAndForth>");
         return false;
     }
 
