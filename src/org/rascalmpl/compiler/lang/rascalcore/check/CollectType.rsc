@@ -557,7 +557,7 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
         AType(Solver s){
             adtType = getSyntaxType(n, s);
             s.requireTrue(isNonTerminalAType(adtType), error(current, "Expected a non-terminal type, found %t", adtType));
-            return \start(adtType);
+            return \start(adtType, contextFreeSyntax());
         });
     collect(n, c);
 }
