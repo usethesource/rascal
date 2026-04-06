@@ -2,16 +2,20 @@ package org.rascalmpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-
+import java.net.URISyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 
 public class PathConfigTest {
+    private static final IRascalValueFactory VF = IRascalValueFactory.getInstance();
+
     private static final String PCFG_S = "pathConfig("+
         "ignores=[|file:///path|],"+
         "resources=[|file:///path|],"+
@@ -64,7 +68,21 @@ public class PathConfigTest {
     @Test
     public void modifiedNotEquals() throws IOException {
         var modPcfg = PathConfig.parse(PCFG_S);
-        modPcfg = modPcfg.addSourceLoc(IRascalValueFactory.getInstance().sourceLocation("unknown:///"));
+        modPcfg = modPcfg.addSourceLoc(VF.sourceLocation("unknown:///"));
         assertNotEquals(pcfg, modPcfg);
+    }
+
+    @Test
+    public void stdConfig() throws IOException, URISyntaxException {
+        var root = VF.sourceLocation(URIUtil.assumeCorrect("jar+file:///C:/path/to/.m2/repository/org/rascalmpl/rascal/0.41.0-RC63-SNAPSHOT/rascal-0.41.0-RC63-SNAPSHOT.jar!/org/rascalmpl/library"));
+        var pcfg = PathConfig.fromSourceProjectRascalManifest(root, RascalConfigMode.COMPILER, true);
+
+        var expectedPathConfig = PathConfig.parse("pathConfig(" +
+        "    projectRoot = " + root +
+        "  , libs = " + VF.list(JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar())) +
+        "  , bin = |unknown:///|" +
+        ")");
+
+        assertEquals(expectedPathConfig, pcfg);
     }
 }
