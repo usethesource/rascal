@@ -814,13 +814,13 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             }
             c.define(pname, typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
         }
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
 
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
         //if(debugTP)println("Use <pname> at <current@\loc>, closed=<closed>");
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
     } else {
         if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){

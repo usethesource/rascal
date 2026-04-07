@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -34,6 +35,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.capsule.SetMultimap;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IString;
 
@@ -328,5 +330,12 @@ public class GlobalEnvironment {
 	 */
 	public void clearModuleLoadMessage() {
 		moduleEnvironment.values().forEach(ModuleEnvironment::clearLoadMessages);
+	}
+
+	public Stream<IConstructor> streamModuleLoadMessages() {
+		return moduleEnvironment
+			.values()
+			.stream()
+			.flatMap(me -> me.streamLoadMessages());
 	}
 }
