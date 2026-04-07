@@ -686,7 +686,8 @@ AType alub(l:aadt("Tree", _, _), AType r) = l
 AType alub(AType l, r:aadt("Tree", _, _)) = r
     when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
 
-AType alub(\start(AType l, SyntaxRole sr) , \start(AType r, sr)) = \start(alub(l, r), sr);
+AType alub(\start(AType l, SyntaxRole sr) , \start(l, sr)) = \start(l, sr);
+AType alub(\start(AType l, SyntaxRole sr) , \start(!l, sr)) = aadt("Tree", [], dataSyntax());
 AType alub(\start(AType l, SyntaxRole _sr) , aadt("Tree", [], dataSyntax())) = aadt("Tree", [], dataSyntax());
 AType alub(aadt("Tree", [], dataSyntax()), \start(AType l, SyntaxRole _sr)) = aadt("Tree", [], dataSyntax());
 AType alub(anode(list[AType] ps), \start(AType l, SyntaxRole _sr)) = anode(ps);
@@ -763,7 +764,8 @@ public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
 public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
-AType aglb(\start(AType a, SyntaxRole sr), \start(AType b, sr)) = \start(aglb(a, b), sr);
+AType aglb(\start(AType a, SyntaxRole sr), \start(a, sr)) = \start(a, sr);
+AType aglb(\start(AType a, SyntaxRole sr), \start(!a, sr)) = \avoid();
 AType aglb(aadt("Tree", [], dataSyntax()), \start(AType b, SyntaxRole sr)) = \start(b, sr);
 AType aglb(\start(AType a, SyntaxRole sr), aadt("Tree", [], dataSyntax())) = \start(a, sr);
 AType aglb(\anode(_), \start(AType b, SyntaxRole sr)) = \start(b, sr);

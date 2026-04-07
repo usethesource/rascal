@@ -1050,7 +1050,7 @@ Determine if the given type is an Abstract Data Type (ADT).
 bool isADTAType(aparameter(_,AType tvb)) = isADTAType(tvb);
 bool isADTAType(aadt(_,_,_)) = true;
 bool isADTAType(areified(_)) = true;
-bool isADTAType(\start(AType s, SyntaxRole _)) = isADTAType(s);
+bool isADTAType(\start(AType s, SyntaxRole _)) = true;
 default bool isADTAType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}
@@ -1304,7 +1304,7 @@ bool isLexicalAType(aparameter(_,AType tvb)) = isLexicalAType(tvb);
 bool isLexicalAType(AType::\conditional(AType ss,_)) = isLexicalAType(ss);
 bool isLexicalAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();
 bool isLexicalAType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalAType(adt);
-bool isLexicalAType(AType::\start(AType ss, _)) = false;
+bool isLexicalAType(AType::\start(AType ss, SyntaxRole sr)) = sr == lexicalSyntax();
 
 bool isLexicalAType(AType:alit(str string)) = true;
 bool isLexicalAType(AType:acilit(str string)) = true;
@@ -1343,7 +1343,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(AType::\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(AType::\start(AType ss)) = isLayoutAType(ss);
+bool isLayoutAType(AType::\start(AType ss)) = false;
 bool isLayoutAType(AType::\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(AType::\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(AType::\iter-seps(AType s,_)) = isLayoutAType(s);
