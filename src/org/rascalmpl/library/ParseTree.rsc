@@ -159,7 +159,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <4> A single character.
 }
 
-data Tree(loc parseError = |unknown:///|(0,0,<0,0>,<0,0>)) //loc src = |unknown:///|(0,0,<0,0>,<0,0>)
+data Tree(loc parseError = |unknown:///|(0,0,<0,0>,<0,0>)) 
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
@@ -401,8 +401,8 @@ ignores @\loc annotations and whitespace and comments.
 * Annotated trees are strictly too big for optimal memory usage. Often `@\loc` is the first and only annotation, so it introduces a map for keyword parameters
 for every node. Also more nodes are different, impeding in optimal reference sharing. If you require long time storage of many
 parse trees it may be useful to strip them of annotations for selected categories of nodes, using ((reposition)).
-}
-anno loc Tree@\loc;
+} 
+data Tree(loc src = |unknown:///|);
 
 @synopsis{Parse input text (from a string or a location) and return a parse tree.}
 @description{
@@ -872,7 +872,7 @@ yield of a tree should always produce the exact same locations as ((reposition))
 }
 &T <: Tree reposition(
   &T <: Tree tree, 
-  loc file = tree@\loc.top, 
+  loc file = tree.src.top, 
   bool \markStart = true,
   bool \markSyntax = true,
   bool \markLexical = true,
@@ -936,14 +936,14 @@ yield of a tree should always produce the exact same locations as ((reposition))
       Tree washCC(Tree x) = x; // workaround for issue #2342
 
       return markChar 
-        ? washCC(char(ch))[@\loc=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, max([curColumn, beginColumn + 1]) /* for \r */>)]
+        ? washCC(char(ch))[src=file(beginOffset, 1, <beginLine, beginColumn>, <curLine, max([curColumn, beginColumn + 1]) /* for \r */>)]
         : washCC(char(ch))
         ;
     }
 
     // cycles take no space
     Tree rec(cycle(Symbol s, int up), bool _sub) = markCycle
-      ? cycle(s, up)[@\loc=file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
+      ? cycle(s, up)[src=file(curOffset, 0, <curLine, curColumn>, <curLine, curColumn>)]
       : cycle(s, up)
       ;
 
@@ -958,7 +958,7 @@ yield of a tree should always produce the exact same locations as ((reposition))
       newArgs = [mergeRec(a, sub && doSub(prod)) | a <- args];
 
       return (sub && doAnno(prod)) 
-        ? appl(prod, newArgs)[@\loc=file(beginOffset, curOffset - beginOffset, <beginLine, beginColumn>, <curLine, curColumn>)]
+        ? appl(prod, newArgs)[src=file(beginOffset, curOffset - beginOffset, <beginLine, beginColumn>, <curLine, curColumn>)]
         : appl(prod, newArgs)
         ;
     } 
@@ -968,8 +968,8 @@ yield of a tree should always produce the exact same locations as ((reposition))
       newAlts = {mergeRec(a, sub) | a <- alts};  
       // inherit the outermost positions from one of the alternatives, since they are all the same by definition.  
       Tree x = getFirstFrom(newAlts);  
-      return markAmb && x@\loc? 
-        ? amb(newAlts)[@\loc=x@\loc]  
+      return markAmb && x.src? 
+        ? amb(newAlts)[src=x.src]  
         : amb(newAlts)  
         ;   
     }

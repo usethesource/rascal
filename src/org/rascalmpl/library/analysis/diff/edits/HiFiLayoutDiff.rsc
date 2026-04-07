@@ -56,7 +56,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs, "<t>" != "<u>" /* avoid useless edits */] 
+        = [replace(t.src, recoverComments ? learnComments(t, u) : "<u>") | tArgs != uArgs, "<t>" != "<u>" /* avoid useless edits */] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
@@ -80,13 +80,13 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
             case asIs():
                 return [];
             case asFormatted():
-                return [replace(t@\loc, result) | str result := "<u>", result != yield];
+                return [replace(t.src, result) | str result := "<u>", result != yield];
             case toUpper():
-                return [replace(t@\loc, result) | str result := toUpperCase(yield), result != yield]; 
+                return [replace(t.src, result) | str result := toUpperCase(yield), result != yield]; 
             case toLower():
-                return [replace(t@\loc, result) | str result := toLowerCase(yield), result != yield]; 
+                return [replace(t.src, result) | str result := toLowerCase(yield), result != yield]; 
             case toCapitalized():
-                return [replace(t@\loc, result) | str result := capitalize(yield), result != yield];
+                return [replace(t.src, result) | str result := capitalize(yield), result != yield];
             default:
                 throw "unexpected option: <ci>";
         }
