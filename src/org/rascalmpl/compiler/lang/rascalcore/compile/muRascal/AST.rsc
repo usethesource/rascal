@@ -1782,7 +1782,7 @@ MuExp muThrow(muValueBlock(AType t, list[MuExp] exps), loc src)
 MuExp muTreeAppl(MuExp p, list[MuExp] args, loc src){
     if(muCon(Production pcon) := p && all(arg <- args, muCon(_) := arg)){
         argscon = [ argcon | arg <- args, muCon(argcon) := arg ];
-        return muCon(appl(pcon, argscon)[@\loc=src]);
+        return muCon(appl(pcon, argscon)[src=src]);
     }
     fail;
 }

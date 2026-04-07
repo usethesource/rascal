@@ -411,7 +411,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    moduleScopes = { t@\loc | t <- range(namedTrees) };
+    moduleScopes = { t.src | t <- range(namedTrees) };
 
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
@@ -516,7 +516,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
-                         current@\loc);
+                         current.src);
         s.addMessages([msg]);
     }
 }
