@@ -38,14 +38,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChangeType;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
+import org.rascalmpl.uri.remote.jsonrpc.NumberResponse;
 import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
+import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SourceLocationResponse;
+import org.rascalmpl.uri.remote.jsonrpc.TimestampResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
@@ -80,16 +84,6 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
         void run() throws IOException;
     }
 
-    private <T> CompletableFuture<T> async(IOSupplier<T> job) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return job.supply();
-            } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
-            }
-        }, executor);
-    }
-
     private CompletableFuture<Void> async(IORunner job) {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -100,52 +94,14 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
         }, executor);
     }
 
-    @Override
-    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
-        return async(() -> {
-            ISourceLocation loc = req.getLocation();
-            ISourceLocation resolved = reg.logicalToPhysical(loc);
-
-            if (resolved == null) {
-                resolved = loc;
+    private <T> CompletableFuture<T> async(IOSupplier<T> job) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return job.supply();
+            } catch (IOException | RuntimeException e) {
+                throw new CompletionException(e);
             }
-
-            return new SourceLocationResponse(resolved);
-        });
-    }
-
-    @Override
-    public CompletableFuture<Void> watch(WatchRequest params) {
-        return async(() -> {
-            URIResolverRegistry.getInstance().watch(params.getLocation(), params.isRecursive(), changed -> 
-                client.sourceLocationChanged(new ISourceLocationChanged(
-                    changed.getLocation(), ISourceLocationChangeType.forValue(changed.getChangeType().getValue()), params.getWatchId()
-                ))
-            );
-        });
-    }
-
-    @Override
-    public CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
-        return async(() -> reg.stat(req.getLocation()));
-    }
-
-    @Override
-    public CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
-        return async(() -> {
-            ISourceLocation loc = req.getLocation();
-            if (!reg.isDirectory(loc)) {
-                throw new NotDirectoryException(loc.toString());
-            }
-            return Arrays.stream(reg.list(loc))
-                    .map(l -> new FileWithType(URIUtil.getLocationName(l), reg.isDirectory(l) ? FileType.Directory : FileType.File))
-                    .toArray(FileWithType[]::new);
-        });
-    }
-
-    @Override
-    public CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
-        return async(() -> reg.mkDirectory(req.getLocation()));
+        }, executor);
     }
 
     @Override
@@ -158,6 +114,69 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
+    public CompletableFuture<BooleanResponse> exists(ISourceLocationRequest req) {
+        return async(() -> new BooleanResponse(reg.exists(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<TimestampResponse> lastModified(ISourceLocationRequest req) {
+        return async(() -> new TimestampResponse(reg.lastModified(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<TimestampResponse> created(ISourceLocationRequest req) {
+        return async(() -> new TimestampResponse(reg.created(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<BooleanResponse> isDirectory(ISourceLocationRequest req) {
+        return async(() -> new BooleanResponse(reg.isDirectory(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req) {
+        return async(() -> new BooleanResponse(reg.isFile(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
+        return async(() -> {
+            ISourceLocation loc = req.getLocation();
+            if (!reg.isDirectory(loc)) {
+                throw new NotDirectoryException(loc.toString());
+            }
+            return Arrays.stream(reg.list(loc))
+                .map(l -> new FileWithType(URIUtil.getLocationName(l), reg.isDirectory(l) ? FileType.Directory : FileType.File))
+                .toArray(FileWithType[]::new);
+        });
+    }
+
+    @Override
+    public CompletableFuture<NumberResponse> size(ISourceLocationRequest req) {
+        return async(() -> new NumberResponse(reg.size(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<FileAttributes> stat(ISourceLocationRequest req) {
+        return async(() -> reg.stat(req.getLocation()));
+    }
+
+    @Override
+    public CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req) {
+        return async(() -> new BooleanResponse(reg.isReadable(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<Void> setLastModified(SetLastModifiedRequest req) {
+        return async(() -> reg.setLastModified(req.getLocation(), req.getTimestamp()));
+    }
+
+    @Override
+    public CompletableFuture<BooleanResponse> isWritable(ISourceLocationRequest req) {
+        return async(() -> new BooleanResponse(reg.isWritable(req.getLocation())));
+    }
+
+    @Override
     public CompletableFuture<Void> writeFile(WriteFileRequest req) {
         return async(() -> {
             try (var decoder = StreamingBase64.decode(req.getContent());
@@ -165,6 +184,11 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
                 decoder.transferTo(target);
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<Void> mkDirectory(ISourceLocationRequest req) {
+        return async(() -> reg.mkDirectory(req.getLocation()));
     }
 
     @Override
@@ -180,5 +204,40 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     @Override
     public CompletableFuture<Void> copy(CopyRequest req) {
         return async(() -> reg.copy(req.getFrom(), req.getTo(), req.isRecursive(), req.isOverwrite()));
+    }
+
+    @Override
+    public CompletableFuture<Void> watch(WatchRequest params) {
+        return async(() -> {
+            URIResolverRegistry.getInstance().watch(params.getLocation(), params.isRecursive(), changed -> 
+                client.sourceLocationChanged(new ISourceLocationChanged(
+                    changed.getLocation(), ISourceLocationChangeType.forValue(changed.getChangeType().getValue()), params.getWatchId()
+                ))
+            );
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> unwatch(WatchRequest req) {
+        return async(() -> URIResolverRegistry.getInstance().unwatch(req.getLocation(), req.isRecursive(), e -> {}));
+    }
+
+    @Override
+    public CompletableFuture<BooleanResponse> supportsRecursiveWatch() {
+        return async(() -> new BooleanResponse(true));
+    }
+
+    @Override
+    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
+        return async(() -> {
+            ISourceLocation loc = req.getLocation();
+            ISourceLocation resolved = reg.logicalToPhysical(loc);
+
+            if (resolved == null) {
+                resolved = loc;
+            }
+
+            return new SourceLocationResponse(resolved);
+        });
     }
 }
