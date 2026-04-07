@@ -496,9 +496,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         }
     } else if(isSyntaxType(containerType)){
 
-        if(isStartNonTerminalType(containerType)){
-           return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
-        } else if(isIterType(containerType)){
+        if(isIterType(containerType)){
             if(containerType.alabel == fieldName){
                 return makeListType(getIterElementType(containerType));
             }
@@ -1189,10 +1187,6 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = s.instantiate(subjectType);
-
-    if(isStartNonTerminalType(subjectType)){
-        subjectType = getStartNonTerminalType(subjectType);
-    }
 
     if(isStrAType(texp)){
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);

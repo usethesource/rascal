@@ -1287,19 +1287,6 @@ bool isParameterizedNonTerminalType(AType t) = isNonTerminalAType(t) && t has pa
 
 bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalAType(t) && (t has parameters ==> isEmpty(t.parameters));
 
-// start
-bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
-bool isStartNonTerminalType(AType::\start(_, _)) = true;
-default bool isStartNonTerminalType(AType s) = false;    
-
-AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
-AType getStartNonTerminalType(AType::\start(AType s, _)) = s;
-default AType getStartNonTerminalType(AType s) {
-    throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
-}
-
-//TODO labelled
-
 bool isLexicalAType(aparameter(_,AType tvb)) = isLexicalAType(tvb);
 bool isLexicalAType(AType::\conditional(AType ss,_)) = isLexicalAType(ss);
 bool isLexicalAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();

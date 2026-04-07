@@ -1100,12 +1100,6 @@ default JCode transMuGetField(AType resultType, AType consType, MuExp cons, str 
     }
     qFieldName = "\"<fieldName>\"";
     
-    if(isStartNonTerminalType(consType) && fieldName == "top"){
-        return castArg(resultType, "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, <qFieldName>).tree");
-    }
-    
-    consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
-    
     if(isNonTerminalAType(consType)){
         //return castArg(resultType, "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, <qFieldName>).tree");
         return castArg(resultType,  "$aadt_get_field(<transWithCast(consType, cons, jg)>, <qFieldName>)");
