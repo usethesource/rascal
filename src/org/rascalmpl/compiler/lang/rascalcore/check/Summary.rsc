@@ -44,7 +44,6 @@ import IO;
 import Relation;
 import String;
 import ValueIO;
-// import lang::rascalcore::CompilerPathConfig;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
@@ -53,11 +52,8 @@ data PathConfig(
     loc generatedTestResources =|unknown:///|
 );
 
-@doc{
-.Synopsis
-Summary of a Rascal module for use in IDE
-
-.Description
+@synopsis{Summary of a Rascal module for use in IDE}
+@description{
 A `ModuleSummary` summarizes a Rascal module for the benefit of IDE support like
 * Show type of current symbol.
 * Goto definition.
@@ -104,53 +100,42 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
         [vocabulary=getVocabulary(tm)]
         [synopses=synopses]
         [docLocs=docLocs];
-}    
-    
-@doc{
-.Synopsis
-Make a ModuleSummary.
 }
+
+ModuleSummary makeSummary(str qualifiedModuleName, loc tplLoc) {
+    try {
+        return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
+    } catch IO(_): {
+        return moduleSummary();
+    }
+}
+
+@synopsis{Make a ModuleSummary.}
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
     if(<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)){
-        try {
-            return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
-        } catch IO(_): {
-            return moduleSummary();
-        }
+        return makeSummary(qualifiedModuleName, tplLoc);
     }
     else {
         return moduleSummary();
     }
 }
 
-@doc{
-.Synopsis
-Get all definitions for a given use.
-}
+@synopsis{Get all definitions for a given use.}
 set[loc] getDefinitions(ModuleSummary summary, loc use){
     return summary.useDef[use] ? {};
 }
 
-@doc{
-.Synopsis
-Get the (pretty printed) type for a given use.
-}
+@synopsis{Get the (pretty printed) type for a given use.}
 str getType(ModuleSummary summary, loc use){
     return summary.locationTypes[use] ? "";
 }
 
-@doc{
-.Synopsis
-Get all definitions for a given definition.
-}
+@synopsis{Get all definitions for a given definition.}
 set[loc] getUses(ModuleSummary s, loc def){
     return invert(s.useDef)[def];
 }
 
-@doc{
-.Synopsis
-Get the doc string for a given definition.
-}
+@synopsis{Get the doc string for a given definition.}
 str getDocForDefinition(loc def){
     try {
         d = readFile(def);
