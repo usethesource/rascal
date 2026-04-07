@@ -495,27 +495,23 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
-        try {
-            synchronized (watchers) {
-                var key = new WatchSubscriptionKey(root, recursive);
-                if (!watchers.containsKey(key)) {
-                    var freshWatchers = new Watchers();
-                    freshWatchers.addNewWatcher(watcher);
-                    watchersById.put(freshWatchers.getId(), freshWatchers);
-                    remote.watch(new WatchRequest(root, recursive, freshWatchers.getId())).get(1, TimeUnit.MINUTES);
-                    watchers.put(key, freshWatchers);
-                }
-                watchers.get(key).addNewWatcher(watcher);
+        synchronized (watchers) {
+            var key = new WatchSubscriptionKey(root, recursive);
+            if (!watchers.containsKey(key)) {
+                var freshWatchers = new Watchers();
+                freshWatchers.addNewWatcher(watcher);
+                watchersById.put(freshWatchers.getId(), freshWatchers);
+                call(remote::watch, new WatchRequest(root, recursive, freshWatchers.getId()));
+                watchers.put(key, freshWatchers);
             }
-        } catch (CompletionException | InterruptedException | ExecutionException | TimeoutException ce) {
-            throw new IOException("Could not watch `" + root + "` remotely: " + ce.getCause().getMessage());
+            watchers.get(key).addNewWatcher(watcher);
         }
     }
 
     @Override
     public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
-        var watchKey = new WatchSubscriptionKey(root, recursive);
         synchronized (watchers) {
+            var watchKey = new WatchSubscriptionKey(root, recursive);
             var watch = watchers.get(watchKey);
             if (watch != null && watch.removeWatcher(watcher)) {
                 watchers.remove(watchKey);
