@@ -6,21 +6,18 @@ import lang::rascal::\syntax::Rascal;
 import Map;
 import List;
 import String;
+  
+data FunctionDeclaration(loc src = |unknown:///|, str label="");
  
-anno str node@label;
-anno loc node@\loc;
+data Declaration(loc src = |unknown:///|, str label="");
  
-data FunctionDeclaration(loc src = |unknown:///|);
+data Name(loc src = |unknown:///|, str label="");
  
-data Declaration(loc src = |unknown:///|);
+data QualifiedName(loc src = |unknown:///|, str label="");
  
-data Name(loc src = |unknown:///|);
+data Signature(loc src = |unknown:///|, str label="");
  
-data QualifiedName(loc src = |unknown:///|);
- 
-data Signature(loc src = |unknown:///|);
- 
-data Prod(loc src = |unknown:///|);
+data Prod(loc src = |unknown:///|, str label="");
 
 node outline(start[Module] m) = outline(m.top);
  
