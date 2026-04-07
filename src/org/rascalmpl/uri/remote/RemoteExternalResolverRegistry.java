@@ -383,9 +383,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
             if (cached != null) {
                 var result = cached.get().get(URIUtil.getLocationName(loc));
-                if (result != null) {
-                    return result;
-                }
+                return result != null && result;
             }
             return call(remote::isDirectory, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
@@ -399,9 +397,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
             if (cached != null) {
                 var result = cached.get().get(URIUtil.getLocationName(loc));
-                if (result != null) {
-                    return !result;
-                }
+                return result != null && !result;
             }
             return call(remote::isFile, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
