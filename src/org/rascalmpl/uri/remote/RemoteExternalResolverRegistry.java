@@ -380,13 +380,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean isDirectory(ISourceLocation loc) {
         try {
-            synchronized (cachedDirectoryListing) {
-                var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
-                if (cached != null) {
-                    var result = cached.get().get(URIUtil.getLocationName(loc));
-                    if (result != null) {
-                        return result;
-                    }
+            var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
+            if (cached != null) {
+                var result = cached.get().get(URIUtil.getLocationName(loc));
+                if (result != null) {
+                    return result;
                 }
             }
             return call(remote::isDirectory, new ISourceLocationRequest(loc)).getValue();
@@ -398,13 +396,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean isFile(ISourceLocation loc) {
         try {
-            synchronized (cachedDirectoryListing) {
-                var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
-                if (cached != null) {
-                    var result = cached.get().get(URIUtil.getLocationName(loc));
-                    if (result != null) {
-                        return !result;
-                    }
+            var cached = cachedDirectoryListing.getIfPresent(URIUtil.getParentLocation(loc));
+            if (cached != null) {
+                var result = cached.get().get(URIUtil.getLocationName(loc));
+                if (result != null) {
+                    return !result;
                 }
             }
             return call(remote::isFile, new ISourceLocationRequest(loc)).getValue();
@@ -431,13 +427,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
-        synchronized (cachedDirectoryListing) {
-            var result = call(remote::list, new ISourceLocationRequest(loc));
-            cachedDirectoryListing.put(loc, Lazy.defer(() -> {
-                return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
-            }));
-            return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
-        }
+        var result = call(remote::list, new ISourceLocationRequest(loc));
+        cachedDirectoryListing.put(loc, Lazy.defer(() -> {
+            return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
+        }));
+        return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
     }
 
     @Override
@@ -465,29 +459,27 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 try (var input = new ByteArrayInputStream(this.toByteArray())) {
                     StreamingBase64.encode(input, content, true);
                 }
-                synchronized (cachedDirectoryListing) {
-                    call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
-                    cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-                }
+                cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+                call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
+                cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
             }
         };
     }
 
     @Override
     public void mkDirectory(ISourceLocation loc) throws IOException {
-        synchronized (cachedDirectoryListing) {
-            call(remote::mkDirectory, new ISourceLocationRequest(loc));
-            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        }
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+        call(remote::mkDirectory, new ISourceLocationRequest(loc));
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void remove(ISourceLocation loc) throws IOException {
-        synchronized (cachedDirectoryListing) {
-            call(remote::remove, new RemoveRequest(loc, true));
-            cachedDirectoryListing.invalidate(loc);
-            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        }
+        cachedDirectoryListing.invalidate(loc);
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+        call(remote::remove, new RemoveRequest(loc, true));
+        cachedDirectoryListing.invalidate(loc);
+        cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
