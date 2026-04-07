@@ -565,7 +565,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     * via the JSON-RPC bridge, we keep the closure around in this collection class.
     * If there are no more callbacks registered, we unregister the watch at the remote side.
     */
-    public static class Watchers {
+    private static class Watchers {
         private final String id;
         private final List<Consumer<ISourceLocationWatcher.ISourceLocationChanged>> callbacks = new CopyOnWriteArrayList<>();
 
