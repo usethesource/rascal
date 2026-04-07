@@ -344,11 +344,17 @@ public abstract class Import {
         
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
+      if (uri == null) {
+          heap.setModuleURI(jobName, URIUtil.correctLocation("not-found", name, "").getURI());
+          throw new ModuleImport(name, "can not find in search path", x);
+      }
+      else {
+        heap.setModuleURI(name, uri.getURI());
+      }
+
       try {       
           eval.jobTodo(jobName, 1);
-          if (uri == null) {
-              throw new ModuleImport(name, "can not find in search path", x);
-          }
+          
           Module module = buildModule(uri, env, eval, jobName);
 
           if (isDeprecated(module)) {
@@ -360,7 +366,7 @@ public abstract class Import {
               if (!internalName.equals(name)) {
                   throw new ModuleNameMismatch(internalName, name, x);
               }
-              heap.setModuleURI(name, module.getLocation().getURI());
+              
 
               module.interpret(eval);
           }
@@ -434,7 +440,7 @@ private static boolean isDeprecated(Module preModule){
   }
 
   private static void addImportToCurrentModule(ISourceLocation src, String name, IEvaluator<Result<IValue>> eval) {
-    ModuleEnvironment module = eval.getHeap().getModule(name);
+    ModuleEnvironment module = eval.getHeap().getModule(name);  
     if (module == null) {
       throw new UndeclaredModule(name, src);
     }
