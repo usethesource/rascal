@@ -119,11 +119,7 @@ public class URIResolverRegistry {
 
 		var remoteResolverRegistryPort = getRemoteResolverRegistryPort();
         if (remoteResolverRegistryPort != null) {
-			synchronized (this) {
-				if (this.externalRegistry == null) {
-					registerRemoteResolverRegistry(new RemoteExternalResolverRegistry(remoteResolverRegistryPort));
-				}
-			}
+			registerRemoteResolverRegistry(new RemoteExternalResolverRegistry(remoteResolverRegistryPort));
         }
 	}
 
@@ -140,7 +136,7 @@ public class URIResolverRegistry {
 	}
 
 	public synchronized void registerRemoteResolverRegistry(RemoteExternalResolverRegistry registry) {
-		synchronized (this) {
+		if (this.externalRegistry != null) {
 			this.externalRegistry = registry;
 			watchers.setExternalRegistry(registry);
 		}
