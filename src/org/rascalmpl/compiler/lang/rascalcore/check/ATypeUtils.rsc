@@ -1330,7 +1330,7 @@ bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
 bool isLayoutAType(AType::\conditional(AType ss,_)) = isLayoutAType(ss);
 bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutAType(AType::\start(AType ss)) = false;
+bool isLayoutAType(AType::\start(AType ss, _)) = false;
 bool isLayoutAType(AType::\iter(AType s)) = isLayoutAType(s);
 bool isLayoutAType(AType::\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(AType::\iter-seps(AType s,_)) = isLayoutAType(s);
