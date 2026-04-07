@@ -13,7 +13,9 @@ module util::Eval
 
 extend Exception;
 extend util::Reflective;
+
 import IO;
+import Message;
 
 @synopsis{Results encode the output of a call to `eval`}
 @description{
@@ -31,6 +33,7 @@ data Result[&T]
 }
 data RuntimeException 
   = StaticError(str message, loc location)
+  | ModuleLoadMessages(list[Message] messages)
   ; 
 
 @synopsis{A reusable instance of the Rascal runtime system configured by a specific PathConfig.}
@@ -96,7 +99,7 @@ This creates a ((RascalRuntime)), uses it to evaluate one command, and then disc
 }
 @deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.}
 Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=pathConfig()) 
-  throws Timeout, StaticError, ParseError
+  throws Timeout, StaticError, ParseError, ModuleLoadMessages
   = eval(typ, [command], pcfg=pcfg, duration=duration);
 
 @synopsis{Evaluate a list of command and return the value of the last command.}
