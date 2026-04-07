@@ -192,8 +192,9 @@ tuple[bool, TModel, ModuleStatus] addGrammar(MODID moduleId, set[MODID] imports,
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
 
-            allStarts += { t | loc k <- facts, \start(t) := facts[k] };
+            allStarts += { t | loc k <- facts, \start(t, _) := facts[k] };
         }
+        
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
         set[AType] allLayouts = {};
