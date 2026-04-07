@@ -19,7 +19,13 @@ Tree update(Tree m) =
                        'data <Name adt>(<Type t> <Name name2> = <Expression init>);` 
       when Expression init := getInitializer(t), Name name2 := getName(name)
       
-    case (Expression) `<Expression e>@<Name name> ? <Expression _>` => (Expression) `<Expression e>.<Name name2>`
+    case (Expression) `<Expression e>@\\loc ? |unknown:///|` => (Expression) `<Expression e>.src`
+      when Name name2 := getName(name)
+
+    case (Expression) `<Expression e>@\\loc ? |unknown:///|(_,_,\<_,_\>,\<_,_\>)` => (Expression) `<Expression e>.src`
+      when Name name2 := getName(name)
+
+    case (Expression) `<Expression e>@<Name name> ? <Expression c>` => (Expression) `<Expression e>.<Name name2> ? <Expression c>`
       when Name name2 := getName(name)
       
     case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name2>`
