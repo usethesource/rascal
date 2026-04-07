@@ -81,14 +81,14 @@ public class RSFIO {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-						throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+						throw RuntimeExceptionFactory.io(e);
 				}
 			}
 		}
@@ -160,7 +160,7 @@ public class RSFIO {
 			reader.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		
 		return rw.done();
@@ -215,14 +215,14 @@ public class RSFIO {
 			reader.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			if (reader != null){
 				try {
 					reader.close();
 				} catch (IOException e){
-					throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+					throw RuntimeExceptionFactory.io(e);
 				}
 			}
 		}

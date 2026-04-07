@@ -7,9 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@synopsis{An abstract declarative language for two dimensional text layout}
 module lang::box::\syntax::Box
-
-import List;
 
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
@@ -25,7 +24,7 @@ import List;
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
 * `G` is an additional group-by feature that reduces tot the above core features
 * `SL` is a convenience box for separated syntax lists based on `G`
-* `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
+* `NULL()` is the group that will disappear from its context, useful for skipping content. It is based on the `U` box.
 }
 @benefits{
 * Box expressions are a declarative mechanism to express formatting rules that are flexible enough to deal
@@ -38,7 +37,7 @@ set on every `I` Box according to the current preferences of the user.
 @pitfalls{
 * `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
-data Box(int hs=1, int vs=0, int is=2)
+data Box(int hs=1, int vs=0, int is=4)
     = H(list[Box] boxes)
     | V(list[Box] boxes)
     | HOV(list[Box] boxes)
@@ -62,7 +61,7 @@ data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
 
-@synopsis{NULL can be used to return a Box that will completely dissappear in the surrounding context.}
+@synopsis{NULL can be used to return a Box that will completely disappear in the surrounding context.}
 @description{
 Consider `NULL()`` as an alternative to producing `H([])` when you see unexpected
 additional spaces generated.
@@ -71,7 +70,7 @@ Typical applications for NULL would be to produce it for layout nodes that conta
 only whitespace. If you encounter source code comments you can produce the appropriate `L` content,
 but if you want the position ignored, use `NULL`.
 
-`NULL`` depends on the splicing semantics of `U` to dissappear completely before the layout
+`NULL`` depends on the splicing semantics of `U` to disappear completely before the layout
 algorithm starts counting boxes and widths. 
 }
 @examples{

@@ -152,6 +152,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Production_Priority = tf.constructor(uptr, Production, "priority", Symbol, "def", tf.listType(Production), "choices");
 	public static final Type Production_Composition = tf.constructor(uptr,  Production,  "composition", Production, "lhs", Production, "rhs");
 	public static final Type Production_Associativity = tf.constructor(uptr, Production, "associativity", Symbol, "def", Associativity, "assoc", tf.setType(Production), "alternatives");
+	public static final Type Production_Error = tf.constructor(uptr, Production, "error", Symbol, "def", Production, "prod", tf.integerType(), "dot");
+	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped", Symbol, "def");
 	
 	/* Constructors for Attr */
 	public static final Type Attr_Assoc = tf.constructor(uptr, Attr, "assoc", Associativity, "assoc");
@@ -251,6 +253,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Grammar_Default = tf.constructor(uptr,  Grammar, "grammar", tf.setType(Symbol), "starts", tf.mapType(Symbol, "sort", Production, "def"), "rules");
     
 	public static final String Location = "src";
+	public static final String ParseError = "parseError";
 	public static final String LegacyLocation = "loc";
 	
 	static {

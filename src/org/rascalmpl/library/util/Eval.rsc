@@ -13,11 +13,13 @@ module util::Eval
 
 extend Exception;
 extend util::Reflective;
+
 import IO;
+import Message;
 
 @synopsis{Results encode the output of a call to `eval`}
 @description{
-* `ok` reflects the execution was succesful while there was no output. For example a call to `println` would produce `ok()`.
+* `ok` reflects the execution was successful while there was no output. For example a call to `println` would produce `ok()`.
 * `result` captures a value of a certain type, which is parameterized as `&T`.
 }
 data Result[&T] 
@@ -25,13 +27,13 @@ data Result[&T]
   | result(&T val)
   ;
 
-@synsopsis{Normally static errors are not run-time exceptions, but `eval` wraps them due to its dynamic nature.}
+@synopsis{Normally static errors are not run-time exceptions, but `eval` wraps them due to its dynamic nature.}
 @description{
 `eval` will throw the first static error that is blocking the execution of a command.
 }
 data RuntimeException 
   = StaticError(str message, loc location)
-  | Timeout()
+  | ModuleLoadMessages(list[Message] messages)
   ; 
 
 @synopsis{A reusable instance of the Rascal runtime system configured by a specific PathConfig.}
@@ -66,11 +68,11 @@ e.eval(#void, "println(a)");
 * Creating a single run-time engine is an expensive operation. By reusing it you
 can safe a lot of time and space. Use `.reset()` to reuse the configuration while dropping
 all other state and returning to an initial runtime.
-* The PathConfig parameter completelu defines the configuration of the ((RascalRuntime)).
+* The PathConfig parameter completely defines the configuration of the ((RascalRuntime)).
 }
 @pitfalls{
 * To turn a value string into an actual value, it's better and faster to use ((readTextValueString)) or ((readTextValueFile)).
-* Parsing file paths is better done using ((locFromUnixPath)) and ((locFromWindowsPath)).
+* Parsing file paths is better done using ((lang::paths::Unix::parseUnixPath)) and ((lang::paths::Windows::parseWindowsPath)).
 * A ((RascalRuntime)) is neither thread-safe nor thread-friendly. 
 * `staticTypeOf` is an abstract interpreter which can take as much time as running the program. 
 }
@@ -95,16 +97,16 @@ java RascalRuntime createRascalRuntime(PathConfig pcfg=pathConfig());
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate one command, and then discards the runtime again.
 }
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.}
 Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=pathConfig()) 
-  throws Timeout, StaticError, ParseError
+  throws Timeout, StaticError, ParseError, ModuleLoadMessages
   = eval(typ, [command], pcfg=pcfg, duration=duration);
 
 @synopsis{Evaluate a list of command and return the value of the last command.}
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate some commands, and then discards the runtime again.
 }
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration=-1, PathConfig pcfg=pathConfig()) 
   throws Timeout, StaticError, ParseError {
     e = createRascalRuntime(pcfg=pcfg);
@@ -128,23 +130,23 @@ Result[value] eval(list[str] commands, int duration=-1, PathConfig pcfg=pathConf
   throws Timeout, StaticError, ParseError
   = eval(#value, commands, duration=duration, pcfg=pcfg);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Evaluate a command and return the value, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, command, duration=duration);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Evaluate a list of commands and return the value of the last command, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, commands, duration=duration);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 
 Result[value] eval(list[str] commands, int duration) 
   = eval(#value, commands, duration=duration);
 
 @synopsis{Give input string to the Rascal evaluator and return its type as string.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(str command, PathConfig pcfg=pathConfig(), int duration = -1) throws Timeout, StaticError, ParseError {
   e = createRascalRuntime(pcfg=pcfg);
   if (duration?) {
@@ -155,7 +157,7 @@ str evalType(str command, PathConfig pcfg=pathConfig(), int duration = -1) throw
 }
 
 @synopsis{Give input strings to the Rascal evaluator and return the type of the last command as a string.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(list[str] commands, PathConfig pcfg=pathConfig(), int duration = -1) throws Timeout, StaticError, ParseError {
     e = createRascalRuntime(pcfg=pcfg);
     if (duration?) {
@@ -169,13 +171,13 @@ str evalType(list[str] commands, PathConfig pcfg=pathConfig(), int duration = -1
     return "<e.staticTypeOf(commands[-1])>";
 }
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Return the static type of the given command unless `duration` milliseconds pass before that.}
 str evalType(str command, int duration, PathConfig pcfg=pathConfig()) throws Timeout, StaticError, ParseError
   = evalType(command, pcfg=pcfg, duration=duration);
 
 @synopsis{Give list of commands to the Rascal evaluator and return the type of the last one within duration ms.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(list[str] commands, int duration, PathConfig pcfg=pathConfig()) throws Timeout, StaticError, ParseError
   = evalType(commands, pcfg=pcfg, duration=duration);
 
@@ -219,7 +221,7 @@ test bool evalTimeoutWorks() {
   return true;
 }
 
-@synsopis{Tests and demonstrates the use of PathConfig to configure a Rascal runtime.}
+@synopsis{Tests and demonstrates the use of PathConfig to configure a Rascal runtime.}
 test bool evalWithOwnPathConfig() {
   e = createRascalRuntime(
     pcfg=pathConfig(

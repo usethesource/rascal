@@ -1,4 +1,4 @@
-@synopsis{The default formatting rules for _any_ parsetree.}
+@synopsis{The default formatting rules for _any_ parse tree.}
 @description{
 This module is meant to be extended to include rules specific for a language.
 
@@ -17,7 +17,7 @@ we can specialize for more cases more easily than in the original paper. For exa
 comment styles are automatically recognized.
 
 The current algorithm, not extended, additionally guarantees that no comments are lost as long as their grammar
-rules have been tagged with `@category="Comment"`
+rules have been tagged with `@category="comment"` or the legacy `@category="Comment"`
 
 Another new feature is the normalization of case-insensitive literals. By providing ((toUpper)) or ((toLower))
 the mapping algorithm will change every instance of a case-insensitive literal accordingly before translating
@@ -67,6 +67,7 @@ module lang::box::util::Tree2Box
 import ParseTree;
 import lang::box::\syntax::Box;
 import String;
+import IO;
 
 @synopsis{Configuration options for toBox}
 data FormatOptions = formatOptions(
@@ -77,12 +78,13 @@ data FormatOptions = formatOptions(
 data CaseInsensitivity
     = toLower()
     | toUpper()
+    | toCapitalized()
     | asIs()
     ;
 
 @synopsis{This is the generic default formatter}
 @description{
-This generic formatter is to be overridden by someone constructig a formatter tools
+This generic formatter is to be overridden by someone constructing a formatter tools
 for a specific language. The goal is that this `toBox` default rule maps 
 syntax trees to plausible Box expressions, and that only a minimal amount of specialization
 by the user is necessary.
@@ -90,7 +92,7 @@ by the user is necessary.
 default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
     // the big workhorse switch identifies all kinds of special cases for shapes of
     // grammar rules, and accidental instances (emptiness, only whitespace, etc.)
-    Symbol nl = #[\n].symbol;
+    Symbol _nl = #[\n].symbol;
     Symbol notNl = #![\n].symbol;
     
     switch (<delabel(p), args>) {
@@ -117,8 +119,59 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star(_)), list[Tree] elements>:  
             return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
+        // comma's are usually for parameters separation
         case <regular(\iter-seps(_, [_, lit(","), _])), list[Tree] elements>:
-            return HV([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
+            return HOV([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // comma's are usually for parameters separation
+        case <regular(\iter-star-seps(_, [_, lit(","), _])), list[Tree] elements>:
+            return HOV([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+         // semi-colons are usually for statement separation
+        case <regular(\iter-seps(_, [_, lit(";"), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // optional semi-colons also happen often
+        case <regular(\iter-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // semi-colons are usually for parameters separation
+        case <regular(\iter-star-seps(_, [_, lit(";"), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
+
+        // optional semi-colons also happen often
+        case <regular(\iter-star-seps(_, [_, opt(lit(";")), _])), list[Tree] elements>:
+            return V([
+                H([
+                    toBox(elements[i], opts=opts),
+                    *[H([toBox(elements[i+2], opts=opts)], hs=1) | i + 2 < size(elements)]
+                ], hs=0) | int i <- [0,4..size(elements)]
+            ]);
 
         case <regular(\iter-seps(_, [_, lit(_), _])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=4, hs=0, op=H)], hs=1);
@@ -133,25 +186,22 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         case <regular(\iter-star-seps(_, [_])), list[Tree] elements>:
             return V([G([toBox(e, opts=opts) | e <- elements], gs=2, hs=0, op=H)], hs=0);
 
-        // if comments are found in layout trees, then we include them here
-        // and splice them into our context. If the deep match does not find any
-        // comments, then layout positions are reduced to U([]) which dissappears
-        // by splicing the empty list.
-        case <prod(layouts(_), _, _), list[Tree] content>:
-            return U([toBox(u, opts=opts) | /u:appl(prod(_, _, {*_,\tag("category"("Comment"))}), _) <- content]);
+        // We remove all layout node positions to make the number of children predictable
+        // Comments can be recovered by `layoutDiff`. By not recursing into layout
+        // positions `toBox` becomes more than twice as fast.
+        case <prod(layouts(_), _, _), list[Tree] _content>:
+            return NULL();
 
-        // single line comments are special, since they have the newline in a literal
-        // we must guarantee that the formatter will print the newline, but we don't 
-        // want an additional newline due to the formatter. We do remove any unnecessary
-        // spaces
-        case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        // if we are given a comment node, then we can format it here for use by layoutDiff
+        case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
                         H([L(e) | e <- words("<elements[..-1]>")], hs=1)
                     ], hs=1)
                 ]);
 
-        case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        // if we are given a comment node, then we can pretty print it here for use by layoutDiff     
+        case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
                         H([L(w) | e <- elements[1..], w <- words("<e>")], hs=1)
@@ -159,7 +209,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                 ]);
 
         // multiline comments are rewrapped for the sake of readability and fitting on the page
-        case <prod(_, [lit(_), *_, lit(_)], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        case <prod(_, [lit(_), *_, lit(_)], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return HV([toBox(elements[0], opts=opts),                     // recurse in case its a ci literal 
                       *[L(w) | e <- elements[1..-1], w <- words("<e>")], // wrap a nice paragraph
                       toBox(elements[-1], opts=opts)                     // recurse in case its a ci literal 
@@ -171,33 +221,30 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
 
         // Now we will deal with a lot of cases for expressions and block-structured statements.
         // Those kinds of structures appear again and again as many languages share inspiration
-        // from their pre-decessors. Watching out not to loose any comments...
+        // from their predecessors. Watching out not to loose any comments...
 
-        // we flatten binary operators into their context for better flow of deeply nested
-        // operators. The effect will be somewhat like a separated list of expressions where
-        // the operators are the separators.
         case <prod(sort(x),[sort(x),_,lit(_),_,sort(x)], _), list[Tree] elements>:
-            return U([toBox(e) | e <- elements]);
+            return HOV([toBox(elements[0], opts=opts), H([toBox(e, opts=opts) | e <- elements[1..]])]);
 
         // postfix operators stick
         case <prod(sort(x),[sort(x),_,lit(_)], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // prefix operators stick
         case <prod(sort(x),[lit(_), _, sort(x)], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // brackets stick
         case <prod(sort(x),[lit("("), _, sort(x), _, lit(")")], _), list[Tree] elements>:
-            return H([toBox(e) | e <- elements], hs=0);
+            return H([toBox(e, opts=opts) | e <- elements], hs=0);
 
         // if the sort name is statement-like and the structure block-like, we go for 
         // vertical with indentation
         // program: "begin" Declarations decls {Statement  ";"}* body "end" ;
-        case <prod(sort(/[stm]/), [lit(_), *_, lit(_)], _), list[Tree] elements>:
+        case <prod(sort(/[stm]/), [*Symbol pre, _op:lit(_), *Symbol _bl, _cl:lit(_)], _), list[Tree] elements>:
             return V([
-                toBox(elements[0], opts=opts),
-                I([V([toBox(e, opts=opts) | e <- elements[1..-1]])]),
+                H([*[toBox(p, opts=opts) | Tree p <- elements[0..size(pre)]], toBox(elements[size(pre)], opts=opts)]),
+                I([V([toBox(e, opts=opts) | Tree e <- elements[size(pre)+1..-1]])]),
                 toBox(elements[-1], opts=opts)
             ]);
     }
@@ -234,6 +281,7 @@ private FO fo() = formatOptions();
 @synopsis{Implements normalization of case-insensitive literals}
 private str ci(str word, toLower()) = toLowerCase(word);
 private str ci(str word, toUpper()) = toUpperCase(word);
+private str ci(str word, toCapitalized()) = capitalize(word);
 private str ci(str word, asIs())    = word;
 
 @synopsis{Split a text by the supported whitespace characters}

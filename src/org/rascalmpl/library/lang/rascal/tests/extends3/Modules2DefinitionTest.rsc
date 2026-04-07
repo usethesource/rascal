@@ -1,5 +1,6 @@
 module lang::rascal::tests::extends3::Modules2DefinitionTest
 
+import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Names;
@@ -14,7 +15,7 @@ test bool layoutPropagationOverImportAndExtendTest() {
 
    trees = {parseModuleWithSpaces(m).top | m <- testModules, bprintln(m)};
 
-    for (m <- trees) {
+    for (Module m <- trees) {
         str main = "<m.header.name>";
         
         def = modules2definition(main, trees);

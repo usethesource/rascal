@@ -26,8 +26,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.uri.URIUtil;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -60,13 +58,19 @@ public abstract class Module {
 			  List<Toplevel> decls = this.getBody().getToplevels();
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
+			  // first everything that is not a global
 			  for (Toplevel l : decls) {
-				l.interpret(eval);
+				if (!l.getDeclaration().isVariable()) {
+					l.interpret(eval);
+				}
 			  }
-			}
-			catch (RuntimeException e) {
-			  env.setInitialized(false);
-			  throw e;
+
+			  // then the globals which may depend on the previous
+			  for (Toplevel l : decls) {
+				if (l.getDeclaration().isVariable()) {
+					l.interpret(eval);
+				}
+			  }
 			}
 			finally {
 			  eval.setCurrentEnvt(oldEnv);
