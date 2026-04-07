@@ -31,175 +31,175 @@ public abstract class Statement extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Case> getCases() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasHandlers() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Catch> getHandlers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasConditions() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGenerators() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasNames() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.QualifiedName> getNames() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVariables() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.QualifiedName> getVariables() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatements() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasAssignable() {
     return false;
   }
 
   public org.rascalmpl.ast.Assignable getAssignable() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOperator() {
     return false;
   }
 
   public org.rascalmpl.ast.Assignment getOperator() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBound() {
     return false;
   }
 
   public org.rascalmpl.ast.Bound getBound() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDataTarget() {
     return false;
   }
 
   public org.rascalmpl.ast.DataTarget getDataTarget() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasCondition() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getCondition() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMessage() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getMessage() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFunctionDeclaration() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLabel() {
     return false;
   }
 
   public org.rascalmpl.ast.Label getLabel() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDeclaration() {
     return false;
   }
 
   public org.rascalmpl.ast.LocalVariableDeclaration getDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBody() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasElseStatement() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getElseStatement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFinallyBody() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getFinallyBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStatement() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getStatement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasThenStatement() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getThenStatement() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTarget() {
     return false;
   }
 
   public org.rascalmpl.ast.Target getTarget() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVisit() {
     return false;
   }
 
   public org.rascalmpl.ast.Visit getVisit() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -269,7 +269,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 757 * dataTarget.hashCode() + 89 * statement.hashCode() ; 
+      return 19 + 787 * dataTarget.hashCode() + 457 * statement.hashCode() ; 
     } 
   
     
@@ -355,7 +355,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 619 + 401 * expression.hashCode() ; 
+      return 283 + 739 * expression.hashCode() ; 
     } 
   
     
@@ -442,7 +442,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 317 * expression.hashCode() + 857 * message.hashCode() ; 
+      return 547 + 97 * expression.hashCode() + 607 * message.hashCode() ; 
     } 
   
     
@@ -548,7 +548,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 353 + 53 * assignable.hashCode() + 149 * operator.hashCode() + 127 * statement.hashCode() ; 
+      return 73 + 677 * assignable.hashCode() + 89 * operator.hashCode() + 599 * statement.hashCode() ; 
     } 
   
     
@@ -643,7 +643,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 827 + 431 * target.hashCode() ; 
+      return 3 + 757 * target.hashCode() ; 
     } 
   
     
@@ -720,7 +720,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 827 * target.hashCode() ; 
+      return 193 + 881 * target.hashCode() ; 
     } 
   
     
@@ -817,7 +817,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 449 * label.hashCode() + 89 * body.hashCode() + 233 * condition.hashCode() ; 
+      return 823 + 859 * label.hashCode() + 181 * body.hashCode() + 677 * condition.hashCode() ; 
     } 
   
     
@@ -902,7 +902,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 ; 
+      return 433 ; 
     } 
   
     	
@@ -967,7 +967,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 19 * expression.hashCode() ; 
+      return 67 + 757 * expression.hashCode() ; 
     } 
   
     
@@ -1044,7 +1044,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 457 * target.hashCode() ; 
+      return 479 + 691 * target.hashCode() ; 
     } 
   
     
@@ -1111,7 +1111,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 ; 
+      return 193 ; 
     } 
   
     	
@@ -1201,7 +1201,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 739 + 547 * label.hashCode() + 97 * generators.hashCode() + 607 * body.hashCode() ; 
+      return 113 + 607 * label.hashCode() + 151 * generators.hashCode() + 409 * body.hashCode() ; 
     } 
   
     
@@ -1296,7 +1296,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 73 + 677 * functionDeclaration.hashCode() ; 
+      return 691 + 691 * functionDeclaration.hashCode() ; 
     } 
   
     
@@ -1385,7 +1385,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 599 * type.hashCode() + 3 * names.hashCode() ; 
+      return 73 + 457 * type.hashCode() + 719 * names.hashCode() ; 
     } 
   
     
@@ -1493,7 +1493,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 193 * label.hashCode() + 881 * conditions.hashCode() + 823 * thenStatement.hashCode() ; 
+      return 461 + 929 * label.hashCode() + 199 * conditions.hashCode() + 569 * thenStatement.hashCode() ; 
     } 
   
     
@@ -1620,7 +1620,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 181 * label.hashCode() + 677 * conditions.hashCode() + 433 * thenStatement.hashCode() + 67 * elseStatement.hashCode() ; 
+      return 149 + 569 * label.hashCode() + 617 * conditions.hashCode() + 389 * thenStatement.hashCode() + 757 * elseStatement.hashCode() ; 
     } 
   
     
@@ -1734,7 +1734,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 479 * dataTarget.hashCode() + 691 * statement.hashCode() ; 
+      return 757 + 439 * dataTarget.hashCode() + 239 * statement.hashCode() ; 
     } 
   
     
@@ -1832,7 +1832,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 + 113 * label.hashCode() + 607 * statements.hashCode() ; 
+      return 641 + 227 * label.hashCode() + 269 * statements.hashCode() ; 
     } 
   
     
@@ -1915,7 +1915,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 409 * statement.hashCode() ; 
+      return 389 + 367 * statement.hashCode() ; 
     } 
   
     
@@ -2014,7 +2014,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 691 * variables.hashCode() + 73 * bound.hashCode() + 457 * body.hashCode() ; 
+      return 643 + 619 * variables.hashCode() + 631 * bound.hashCode() + 151 * body.hashCode() ; 
     } 
   
     
@@ -2131,7 +2131,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 719 + 461 * label.hashCode() + 929 * expression.hashCode() + 199 * cases.hashCode() ; 
+      return 593 + 109 * label.hashCode() + 53 * expression.hashCode() + 839 * cases.hashCode() ; 
     } 
   
     
@@ -2226,7 +2226,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 149 * statement.hashCode() ; 
+      return 389 + 229 * statement.hashCode() ; 
     } 
   
     
@@ -2315,7 +2315,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 569 + 617 * body.hashCode() + 389 * handlers.hashCode() ; 
+      return 157 + 283 * body.hashCode() + 947 * handlers.hashCode() ; 
     } 
   
     
@@ -2423,7 +2423,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 757 * body.hashCode() + 439 * handlers.hashCode() + 239 * finallyBody.hashCode() ; 
+      return 541 + 103 * body.hashCode() + 619 * handlers.hashCode() + 421 * finallyBody.hashCode() ; 
     } 
   
     
@@ -2518,7 +2518,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 227 * declaration.hashCode() ; 
+      return 541 + 509 * declaration.hashCode() ; 
     } 
   
     
@@ -2605,7 +2605,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 389 * label.hashCode() + 367 * visit.hashCode() ; 
+      return 941 + 653 * label.hashCode() + 13 * visit.hashCode() ; 
     } 
   
     
@@ -2713,7 +2713,7 @@ public abstract class Statement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 619 * label.hashCode() + 631 * conditions.hashCode() + 151 * body.hashCode() ; 
+      return 787 + 37 * label.hashCode() + 131 * conditions.hashCode() + 331 * body.hashCode() ; 
     } 
   
     

@@ -146,7 +146,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '  }
          '
          '  public <makeMonotonic(a)> get<clabel>() {
-         '    throw new UnsupportedOperationException();
+         '    throw new UnsupportedOperationException(this.src.toString());
          '  }<}>
          '
          '  <if (leaf(_) := ast) {><lexicalClass(ast.name)><}>

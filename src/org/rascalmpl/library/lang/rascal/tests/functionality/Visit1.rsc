@@ -752,6 +752,84 @@ test bool StringVisit74() = deescape("\\\<") == "\<";
 test bool StringVisit75() = deescape("\\\>") == "\>";
 test bool StringVisit76() = deescape("\\n") == "n";
 
+// test some unicode features of string visiting
+test bool StringUnicodeVisitEmoji1() {
+	return visit ("Hello 🌈World") {
+		case /🌈/ => ""
+	} == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1TD() {
+    return top-down visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1TDB() {
+    return top-down-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BU() {
+    return bottom-up visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BUB() {
+    return bottom-up-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1INNER() {
+    return innermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1OUTER() {
+    return outermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji2() {
+	return visit ("Hello World") {
+		case / / => "🌈"
+	} == "Hello🌈World";
+}
+test bool StringUnicodeVisitEmoji3() {
+	return visit ("Hello👍🏽World") {
+		case /👍🏽/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji4() {
+	return visit ("Hello🫂🌈World") {
+		case /🫂/ => "🌈"
+	} == "Hello🌈🌈World";
+}
+test bool StringUnicodeVisitEmoji5() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /[🫂]+/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji6() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /🫂[🫂]*/ => "🌈"
+	} == "Hello🌈World";
+}
+
+
+test bool StringUnicodeVisitEmoji7() {
+	return visit ("Hello🌈World") {
+		case /World/ => "🌍"
+	} == "Hello🌈🌍";
+}
+
 // Keywords and visit
 
 data RECT = rect(int w, int h, str color = "white");

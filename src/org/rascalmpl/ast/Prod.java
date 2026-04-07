@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Prod extends AbstractAST {
   public Prod(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,56 +31,56 @@ public abstract class Prod extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.ProdModifier> getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSyms() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Sym> getSyms() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasAssociativity() {
     return false;
   }
 
   public org.rascalmpl.ast.Assoc getAssociativity() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasReferenced() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getReferenced() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasGroup() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getGroup() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getLhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRhs() {
     return false;
   }
 
   public org.rascalmpl.ast.Prod getRhs() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
