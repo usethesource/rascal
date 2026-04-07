@@ -288,8 +288,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 .setExecutorService(NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry"))
                 .create();
 
-                clientLauncher.startListening();
-                return clientLauncher.getRemoteProxy();
+            clientLauncher.startListening();
+            return clientLauncher.getRemoteProxy();
         } catch (RuntimeException | IOException e) {
             System.err.println("Error setting up remote resolver registry connection, will reconnect: " + e.getMessage());
             return null;
