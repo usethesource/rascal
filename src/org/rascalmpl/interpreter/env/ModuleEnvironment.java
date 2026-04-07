@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -142,6 +143,10 @@ public class ModuleEnvironment extends Environment {
 	 */
 	public void clearLoadMessages() {
 		this.loadMessages.clear();
+	}
+
+	public Stream<IConstructor> streamLoadMessages() {
+		return loadMessages.stream();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -583,22 +588,29 @@ public class ModuleEnvironment extends Environment {
 		collection.addAll(lookupCachedFunctions(name));
 	}
 
+	private List<AbstractFunction> lookupFunctionsNoCache(String name) {
+		var result = new ArrayList<AbstractFunction>();
+		super.getAllFunctions(name, result);
+			
+		for (ModuleEnvironment mod : importedModulesResolved)  {	
+			if (mod != null) {
+				mod.getLocalPublicFunctions(name, result);
+			}
+		}
+		return result;
+	}
+
 	private List<AbstractFunction> lookupCachedFunctions(String name) {
 		if (cachedPublicFunctions == null) {
 			cachedPublicFunctions = io.usethesource.capsule.Map.Transient.of();
 		}
-		return cachedPublicFunctions.computeIfAbsent(name, n -> {
-			var result = new ArrayList<AbstractFunction>();
-			super.getAllFunctions(n, result);
-			
-			for (ModuleEnvironment mod : importedModulesResolved) {
-				
-				if (mod != null) {
-					mod.getLocalPublicFunctions(n, result);
-				}
-			}
-			return result;
-		});
+
+		if (!initialized) {
+			return lookupFunctionsNoCache(name);
+		}
+		else {
+			return cachedPublicFunctions.computeIfAbsent(name, this::lookupFunctionsNoCache);
+		}
 	}
 	
 	@Override
