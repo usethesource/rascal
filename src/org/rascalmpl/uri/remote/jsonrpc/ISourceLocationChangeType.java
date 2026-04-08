@@ -63,7 +63,20 @@ public enum ISourceLocationChangeType {
             case MODIFIED:
                 return ISourceLocationWatcher.ISourceLocationChangeType.MODIFIED;
             default:
-                throw new RuntimeException("Forgotten type: " + lsp);
+                throw new IllegalArgumentException("Unknown ISourceLocationChangeType " + lsp);
+        }
+    }
+
+    public static ISourceLocationChangeType translate(ISourceLocationWatcher.ISourceLocationChangeType rascal) {
+        switch (rascal) {
+            case CREATED:
+                return ISourceLocationChangeType.CREATED;
+            case DELETED:
+                return ISourceLocationChangeType.DELETED;
+            case MODIFIED:
+                return ISourceLocationChangeType.MODIFIED;
+            default:
+                throw new IllegalArgumentException("Unknown ISourceLocationChangeType " + rascal);
         }
     }
 }
