@@ -90,6 +90,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry, IRemoteResolverRegistryClient {
     private volatile IRemoteResolverRegistryServer remote = null;
+    private static final ExecutorService exec = NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry");
 
     private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
     private final Map<String, Watchers> watchersById = new ConcurrentHashMap<>();
@@ -273,7 +274,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             }
         };
     }
-    
+
     private IRemoteResolverRegistryServer startClient() {
         try {
             @SuppressWarnings("resource")
@@ -285,7 +286,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 .setInput(errorDetectingInputStream(socket.getInputStream()))
                 .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
                 .configureGson(GsonUtils.complexAsJsonObject())
-                .setExecutorService(NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry"))
+                .setExecutorService(exec)
                 .create();
 
             clientLauncher.startListening();
@@ -558,8 +559,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             throw new ResponseErrorException(new ResponseError(ResponseErrorCode.InvalidParams, "Unexpected FileChangeType " + changed.getChangeType().getValue(), root)); 
         }
     }
-
-    private static final ExecutorService exec = NamedThreadPool.cachedDaemon("RemoteExternalResolverRegistry-watcher");
 
     /**
     * The watch API in Rascal uses closures identity to keep track of watches. Since we cannot share the instance
