@@ -42,9 +42,6 @@ public interface Lazy<T extends @NonNull Object> extends Supplier<T> {
                 }
                 return result;
             }
-
         };
-
     }
-
 }
