@@ -62,7 +62,9 @@ public interface ISourceLocationWatcher {
 	}
 
 	public enum ISourceLocationChangeType {
-		CREATED, DELETED, MODIFIED;
+		CREATED,
+		DELETED,
+		MODIFIED;
 	}
 
 	static ISourceLocationChanged created(ISourceLocation loc) {
