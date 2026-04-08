@@ -497,14 +497,15 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         synchronized (watchers) {
             var key = new WatchSubscriptionKey(root, recursive);
-            if (!watchers.containsKey(key)) {
-                var freshWatchers = new Watchers();
-                freshWatchers.addNewWatcher(watcher);
-                watchersById.put(freshWatchers.getId(), freshWatchers);
-                call(remote::watch, new WatchRequest(root, recursive, freshWatchers.getId()));
-                watchers.put(key, freshWatchers);
+            var watch = watchers.get(key);
+            if (watch == null) {
+                watch = new Watchers();
+                watch.addNewWatcher(watcher);
+                watchersById.put(watch.getId(), watch);
+                call(remote::watch, new WatchRequest(root, recursive, watch.getId()));
+                watchers.put(key, watch);
             }
-            watchers.get(key).addNewWatcher(watcher);
+            watch.addNewWatcher(watcher);
         }
     }
 
