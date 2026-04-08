@@ -144,6 +144,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @FunctionalInterface
+    private interface ThrowingRunnable<E extends Exception> {
+        void run() throws E;
+    }
+
+    @FunctionalInterface
     private interface ThrowingConsumer<T, E extends Exception> {
         void accept(T t) throws E;
     }
@@ -151,11 +156,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @FunctionalInterface
     private interface ThrowingTriConsumer<T, U, V, E extends Exception> {
         void accept(T t, U u, V v) throws E;
-    }
-
-    @FunctionalInterface
-    private interface ThrowingRunnable<E extends Exception> {
-        void run() throws E;
     }
 
     private InputStream errorDetectingInputStream(InputStream original) {
@@ -169,9 +169,9 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 }
             }
             
-            private <T, R> R socketExceptionCatcher(ThrowingFunction<T, R, IOException> function, T arg) throws IOException {
+            private <T, R> R socketExceptionCatcher(ThrowingFunction<T, R, IOException> function, T t) throws IOException {
                 try {
-                    return function.apply(arg);
+                    return function.apply(t);
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
@@ -226,9 +226,18 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     private OutputStream errorDetectingOutputStream(OutputStream original) {
         return new OutputStream() {
-            private <T> void socketExceptionCatcher(ThrowingConsumer<T, IOException> consumer, T arg) throws IOException {
+            private void socketExceptionCatcher(ThrowingRunnable<IOException> runnable) throws IOException {
                 try {
-                    consumer.accept(arg);
+                    runnable.run();
+                } catch (SocketException e) {
+                    scheduleReconnect();
+                    throw e;
+                }
+            }
+
+            private <T> void socketExceptionCatcher(ThrowingConsumer<T, IOException> consumer, T t) throws IOException {
+                try {
+                    consumer.accept(t);
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
@@ -238,15 +247,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             private <T, U, V> void socketExceptionCatcher(ThrowingTriConsumer<T, U, V, IOException> consumer, T t, U u, V v) throws IOException {
                 try {
                     consumer.accept(t, u, v);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
-
-            private void socketExceptionCatcher(ThrowingRunnable<IOException> runnable) throws IOException {
-                try {
-                    runnable.run();
                 } catch (SocketException e) {
                     scheduleReconnect();
                     throw e;
