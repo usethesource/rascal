@@ -199,7 +199,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
             @Override
             public int available() throws IOException {
-                return original.available();
+                return socketExceptionCatcher(original::available);
             }
             
             @Override
