@@ -62,6 +62,7 @@ public interface ISourceLocationWatcher {
 	}
 
 	public enum ISourceLocationChangeType {
+		// The numeric values are based on the values in the FileChangeType enum of VS Code
 		CREATED(2),
 		DELETED(3),
 		MODIFIED(1);
