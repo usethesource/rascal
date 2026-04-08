@@ -31,7 +31,7 @@ import java.util.Objects;
 import io.usethesource.vallang.ISourceLocation;
 
 public class SetLastModifiedRequest extends ISourceLocationRequest{
-    private long timestamp;
+    private final long timestamp;
 
     public SetLastModifiedRequest(ISourceLocation loc, long timestamp) {
         super(loc);

@@ -31,7 +31,7 @@ import java.util.Objects;
 import io.usethesource.vallang.ISourceLocation;
 
 public class ISourceLocationRequest {
-    private ISourceLocation loc;
+    private final ISourceLocation loc;
 
     public ISourceLocationRequest(ISourceLocation loc) {
         this.loc = loc;

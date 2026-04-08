@@ -31,10 +31,9 @@ import java.util.Objects;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RenameRequest {
-    private ISourceLocation from;
-    private ISourceLocation to;
-
-    private boolean overwrite;
+    private final ISourceLocation from;
+    private final ISourceLocation to;
+    private final boolean overwrite;
 
     public RenameRequest(ISourceLocation from, ISourceLocation to, boolean overwrite) {
         this.from = from;

@@ -33,9 +33,9 @@ import org.rascalmpl.uri.ISourceLocationWatcher;
 import io.usethesource.vallang.ISourceLocation;
 
 public class ISourceLocationChanged {
-    private ISourceLocation root;
-    private ISourceLocationChangeType type;
-    private String watchId;
+    private final ISourceLocation root;
+    private final ISourceLocationChangeType type;
+    private final String watchId;
 
     public ISourceLocationChanged(ISourceLocation root, ISourceLocationChangeType type, String watchId) {
         this.root = root;

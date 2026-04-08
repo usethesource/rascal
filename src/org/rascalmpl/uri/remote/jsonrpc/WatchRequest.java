@@ -31,9 +31,8 @@ import java.util.Objects;
 import io.usethesource.vallang.ISourceLocation;
 
 public class WatchRequest extends ISourceLocationRequest {
-    private String watchId;
-
-    private boolean recursive;
+    private final String watchId;
+    private final boolean recursive;
 
     public WatchRequest(ISourceLocation loc, boolean recursive, String watchId) {
         super(loc);

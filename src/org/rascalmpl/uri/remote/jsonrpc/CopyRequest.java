@@ -31,11 +31,10 @@ import java.util.Objects;
 import io.usethesource.vallang.ISourceLocation;
 
 public class CopyRequest {
-    private ISourceLocation from;
-    private ISourceLocation to;
-
-    private boolean recursive;
-    private boolean overwrite;
+    private final ISourceLocation from;
+    private final ISourceLocation to;
+    private final boolean recursive;
+    private final boolean overwrite;
 
     public CopyRequest(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite) {
         this.from = from;

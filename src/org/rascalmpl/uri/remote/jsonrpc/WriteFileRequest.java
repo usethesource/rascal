@@ -32,7 +32,6 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class WriteFileRequest extends ISourceLocationRequest {
     private final String content;
-
     private final boolean append;
 
     public WriteFileRequest(ISourceLocation loc, String content, boolean append) {
