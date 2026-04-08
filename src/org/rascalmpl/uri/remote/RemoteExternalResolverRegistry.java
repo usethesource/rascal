@@ -443,24 +443,16 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public OutputStream getOutputStream(ISourceLocation loc, boolean append) throws IOException {
-        return new ByteArrayOutputStream() {
-            private boolean closed = false;
-
-            @Override
-            public void close() throws IOException {
-                if (closed) {
-                    return;
-                }
-                closed = true;
-                var content = new StringBuilder();
-                try (var input = new ByteArrayInputStream(this.toByteArray())) {
-                    StreamingBase64.encode(input, content, true);
-                }
-                cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+        var content = new StringBuilder();
+        return StreamingBase64.encode(content, () -> {
+            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+            try {
                 call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
-                cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+            } catch (IOException e) {
+                // Ignore
             }
-        };
+            cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
+        });
     }
 
     @Override
