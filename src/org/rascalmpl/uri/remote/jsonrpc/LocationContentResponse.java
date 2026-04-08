@@ -28,13 +28,10 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 public class LocationContentResponse {
-    @NonNull
     private final String content;
 
-    public LocationContentResponse(@NonNull String content) {
+    public LocationContentResponse(String content) {
         this.content = content;
     }
 

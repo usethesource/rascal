@@ -28,13 +28,9 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class ISourceLocationRequest {
-    @NonNull
     private ISourceLocation loc;
 
     public ISourceLocationRequest(ISourceLocation loc) {
@@ -46,7 +42,7 @@ public class ISourceLocationRequest {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof ISourceLocationRequest) {
             return loc.equals(((ISourceLocationRequest)obj).loc);
         }

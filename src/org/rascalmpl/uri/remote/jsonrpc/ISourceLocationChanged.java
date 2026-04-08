@@ -28,21 +28,16 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class ISourceLocationChanged {
-    @NonNull
     private ISourceLocation root;
-    @NonNull
     private ISourceLocationChangeType type;
-    @NonNull
     private String watchId;
 
-    public ISourceLocationChanged(@NonNull ISourceLocation root, @NonNull ISourceLocationChangeType type, @NonNull String watchId) {
+    public ISourceLocationChanged(ISourceLocation root, ISourceLocationChangeType type, String watchId) {
         this.root = root;
         this.type = type;
         this.watchId = watchId;
@@ -61,7 +56,7 @@ public class ISourceLocationChanged {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof ISourceLocationChanged) {
             var other = (ISourceLocationChanged)obj;
             return Objects.equals(root, other.root)

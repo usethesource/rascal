@@ -28,13 +28,9 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class WatchRequest extends ISourceLocationRequest {
-    @NonNull
     private String watchId;
 
     private boolean recursive;
@@ -54,7 +50,7 @@ public class WatchRequest extends ISourceLocationRequest {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof WatchRequest) {
             var other = (WatchRequest)obj;
             return super.equals(other)

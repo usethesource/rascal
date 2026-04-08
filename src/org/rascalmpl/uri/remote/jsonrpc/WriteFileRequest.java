@@ -28,13 +28,9 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class WriteFileRequest extends ISourceLocationRequest {
-    @NonNull
     private final String content;
 
     private final boolean append;
@@ -54,7 +50,7 @@ public class WriteFileRequest extends ISourceLocationRequest {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof WriteFileRequest) {
             var other = (WriteFileRequest)obj;
             return super.equals(obj)

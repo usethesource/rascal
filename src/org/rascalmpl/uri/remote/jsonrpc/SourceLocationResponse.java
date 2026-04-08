@@ -28,15 +28,12 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class SourceLocationResponse {
-    @NonNull
     private final ISourceLocation loc;
 
-    public SourceLocationResponse(@NonNull ISourceLocation loc) {
+    public SourceLocationResponse(ISourceLocation loc) {
         this.loc = loc;
     }
 

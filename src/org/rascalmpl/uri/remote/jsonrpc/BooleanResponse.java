@@ -50,5 +50,5 @@ public class BooleanResponse {
     @Override
     public int hashCode() {
         return Objects.hash(value);
-    }   
+    }
 }
