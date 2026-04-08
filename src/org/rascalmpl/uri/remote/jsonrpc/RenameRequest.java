@@ -28,15 +28,10 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class RenameRequest {
-    @NonNull
     private ISourceLocation from;
-    @NonNull
     private ISourceLocation to;
 
     private boolean overwrite;
@@ -60,7 +55,7 @@ public class RenameRequest {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof RenameRequest) {
             var other = (RenameRequest)obj;
             return Objects.equals(from, other.from)
