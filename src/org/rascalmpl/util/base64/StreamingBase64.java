@@ -45,7 +45,18 @@ public class StreamingBase64 {
      * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(Writer target) {
-        return encode(target, true);
+        return encode(target, () -> {});
+    }
+
+    /**
+     * Create an OutputStream that on writing bytes, encodes them to the target writer
+     * 
+     * The OutputStream needs to be closed before the target can be consumed
+     * 
+     * The callback Runnable is run after the OutputStream closes
+     */
+    public static OutputStream encode(Writer target, Runnable onClose) {
+        return encode(target, true, onClose);
     }
 
     /**
@@ -54,7 +65,18 @@ public class StreamingBase64 {
      * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(Writer target, boolean padding) {
-        return encode(Base64CharWriter.latinBytesTo(target), padding);
+        return encode(target, padding, () -> {});
+    }
+
+    /**
+     * Create an OutputStream that on writing bytes, encodes them to the target writer, and you can disable the optional `=` padding characters
+     * 
+     * The OutputStream needs to be closed before the target can be consumed
+     * 
+     * The callback Runnable is run after the OutputStream closes
+     */
+    public static OutputStream encode(Writer target, boolean padding, Runnable onClose) {
+        return encode(Base64CharWriter.latinBytesTo(target), padding, onClose);
     } 
 
     /**
@@ -63,7 +85,18 @@ public class StreamingBase64 {
      * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(StringBuilder target) {
-        return encode(target, true);
+        return encode(target, () -> {});
+    }
+
+    /**
+     * Create an OutputStream that on writing bytes, encodes them to the StringBuilder
+     * 
+     * The OutputStream needs to be closed before the target can be consumed
+     * 
+     * The callback Runnable is run after the OutputStream closes
+     */
+    public static OutputStream encode(StringBuilder target, Runnable onClose) {
+        return encode(target, true, onClose);
     }
 
     /**
@@ -72,11 +105,22 @@ public class StreamingBase64 {
      * The OutputStream needs to be closed before the target can be consumed
      */
     public static OutputStream encode(StringBuilder target, boolean padding) {
-        return encode(Base64CharWriter.latinBytesTo(target), padding);
+        return encode(target, padding, () -> {});
+    }
+
+    /**
+     * Create an OutputStream that on writing bytes, encodes them to the StringBuilder, and you can disable the optional `=` padding characters
+     * 
+     * The OutputStream needs to be closed before the target can be consumed
+     * 
+     * The callback Runnable is run after the OutputStream closes
+     */
+    public static OutputStream encode(StringBuilder target, boolean padding, Runnable onClose) {
+        return encode(Base64CharWriter.latinBytesTo(target), padding, onClose);
     }
     
-    private static OutputStream encode(Base64CharWriter target, boolean padding) {
-        return new Base64EncodingOutputStream(target, padding);
+    private static OutputStream encode(Base64CharWriter target, boolean padding, Runnable onClose) {
+        return new Base64EncodingOutputStream(target, padding, onClose);
     }
 
     /**

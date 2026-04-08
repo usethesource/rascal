@@ -42,6 +42,7 @@ import java.util.Base64.Encoder;
 public class Base64EncodingOutputStream extends OutputStream {
     private final Encoder encoder;
     private final Base64CharWriter target;
+    private final Runnable onClose;
 
     private static final int ENC_INPUT_SIZE = 3 * 1024;
     private static final int ENC_OUTPUT_SIZE = 4 * 1024;
@@ -50,9 +51,10 @@ public class Base64EncodingOutputStream extends OutputStream {
     private byte[] buffer = new byte[ENC_INPUT_SIZE];
     private int written = 0;
 
-    public Base64EncodingOutputStream(Base64CharWriter writer, boolean padding) {
+    public Base64EncodingOutputStream(Base64CharWriter writer, boolean padding, Runnable onClose) {
         encoder = padding ? Base64.getEncoder() : Base64.getEncoder().withoutPadding();
         this.target = writer;
+        this.onClose = onClose;
     }
 
     private void actualFlush() throws IOException {
@@ -108,6 +110,7 @@ public class Base64EncodingOutputStream extends OutputStream {
         closed = true;
         actualFlush();
         this.target.close();
+        onClose.run();
     }
 
 
