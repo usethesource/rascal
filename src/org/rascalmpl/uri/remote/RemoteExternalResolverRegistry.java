@@ -544,7 +544,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             throw new ResponseErrorException(new ResponseError(ResponseErrorCode.RequestFailed, "Received notification for unregistered watch", root)); 
         }
         try {
-            switch (ISourceLocationChangeType.fromValue(changed.getChangeType().getValue())) {
+            switch (changed.getChangeType()) {
                 case CREATED:
                     watcher.publish(ISourceLocationWatcher.created(root));
                     break;
