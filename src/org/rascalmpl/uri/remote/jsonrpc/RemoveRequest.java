@@ -28,8 +28,6 @@ package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class RemoveRequest extends ISourceLocationRequest {
@@ -45,7 +43,7 @@ public class RemoveRequest extends ISourceLocationRequest {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof RemoveRequest) {
             var other = (RemoveRequest)obj;
             return super.equals(obj)
