@@ -33,7 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RemoveRequest extends ISourceLocationRequest {
-    private boolean recursive;
+    private final boolean recursive;
 
     public RemoveRequest(ISourceLocation loc, boolean recursive) {
         super(loc);
