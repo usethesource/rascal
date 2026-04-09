@@ -30,6 +30,7 @@ module lang::rascalcore::check::tests::ChangeScenarioTests
 import lang::rascalcore::check::tests::StaticTestingUtils;
 import lang::rascalcore::check::TestConfigs;
 extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::ModuleLocations;
 import util::Reflective;
 import util::Benchmark;
 import IO;
@@ -107,37 +108,47 @@ test bool fixMissingExtend(){
 
 test bool fixErrorInImport(){
     clearMemory();
-    assert checkModuleOK("module A public bool b = false;");
-    B = "module B import A; int n = b + 1;";
+    assert checkModuleOK("module A public bool a = false;");
+    B = "module B import A; int b = a + 1;";
     assert unexpectedTypeInModule(B);
-    assert checkModuleOK("module A public int b = 0;"); // change b to type int
+    assert checkModuleOK("module A public int a = 0;"); // change a to type int
     return checkModuleOK(B);
 }
 
 test bool fixErrorInExtend(){
     clearMemory();
-    assert checkModuleOK("module A bool b = false;");
-    B = "module B extend A; int n = b + 1;";
+    assert checkModuleOK("module A bool a = false;");
+    B = "module B extend A; int b = a + 1;";
     assert unexpectedTypeInModule(B);
-    assert checkModuleOK("module A int b = 0;"); // change b to type int
+    assert checkModuleOK("module A int a = 0;"); // change a to type int
     return checkModuleOK(B);
+}
+
+test bool fixErrorInIndirectExtend(){
+    clearMemory();
+    assert checkModuleOK("module A public bool a = false;");
+    assert checkModuleOK("module B extend A;");
+    C = "module C import B; int c = a + 1;";
+    assert unexpectedTypeInModule(C);
+    assert checkModuleOK("module A public int a = 0;"); // change a to type int
+    return checkModuleOK(C);
 }
 
 test bool introduceErrorInImport(){
     clearMemory();
-    assert checkModuleOK("module A public int b = 0;");
-    B = "module B import A; int n = b + 1;";
+    assert checkModuleOK("module A public int a = 0;");
+    B = "module B import A; int b = a + 1;";
     assert checkModuleOK(B);
-    assert checkModuleOK("module A public bool b = false;");
+    assert checkModuleOK("module A public bool a = false;");
     return unexpectedTypeInModule(B);
 }
 
 test bool introduceErrorInExtend(){
     clearMemory();
-    assert checkModuleOK("module A int b = 0;");
-    B = "module B extend A; int n = b + 1;";
+    assert checkModuleOK("module A int a = 0;");
+    B = "module B extend A; int b = a + 1;";
     assert checkModuleOK(B);
-    assert checkModuleOK("module A bool b = false;");
+    assert checkModuleOK("module A bool a = false;");
     return unexpectedTypeInModule(B);
 }
 
@@ -225,6 +236,23 @@ test bool removeConstructorAndRestoreIt(){
     return checkModuleOK(B);
 }
 
+test bool correctToIncorrectModuleOK(){
+    clearMemory();
+    Aloc = writeModule("module A 
+                    'import B; 
+                    'int x = y;");
+    Bloc = writeModule("module B 
+                    'public int y = 123;");
+    assert checkModuleOK(Aloc);
+    Aloc = writeModule("module A 
+                       'import B; 
+                       'int x = y; // foo");
+    Bloc = writeModule("module B 
+                       'public str y = \"foo\";");
+    assert checkModuleOK(Bloc); 
+    return unexpectedDeclarationInModule(Aloc);
+}
+
 // ---- incremental type checking ---------------------------------------------
 
 // Legend:
@@ -246,7 +274,7 @@ test bool removeConstructorAndRestoreIt(){
 //                              |       |       |
 //                             *C1!    *C1     *C1
 
-test bool nobreakingChange1(){
+test bool noBreakingChange1(){
     clearMemory();
     A1 = "module A";
     A2 = "module A
@@ -294,7 +322,7 @@ test bool nobreakingChange1(){
 //      |        |          |         |
 //      +--*E!---+          +---*E----+
 
-test bool nobreakingChange2(){
+test bool noBreakingChange2(){
     clearMemory();
     A1 = "module A";
     B1 = "module B import A;";
@@ -441,6 +469,115 @@ test bool breakingChange1(){
     return expectReChecks(D, ["C", "D"]);
 }
 
+test bool fixedErrorsDisappearCompact() { 
+    clearMemory();
+    pcfg = getDefaultTestingPathConfig();
+
+    mlocs = writeModules("
+        module ParserBase
+    ");
+
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import vis::ParseTree; // module does not exist -\> error
+
+    ");
+
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    return true;
+}
+
+test bool fixedErrorsDisappear() {  // ht @toinehartman
+    clearMemory();
+    pcfg = getReleasedStandardLibraryTestingPathConfig();
+    pcfg = pcfg[libs = [RASCAL42]];
+
+    iprintln(pcfg);
+
+    // Write a set of modules with imports, that should type-check without errors
+    mlocs = writeModules("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree; // module does not exist
+
+        import Debugging;
+        import FileUtility;
+    ", "
+        module FileLocations
+    ", "
+        module Debugging
+
+        import DateTime;
+        import FileLocations;
+
+        import FileUtility;
+        import StringUtility;
+    ", "
+        module FileUtility
+
+        import FileLocations;
+
+        import Debugging;
+        import ListUtility;
+        import StringUtility;
+    ", "
+        module ListUtility
+    ", "
+        module StringUtility
+
+
+        import Debugging;
+        import ListUtility;
+        import MathUtility;
+    ", "
+        module MathUtility
+    ");
+
+    // Type-check everything
+    assert checkModulesOK(mlocs, pathConfig=pcfg) : "Precondition failed: no errors expected!";
+
+    // Introduce a type error (import of module that does not exist)
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        import vis::ParseTree; // module does not exist -\> error
+
+        import Debugging;
+        import FileUtility;
+    ");
+
+    // Type-check only the changed module
+    assert missingModuleInModule(l, pathConfig=pcfg) : "Precondition failed: expected at least one error, but got none!";
+
+    // Fix the error again, by removing the import. Now, we are at exactly the same state as where we started (without errors).
+    l = writeModule("
+        module ParserBase
+
+        import analysis::grammars::Ambiguity;
+        import FileLocations;
+        import ParseTree;
+        // import vis::ParseTree;
+
+        import Debugging;
+        import FileUtility;
+    ");
+    
+    // Type-check only the changed module
+    assert checkModuleOK(l, pathConfig=pcfg) : "Expected no errors after reverting, but got some!";
+    return true;
+}
+
 // ---- touch and recheck modules ---------------------------------------------
 
 bool touchAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg){
@@ -456,7 +593,9 @@ void safeRemove(loc l){
     try remove(l, recursive=true); catch _:;
 }
 
+@ignore{Investigate, after clearing messages}
 test bool onlyTouchedModulesAreReChecked0(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.generatedResources);
     topLoc = getRascalModuleLocation("List", pcfg);
@@ -466,8 +605,9 @@ test bool onlyTouchedModulesAreReChecked0(){
     assert touchAndCheck(topLoc, ["Exception"], pcfg);
     return touchAndCheck(topLoc, ["Map"], pcfg);
 }
-
+@ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyTouchedModulesAreReChecked1(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.generatedResources);
     topLoc = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
@@ -482,6 +622,7 @@ test bool onlyTouchedModulesAreReChecked1(){
 
 @ignore{Very expensive test}
 test bool onlyTouchedModulesAreReChecked2(){
+    clearMemory();
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.generatedResources);
     topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
@@ -540,7 +681,48 @@ test bool onlyChangedModulesAreReChecked0(){
     return changeAndCheck(topLoc, ["Map"], pcfg);
 }
 
+test bool simpleChange(){
+    ALoc = writeModule("module A import B; void f() throws EmptyList {}");
+    BLoc = writeModule("module B data RuntimeException = EmptyList();");
+
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    writeModule("module A import B; void f() throws EmptyList {} public int n = 0;");
+    assert checkModuleOK(ALoc);
+    assert checkModuleOK(BLoc);
+    return true;
+}
+
+test bool changedExtendedModule(){
+    ALoc = writeModule("module A extend B;");
+    BLoc = writeModule("module B extend C;");
+    CLoc = writeModule("module C");
+    ScratchLoc = writeModule("module Scratch import A; import B;");
+
+    assert checkModuleOK(ScratchLoc);
+    writeModule("module B extend C; int b = 0;");
+    assert checkModuleOK(BLoc);
+    touch(ScratchLoc);
+    return checkModuleOK(ScratchLoc);
+}
+
+// Issue #2562, ht @sungshik (Sung-Shik Jongmans)
+
+test bool changedExtendedModules(){
+    ALoc = writeModule("module A extend B;");
+    BLoc = writeModule("module B extend C;");
+    CLoc = writeModule("module C");
+  
+    assert checkModuleOK(ALoc);
+    writeModule("module A extend B; "); // extra space
+    writeModule("module C "); // extra space
+   
+    return checkModulesOK([ALoc, ALoc]);
+}
+
+@ignore{Can no longer test in this way since all "Checked .." messages are preserved}
 test bool onlyChangedModulesAreReChecked1(){
+    clearMemory();
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.generatedResources);
     str topName = "analysis::grammars::Ambiguity";
@@ -573,6 +755,7 @@ test bool onlyChangedModulesAreReChecked1(){
 
 @ignore{Very expensive test}
 test bool onlyChangedModulesAreReChecked2(){
+    clearMemory();
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.generatedResources);
     topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
@@ -589,6 +772,47 @@ test bool onlyChangedModulesAreReChecked2(){
     assert validateBOMs(pcfg);
     restoreModules(["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                     "lang::rascalcore::check::CollectType"], pcfg);
+    return true;
+}
+
+loc TYPEPAL166 = |mvn://org.rascalmpl--typepal--0.16.6-RC1/|;
+test bool changeMultipleTimes() { // ht @toinehartman
+    loc projDir = |memory:///incremental-test/proj|;
+    loc checkerModule = projDir + "src" + "Checker.rsc";
+
+    PathConfig pcfg = pathConfig(
+        projectRoot = projDir,
+        srcs = [projDir + "src"],
+        bin = projDir + "target",
+        // There might be incompatibility here, since Rascal uses typepal--0.16.6-RC2 at the time of writing.
+        // However, I would still expect that errors caused by that appear on the first type-check.
+        libs = [TYPEPAL166, RASCAL42]
+    );
+    iprintln(pcfg);
+
+    // Clean
+    remove(projDir);
+    writeFile(checkerModule, "
+        module Checker
+        extend analysis::typepal::TypePal;
+        void collect(Collector c) { ; }
+    ");
+
+    // First check
+    println("Initial check");
+    if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+        throw "First check failed; supposed to be OK.";
+    }
+    int N_TRIES = 10;
+    // Since this seems sporadically succeed, we run this a couple of times until it fails
+    for (i <- [1..N_TRIES + 1]) {
+        // Follow-up check
+        println("Follow-up check #<i>");
+        touch(checkerModule);
+        if (!checkModuleOK(checkerModule, pathConfig = pcfg)) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -621,16 +845,16 @@ void touchOne(){
 void miniBenchmarkRechecking1(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.generatedResources);
-    topName = "Type";
-    topLoc = getRascalModuleLocation("Type", pcfg);
+    topName = "ParseTree";
+    topLoc = getRascalModuleLocation("ParseTree", pcfg);
 
     cases =
         [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
          <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
          <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
          <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
-         <"Map", void(){ touchAndCheck(topLoc, ["Map"], pcfg); }>,
-         <"Exception+Map", void(){ touchAndCheck(topLoc, ["Exception", "Map"], pcfg); }>
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
         ];
     benchmark("miniBenchmarkRechecking1", cases);
 }

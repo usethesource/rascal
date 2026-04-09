@@ -31,7 +31,7 @@ public abstract class Target extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -81,7 +81,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 263 ; 
+      return 787 ; 
     } 
   
     	
@@ -146,7 +146,7 @@ public abstract class Target extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 683 * name.hashCode() ; 
+      return 397 + 191 * name.hashCode() ; 
     } 
   
     

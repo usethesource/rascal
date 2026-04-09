@@ -23,23 +23,27 @@ public class FileSystemTreeTest {
 
     @Before
     public void initTarget() {
-        target = new FileSystemTree<FSEntry>(new FSEntry(0, 0));
+        target = new FileSystemTree<FSEntry>(new FSEntry(0, 0, 0), true);
         currentTime = 0;
     }
 
     private void addFile(String name) throws IOException {
-        addFile(name, currentTime, currentTime);
+        addFile(name, currentTime, currentTime, 1);
         currentTime++;
     }
-    private void addFile(String name, long created, long lastModified) throws IOException {
-        target.addFile(name, new FSEntry(created, lastModified), FSEntry::new);
+    private void addFile(String name, long created, long lastModified, long size) throws IOException {
+        target.addFile(name, new FSEntry(created, lastModified, size), FileSystemTreeTest::dirEntry);
     }
     private void addDirectory(String name) throws IOException {
         addDirectory(name, currentTime, currentTime);
         currentTime++;
     }
     private void addDirectory(String name, long created, long lastModified) throws IOException {
-        target.addDirectory(name, new FSEntry(created, lastModified), FSEntry::new);
+        target.addDirectory(name, dirEntry(created, lastModified), FileSystemTreeTest::dirEntry);
+    }
+
+    private static FSEntry dirEntry(long created, long lastModified) {
+        return new FSEntry(created, lastModified, 1);
     }
 
 
@@ -139,13 +143,13 @@ public class FileSystemTreeTest {
                         for (int j = 5; j < 1000; j++) { 
                             var file = String.format("%s/%s.txt", r.nextInt(j / 2), r.nextInt(j));
                             try {
-                                target.addFile(file, new FSEntry(j, j), FSEntry::new);
+                                target.addFile(file, new FSEntry(j, j, 1), FileSystemTreeTest::dirEntry);
                                 written.add(file);
                             } catch (FileExistsException ignored) {
                             }
                             var dir = String.format("%s/%s/%s", r.nextInt(j / 2), r.nextInt(j / 3), r.nextInt(j));
                             try {
-                                target.addDirectory(dir, new FSEntry(j, j), FSEntry::new);
+                                target.addDirectory(dir, dirEntry(j, j), FileSystemTreeTest::dirEntry);
                                 written.add(dir);
                             } catch (FileExistsException ignored) {
                             }

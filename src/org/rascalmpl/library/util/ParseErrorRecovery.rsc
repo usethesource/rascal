@@ -32,7 +32,7 @@ java bool hasParseErrors(Tree tree);
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Find all error productions in a parse tree.
 Note that children of an error tree can contain errors themselves.
-The list of errors returned by this methood is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is
+The list of errors returned by this method is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is
 returned first.
 Often error trees are highly ambiguous and can contain a lot of error trees. This function is primarily used to analyze small examples as calling this function
 on a tree with many errors will result in long runtimes and out-of-memory errors.
@@ -52,9 +52,9 @@ int getErrorDot(appl(error(_, _, int dot), _)) = dot;
 Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) = skip;
 
 @synopsis{Get the text that failed to parse. This is only the text of the part that has been skipped to be able to continue parsing.
-If you want the text of the whole error tree, you can just use string interpolation: "<error>".
+If you want the text of the whole error tree, you can just use string interpolation: `"<error>"`.
 }
-str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
+str getErrorText(appl(error(_, _, _), [*_, sk:appl(skipped(_), _)])) = "<sk>";
 
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.

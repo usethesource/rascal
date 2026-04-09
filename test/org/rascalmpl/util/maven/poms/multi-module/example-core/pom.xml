@@ -13,12 +13,8 @@
     
     <dependencies>
         <dependency>
-          <groupId>org.rascalmpl</groupId>
-          <artifactId>rascal</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.rascalmpl</groupId>
-          <artifactId>rascal-lsp</artifactId>
+          <groupId>io.usethesource</groupId>
+          <artifactId>capsule</artifactId>
         </dependency>
         <dependency>
           <groupId>org.rascalmpl</groupId>

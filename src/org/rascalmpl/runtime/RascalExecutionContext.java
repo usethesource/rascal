@@ -27,11 +27,11 @@
 package org.rascalmpl.runtime;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
 
+import java.io.IOException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
@@ -46,10 +46,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -67,7 +64,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final TypeStore $TS;
 	private final TypeFactory $TF;
 	private final RascalTypeFactory $RTF;
-	private IValueFactory $VF;
 	private RascalSearchPath rascalSearchPath;
 
 	public RascalExecutionContext(
@@ -86,9 +82,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = errwriter;
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null) : ideServices;
+		ISourceLocation projectRoot = inferProjectRoot(clazz);
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
-		$VF = ValueFactoryFactory.getValueFactory();
 		$TF = TypeFactory.getInstance();
 		$RTF = RascalTypeFactory.getInstance();
 		$TRAVERSE = new Traverse($RVF);
@@ -96,14 +92,33 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$TS = new TypeStore();
 		rascalSearchPath = null ; // JV: unused new RascalSearchPath();
 		
-		// TODO: this code is for the test environment (which should offer `project://thisProject`)
-		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
-		if (projectRoot != null) {
-			String projectName = new RascalManifest().getProjectName(projectRoot);
-			if(!projectName.isEmpty()) {
-				reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-				reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    String projectName = new RascalManifest().getProjectName(projectRoot);
+	    if(!projectName.isEmpty()) {
+	    	reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    }
+	    
+	    String projectPath =  projectRoot.getPath();
+	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
+	    
+		try {
+			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
+			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
+			if (entries != null) {
+				//System.err.print("INFO adding projects: ");
+				for(String entryName : entries) {
+					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
+						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
+						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
+							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
+							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
+							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
+							//System.err.print(entryName + " ");
+						}
+					}
+				}
+				//System.err.println("");
 			}
 		}
 	}
@@ -137,8 +152,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public TypeFactory getTypeFactory() { return $TF; }
 	
 	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
-	
-	public IValueFactory getIValueFactory() { return $VF; }
 	
 	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 

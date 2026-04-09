@@ -140,7 +140,7 @@ Returns the CPU time that the current thread has executed in system mode in nano
 import util::Benchmark;
 ```
 
-Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
+Here we measure time by using separate calls to `systemTime` before and after a call to `fac`.
 
 ```rascal-shell,continue
 before = systemTime();
@@ -277,7 +277,7 @@ public map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)
 
 
 
-@ynopsis{
+@synopsis{
 "Force" a JVM garbage collection.
 }
 @description{

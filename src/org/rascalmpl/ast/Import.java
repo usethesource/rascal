@@ -31,28 +31,28 @@ public abstract class Import extends AbstractAST {
   }
 
   public org.rascalmpl.ast.ImportedModule getModule() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasAt() {
     return false;
   }
 
   public org.rascalmpl.ast.LocationLiteral getAt() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSyntax() {
     return false;
   }
 
   public org.rascalmpl.ast.SyntaxDefinition getSyntax() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

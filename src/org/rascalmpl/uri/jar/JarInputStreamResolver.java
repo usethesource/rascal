@@ -32,19 +32,19 @@ public class JarInputStreamResolver extends JarFileResolver {
     }
 	
 	@Override
-    protected CompressedFSTree getFileHierchyCache(ISourceLocation jarLocation) {
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation jarLocation) throws IOException {
         try {
             final ISourceLocation lookupKey = URIUtil.changeQuery(jarLocation, "mod=" + CTX.lastModified(jarLocation));
             return fsCache.get(lookupKey, j -> {
                 try {
-                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation), CTX.created(jarLocation), CTX.lastModified(jarLocation));
+                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation), CTX.created(jarLocation), CTX.lastModified(jarLocation), CTX.size(jarLocation));
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
-        catch (URISyntaxException | IOException e) {
+        catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

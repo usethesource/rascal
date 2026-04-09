@@ -29,13 +29,7 @@ module lang::rascalcore::compile::util::Names
 import String;
 import List;
 import util::Reflective;
-
-data PathConfig(
-    loc generatedSources       = |unknown:///|,
-    loc generatedTestSources   = |unknown:///|,
-    loc generatedResources     = |unknown:///|,
-    loc generatedTestResources = |unknown:///|
-);
+import lang::rascalcore::CompilerPathConfig;
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
 public /*const*/ str compiled_rascal_package_as_path = "org/rascalmpl"; //"rascal";
@@ -53,13 +47,18 @@ private list[str] normalize(list[str] parts)
 private list[str] escapeJavaKeywords(list[str] parts)
     = [ p in javaKeywords ? "$<p>" : p | p <- parts ];
     
-private str normalizeQName(str qname){
+private str normalizeQNameAndEscapeKeywords(str qname){
     parts = escapeJavaKeywords(normalize(split(qname)));
     return intercalate(".", parts);
 }
 
+private str normalizeQName(str qname){
+    parts = normalize(split(qname));
+    return intercalate(".", parts);
+}
+
 str asQualifiedClassName(str qname){
-    return normalizeQName(qname);
+    return normalizeQNameAndEscapeKeywords(qname);
 }
 
 str asUnqualifiedName(str qname){
@@ -73,7 +72,7 @@ str asClassName(str qname){
 }
 
 str prefixLast(str pref, str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     parts = split(".", qname);
     parts = parts[0 .. size(parts)-1] + "<pref><parts[-1]>";
     res = intercalate(".", parts);
@@ -81,8 +80,10 @@ str prefixLast(str pref, str qname){
     return res;
 }
 
+str getCompiledPackage() = "rascal";
+
 str getCompiledPackage(str _qname, PathConfig _pcfg)
-    = "rascal";
+    = getCompiledPackage();
 
 str asClassRef(str qname, PathConfig pcfg){
     //return prefixLast("$", qname);
@@ -90,7 +91,7 @@ str asClassRef(str qname, PathConfig pcfg){
 }
 
 str asPackageName(str qname, PathConfig pcfg){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     //return n >= 0 ? "<className[0 .. n]>" : ""; //compiled_rascal_package;
     package = getCompiledPackage(qname, pcfg);
@@ -98,7 +99,7 @@ str asPackageName(str qname, PathConfig pcfg){
 }
 
 str asPackagePath(str qname){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     return n >= 0 ? "<className[0 .. n]>" : "";
 }
@@ -116,15 +117,20 @@ loc getGeneratedTestSrcsDir(str qualifiedModuleName, PathConfig pcfg){
 }
 
 loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.generatedResources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
+    return (pcfg.generatedResources ? pcfg.bin) + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
-    parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
+    parts = normalize(split(qualifiedModuleName));
+    return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
+}
+
+str makeDirName(list[str] parts){
+    parts =  normalize(parts);
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
 str asBaseClassName(str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(qname, ".");
     return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
 }
@@ -135,15 +141,32 @@ str asBaseModuleName(str qname){
 }
 
 str asBaseInterfaceName(str qname){
-    qname = normalizeQName(qname);
+    qname = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(qname, ".");
     return n >= 0 ? "$<qname[n+1 ..]>_$I" : "$<qname>_$I";
 }
 
+str asFileName(str qname){
+    qname = normalizeQName(qname);
+    n = findLast(qname, ".");
+    return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
+}
+
 str asADTName(str adtName)
     = "ADT_<asJavaName(adtName, completeId=false)>";
+
+str asNTName(str adtName){
+    if(startsWith(adtName, "ADT_")){
+        return "NT_<adtName[4..]>";
+    }
+    if(adtName[0] == "$"){
+        return adtName;
+    }
+    return "NT_<asJavaName(adtName, completeId=false)>"; 
+}   
     
 set[str] javaKeywords = {
+    // Reserved keywords (including unused ones)
     "abstract", "continue", "for",        "new",       "switch",
     "assert",   "default",  "goto",       "package",   "synchronized",
     "boolean",  "do",       "if",         "private",   "this",
@@ -153,7 +176,19 @@ set[str] javaKeywords = {
     "catch",    "extends",  "int",        "short",     "try",
     "char",     "final",    "interface",  "static",    "void",
     "class",    "finally",  "long",       "strictfp",  "volatile",
-    "const",    "float",    "native",     "super",     "while",  "true", "false", "null"};
+    "const",    "float",    "native",     "super",     "while",  
+    
+    // Literal values
+    "true",     "false",    "null",
+
+    // Contextual keywords
+    "exports",      "provides",     "uses",
+    "module",       "record",       "var",
+    "non-sealed",   "requires",     "when",
+    "open",         "sealed",       "with",
+    "opens",        "to",           "yield",
+    "permits",      "transitive"
+};
     
 
 str asJavaName(str fname, bool completeId = true){
@@ -166,11 +201,11 @@ str module2class(str qname){
 }
 
 str module2field(str qname){
-    return "M_" + replaceAll(normalizeQName(qname), ".", "_");
+    return "M_" + replaceAll(normalizeQNameAndEscapeKeywords(qname), ".", "_");
 }
 
 str module2interface(str qname, PathConfig pcfg){
-    className = normalizeQName(qname);
+    className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
     package = getCompiledPackage(qname, pcfg);
     return n >= 0 ? "<package>.<className[0 .. n]>.$<className[n+1..]>_$I" : "<package>.$<className>_$I";
@@ -210,3 +245,4 @@ bool isEqualModule(str name1, name2){
     //println("isEqualModule(<name1>, <name2>) =\> <res>");
     return res;
 }
+
