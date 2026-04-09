@@ -12,7 +12,6 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
@@ -23,121 +22,51 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.jline.terminal.impl.DumbTerminal;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TestEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.project.ProjectURIResolver;
-import org.rascalmpl.uri.project.TargetURIResolver;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
-    private static class InstanceHolder {
-		final static IRascalMonitor monitor;
-        static {
-            try {
-                // jline is to smart, it intersects with junit runners that also interact with the stream
-                // so instead of that we direct all the messages to stderr, and disable any smart stuff
-                monitor = IRascalMonitor.buildConsoleMonitor(new DumbTerminal(InputStream.nullInputStream(), System.out));
-            }
-            catch (IOException e1) {
-                throw new IllegalStateException("Could not create a terminal representation");
-            }
-        }
-    }
-   
-   	public static IRascalMonitor getCommonMonitor() {
-	    return InstanceHolder.monitor;
-   	}
-
-    private static Evaluator evaluator;
-    private static GlobalEnvironment heap;
-    private static ModuleEnvironment root;
+    private final Evaluator evaluator;
     private Description desc;
 
     private final String prefix;
     private final ISourceLocation projectRoot;
     private final Class<?> clazz;
 
-    static {
-        try {
-            heap = new GlobalEnvironment();
-            root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, getCommonMonitor());
-        
-            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-            evaluator.getConfiguration().setErrors(true);
-        } 
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }  
+    private final static String JUNIT_TEST = "___junit_test___";
+
 
     public RascalJUnitTestRunner(Class<?> clazz) {
-        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
-        this.projectRoot = inferProjectRoot(clazz);
+        prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
+        projectRoot = inferProjectRootFromClass(clazz);
         this.clazz = clazz;
         
         System.err.println("Rascal JUnit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
         System.err.println("Rascal JUnit project root: " + projectRoot);
-        
 
         if (projectRoot != null) {
-            configureProjectEvaluator(evaluator, projectRoot);
-        }
-        else {
+            evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectRoot, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), JUNIT_TEST);
+            evaluator.getConfiguration().setErrors(true);
+        } else {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
         }
     }
     
-    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        String projectName = new RascalManifest().getProjectName(projectRoot);
-        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+    public static ISourceLocation inferProjectRootFromClass(Class<?> clazz) {
         
-        try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
-            
-            for (IValue path : pcfg.getSrcs()) {
-
-                evaluator.addRascalSearchPath((ISourceLocation) path); 
-            }
-            
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-            evaluator.addClassLoader(cl);
-        }
-        catch (AssertionError e) {
-            e.printStackTrace();
-            throw e;
-        }
-        catch (IOException e) {
-            System.err.println(e);
-        }
-    }
-
-    public static ISourceLocation inferProjectRoot(Class<?> clazz) {
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
             if (file.endsWith(".jar")) {
@@ -232,7 +161,7 @@ public class RascalJUnitTestRunner extends Runner {
 
                     try {
                         evaluator.doNextImport(jobName, name);
-                        List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
+                        List<AbstractFunction> tests = evaluator.getHeap().getModule(name.replaceAll("\\\\","")).getTests();
                     
                         if (tests.isEmpty()) {
                             continue;
@@ -279,6 +208,14 @@ public class RascalJUnitTestRunner extends Runner {
         return desc;
     }
 
+    private static boolean hasImportError(Description mod) {
+        if (mod.getAnnotations().stream().anyMatch(CompilationFailed.class::isInstance)) {
+            return true;
+        }
+        // Recursively check for errors
+        return mod.getChildren().stream().anyMatch(RascalJUnitTestRunner::hasImportError);
+    }
+
     @Override
     public void run(final RunNotifier notifier) {
         if (desc == null) {
@@ -287,9 +224,7 @@ public class RascalJUnitTestRunner extends Runner {
         notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
-            // TODO: this will never match because we are on the level of module descriptions now.
-            // This the reason that modules with errors in them silently succeed with 0 tests run.
-            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+            if (hasImportError(mod)) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
                 break;
             }

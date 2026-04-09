@@ -19,35 +19,37 @@
 }
 module lang::rascal::tutor::Compiler
 
-import Message;
 import Exception;
 import IO;
-import String;
-import Node;
 import List;
-import Relation;
 import Location;
+import Message;
+import Node;
 import ParseTree;
-import util::Reflective;
-import util::FileSystem;
+import Relation;
+import Set;
+import String;
+import String;
 import ValueIO;
-
-import lang::yaml::Model;
-import lang::rascal::tutor::repl::TutorCommandExecutor;
-import lang::rascal::tutor::apidoc::GenerateMarkdown;
-import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::Includer;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
-import lang::rascal::tutor::Includer;
-import lang::rascal::\syntax::Rascal;
+import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::tutor::apidoc::GenerateMarkdown;
+import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::yaml::Model;
+import util::FileSystem;
+import util::Monitor;
+import util::Reflective;
 
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|target://rascal-tutor/docs|,
-  libs=[|lib://rascal|],
+  bin=|target://rascal/docs|,
+  libs=[],
   srcs=[
-    |project://rascal-tutor/src/lang/rascal/tutor/examples/Test|
+    |project://rascal/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/Test|
   ]);
 
 public list[Message] lastErrors = [];
@@ -66,12 +68,90 @@ public void defaultCompile(bool clean=false) {
   lastErrors = errors;
 }
 
+int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
+  loc license           =|unknown:///|, 
+  loc citation          = |unknown:///|, 
+  loc funding           = |unknown:///|, 
+  loc releaseNotes      = |unknown:///|,
+  loc authors           = |unknown:///|,
+  bool verbose          = false,
+  bool errorsAsWarnings = false, 
+  bool warningsAsErrors = false, 
+  bool isPackageCourse  = false, 
+  bool includeLibraries = false,
+  str groupId           = "org.rascalmpl",
+  str artifactId        = "rascal",
+  str version           = getRascalVersion(),
+  str packageName       = "<groupId>.<artifactId>") {
+
+  if (authors?)         pcfg.authors         = authors;
+  if (license?)         pcfg.license         = license;
+  if (citation?)        pcfg.citation        = citation;
+  if (funding?)         pcfg.funding         = funding;
+  if (releaseNotes?)    pcfg.releaseNotes    = releaseNotes;
+  if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
+  if (isPackageCourse?) pcfg.packageName     = "<groupId>.<artifactId>";
+
+  pcfg.packageArtifactId = artifactId;
+  pcfg.packageGroupId    = groupId;
+  pcfg.packageVersion    = version;
+
+  if (!isPackageCourse && pcfg.packageGroupId == "org.rascalmpl" && pcfg.packageArtifactId == "rascal") {
+    // drop the libraries to avoid circular dependencies with typepal
+    pcfg.libs = [];
+  }
+
+  if (verbose) iprintln(pcfg);
+ 
+  if (includeLibraries) {
+    jobStart("Including libraries", totalWork=size(pcfg.libs));
+
+    for (loc lib <- pcfg.libs, exists((lib + "docs") + "index.value") ) {
+      jobStep("Including libraries", "<lib>");
+      copy(lib + "docs", pcfg.bin + "docs", recursive=true);
+      remove(pcfg.bin + "docs" + "index.value");
+    }
+
+    jobEnd("Including libraries");
+  }
+
+
+  messages = compile(pcfg);
+  
+  return mainMessageHandler(messages, projectRoot=pcfg.projectRoot, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
+}
+
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
+  bool bStep(str label, str message) {
+    jobStep(label, message);
+    return true;
+  }
+
+  // all documentation ends up nested under the `docs` folder in the target
+  pcfg.bin = pcfg.bin + "docs";
+
+
   ind = createConceptIndex(pcfg);
-  
+
+  jobStart("Compiling courses", totalWork=size(pcfg.srcs));
+
+  conceptFiles = [*find(src, isConceptFile) | src <- pcfg.srcs];
+  jobStart("Compiling concepts", totalWork=size(conceptFiles));
+
+  imageFiles = [*find(src, isImageFile) | src <- pcfg.srcs];
+  jobStart("Transferring images", totalWork=size(imageFiles));
+
+  directoryIndexes = [*find(src, isDirectory) | src <- pcfg.srcs];
+  jobStart("Compiling directories", totalWork=size(directoryIndexes));
+
+  rascalFiles = [*find(src, isRascalFile) | src <- pcfg.srcs];
+  jobStart("Compiling modules", totalWork=size(rascalFiles));
+
   if (pcfg.isPackageCourse) {
+    jobStart("Generating package structure");
     generatePackageIndex(pcfg);
+    jobEnd("Generating package structure");
   }
   else {
     storeImportantProjectMetaData(pcfg);
@@ -80,7 +160,15 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
   // remove trailing slashes
   pcfg.ignores = [i.parent + i.file | i <- pcfg.ignores];
 
-  return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+  result =  [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs, bStep("Compiling courses", "<src.file>")];
+
+  jobEnd("Compiling directories");
+  jobEnd("Transferring images");
+  jobEnd("Compiling modules");
+  jobEnd("Compiling concepts");
+  jobEnd("Compiling courses");
+
+  return result;
 }
 
 void storeImportantProjectMetaData(PathConfig pcfg) {
@@ -89,8 +177,12 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   // this information, however, is not easy to obtain outside of the build
   // environment of the current project. Therefore we store it here and now.
 
-  if (!pcfg.packageName?) {
+  if (!pcfg.isPackageCourse) {
     return;
+  }
+
+  if (pcfg.authors? && exists(pcfg.authors)) {
+    copy(pcfg.authors, pcfg.bin + "AUTHORS_<pcfg.packageName>.txt");
   }
 
   if (pcfg.license? && exists(pcfg.license)) {
@@ -98,18 +190,18 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   }
 
   if (pcfg.citation? && exists(pcfg.citation)) {
-    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.md");
+    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.txt");
   }
 
   if (pcfg.funding? && exists(pcfg.funding)) {
-    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.md");
+    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.txt");
   }
 
   if (pcfg.releaseNotes? && exists(pcfg.releaseNotes)) {
-    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
+    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.txt");
   }
 
-  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+  dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
     writeFile(pcfg.bin + "DEPENDENCIES_<pcfg.packageName>.txt",
@@ -121,7 +213,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
 } 
 
 void generatePackageIndex(PathConfig pcfg) {
-  targetFile = pcfg.bin + "Packages" + package(pcfg.packageName) + "index.md";
+  loc targetFile = pcfg.bin + "Packages" + package(pcfg.packageName) + "index.md";
 
   if (pcfg.license?) {
     writeFile(targetFile.parent + "License.md", 
@@ -132,16 +224,25 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
+  if (pcfg.authors? && exists(pcfg.authors)) {
+    writeFile(targetFile.parent + "Authors.md",
+      "---
+      'title: Authors of <pcfg.packageGroupId>.<pcfg.packageArtifactId>
+      '---
+      '
+      '<readFile(pcfg.authors)>");
+  }
+
   if (pcfg.funding?) {
     writeFile(targetFile.parent + "Funding.md", 
       "---
-      'title: Funding 
+      'title: Funding for <pcfg.packageArtifactId>
       '---
       '
       ':::info
       'Open-source software is free for use, yet it does not come for free.
       'The following sources of funding have been instrumental in the creation 
-      'and maintenance of <pcfg.packageName>. You may consider also to become
+      'and maintenance of <pcfg.packageArtifactId>. You may consider also to become
       'a [sponsor](https://github.com/sponsors/usethesource?o=esb)
       ':::
       '
@@ -156,9 +257,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '
       ':::info
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
-      'Citing software **recognizes** the associated investment and the quality of the result.
-      'If you use open-source software, it is becoming standard practise to recognize the work as
-      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'Citing software recognizes the associated investment and the quality of the result.
+      'If you use open-source software, it is becoming standard practise to recognize the work by citing it (as shown below). 
+      'In turn their effort might be awarded with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
       'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
@@ -174,7 +275,7 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.releaseNotes)>");
   }
 
-  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+  dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
     writeFile(targetFile.parent + "Dependencies.md",
@@ -188,9 +289,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '<}>
       '
       ':::info
-      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageName> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
+      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageArtifactId> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
       '
-      'The authors contributing to <pcfg.packageName> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
+      'The authors contributing to <pcfg.packageArtifactId> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
       ':::
       "
     );
@@ -203,9 +304,10 @@ void generatePackageIndex(PathConfig pcfg) {
     '
     'This is the documentation for version <pcfg.packageVersion> of <pcfg.packageName>.
     '
+    '<if (pcfg.authors?, exists(pcfg.authors)) {>* [Authors](../../Packages/<package(pcfg.packageName)>/Authors.md)<}>
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
-    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
+    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageArtifactId>)
     '<if (pcfg.releaseNotes?)  {>* [Release notes](../../Packages/<package(pcfg.packageName)>/RELEASE-NOTES.md)<}>
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<package(pcfg.packageName)>/License.md)<}>
     '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<package(pcfg.packageName)>/Citation.md)<}>
@@ -221,25 +323,12 @@ void generatePackageIndex(PathConfig pcfg) {
     '```xml
     '\<dependencies\>
     '    \<dependency\>  
-    '        \<groupId\><pcfg.packageGroup>\</groupId\>
-    '        \<artifactId\><pcfg.packageName>\</artifactId\>
+    '        \<groupId\><pcfg.packageGroupId>\</groupId\>
+    '        \<artifactId\><pcfg.packageArtifactId>\</artifactId\>
     '        \<version\><pcfg.packageVersion>\</version\>
     '    \</dependency\>
     '\</dependencies\> 
     '```
-    '**and** change the `Require-Libraries` field in `/path/to/yourProjectName/META-INF/RASCAL.MF` like so:
-    '
-    '```MF
-    'Manifest-Version: 0.0.1
-    'Project-Name: yourProjectName
-    'Source: path/to/src
-    'Require-Libraries: |lib://<pcfg.packageName>|
-    '
-    '
-    '```
-    ':::info
-    'dot.MF files _must_ end with an empty line.
-    ':::
     ");
 }
 
@@ -260,12 +349,12 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
     else if (src.extension == "rsc") {
         return compileRascalFile(src, pcfg[currentFile=src], exec, ind);
     }
-    else if (src.extension in {"md"}) {
+    else if (src.extension == "md") {
         return compileMarkdownFile(src, pcfg, exec, ind, sidebar_position=sidebar_position);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
+        jobStep("Transferring images", "<src.file>");
         try {  
-          println("copying   <src> [Asset]");
           copy(src, pcfg.bin + (pcfg.isPackageCourse ? "assets/Packages/<package(pcfg.packageName)>" : "assets") + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
@@ -280,11 +369,11 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
 }
 
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+    jobStep("Compiling directories", "<d.path>");
+
     if (d in pcfg.ignores) {
       return [info("skipped ignored location: <d>", d)];
     }
-
-    println("compiling <d> [Folder]");
 
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
@@ -301,13 +390,14 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       j=i;
       j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
 
-      targetFile = pcfg.bin 
+      loc targetFile = pcfg.bin 
         + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, j)[extension="md"].path;
       
-      if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {
-        println("compiling <i> [Index Markdown]");
+      jobStep("Compiling concepts", "<i.file>");
+
+      if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {  
         output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
       
         writeFile(targetFile,
@@ -331,7 +421,6 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
         }
       }
       else {
-        println("reusing   <i>");
         if (exists(targetFile[extension="errors"])) {
           errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
         }
@@ -358,7 +447,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
     p2r = pathToRoot(pcfg.currentRoot, d, pcfg.isPackageCourse);
     title = (d == pcfg.currentRoot && d.file in {"src","rascal","api"}) ? "API" : d.file;
 
-    targetFile = pcfg.bin 
+    loc targetFile = pcfg.bin 
       + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
       + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
       + relativize(pcfg.currentRoot, d).path
@@ -398,12 +487,13 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
  
   errors = [];
 
+  jobStep("Compiling modules", "<m.file>");
+
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
     str parentSlug = (|path:///| + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m).parent.path).path;
 
-    println("compiling <m> [Rascal Source File]");
     list[Output] output = generateAPIMarkdown(parentSlug, m, pcfg, exec, ind);
 
     writeFile(targetFile,
@@ -420,7 +510,6 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
     }
   }
   else {
-    println("reusing   <m>");
     if (exists(targetFile[extension="errors"])) {
       errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
     }
@@ -448,8 +537,9 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
 
   errors = [];
 
+   jobStep("Compiling concepts", "<m.file>");
+
   if (!exists(targetFile) || lastModified(m) > lastModified(targetFile)) {
-    println("compiling <m> [Normal Markdown]");
     list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, sidebar_position=sidebar_position) + [Output::empty()];
    
     writeFile(targetFile,
@@ -464,7 +554,6 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
     return errors;
   }
   else {
-    println("reusing   <m>");
     if (exists(targetFile[extension="errors"])) {
       // keep reporting the errors of the previous run, for clarity's sake
       return readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
@@ -505,7 +594,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str
 list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *str block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   str code = "<for (l <- block) {><l>
              '<}>";
-  
+
   try {
     commands = ([start[Commands]] code).top.commands;
  
@@ -520,11 +609,34 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
       stderr += output["application/rascal+stderr"]?"";
     }
 
+    list[str] splitc([]) = [];
+    list[str] splitc([/^\s*\/\/<comment:.*>$/, *str tail]) 
+      = [trim(comment),  *splitc(tail)];
+
+    default list[str] splitc(list[str] bl) {
+      int i = 0;
+      result = ["```rascal <rest1>"]; 
+
+      for (str line <- bl) {
+        if (/^\s*\/\/<comment:.*>$/ := line) {
+          return [
+            *result,
+            "```",
+            *splitc(bl[i..])
+          ];
+        }
+
+        result += [line];
+
+        i += 1;
+      }
+
+      return [*result, "```"];
+    }
+
     return [ 
         Output::empty(), // must have an empty line
-        out("```rascal <rest1>"),
-        *[out(l) | l <- block],
-        out("```"),
+        *[out(fl) | str fl <- splitc(block)],
         *[
           out(":::danger"),
           *[out(errLine) | errLine <- split("\n", stderr)],
@@ -543,9 +655,8 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [ Output::empty(), // must have an empty line
-      out("```rascal-shell <rest1>"),
-      *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
-      out("```"),
+      *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
+      Output::empty(),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
@@ -572,11 +683,9 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
 list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [
      out(":::caution"),
-     out("There is a \"TODO\" in the documentation source:"),
-     out("\t<msg>"),
-     out(first),
+     out("**TODO** <trim(msg)>"),
      out(":::"),
-     err(warning("TODO: <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
+     err(warning("TODO <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ];
 
@@ -634,24 +743,29 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
+        if (str sep <- {"::", "-"}, 
+           {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
+        else if (str sep <- {"::","-"}, 
+                {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
+
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
-                              cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
-                                    '    <k> resolves to <v><}>")),
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
+                            pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
               ];
       }
@@ -666,7 +780,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   switch (resolution) {
-      case {u}: {
+      case {str u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>";
         return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
@@ -688,33 +802,67 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         else {
           fail;
         }
-     
+      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
-        }
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
+        if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
+        else if (str sep <- {"-", "::"}, {str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<fragment(pcfg.currentRoot, pcfg.currentFile[extension=""])><sep><removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
+        else if ({str u} := ind["<rootName(pcfg.currentRoot, pcfg.isPackageCourse)>:<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>";
+          return compileMarkdown(["<prefix>(<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
+        }
+
+        exactLinks = exactShortestLinks(ind, removeSpaces(link));
 
         return [
-            err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
-                      cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
-                            '    <k> resolves to <v><}>")),
-            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
+                  err(error("Ambiguous concept link `<link>` can be resolved by:
+                            '<for (<k, v> <- exactLinks) {>   * using ((<k>)) to link to <v>;
+                            '<}>",
+                            pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
   }
 
   return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
+}
+
+@synopsis{Turn an ambiguous link into several _shortest_ suggestions for exact (unique) references}
+rel[str key, str path] exactShortestLinks(rel[str key, str path] ind, str link) {
+  bool linkSort(str a, str b) {
+    // prefer shorter links first
+    if (size(a) < size(b)) {
+      return true; 
+    }
+
+    // if of equal length, we use string compare (which prefers `-` over `:` and `/` accidentally correctly)
+    if (size(a) == size(b), a < b) {
+      return true; 
+    }
+
+    return false; 
+  }
+
+  set[str] ambPaths = ind[link];
+  rel[str key, str path] relevantIndex = rangeR(ind, ambPaths);
+
+  // here we make sure that each suggested key will resolve exactly to a unique path in `ind`
+  rel[str key, str path] exactIndex = {<k,v> | <k, v> <- relevantIndex, {_} := ind[k]};
+
+  // here we rank each suggested link key by shorter length, and then alphabetically
+  map[str path, set[str] keys] mappedReverseIndex = toMap(exactIndex<1,0>);
+  map[str path, list[str] keys] prioritizedReverseIndex = (path : sort(mappedReverseIndex[path], linkSort) | path <- mappedReverseIndex);
+
+  // finally we return a one-to-one key-path relation, where every key is guaranteed to return an exact path in `ind`,
+  // and each unique key itself is the shortest possible:
+  return { <prioritizedReverseIndex[path][0], path> | path <- prioritizedReverseIndex};
 }
 
 @synopsis{extract what's needed from the header and print it back, also set sidebar_position}
@@ -783,88 +931,115 @@ default list[Output] compileMarkdown([str head, *str tail], int line, int offset
       *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
-list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
+list[Output] compileRascalShell([], bool _, bool _, str _, int _, int _, PathConfig _, CommandExecutor _, Index _) 
+  = [];
+
+list[Output] compileRascalShell(list[str] block:[str head, *str tail], bool allowErrors, bool isContinued, str config, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
   if (!isContinued) {
     exec.reset();
   }
 
-  errorsDetected = false;
-  lineOffsetHere = 0;
-  list[Output] result = [];
+  if (/^\s*\/\/<comment:.*>$/ := head) {
+    // first line is a comment, hoist it out of the block
+    return [
+      out(trim(comment)),
+      *compileRascalShell(tail, allowErrors, isContinued, config, lineOffset + 1, offset, pcfg, exec, ind)
+    ];
+  }
+  else if (/^\s*$/ := head) {
+    // the first line is empty, just skip it
+    return compileRascalShell(tail, allowErrors, isContinued, config, lineOffset + 1, offset, pcfg, exec, ind);
+  }
   
-  result = OUT:for (str line <- block) {
-    if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
-      append OUT : out("```");
-      append OUT : out(trim(comment));
-      append OUT : out("```rascal-shell");
-      continue OUT;
+  // here we know we have non-comment, non-empty shell input
+  errorsDetected = false;
+  int lineOffsetHere = 0;
+  list[Output] result = [out("```rascal-shell <config>")];
+  
+  for (str line <- block) {
+    if (/^\s*\/\/<comment:.*>$/ := line) { 
+      // intermittent comments break the block
+      return [
+        *result,
+        out("```"),
+        // include this comment line to be processed above
+        *compileRascalShell(block[lineOffsetHere..], allowErrors, true, config, lineOffset + 1, offset, pcfg, exec, ind)
+      ];
     }
-    // TODO: make this work again: append out("<exec.prompt()><line>");
-    append out("rascal\><line>");
-    
+
+    // this is the input command
+    result += [out("<exec.prompt()><line>")];
+  
+    // evaluate it
     output = exec.eval(line);
-    str result = output["text/plain"]?"";
+    str cmdResult = output["text/plain"]?"";
     str stderr = output["application/rascal+stderr"]?"";
     str stdout = output["application/rascal+stdout"]?"";
     str shot   = output["application/rascal+screenshot"]?"";
     str png    = output["image/png"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
-      for (allowErrors, str errLine <- split("\n", stderr)) {
-        errorsDetected = true;
-        append OUT : out(errLine);
-      }
+      errorsDetected = true;
 
-      if (!allowErrors) {
-        append OUT : err(error("Code execution failed:
-                               '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
-        append OUT : out("```");      
-        append OUT : out(":::danger");
-        append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
-        append OUT : out(":::");
-        append OUT : out("```rascal-shell");
-        for (errLine <- split("\n", stderr)) {
-           append OUT : out(errLine);
-        }
-        append OUT : out("```");
-      }
+      result += [out(errLine) | str errLine <- split("\n", stderr)];
+
+      result += [err(error("Code execution failed:
+                           '    <stderr>", 
+                           pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), 
+                           cause=stderr))
+                | !allowErrors]; 
+      
     }
 
     if (stdout != "") {
-      for (outLine <- split("\n", stdout)[..500]) {
-        append OUT : out("<outLine>");
-      }
+      result += [out(outLine) | outLine <- split("\n", stdout)[..500]];
     }
 
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("screenshot <targetFile>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
-      append OUT: out("```");
-      append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
-      append OUT: out("```rascal-shell");
+      
+      // a screenshot also breaks the block
+      return [
+        *result,
+        out("```"),
+        out("![image](<relativize(pcfg.bin, targetFile).path>)"),
+        // skip this screenshot command because it is already printed.
+        *compileRascalShell(block[lineOffsetHere + 1..], allowErrors, true, config, lineOffset + lineOffsetHere + 1, offset, pcfg, exec, ind)
+      ]; 
     }
-    else if (result != "") {
-      for (str resultLine <- split("\n", result)) {
-        append OUT : out(resultLine);
-      }
+    
+    if (cmdResult != "") {
+      result += [out(resultLine) | str resultLine <- split("\n", cmdResult)];
     } 
 
     lineOffsetHere +=1;
   }
 
-  if (allowErrors && !errorsDetected) {
-    result += [
-      out(":::warning"),
-      out("The above code block was declared to expect errors, but no errors were detected during its execution."),
+  result += [out("```")];
+
+  if (errorsDetected && !allowErrors) {
+    result = [
+      out(":::danger"),
+      out("The following code block code failed unexpectedly:"),
       out(":::"),
-      err(error("Code execution failed to produce an expected error", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>)))
+      *result
+    ];
+  } 
+  else if (allowErrors && !errorsDetected) {
+    result = [
+      err(error("Code block failed to produce expected error.", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>))),
+      out(":::danger"),
+      out("The following code failed to produce expected error:"),
+      out(":::"),
+      *result 
     ];
   }
 
   return result;
-}
+}                            
 
 @synopsis{Prepare blocks run the REPL but show no input or output}
 list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
@@ -902,7 +1077,7 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
-      println("screenshot <targetFile>");
+      println("Produced screenshot <targetFile> for <pcfg.currentFile.file>");
       writeBase64(targetFile, shot);
       append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
     } 

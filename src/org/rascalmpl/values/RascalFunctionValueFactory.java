@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,12 +26,12 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -50,6 +51,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
@@ -217,7 +219,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
     
     @Override
-    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         TypeFactory tf = TypeFactory.getInstance();
         
         // the return type of the generated parse function is instantiated here to the start nonterminal of
@@ -243,7 +245,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             name = generator.getParserMethodName(startSort);
         }
 
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
     
     protected static String getParserMethodName(IConstructor symbol) {
@@ -267,7 +269,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     @Override
-    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -287,7 +289,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
         
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
 
     @Override
@@ -297,7 +299,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     @Override
-    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -309,50 +311,60 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
-        @SuppressWarnings({"unchecked"})
-        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
-            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
-          
-        AbstractAST current = ctx.getCurrentAST();
-        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-                
-        return function(
-            functionType, 
-            new ParametrizedParseFunction(() -> getParserGenerator(), 
-            this, 
-            caller, 
-            parser, 
-            allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters)
-        );
+        try {
+            @SuppressWarnings({"unchecked"})
+            final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+                = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                    .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+            
+            AbstractAST current = ctx.getCurrentAST();
+            ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                    
+            return function(
+                functionType, 
+                new ParametrizedParseFunction(() -> getParserGenerator(), 
+                this, 
+                caller, 
+                parser, 
+                allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters)
+            );
+        }
+        catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
-    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         TypeFactory tf = TypeFactory.getInstance();
         
         Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
       
-        @SuppressWarnings({"unchecked"})
-        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
-            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
-          
-        AbstractAST current = ctx.getCurrentAST();
-        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-                
-        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+        try {
+            @SuppressWarnings({"unchecked"})
+            final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+                = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                    .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+            
+            AbstractAST current = ctx.getCurrentAST();
+            ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                    
+            IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
-        checkPreconditions(startSort, reifiedGrammar.getType());
-        
-        String name = getParserMethodName(startSort);
-        if (name == null) {
-            name = generator.getParserMethodName(startSort);
+            checkPreconditions(startSort, reifiedGrammar.getType());
+            
+            String name = getParserMethodName(startSort);
+            if (name == null) {
+                name = generator.getParserMethodName(startSort);
+            }
+
+            return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
         }
-
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters));
+        catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
     /**
@@ -377,7 +389,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
     public IString createHole(ITree part, IInteger index) {
@@ -422,21 +434,28 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final ISet filters;
         protected final IValueFactory vf;
         protected final boolean allowAmbiguity;
+        protected final int maxAmbDepth;
         protected final boolean allowRecovery;
+        protected final int maxRecoveryAttempts;
+        protected final int maxRecoveryTokens;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
         protected final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
         protected final String methodName;
         protected final ISourceLocation caller;
         
-        public ParseFunction(IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+        public ParseFunction(IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+            IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             this.vf = vf;
             this.caller = caller;
             this.parser = parser;
             this.methodName = methodName;
             this.filters = filters;
             this.allowAmbiguity = allowAmbiguity.getValue() || firstAmbiguity.getValue();
+            this.maxAmbDepth = maxAmbDepth.intValue();
             this.allowRecovery = allowRecovery.getValue();
+            this.maxRecoveryAttempts = maxRecoveryAttempts.intValue();
+            this.maxRecoveryTokens = maxRecoveryTokens.intValue();
             this.hasSideEffects = hasSideEffects.getValue();
             this.firstAmbiguity = firstAmbiguity.getValue();
         }
@@ -461,10 +480,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
 
                 if (parameters[0].getType().isString()) {
-                    return parse(methodName, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, allowRecovery, hasSideEffects);
+                    return parse(methodName, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects);
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return parse(methodName, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, allowRecovery, hasSideEffects);
+                    return parse(methodName, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects);
                 }
             }
 
@@ -484,13 +503,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             } 
         }
 
-        protected IValue parse(String methodName, ISet filters, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
+        protected IValue parse(String methodName, ISet filters, IString input,  ISourceLocation origin, boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery,
+            int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
             try {
                 if (origin == null) {
                     origin = URIUtil.rootLocation("unknown");
                 }
                 
-                return parseObject(methodName, origin, input.getValue().toCharArray(), allowAmbiguity, allowRecovery, hasSideEffects, filters);
+                return parseObject(methodName, origin, input.getValue().toCharArray(), allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -507,7 +527,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         protected IValue firstAmbiguity(String methodName, IString input) {
             try {
-                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, false, false, vf.set());
+                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, 
+                    INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -523,14 +544,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         protected IValue firstAmbiguity(String methodName, ISourceLocation input) {
             try {
-                return parseObject(methodName, input, readAll(input), false, false, false, vf.set());
+                return parseObject(methodName, input, readAll(input), false, 
+                    INodeFlattener.UNLIMITED_AMB_DEPTH, false, 0, 0, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (IOException e) {
-                throw RuntimeExceptionFactory.io("IO error: " + e);
+                throw RuntimeExceptionFactory.io(e);
             }
             catch (Ambiguous e) {
                 return e.getTree();
@@ -550,13 +572,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return vf.string(SymbolAdapter.toString(symbol, false));
         }
 
-        protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
+        protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, int maxAmbDepth,
+                boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects) {
             if (origin != null && !origin.equals(input)) {
                 throw new IllegalArgumentException("input and origin should be equal: <input> != <origin>");
             }
             
             try {
-                return parseObject(methodName, input, readAll(input), allowAmbiguity, allowRecovery, hasSideEffects, filters);
+                return parseObject(methodName, input, readAll(input), allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -574,16 +597,16 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
         }
 
-        private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects,  ISet filters) {
-            IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
+        private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, int maxAmbDepth, boolean allowRecovery, int maxRecoveryAttempts, int maxRecoveryTokens, boolean hasSideEffects, ISet filters) {
+            IActionExecutor<ITree> exec = filters.isEmpty() ? new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
             URI uri = location.getURI();
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
+                recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance), maxRecoveryAttempts, maxRecoveryTokens);
             }
-            ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
+            ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, maxAmbDepth, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
 
             if (!allowAmbiguity && allowRecovery) {
                 // Check for 'regular' (non-error) ambiguities
@@ -594,7 +617,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return parseForest;
         }
     }
-    
+
     /**
      * This class wraps the parseObject methods of the Evaluator by presenting it as an implementation of IFunction.
      * In this way library builtins can use the parser generator functionality of the Evaluator without knowing about
@@ -606,8 +629,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     static private class ParametrizedParseFunction extends ParseFunction {
         private Supplier<ParserGenerator> generator;
 
-        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-            super(vf, caller, parser, null, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters);
+        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+            super(vf, caller, parser, null, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters);
             this.generator = generator;
         }
         
@@ -642,10 +665,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
 
                 if (parameters[1].getType().isString()) {
-                    return parse(name, filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, allowRecovery, hasSideEffects);
+                    return parse(name, filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects);
                 }
                 else if (parameters[1].getType().isSourceLocation()) {
-                    return parse(name, filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, allowRecovery, hasSideEffects);
+                    return parse(name, filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects);
                 }
             }
 

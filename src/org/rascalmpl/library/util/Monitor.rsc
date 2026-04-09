@@ -13,6 +13,7 @@ module util::Monitor
 
 import util::Math;
 import IO;
+import Exception;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -27,7 +28,7 @@ specific task will be increased by the given amount.
 
 }
 @benefits{
-* It is adviced to use the "block" functions `job` instead of the raw `jobStart`, `jobStep` and `jobEnd`
+* It is advised to use the "block" functions `job` instead of the raw `jobStart`, `jobStep` and `jobEnd`
 functions because these guarantee each started task is always ended, with and without exceptions. This improves
 the user experience for your users. Also these functions help by providing the job label in the scope of the task,
 such that this "magic constant" does not need to be repeated.
@@ -48,7 +49,7 @@ java void jobStep(str label, str message, int work = 1);
 java int jobEnd(str label, bool success=true);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-@synopsis{Register additional work for the identied job.}
+@synopsis{Register additional work for the identified job.}
 java void jobTodo(str label, int work=1);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
@@ -74,12 +75,13 @@ with a parameterized workload and the same label as the job name.
 &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block((str message, int worked) { 
+    return block(void (str message, int worked) { 
       jobStep(label, message, work=worked);
     });
   }
-  catch x: {
-     throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -99,14 +101,19 @@ with a parameterized workload and the same label as the job name.
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
 &T job(str label, &T (void (int worked) step) block, int totalWork=1) {
+  if (void (void (int _) _) _ := block) {
+    throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
+  }
+
   try {
     jobStart(label, totalWork=totalWork);
-    return block((int worked) { 
+    return block(void (int worked) { 
       jobStep(label, label, work=worked);
     });
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -128,12 +135,13 @@ with workload `1` and the same label as the job name.
 &T job(str label, &T (void () step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block(() {
+    return block(void () {
       jobStep(label, label, work=1);
     });
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -150,8 +158,9 @@ with workload `1` and the same label as the job name.
     jobStart(label, totalWork=totalWork);
     return block();
   }
-  catch x: {
-    throw x;
+  catch "Never caught": {
+    // This is only here because we cannot have a "finally" clause in Rascal without a catch
+    throw "Never caught";
   }
   finally {
     jobEnd(label);
@@ -230,7 +239,7 @@ test bool unfinishedLinesAtTheEndTest() {
 // repo of issue #2138
 test bool printLongUnfinishedLine() {
   jobStart("job", totalWork=1);
-  singleString = iprintToString(("" | it + "ab" | i <- [0..1000000])); // avoid concat tree printing in chunks
+  singleString = iprintToString(("" | it + "ab" | _ <- [0..1000000])); // avoid concat tree printing in chunks
   println(singleString);
   jobStep("job", "prog", work=1);
   println("Done");

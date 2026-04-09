@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -33,6 +34,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class ShellExec {
 	private static Map<IInteger, Process> runningProcesses = new ConcurrentHashMap<>();
@@ -53,6 +55,8 @@ public class ShellExec {
 	}
 
 	private IString toString(IValue o) {
+		var TF = TypeFactory.getInstance();
+
 		try {
 			if (o.getType().isSourceLocation()) {
 				ISourceLocation p = URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) o);
@@ -64,6 +68,22 @@ public class ShellExec {
 
 				return vf.string(new File(p.getURI()).getAbsolutePath());
 			}
+			else if (o.getType().isSubtypeOf(TF.listType(TF.sourceLocationType()))) {
+				// a list of loc becomes a path with OS-specific path separators
+				return vf.string(((IList) o).stream()
+					.map(this::toString)
+					.map(IString::getValue)
+					.collect(Collectors.joining(File.pathSeparator))
+				);
+			}
+			else if (o.getType().isSubtypeOf(TF.setType(TF.sourceLocationType()))) {
+				// a set of loc becomes a path with OS-specific path separators
+				return vf.string(((IList) o).stream()
+					.map(this::toString)
+					.map(IString::getValue)
+					.collect(Collectors.joining(File.pathSeparator))
+				);
+			}
 			else if (o.getType().isString()) {
 				return (IString) o;
 			}
@@ -72,7 +92,7 @@ public class ShellExec {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -91,7 +111,7 @@ public class ShellExec {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -184,7 +204,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 

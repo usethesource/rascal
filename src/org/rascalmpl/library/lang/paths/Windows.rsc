@@ -10,12 +10,12 @@ The main function of this module, ((parseWindowsPath)):
 * throws a ParseError if the path does not comply. Typically file names ending in spaces do not comply.
 * ensures that if the file exists on system A, then the `loc` representation
 resolves to the same file on system A via any ((Library:module:IO)) function. 
-* and nothing more. No normalization, no interpretatioon of `.` and `..`, no changing of cases. 
+* and nothing more. No normalization, no interpretation of `.` and `..`, no changing of cases.
 This is left to downstream processors of `loc` values, if necessary. The current transformation
 is purely syntactical, and tries to preserve the semantics of the path as much as possible.
 }
 @pitfalls{
-* Length limitations are not implemnted by this parser. This means that overly long names will lead
+* Length limitations are not implemented by this parser. This means that overly long names will lead
 to IO exceptions when they are finally used.
 * The names of drives, files and devices are mapped as-is, without normalization. This means that
 the resulting `loc` value may not be a _canonical_ representation of the identified resource.
@@ -68,6 +68,15 @@ import ParseTree;
 hostname, share name and path segment names. Also all superfluous path separators are skipped.
 3. uses `loc + str` path concatenation with its builtin character encoding to construct the URI. Also
 the right path separators are introduced. 
+
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\system07\C$\`
+
+Windows paths, against popular believe, support both `/` and `\` as path separators.
 }
 loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#WindowsPath, input, src));
 

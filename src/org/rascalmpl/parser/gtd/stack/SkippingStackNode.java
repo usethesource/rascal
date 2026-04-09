@@ -20,26 +20,26 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 	
-	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation) {
+	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation, int errorPosition) {
 		for (int to = startLocation ; to < input.length; ++to) {
 			for (int i = 0; i < until.length; ++i) {
 				if (input[to] == until[i]) {
 					int length = to - startLocation;
-					return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation);
+					return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation, errorPosition);
 				}
 			}
 		}
 
-		return new SkippedNode(uri, new int[0], startLocation);
+		return new SkippedNode(uri, new int[0], startLocation, errorPosition);
 	}
 
-	public static SkippedNode createResultUntilEndOfInput(URI uri, int[] input, int startLocation) {
+	public static SkippedNode createResultUntilEndOfInput(URI uri, int[] input, int startLocation, int errorPosition) {
 		int length = input.length - startLocation;
-		return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation);
+		return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation, errorPosition);
 	}
 
-	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation) {
-		return new SkippedNode(uri, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
+	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation, int errorPosition) {
+		return new SkippedNode(uri, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation, errorPosition);
 	}
 
 	private static int[] createSkippedToken(int[] input, int startLocation, int length) {

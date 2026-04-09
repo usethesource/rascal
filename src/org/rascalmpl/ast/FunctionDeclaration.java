@@ -31,42 +31,42 @@ public abstract class FunctionDeclaration extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBody() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionBody getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSignature() {
     return false;
   }
 
   public org.rascalmpl.ast.Signature getSignature() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTags() {
     return false;
   }
 
   public org.rascalmpl.ast.Tags getTags() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVisibility() {
     return false;
   }
 
   public org.rascalmpl.ast.Visibility getVisibility() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

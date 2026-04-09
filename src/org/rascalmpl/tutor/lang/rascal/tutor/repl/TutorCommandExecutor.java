@@ -1,7 +1,6 @@
 package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,8 +10,8 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,43 +37,47 @@ import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
 
 public class TutorCommandExecutor {
     private final RascalInterpreterREPL interpreter;
-    private final StringWriter outWriter = new StringWriter();
-    private final PrintWriter outPrinter = new PrintWriter(outWriter);
-    private final StringWriter errWriter = new StringWriter();
-    private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
-    private final ITutorScreenshotFeature screenshot;
+    private final static StringWriter outWriter = new StringWriter();
+    private final static PrintWriter outPrinter = new PrintWriter(outWriter);
+    private final static StringWriter errWriter = new StringWriter();
+    private final static PrintWriter errPrinter = new PrintWriter(errWriter, true);
+
+    private final ITutorScreenshotFeature screenshot = loadScreenShotter();
+    private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         interpreter = new RascalInterpreterREPL() {
             @Override
-            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
-                IDEServices services) {
+            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
-                eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 
-                ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
-                String projectName = new RascalManifest().getProjectName(projectRoot);
-                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-                reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+                if (!pcfg.getSrcs().isEmpty()) {
+                    ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+                    String projectName = new RascalManifest().getProjectName(projectRoot);
+                    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
-                for (IValue path : pcfg.getSrcs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path); 
+                    for (IValue path : pcfg.getSrcs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path); 
+                    }
+        
+                    for (IValue path : pcfg.getLibs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path);
+                    }
+        
+                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
+                    eval.addClassLoader(cl);
                 }
-    
-                for (IValue path : pcfg.getLibs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path);
+                else {
+                    services.warning("No src path configured for tutor", URIUtil.rootLocation("unknown"));
                 }
-    
-                ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-                eval.addClassLoader(cl);
 
                 return eval;
             }
@@ -83,7 +86,6 @@ public class TutorCommandExecutor {
             protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
                 return (monitor instanceof IDEServices) ? (IDEServices)monitor : new TutorIDEServices(err);
             }
-            
         };
 
         var terminal = TerminalBuilder.builder()
@@ -94,15 +96,12 @@ public class TutorCommandExecutor {
             .encoding(StandardCharsets.UTF_8)
             .build();
 
-        
-
         interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
-        screenshot = loadScreenShotter();
     }
 
-    private ITutorScreenshotFeature loadScreenShotter() {
+    private static ITutorScreenshotFeature loadScreenShotter() {
         try {
-            return (ITutorScreenshotFeature) getClass()
+            return (ITutorScreenshotFeature) ITutorScreenshotFeature.class
                 .getClassLoader()
                 .loadClass("org.rascalmpl.tutor.Screenshotter")
                 .getDeclaredConstructor()
@@ -112,8 +111,12 @@ public class TutorCommandExecutor {
             // that is normal; we just don't have the feature available.
             return null;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-            throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {   
+            // this is not normal, but since the screenshot feature is quirky we rather have it robustly continuing 
+            // without the feature, then crashing here and now.
+            System.err.println("Error: failed to load screenshot feature due to:" + e.getCause().getMessage());
+            e.getCause().printStackTrace(System.err);
+            return null;
         }
     }
 
@@ -136,42 +139,57 @@ public class TutorCommandExecutor {
         return current;
     }
 
-    private String javaCompilerPathAsString(IList javaCompilerPath) {
-        StringBuilder b = new StringBuilder();
-
-        for (IValue elem : javaCompilerPath) {
-            ISourceLocation loc = (ISourceLocation) elem;
-
-            if (b.length() != 0) {
-                b.append(File.pathSeparatorChar);
-            }
-
-            // this is the precondition
-            assert loc.getScheme().equals("file");
-
-            // this is robustness in case of experimentation in pom.xml
-            if ("file".equals(loc.getScheme())) {
-                b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-            }
-        }
-
-        return b.toString();
-    }
-
-
     public void reset() {
         interpreter.cancelRunningCommandRequested();
         interpreter.cleanEnvironment();
+        interpreter.clearModuleLoadMessages();
         outPrinter.flush();
         outWriter.getBuffer().setLength(0);
         errPrinter.flush();
         errWriter.getBuffer().setLength(0);
+        currentInput = "";
+    }
+
+
+    private String collectFullCommand(String line) {
+        if (!this.currentInput.isEmpty()) {
+            this.currentInput += "\n" + line;
+        }
+        else {
+            this.currentInput = line;
+        }
+        return this.currentInput;
+    }
+
+    private boolean isUnfinishedCommand(String cmd) {
+        try {
+            interpreter.parseCommand(cmd);
+            return false;
+        } 
+        catch (ParseError pe) {
+            return pe.getOffset() == cmd.length();
+        }
+    }
+
+    public String prompt() {
+        if (this.currentInput.isEmpty()) {
+            return "rascal>";
+        }
+        long lines = this.currentInput.codePoints()
+            .filter(ch -> ch == '\n')
+            .count() + 1;
+        return String.format("|%d %s", lines, ">".repeat(lines > 10 ? 3 : 4));
     }
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
+        var input = collectFullCommand(line);
+        if (isUnfinishedCommand(input)) {
+            // continuation
+            return Collections.emptyMap();
+        }
         Map<String, String> result = new HashMap<>();
         try {
-            var replResult = interpreter.handleInput(line);
+            var replResult = interpreter.handleInput(input);
             if (replResult instanceof IErrorCommandOutput) {
                 ((IErrorCommandOutput)replResult).asPlain().write(errPrinter, true);
             }
@@ -179,7 +197,7 @@ public class TutorCommandExecutor {
                 var img = ((IImageCommandOutput)replResult).asImage();
                 result.put(img.mimeType(), uuencode(img));
             }
-            else if (replResult instanceof IWebContentOutput) {
+            else if (replResult instanceof IWebContentOutput && screenshot != null) {
                 var webResult = (IWebContentOutput)replResult;
                 try {
                     String pngImage = screenshot.takeScreenshotAsBase64PNG(webResult.webUri().toASCIIString());
@@ -190,6 +208,7 @@ public class TutorCommandExecutor {
                 }
                 catch (Throwable e) {
                     errPrinter.write(e.getMessage());
+                    e.printStackTrace(errPrinter);
                 }
             }
             // we ignore IAnsiCommandOutput, as we know that we cannot render that. 
@@ -210,6 +229,7 @@ public class TutorCommandExecutor {
         catch (StopREPLException e1) {
             errWriter.write("Quiting REPL");
         } finally {
+            this.currentInput = "";
             result.put("application/rascal+stdout", getPrintedOutput());
             result.put("application/rascal+stderr", getErrorOutput());
         }

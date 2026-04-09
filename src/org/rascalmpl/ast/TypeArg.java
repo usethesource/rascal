@@ -31,14 +31,14 @@ public abstract class TypeArg extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -98,7 +98,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 787 * type.hashCode() ; 
+      return 59 + 823 * type.hashCode() ; 
     } 
   
     
@@ -182,7 +182,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 191 * type.hashCode() + 977 * name.hashCode() ; 
+      return 139 + 293 * type.hashCode() + 773 * name.hashCode() ; 
     } 
   
     

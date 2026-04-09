@@ -79,8 +79,8 @@ public class DefaultTestResultListener implements ITestResultListener {
 	        }
 	        else {
 	            out.println("\t" + successes + "/" + count + " tests succeeded");
-	            err.println("\t" + failures + "/" + count + " tests failed");
-	            err.println("\t" + errors + "/" + count + " tests threw exceptions");
+	            (failures == 0 ? out : err).println("\t" + failures + "/" + count + " tests failed");
+	            (errors == 0 ? out : err).println("\t" + errors + "/" + count + " tests threw exceptions");
 	        }
 
 	        if (ignored != 0) {

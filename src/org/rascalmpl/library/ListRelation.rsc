@@ -134,7 +134,7 @@ public lrel[&T0, &T1, &T2, &T3, &T4] complement(lrel[&T0, &T1, &T2, &T3, &T4] R)
 @description{
 The domain can be seen as all possible inputs of the relation image operation. The
 result contains elements (or tuples) in the order of appearance of the original relation,
-but all occurences after the first occurrence of an element have been removed.
+but all occurrences after the first occurrence of an element have been removed.
 }
 @examples{
 ```rascal-shell
@@ -171,7 +171,7 @@ public lrel[&T0,&T1,&T2,&T3] domainR (lrel[&T0,&T1,&T2,&T3] R, set[&T0] S)
 public lrel[&T0,&T1,&T2,&T3,&T4] domainR (lrel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
 	= [ <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> <- R, V0 in S ];
 
-// If the restiction is specified as a list, we take the order of tuples from there
+// If the restriction is specified as a list, we take the order of tuples from there
 public lrel[&T0,&T1] domainR (lrel[&T0,&T1] R, list[&T0] L)
 	= [ <V0, V1> | &T0 V0 <- L, <V0, &T1 V1> <- R];
 
@@ -214,7 +214,7 @@ public lrel[&T0, &T1, &T2, &T3, &T4] domainX (lrel[&T0, &T1, &T2, &T3, &T4] R, s
 @examples{
 ```rascal-shell
 import ListRelation;
-legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>];
+legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millipede", 1000>, <"crab", 8>, <"cat", 4>];
 groupDomainByRange(legs);
 ```
 }
@@ -266,7 +266,7 @@ public lrel[&T4,&T3,&T2,&T1,&T0] invert (lrel[&T0,&T1,&T2,&T3,&T4] R) = R<4,3,2,
 @description{
 The range can be seen as all the elements of in all possible images of the relation. The
 result contains elements (or tuples) in the order of appearance of the original relation,
-but all occurences after the first occurrence of an element have been removed.
+but all occurrences after the first occurrence of an element have been removed.
 }
 @examples{
 ```rascal-shell
@@ -294,7 +294,7 @@ rangeR([<1,10>, <2,20>, <3,30>], {30, 10});
 public lrel[&T0,&T1] rangeR (lrel[&T0,&T1] R, set[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 in S ];
 
-// If the restiction is specified as a list, we take the order of tuples from there
+// If the restriction is specified as a list, we take the order of tuples from there
 public lrel[&T0,&T1] rangeR (lrel[&T0,&T1] R, list[&T1] L)
 	= [ <V0, V1> | &T1 V1 <- L, <&T0 V0, V1> <- R ];
 
@@ -316,7 +316,7 @@ public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, list[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S ];
 
 
-@synopsis{Listes a binary list relation as a map}
+@synopsis{Lists a binary list relation as a map}
 @description{
 Converts a binary list relation to a map of the domain to a set of the range.
 }

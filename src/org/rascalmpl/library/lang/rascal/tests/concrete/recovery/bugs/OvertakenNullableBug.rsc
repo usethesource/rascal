@@ -13,6 +13,7 @@
 module lang::rascal::tests::concrete::recovery::bugs::OvertakenNullableBug
 
 
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
@@ -24,7 +25,7 @@ test bool testOvertakeNullableBug() {
     loc source = |std:///lang/rascal/tests/library/analysis/statistics/DescriptiveTests.rsc|;
     input = readFile(source);
 
-    testDeleteUntilEol(standardParser, recoveryParser, source, input, 200, 100, begin=561, end=561);
+    testDeleteUntilEol(standardParser, recoveryParser, source, input, 200, 100, 100, 100, begin=561, end=561);
     // If the deletion test succeeds without crashing, the test succeeds
     return true;
 }
