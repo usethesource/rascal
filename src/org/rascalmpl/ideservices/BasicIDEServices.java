@@ -22,10 +22,14 @@ import java.nio.file.Paths;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -36,11 +40,15 @@ public class BasicIDEServices implements IDEServices {
   private final IRascalMonitor monitor;
   private final PrintWriter stderr;
   private final Terminal terminal;
+  private final ISourceLocation projectRoot;
+  private final String projectName;
 
-  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Terminal terminal){
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot){
     this.stderr = stderr;
     this.monitor = monitor;
     this.terminal = terminal;
+    this.projectRoot = projectRoot;
+    this.projectName = new RascalManifest().getProjectName(projectRoot);
   }
 
   @Override
@@ -53,16 +61,11 @@ public class BasicIDEServices implements IDEServices {
     return terminal;
   }
 
-  
-  public void browse(ISourceLocation loc, String title, int viewColumn){
-      browse(loc.getURI(), title, viewColumn);
-  }
-
   /* (non-Javadoc)
    * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#browse(java.net.URI)
    */
   @Override
-  public void browse(URI uri, String _title, int _viewColumn) {
+  public void browse(URI uri, IString title, IInteger viewColumn) {
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
       try {
@@ -76,7 +79,7 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
-  public void edit(ISourceLocation loc) {
+  public void edit(ISourceLocation loc, int viewColumn) {
     try {
       loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
       
@@ -113,6 +116,11 @@ public class BasicIDEServices implements IDEServices {
   }
 
   @Override
+  public void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+      Messages.write(messages, projectRoot, stderr());
+  }
+  
+  @Override
   public void jobStart(String name, int workShare, int totalWork) {
     monitor.jobStart(name, workShare, totalWork);
   }
@@ -144,6 +152,15 @@ public class BasicIDEServices implements IDEServices {
 
   @Override
   public void warning(String message, ISourceLocation src) {
-    monitor.warning(message,  src);
+      monitor.warning(message,  src);
+  }
+
+  @Override
+  public ISourceLocation resolveProjectLocation(ISourceLocation input) {
+    if (projectName != "" && input.getScheme().equals("project") && input.getAuthority().equals(projectName)) {
+      return URIUtil.getChildLocation(projectRoot, input.getPath());
+    }
+    
+    return input;
   }
 }

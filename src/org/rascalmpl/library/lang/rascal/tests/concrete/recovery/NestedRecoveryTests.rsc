@@ -14,7 +14,7 @@
 
 module lang::rascal::tests::concrete::recovery::NestedRecoveryTests
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 layout Layout = [\ ]* !>> [\ ];
 

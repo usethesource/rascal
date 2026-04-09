@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.load;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class RascalSearchPath {
 	public List<String> listModuleEntries(String moduleRoot) {
 	    assert !moduleRoot.endsWith("::");
 		try {
-		    String modulePath = moduleToDir(moduleRoot);
+			    String modulePath = moduleToDir(moduleRoot);
 		    List<String> result = new ArrayList<>();
 			for (ISourceLocation dir : collect()) {
 				ISourceLocation full = getFullURI(modulePath, dir);
@@ -138,12 +139,9 @@ public class RascalSearchPath {
                     }
 				}
 			}
-			if (result.size() > 0) {
-			    return result;
-			}
-			return null;
+			return result;
 		} catch (URISyntaxException e) {
-			return null;
+			return Collections.emptyList();
 		}
 	    
 	}

@@ -53,15 +53,14 @@ This example demonstrates serializing:
 ```rascal-shell
 import lang::json::IO;
 data Size = xxs() | xs() | s() | m() | l() | xl() | xxl();
-data Person
-  = person(str firstName, str lastName, datetime birth, int height=0, Size size = m());
+data Person = person(str firstName, str lastName, datetime birth=$1977-05-17T06:00:00.000+00:00$, int height=0, Size size = m());
 example = person("Santa", "Class", height=175, size=xxl());
-asJSON(example, dateTimeFormat="YYYY-MM-DD");
+jsonExample = asJSON(example, dateTimeFormat="YYYY-MM-DD");
 ```
 
 On the way back we can also track origins for constructors:
 ```rascal-shell,continue
-parseJSON(#Person, example, trackOrigins=true)
+parseJSON(#Person, jsonExample, trackOrigins=true)
 ```
 }
 module lang::json::IO
@@ -72,10 +71,17 @@ import Exception;
 @synopsis{JSON parse errors have more information than general parse errors}
 @description{
 * `location` is the place where the parsing got stuck (going from left to right).
-* `cause` is a factual diagnosis of what was expected at that position, versus what was found.
+* `reason` is a factual diagnosis of what was expected at that position, versus what was found.
 * `path` is a path query string into the JSON value from the root down to the leaf where the error was detected.
 }
-data RuntimeException(str cause="", str path="");
+@benefits{
+* ((NoOffsetParseError)) is for when accurate offset tracking is turned off. Typically this is _on_
+even if `trackOrigins=false`, when we call the json parsers from Rascal.
+}
+data RuntimeException(str reason="", str path="")
+  = ParseError(loc location)
+  | NoOffsetParseError(loc location, int line, int column)
+  ;
 
 private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
 
@@ -163,7 +169,8 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
   str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
-  bool dateTimeAsInt=false, 
+  bool dateTimeAsInt=false,
+  bool rationalsAsString=false,
   int indent=0, 
   bool dropOrigins=true, 
   JSONFormatter[value] formatter = str (value _) { fail; }, 
@@ -177,7 +184,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{

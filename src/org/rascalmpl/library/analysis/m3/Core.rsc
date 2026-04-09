@@ -9,7 +9,7 @@ The M3 ((Library:analysis::m3::Core)) defines basic concepts such as:
 *  uses: where declared artifacts are used
 *  types: which artifacts has which types
 
-From this ((Library:analysis::m3::Core)) is supposed to be extended with features specific for a programming language. See for example [Java M3]((lang::java::m3::Core)).
+From this ((Library:analysis::m3::Core)) is supposed to be extended with features specific for a programming language. 
 }
 @benefits{
 *  Qualified names in the shape of a location are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
@@ -60,7 +60,7 @@ these core features:
 | Ground truth fact kind about source code           | Description |                
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `set[Language]`                                    | describes the languages this model contains information about, including their version numbers for the sake of transparency |
-| `rel[loc name, loc src] declarations`              | maps qualified names of relations to their original source location in the current model, if any. |
+| `rel[loc name, loc src] declarations`              | maps qualified names of  declarations to their original source location in the current model, if any. |
 |	`rel[loc src, loc name] uses`                      | as the _inverse_ of `declarations` this maps every source location where a declared artefact is used to its fully qualified name.|
 | `set[loc] implicitDeclarations`                    | provides a set of qualified names of things that are present no matter what in a programming language, for completeness sake.|
 | `rel[loc from, loc to] containment`                | links the qualified name of the outer (from) declaration to the names of everything that is declared inside of it (to).|
@@ -103,10 +103,10 @@ semantics. Sometimes to connect the merged models also new connections must be m
 When we simulate static composition, these analyses are ground truth, but when we simulate dynamic loading we have to treat the results as heuristic inferences.
 * Not every programming language front-end that creates M3 models has to have implemented all the above relations (yet). Constructing
 such a front-end may take time and incrementally growing models can already be very useful.
-* Even though M3 models can have errors and be partially populated, please be aware that partially correct programs lead to partically correct models and all downstream analysis is correspondingly inaccurate.
+* Even though M3 models can have errors and be partially populated, please be aware that partially correct programs lead to partially correct models and all downstream analysis is correspondingly inaccurate.
 * In statically types programming languages the `declarations` relation is typically one-to-one and the `uses` relation is `many-to-one`,
 which means that name resolution is _unique_ at _compile-time_. However this is not required for other more dynamic languages, and this is fine.
-You will see that one qualified name could potentionally resolve to different artefacts at run-time. This will be reflected by the `uses` relation
+You will see that one qualified name could potentially resolve to different artefacts at run-time. This will be reflected by the `uses` relation
 also having _many-to-many_ tuples in it. **Be careful how you count**, for example, _dependencies_ or _coupling_ in such cases since we
 are literally already over-approximating the reality of the running program.
 }
@@ -146,7 +146,7 @@ to collect the elements of all relations and lists.
 @pitfalls{
 * If the quality of the qualified names in the original models is lacking, than this is the moment that different
 declarations might be conflated with the same fully qualified name. All downstream analysis is broken then.
-* This function does not compose the extended facts for specific programming languages yet.
+* This function does compose the extended facts for specific programming languages as well but only if they have set, rel, list or lrel as types.
 * If extended M3 models use something other than sets, lists or relations, this composition function ignores them completely.
 * Composed models can be huge in memory. Make sure to allocate enough heap for the JVM. Real world programs of real world product
 can take gigabytes of memory, even when compressed and optimized as M3 models. 
@@ -288,7 +288,7 @@ _internal_ consistency of an M3 model.
 
 If an M3 instance is a `closedWorld` model, this means that there are no `uses` in the model that 
 are not declared in the current model in `declarations`. A closed world model allows for more
-stringent consistenct checks than a model that depends on external declarations. By selecting
+stringent consistency checks than a model that depends on external declarations. By selecting
 `closedWorld=true` those additional checks are enabled, otherwise these are ignored or weakened
 accordingly. It is advisable to provide at least one closed model per programming language front-end,
 while testing against this spec.
@@ -298,7 +298,7 @@ This is a simple check for knowing if the test covers the language in some form.
 }
 @benefits{
 * Front-end construction is tricky business. This test provides a sanity check before users start depending
-on fawlty models. 
+on faulty models.
 }
 @pitfalls{
 * In `closedWorld` many things can be strictly checked, but in an open world with dependencies outside

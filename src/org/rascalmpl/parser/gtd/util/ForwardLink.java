@@ -22,6 +22,8 @@ public class ForwardLink<E>{
 	
 	public final E element;
 	public final INodeFlattener.CacheMode cacheMode;
+
+	public final int maxAmbDepth;
 	
 	private ForwardLink(){
 		super();
@@ -30,15 +32,16 @@ public class ForwardLink<E>{
 		this.length = 0;
 		
 		this.element = null;
+		this.maxAmbDepth = 0;
 
 		cacheMode = INodeFlattener.CacheMode.CACHE_MODE_NONE;
 	}
 
-	public ForwardLink(ForwardLink next, E element) {
-		this(next, element, INodeFlattener.CacheMode.CACHE_MODE_NONE);
+	public ForwardLink(ForwardLink next, E element, int maxAmbDepth) {
+		this(next, element, INodeFlattener.CacheMode.CACHE_MODE_NONE, maxAmbDepth);
 	}
 
-	public ForwardLink(ForwardLink next, E element, INodeFlattener.CacheMode cacheMode){
+	public ForwardLink(ForwardLink next, E element, INodeFlattener.CacheMode cacheMode, int maxAmbDepth){
 		super();
 		
 		this.next = next;
@@ -47,5 +50,15 @@ public class ForwardLink<E>{
 		this.element = element;
 
 		this.cacheMode = cacheMode;
+		this.maxAmbDepth = maxAmbDepth;
+	}
+
+	// Copy constructor with a different maxAmbDepth
+	public ForwardLink(ForwardLink<E> original, int maxAmbDepth) {
+		this.next = original.next;
+		this.length = original.length;
+		this.element = original.element;
+		this.cacheMode = original.cacheMode;
+		this.maxAmbDepth = maxAmbDepth;
 	}
 }

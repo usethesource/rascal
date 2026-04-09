@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -122,6 +121,10 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		return (ITree) node.asWithKeywordParameters().setParameter(RascalValueFactory.Location, location);
 	}
 	
+	public ITree addParseErrorPosition(ITree node, ISourceLocation location) {
+		return (ITree) node.asWithKeywordParameters().setParameter(RascalValueFactory.ParseError, location);
+	}
+
 	public ArrayList<ITree> getChildren(ITree node){
 		IList args = TreeAdapter.getArgs(node);
 		ArrayList<ITree> children = new ArrayList<>(args.length());

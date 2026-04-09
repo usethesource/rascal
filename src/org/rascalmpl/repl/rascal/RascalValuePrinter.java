@@ -49,6 +49,7 @@ import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
 import org.rascalmpl.repl.streams.ReplTextWriter;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
@@ -56,6 +57,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
@@ -206,10 +208,12 @@ public abstract class RascalValuePrinter {
             REPLContentServer server = contentManager.addServer(id, target);
 
             // now we need some HTML to show
+
+            IValueFactory vf = ValueFactoryFactory.getValueFactory();
             
             IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
-            String title = kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id;
-            int viewColumn = kp.hasParameter("viewColumn") ? ((IInteger)kp.getParameter("viewColumn")).intValue() : 1;
+            IString title = kp.hasParameter("title") ? ((IString) kp.getParameter("title")) : vf.string(id);
+            IInteger viewColumn = kp.hasParameter("viewColumn") ? ((IInteger) kp.getParameter("viewColumn")) : vf.integer(1);
             URI serverUri = new URI("http", null, "localhost", server.getListeningPort(), "/", null, null);
 
             return new HostedWebContentOutput(id, serverUri, title, viewColumn);
@@ -232,10 +236,10 @@ public abstract class RascalValuePrinter {
     private static class HostedWebContentOutput implements IWebContentOutput, IHtmlCommandOutput {
         private final String id;
         private final URI uri;
-        private final String title;
-        private final int viewColumn;
+        private final IString title;
+        private final IInteger viewColumn;
 
-        HostedWebContentOutput(String id, URI uri, String title, int viewColumn) {
+        HostedWebContentOutput(String id, URI uri, IString title, IInteger viewColumn) {
             this.id = id;
             this.uri = uri;
             this.title = title;
@@ -289,12 +293,12 @@ public abstract class RascalValuePrinter {
         }
 
         @Override
-        public String webTitle() {
+        public IString webTitle() {
             return title;
         }
 
         @Override
-        public int webviewColumn() {
+        public IInteger webviewColumn() {
             return viewColumn;
         }
     }

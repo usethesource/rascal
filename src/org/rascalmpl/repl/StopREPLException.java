@@ -27,5 +27,6 @@
 package org.rascalmpl.repl;
 
 public class StopREPLException extends Exception {
+    private static final long serialVersionUID = 2662112695266901199L;
     
 }

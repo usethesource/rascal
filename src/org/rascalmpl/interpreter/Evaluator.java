@@ -24,20 +24,20 @@ import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,6 +56,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
@@ -93,8 +94,10 @@ import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.shell.CommandlineParser;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
@@ -102,17 +105,14 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -167,6 +167,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * Used in runtime error messages
      */
     private AbstractAST currentAST;
+
+    /**
+     * Used in debugger exception handling
+     */
+    private Exception currentException;
 
     /**
      * True if we're doing profiling
@@ -264,10 +269,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         updateProperties();
 
         if (stderr == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stderr is null");
         }
         if (stdout == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stdout is null");
         }
 
         // default event trigger to swallow events
@@ -374,6 +379,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         constructorDeclaredListeners.clear();
+        getHeap().clearLookupChaches();
     }
 
     @Override
@@ -567,12 +573,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
         IRascalMonitor old = setMonitor(monitor);
         Environment oldEnv = getCurrentEnvt();
+        CommandlineParser parser = new CommandlineParser(getOutPrinter());
 
         try {
             ModuleEnvironment modEnv = getHeap().getModule(module);
             setCurrentEnvt(modEnv);
 
-            Name name = Names.toName(function, modEnv.getLocation());
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
             Result<IValue> func = getCurrentEnvt().getVariable(name);
 
@@ -592,14 +599,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             AbstractFunction main = (AbstractFunction) func;
 
             if (main.getArity() == 1 && main.getFormals().getFieldType(0).isSubtypeOf(tf.listType(tf.stringType()))) {
-                return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
+                return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parser.parsePlainCommandLineArgs(commandline)}, null).getValue();
             }
             else if (main.hasKeywordArguments() && main.getArity() == 0) {
-                Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
+                if (main.getType().getFieldTypes().getArity() > 0) {
+                    throw new CommandlineError("main function should only have keyword parameters.", main.getType().getKeywordParameterTypes(), module);
+                }
+
+                Map<String, IValue> args = parser.parseKeywordCommandLineArgs(module, commandline, func.getStaticType().getKeywordParameterTypes());
                 return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
             }
             else {
-                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
             }
         }
         catch (MatchFailed e) {
@@ -612,95 +623,54 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
-    private IList parsePlainCommandLineArgs(String[] commandline) {
-        IListWriter w = vf.listWriter();
-        for (String arg : commandline) {
-            w.append(vf.string(arg));
-        }
-        return w.done();
-    }
+    /**
+     * This function processes commandline parameters as if already parsed to a Map<String,IValue>. 
+     */
+    public IValue main(IRascalMonitor monitor, String module, String function, Map<String,IValue> args) {
+        IRascalMonitor old = setMonitor(monitor);
+        Environment oldEnv = getCurrentEnvt();
 
-    public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-        Map<String, Type> expectedTypes = new HashMap<>();
-        Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
+        try {
+            ModuleEnvironment modEnv = getHeap().getModule(module);
+            setCurrentEnvt(modEnv);
 
-        for (String kwp : kwTypes.getFieldNames()) {
-            expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
-        }
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
-        Map<String, IValue> params = new HashMap<>();
+            Result<IValue> func = getCurrentEnvt().getVariable(name);
 
-        for (int i = 0; i < commandline.length; i++) {
-            if (commandline[i].equals("-help")) {
-                throw new CommandlineError("Help", func);
+            if (func instanceof OverloadedFunction) {
+                OverloadedFunction overloaded = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+                func = overloaded.getFunctions().get(0); 
             }
-            else if (commandline[i].startsWith("-")) {
-                String label = commandline[i].replaceFirst("^-+", "");
-                Type expected = expectedTypes.get(label);
 
-                if (expected == null) {
-                    throw new CommandlineError("unknown argument: " + label, func);
+            if (func == null) {
+                throw new UndeclaredVariable(function, name);
+            }
+
+            if (!(func instanceof AbstractFunction)) {
+                throw new UnsupportedOperationException("main should be function");
+            }
+
+            AbstractFunction main = (AbstractFunction) func;
+
+            if (main.hasKeywordArguments() && main.getArity() == 0) {
+                if (main.getType().getFieldTypes().getArity() > 0) {
+                    throw new CommandlineError("main function should only have keyword parameters.", main.getType().getKeywordParameterTypes(), module);
                 }
 
-                if (expected.isSubtypeOf(tf.boolType())) {
-                    if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                        params.put(label, vf.bool(true));
-                    }
-                    else if (i < commandline.length - 1) {
-                        String arg = commandline[++i].trim();
-                        if (arg.equals("1") || arg.equals("true")) {
-                            params.put(label, vf.bool(true));
-                        }
-                        else {
-                            params.put(label, vf.bool(false));
-                        }
-                    }
-
-                    continue;
-                }
-                else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                    throw new CommandlineError("expected option for " + label, func);
-                }
-                else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
-                    IListWriter writer = vf.listWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else if (expected.isSubtypeOf(tf.setType(tf.valueType()))) {
-                    ISetWriter writer = vf.setWriter();
-
-                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.insert(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
-                    }
-
-                    params.put(label, writer.done());
-                }
-                else {
-                    params.put(label, parseCommandlineOption(func, expected, commandline[++i]));
-                }
+                return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+            }
+            else {
+                throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main.getType(), module);
             }
         }
-
-        return params;
-    }
-
-    private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
-        if (expected.isSubtypeOf(tf.stringType())) {
-            return vf.string(option);
+        catch (MatchFailed e) {
+            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            return null;
         }
-        else {
-            StringReader reader = new StringReader(option);
-            try {
-                return new StandardTextReader().read(vf, expected, reader);
-            } catch (FactTypeUseException e) {
-                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-            } catch (IOException e) {
-                throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
-            }
+        finally {
+            setMonitor(old);
+            setCurrentEnvt(oldEnv);
         }
     }
 
@@ -721,7 +691,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
-        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
+        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getCreatorLocation());
         setCurrentAST(qualifiedName);
         return call(qualifiedName, kwArgs, args);
     }
@@ -742,14 +712,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         return func.call(getMonitor(), types, args, kwArgs).getValue();
     }
-
-    // @Override	
-    // public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
-    //     RascalFunctionValueFactory vf = new RascalFunctionValueFactory(this);
-    //     IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
-
-    //     return (ITree) parser.call(vf.string(new String(input)), location);
-    // }
 
     @Override
     public IConstructor getGrammar(Environment env) {
@@ -806,7 +768,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             synchronized (self) {
                 if (parserGenerator == null) {
 
-                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), classLoaders, getValueFactory(), config);
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), getValueFactory(), config);
                 }
             }
         }
@@ -822,6 +784,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public AbstractAST getCurrentAST() {
         return currentAST;
+    }
+
+    public Exception getCurrentException() {
+        return currentException;
     }
 
     public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
@@ -842,7 +808,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         StackTrace trace = new StackTrace();
         Environment env = currentEnvt;
         while (env != null) {
-            trace.add(env.getLocation(), env.getName());
+            trace.add(env.getCreatorLocation(), env.getName());
             env = env.getCallerScope();
         }
         return trace.freeze();
@@ -942,7 +908,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(String command, ISourceLocation location) throws ImplementationError {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             ModuleEnvironment curMod = getCurrentModuleEnvironment();
@@ -964,7 +930,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IMap syntaxDefinition = curMod.getSyntaxDefinition();
         IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
         IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+        return vf.parsers(reifiedType, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), vf.set());
     }
 
     private Result<IValue> evalMore(String command, ISourceLocation location)
@@ -973,7 +939,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         ITree tree;
 
         IActionExecutor<ITree> actionExecutor = new NoActionExecutor();
-        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
             IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
@@ -1024,7 +990,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private ITree parseCommand(String command, ISourceLocation location) {
         __setInterrupt(false);
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+        ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
             tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
@@ -1038,7 +1004,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         try {
             __setInterrupt(false);
             IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+            ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
                 tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
@@ -1149,6 +1115,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * @param string
      */
     public void doImport(IRascalMonitor monitor, String... string) {
+        assert monitor != null;
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
@@ -1163,6 +1130,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.clearLookupChaches();
+            heap.writeLoadMessages(getErrorPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
@@ -1205,13 +1176,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
-                    onHeap.add(mod);
+                    var uri = heap.getModuleURI(mod);
+                    
+                    if (mod.equals(ModuleEnvironment.SHELL_MODULE) || resolverRegistry.exists(vf.sourceLocation(uri))) {
+                        // otherwise the file has been renamed or deleted, and we do
+                        // not add it to the todo list.
+                        onHeap.add(mod);
+                    }
+
                     if (recurseToExtending) {
+                        // even if a module was renamed, or deleted, the modules that were
+                        // previously extending it have to be re-evaluated.
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    heap.removeModule(heap.getModule(mod));
+
+                    if (!mod.equals(ModuleEnvironment.SHELL_MODULE)) {
+                        // this module starts with a clean slate
+                        heap.removeModule(heap.getModule(mod));
+                    }
                 }
             }
+
+            // all extending modules start with a clean slate too.
             extendingModules.removeAll(names);
 
             job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
@@ -1253,8 +1239,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 affectedModules.add(mod);
                             }
                             else {
-                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
-                                warning("could not reimport " + imp, errorLocation);
+                                warning("File of previously imported module " + imp + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1272,8 +1257,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 env.addExtend(ext);
                             }
                             else {
-                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
-                                warning("could not re-extend " + ext, errorLocation);
+                                warning("File of previously extended module " + ext + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1292,11 +1276,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         finally {
             setMonitor(old);
+
+            // during reload we don't see any errors being printed, to avoid duplicate reports
+            // so at the end we always report what went wrong to the user.
+            heap.writeLoadMessages(getOutPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
     private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
+            getOutPrinter().println("[INFO] reloading module: " + name);
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
         }
@@ -1336,7 +1327,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             found.addAll(dependingModules);
             todo.addAll(dependingModules);
         }
-
+        
         return found;
     }
 
@@ -1352,7 +1343,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private ISourceLocation getCurrentLocation() {
-        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getLocation();
+        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override  
@@ -1374,15 +1365,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void printHelpMessage(PrintWriter out) {
         out.println("Welcome to the Rascal command shell.");
         out.println();
-        out.println("Shell commands:");
+        out.println("Shell commands (optionally terminated with `;`):");
         out.println(":help                      Prints this message");
         out.println(":quit or EOF               Quits the shell");
         out.println(":set <option> <expression> Sets an option");
         out.println("e.g. profiling    true/false");
         out.println("     tracing      true/false");
         out.println("     errors       true/false");
+        out.println("     debugging    true/false");
         out.println(":edit <modulename>         Opens an editor for that module");
-        out.println(":test                      Runs all unit tests currently loaded");
+        out.println(":test <optModuleName>      Runs all unit tests currently loaded, or only of a specific module");
+        out.println(":declarations              Prints variables, functions, data and syntax definitions in scope");
+        out.println(":undeclare <name>          Remove variable, function, data or syntax from this scope");
+        out.println(":unimport  <name>          Remove import from current scope");
         out.println();
         out.println("Example rascal statements and declarations:");
         out.println("1 + 1;                     Expressions simply print their output and (static) type");
@@ -1484,13 +1479,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public boolean runTests(IRascalMonitor monitor) {
+    public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName) {
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
             final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), getErrorPrinter());
 
-            new TestEvaluator(this, new ITestResultListener() {
+            var teval = new TestEvaluator(this, new ITestResultListener() {
 
                 @Override
                 public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
@@ -1513,7 +1508,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 public void start(String context, int count) {
                     l.start(context, count);
                 }
-            }).test();
+            });
+
+            if (optionalModuleName.isPresent()) {
+                teval.test(optionalModuleName.get());
+            }
+            else {
+                teval.test();
+            }
+            
             return allOk[0];
         }
         finally {
@@ -1611,8 +1614,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void notifyAboutSuspension(AbstractAST currentAST) {
         if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
+        }
+    }
+
+    @Override
+    public void notifyAboutSuspensionException(Exception t) {
+        currentException = t;
+        try{
+            if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+                for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                    listener.suspended(this, () -> getCallStack().size(), currentAST);
+                }
+            }
+        } finally { // clear the exception after notifying listeners
+            currentException = null;
         }
     }
 
@@ -1707,11 +1724,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedMap<String, String> result, ModuleEnvironment env, boolean skipPrivate) {
-        for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
+        for (Pair<String, LinkedHashSet<AbstractFunction>> p : env.getFunctions()) {
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && env.isNamePrivate(f.getName())) {
+                if (skipPrivate && env.isFunctionPrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1723,7 +1740,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
+                if (skipPrivate && env.isVariablePrivate(entry.getKey())) {
                     continue;
                 }
                 addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
@@ -1774,7 +1791,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override
     public ISourceLocation getCurrentPointOfExecution() {
         AbstractAST cpe = getCurrentAST();
-        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getLocation();
+        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override
@@ -1845,16 +1862,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void registerLanguage(IConstructor language) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerLanguage(language);
-            }
-            else {
-                IDEServices.super.registerLanguage(language);
-            }
-        }
-
-        @Override
         public ISourceLocation resolveProjectLocation(ISourceLocation input) {
             if (monitor instanceof IDEServices) {
                 return ((IDEServices) monitor).resolveProjectLocation(input);
@@ -1865,17 +1872,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void applyDocumentsEdits(IList edits) {
+        public void applyFileSystemEdits(IList edits) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).applyDocumentsEdits(edits);
+                ((IDEServices) monitor).applyFileSystemEdits(edits);
             }
             else {
-                IDEServices.super.applyDocumentsEdits(edits);
+                IDEServices.super.applyFileSystemEdits(edits);
             }
         }
 
         @Override
-        public void browse(URI uri, String title, int viewColumn) {
+        public void browse(URI uri, IString title, IInteger viewColumn) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
@@ -1885,9 +1892,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void edit(ISourceLocation path) {
+        public void edit(ISourceLocation path, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).edit(path);
+                ((IDEServices) monitor).edit(path, viewColumn);
             }
             else {
                 return;

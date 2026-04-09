@@ -12,6 +12,7 @@ This was created to implement documentation pages with example REPL runs.
 data CommandExecutor
   = executor(
         PathConfig pcfg,
+        str () prompt,
         void () reset,
         map[str mimeType, str content] (str command) eval
   );
@@ -41,17 +42,26 @@ java CommandExecutor createExecutor(PathConfig pcfg);
 test bool executorSmokeTest() {
   exec = createExecutor(pathConfig());
 
-  output = exec.eval("import IO;");
-  
-  if (output["text/plain"] != "ok\n") {
-    return false;
-  }
+  assert exec.prompt() == "rascal\>" : "prompt should be rascal"; 
 
-  exec.eval("println(\"haai\")");
+  assert /ok[\r\n]+/ := exec.eval("import IO;")["text/plain"] : "result of import should be ok";
 
-  if (output["application/rascal+stdout"] != "haai\n") {
-    return false;
-  }
+  exec.eval("println(\"haai\"");
+
+  assert exec.prompt() == "|1 \>\>\>\>" : "prompt should contuation prompt, but was <exec.prompt()>"; 
+
+  output = exec.eval(")");
+
+  assert /haai/ := exec.eval(")")["application/rascal+stdout"] : "result of println should be printed on stdout";
+
+  exec.reset();
+  output = exec.eval(")");
+  assert /Parse error/ := output["application/rascal+stderr"] : "parse errors should be printed on stderr";
+
+  exec.reset();
+  output = exec.eval("int x = \"five\";");
+
+  assert /Expected int, but got str/ := output["application/rascal+stderr"] : "static errors should be printed on stderr";
 
   return true;
 }

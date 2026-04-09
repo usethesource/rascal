@@ -29,7 +29,7 @@ public class IO {
 			
 			return m.done();
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 }

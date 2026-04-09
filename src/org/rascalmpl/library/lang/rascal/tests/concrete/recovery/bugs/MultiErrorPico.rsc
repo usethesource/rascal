@@ -13,7 +13,7 @@
 module lang::rascal::tests::concrete::recovery::bugs::MultiErrorPico
 
 import lang::pico::\syntax::Main;
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 bool multiErrorPico() {
     return checkRecovery(#start[Program], "begin

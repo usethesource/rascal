@@ -17,30 +17,41 @@ import java.io.IOException;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 
 public class RascalShell  {
 
-    private static void printVersionNumber(){
-        System.err.println("Version: " + RascalManifest.getRascalVersionNumber());
-    }
-
     public static void main(String[] args) throws IOException {
-        checkOutdatedEclipseContext();
-        printVersionNumber();
+        int ideServicesPort = -1;
         checkIfHelp(args);
 
         var term = connectToTerminal();
 
+        int i = 0;
+        for (; i < args.length; i++) {
+            if (args[i].equals("--remoteIDEServicesPort")) {
+                ideServicesPort = Integer.parseInt(args[++i]);
+            } else if (args[i].equals("--vfsPort")) {
+                System.err.println("Ignored parameter --vfsPort and its argument");
+                i++; // skip the argument
+            } else if (args[i].startsWith("--")) {
+                // Currently unknown named argument, skipping over this
+                System.err.println("Ignored parameter " + args[i]);
+            } else {
+                // End of named arguments
+                break;
+            }
+        }
+
         ShellRunner runner; 
-        if (args.length > 0) {
+        if (args.length > i) {
             var monitor = IRascalMonitor.buildConsoleMonitor(term);
             var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
             var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
@@ -48,20 +59,23 @@ public class RascalShell  {
             runner = new ModuleRunner(term.reader(), out, err, monitor);
         } 
         else {
-            runner = new REPLRunner(term);
+            runner = new REPLRunner(term, ideServicesPort);
         }
-        runner.run(args);
+        
+        runner.run(Arrays.copyOfRange(args, i, args.length));
     }
 
-    private static Terminal connectToTerminal() throws IOException {
+    public static Terminal connectToTerminal() throws IOException {
         setupJavaProcessForREPL();
-        var termBuilder = TerminalBuilder.builder();
+      
+        var termBuilder = TerminalBuilder.builder()
+            .dumb(true) // fallback to dumb terminal if detected terminal is not supported
+            .system(true);
+
         if (OSUtils.IS_WINDOWS) {
             termBuilder.encoding(StandardCharsets.UTF_8);
         }
-        termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
-        var term = termBuilder.build();
-        return term;
+        return termBuilder.build();
     }
 
     private static void checkIfHelp(String[] args) {
@@ -70,12 +84,6 @@ public class RascalShell  {
             System.err.println("\ttry also the --help options of the respective commands.");
             System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
             System.exit(0);
-        }
-    }
-
-    private static void checkOutdatedEclipseContext() {
-        if (System.getProperty("__ECLIPSE_CONNECTION") != null) {
-            System.err.println("*** Warning, this REPL has limited functionality in the deprecated Rascal Eclipse extension");
         }
     }
 

@@ -19,8 +19,8 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -65,7 +65,11 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public GlobalEnvironment getHeap();
 	public Configuration getConfiguration();
 	
-	public boolean runTests(IRascalMonitor monitor);
+	default boolean runTests(IRascalMonitor monitor) {
+		return runTests(monitor, Optional.empty());
+	}
+
+	public boolean runTests(IRascalMonitor monitor, Optional<String> optionalModuleName);
 	
 	public IValueFactory getValueFactory();
 	public RascalFunctionValueFactory getFunctionValueFactory();

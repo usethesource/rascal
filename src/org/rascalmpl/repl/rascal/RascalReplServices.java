@@ -35,13 +35,16 @@ import java.util.TreeMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
+import org.jline.reader.CompletionMatcher;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
+import org.rascalmpl.repl.completers.CompletionMatcherWithEscapes;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
@@ -58,7 +61,6 @@ public class RascalReplServices implements IREPLService {
     private final @Nullable Path historyFile;
 
     private boolean unicodeSupported = false;
-    private boolean ansiSupported = false;
     private Terminal term;
     private PrintWriter out;
     private PrintWriter err;
@@ -70,7 +72,7 @@ public class RascalReplServices implements IREPLService {
     
 
     public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
-        this.lang=  lang;
+        this.lang = lang;
         this.historyFile = historyFile;
     }
 
@@ -82,10 +84,9 @@ public class RascalReplServices implements IREPLService {
         }
         this.term = term;
         this.unicodeSupported = unicodeSupported;
-        this.ansiSupported = ansiColorsSupported;
-        var monitor = new TerminalProgressBarMonitor(term);
-        out = monitor;
-        err = StreamUtil.generateErrorStream(term, monitor);
+        var monitor = IRascalMonitor.buildConsoleMonitor(term);
+        out = monitor instanceof PrintWriter ? (PrintWriter)monitor : term.writer();
+        err = StreamUtil.generateErrorStream(term, out);
         return lang.initialize(term.reader(), out, err, monitor, term);
     }
 
@@ -112,7 +113,6 @@ public class RascalReplServices implements IREPLService {
             return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, term, prompt(false, unicodeSupported).length() + 1);
         }
     }
-
 
     @Override
     public void handleInterrupt() throws InterruptedException {
@@ -204,6 +204,11 @@ public class RascalReplServices implements IREPLService {
         result.add(new RascalKeywordCompletion());
         result.add(new RascalLocationCompletion());
         return result;
+    }
+
+    @Override
+    public CompletionMatcher completionMatcher() {
+        return new CompletionMatcherWithEscapes();
     }
 
 
