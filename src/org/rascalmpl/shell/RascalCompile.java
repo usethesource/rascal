@@ -23,6 +23,8 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.functional.ThrowingConsumer;
+import org.rascalmpl.util.functional.ThrowingFunction;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IBool;
@@ -243,26 +245,10 @@ public class RascalCompile extends AbstractCommandlineTool {
 	}
 
     /**
-     * See handleExceptions method
-     */
-    @FunctionalInterface
-	private interface FunctionWithException<T, R, E extends Exception> {
-    	R apply(T t) throws E;
-	}
-
-	/**
-     * See handleExceptions method
-     */
-    @FunctionalInterface
-	private interface ConsumerWithException<T, E extends Exception> {
-    	void apply(T t) throws E;
-	}
-
-    /**
      * Utility function for handling exceptions while streaming. Any checked exception is caught
      * and rethrown as a RuntimeException with the original exception as the cause.
      */
-    private static <T, R, E extends Exception> Function<T, R> handleExceptions(FunctionWithException<T, R, E> fe) {
+    private static <T, R, E extends Exception> Function<T, R> handleExceptions(ThrowingFunction<T, R, E> fe) {
         return arg -> {
             try {
                 return fe.apply(arg);
@@ -276,10 +262,10 @@ public class RascalCompile extends AbstractCommandlineTool {
      * Utility function for handling exceptions while streaming. Any checked exception is caught
      * and rethrown as a RuntimeException with the original exception as the cause.
      */
-    private static <T, E extends Exception> Consumer<T> handleConsumerExceptions(ConsumerWithException<T, E> fe) {
+    private static <T, E extends Exception> Consumer<T> handleConsumerExceptions(ThrowingConsumer<T, E> fe) {
         return arg -> {
             try {
-                fe.apply(arg);
+                fe.accept(arg);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

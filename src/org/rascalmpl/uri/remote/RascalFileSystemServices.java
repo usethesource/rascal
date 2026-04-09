@@ -56,6 +56,8 @@ import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
 import org.rascalmpl.util.NamedThreadPool;
 import org.rascalmpl.util.base64.StreamingBase64;
+import org.rascalmpl.util.functional.ThrowingRunnable;
+import org.rascalmpl.util.functional.ThrowingSupplier;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -74,30 +76,21 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
         this.client = client;
     }
 
-    @FunctionalInterface
-    private interface IOSupplier<T> {
-        T supply() throws IOException;
-    }
-
-    @FunctionalInterface
-    private interface IORunner {
-        void run() throws IOException;
-    }
-
-    private CompletableFuture<Void> async(IORunner job) {
+    private CompletableFuture<Void> async(ThrowingRunnable<IOException> job) {
         return CompletableFuture.runAsync(() -> {
             try {
                 job.run();
             } catch (IOException | RuntimeException e) {
+                //TODO (translate)
                 throw new CompletionException(e);
             }
         }, executor);
     }
 
-    private <T> CompletableFuture<T> async(IOSupplier<T> job) {
+    private <T> CompletableFuture<T> async(ThrowingSupplier<T, IOException> job) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return job.supply();
+                return job.get();
             } catch (IOException | RuntimeException e) {
                 throw new CompletionException(e);
             }
