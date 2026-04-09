@@ -43,7 +43,7 @@ private data RuntimeException = none();
 	    name = getName(v);
 	    children = getChildren(v);
         params = getKeywordParameters(v);
-        arity = size(children);
+        int arity = size(children);
 
         candidates // first the constructors with the right name
             = [<name, symbols, kwTypes> | /\cons(label(name, def), symbols, kwTypes, _) := grammar[def]?{}, size(symbols) == arity]

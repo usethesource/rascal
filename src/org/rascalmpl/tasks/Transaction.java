@@ -33,6 +33,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
 IExpirationListener<IValue> {
@@ -72,7 +73,7 @@ IExpirationListener<IValue> {
 		  return null;
 		}
 		
-		public IValue randomValue(java.util.Random random, IValueFactory vf, TypeStore store, java.util.Map<Type,Type> typeParameters, int maxDepth, int maxBreadth) {
+		public IValue randomValue(java.util.Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store, java.util.Map<Type,Type> typeParameters, int maxDepth, int maxBreadth) {
 		    // TODO Auto-generated method stub
 	          return null;
 		};

@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class ModuleParameters extends AbstractAST {
   public ModuleParameters(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,7 +31,7 @@ public abstract class ModuleParameters extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeVar> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

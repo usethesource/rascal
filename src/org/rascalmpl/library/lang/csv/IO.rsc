@@ -65,7 +65,7 @@ _Step 2_: The type of each field is inferred from the type of all of its occurre
 
 *  If all occurrences have a numeric type, then the smallest possible type is used.
 *  If the occurrences have a mixed type, i.e., numeric, non-numeric, boolean or string, then the type is `str`.
-*  If the requested type for a field is `str` and another type would be inferred by the preceeding two rules, 
+*  If the requested type for a field is `str` and another type would be inferred by the preceding two rules,
 its inferred type will be `str`.
 
 Reading the values in fields is straightforward, except for the case that the text in the field is enclosed between double quotes (`"`):
@@ -74,17 +74,17 @@ Reading the values in fields is straightforward, except for the case that the te
 *  the text may contain escaped double quotes (`""`) which are represented as `\"` in the resulting string value.
 }
 @examples{
-Given is the follwing file `ex1.csv`:
+Given is the following file `ex1.csv`:
 
 ```rascal
-((|lib://rascal/org/rascalmpl/library/lang/csv/examples/ex1.csv|))
+((|project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|))
 ```
 
 We can read it in various ways:
 
 ```rascal-shell
 import lang::csv::IO;
-R1 = readCSV(#rel[int position, str artist, str title, int year],  |lib://rascal/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
+R1 = readCSV(#rel[int position, str artist, str title, int year],  |project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
 ```
 Now we can, for instance, select one of the fields of `R1`:
 
@@ -94,14 +94,14 @@ R1.artist;
 It is also possible to infer the type:
 
 ```rascal-shell,continue
-R1 = readCSV(|lib://rascal/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
+R1 = readCSV(|project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
 ```
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{
-use the readCSV with keyword parameters
+Use readCSV with keyword parameters
 }
 public value readCSV(loc location, map[str,str] options) {
 	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
@@ -132,7 +132,6 @@ rel[int position, str artist, str title, int year] R1 = {
 };
 // we can write the CSV with a header row:
 writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///ex1a.csv|);
-
 // or write it without the header row:
 writeCSV(#rel[int, str, str, int], R1, |tmp:///ex1b.csv|, header = false, separator = ";");
 ```

@@ -1,9 +1,0 @@
-package org.rascalmpl.test.data.patterns.micro;
-
-public class Sampler {
-	public static Sampler field1 = new Sampler();
-
-	public Sampler() {
-	}
-
-}

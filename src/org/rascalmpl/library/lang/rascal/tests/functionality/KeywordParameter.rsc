@@ -245,3 +245,105 @@ test bool fieldsNamesOfKeywordParametersIssue1851() {
     ax = ggg();
     return ax.r.a == {1};
 }
+
+// Keyword parameters used in closures
+
+test bool keywordParameterInClosure1(){
+    int f(int n, int(int) fun) = n + fun(n);
+
+    int g(int d = 3){
+        return f(7, int(int x) { return x + d; });
+    }
+    return g(d = 5) == 19;
+}
+
+test bool keywordParameterInClosure2(){
+    int f(int n, int(int) fun) = n + fun(n);
+
+    int g(int n, int d = 2 * n){
+        return f(n, int(int x) { return x + d; });
+    }
+    return g(7) == 28;
+}
+
+test bool keywordParameterInClosure3(){
+    int f(int n, int(int) fun) = n+ fun(n);
+
+    int g(int n, int d = 2 * n){
+        return f(n, int(int x) { return x + d; });
+    }
+    return g(7, d=5) == 19;
+}
+
+// Using keyword parameters in inner functions
+
+
+int outer1(int t, int tabSize=4){
+    int rec(int t) = t + tabSize  when t > 10;
+    default int rec(int t) = t;
+    return rec(t);
+}
+
+test bool outer1_1() = outer1(1) == 1;
+test bool outer1_11() = outer1(11) == 15;
+test bool outer1_11_kw() = outer1(11, tabSize=40) == 51;
+
+int outer2(int t, int tabSize=4){
+    int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
+    default int rec(int t) = t;
+    return rec(t);
+}
+
+test bool outer2_1() = outer2(1) == 1;
+test bool outer2_11() = outer2(11) == 20;
+test bool outer2_11_kw() = outer2(11, tabSize=40) == 56;
+
+int outer3(int t, int tabSize=4){
+    int rec(int t){
+        int rec_inner(int t) = t + tabSize  when t > 10;
+        default int rec_inner(int t) = t;
+        return rec_inner(t);
+    }
+    return rec(t);
+}
+
+test bool outer3_1() = outer3(1) == 1;
+test bool outer3_11() = outer3(11) == 15;
+test bool outer3_11_kw() = outer3(11, tabSize=40) == 51;
+
+
+int outer4(int t, int tabSize=4){
+    int rec(int t){
+        int rec_inner(int t, int innerKwp = 5) = t + tabSize + innerKwp  when t > 10;
+        default int rec_inner(int t) = t;
+        return rec_inner(t);
+    }
+    return rec(t);
+}
+
+test bool outer4_1() = outer4(1) == 1;
+test bool outer4_11() = outer4(11) == 20;
+test bool outer4_11_kw() = outer4(11, tabSize=40) == 56;
+
+
+int outer5(int t, int tabSize=4){
+    int rec(int t){
+        int rec_inner(int t, int innerKwp = 5) = t + tabSize + innerKwp  when t > 10;
+        default int rec_inner(int t) = t;
+        return rec_inner(t, innerKwp = 50);
+    }
+    return rec(t);
+}
+
+test bool outer5_1() = outer5(1) == 1;
+test bool outer5_11() = outer5(11) == 65;
+test bool outer5_11_kw() = outer5(11, tabSize=40) == 101;
+
+
+data WorkspaceInfo(rel[int a, int b] defines = {}) = workspaceInfo();
+
+@synopsis{a test for issue #2049}
+test bool staticTypesOfCommonKeywordDefaults() {
+    ws = workspaceInfo();
+    return ws.defines<b,a> == {};
+}

@@ -15,12 +15,17 @@ package org.rascalmpl;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.test.infrastructure.TestFramework;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
+import org.rascalmpl.test.infrastructure.RascalJunitConsoleMonitor;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -29,12 +34,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.RascalFunctionValueFactory;
-import org.rascalmpl.values.functions.IFunction;
-import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
-
 import junit.framework.TestCase;
 
 /**
@@ -46,9 +45,7 @@ import junit.framework.TestCase;
  * that runs the compiler.
  */
 public class MatchFingerprintTest extends TestCase {
-    private final GlobalEnvironment heap = new GlobalEnvironment();
-    private final ModuleEnvironment root = new ModuleEnvironment("root", heap);
-    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.err, System.out, root, heap, TestFramework.getCommonMonitor());
+    private final Evaluator eval = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), RascalJunitConsoleMonitor.getInstance(), "root");
     private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
     private final TypeFactory TF = TypeFactory.getInstance();
 
