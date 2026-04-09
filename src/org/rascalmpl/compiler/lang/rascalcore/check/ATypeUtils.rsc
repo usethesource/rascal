@@ -24,17 +24,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-@license{
-  Copyright (c) 2009-2015 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
-@contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
@@ -44,13 +33,14 @@ module lang::rascalcore::check::ATypeUtils
 */
 
 extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::BasicRascalConfig;
 
 extend ParseTree;
 
 import analysis::typepal::Messenger;
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::util::Names; // TODO: undesired forward reference
 
@@ -350,12 +340,9 @@ AType symbol2atype1(Symbol::label(str label, symbol)){
 }
 
 AType symbol2atype1(Symbol::\set(Symbol symbol)) = aset(symbol2atype(symbol));
-AType symbol2atype1(Symbol::\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
-AType symbol2atype1(Symbol::\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
 AType symbol2atype1(Symbol::\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
 AType symbol2atype1(Symbol::\list(Symbol symbol)) = alist(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
-AType symbol2atype1(Symbol::\bag(Symbol symbol)) = abag(symbol2atype(symbol));
 AType symbol2atype1(Symbol::\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
 AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
 
@@ -368,7 +355,7 @@ AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters
 AType symbol2atype1(Symbol::sort(str name)) = aadt(name, [], contextFreeSyntax());
 AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
 AType symbol2atype1(Symbol::keywords(str name)) = aadt(name, [], keywordSyntax());
-AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
+AType symbol2atype1(Symbol::layouts(str name)) = aadt(name, [], layoutSyntax());
 
 AType symbol2atype1(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) =
     aadt(name, symbol2atype(parameters), contextFreeSyntax());
@@ -1249,67 +1236,6 @@ AType getReifiedType(AType t) {
     throw rascalCheckerInternalError("getReifiedType given unexpected type: <prettyAType(t)>");
 }
 
-@doc{
-.Synopsis
-Determine if the given type is an type variable (parameter).
-}
-bool isRascalTypeParam(aparameter(_,_)) = true;
-default bool isRascalTypeParam(AType _) = false;
-
-@doc{Create a type representing a type parameter (type variable).}
-AType makeTypeVar(str varName) = aparameter(varName, avalue());
-
-@doc{Create a type representing a type parameter (type variable) and bound.}
-AType makeTypeVarWithBound(str varName, AType varBound) = aparameter(varName, varBound);
-
-@doc{Get the name of a Rascal type parameter.}
-str getRascalTypeParamName(AType t) {
-    if (aparameter(tvn,_) := t) return tvn;
-    throw rascalCheckerInternalError("getRascalTypeParamName given unexpected type: <prettyAType(t)>");
-}
-
-@doc{Get the bound of a type parameter.}
-AType getRascalTypeParamBound(AType t) {
-    if (aparameter(_,tvb) := t) return tvb;
-    throw rascalCheckerInternalError("getRascalTypeParamBound given unexpected type: <prettyAType(t)>");
-}
-
-@doc{Get all the type parameters inside a given type.}
-set[AType] collectRascalTypeParams(AType t) {
-    
-    return { rt | / AType rt : aparameter(_,_) := t };
-    //return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := t }; // TODO: "alabel" is unset to enable subset check later, reconsider
-}
-
-@doc{Get all the type parameters inside a given type.}
-set[AType] collectAndUnlabelRascalTypeParams(AType t) {
-   return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := t }; // TODO: "alabel" is unset to enable subset check later, reconsider
-}
-
-@doc{Get all the type parameters inside a given set of productions.}
-set[AType] collectAndUnlabelRascalTypeParams(set[AProduction] prods) {
-   return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := prods }; // TODO: "alabel" is unset to enable subset check later, reconsider
-}
-
-@doc{Provide an initial type map from the type parameters in the type to void.}
-map[str,AType] initializeRascalTypeParamMap(AType t) {
-    set[AType] rt = collectRascalTypeParams(t);
-    return ( getRascalTypeParamName(tv) : makeVoidType() | tv <- rt );
-}
-
-@doc{See if a type contains any type parameters.}
-bool typeContainsRascalTypeParams(AType t) = size(collectRascalTypeParams(t)) > 0;
-
-@doc{Return the names of all type variables in the given type.}
-set[str] typeParamNames(AType t) {
-    return { tvn | aparameter(tvn,_) <- collectRascalTypeParams(t) };
-}
-
-@doc{Set "closed" to its default in all type parameters occurring in a value}
-&T uncloseTypeParams(&T v)
-    = visit(v) { case p:aparameter(_,_,closed=true) => unset(p,"closed") };
-    
-
 // ---- element & container types
 
 @doc{Is this type a non-container type?}
@@ -1390,9 +1316,10 @@ bool isLexicalAType(AType::\iter-star(AType s, isLexical=b)) = b; //isLexicalATy
 bool isLexicalAType(AType::\iter-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
 bool isLexicalAType(AType::\iter-star-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
 
+bool isLexicalAType(\opt(AType atype)) = isLexicalAType(atype);
 bool isLexicalAType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalAType(s));
 bool isLexicalAType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalAType(s));
-bool isLexicalAType(AType t) = false;
+default bool isLexicalAType(AType t) = false;
 
 // ---- literal/terminal
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
@@ -1447,6 +1374,7 @@ bool isRegExpType(AType tp)
     = isEmpty(tp) || isIterType(tp) || isOptType(tp) || isAltType(tp) || isSeqType(tp);
 
 bool isIterType(aparameter(_,AType tvb)) = isIterType(tvb);
+bool isIterType(AType::\conditional(AType ss,_)) = isIterType(ss);
 bool isIterType(AType::\iter(_)) = true;
 bool isIterType(AType::\iter-star(_)) = true;
 bool isIterType(AType::\iter-seps(_,_)) = true;
@@ -1455,6 +1383,7 @@ bool isIterType(AType::\opt(_)) = true;
 default bool isIterType(AType _) = false; 
 
 AType getIterElementType(aparameter(_,AType tvb)) = getIterElementType(tvb);
+AType getIterElementType(AType::\conditional(AType ss,_)) = getIterElementType(ss);
 AType getIterElementType(AType::\iter(AType i)) = i;
 AType getIterElementType(AType::\iter-star(AType i)) = i;
 AType getIterElementType(AType::\iter-seps(AType i,_)) = i;
@@ -1465,6 +1394,7 @@ default AType getIterElementType(AType i) {
 }
  
 int getIterOrOptDelta(aparameter(_,AType tvb)) = getIterOrOptDelta(tvb);
+int getIterOrOptDelta(AType::\conditional(AType ss,_)) = getIterOrOptDelta(ss);
 int getIterOrOptDelta(AType::\iter(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-star(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-seps(AType i, list[AType] seps, isLexical=b)) {

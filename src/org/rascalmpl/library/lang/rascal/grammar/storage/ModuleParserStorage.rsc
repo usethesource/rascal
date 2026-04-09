@@ -20,13 +20,11 @@ the `.rsc` respective file.
 * loading modules without having to first load and use a parser generator can be up 1000 times faster.
 }
 @pitfalls{
-:::warning
-This caching feature is _static_. There is no automated cache clearance.
+* This caching feature is _static_. There is no automated cache clearance.
 If your grammars change, any saved `.parsers` files do not change with it. 
 It is advised that you programmatically execute this compiler at deployment time
 to store the `.parsers` file _only_ in deployed `jar` files. That way, you can not
 be bitten by a concrete syntax parser that is out of date at development time.
-:::
 }
 @license{
   Copyright (c) 2009-2023 NWO-I CWI
@@ -50,6 +48,7 @@ import ParseTree;
 import Grammar;
 import IO;
 import Exception;
+import String;
 
 @synopsis{For all modules in pcfg.srcs this will produce a `.parsers` stored parser capable of parsing concrete syntax fragment in said module.}
 @description{
@@ -114,7 +113,7 @@ void storeParsersForModules(set[loc] moduleFiles, PathConfig pcfg) {
 
 void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
     for (m <- modules) {
-        storeParserForModule("<m.header.name>", m@\loc, modules, pcfg);
+        storeParserForModule(deslash("<m.header.name>"), m@\loc, modules, pcfg);
     }
 }
 

@@ -35,13 +35,16 @@ import java.util.TreeMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
+import org.jline.reader.CompletionMatcher;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
+import org.rascalmpl.repl.completers.CompletionMatcherWithEscapes;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
@@ -81,9 +84,9 @@ public class RascalReplServices implements IREPLService {
         }
         this.term = term;
         this.unicodeSupported = unicodeSupported;
-        var monitor = new TerminalProgressBarMonitor(term);
-        out = monitor;
-        err = StreamUtil.generateErrorStream(term, monitor);
+        var monitor = IRascalMonitor.buildConsoleMonitor(term);
+        out = monitor instanceof PrintWriter ? (PrintWriter)monitor : term.writer();
+        err = StreamUtil.generateErrorStream(term, out);
         return lang.initialize(term.reader(), out, err, monitor, term);
     }
 
@@ -201,6 +204,11 @@ public class RascalReplServices implements IREPLService {
         result.add(new RascalKeywordCompletion());
         result.add(new RascalLocationCompletion());
         return result;
+    }
+
+    @Override
+    public CompletionMatcher completionMatcher() {
+        return new CompletionMatcherWithEscapes();
     }
 
 

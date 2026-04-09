@@ -20,7 +20,7 @@ lexical NatCon = Digits: [0-9]+ !>> [0-9];
 
 lexical NumChar = Digits: [\\] [0-9]+ !>> [0-9];
 
-start syntax SDF = Definition: "definition" Definition def;
+start syntax SDF = Def: "definition" Definition def;
 
 syntax Character 
   = Numeric: NumChar 

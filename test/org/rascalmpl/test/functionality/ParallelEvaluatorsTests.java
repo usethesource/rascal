@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.lang.StackWalker.Option;
 import java.util.Optional;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -16,9 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 
 import io.usethesource.vallang.ISourceLocation;

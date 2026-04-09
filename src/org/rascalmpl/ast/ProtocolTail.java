@@ -31,28 +31,28 @@ public abstract class ProtocolTail extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasMid() {
     return false;
   }
 
   public org.rascalmpl.ast.MidProtocolChars getMid() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPost() {
     return false;
   }
 
   public org.rascalmpl.ast.PostProtocolChars getPost() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.ProtocolTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

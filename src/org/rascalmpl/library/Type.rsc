@@ -11,7 +11,8 @@
 The goal of this module is to provide:
 
 *  reflection capabilities that are useful for deserialization and validation of data, and 
-*  to provide the basic building blocks for syntax trees (see ((module:ParseTree)))
+*  to provide the basic building blocks for syntax trees (see ((module:ParseTree))),
+*  provide the implementations of Rascal's type _lattice_: ((subtype)), ((glb)), ((lub)) and ((intersects)) for reified type Symbols
 
 The following definition is built into Rascal:
 ```rascal
@@ -24,6 +25,23 @@ For values of type `type[...]` the static and dynamic type systems satisfy three
 3. ... `D` holds all the necessary data and syntax rules required to form values of type `T`.
 
 In other words, the `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified _and_ said value will contain the full grammatical definition for what was bound to `&T`.
+
+The ((subtype)) relation of Rascal has all the mathematical properties of a _finite lattice_; where ((lub)) implements the _join_ and ((glb)) implements the _meet_ operation.
+This is a core design principle of Rascal with the following benefits:
+* Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambiguous manner.
+* A _principal type_ can always be computed, which is a most precise and unique solution of a type inference problem. Without the lattice, solution candidates could become incomparable and thus ambiguous. Without
+this principal type property, type inference is predictable for programmers.
+* Solving type inference constraints can be implemented efficiently. The algorithm, based on ((lub)) and ((glb)), makes progress _deterministically_ and does not require backtracking
+to find better solutions. Since the lattice is not very deep, fixed-point solutions are always found quickly.
+
+Much of the aspects of the ((subtype)) lattice are derived from the fact that Rascal's values are _immutable_ or _readonly_. This typically allows for containers
+to be co-variant in their type parameters: `list[int] <: list[value]`. Because all values in Rascal are immutable, and implemented using persistent data-structures,
+its type literals do not feature annotations for co- and contra-variance. We can assume co-variance practically everywhere (even for function parameters).
+
+Function types in Rascal are special because functions are always _openly extensible_, as are the modules they are contained in. This means that the parameter
+types of functions can also be extended, and thus they are co-variant (accepting more rather than fewer kinds of data). Contra-variance is still also allowed, 
+of course, and so we say function parameter types are "variant" in both directions. ((lub)) has been hard-wired to choose the more general (co-variant) 
+solutions for function parameter types to reflect the general applicability of the openly extensible functions.
 }
 @examples{
 ```rascal-shell
@@ -39,8 +57,6 @@ type(\int(),())
 }
 module Type
 
-import List;
-
 @synopsis{A Symbol represents a Rascal Type.}
 @description{
 Symbols are values that represent Rascal's types. These are the atomic types.
@@ -52,7 +68,7 @@ We define here:
 <4>  Parameters that represent a type variable.
 
 In ((module:ParseTree)), see ((ParseTree-Symbol)), 
-Symbols will be further extended with the symbols that may occur in a parse tree.
+Symbols will be further extended with the symbols that may occur in a parse tree. 
 }  
 data Symbol    // <1>
      = \int()
@@ -74,18 +90,13 @@ data Symbol     // <2>
   
 data Symbol      // <3>
      = \set(Symbol symbol)
-     | \rel(list[Symbol] symbols)
-     | \lrel(list[Symbol] symbols)
      | \tuple(list[Symbol] symbols)
      | \list(Symbol symbol)
      | \map(Symbol from, Symbol to)
-     | \bag(Symbol symbol)
      | \adt(str name, list[Symbol] parameters)
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
-     | \overloaded(set[Symbol] alternatives)
-     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;
 
@@ -100,6 +111,21 @@ Symbol \data(adt(n, ps))      = adt(n, ps);
 
 bool subtype(\data(Symbol s), \node())        = true;
 bool subtype(\data(parameter(_,_)), adt(_,_)) = true;
+
+@synopsis{rel types are syntactic sugar for sets of tuples.}
+Symbol \rel(list[Symbol] symbols) 
+     = \set(\tuple(symbols));
+
+@synopsis{lrel types are syntactic sugar for lists of tuples.}
+Symbol \lrel(list[Symbol] symbols) 
+     = \list(\tuple(symbols));
+
+@synopsis{Overloaded/union types are always reduced to the least upper bound of their constituents.}
+@description{
+This semantics of overloading in the type system is essential to make sure it remains a _lattice_.
+}
+Symbol overloaded(set[Symbol] alternatives)
+     = (\void() | lub(it, a) | Symbol a <- alternatives);
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
@@ -125,17 +151,21 @@ data Attr
      ;
 
 @synopsis{Transform a function with varargs (`...`) to a normal function with a list argument.}
-public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
-              \func(ret, parameters + \list(varArg), []);
-
-
+Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) 
+     = \func(ret, parameters + \list(varArg), []);
 
 @synopsis{Normalize the choice between alternative productions.}
 @description{
 The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 Nested choice is flattened.
+
+The below code replaces the following code for performance reasons in compiled code:
+```rascal
+Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
+     = choice(s, a+b);
+```
 }
-public Production choice(Symbol s, set[Production] choices) {
+Production choice(Symbol s, set[Production] choices) {
     if (!any(choice(Symbol _, set[Production] _)  <- choices)) {
         fail choice;
 	} else {   
@@ -161,119 +191,72 @@ public Production choice(Symbol s, set[Production] choices) {
     }
 }
 
-//TODO:COMPILER
-//the above code replaces the following code for performance reasons in compiled code
-//public Production choice(Symbol s, {*Production a, choice(Symbol t, set[Production] b)})
-//  = choice(s, a+b);
   
-
-@synopsis{Functions with variable argument lists are normalized to normal functions}
-// TODO: What is this? Not sure why this is here...
-//public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
-//       \func(ret, name, parameters + [<\list(varArg), varLabel>]);
-
-@synopsis{the subtype relation lifted to `type` from the Symbol level}
-public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
+@synopsis{Subtype is the core implementation of Rascal's type lattice.}
+@description{
+The following graph depicts Rascal's type lattice for a number of example types, including:
+* all the builtin types, with `value` as maximum and `void` as the minimum of the lattice
+* parameterized container types (co-variant)
+* a function type example (variant in parameter positions, both directions)
+* a data type `Exp`
+* a reified type `type[value]` and `type[int]` (co-variant)
+```rascal-prepare
+import Type;
+data Exp = \int(int i);
+allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
+[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), #value(value), #type[int], #type[value]};
+import analysis::graphs::Graph;
+typeLattice = { <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)};
+import vis::Graphs;
+graph(transitiveReduction(typeLattice<1,0>), cfg=cytoGraphConfig(\layout=defaultDagreLayout()));
+```
+}
+@examples{
+```rascal-shell
+import Type;
+subtype(#int, #value)
+subtype(#value, #int)
+```
+}
+bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 
 @synopsis{This function documents and implements the subtype relation of Rascal's type system.}
-public bool subtype(Symbol s, s) = true;
-public default bool subtype(Symbol s, Symbol t) = false;
+@javaClass{org.rascalmpl.library.Type}
+java bool subtype(Symbol s, Symbol t);
 
-public bool subtype(Symbol _, Symbol::\value()) = true;
-public bool subtype(Symbol::\void(), Symbol _) = true;
-public bool subtype(Symbol::\cons(Symbol a, _, list[Symbol] _), a) = true;
-public bool subtype(Symbol::\cons(Symbol a, str name, list[Symbol] ap), Symbol::\cons(a,name,list[Symbol] bp)) = subtype(ap,bp);
-public bool subtype(Symbol::\adt(str _, list[Symbol] _), Symbol::\node()) = true;
-public bool subtype(Symbol::\adt(str n, list[Symbol] l), Symbol::\adt(n, list[Symbol] r)) = subtype(l, r);
-public bool subtype(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = subtype(aliased, r);
-public bool subtype(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = subtype(l, aliased);
-public bool subtype(Symbol::\int(), Symbol::\num()) = true;
-public bool subtype(Symbol::\rat(), Symbol::\num()) = true;
-public bool subtype(Symbol::\real(), Symbol::\num()) = true;
-public bool subtype(Symbol::\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
+@synopsis{Checks if two types have a non-empty intersection, meaning there exists values which types with both as a supertype}
+@description{
+Consider `tuple[int, value]` and `tuple[value, int]` which are not subtypes of one another,
+but all the values in their intersection, `tuple[int, int]` belong to both types.
 
-// list and lrel
-public bool subtype(Symbol::\list(Symbol s), Symbol::\list(Symbol t)) = subtype(s, t); 
-public bool subtype(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = subtype(l, r);
+Type intersection is important for the type-checking of pattern matching, and since function parameters
+are patterns in Rascal, also for the type-checking of function parameters. Pattern matching between two 
+types is possible as long as the intersection is non-empty. This is true if one is a sub-type of other,
+or vice verse: then the intersection _is_ the subtype. However, the above tuple example also shows
+there can be non-empty intersections when the types are not sub-types.
+}
+@javaClass{org.rascalmpl.library.Type}
+java bool intersects(Symbol s, Symbol t);
 
-// Potential alternative rules:
-//public bool subtype(\list(Symbol s), \lrel(list[Symbol] r)) = subtype(s, (size(r) == 1) ? r[0] : \tuple(r));
-//public bool subtype(\lrel(list[Symbol] l), \list(Symbol r)) = subtype((size(l) == 1) ? l[0] : \tuple(l), r);
-
-public bool subtype(Symbol::\list(Symbol s), Symbol::\lrel(list[Symbol] r)) = subtype(s, Symbol::\tuple(r));
-public bool subtype(Symbol::\lrel(list[Symbol] l), \list(Symbol r)) = subtype(Symbol::\tuple(l), r);
-
-// set and rel
-public bool subtype(Symbol::\set(Symbol s), Symbol::\set(Symbol t)) = subtype(s, t);
-public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = subtype(l, r);
-
-//Potential alternative rules:
-//public bool subtype(\set(Symbol s), \rel(list[Symbol] r)) = subtype(s, (size(r) == 1) ? r[0] : \tuple(r));
-//public bool subtype(\rel(list[Symbol] l), \set(Symbol r)) = subtype((size(l) == 1) ? l[0] : \tuple(l), r);
-
-public bool subtype(Symbol::\set(Symbol s), Symbol::\rel(list[Symbol] r)) = subtype(s, Symbol::\tuple(r));
-public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\set(Symbol r)) = subtype(Symbol::\tuple(l), r);
-
-public bool subtype(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = subtype(s, t);  
-public bool subtype(Symbol::\map(Symbol from1, Symbol to1), Symbol::\map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
-// TODO: this should be comparable parameters and we miss something about the kwparams:
-public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] kw1), Symbol::\func(Symbol r2, list[Symbol] p2, list[Symbol] kw2)) = subtype(r1, r2) && subtype(p2, p1); 
-public bool subtype(Symbol::\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
-public bool subtype(Symbol l, Symbol::\parameter(str _, Symbol bound)) = subtype(l, bound);
-public bool subtype(Symbol::\label(str _, Symbol s), Symbol t) = subtype(s,t);
-public bool subtype(Symbol s, Symbol::\label(str _, Symbol t)) = subtype(s,t);
-public bool subtype(Symbol::\reified(Symbol s), Symbol::\reified(Symbol t)) = subtype(s,t);
-public bool subtype(Symbol::\reified(Symbol s), Symbol::\node()) = true;
-public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- index(l), subtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-public default bool subtype(list[Symbol] l, list[Symbol] r) = size(l) == 0 && size(r) == 0;
-
-//public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\var-func(Symbol r2, list[Symbol] p2, Symbol va)) =
-//	subtype(r1,r2) && size(p1)-1 == size(p2) && subtype(p2,head(p1,size(p1)-1)) && subtype(\list(va),last(p1));
-//
-//public bool subtype(Symbol::\var-func(Symbol r1, list[Symbol] p1, Symbol va), Symbol::\func(Symbol r2, list[Symbol] p2)) {
-//	if (subtype(r1,r2)) {
-//		if (size(p1) <= size(p2) && subtype(head(p2,size(p1)),p1)) {
-//			if (size(p2) > 0 && size(p2) > size(p1)) {
-//				list[Symbol] theRest = tail(p2,size(p2)-size(p1));
-//				list[Symbol] vaExp = [ va | idx <- index(theRest) ];
-//				return subtype(theRest, vaExp);
-//			}
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-//
-//public bool subtype(Symbol::\var-func(Symbol r1, list[Symbol] p1, Symbol va1), Symbol::\var-func(Symbol r2, list[Symbol] p2, Symbol va2)) {
-//	if (subtype(r1,r2)) {
-//		if (size(p1) == size(p2)) {
-//			return subtype(p2+\list(va2), p1+\list(va1));
-//		} else if (size(p1) == 0) {
-//			return subtype(p2+\list(va2), [va1 | idx <- index(p2)] + \list(va1));
-//		} else if (size(p2) == 0) {
-//			return subtype([va2 | idx <- index(p1)] + \list(va2), p1 + \list(va1));
-//		} else if (size(p1) < size(p2)) {
-//			return subtype(take(size(p1),p2),p1) && subtype(tail(p2,size(p2)-size(p1))+\list(va2),[va1|idx<-index(tail(p2,size(p2)-size(p1)))]+\list(va1));
-//		} else if (size(p2) < size(p1)) {
-//			return subtype(p2,take(size(p2),p1)) && subtype([va2|idx <- index(tail(p1,size(p1)-size(p2)))]+\list(va2),tail(p1,size(p1)-size(p2))+\list(va1));
-//		}
-//	}
-//	return false;
-//}
+bool intersects(type[&T] t, type[&U] u)
+     = intersects(t.symbol, u.symbol);
 
 @synopsis{Check if two types are comparable, i.e., one is a subtype of the other or vice versa.}
-public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
+bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
+
+bool comparable(type[value] s, type[value] t) = comparable(s.symbol, t.symbol);
 
 @synopsis{Check if two types are equivalent, i.e. they are both subtypes of each other.}
-public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
+bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 
+bool equivalent(type[value] s, type[value] t) = equivalent(s.symbol, t.symbol);
 
 @synopsis{Strict structural equality between values.}
 @description{
 The difference between `eq` and `==` is that no implicit coercions are done between values of incomparable types
 at the top-level. 
 
-The `==` operator, for convience, equates `1.0` with `1` but not `[1] with [1.0]`, which can be annoying
+The `==` operator, for convenience, equates `1.0` with `1` but not `[1] with [1.0]`, which can be annoying
 when writing consistent specifications. The new number system that is coming up will not have these issues.
 }
 @examples{
@@ -284,215 +267,51 @@ eq(1,1.0)
 ```
 }
 @javaClass{org.rascalmpl.library.Type}
-public java bool eq(value x, value y);
+java bool eq(value x, value y);
 
-@synopsis{The least-upperbound (lub) of two types is the common ancestor in the type lattice that is lowest.}
+@synopsis{The least upper bound (lub) of two types is the common ancestor in the type lattice that is lowest.}
 @description{
-This function documents and implements the lub operation in Rascal's type system.
+This function implements the lub operation in Rascal's type system, via unreifying the Symbol values
+and calling into the underlying run-time Type implementation.
 }
-public Symbol lub(Symbol s, s) = s;
-public default Symbol lub(Symbol s, Symbol t) = \value();
-
-public Symbol lub(Symbol::\value(), Symbol t) = Symbol::\value();
-public Symbol lub(Symbol s, Symbol::\value()) = Symbol::\value();
-public Symbol lub(Symbol::\void(), Symbol t) = t;
-public Symbol lub(Symbol s, Symbol::\void()) = s;
-public Symbol lub(Symbol::\int(), Symbol::\num()) = Symbol::\num();
-public Symbol lub(Symbol::\int(), Symbol::\real()) = Symbol::\num();
-public Symbol lub(Symbol::\int(), Symbol::\rat()) = Symbol::\num();
-public Symbol lub(Symbol::\rat(), Symbol::\num()) = Symbol::\num();
-public Symbol lub(Symbol::\rat(), Symbol::\real()) = Symbol::\num();
-public Symbol lub(Symbol::\rat(), Symbol::\int()) = Symbol::\num();
-public Symbol lub(Symbol::\real(), Symbol::\num()) = Symbol::\num();
-public Symbol lub(Symbol::\real(), Symbol::\int()) = Symbol::\num();
-public Symbol lub(Symbol::\real(), Symbol::\rat()) = Symbol::\num();
-public Symbol lub(Symbol::\num(), Symbol::\int()) = Symbol::\num();
-public Symbol lub(Symbol::\num(), Symbol::\real()) = Symbol::\num();
-public Symbol lub(Symbol::\num(), Symbol::\rat()) = Symbol::\num();
-
-public Symbol lub(Symbol::\set(Symbol s), Symbol::\set(Symbol t)) = Symbol::\set(lub(s, t));  
-public Symbol lub(Symbol::\set(Symbol s), Symbol::\rel(list[Symbol] ts)) = Symbol::\set(lub(s,Symbol::\tuple(ts)));  
-public Symbol lub(Symbol::\rel(list[Symbol] ts), Symbol::\set(Symbol s)) = Symbol::\set(lub(s,Symbol::\tuple(ts)));
-
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol lub(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
-
-public Symbol lub(Symbol::\list(Symbol s), Symbol::\list(Symbol t)) = Symbol::\list(lub(s, t));  
-public Symbol lub(Symbol::\list(Symbol s), \lrel(list[Symbol] ts)) = Symbol::\list(lub(s,\tuple(ts)));  
-public Symbol lub(Symbol::\lrel(list[Symbol] ts), Symbol::\list(Symbol s)) = Symbol::\list(lub(s,\tuple(ts)));
-
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol lub(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\list(\value()) when size(l) != size(r);
-
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && ! ( (allLabeled(l) && allLabeled(r)) || (allLabeled(l) && noneLabeled(r)) || (noneLabeled(l) && allLabeled(r)));
-
-public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
-public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when !(\label(_,_) := rf || \label(_,_) := rt);
-public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when !(\label(_,_) := lf || \label(_,_) := lt);
-public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when !(\label(_,_) := lf || \label(_,_) := lt || \label(_,_) := rf || \label(_,_) := rt);
-
-public Symbol lub(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(lub(s, t));
-public Symbol lub(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
-public Symbol lub(Symbol::\node(), \adt(str n, list[Symbol] _)) = Symbol::\node();
-public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, addParamLabels(lub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, lub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
-public Symbol lub(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(str m, list[Symbol] rp)) = Symbol::\node() when n != m;
-public Symbol lub(Symbol::\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = lub(Symbol::\adt(ln,lp),b);
-
-public Symbol lub(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _)) = lub(la,ra);
-public Symbol lub(Symbol::\cons(Symbol a, _, list[Symbol] lp), Symbol::\adt(str n, list[Symbol] rp)) = lub(a,Symbol::\adt(n,rp));
-public Symbol lub(Symbol::\cons(Symbol _, _, list[Symbol] _), Symbol::\node()) = Symbol::\node();
-
-public Symbol lub(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
-public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
-
-public bool keepParams(Symbol::\parameter(str s1, Symbol bound1), Symbol::\parameter(str s2, Symbol bound2)) = s1 == s2 && equivalent(bound1,bound2);
-
-public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = l when keepParams(l,r);
-public Symbol lub(Symbol l:Symbol::\parameter(str s1, Symbol bound1), Symbol r:Symbol::\parameter(str s2, Symbol bound2)) = lub(bound1,bound2) when !keepParams(l,r);
-public Symbol lub(Symbol::\parameter(str _, Symbol bound), Symbol r) = lub(bound, r) when !(isTypeVar(r));
-public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bound) when !(isTypeVar(l));
-
-public Symbol lub(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(lub(l,r));
-public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
-
-public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] lkw), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] rkw)) {
-	lubReturn = lub(lr,rr);
-	lubParams = glb(Symbol::\tuple(lp),Symbol::\tuple(rp));
-	
-	// TODO: what is the real lub of the kwparams?
-	if (isTupleType(lubParams))
-		return \func(lubReturn, lubParams.symbols, lkw == rkw ? lkw : []);
-	else
-		return Symbol::\value();
+@examples{
+```rascal-shell
+import Type;
+lub(#tuple[int,value], #tuple[value, int])     
+lub(#int, #real)
+```
 }
+@javaClass{org.rascalmpl.library.Type}
+java Symbol lub(Symbol s1, Symbol s2);
 
-public Symbol lub(Symbol::\label(_,Symbol l), Symbol r) = lub(l,r);
-public Symbol lub(Symbol l, Symbol::\label(_,Symbol r)) = lub(l,r);
-
-public list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [lub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
-public default list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [\value()]; 
-
-private bool allLabeled(list[Symbol] l) = all(li <- l, Symbol::\label(_,_) := li);
-private bool noneLabeled(list[Symbol] l) = all(li <- l, Symbol::\label(_,_) !:= li);
-private list[str] getLabels(list[Symbol] l) = [ s | li <- l, Symbol::\label(s,_) := li ];
-private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ Symbol::\label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
-private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; }
-private list[Symbol] stripLabels(list[Symbol] l) = [ (Symbol::\label(_,v) := li) ? v : li | li <- l ]; 
-
-private list[str] getParamLabels(list[Symbol] l) = [ s | li <- l, Symbol::\parameter(s,_) := li ];
-private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ Symbol::\parameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
-private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
+type[value] lub(type[&T] t, type[&T] u)
+     = type(lub(t.symbol, u.symbol), ());
 
 @synopsis{The greatest lower bound (glb) between two types, i.e. a common descendant of two types in the lattice which is largest.}
 @description{
-This function documents and implements the glb operation in Rascal's type system.
+This function implements the glb operation in Rascal's type system, via unreifying the Symbol values
+and calling into the underlying run-time Type implementation.
 }
-public Symbol glb(Symbol s, s) = s;
-public default Symbol glb(Symbol s, Symbol t) = \void();
-
-public Symbol glb(Symbol::\void(), Symbol t) = Symbol::\void();
-public Symbol glb(Symbol s, Symbol::\void()) = Symbol::\void();
-public Symbol glb(Symbol::\value(), Symbol t) = t;
-public Symbol glb(Symbol s, Symbol::\value()) = s;
-
-public Symbol glb(Symbol::\int(), Symbol::\num()) = Symbol::\int();
-public Symbol glb(Symbol::\num(), Symbol::\int()) = Symbol::\int();
-public Symbol glb(Symbol::\rat(),Symbol::\num()) = Symbol::\rat();
-public Symbol glb(Symbol::\num(), Symbol::\rat()) = Symbol::\rat();
-public Symbol glb(Symbol::\real(), Symbol::\num()) = Symbol::\real();
-public Symbol glb(Symbol::\num(), Symbol::\real()) = Symbol::\real();
-
-public Symbol glb(Symbol::\set(Symbol s), Symbol::\set(Symbol t)) = Symbol::\set(glb(s, t));  
-public Symbol glb(Symbol::\set(Symbol s), Symbol::\rel(list[Symbol] ts)) = Symbol::\set(glb(s,Symbol::\tuple(ts)));  
-public Symbol glb(Symbol::\rel(list[Symbol] ts), Symbol::\set(Symbol s)) = \set(glb(s,Symbol::\tuple(ts)));
-
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = Symbol::\rel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol glb(Symbol::\rel(list[Symbol] l), Symbol::\rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
-
-public Symbol glb(Symbol::\list(Symbol s), Symbol::\list(Symbol t)) = Symbol::\list(glb(s, t));  
-public Symbol glb(Symbol::\list(Symbol s), Symbol::\lrel(list[Symbol] ts)) = Symbol::\list(glb(s,Symbol::\tuple(ts)));  
-public Symbol glb(Symbol::\lrel(list[Symbol] ts), Symbol::\list(Symbol s)) = Symbol::\list(glb(s,Symbol::\tuple(ts)));
-
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\lrel(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-public Symbol glb(Symbol::\lrel(list[Symbol] l), Symbol::\lrel(list[Symbol] r)) = Symbol::\list(\value()) when size(l) != size(r);
-
-public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
-public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(addLabels(glb(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)) = Symbol::\tuple(glb(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
-
-public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when lfl == rfl && ltl == rtl;
-public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when !(\label(_,_) := rf || \label(_,_) := rt);
-public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, glb(lf,rf)), \label(rtl, glb(lt,rt))) when !(\label(_,_) := lf || \label(_,_) := lt);
-public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when !(\label(_,_) := lf || \label(_,_) := lt || \label(_,_) := rf || \label(_,_) := rt);
-
-public Symbol glb(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(glb(s, t));
-public Symbol glb(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
-public Symbol glb(\node(), Symbol::\adt(str n, list[Symbol] _)) = Symbol::\node();
-public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, addParamLabels(glb(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(n, list[Symbol] rp)) = Symbol::\adt(n, glb(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
-public Symbol glb(Symbol::\adt(str n, list[Symbol] lp), Symbol::\adt(str m, list[Symbol] rp)) = Symbol::\node() when n != m;
-public Symbol glb(Symbol::\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, _, list[Symbol] _)) = glb(Symbol::\adt(ln,lp),b);
-
-public Symbol glb(Symbol::\cons(Symbol la, _, list[Symbol] _), Symbol::\cons(Symbol ra, _, list[Symbol] _)) = glb(la,ra);
-public Symbol glb(Symbol::\cons(Symbol a, _, list[Symbol] lp), Symbol::\adt(str n, list[Symbol] rp)) = glb(a,Symbol::\adt(n,rp));
-public Symbol glb(Symbol::\cons(Symbol _, _, list[Symbol] _), \node()) = \node();
-
-public Symbol glb(Symbol::\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = glb(aliased, r);
-public Symbol glb(Symbol l, Symbol::\alias(str _, list[Symbol] _, Symbol aliased)) = glb(l, aliased);
-
-public Symbol glb(Symbol::\parameter(str _, Symbol bound), Symbol r) = glb(bound, r);
-public Symbol glb(Symbol l, Symbol::\parameter(str _, Symbol bound)) = glb(l, bound);
-
-public Symbol glb(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(glb(l,r));
-public Symbol glb(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
-
-public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] kwl), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] kwr)) {
-	glbReturn = glb(lr,rr);
-	glbParams = lub(Symbol::\tuple(lp),Symbol::\tuple(rp));
-	if (isTupleType(glbParams))
-		return \func(glbReturn, glbParams.symbols, kwl == kwr ? kwl : []);
-	else
-		return Symbol::\value();
+@examples{
+```rascal-shell
+import Type;
+glb(#tuple[int,value], #tuple[value, int])   
+glb(#int, #real)  
+```
 }
+@javaClass{org.rascalmpl.library.Type}
+java Symbol glb(Symbol s1, Symbol s2);
 
-public Symbol glb(Symbol::\label(_,Symbol l), Symbol r) = glb(l,r);
-public Symbol glb(Symbol l, Symbol::\label(_,Symbol r)) = glb(l,r);
+type[value] glb(type[&T] t, type[&T] u)
+     = type(glb(t.symbol, u.symbol), ());
 
-public list[Symbol] glb(list[Symbol] l, list[Symbol] r) = [glb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
-public default list[Symbol] glb(list[Symbol] l, list[Symbol] r) = [\value()]; 
+data Exception = typeCastException(Symbol from, type[value] to);
 
+&T typeCast(type[&T] typ, value v) {
+  if (&T x := v) {
+     return x;
+  }
 
-data Exception 
-     = typeCastException(Symbol from, type[value] to);
-
-public &T typeCast(type[&T] typ, value v) {
-  if (&T x := v)
-    return x;
   throw typeCastException(typeOf(v), typ);
 }
 
@@ -503,7 +322,7 @@ This function will build a constructor if the definition exists and the paramete
 This function can be used to validate external data sources against a data type such as XML, JSON and YAML documents.
 }
 @javaClass{org.rascalmpl.library.Type}
-public java &T make(type[&T] typ, str name, list[value] args);
+java &T make(type[&T] typ, str name, list[value] args);
  
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
@@ -730,3 +549,5 @@ public bool isTypeVar(Symbol::\parameter(_,_)) = true;
 public bool isTypeVar(Symbol::\alias(_,_,Symbol at)) = isTypeVar(at);
 public bool isTypeVar(Symbol::\label(_,Symbol lt)) = isTypeVar(lt);
 public default bool isTypeVar(Symbol _) = false;
+
+java Symbol typeOf(value v);

@@ -32,12 +32,11 @@ module lang::rascalcore::check::ADTandGrammar
     as well as a grammar using the key key_grammar. While doing so it also performs some consistency checks.
 */
 
-extend lang::rascalcore::check::CheckerCommon;
+
+import lang::rascalcore::check::ModuleLocations;
 
 import lang::rascalcore::agrammar::definition::Layout;
 import lang::rascalcore::agrammar::definition::Keywords;
-
-import lang::rascal::\syntax::Rascal;
 
 import IO;
 import Node;
@@ -48,6 +47,8 @@ import Relation;
 import Message;
 import Map;
 import util::Reflective;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 void addADTsAndCommonKeywordFields(Solver s){
     addADTs(s);
@@ -164,21 +165,23 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
-tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] transient_tms, ModuleStatus ms){
+tuple[bool, TModel, ModuleStatus] addGrammar(MODID moduleId, set[MODID] imports, set[MODID] extends, map[MODID,TModel] transient_tms, ModuleStatus ms){
     try {
         rel[AType,AProduction] definedProductions = {};
         allStarts = {};
-        for(m <- {qualifiedModuleName, *imports, *extends}){
+        qualifiedModuleName = moduleId2moduleName(moduleId);
+        for(m <- {moduleId, *imports, *extends}){
             TModel tm1;
             if(transient_tms[m]?){
                 tm1 = transient_tms[m];
             } else {
                 <found, tm1, ms> = getTModelForModule(m, ms);
                 if(!found) {
-                    msg = error("Cannot add grammar, tmodel for <m> not found", ms.moduleLocs[qualifiedModuleName] ? |unknown:///|);
-                    ms.messages[qualifiedModuleName] ? {} += { msg };
+                    msg = error("Cannot add grammar or tmodel since `<moduleId2moduleName(m)>` is not found", ms.moduleLocs[moduleId] ? |unknown:///|);
+                    //println(msg); // TODO: Just to record this event; this should probably go to a log file
+                    ms.messages[moduleId] ? {} += { msg };
                     tm1 = tmodel(modelName=qualifiedModuleName, messages=[msg]);
-                    return <tm1, ms>;
+                    return <false, tm1, ms>;
                 }
             }
             facts = tm1.facts;
@@ -222,7 +225,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         // Check keyword rules
 
-        tm = checkKeywords(allProductions, transient_tms[qualifiedModuleName]);
+        tm = checkKeywords(allProductions, transient_tms[moduleId]);
 
         // Check layout
 
@@ -239,7 +242,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts) || !isEmpty(allStarts)){
-            syntaxDefinitions += (AType::layouts("$default$"): achoice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
+            syntaxDefinitions += (layouts("$default$"): achoice(layouts("$default$"), {prod(layouts("$default$"), [])}));
         }
         
         if(size(allLayouts) >= 1){
@@ -311,14 +314,14 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         g = layouts(g, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
-        g.rules += (AType::aempty():achoice(AType::aempty(), {prod(AType::aempty(),[])}));
+        g.rules += (aempty():achoice(aempty(), {prod(aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         tm.store[key_grammar] = [g];
-        return <tm, ms>;
+        return <true, tm, ms>;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
-        return <tmodel(), ms>;
+        return <false, tmodel(), ms>;
     }
 }
 

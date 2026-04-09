@@ -31,56 +31,56 @@ public abstract class Literal extends AbstractAST {
   }
 
   public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDateTimeLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.DateTimeLiteral getDateTimeLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasIntegerLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasLocationLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRationalLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRealLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.RealLiteral getRealLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasRegExpLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStringLiteral() {
     return false;
   }
 
   public org.rascalmpl.ast.StringLiteral getStringLiteral() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

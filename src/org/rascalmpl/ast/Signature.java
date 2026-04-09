@@ -31,35 +31,35 @@ public abstract class Signature extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasModifiers() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionModifiers getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParameters() {
     return false;
   }
 
   public org.rascalmpl.ast.Parameters getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -149,7 +149,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 317 + 857 * modifiers.hashCode() + 353 * type.hashCode() + 53 * name.hashCode() + 149 * parameters.hashCode() ; 
+      return 53 + 149 * modifiers.hashCode() + 127 * type.hashCode() + 827 * name.hashCode() + 431 * parameters.hashCode() ; 
     } 
   
     
@@ -292,7 +292,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 127 + 827 * modifiers.hashCode() + 431 * type.hashCode() + 131 * name.hashCode() + 827 * parameters.hashCode() + 2 * exceptions.hashCode() ; 
+      return 131 + 827 * modifiers.hashCode() + 2 * type.hashCode() + 449 * name.hashCode() + 89 * parameters.hashCode() + 233 * exceptions.hashCode() ; 
     } 
   
     

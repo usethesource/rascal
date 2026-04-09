@@ -26,14 +26,14 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @bootstrapParser
 module lang::rascalcore::check::ATypeBase
-
+ 
 /*
     Basic declarations for the ATypes used in the checker. They extend the datat type AType introduced in TypePal.
  */
 
 extend analysis::typepal::TypePal;
 
-import lang::rascal::\syntax::Rascal;
+extend lang::rascal::\syntax::Rascal;
 
 //import IO;
 import List;
@@ -156,24 +156,11 @@ public AProduction achoice(AType s, set[AProduction] achoices){
    fail;
 }
 
-// ---- Parse Tree
 
-data ATree
-     = appl(AProduction aprod, list[ATree] args/*, loc src=|unknown:///|*/) // <1>
-     | cycle(AType atype, int cycleLength)  // <2>
-     | aamb(set[ATree] alternatives) // <3>
-     | achar(int character) // <4>
-     ;
 
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
 
 public bool isTreeType(AType t) = treeType := t;
-
-//@doc{
-//.Synopsis
-//Annotate a parse tree node with a source location.
-//}
-//anno loc Tree@\loc; // TODO: weg
 
 data SyntaxRole
     = dataSyntax()

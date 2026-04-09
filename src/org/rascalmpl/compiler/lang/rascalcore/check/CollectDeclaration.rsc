@@ -31,22 +31,17 @@ module lang::rascalcore::check::CollectDeclaration
     Check all declarations in a module
 */
 
-extend lang::rascalcore::check::CheckerCommon;
-extend lang::rascalcore::check::CollectDataDeclaration;
-extend lang::rascalcore::check::CollectSyntaxDeclaration;
-
-extend lang::rascalcore::check::Fingerprint;
 import lang::rascalcore::check::PathAnalysis;
 
 //import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::agrammar::definition::Symbols;
 import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;
+
+import lang::rascalcore::check::ATypeBase; // seemingly redundant
 
 import IO;
 import List;
@@ -58,6 +53,12 @@ import String;
 
 import util::Reflective;
 
+extend lang::rascalcore::check::CheckerCommon;
+extend lang::rascalcore::check::CollectDataDeclaration;
+extend lang::rascalcore::check::CollectSyntaxDeclaration;
+
+extend lang::rascalcore::check::Fingerprint;
+
 // ---- Utilities -------------------------------------------------------------
 
 
@@ -65,13 +66,15 @@ import util::Reflective;
 
 int localFunctionCounter = 0;
 
-void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
+void collect(Module current, Collector c){
 
     dataCounter = 0;
-    variantCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
     localFunctionCounter = 0;
+
+    header = current.header;
+    body = current.body;
 
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -79,8 +82,8 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
 
     tagsMap = getTags(header.tags);
 
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring module <mname>"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(header.name, "Ignoring module <mname>"));
         return;
     }
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
@@ -120,7 +123,7 @@ void collect(Header header, Collector c){
     collect(header.imports, c);
 }
 
-void collect(Body body, Collector c){
+void collect(lang::rascal::\syntax::Rascal::Body body, Collector c){
     // First collect all variable declarations to ensure that forward references to
     // variables are available during type unference inside function bodies
     for(toplevel <- body.toplevels){
@@ -156,7 +159,7 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
+    if(hasIgnoreCompilerTag(tagsMap)) {
         c.report(info(current, "Ignoring variable declaration"));
         return;
     }
@@ -166,7 +169,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
-            dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><varType><var.name>");
+            dt.md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, varType, var.name);
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             vname = prettyPrintName(var.name);
             if(isWildCard(vname)){
@@ -207,14 +210,14 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     }
 
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
+    if(hasIgnoreCompilerTag(tagsMap)) {
         c.report(info(current, "Ignoring anno declaration for `<pname>`"));
         return;
     }
 
     dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
     dt.vis = getVis(current.visibility, publicVis());
-    dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><annoType><onType><name>");
+    dt.md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, annoType, onType, name);
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     // if(isWildCard(pname)){
     //     c.report(error(name, "Annotation names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
@@ -233,7 +236,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     } catch TypeUnavailable(): {
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
-    dt.md5 = md5Hash(unparseNoLayout(current));
+    dt.md5 = normalizedMD5Hash(current);
     c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
@@ -262,8 +265,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     ppfname = prettyPrintName(fname);
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(fname, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
     // Make md5hash of nested functions unique by using all surrounding signatures
@@ -274,7 +277,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     for(FunctionDeclaration outerFun <- fstk){
         allSignatures += md5Contrib4signature(outerFun.signature);
     }
-    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><allSignatures>";
+    md5Contrib = [md5Contrib4Tags(decl.tags), decl.visibility, allSignatures];
     if(size(fstk) > 1){
         localFunctionCounter += 1;
         md5Contrib += "-<localFunctionCounter>";
@@ -287,7 +290,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(signature, "Modifier `test` is missing"));
         }
         c.use(expectedName, {dataId(), constructorId()});
-        c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+        //c.requireSubType(expectedName, anode([]), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+
+        //c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
     }
 
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
@@ -414,7 +419,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 
         endUseBoundedTypeParameters(c);
 
-        dt.md5 = md5Hash(md5Contrib);
+        dt.md5 = normalizedMD5Hash(md5Contrib);
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
     c.leaveScope(decl);
     c.pop(currentFunction);
@@ -652,9 +657,9 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     returnExprType = s.getType(returnExpr);
-    msg = p:/aparameter(_,_) := declaredReturnType
-          ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
-          : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
+    FailMessage msg = p:/aparameter(_,_) := declaredReturnType
+                      ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
+                      : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
 
     bindings = ();
     rsuffix = "r";
@@ -669,12 +674,17 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     try {
         returnExprTypeU = instantiateRascalTypeParameters(returnExpr, returnExprTypeU, bindings, s);
     } catch invalidInstantiation(str msg): {
-        s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: " + msg));
+        s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: <msg>"));
     }
-
-    s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);
+    returnExprTypeDU = deUnique(returnExprTypeU);
+    declaredReturnTypeDU = deUnique(declaredReturnTypeU);
+    s.requireSubType(returnExprTypeDU, declaredReturnTypeDU, msg);
     if(!isVoidAType(declaredReturnTypeU)){
         checkNonVoid(returnExpr, returnExprTypeU, s, "Return value");
+    }
+    if(overloadedAType(overloads) := returnExprTypeDU){
+        filteredOverloads = checkAndFilterOverloads(returnExpr, overloads, declaredReturnTypeDU, s);
+        s.specializedFact(returnExpr, overloadedAType(filteredOverloads));
     }
  }
 
@@ -685,7 +695,7 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
         if(signatureInfo(Type returnType) := scopeInfo){
-           c.require("check return type", current, [statement], makeReturnRequirement(statement, returnType));
+           c.require("check return type", current, [statement, returnType], makeReturnRequirement(statement, returnType));
            c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
            collect(statement, c);
            return;
@@ -701,15 +711,15 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name> = <Type base>;`, Collector c){
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
     // if(isWildCard(aliasName)){
     //     c.report(warning(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
 
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><base>")]);
+    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, base)]);
     c.enterScope(current);
         collect(tags, base, c);
     c.leaveScope(current);
@@ -719,8 +729,8 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
 
-    if(ignoreCompiler(tagsMap)) {
-        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) {
+        c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
 
@@ -744,7 +754,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         }
 
         return aalias(aliasName, params, s.getType(base));
-    })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><parameters><base>")]);
+    })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, parameters, base)]);
 
     collect(tags, c);
 

@@ -15,7 +15,7 @@ This is left to downstream processors of `loc` values, if necessary. The current
 is purely syntactical, and tries to preserve the semantics of the path as much as possible.
 }
 @pitfalls{
-* Length limitations are not implemnted by this parser. This means that overly long names will lead
+* Length limitations are not implemented by this parser. This means that overly long names will lead
 to IO exceptions when they are finally used.
 * The names of drives, files and devices are mapped as-is, without normalization. This means that
 the resulting `loc` value may not be a _canonical_ representation of the identified resource.

@@ -139,6 +139,7 @@ public class NonTerminalType extends RascalType {
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
             if (symbols().isLabel(symbol)) {
                 symbol = symbols().getLabeledSymbol(symbol);
+				return TypeFactory.getInstance().fromSymbol((IConstructor) symbol, store, grammar);
             }
             
             return RTF.nonTerminalType((IConstructor) symbol);
@@ -354,6 +355,9 @@ public class NonTerminalType extends RascalType {
 	public boolean intersects(Type other) {
 		if (other == RascalValueFactory.Tree) {
 			return true;
+		}
+		else if (other.isParameter()) {
+			return other.intersects(this);
 		}
 		else if (other instanceof NonTerminalType) {
 			return ((NonTerminalType) other).intersectsWithNonTerminal(this);
