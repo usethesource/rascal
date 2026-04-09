@@ -587,7 +587,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
-    public static class WatchSubscriptionKey {
+    private static class WatchSubscriptionKey {
         private final ISourceLocation loc;
         private final boolean recursive;
         public WatchSubscriptionKey(ISourceLocation loc, boolean recursive) {
