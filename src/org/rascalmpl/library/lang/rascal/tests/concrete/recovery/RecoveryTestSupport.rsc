@@ -502,7 +502,7 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) =
 FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput) = testErrorRecovery(config, testInput, readFile(testInput));
 
 FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input) {
-    type[value] begin = type(\void(), ());
+    type[value] begin = type(Symbol::\void(), ());
     str topSort = getTopSort(config);
     if (config.syntaxModule != "") {
         // Use module

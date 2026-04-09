@@ -31,7 +31,7 @@ public abstract class Body extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Toplevel> getToplevels() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

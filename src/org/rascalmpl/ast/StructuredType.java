@@ -31,14 +31,14 @@ public abstract class StructuredType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBasicType() {
     return false;
   }
 
   public org.rascalmpl.ast.BasicType getBasicType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -110,7 +110,7 @@ public abstract class StructuredType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 359 * basicType.hashCode() + 151 * arguments.hashCode() ; 
+      return 311 + 73 * basicType.hashCode() + 619 * arguments.hashCode() ; 
     } 
   
     

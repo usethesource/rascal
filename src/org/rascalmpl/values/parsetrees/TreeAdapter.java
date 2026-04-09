@@ -25,7 +25,6 @@ import org.jline.jansi.Ansi.Attribute;
 import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;

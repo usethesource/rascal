@@ -31,28 +31,28 @@ public abstract class SyntaxDefinition extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Prod getProduction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStart() {
     return false;
   }
 
   public org.rascalmpl.ast.Start getStart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasDefined() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getDefined() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasVis() {
     return false;
   }
 
   public org.rascalmpl.ast.Visibility getVis() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -122,7 +122,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 727 * defined.hashCode() + 883 * production.hashCode() ; 
+      return 617 + 233 * defined.hashCode() + 263 * production.hashCode() ; 
     } 
   
     
@@ -225,7 +225,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 233 * start.hashCode() + 263 * defined.hashCode() + 163 * production.hashCode() ; 
+      return 163 + 683 * start.hashCode() + 661 * defined.hashCode() + 499 * production.hashCode() ; 
     } 
   
     
@@ -337,7 +337,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 661 * vis.hashCode() + 499 * defined.hashCode() + 769 * production.hashCode() ; 
+      return 769 + 163 * vis.hashCode() + 641 * defined.hashCode() + 313 * production.hashCode() ; 
     } 
   
     
@@ -439,7 +439,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 641 * defined.hashCode() + 313 * production.hashCode() ; 
+      return 509 + 563 * defined.hashCode() + 149 * production.hashCode() ; 
     } 
   
     

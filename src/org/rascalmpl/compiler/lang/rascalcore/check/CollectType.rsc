@@ -33,7 +33,9 @@ module lang::rascalcore::check::CollectType
     Check type declarations
 */
 
-extend lang::rascalcore::check::ATypeInstantiation;
+
+
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::agrammar::definition::Symbols;
@@ -46,6 +48,8 @@ import List;
 import Node;
 import Set;
 import String;
+
+extend lang::rascalcore::check::ATypeInstantiation;
 
 void collect(current: (Type) `( <Type tp> )`, Collector c){
     c.fact(current, tp);
@@ -506,8 +510,6 @@ void collect(current:(Sym) `<Nonterminal n>`, Collector c){
     //c.fact(current, n);
 }
 
-str md5ContribSym(Nonterminal n) = "<n>";
-
 void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     pname = prettyPrintName("<n>");
 
@@ -532,9 +534,6 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     c.fact(current, aparameter(prettyPrintName("<n>"),treeType,closed=true));
 }
 
-str md5ContribSym((Sym) `& <Nonterminal n>`)
-    = "R<n>";
-
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
     params = [p | p <- parameters];
     c.use(n, syntaxRoles);
@@ -552,9 +551,6 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
     endDefineOrReuseTypeParameters(c);
 }
 
-str md5ContribSym((Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`)
-    = "<n><for(p <- parameters){><md5ContribSym(p)><}>";
-
 void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
     c.use(n, syntaxRoles);
     c.calculate("start <n>", current, [n],
@@ -566,16 +562,11 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
     collect(n, c);
 }
 
-str unparseNoLayout(Tree t){
-    s = "<t>";
-    return "<for(int i <- [0..size(s)]){><s[i] in {" ", "\t", "\n"} ? "" : s[i]><}>";
-}
-
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
-    md5Contrib = "";
+    md5Contrib = [];
     if(!isEmpty(c.getStack(currentAlternative)) && <SyntaxDefinition adt, str cname, syms> := c.top(currentAlternative)){
-        md5Contrib += "<adt.defined><cname><unparseNoLayout(syms)>";
+        md5Contrib += [adt.defined, cname, syms];
     } else {
         throw "Cannot compute md5 for <current>";
     }
@@ -585,14 +576,11 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
           return res;
-        })[md5=md5Hash("<md5Contrib><unparseNoLayout(current)>")]);
+        })[md5=normalizedMD5Hash([*md5Contrib, current])]);
 
     c.fact(current, n);
     collect(symbol, c);
 }
-
-str md5ContribSym((Sym) `<Sym symbol> <NonterminalLabel n>`)
-    = "<md5ContribSym(symbol)><unescape("<n>")>";
 
 // ---- literals
 
@@ -640,9 +628,6 @@ void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     collect(symbol, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol>+`)
-    = "<md5ContribSym(symbol)>PLUS";
-
 void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
@@ -653,9 +638,6 @@ void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     });
     collect(symbol, c);
 }
-
-str md5ContribSym((Sym) `<Sym symbol>*`)
-    = "<md5ContribSym(symbol)>STAR";
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
@@ -671,11 +653,6 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
     collect(symbol, sep, c);
 }
 
-str md5ContribSym((Sym) `{ <Sym symbol> <Sym sep> }+`){
-    res = "LC<md5ContribSym(symbol)><md5ContribSym(sep)>RCPLUS";
-    return res;
-}
-
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
@@ -688,11 +665,6 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
             //return isLexical ? \iter-star-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-star-seps(getSyntaxType(symbol, s), seps);
         });
     collect(symbol, sep, c);
-}
-
-str md5ContribSym((Sym) `{ <Sym symbol> <Sym sep> }*`){
-    res = "LC<md5ContribSym(symbol)><md5ContribSym(sep)>RCSTAR";
-    return res;
 }
 
 void validateSeparators(Tree current, list[AType] separators, Solver s){
@@ -712,17 +684,11 @@ void collect(current:(Sym) `<Sym symbol>?`, Collector c){
     collect(symbol, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol>?`)
-    = "<md5ContribSym(symbol)>QUEST";
-
 void collect(current:(Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`, Collector c){
     alts = first + [alt | alt <- alternatives];
     c.calculate("alternative", current, alts, AType(Solver s) { return AType::alt({s.getType(alt) | alt <- alts}); });
     collect(alts, c);
 }
-
-str md5ContribSym((Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`)
-    = "L<md5ContribSym(first)><for(a <- alternatives){><md5ContribSym(a)><}>R";
 
 void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
     seqs = first + [seq | seq <- sequence];
@@ -735,15 +701,9 @@ void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
     collect(seqs, c);
 }
 
-str md5ContribSym((Sym) `( <Sym first> <Sym+ sequence> )`)
-    = "L<md5ContribSym(first)><for(s <- sequence){><md5ContribSym(s)><}>R";
-
 void collect(current:(Sym) `()`, Collector c){
     c.fact(current, AType::aempty());
 }
-
-str md5ContribSym((Sym) `()`)
-    = "LR";
 
 // ---- conditionals
 
@@ -752,24 +712,15 @@ void collect(current:(Sym) `<Sym symbol> @ <IntegerLiteral column>`, Collector c
     collect(symbol, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol> @ <IntegerLiteral column>`)
-    = "<md5ContribSym(symbol)>COL<column>";
-
 void collect(current:(Sym) `<Sym symbol> $`, Collector c){
     c.calculate("end-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-end-of-line() }); });
     collect(symbol, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol> $`)
-    = "<md5ContribSym(symbol)>END";
-
 void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
     c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-begin-of-line() }); });
     collect(symbol, c);
 }
-
-str md5ContribSym((Sym) `^ <Sym symbol>`)
-    = "BEGIN<md5ContribSym(symbol)>";
 
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     // TODO: c.use(n, {productionId()});
@@ -780,9 +731,6 @@ void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     });
     collect(symbol, c);
 }
-
-str md5ContribSym((Sym) `<Sym symbol> ! <NonterminalLabel n>`)
-    = "<md5ContribSym(symbol)>EXCEPT<unescape("<n>")>";
 
 bool isTerminal((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTerminal(symbol);
 bool isTerminal((Sym) `<Sym symbol> $`) = isTerminal(symbol);
@@ -801,9 +749,6 @@ void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
    collect(symbol, match, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol>  \>\> <Sym match>`)
-    = "<md5ContribSym(symbol)>FOLLOW<md5ContribSym(match)>";
-
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
    c.calculate("notFollow", current, [symbol, match],
         AType(Solver s) {
@@ -814,9 +759,6 @@ void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
    collect(symbol, match, c);
 }
 
-str md5ContribSym((Sym) `<Sym symbol>  !\>\> <Sym match>`)
-    = "<md5ContribSym(symbol)>NOTFOLLOW<md5ContribSym(match)>";
-
 void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
    c.calculate("precede", current, [match, symbol],
         AType(Solver s) {
@@ -826,9 +768,6 @@ void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
    collect(match, symbol, c);
 }
 
-str md5ContribSym((Sym) `<Sym match>  \<\< <Sym symbol>`)
-    = "<md5ContribSym(match)>PRECEDE<md5ContribSym(symbol)>";
-
 void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
    c.calculate("notPrecede", current, [match, symbol],
         AType(Solver s) {
@@ -837,9 +776,6 @@ void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
         });
    collect(match, symbol, c);
 }
-
-str md5ContribSym((Sym) `<Sym match>  !\<\< <Sym symbol>`)
-    = "<md5ContribSym(match)>NOTPRECEDE<md5ContribSym(symbol)>";
 
 void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
    c.calculate("exclude", current, [symbol, match],
@@ -852,9 +788,6 @@ void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
         });
    collect(symbol, match, c);
 }
-
-str md5ContribSym((Sym) `<Sym symbol> \\ <Sym match>`)
-    = "<md5ContribSym(symbol)>NOTEQUAL<md5ContribSym(match)>";
 
 void collect(Sym current, Collector c){
     throw "collect Sym, missed case <current>";
@@ -881,13 +814,13 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             }
             c.define(pname, typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
         }
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
 
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
         //if(debugTP)println("Use <pname> at <current@\loc>, closed=<closed>");
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
     } else {
         if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){

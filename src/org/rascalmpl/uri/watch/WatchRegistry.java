@@ -40,9 +40,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -51,6 +51,7 @@ import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -88,6 +89,10 @@ public class WatchRegistry {
         this.fallback = fallback;
     }
 
+    public boolean hasFallback() {
+        return fallback != null;
+    }
+
     private ISourceLocation safeResolve(ISourceLocation loc) {
         return resolver.apply(loc);
     }
@@ -100,15 +105,25 @@ public class WatchRegistry {
             .thenComparing(ISourceLocation::getQuery);
     }
 
-    public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
+    public void watch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, final Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var resolvedLoc = safeResolve(loc);
-        var watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallback);
+        if (!reg.exists(resolvedLoc)) {
+            throw new IOException("Cannot watch nonexistent location " + loc);
+        }
+        if (recursive && !reg.isDirectory(resolvedLoc)) {
+            throw new IOException("Cannot recursively watch a file: " + loc);
+        }
+
+        var watcher = watchers.get(resolvedLoc.getScheme());
         if (watcher != null) {
             startNormalWatch(loc, recursive, callback, resolvedLoc, watcher);
         }
-        else {
+        else if (hasResolvers.test(resolvedLoc)) {
             startSimulatedWatch(loc, recursive, callback, resolvedLoc);
+        }
+        else if (fallback != null) {
+            fallback.watch(resolvedLoc, callback, recursive);
         }
     }
 
@@ -176,7 +191,7 @@ public class WatchRegistry {
         }
     }
 
-    public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+    public void unwatch(ISourceLocation loc, boolean recursive, Predicate<ISourceLocation> hasResolvers, Consumer<ISourceLocationChanged> callback)
         throws IOException {
         var actualCallback = wrappedHandlers.remove(new WatchKey(loc, recursive, callback, clearedReferences));
         if (actualCallback != null) {
@@ -188,7 +203,7 @@ public class WatchRegistry {
 
         loc = safeResolve(loc);
 
-        var watcher = watchers.getOrDefault(loc.getScheme(), fallback);
+        var watcher = watchers.get(loc.getScheme());
         if (watcher != null) {
             var simulated = simulatedRecursiveWatchers.get(loc);
             if (simulated != null) {
@@ -198,23 +213,20 @@ public class WatchRegistry {
                 watcher.unwatch(loc, callback, recursive);
             }
         }
-        else {
+        else if (hasResolvers.test(loc)) {
             var entries = internalWatchers.get(loc);
             if (entries != null) {
                 final var finalCallback = callback;
                 entries.removeIf(p -> p.isRecursive() == recursive && p.getHandler() == finalCallback);
             }
         }
+        else if (fallback != null) {
+            fallback.unwatch(loc, callback, recursive);
+        }
     }
 
     /** a private daemon thread thread-pool */
-    private final ExecutorService exec = Executors.newCachedThreadPool((Runnable r) -> {
-        SecurityManager s = System.getSecurityManager();
-        ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        Thread t = new Thread(group, r, "Generic watcher thread-pool");
-        t.setDaemon(true);
-        return t;
-    });
+    private final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("simulated-watches", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2)));
 
     public void notifySimulatedWatchers(ISourceLocation loc, ISourceLocationChanged event) {
         if (watchers.containsKey(loc.getScheme())) {

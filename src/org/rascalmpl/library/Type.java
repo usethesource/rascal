@@ -129,5 +129,35 @@ public class Type {
 			throw RuntimeExceptionFactory.illegalArgument(cons, vf.string("one of the parameters of the constructor did not fit its declaration."));
 		}
 	}
+
+	public IBool intersects(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return vf.bool(t1.intersects(t2));
+	}
+
+	public IBool subtype(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return vf.bool(t1.isSubtypeOf(t2));
+	}
+
+	public IConstructor lub(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		var ts = new TypeStore();
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return (IConstructor) tr.typeToValue(t1.lub(t2), ts, vf.map()).get("symbol");
+	}
+
+	public IConstructor glb(IConstructor sym1, IConstructor sym2) {
+		var tr = new TypeReifier(vf);
+		var ts = new TypeStore();
+		io.usethesource.vallang.type.Type t1 = tr.symbolToType(sym1);
+		io.usethesource.vallang.type.Type t2 = tr.symbolToType(sym2);
+		return (IConstructor) tr.typeToValue(t1.glb(t2), ts, vf.map()).get("symbol");
+	}
 	
 }

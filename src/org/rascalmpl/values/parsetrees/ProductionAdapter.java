@@ -24,8 +24,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 
-import static org.rascalmpl.values.RascalValueFactory.Symbol_Lit;
-
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;

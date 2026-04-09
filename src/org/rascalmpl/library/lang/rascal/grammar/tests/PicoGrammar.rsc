@@ -49,7 +49,9 @@ int generateAndTimePicoParser() {
 	warmup();
 	t = cpuTime(); 
 	generatePicoParser();
-	return (cpuTime() - t)/1000000;
+	used = (cpuTime() - t)/1000000;
+	println("GenerateAndTimePicoParser: <used> ms");
+	return used;
 }	
 
 value main() = generateAndTimePicoParser();

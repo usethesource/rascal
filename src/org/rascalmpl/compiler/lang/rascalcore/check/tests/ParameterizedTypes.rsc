@@ -135,6 +135,72 @@ test bool MaybeBoundViolated() = unexpectedTypeInModule("
         Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }
     ");         
          
+test bool MaybeMatchNothingOK() = checkModuleOK("
+    module MaybeMatchNothingOK
+        data Maybe[&T] = none() | just(&T arg);               
+        bool f() = just(&T \<: node t) := none();
+    ");
+
+test bool MaybeInPattern1OK() = checkModuleOK("
+    module MaybeInPattern1OK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        Tree parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(Tree t) := tryParseAs(T) ? t : empty();
+    ");
+
+test bool MaybeInPattern2OK() = checkModuleOK("
+    module MaybeInPattern2OK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        bool parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(empty()) := tryParseAs(T);
+    ");
+
+test bool MaybeInPattern3NOTOK() = unexpectedTypeInModule("
+    module MaybeInPattern3NOTOK
+        data Tree = empty();
+        data Maybe[&A] = nothing() | just(&A val);
+
+        Maybe[&T \<: Tree] tryParseAs(type[&T \<: Tree] _begin) = nothing();
+                           
+        bool parseAsOrEmpty(type[&T \<: Tree] T) =
+            just(3) := tryParseAs(T);
+    ");
+
+test bool MaybeInIterator1OK() = checkModuleOK("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | i \<- [none(), just(1)]];
+    ");
+
+test bool MaybeInIterator2OK() = checkModuleOK("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | Maybe[int] i \<- [none(), just(1)]];
+    ");
+
+test bool MaybeInIterator3NOTOK() = cannotMatchInModule("
+    module MaybeInIterator1OK
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f() = [true | Maybe[str] i \<- [none(), just(1)]];
+    ");
+test bool MaybeInIterator4OK()  = checkModuleOK("
+    module MaybeInIterator4OK   
+        data Maybe[&T] = none() | just(&T arg);   
+
+        value f(&T v) = [true | Maybe[&T] i \<- [none(), just(v)]];
+    ");
+
 test bool BoundViolatedInCall() = unexpectedTypeInModule("
     module BoundViolatedInCall
         bool strange(&L \<: num _, &R \<: &L _) = false;

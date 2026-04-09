@@ -34,8 +34,10 @@ import Node;
 import ParseTree;
 import IO;
 
+import lang::rascalcore::check::ATypeBase;
+
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::compile::muRascal::Primitives;
+//extend lang::rascalcore::compile::muRascal::Primitives;
 
 /*
  * Abstract syntax for muRascal.
@@ -223,7 +225,7 @@ public data MuExp =
           | muNot(MuExp exp)                                    // Boolean not
         
           | muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)
-          | muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)
+        //   | muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)
           | muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont)
           | muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont)
          
@@ -408,10 +410,8 @@ str getUniqueFunctionName(MuFunction fun){
     //return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
-set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
-
 bool isVarOrTmp(MuExp exp)
-    = getName(exp) in varExp;
+    = getName(exp) in {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
 // Produces NativeBool
    
@@ -573,8 +573,8 @@ bool exitViaReturn1(muDoWhile(str label,  MuExp body, muCon(false)))
 bool exitViaReturn1(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
     =  exitViaReturn(body) && exitViaReturn(falseCont);
 
-bool exitViaReturn1(muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    =  exitViaReturn(body) && exitViaReturn(falseCont);
+// bool exitViaReturn1(muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
+//     =  exitViaReturn(body) && exitViaReturn(falseCont);
 
 bool exitViaReturn1(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont))
     =  exitViaReturn(body) && exitViaReturn(falseCont);
@@ -747,10 +747,10 @@ bool noSequentialExit1(m: muForAll(str label, MuExp var, AType iterType, MuExp i
     return reportResult(m, res);
 }
 
-bool noSequentialExit1(m: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
-    res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) || */ (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
-    return reportResult(m, res);
-}
+// bool noSequentialExit1(m: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
+//     res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) || */ (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
+//     return reportResult(m, res);
+// }
 
 bool noSequentialExit1(m: muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont)){
     res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) ||*/ (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
@@ -892,7 +892,7 @@ MuExp muReturn1(AType t, muAssign(MuExp var, MuExp exp)){
 MuExp muReturn1(AType t, muVarInit(MuExp var, MuExp exp)){
     return muBlock([muVarInit(var, exp), muReturn1(t, var)]);
 }
-    
+     
 MuExp muReturn1(AType t, muConInit(MuExp var, MuExp exp)){
     return muBlock([muConInit(var, exp), muReturn1(t, var)]);
 }
@@ -931,9 +931,9 @@ MuExp muReturn1(AType t, fo: muForAll(str label, MuExp var, AType iterType, MuEx
     return muForAll(label, var, iterType, iterable, succeed2return(body, label , t), succeedOrFail2return(falseCont,  label , t));
 } 
 
-MuExp muReturn1(AType t, fo: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
-    return muForAny(label, var, iterType, iterable, succeed2return(body, label, t), succeedOrFail2return(falseCont,  label, t));
-} 
+// MuExp muReturn1(AType t, fo: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
+//     return muForAny(label, var, iterType, iterable, succeed2return(body, label, t), succeedOrFail2return(falseCont,  label, t));
+// } 
  
 MuExp muReturn1(AType t, muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)){
     dflt = muReturn1(t, defaultExp);
@@ -991,8 +991,8 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
         case muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont) => 
              muForAll(label, var, iterType, iterable, removeDeadCode(body, entered), removeDeadCode(falseCont, entered)) when label in entered
              
-        case muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont) => 
-             muForAny(label, var, iterType, iterable, removeDeadCode(body, entered), removeDeadCode(falseCont, entered)) when label in entered
+        // case muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont) => 
+        //      muForAny(label, var, iterType, iterable, removeDeadCode(body, entered), removeDeadCode(falseCont, entered)) when label in entered
         case muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont) =>
              muForRange(label, var, first, second, last, removeDeadCode(body, label + entered), falseCont) when label in entered
         case muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont) =>
@@ -1351,10 +1351,10 @@ MuExp muNot1(muWhileDo(str label, MuExp cond, MuExp body))
     = muWhileDo(label, cond, muNot(body));
     
 MuExp muNot1(fo: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    = muForAny(label, var, iterType, iterable, muNot(body), muNot(falseCont));
+    = muForAll/*muForAny*/(label, var, iterType, iterable, muNot(body), muNot(falseCont));
     
-MuExp muNot1(fa: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    = muForAll(label, var, iterType, iterable, muNot(body), muNot(falseCont));
+// MuExp muNot1(fa: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
+//     = muForAll(label, var, iterType, iterable, muNot(body), muNot(falseCont));
     
 MuExp muNot1(fr: muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont))
     = muForRange(label, var, first, second, last, muNot(body), muNot(falseCont));
@@ -1484,7 +1484,7 @@ bool containsEnter(str enter, MuExp exp){
         case muExists(enter, MuExp _exp1): return true;
         case muAll(enter, MuExp _exp1): return true;
         case muForAll(enter, MuExp _var, AType _iterType, MuExp _iterable, MuExp _body, MuExp _falseCont): return true;
-        case muForAny(enter, MuExp _var, AType _iterType, MuExp _iterable, MuExp _body, MuExp _falseCont): return true;
+        // case muForAny(enter, MuExp _var, AType _iterType, MuExp _iterable, MuExp _body, MuExp _falseCont): return true;
         case muForRange(enter, MuExp _var, MuExp _first, MuExp _second, MuExp _last, MuExp _body, MuExp _falseCont): return true;
         case muForRangeInt(enter, MuExp _var, int _ifirst, int _istep, MuExp _last, MuExp _body, MuExp _falseCont): return true;
     }
@@ -1498,8 +1498,8 @@ MuExp muExists(str label, ma: muAll(label, MuExp exp)) {
 MuExp muExists(str label, muForAll(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
     = muForAll(label, var, iterType, iterable, body, falseCont);
     
-MuExp muExists(str label, muForAny(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    = muForAny(label, var, iterType, iterable, body, falseCont);
+// MuExp muExists(str label, muForAny(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
+//     = muForAny(label, var, iterType, iterable, body, falseCont);
     
 //MuExp muExists(str label, muIfElse(MuExp cond, muSucceed(label), muFail(label))) = cond;
 //MuExp muExists(str label, muIfElse(MuExp cond, muFail(label), muSucceed(label))) = muNot1(cond);   
@@ -1515,8 +1515,8 @@ MuExp muForAll(str label, MuExp var, AType iterType, muValueBlock(AType _, [*MuE
 
 // ---- muForAny --------------------------------------------------------------
 
-MuExp muForAny(str label, MuExp var, AType iterType, muValueBlock(AType _, [*MuExp exps, MuExp iterable]), MuExp body, MuExp falseCont)
-    =  muValueBlock(iterType, [*exps, muForAny(label, var, iterType, iterable, body, falseCont)]);
+// MuExp muForAny(str label, MuExp var, AType iterType, muValueBlock(AType _, [*MuExp exps, MuExp iterable]), MuExp body, MuExp falseCont)
+//     =  muValueBlock(iterType, [*exps, muForAny(label, var, iterType, iterable, body, falseCont)]);
     
 // ---- muRegExpCompile -------------------------------------------------------
  
@@ -1700,7 +1700,7 @@ MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp 
     <b2, auxVars2, pre2, flatArgs2> = flattenArgs(kwargs<1>);
    
     if((b1 || b2) && !(isEmpty(pre1) && isEmpty(pre2))){
-        kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
+        kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | int i <- index(kwargs)];
         return muValueBlock(getResult(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src));
     } else {
         fail;
@@ -1832,3 +1832,88 @@ MuExp muValueIsComparable(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(ex
 MuExp muTemplateAdd(MuExp template, AType atype, MuExp exp)
    = muValueBlock(astr(), auxVars + pre + muTemplateAdd(template, atype, flatArgs[0]))
    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]);
+
+/*
+ *  Constant folding rules for muPrim
+ *  See: lang::rascalcore::compile::Rascal2muRascal::RascalConstantCall for constant folding of selected calls
+ */
+ 
+bool allConstant(list[MuExp] args) { b = isEmpty(args) || all(a <- args, muCon(_) := a); return b; }
+
+// Integer addition
+
+MuExp muPrim("add", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 + n2);
+
+MuExp muPrim("add", aint(), [aint(), aint()], [muPrim("add", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("add", aint(), [aint(), aint()], [e, muCon(n1 + n2)], src2);
+
+MuExp muPrim("add", aint(), [aint(), aint()], [muCon(int n1), muPrim("add", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("add", aint(), [aint(), aint()], [muCon(n1 + n2), e], src2);
+
+// Integer subtraction
+ 
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
+
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muPrim("subtract", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("subtract", aint(), [aint(), aint()], [e, muCon(n1 - n2)], src2);
+
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muCon(int n1), muPrim("subtract", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("subtract", aint(), [aint(), aint()], [muCon(n1 - n2), e], src2);      
+
+// Unary minus 
+MuExp muPrim("negative", aint(), [aint()], [muCon(int n)], loc src2)  = muCon(-n);
+MuExp muPrim("negative", areal(), [areal()], [muCon(real r)], loc src2)  = muCon(-r);
+MuExp muPrim("negative", arat(), [arat()], [muCon(rat r)], loc src2)  = muCon(-r);
+
+// Integer multiplication
+
+MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 * n2);
+
+MuExp muPrim("product", aint(), [aint(), aint()], [muPrim("product", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("product", aint(), [aint(), aint()], [e, muCon(n1 * n2)], src2);
+
+MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muPrim("product", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("product", aint(), [aint(), aint()], [muCon(n1 * n2), e], src2);
+
+// String concatenation
+
+MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muCon(str s2)], loc src) = muCon(s1 + s2);
+
+MuExp muPrim("add", astr(), [astr(), astr()], [muPrim("add", astr(), [astr(), astr()], [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
+      muPrim("add", astr(), [astr(), astr()], [e, muCon(s1 + s2)], src2);
+
+MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muPrim("add", astr(), [astr(), astr()], [muCon(str s2), MuExp e], loc src1)], loc src2)  =
+      muPrim("add", astr(), [astr(), astr()], [muCon(s1 + s2), e], src2);
+
+// Create composite datatypes
+
+MuExp muPrim("create_list", AType r, [AType elm], list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
+      when allConstant(args);
+
+MuExp muPrim("create_set", AType r, [AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
+      when allConstant(args);
+    
+MuExp muPrim("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) {
+      if(allConstant(args)){
+            try {
+                  return muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]));
+            } catch _:;
+      }
+      fail;
+}
+           
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1)], loc src) = muCon(<v1>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6)], loc src) = muCon(<v1, v2, v3, v4, v5, v6>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
+
+MuExp muPrim("create_node", AType r, [*AType _], [muCon(str name), *MuExp args, muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)], loc src) 
+    = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
+                          : muCon(makeNode(name, [a | muCon(a) <- args], keywordParameters = (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
+      when allConstant(args), allConstant(kwpActuals<1>);

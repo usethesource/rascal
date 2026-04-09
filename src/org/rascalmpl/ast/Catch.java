@@ -31,14 +31,14 @@ public abstract class Catch extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getPattern() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBody() {
     return false;
   }
 
   public org.rascalmpl.ast.Statement getBody() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

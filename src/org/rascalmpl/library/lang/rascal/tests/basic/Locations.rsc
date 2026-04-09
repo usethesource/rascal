@@ -649,6 +649,7 @@ private bool testLocWorksRoot(loc existing,bool isWritable = true) {
     println("Not existing: <nonExisting>");
     assert !exists(nonExisting) : "Subpath should exist";
     testLocWorks(nonExisting, isWritable);
+
     return true;
 }
 
@@ -672,7 +673,7 @@ private loc findDirectory(loc l) {
     throw "There should be at least a single directory inside of it";
 }
 
-private void testLocWorks(loc l, bool isWritable) {
+private void testLocWorks(loc l, bool shouldWrite) {
     println("\texists: <exists(l)>");
     println("\tisFile: <isFile(l)>");
     println("\tisDirectory: <isDirectory(l)>");
@@ -682,12 +683,24 @@ private void testLocWorks(loc l, bool isWritable) {
             println("\tcontents: <l.ls>");
             println("\tcontents: <listEntries(l)>");
         }
+        else {
+            println("\tisWriteable: <isWritable(l)>");
+            println("\tisReadable: <isReadable(l)>");
+        }
     }
-    else if (isWritable) {
+    else if (shouldWrite) {
         try {
             remove(l);
         }
         catch IO(_): throw "Removing file that does not exist should not cause an exception";
+        if (isFile(l)) {
+            copyLoc = l.parent + "nested";
+            copy(l.parent, copyLoc, recursive=true, overwrite=true);
+            sameContents = readFile(l) == readFile(copyLoc + l.file);
+            println("\tcopy: <sameContents>");
+            assert sameContents: "It should be possible to copy a file";
+        }
+
     }
 
     if (!exists(l) || !isDirectory(l)) {

@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.StackTrace;

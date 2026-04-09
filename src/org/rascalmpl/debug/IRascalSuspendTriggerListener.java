@@ -13,7 +13,7 @@ package org.rascalmpl.debug;
 
 import java.util.function.IntSupplier;
 
-import io.usethesource.vallang.ISourceLocation;
+import org.rascalmpl.ast.AbstractAST;
 
 /**
  * Interface for suspending an program interpretation.
@@ -27,6 +27,6 @@ public interface IRascalSuspendTriggerListener {
 	 * @param evaluator the evaluator in charge of interpreting @param context.
 	 * @param currentAST the AST that is causes the suspension.
 	 */
-	public void suspended(Object runtime, IntSupplier getCallStackSize, ISourceLocation currentAST);
+	public void suspended(Object runtime, IntSupplier getCallStackSize, AbstractAST currentAST);
 	
 }

@@ -94,7 +94,7 @@ public class IO {
             }
         }
         catch (IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -552,7 +552,7 @@ public class IO {
             }
         }
         catch(IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

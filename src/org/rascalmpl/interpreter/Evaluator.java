@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
@@ -103,6 +105,7 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -164,6 +167,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * Used in runtime error messages
      */
     private AbstractAST currentAST;
+
+    /**
+     * Used in debugger exception handling
+     */
+    private Exception currentException;
 
     /**
      * True if we're doing profiling
@@ -371,6 +379,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         constructorDeclaredListeners.clear();
+        getHeap().clearLookupChaches();
     }
 
     @Override
@@ -570,7 +579,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ModuleEnvironment modEnv = getHeap().getModule(module);
             setCurrentEnvt(modEnv);
 
-            Name name = Names.toName(function, modEnv.getLocation());
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
             Result<IValue> func = getCurrentEnvt().getVariable(name);
 
@@ -625,7 +634,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ModuleEnvironment modEnv = getHeap().getModule(module);
             setCurrentEnvt(modEnv);
 
-            Name name = Names.toName(function, modEnv.getLocation());
+            Name name = Names.toName(function, modEnv.getCreatorLocation());
 
             Result<IValue> func = getCurrentEnvt().getVariable(name);
 
@@ -682,7 +691,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private IValue call(String name, Map<String,IValue> kwArgs, IValue... args) {
-        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getLocation());
+        QualifiedName qualifiedName = Names.toQualifiedName(name, getCurrentEnvt().getCreatorLocation());
         setCurrentAST(qualifiedName);
         return call(qualifiedName, kwArgs, args);
     }
@@ -777,6 +786,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return currentAST;
     }
 
+    public Exception getCurrentException() {
+        return currentException;
+    }
+
     public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
         rascalPathResolver.addPathContributor(contrib);
     }
@@ -795,7 +808,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         StackTrace trace = new StackTrace();
         Environment env = currentEnvt;
         while (env != null) {
-            trace.add(env.getLocation(), env.getName());
+            trace.add(env.getCreatorLocation(), env.getName());
             env = env.getCallerScope();
         }
         return trace.freeze();
@@ -1117,6 +1130,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
+            heap.clearLookupChaches();
+            heap.writeLoadMessages(getErrorPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
@@ -1159,13 +1176,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
-                    onHeap.add(mod);
+                    var uri = heap.getModuleURI(mod);
+                    
+                    if (mod.equals(ModuleEnvironment.SHELL_MODULE) || resolverRegistry.exists(vf.sourceLocation(uri))) {
+                        // otherwise the file has been renamed or deleted, and we do
+                        // not add it to the todo list.
+                        onHeap.add(mod);
+                    }
+
                     if (recurseToExtending) {
+                        // even if a module was renamed, or deleted, the modules that were
+                        // previously extending it have to be re-evaluated.
                         extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    heap.removeModule(heap.getModule(mod));
+
+                    if (!mod.equals(ModuleEnvironment.SHELL_MODULE)) {
+                        // this module starts with a clean slate
+                        heap.removeModule(heap.getModule(mod));
+                    }
                 }
             }
+
+            // all extending modules start with a clean slate too.
             extendingModules.removeAll(names);
 
             job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
@@ -1207,8 +1239,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 affectedModules.add(mod);
                             }
                             else {
-                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
-                                warning("could not reimport " + imp, errorLocation);
+                                warning("File of previously imported module " + imp + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1226,8 +1257,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 env.addExtend(ext);
                             }
                             else {
-                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
-                                warning("could not re-extend " + ext, errorLocation);
+                                warning("File of previously extended module " + ext + " is not available anymore.", errorLocation);
                             }
                         }
                     }
@@ -1246,11 +1276,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         finally {
             setMonitor(old);
+
+            // during reload we don't see any errors being printed, to avoid duplicate reports
+            // so at the end we always report what went wrong to the user.
+            heap.writeLoadMessages(getOutPrinter());
+            // the repl is not a persistent file, so errors do not persist either
+            rootScope.clearLoadMessages();
         }
     }
 
     private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
+            getOutPrinter().println("[INFO] reloading module: " + name);
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
         }
@@ -1290,7 +1327,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             found.addAll(dependingModules);
             todo.addAll(dependingModules);
         }
-
+        
         return found;
     }
 
@@ -1306,7 +1343,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private ISourceLocation getCurrentLocation() {
-        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getLocation();
+        return currentAST != null ? currentAST.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override  
@@ -1577,8 +1614,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void notifyAboutSuspension(AbstractAST currentAST) {
         if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
             for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-                listener.suspended(this, () -> getCallStack().size(), currentAST.getLocation());
+                listener.suspended(this, () -> getCallStack().size(), currentAST);
             }
+        }
+    }
+
+    @Override
+    public void notifyAboutSuspensionException(Exception t) {
+        currentException = t;
+        try{
+            if (!suspendTriggerListeners.isEmpty()) { // remove the breakable condition since exception can happen anywhere
+                for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+                    listener.suspended(this, () -> getCallStack().size(), currentAST);
+                }
+            }
+        } finally { // clear the exception after notifying listeners
+            currentException = null;
         }
     }
 
@@ -1673,11 +1724,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedMap<String, String> result, ModuleEnvironment env, boolean skipPrivate) {
-        for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
+        for (Pair<String, LinkedHashSet<AbstractFunction>> p : env.getFunctions()) {
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && env.isNamePrivate(f.getName())) {
+                if (skipPrivate && env.isFunctionPrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1689,7 +1740,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
+                if (skipPrivate && env.isVariablePrivate(entry.getKey())) {
                     continue;
                 }
                 addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
@@ -1740,7 +1791,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override
     public ISourceLocation getCurrentPointOfExecution() {
         AbstractAST cpe = getCurrentAST();
-        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getLocation();
+        return cpe != null ? cpe.getLocation() : getCurrentEnvt().getCreatorLocation();
     }
 
     @Override
@@ -1811,16 +1862,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void registerLanguage(IConstructor language) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerLanguage(language);
-            }
-            else {
-                IDEServices.super.registerLanguage(language);
-            }
-        }
-
-        @Override
         public ISourceLocation resolveProjectLocation(ISourceLocation input) {
             if (monitor instanceof IDEServices) {
                 return ((IDEServices) monitor).resolveProjectLocation(input);
@@ -1841,7 +1882,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri, String title, int viewColumn) {
+        public void browse(URI uri, IString title, IInteger viewColumn) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
@@ -1851,9 +1892,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void edit(ISourceLocation path) {
+        public void edit(ISourceLocation path, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).edit(path);
+                ((IDEServices) monitor).edit(path, viewColumn);
             }
             else {
                 return;

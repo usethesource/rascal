@@ -36,9 +36,6 @@ extend lang::rascalcore::check::BuiltinFields;
 extend lang::rascalcore::check::ScopeInfo;
 
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascal::\syntax::Rascal;
-
-//import IO;
 import Map;
 import Set;
 import List;
@@ -81,6 +78,33 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
+rel[loc key, IdRole idRole, AType atype]
+    checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
+    
+    rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
+    rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
+    for(tup:<_, _, tp> <- overloads){
+        if(isValueAType(expected)){
+            filteredOverloads += tup;
+            if(isConstructorAType(tp) || isADTAType(tp)){
+                unResolvedConstructorOverloads += tup;
+            }
+        } else if(asubtype(tp, expected)){
+            filteredOverloads += tup;
+        } else if(isConstructorAType(tp) || isADTAType(tp)){
+            unResolvedConstructorOverloads += tup;
+        } 
+    }
+    if(size(unResolvedConstructorOverloads) > 1){
+        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
+        qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
+        s.report(msg);
+    }
+    return filteredOverloads;
+}
+
 void(Solver) makeVarInitRequirement(Variable var)
     = void(Solver s){
             Bindings bindings = ();
@@ -97,7 +121,14 @@ void(Solver) makeVarInitRequirement(Variable var)
 
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
-                s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                if(overloadedAType(overloads) := initialTypeU){
+                    filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
+                    for(<_, _, tp> <- filteredOverloads){
+                        s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                    }
+                } else {
+                    s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
+                }
             } else if(!s.unify(initialType, varType)){
                 s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             }
@@ -107,6 +138,12 @@ void(Solver) makeVarInitRequirement(Variable var)
 
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
+
+void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
+    = void(Solver s) {
+        checkNonVoid(t, s, msg ); 
+        if(isOverloadedAType(s.getType(t))) s.report(error(t, msg + " is ambiguous and should be resolved"));
+    };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
 
@@ -310,10 +347,11 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     }
     for(p <- parameters){
         if(!bindings[p.pname]?){
-            bindings[p.pname] = avalue(); // was: avoid()
+            bindings[p.pname] = avoid();
         }
     }
-    if(!isEmpty(bindings)){
+    if(!isEmpty(index_formals)){
+      if(!isEmpty(bindings)){
         try {
             ctype_old = makeUniqueTypeParams(s.getType(current), fsuffix);
             ctype_new = instantiateRascalTypeParameters(current, ctype_old, bindings, s); // changed
@@ -328,11 +366,14 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
             return res;
         } catch invalidInstantiation(str msg):
                s.report(error(current, msg));
-    }
-    try {
+      }
+      try {
         return deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(adtType, fsuffix), bindings, s));
-    } catch invalidInstantiation(str msg):
+      } catch invalidInstantiation(str msg):
         s.report(error(current, msg));
+    } else {
+        return instantiateRascalTypeParameters(current, adtType, bindings, s);
+    }
     return adtType;
 }
 
@@ -359,15 +400,8 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            }
         }
-        availableKws = intercalateOr(["`<prettyAType(kw.fieldType)> <kw.fieldName>`" | Keyword kw <- kwFormals]);
-        switch(size(kwFormals)){
-        case 0: availableKws ="; no other keyword parameters available";
-        case 1: availableKws = "; available keyword parameter: <availableKws>";
-        default:
-            availableKws = "; available keyword parameters: <availableKws>";
-        }
-
-       msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
+        availableKws = [ info("Available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>` in `<kw.definingModule>`", |unknown:///|) | Keyword kw <- kwFormals ];
+        msgs += error(kwa, "Undefined keyword argument %q", kwName, causes=availableKws);
     }
     s.reports(msgs);
 }
@@ -418,7 +452,10 @@ list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) {
     if(str currentModuleName := s.top(key_current_module)){
-        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
+        return [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) 
+               | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles),  
+                 kwf <- d.defInfo.commonKeywordFields 
+               ];
     } else {
         throw "getCommonKeywords: key_current_module not found";
     }
@@ -984,8 +1021,13 @@ private default AType getPatternType0(Pattern p, AType subjectType, loc scope, S
 // ---- set pattern
 
 private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
-    elmType = isSetAType(subjectType) ? getSetElementType(subjectType) : avalue();
-    setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
+    subjectElmType = isSetAType(subjectType) ? getSetElementType(subjectType) : avalue();
+    patElems = [p | p <- elements0];
+    patElemTypes = [ getPatternType(p, subjectElmType, scope,s) | p <- patElems ];
+    for(int i <- index(patElems)){
+        s.requireComparable(patElemTypes[i], subjectElmType, error(patElems[i], "Pattern element should be comparable with %t, found %t", subjectElmType, patElemTypes[i]));
+    }
+    setType = aset(s.lubList(patElemTypes));
     s.fact(current, setType);
     return setType;
 }
@@ -993,10 +1035,15 @@ private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }
 // ---- list pattern
 
 private AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
-    elmType = isListAType(subjectType) ? getListElementType(subjectType) : avalue();
-    res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
-    s.fact(current, res);
-    return res;
+    subjectElmType = isListAType(subjectType) ? getListElementType(subjectType) : avalue();
+    patElems = [p | p <- elements0];
+    patElemTypes = [ getPatternType(p, subjectElmType, scope,s) | p <- patElems ];
+    for(int i <- index(patElems)){
+        s.requireComparable(patElemTypes[i], subjectElmType, error(patElems[i], "Pattern element should be comparable with %t, found %t", subjectElmType, patElemTypes[i]));
+    }
+    listType = alist(s.lubList(patElemTypes));
+    s.fact(current, listType);
+    return listType;
 }
 
 // ---- typed variable pattern
@@ -1011,7 +1058,12 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
     base = prettyPrintBaseName(name);
     if(!isWildCard(base)){
        nameType = s.getType(name);
-       nameType = instantiateAndCompare(current, nameType, subjectType, s);
+       if(isConstructorAType(nameType)){
+        ;   // complete constructor with arguments will be checked later on
+       } else {
+            // a name of a non-constructor type needs a check here
+            nameType = instantiateAndCompare(current, nameType, subjectType, s);
+       }
        return nameType[alabel=unescape("<name>")];
     } else
        return subjectType[alabel=unescape("<name>")];
@@ -1077,6 +1129,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
 }
 
 AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
+    // println("instantiateAndCompare: <current>, <patType>, <subjectType>");
     if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
       s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
       s.fact(current, patType); // <====
@@ -1100,7 +1153,7 @@ AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solv
    }
    patType = deUnique(patTypeU);
    subjectType = deUnique(subjectTypeU);
-   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patTypeU));
+   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
    return patType;
 }
 
@@ -1312,6 +1365,7 @@ private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Patt
 // ---- asType
 
 private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
+    getPatternType(p, avalue(), scope, s); // to force nested type calculations
     return s.getType(tp);
 }
 

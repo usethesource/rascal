@@ -34,17 +34,18 @@ module lang::rascalcore::check::RascalConfig
 //import lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::ADTandGrammar;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::ModuleLocations;
 
 import Location;
 import util::FileSystem;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names;
 import analysis::typepal::StringSimilarity;
+import analysis::typepal::LocationChecks;
 
 import IO;
 import List;
@@ -55,48 +56,76 @@ import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
-// Define the name overloading that is allowed
+//Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    bool seenVAR = false;
-    bool seenNT  = false;
-    bool seenLEX = false;
-    bool seenLAY = false;
-    bool seenKEY = false;
-    bool seenALIAS = false;
-    bool seenFUNCTION = false;
-
-    for(def <- defs){
-        // Forbid:
-        // - overloading of variables/formals/pattern variables
-        // - overloading of incompatible syntax definitions
-        switch(defines[def].idRole){
-        case functionId():
-            { if(seenVAR) return false; seenFUNCTION = true; }
-        case variableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case moduleVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case formalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case keywordFormalId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case patternVariableId():
-            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case nonterminalId():
-            { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
-        case lexicalId():
-            { if(seenNT || seenLAY || seenKEY) {  return false; } seenLEX= true; }
-        case layoutId():
-            { if(seenNT || seenLEX || seenKEY) {  return false; } seenLAY = true; }
-        case keywordId():
-            { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
-        case aliasId():
-            { if(seenALIAS) return false; seenALIAS = true; }
-
+    set[IdRole] roles = { defines[def].idRole | def <- defs };
+    result = true;
+    if({role} := roles){
+        result = role notin (role in forbiddenIdRoleOverloading ? forbiddenIdRoleOverloading[role] : {});
+    } else {
+        for(role <- roles){
+            if(any(role2 <- roles, role2 != role, 
+                   role2 in (role in forbiddenIdRoleOverloading ? forbiddenIdRoleOverloading[role] : {}))){
+                result = false;
+                break;
+            }
         }
     }
-    return true;
+
+    // oldResult = rascalMayOverloadOld(defs, defines);
+    // if(result != oldResult){
+    //     println("rascalMayOverload, new: <result>, old: <oldResult>, for <roles>");
+    //     for(def <- defs){
+    //         println(defines[def]);
+    //     }
+    //     throw "rascalMayOverload";
+    // }
+    return result;
 }
+
+// // Define the name overloading that is allowed
+// bool rascalMayOverloadOld(set[loc] defs, map[loc, Define] defines){
+//     bool seenVAR = false;
+//     bool seenNT  = false;
+//     bool seenLEX = false;
+//     bool seenLAY = false;
+//     bool seenKEY = false;
+//     bool seenALIAS = false;
+//     bool seenFUNCTION = false;
+
+//     for(def <- defs){
+//         // Forbid:
+//         // - overloading of variables/formals/pattern variables
+//         // - overloading of incompatible syntax definitions
+//         // - alias and most other names
+//         switch(defines[def].idRole){
+//         case functionId():
+//             { if(seenVAR || seenALIAS) return false; seenFUNCTION = true; }
+//         case variableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case moduleVariableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case formalId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case keywordFormalId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case patternVariableId():
+//             { if(seenVAR || seenFUNCTION || seenALIAS) return false;  seenVAR = true;}
+//         case nonterminalId():
+//             { if(seenLEX || seenLAY || seenKEY || seenALIAS){  return false; } seenNT = true; }
+//         case lexicalId():
+//             { if(seenNT || seenLAY || seenKEY || seenALIAS) {  return false; } seenLEX= true; }
+//         case layoutId():
+//             { if(seenNT || seenLEX || seenKEY || seenALIAS) {  return false; } seenLAY = true; }
+//         case keywordId():
+//             { if(seenNT || seenLAY || seenLEX || seenALIAS) {  return false; } seenKEY = true; }
+//         case aliasId():
+//             { if(seenALIAS ||  seenVAR || seenFUNCTION || seenNT || seenLEX || seenLAY || seenKEY) return false; seenALIAS = true; }
+//         }
+//     }
+//     return true;
+// }
+
 
 // Name resolution filters
 
@@ -106,23 +135,23 @@ set[IdRole] defBeforeUseRoles = {variableId(), moduleVariableId(), formalId(), k
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
     Define d = s.getDefine(def);
-    if(isBefore(use.occ, def)){
+    if(s.isBefore(use.occ, def)){
        if(moduleVariableId() == d.idRole){
             // Module variables should adhere to def before use, unless they are used inside a function.
             for(some_def <- s.getAllDefines(), some_def.idRole == functionId()){
-                if(isContainedIn(use.occ, some_def.defined)){
+                if(s.isContainedIn(use.occ, some_def.defined)){
                     return acceptBinding();
                 }
             }
             return ignoreContinue();
        } else 
        if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def
-                 && isContainedIn(def, use.scope)   // in an idRole that requires def before use
+                 && s.isContainedIn(def, use.scope)   // in an idRole that requires def before use
                 ){                                  // and the definition is in the same scope as the use
             // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
             if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
                 list[loc] parts = allowedParts[use.scope];
-                return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
+                return !isEmpty(parts) && any(part <- parts, s.isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
             } else {
                 throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
             }
@@ -130,7 +159,7 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     }
 
     // Uses of a keyword formal inside its initializing expression are rejected
-    if(d.idRole == keywordFormalId() && isContainedIn(use.occ, d.defined)){
+    if(d.idRole == keywordFormalId() && s.isContainedIn(use.occ, d.defined)){
         return ignoreContinue();
     }
     return  acceptBinding();
@@ -138,49 +167,58 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // println("rascalIsAcceptableQualified: <def>, <use>");
-    atype = s.getType(def);
-
-    defPath = def.path;
-    qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
+    assert isRascalLogicalLoc(def): "rascalIsAcceptableQualified: <def>";
+    path = def.path;
+    i = findLast(path, "/");
+    assert i >= 0: " findLast in <path> gives <i>";
+    defPath = def.path[..i];
+    qualPath = "/" + replaceAll(use.ids[0], "::","/");
 
     // qualifier and proposed definition are the same?
-    if(endsWith(defPath, qualAsPath)){
+    if(defPath == qualPath){
        return acceptBinding();
     }
 
+    atype = s.getType(def);
     // Qualifier is a ADT name?
 
     if(acons(aadt(adtName, _, _), list[AType] _fields, list[Keyword] _kwFields) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+    }
+
+    if(afunc(AType _ret, list[AType] _formals, list[Keyword] _kwFormals) := atype){
+        return acceptBinding();
     }
 
     // Qualifier is a Production?
 
     if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
-       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+       return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
     // Is there another acceptable qualifier via an extend?
-
-    extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
-
-    if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
+    paths = enhancePathRelation(s.getPaths());
+    defPathAsMODID = |rascal+module://<defPath>|;
+    qualPathAsMODID = |rascal+module://<qualPath>|;
+    if(defPathAsMODID in paths[qualPathAsMODID]<1>){
+       //println("acceptBinding: <defPathAsMODID>");
        return acceptBinding();
     }
 
     return ignoreContinue();
 }
 
-Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRole, Solver s) {
+Accept rascalIsAcceptablePath(loc _defScope, loc def, Use use, PathRole pathRole, Solver s) {
     if(pathRole == importPath()){
         the_define = s.getDefine(def);
         defIdRole = the_define.idRole;
         // Only data declarations, constructors and visible entities are visible
         if(!(defIdRole == dataId() || defIdRole == constructorId() || the_define.defInfo.vis == publicVis())){
+            //println("rascalIsAcceptablePath: <def>, <pathRole>, <use.id> =\> ignoreContinue()");
             return ignoreContinue();
         }
     }
-
+    //println("rascalIsAcceptablePath: <def>, <pathRole>, <use.id> =\> acceptBinding()");
     return acceptBinding();
 }
 
@@ -287,7 +325,7 @@ bool rascalReportUnused(loc def, TModel tm){
 
     if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
 
-    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName])){
+    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName], tm.logical2physical)){
         return false;
     }
 
@@ -345,11 +383,27 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-// Enhance TModel before running Solver by adding transitive edges for extend
+// Extend the path relation by
+// - adding transitive edges for extend
+// - adding imports via these extends
+rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
+    extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
+    paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus};
+
+    imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
+    delta = { <from, importPath(), to2> 
+            | <MODID from, MODID to2> <- extendPlus o imports, 
+              <from, extendPath(), to2> notin paths, 
+              from != to2
+            };
+    paths += delta;
+    return paths;
+}
+
+// Enhance TModel before running Solver by 
+
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
-    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-    return m;
+    return m[paths = enhancePathRelation(m.paths)];
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
@@ -357,7 +411,6 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    set[loc] actuallyUsedDefs = range(s.getUseDef());
     moduleScopes = { t@\loc | t <- range(namedTrees) };
 
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
@@ -366,8 +419,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         set[Define] defs = funDefs[id];
         if(size(defs) > 1){
             for(d1 <- defs, d2 <- defs, d1.defined != d2.defined,
-                   t1 := facts[d1.defined]?afunc(avoid(),[],[]),
-                   t2 := facts[d2.defined]?afunc(avoid(),[],[]),
+                   d1.defined in facts, AType t1 := facts[d1.defined],
+                   d2.defined in facts, AType t2 := facts[d2.defined],
                    d1.scope in moduleScopes, d2.scope in moduleScopes, size(t1.formals) == size(t2.formals)
                    ){
                 if(isEmpty(t1.formals)){
@@ -377,14 +430,16 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                    s.addMessages(msgs);
                 }
                 if(isVoidAType(t1.ret) && !isVoidAType(t2.ret)){
-                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                   causes = [ info("Clashing declaration of `<id>`", d2.defined) ];
+                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d1.defined, causes=causes) ];
                    s.addMessages(msgs);
                 }
                 if(comparableList(t1.formals, t2.formals)){
                     r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     if(!comparable(r1, r2)){
-                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined) ];
+                        causes = [ info("ther declaration with comparable arguments", d2.defined) ];
+                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined, causes=causes) ];
                         s.addMessages(msgs);
                     }
 
@@ -419,64 +474,73 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
 
-
     consIds = domain(consNameDef);
     for(id <- consIds){
         defs = consNameDef[id];
         allDefs = { d.defined | d <- defs };
         for(d1 <- defs, d2 <- defs,
             d1.defined != d2.defined,
-            t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-            t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            d1.defined in facts, t1 := facts[d1.defined],
+            d2.defined in facts, t2 := facts[d2.defined],
             comparableList(t1.fields, t2.fields),
             ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
-            msgs = [];
-            if(t1.adt == t2.adt){
-                msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
+            if(t1.adt == t2.adt  && d1.scope.path == d2.scope.path){
+                s.addMessages([error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ]);
             }
-            // NOTE: After discussion about the relevance of the following checks they have been commented out
-            //       and will be removed later
-            // else if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
-            //     msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            // } else {
-            //     msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            // }
-            s.addMessages(msgs);
         }
     }
-    try {
-        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
-        for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
-            for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
-                msgs = [ info("Field `<fld1.alabel>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
-                       ];
-                s.addMessages(msgs);
-            }
+}
+void checkOverloadedConstructors(Tree t, Solver s){
+    visit(t){
+        case current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`: {
+            try {
+                tp = s.getType(current);
+                if(overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tp){
+                    reportConstructorOverload(current, tp, s);
+                }
+                exptp = s.getType(expression);
+                if(isADTAType(tp) && overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := exptp){
+                    reportConstructorOverload(current, exptp, s);
+                }
+            }  catch _: ;
         }
-    } catch _: {
-        // Guard against type incorrect defines, but record for now
-        println("Skipping (type-incorrect) defines while checking duplicate labels in constructors");
+    }
+}
+
+void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads), Solver s){
+    coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
+    if(size(coverloads) > 1){
+        ovl1 = coverloads[0];
+        adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
+        qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
+                         current@\loc);
+        s.addMessages([msg]);
     }
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-
     if(!s.reportedErrors()){
        checkOverloading(namedTrees, s);
 
         for(_mname <- namedTrees){
             addADTsAndCommonKeywordFields(s);
         }
+
+        for (pt <- range(namedTrees)){
+            checkOverloadedConstructors(pt, s);
+        }
    }
 }
 
-bool isLogicalLoc(loc l)
-    = startsWith(l.scheme, "rascal+");
+// bool isRascalLogicalLoc(loc l)
+//     = startsWith(l.scheme, "rascal+");
 
-loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
-       if(isLogicalLoc(def.defined)) return def.defined;
+       if(isRascalLogicalLoc(def.defined)) return def.defined;
        moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
@@ -521,7 +585,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
         similar = similarWords(w, domain(longNames), tm.config.cutoffForNameSimilarity)[0..10];
         return sort({*longNames[s] | s <- similar }, bool (str a, str b) { return size(a) < size(b); });
     } else {
-        vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) };
+        vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope, tm.logical2physical) };
         similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
         return sort(similar, bool (str a, str b) { return a < b; });
     }

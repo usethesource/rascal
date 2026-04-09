@@ -56,6 +56,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 
 /**
@@ -1226,9 +1227,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 		else if (!stack.isExpandable()) { // A 'normal' non-terminal.
 			EdgesSet<P> cachedEdges = cachedEdgesForExpect.get(stack.getName());
-			if(cachedEdges == null){
+			// Note that result sharing has been disabled for list separators, to
+			// prevent issues related to cycle detection down the line (because a
+			// result that can be reused may not be a separator and thus is not and
+			// can not be flagged as such, as doing so would be erroneous).
+			if(cachedEdges == null || stack.isSeparator()){
 				cachedEdges = new EdgesSet<P>(1);
-				cachedEdgesForExpect.put(stack.getName(), cachedEdges);
+				if(!stack.isSeparator()){
+					cachedEdgesForExpect.put(stack.getName(), cachedEdges);
+				}
 				
 				AbstractStackNode<P>[] expects = invokeExpects(stack);
 				if(expects == null){
@@ -1694,9 +1701,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			throw new RuntimeException("Unrecognized tree type: " + type);
 		}
 
-		if (result != tree && tree.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
-			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
-			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+		if (result != tree) {
+			IWithKeywordParameters<? extends IConstructor> originalParams = tree.asWithKeywordParameters();
+			if (originalParams.hasParameter(RascalValueFactory.Location)) {
+				IValue loc = originalParams.getParameter(RascalValueFactory.Location);
+				result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+			}
 		}
 
 		processedTrees.put(tree, result);
@@ -1711,6 +1721,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IList childList = TreeAdapter.getArgs(tree);
 
 		ArrayList<IConstructor> newChildren = null;
+		IValue parseErrorPosition = null;
 		boolean errorTree = false;
 		int childCount = childList.length();
 		for (int i=0; i<childCount; i++) {
@@ -1723,6 +1734,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					&& TreeAdapter.getProduction((ITree)child).getConstructorType() == RascalValueFactory.Production_Skipped) {
 				errorTree = true;
 				newChild = child;
+				
+				// We need to lift the parseError annotation from the "skipped" tree to the "error" tree
+				IWithKeywordParameters<? extends IConstructor> childWithParams = child.asWithKeywordParameters();
+				if (childWithParams.hasParameter(RascalValueFactory.ParseError)) {
+					parseErrorPosition = childWithParams.getParameter(RascalValueFactory.ParseError);
+					newChild = childWithParams.unsetParameter(RascalValueFactory.ParseError);
+				}
 			} else {
 				newChild = introduceErrorNodes(child, nodeConstructorFactory);
 			}
@@ -1740,7 +1758,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 
 		if (errorTree) {
-			return nodeConstructorFactory.createErrorNode(newChildren, prod);
+			IConstructor result = nodeConstructorFactory.createErrorNode(newChildren, prod);
+			if (parseErrorPosition != null) {
+				IWithKeywordParameters<? extends IConstructor> resultWithParams = result.asWithKeywordParameters();
+				result = resultWithParams.setParameter(RascalValueFactory.ParseError, parseErrorPosition);
+			}
+			return result;
 		}
 		else if (newChildren != null) {
 			return nodeConstructorFactory.createSortNode(newChildren, prod);

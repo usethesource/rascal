@@ -38,24 +38,21 @@ public class IDEServicesLibrary {
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
-        services.browse(uri.getURI(), title.getValue(), viewColumn.intValue());
+        services.browse(uri.getURI(), title, viewColumn);
     }
 
-    public void edit(ISourceLocation path) {
-        services.edit(path);
+    public void edit(ISourceLocation path, IInteger viewColumn) {
+        services.edit(path, viewColumn.intValue());
     }
 
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         return services.resolveProjectLocation(input);
     }
 
-    public void registerLanguage(IConstructor language) {
-        services.registerLanguage(language);
-    }
-
     public void applyDocumentsEdits(IList edits) {
         applyFileSystemEdits(edits);
     }
+
     public void applyFileSystemEdits(IList edits) {
         services.applyFileSystemEdits(edits);
     }
@@ -82,7 +79,7 @@ public class IDEServicesLibrary {
                 viewColumn);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -93,7 +90,6 @@ public class IDEServicesLibrary {
     public void logMessage(IConstructor message) {
         services.logMessage(message);
     }
-
 
     public void registerDiagnostics(IList messages) {
         services.registerDiagnostics(messages);

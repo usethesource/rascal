@@ -459,7 +459,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return inputResolvers.get(subScheme);
+				result = inputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackInputResolver;
 		}
@@ -472,7 +475,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return classloaderResolvers.get(subScheme);
+				result = classloaderResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackClassloaderResolver;
 		}
@@ -485,7 +491,10 @@ public class URIResolverRegistry {
 			Matcher m = splitScheme.matcher(scheme);
 			if (m.find()) {
 				String subScheme = m.group(1);
-				return outputResolvers.get(subScheme);
+				result = outputResolvers.get(subScheme);
+				if (result != null) {
+					return result;
+				}
 			}
 			return fallbackOutputResolver;
 		}
@@ -682,6 +691,44 @@ public class URIResolverRegistry {
 		return result;
 	}
 
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getOutputResolver(uri.getScheme());
+		if (resolver != null) {
+			return resolver.isWritable(uri);
+		}
+		// for writeable schemes we return false unless the file does not exist
+		if (!exists(uri)) {
+			throw new FileNotFoundException(uri.toString());
+		}
+		return false;
+	}
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		var resolver = getInputResolver(uri.getScheme());
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+		return resolver.isReadable(uri);
+	}
+
+	/**
+	 * This is byte size, and should not be exposed to the rascal users. 
+	 * @param uri
+	 * @return
+	 * @throws IOException
+	 */
+	public long size(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+
+		return resolver.size(uri);
+	}
+
 	private boolean isRootLogical(ISourceLocation uri) {
 		return uri.getAuthority().isEmpty() && uri.getPath().equals("/")
 			&& logicalResolvers.containsKey(uri.getScheme());
@@ -721,24 +768,33 @@ public class URIResolverRegistry {
 	 * when a source folder or file can not be read
 	 */
 	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
-		if (isFile(source)) {
+		var sourceResolved = safeResolve(source);
+		var targetResolved = safeResolve(target);
+		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
+			var commonResolver = getOutputResolver(sourceResolved.getScheme());
+			if (commonResolver != null && commonResolver.supportsCopy()) {
+				commonResolver.copy(sourceResolved, targetResolved, recursive, overwrite);
+				return;
+			}
+		}
+		if (isFile(sourceResolved)) {
 			copyFile(source, target, overwrite);
 		}
 		else {
-			if (exists(target) && !isDirectory(target)) {
+			if (exists(targetResolved) && !isDirectory(targetResolved)) {
 				if (overwrite) {
-					remove(target, false);
+					remove(targetResolved, false);
 				}
 				else {
 					throw new IOException("can not make directory because file exists: " + target);
 				}
 			}
 			
-			mkDirectory(target);
+			mkDirectory(targetResolved);
 
-			for (String elem : URIResolverRegistry.getInstance().listEntries(source)) {
-				ISourceLocation srcChild = URIUtil.getChildLocation(source, elem);
-				ISourceLocation targetChild = URIUtil.getChildLocation(target, elem);
+			for (String elem : URIResolverRegistry.getInstance().listEntries(sourceResolved)) {
+				ISourceLocation srcChild = URIUtil.getChildLocation(sourceResolved, elem);
+				ISourceLocation targetChild = URIUtil.getChildLocation(targetResolved, elem);
 
 				if (isFile(srcChild) || recursive) {
 					copy(srcChild, targetChild, recursive, overwrite);
@@ -760,7 +816,7 @@ public class URIResolverRegistry {
 			remove(target, false);
 		}
 		
-		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
+		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target) && size(source) > 8*1024) {
 			try (FileChannel from = getReadableFileChannel(source)) {
 				try (FileChannel to = getWriteableFileChannel(target, false)) {
 					long transferred = 0;
@@ -774,11 +830,7 @@ public class URIResolverRegistry {
 
 		try (InputStream from = getInputStream(source)) {
 			try (OutputStream to = getOutputStream(target, false)) {
-				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-				int read;
-				while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-					to.write(buffer, 0, read);
-				}
+				from.transferTo(to);
 			}
 		}
 	}
@@ -990,16 +1042,20 @@ public class URIResolverRegistry {
 	}
 
 	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback) throws IOException {
-		if (getOutputResolver(safeResolve(loc).getScheme()) == null) {
-			throw new UnsupportedSchemeException("Watching not supported on schemes that do not support writing: " + loc.getScheme());
-		}
-		watchers.watch(loc, recursive, callback);
+		watchers.watch(loc, recursive, this::anyIOResolverRegistered, callback);
+	}
+
+	/**
+	 * Assumes already resolve location
+	 */
+	private boolean anyIOResolverRegistered(ISourceLocation loc) {
+		return inputResolvers.containsKey(loc.getScheme()) || outputResolvers.containsKey(loc.getScheme());
 	}
 
 
 	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		watchers.unwatch(loc, recursive, callback);
+		watchers.unwatch(loc, recursive, this::anyIOResolverRegistered, callback);
 	}
 
 	// these types must align with their correspondig types in IO.rsc
@@ -1062,7 +1118,20 @@ public class URIResolverRegistry {
 	}
 
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
-		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme());
+		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme()) || watchers.hasFallback();
+	}
+
+	public FileAttributes stat(ISourceLocation loc) throws IOException {
+		loc = safeResolve(loc);
+		var resolver = getInputResolver(loc.getScheme());
+		if (resolver == null) {
+			throw new IOException("Unsupported scheme: " + loc.getScheme());
+		}
+		try {
+			return resolver.stat(loc);
+		} catch (FileNotFoundException fe) {
+			return new FileAttributes(false, false, -1,-1, false, false, 0);
+		}
 	}
 
 }

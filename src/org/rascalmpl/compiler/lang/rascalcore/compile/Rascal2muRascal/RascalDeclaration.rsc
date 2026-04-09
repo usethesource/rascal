@@ -59,9 +59,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalPattern;
 import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
 
 import lang::rascalcore::compile::muRascal2Java::Conversions;   // TODO:undesired dependency
-
-
-
+import analysis::typepal::LocationChecks;
 
 /********************************************************************/
 /*                  Translate declarations in a module              */
@@ -112,16 +110,16 @@ public void translateDecl(d: (Declaration) `<FunctionDeclaration functionDeclara
 }
 
 
-public void generateAllFieldGetters(loc module_scope){
+public void generateAllFieldGetters(loc module_scope, map[loc,loc] l2p){
     map[AType, set[AType]] constructors = getConstructorsMap();
     map[AType, list[Keyword]] common_keyword_fields = getCommonKeywordFieldsMap();
     
     for(adtType <- getADTs(), !isSyntaxType(adtType)){
-        generateGettersForAdt(adtType, module_scope, constructors[adtType] ? {}, common_keyword_fields[adtType] ? []);
+        generateGettersForAdt(adtType, module_scope, constructors[adtType] ? {}, common_keyword_fields[adtType] ? [], l2p);
     }
 }
 
-private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
+private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields, map[loc,loc] l2p){
 
     adtName = getUniqueADTName(adtType); 
   
@@ -141,7 +139,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.alabel;
        
-       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
             kwType = kw.fieldType;
             defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
@@ -178,7 +176,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, getterName, 0, adtType, dataId());
         failCode = muFailReturn(returnType);
-        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
             kwType = kw.fieldType;
             str commonKwFieldName = unescape(kwType.alabel);
             if(commonKwFieldName == kwFieldName){
@@ -189,7 +187,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         }
         body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(asUnqualifiedName(consType.alabel)), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
-                       | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
+                       | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope, l2p)
                        ]
                        + failCode
                       );
@@ -200,7 +198,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope)){
+    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
         kwType = kw.fieldType;
         defaultExp = kw.defaultExp;
         seen += kwType;
@@ -253,27 +251,27 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-      if(ignoreTest(ttags)){
-          // The type checker does not generate type information for ignored functions
-           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
-                                         prettyPrintName(fd.signature.name), 
-                                         afunc(abool(),[],[]),
-                                         [],
-                                         [],
-                                         [],
-                                         inScope, 
-                                         false, 
-                                         true,
-                                         false,
-                                         {},
-                                         {},
-                                         {},
-                                         fd.src, 
-                                         tmods, 
-                                         ttags,
-                                         muReturn1(abool(), muCon(false))));
-          	return;
-      }
+    //   if(ignoreTest(ttags)){
+    //       // The type checker does not generate type information for ignored functions
+    //        addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
+    //                                      prettyPrintName(fd.signature.name), 
+    //                                      afunc(abool(),[],[]),
+    //                                      [],
+    //                                      [],
+    //                                      [],
+    //                                      inScope, 
+    //                                      false, 
+    //                                      true,
+    //                                      false,
+    //                                      {},
+    //                                      {},
+    //                                      {},
+    //                                      fd.src, 
+    //                                      tmods, 
+    //                                      ttags,
+    //                                      muReturn1(abool(), muCon(false))));
+    //       	return;
+    //   }
       fname = prettyPrintName(fd.signature.name);
       ftype = getFunctionType(funsrc);
       resultType = ftype.ret;
@@ -387,7 +385,7 @@ private default bool hasParameterName(Pattern p, int i) = false;
  */
 private set[MuExp] getVarsUsedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int _, AType t, IdRole idRole) := exp, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
 
 /*
@@ -401,7 +399,7 @@ public set[MuExp] getLocalRefs(MuExp exp)
  */
 public set[MuExp] getExternalRefs(MuExp exp, str fuid, list[MuExp] formals){
    formalNames = {f.name | f <- formals};
-   res = { v1 | /v:muVar(str name2, str fuid2, int _, AType t, IdRole idRole) := exp, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+   res = { v1 | /v:muVar(str name2, str fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    //println("getExternalRefs, <fuid>, <formals>: <res>");
    return res;
 }
@@ -559,12 +557,12 @@ public map[str,str] translateTags(Tags tags){
    return m;
 }
 
-public bool ignoreCompiler(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+// public bool hasIgnoreCompilerTag(map[str,str] tagsMap)
+//     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
-//private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
+//private bool hasIgnoreCompilerTagTest(map[str, str] tags) = !isEmpty(domain(tags) & {"hasIgnoreCompilerTag", "IgnoreCompiler"});
 
-public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+// public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */
