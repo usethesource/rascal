@@ -31,11 +31,13 @@ module lang::rascalcore::check::BasicRascalConfig
     Basic configuration information as required by TypePal, including IdRole, PathRole, ScopeRole, DefInfo and the like.
     The checker itself is configure in RascalConfig.
 */
-extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
 import Location;
 import util::SemVer;
+import String;
+
+extend analysis::typepal::TypePal;
 
 data IdRole
     = moduleId()
@@ -60,19 +62,53 @@ data IdRole
     | typeVarId()
     ;
 
-public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] baseSyntaxRoles = {nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] syntaxRoles = {aliasId()} + baseSyntaxRoles;
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()};
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
-public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] localVariableRoles = formalRoles + {variableId(), patternVariableId()};
+public set[IdRole] variableRoles = localVariableRoles + { moduleVariableId() };
+public set[IdRole] inferrableRoles = variableRoles;
 public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
                                                              fieldId(), keywordFieldId(), annoId(),
-                                                             moduleVariableId(), productionId(), nonterminalId()
+                                                             moduleVariableId(), productionId()
                                                            };
 public set[IdRole] assignableRoles = variableRoles;
+
+set[IdRole] variableOrAliasRoles = variableRoles + {aliasId()};
+set[IdRole] functionRoles = {functionId(), constructorId(), productionId()};
+set[IdRole] variableOrFunctionRoles = variableRoles + functionRoles;
+set[IdRole] variableAliasOrFunctionRoles = variableOrAliasRoles + functionRoles;
+
+// For each IdRole give a set of forbidden overloads with other IdRoles 
+// Not listed here or empty forbids: all overloads are allowed
+public map[IdRole, set[IdRole]] forbiddenIdRoleOverloading =
+    (functionId():          variableRoles, 
+     constructorId():       variableRoles - {moduleVariableId(), productionId()},
+     productionId():        variableRoles - {moduleVariableId(), constructorId()},
+     variableId():          variableOrFunctionRoles,
+     moduleVariableId():    variableOrFunctionRoles - {constructorId(), productionId()},
+     formalId():            variableOrFunctionRoles - {nestedFormalId()},
+     nestedFormalId():      variableOrFunctionRoles - {formalId(), nestedFormalId()},
+     keywordFormalId():     variableOrFunctionRoles,
+     patternVariableId():   variableOrFunctionRoles,
+
+     nonterminalId():       baseSyntaxRoles - nonterminalId(),
+     lexicalId():           baseSyntaxRoles - lexicalId(),
+     layoutId():            baseSyntaxRoles - layoutId(),
+     keywordId():           baseSyntaxRoles - keywordId(),
+
+     fieldId():             { },
+     keywordFieldId():      { },
+     dataId():              { },
+     
+     aliasId():             {aliasId()},
+     typeVarId():           { },
+     annoId():              { }
+    );
 
 data PathRole
     = importPath()
@@ -136,15 +172,22 @@ public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
 
+private str MD5_CONTRIB_SEPARATOR = "@";
+private map[str, str] MD5_ESCAPES = (MD5_CONTRIB_SEPARATOR: "\\<MD5_CONTRIB_SEPARATOR>");
+
+@synopsis{Hash a variable number of contributing values (MD5).}
+str normalizedMD5Hash(value contribs...)
+    = md5Hash(removeWhitespace(intercalate(MD5_CONTRIB_SEPARATOR, [escape("<c>", MD5_ESCAPES) | c <- contribs])));
+
 bool isValidRascalTplVersion(str version)
     = equalVersion(version, currentRascalTplVersion);
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
-str currentRascalTplVersion = "2.0.0";
+str currentRascalTplVersion = "3.0.0";
 
 data TModel (
-    str rascalTplVersion = "2.0.0"
+    str rascalTplVersion = "3.0.0"
 );
 
 // Define alias for TypePalConfig

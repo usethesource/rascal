@@ -42,22 +42,30 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.ideservices.RemoteIDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.MimeTypes;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -83,6 +91,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     private static final ISourceLocation PROMPT_LOCATION = URIUtil.rootLocation("prompt");
 
+    protected DebugSocketServer debugServer;
+
+    protected final int ideServicesPort;
+
     @Override
     public ITree parseCommand(String command) {
         Objects.requireNonNull(eval, "Not initialized yet");
@@ -92,6 +104,12 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     public RascalInterpreterREPL() {
+        this(-1);
+    }
+
+    public RascalInterpreterREPL(int ideServicesPort) {
+        this.ideServicesPort = ideServicesPort;
+
         this.printer = new RascalValuePrinter() {
             @Override
             protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
@@ -114,14 +132,19 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        return new BasicIDEServices(err, monitor, term);
+        if (ideServicesPort == -1) {
+            return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
+        }
+        return new RemoteIDEServices(ideServicesPort, err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
      * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
-        return ShellEvaluatorFactory.getBasicEvaluator(input, stdout, stderr, services);
+        var evaluator = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
+        debugServer = new DebugSocketServer(evaluator, services, PROMPT_LOCATION);
+        return evaluator;
     }
 
     @Override
@@ -139,32 +162,88 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 reg.watch(p, true, d -> sourceLocationChanged(p, d));
             }
             catch (IOException e) {
-                stderr.println("Failed to register watch for " + p);
-                e.printStackTrace(stderr);
+                monitor.warning("Not watching " + p + " for changes because: " + e.getMessage(), p);
             }
         });
         return services;
     }
 
     private boolean isWatchable(ISourceLocation loc) {
-        return reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc);
+        return reg.isDirectory(loc) && (reg.hasNativelyWatchableResolver(loc) || reg.hasWritableResolver(loc));
+    }
+
+    private final Pattern debuggingCommandPattern = Pattern.compile("^\\s*:set\\s+debugging\\s+(true|false)");
+    private @Nullable ICommandOutput handleDebuggerCommand(String command) {
+        Matcher matcher = debuggingCommandPattern.matcher(command);
+        if (!matcher.find()) {
+            return null;
+        }
+        String icon;
+        String message;
+        if(matcher.group(1).equals("true")){
+            if(!debugServer.isClientConnected()){
+                services.startDebuggingSession(debugServer.getPort());
+                icon = "🐞 ";
+                message = "Debugging session started.";
+            }
+            else {
+                icon = "🔗 ";
+                message = "Debugging session was already running.";
+            }
+        }
+        else {
+            if(debugServer.isClientConnected()){
+                debugServer.terminateDebugSession();
+                icon = "🛑 ";
+                message = "Debugging session stopped.";
+            }
+            else {
+                icon = "❌ ";
+                message = "Debugging session was not running.";
+            }
+        }
+        return () -> new IOutputPrinter() {
+            @Override
+            public void write(PrintWriter target, boolean unicodeSupported) {
+                if (unicodeSupported) {
+                    target.write(icon);
+                }
+                target.println(message);
+            }
+
+            @Override
+            public String mimeType() {
+                return MimeTypes.PLAIN_TEXT;
+            }
+        };
     }
 
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
+        var result = handleDebuggerCommand(command);
+        if (result != null) {
+            return result;
+        }
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
                 Set<String> changes = new HashSet<>();
                 changes.addAll(dirtyModules);
-                dirtyModules.removeAll(changes);
-                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                if (!changes.isEmpty()) {
+                    dirtyModules.removeAll(changes);
+                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("prompt"));
+                }
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
                 return printer.outputError((w, sw, u) -> {
                     w.println((u ? "»» " : ">> ") + "Interrupted");
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
+                });
+            }
+            catch (RascalStackOverflowError e) {
+                return printer.outputError((w, sw, _u) -> {
+                    throwMessage(w, e.makeThrow(), sw);
                 });
             }
             catch (StaticError e) {
@@ -233,6 +312,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         commandLineOptions.put(Configuration.PROFILING_PROPERTY.substring("rascal.".length()), "enable sampling profiler" );
         commandLineOptions.put(Configuration.ERRORS_PROPERTY.substring("rascal.".length()), "print raw java errors");
         commandLineOptions.put(Configuration.TRACING_PROPERTY.substring("rascal.".length()), "trace all function calls (warning: a lot of output will be generated)");
+        commandLineOptions.put(Configuration.DEBUGGING_PROPERTY.substring("rascal.".length()), "enable debugging (true/false)");
         return commandLineOptions;
     }
 
@@ -257,4 +337,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
     }
 
+    public void clearModuleLoadMessages() {
+        eval.getHeap().clearModuleLoadMessage();
+    }
 }

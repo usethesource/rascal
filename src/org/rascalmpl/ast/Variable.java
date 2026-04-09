@@ -31,14 +31,14 @@ public abstract class Variable extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getInitial() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -108,7 +108,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 691 * name.hashCode() + 701 * initial.hashCode() ; 
+      return 557 + 131 * name.hashCode() + 797 * initial.hashCode() ; 
     } 
   
     
@@ -191,7 +191,7 @@ public abstract class Variable extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 137 * name.hashCode() ; 
+      return 149 + 877 * name.hashCode() ; 
     } 
   
     

@@ -12,20 +12,25 @@
  */ 
 package org.rascalmpl.ideservices;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.library.Messages;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 
 /**
  * IDEServices provides external services that can be called by the
@@ -39,13 +44,17 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri, String title, int viewColumn);
+  void browse(URI uri, IString title, IInteger viewColumn);
 
   /**
    * Open an editor for file at given path.
    * @param path
    */
-  void edit(ISourceLocation path);
+  void edit(ISourceLocation path, int viewColumn);
+
+  default void edit(ISourceLocation path) {
+    edit(path, -1 /* should be the same as the default in IDEServices.rsc::edit */);
+  }
 
   /**
    * Implements the project scheme by deferring to the IDEservices 
@@ -59,22 +68,6 @@ public interface IDEServices extends IRascalMonitor {
   }
 
   /**
-   * Registers a new language definition with the surrounding IDE. Multiple registries for the same language are supported, registration order determines priority.
-   * @param language
-   */
-  default void registerLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
-  }
-
-  /**
-   * Unregisters a language definition with the surrounding IDE. Can be partial if module & function are not empty strings.
-   * @param language
-   */
-  default void unregisterLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
-  }
-
-  /**
    * Get access to the current terminal.  <br>
    * used for features such as clearing the terminal, and starting a nested REPL. <br>
    * Can return null if there is no active terminal.
@@ -82,6 +75,14 @@ public interface IDEServices extends IRascalMonitor {
    */
   default Terminal activeTerminal() {
     return null;
+  }
+
+  /**
+   * @deprecated replaced by {@link #applyFileSystemEdits(IList)}
+   */
+  @Deprecated(forRemoval = true)
+  default void applyDocumentsEdits(IList edits) {
+    applyFileSystemEdits(edits);
   }
 
   /**
@@ -95,8 +96,62 @@ public interface IDEServices extends IRascalMonitor {
    * of refactoring and quick-fix features of the language service protocol. 
    * @param edits list of DocumentEdits
    */
-  default void applyDocumentsEdits(IList edits) {
-     throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
+  default void applyFileSystemEdits(IList edits) {
+    var registry = URIResolverRegistry.getInstance();
+    var vf = IRascalValueFactory.getInstance();
+    edits.stream().map(IConstructor.class::cast).forEach(c -> {
+      try {
+        switch (c.getName()) {
+          case "removed": {
+            var file = (ISourceLocation) c.get("file");
+            registry.remove(file.top(), false);
+            break;
+          }
+          case "created": {
+            var file = (ISourceLocation) c.get("file");
+            if (registry.exists(file)) {
+              registry.setLastModified(file, System.currentTimeMillis());
+            } else {
+              try (var out = registry.getCharacterWriter(file.top(), registry.detectCharset(file).name(), false)) {
+                out.write("");
+              }
+            }
+            break;
+          }
+          case "renamed": {
+            var from = (ISourceLocation) c.get("from");
+            var to = (ISourceLocation) c.get("to");
+            registry.rename(from.top(), to.top(), true);
+            break;
+          }
+          case "changed": {
+            var file = (ISourceLocation) c.get("file");
+            if (c.has("edits")) {
+              var textEdits = (IList) c.get("edits");
+              var charset = registry.detectCharset(file).name();
+              var contents = Prelude.readFile(vf, false, ((ISourceLocation) c.get("file")).top(), charset, false);
+              int cursor = 0;
+              try (var writer = registry.getCharacterWriter(file.top(), charset, false)) {
+                for (var e : textEdits) {
+                  var edit = (IConstructor) e;
+                  var range = (ISourceLocation) edit.get("range");
+                  var replacement = (IString) edit.get("replacement");
+                  contents.substring(cursor, range.getOffset()).write(writer);
+                  replacement.write(writer);
+                  cursor = range.getOffset() + range.getLength();
+                }
+                contents.substring(cursor).write(writer);
+              }
+            } else {
+              registry.setLastModified(file, System.currentTimeMillis());
+            }
+            break;
+          }
+        }
+      } catch (IOException e) {
+        warning("Could not execute FileSystemChange due to " + e.getMessage(), URIUtil.rootLocation("unknown"));
+      }
+    });
   }
 
   /**
@@ -116,45 +171,7 @@ public interface IDEServices extends IRascalMonitor {
    * This method would stream the message to a log view in the IDE
    */
   default void logMessage(IConstructor msg) {
-      stderr().println(messageToString(msg));
-  }
-
-  default String messageToString(IConstructor msg) {
-    String type = msg.getName();
-    boolean isError = type.equals("error");
-    boolean isWarning = type.equals("warning");
-
-    String locString = "unknown location";
-    int col = 0;
-    int line = 0;
-   
-    if (msg.has("at")) {
-      ISourceLocation loc = (ISourceLocation) msg.get("at");
-      locString = loc.top().toString().substring(1, loc.top().toString().length() - 1);
-      if (loc.hasLineColumn()) {
-        col = loc.getBeginColumn();
-        line = loc.getBeginLine();
-      }
-    }
-
-    String output
-    = locString
-    + ":"
-    + String.format("%04d", line)
-    + ":"
-    + String.format("%04d", col)
-    + ": "
-    + ((IString) msg.get("msg")).getValue();
-
-    if (isError) {
-      return "[ERROR]  " + output;
-    }
-    else if (isWarning) {
-      return "[WARNING]" + output;
-    }
-    else {
-      return "[INFO]   " + output;
-    }
+      Messages.write(IRascalValueFactory.getInstance().list(msg), stderr());
   }
 
   /**
@@ -165,9 +182,11 @@ public interface IDEServices extends IRascalMonitor {
    * This method would register the messages with a "problems view" in the IDE
    */
   default void registerDiagnostics(IList messages) {
-     for (IValue m : messages) {
-       logMessage((IConstructor) m);
-     }
+      Messages.write(messages, stderr());
+  }
+
+  default void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
+      registerDiagnostics(messages);
   }
 
   /**
@@ -193,4 +212,25 @@ public interface IDEServices extends IRascalMonitor {
   default void unregisterLocations(IString scheme, IString auth) {
     URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
 	}
+
+  /**
+   * Sends a notification to the debug client to start a debugging session on the given debug adapter port 
+   * 
+   * @param serverPort
+   */
+  default void startDebuggingSession(int serverPort) {
+    
+  }
+
+  /**
+   * Register the debug adapter port for a given process
+   * 
+   * @param processID
+   * @param serverPort
+   */
+  default void registerDebugServerPort(int processID, int serverPort) {
+    
+  }
+
+    
 }

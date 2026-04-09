@@ -83,7 +83,7 @@ public class DOM {
 	        throw RuntimeExceptionFactory.io(e.getMessage());
 	    }
 	    catch(IOException e) {
-	         throw RuntimeExceptionFactory.io(e.getMessage());
+	         throw RuntimeExceptionFactory.io(e);
 	    }
 	}
 	
@@ -100,7 +100,7 @@ public class DOM {
             writer.close();
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
 	}
 	

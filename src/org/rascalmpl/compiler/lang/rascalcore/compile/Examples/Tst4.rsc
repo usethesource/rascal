@@ -24,37 +24,36 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst4
+module lang::rascalcore::compile::Examples::Tst4  
 
-start syntax A = "a";
+data Tree = empty() | char(int n);
 
-// test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
+@javaClass{org.rascalmpl.library.Prelude}
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
-// value main()  { n = 1; n = true; return n; }
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, int maxAmbDepth=2, bool allowRecovery=false, int maxRecoveryAttempts=30, int maxRecoveryTokens=3, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, maxAmbDepth=maxAmbDepth, allowRecovery=allowRecovery, maxRecoveryAttempts=maxRecoveryAttempts, maxRecoveryTokens=maxRecoveryTokens, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-// void main()
-//    { n = 1; n = 1.5; n + 2;}
+data Maybe[&A] 
+   = nothing() 
+   | just(&A val)
+   ;
 
-// void main(){
-//     n = 1;
-//     n = 1.5;
-//     //return n;
-// }
+Maybe[&T <: Tree] tryParseAs(type[&T <: Tree] begin, str name, bool allowAmbiguity = false) {
+    try {
+        return just(parse(begin, name, allowAmbiguity = allowAmbiguity));
+    } catch _: {
+        return nothing();
+    }
+}
+Tree parseAsOrEmpty(type[&T <: Tree] T, str name) =
+    just(Tree t) 
+    := 
+    tryParseAs(T, name) ? t : char(0);
 
-// Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
 
-// void main() {
-//     n = 1;
-//     m = n;
-//     n + 2;
-// }
-
-// Stat 4
-
-    // value zz = { l = []; l = l + 1.5; };
-
-// value main()
-//  { n = 1;
-//    n = "a";
-//    return n;
-// }
+// value f() = just(&T <: node t) := nothing();
+     
+// value main()=
+//     comparable(aadt("Maybe", [aparameter("T", anode([]))], dataSyntax()), 
+//             aadt("Maybe", [aparameter("A", avalue())], dataSyntax()));

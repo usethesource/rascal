@@ -14,7 +14,7 @@ categories and then quickly counting the frequency of each occurring event.
 
 This module helps by providing commonly used functions for the purpose of counting events.
 The output of these functions can be used to draw (cumulative) histograms, or they can
-directly be used for further statistical processing and visualisation.
+directly be used for further statistical processing and visualization.
 }
 module analysis::statistics::Frequency
 

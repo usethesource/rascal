@@ -31,7 +31,7 @@ public abstract class Tags extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Tag> getTags() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -93,7 +93,7 @@ public abstract class Tags extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 617 + 233 * tags.hashCode() ; 
+      return 487 + 797 * tags.hashCode() ; 
     } 
   
     

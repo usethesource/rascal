@@ -13,11 +13,18 @@ test bool testFileCopyCompletely() {
     return readFile(|tmp:///longFile|) == readFile(|tmp:///shortFile|);
 }
 
+test bool testFileCopyRecursive() {
+    writeFile(|tmp:///a/b/c/d/longFile|, "123456789");
+    writeFile(|tmp:///a/b/e/shortFile|, "321");
+    copy(|tmp:///a/|, |tmp:///g/|, recursive=true, overwrite=true);
+    return readFile(|tmp:///a/b/c/d/longFile|) == readFile(|tmp:///g/b/c/d/longFile|);
+}
+
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
         // this should trigger the failing test finally
-        remove(event.src); 
+        remove(event.file); 
     });
     return true;
 }
@@ -26,7 +33,7 @@ test bool createdDoesNotCrashOnURIRewrites() {
     loc l = |tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|;
     remove(l);  // remove the file if it exists
     writeFile(l, "123456789");
-    return created(l) <= now();
+    return IO::created(l) <= now();
 }
 
 test bool testWriteBase32() {
@@ -40,4 +47,32 @@ test bool testReadBase32() {
     writeFile(|memory:///base32Test/readTest.txt|, original);
     str encoded = readBase32(|memory:///base32Test/readTest.txt|);
     return original == fromBase32(encoded);
+}
+
+test bool testRenameWithinFileScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|tmp:///hello.txt|, "Hello World!");
+    rename(|tmp:///hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameWithinMemoryScheme() {
+    remove(|memory:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |memory:///bye.txt|);
+    return readFile(|memory:///bye.txt|) == "Hello World!";
+}
+
+test bool testRenameCrossScheme() {
+    remove(|tmp:///bye.txt|);
+    writeFile(|memory://testRename/hello.txt|, "Hello World!");
+    rename(|memory://testRename/hello.txt|, |tmp:///bye.txt|);
+    return readFile(|tmp:///bye.txt|) == "Hello World!";
+}
+
+test bool renameDirectory() {
+    remove(|tmp:///RenamedFolder|, recursive=true);
+    writeFile(|tmp:///Folder/hello.txt|, "Hello World!");
+    rename(|tmp:///Folder|, |tmp:///RenamedFolder|);
+    return readFile(|tmp:///RenamedFolder/hello.txt|) == "Hello World!";
 }

@@ -57,8 +57,11 @@ public class TutorCommandExecutorCreator {
                 eval(repl)
             );
         }
-        catch (IOException | URISyntaxException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+        catch (URISyntaxException e) {
+            throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
 
@@ -88,8 +91,11 @@ public class TutorCommandExecutorCreator {
                 
                 return mw.done();
             }
-            catch (InterruptedException | IOException e) {
-                throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+            catch (InterruptedException e) {
+                throw RuntimeExceptionFactory.io(e.getMessage());
             }
         });
     }

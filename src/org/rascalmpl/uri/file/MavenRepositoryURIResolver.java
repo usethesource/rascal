@@ -1,5 +1,6 @@
 package org.rascalmpl.uri.file;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -87,7 +89,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
  
     /** 
-     * @param input   mvn://groupid!artifactId!version/path
+     * @param input   mvn://groupid--artifactId--version/path
      * @return        a file:/// reference to the jar file that is designated by the authority.
      * @throws IOException when the authority does not designate a jar file
      */
@@ -95,7 +97,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         String authority = input.getAuthority();
 
         if (authority.isEmpty()) {
-            throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
+            throw new IOException("missing mvn://groupid--artifactId--version/ as the authority in " + input);
         }
 
         var parts = authority.split(GROUP_ARTIFACT_VERSION_SEPARATOR);
@@ -122,7 +124,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             return URIUtil.getChildLocation(root, jarPath);  
         }
         else {
-            throw new IOException("Pattern mvn:///groupId!artifactId!version did not match on " + input);
+            throw new IOException("Pattern mvn://groupId--artifactId--version did not match on " + input);
         }
     }
 
@@ -164,6 +166,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     @Override
+    public long size(ISourceLocation uri) throws IOException {
+        return reg.size(resolveInsideJar(uri));
+    }
+
+    @Override
     public boolean isDirectory(ISourceLocation uri) {
         try {
             return reg.isDirectory(resolveInsideJar(uri));
@@ -174,6 +181,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     @Override
+    public FileAttributes stat(ISourceLocation loc) throws IOException {
+        return reg.stat(resolveInsideJar(loc));
+    }
+
+    @Override
     public boolean isFile(ISourceLocation uri) {
         try {
             return reg.isFile(resolveInsideJar(uri));
@@ -181,6 +193,14 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public boolean isReadable(ISourceLocation uri) throws IOException {
+        if (isFile(uri)) {
+            return true;
+        }
+        throw new FileNotFoundException(uri.toString());
     }
 
     @Override

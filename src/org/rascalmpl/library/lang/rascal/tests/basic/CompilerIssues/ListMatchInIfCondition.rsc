@@ -8,8 +8,6 @@ int f(list[int] ds){
     }
 }
 
-@ignoreCompiler{Generates incorrect code}
 test bool ListMatchInIfCondition1() = f([1]) == 1;
 
-@ignoreCompiler{Generates incorrect code}
 test bool ListMatchInIfCondition2() = f([-1]) == 2;

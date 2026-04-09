@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
@@ -62,7 +63,6 @@ public class TestFramework {
 		}
 		evaluator = ShellEvaluatorFactory.getDefaultEvaluatorForLocation(projectLoc, Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJunitConsoleMonitor.getInstance(), ROOT_TEST_ENVIRONMENT);
 
-		ShellEvaluatorFactory.registerProjectAndTargetResolver(projectLoc);
 		heap = evaluator.getHeap();
 		root = heap.getModule(ROOT_TEST_ENVIRONMENT);
 	
@@ -115,7 +115,7 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-			return evaluator.runTests(evaluator.getMonitor());
+			return evaluator.runTests(evaluator.getMonitor(), Optional.empty());
 		}
 		finally {
 			stderr.flush();

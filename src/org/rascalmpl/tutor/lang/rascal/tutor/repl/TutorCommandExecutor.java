@@ -142,6 +142,7 @@ public class TutorCommandExecutor {
     public void reset() {
         interpreter.cancelRunningCommandRequested();
         interpreter.cleanEnvironment();
+        interpreter.clearModuleLoadMessages();
         outPrinter.flush();
         outWriter.getBuffer().setLength(0);
         errPrinter.flush();
@@ -160,11 +161,13 @@ public class TutorCommandExecutor {
         return this.currentInput;
     }
 
-    private boolean isValidCommand(String cmd) {
+    private boolean isUnfinishedCommand(String cmd) {
         try {
-            return interpreter.parseCommand(cmd) != null;
-        } catch (ParseError pe) {
+            interpreter.parseCommand(cmd);
             return false;
+        } 
+        catch (ParseError pe) {
+            return pe.getOffset() == cmd.length();
         }
     }
 
@@ -180,7 +183,7 @@ public class TutorCommandExecutor {
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
         var input = collectFullCommand(line);
-        if (!isValidCommand(input) && !line.isBlank()) {
+        if (isUnfinishedCommand(input)) {
             // continuation
             return Collections.emptyMap();
         }

@@ -35,8 +35,6 @@ import ParseTree;
 import Grammar;
 
 extend lang::rascalcore::check::CheckerCommon;
-
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
@@ -69,12 +67,12 @@ str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals
                                             = "TypedFunctionInstance<size(formals)>\<IValue, <intercalate(", ", ["IValue" | _ <- formals])>\>"
                                               when !isEmpty(formals); // TODO: check for number of defined versions of TypedFunctionInstance
  
-str atype2javatype(anode(list[AType fieldType] fields)) 
+str atype2javatype(anode(list[AType] fields)) 
                                             = "INode";
 str atype2javatype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
                                             = (adtName == "Tree" || isConcreteSyntaxRole(syntaxRole)) ? "ITree" : "IConstructor";
 
-str atype2javatype(t: acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields))
+str atype2javatype(t: acons(AType adt, list[AType] fields, list[Keyword] kwFields))
                                             = "IConstructor";
                  
 str atype2javatype(aparameter(str pname, AType bound)) 
@@ -117,7 +115,7 @@ str atype2idpart(amap(AType d, AType r))  = "map_<atype2idpart(d)>_<atype2idpart
 str atype2idpart(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                           = "<atype2idpart(ret)>_<intercalate("_", [atype2idpart(f) | f <- formals])>";
 
-str atype2idpart(anode(list[AType fieldType] fields))
+str atype2idpart(anode(list[AType] fields))
                                           = "node";
 
 str atype2idpart(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
@@ -127,7 +125,7 @@ str atype2idpart(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxR
     return asJavaName(aname);
 }
                                               
-str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields)){
+str atype2idpart(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields)){
     aname = getUniqueADTName(adt);
     //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<size(adt.parameters)>";
     //aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
@@ -244,7 +242,7 @@ str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)
 str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
     = "<atype2IValue(ret, defs)>_<intercalate("_", [atype2IValue(f,defs) | f <- formals])>";
     
-str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) 
+str atype2IValue1(at:anode(list[AType] fields), map[AType, set[AType]] defs) 
     = "$anode(<lab(at)>)";
 
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, dataSyntax()), map[AType, set[AType]] defs)
@@ -252,15 +250,15 @@ str atype2IValue1(at:aadt(str adtName, list[AType] parameters, dataSyntax()), ma
     //= "$aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>)";
     
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, lexicalSyntax()), map[AType, set[AType]] defs)
-    = "$RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(\"<adtName>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(\"<adtName>\"))";
     
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, layoutSyntax()), map[AType, set[AType]] defs)
-    = "$RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(\"<adtName>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(\"<adtName>\"))";
         
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), map[AType, set[AType]] defs)
-    = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(\"<adtName>\"))";
     
-str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields), map[AType, set[AType]] defs)
+str atype2IValue1(at:acons(AType adt, list[AType] fields, list[Keyword] kwFields), map[AType, set[AType]] defs)
     = "$acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
 
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
@@ -294,18 +292,18 @@ str atype2IValue1(at:avalue(), _)
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
 
 str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) 
-    = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
+    = "$RVF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 str atype2IValue(list[Keyword] ts, map[AType, set[AType]] defs) 
-    = "$VF.list(<intercalate(", ", [atype2IValue(t.fieldType,defs) | t <- ts])>)";
+    = "$RVF.list(<intercalate(", ", [atype2IValue(t.fieldType,defs) | t <- ts])>)";
 
 str atype2IValue(set[AType] ts, map[AType, set[AType]] defs) 
-    = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
+    = "$RVF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 
 str atype2IValue(atypeList(list[AType] atypes), map[AType, set[AType]] defs) 
-    = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- atypes])>)";
+    = "$RVF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- atypes])>)";
     
 str defs(map[AType, set[AType]] defs) {
-    res = "$buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
+    res = "$buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $RVF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
     return res;
 }
 
@@ -434,20 +432,20 @@ private str charrange2IValue1(range(int begin, int end))
 // ---- AType extensions for parse trees --------------------------------------
 private str atype2IValue1(alit(str string), map[AType, set[AType]] defs)
     //= "$lit(<value2IValue(string)>)";
-    = "$VF.constructor(RascalValueFactory.Symbol_Lit, $RVF.string(\"<string>\"))"; // TODO escape
+    = "$RVF.constructor(RascalValueFactory.Symbol_Lit, $RVF.string(\"<string>\"))"; // TODO escape
 
 private str atype2IValue1(acilit(str string), map[AType, set[AType]] defs)
     //= "$cilit(<value2IValue(string)>)";
-    = "$VF.constructor(RascalValueFactory.Symbol_CiLit, $RVF.string(\"<string>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_CiLit, $RVF.string(\"<string>\"))";
 /*&*/
 //private str atype2IValue1(\achar-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
 //    = "$char_class(<tree2IValue(ranges, defs)>)";   
  
 private str atype2IValue1(\aempty(), map[AType, set[AType]] defs)
-    = "$VF.constructor(RascalValueFactory.Symbol_Empty())";     
+    = "$RVF.constructor(RascalValueFactory.Symbol_Empty())";     
 
 private str atype2IValue1(AType::\opt(AType symbol), map[AType, set[AType]] defs)
-    = "$VF.constructor(RascalValueFactory.Symbol_Opt(<atype2IValue(symbol, defs)>)";     
+    = "$RVF.constructor(RascalValueFactory.Symbol_Opt(<atype2IValue(symbol, defs)>)";     
 
 private str atype2IValue1(AType::\iter(AType symbol), map[AType, set[AType]] defs)
     = "$iter(<atype2IValue(symbol, defs)>)";     
@@ -462,13 +460,13 @@ private str atype2IValue1(AType::\iter-star-seps(AType symbol, list[AType] separ
     = "$iter_star_seps(<atype2IValue(symbol, defs)>, <atype2IValue(separators, defs)>)";   
     
 private str atype2IValue1(AType::\alt(set[AType] alternatives) , map[AType, set[AType]] defs)
-    = "$VF.constructor(RascalValueFactory.Symbol_Alt, <atype2IValue(alternatives, defs)>)"; 
+    = "$RVF.constructor(RascalValueFactory.Symbol_Alt, <atype2IValue(alternatives, defs)>)"; 
         
 private str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)   
-    = "$VF.constructor(RascalValueFactory.Symbol_Seq, <atype2IValue(symbols, defs)>)";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Seq, <atype2IValue(symbols, defs)>)";
  
 private str atype2IValue1(AType::\start(AType symbol), map[AType, set[AType]] defs)
-    = "$VF.constructor(RascalValueFactory.Symbol_Start, <atype2IValue(symbol, defs)>)";   
+    = "$RVF.constructor(RascalValueFactory.Symbol_Start, <atype2IValue(symbol, defs)>)";   
 
 //private str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
 //    = "$conditional(<atype2IValue(symbol, defs)>, <cond2IValue(conditions, defs)>)";   
@@ -503,31 +501,31 @@ private str cond2IValue1(\except(str label), map[AType, set[AType]] defs)
     = "$except(<value2IValue(label)>)";     
     
 //private str cond2IValue1(set[ACondition] conditions, map[AType, set[AType]] defs)
-//    = "$VF.set(<intercalate(", ", { cond2IValue1(c, defs) | c <- conditions })>)";
+//    = "$RVF.set(<intercalate(", ", { cond2IValue1(c, defs) | c <- conditions })>)";
                   
 //---- list/set wrappers for some parse tree constructs
 
 private str tree2IValue(list[Tree] trees, map[AType, set[AType]] defs)
-    = "$VF.list(<intercalate(", ", [ tree2IValue(tr, defs) | tr <- trees ])>)";
+    = "$RVF.list(<intercalate(", ", [ tree2IValue(tr, defs) | tr <- trees ])>)";
     
 private str tree2IValue(set[Tree] trees, map[AType, set[AType]] defs)
-    = "$VF.set(<intercalate(", ", [ tree2IValue(tr, defs) | tr <- trees ])>)";
+    = "$RVF.set(<intercalate(", ", [ tree2IValue(tr, defs) | tr <- trees ])>)";
   
  /*&*/  
 private str prod2IValue(set[Production] prods, map[AType, set[AType]] defs)
-    = "$VF.set(<intercalate(", ", [ prod2IValue(pr, defs) | pr <- prods ])>)";
+    = "$RVF.set(<intercalate(", ", [ prod2IValue(pr, defs) | pr <- prods ])>)";
 
 private str prod2IValue(list[Production] prods, map[AType, set[AType]] defs)
-    = "$VF.set(<intercalate(", ", [ prod2IValue(pr, defs) | pr <- prods ])>)";
+    = "$RVF.set(<intercalate(", ", [ prod2IValue(pr, defs) | pr <- prods ])>)";
     
 private str attr2IValue(set[Attr] attrs)
-    = "$VF.set(<intercalate(", ", [ attr2IValue(a) | a <- attrs ])>)";   
+    = "$RVF.set(<intercalate(", ", [ attr2IValue(a) | a <- attrs ])>)";   
     
 private str cond2IValue(set[Condition] conds, map[AType, set[AType]] defs)
-    = "$VF.set(<intercalate(", ", [ cond2IValue(c, defs) | c <- conds ])>)"; //<<
+    = "$RVF.set(<intercalate(", ", [ cond2IValue(c, defs) | c <- conds ])>)"; //<<
     
 private str charrange2IValue(list[CharRange] ranges)
-    = "$VF.list(<intercalate(", ", [ charrange2IValue(r) | r <- ranges ])>)"; 
+    = "$RVF.list(<intercalate(", ", [ charrange2IValue(r) | r <- ranges ])>)"; 
  
 
 /*****************************************************************************/
@@ -551,10 +549,10 @@ str getOuter(atuple(AType ts))        = "atuple";
 str getOuter(amap(AType d, AType r))  = "amap";
 str getOuter(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                       = "afunc";
-str getOuter(anode(list[AType fieldType] fields)) 
+str getOuter(anode(list[AType] fields)) 
                                       = "anode";
 str getOuter(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "aadt";
-str getOuter(t:acons(AType adt, list[AType fieldType] fields, list[Keyword] kwFields))
+str getOuter(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields))
                                       = "acons";
 str getOuter(aparameter(str pname, AType bound)) 
                                       = getOuter(bound);
@@ -646,6 +644,9 @@ str escapeForJRegExp(str s){
 
 str inlineComment(value v){
     s = "<v>";
+    if(size(s) > 100){
+        s = s[..100] + " ...";
+    }
     q = str _ := v ? "\"" : "";
     return "/*<q><replaceAll(s, "*/", "*\\/")><q>*/";
 }
@@ -654,47 +655,52 @@ str inlineComment(value v){
 /*  Convert a Rascal value to the equivalent IValue                          */
 /*****************************************************************************/
 
-str value2IValue(value x) = value2IValue(x, ());
-str value2IValue(value x, map[value, int] constants) = doValue2IValue(x, constants);
+str value2IValueConstant(value x,  map[value, int] constants)
+    = "((<value2outertype(x)>)$constants.get(<constants[x]>)<inlineComment(x)>)";
 
-str value2IValueRec(value x, map[value, int] constants) = "((<value2outertype(x)>)$constants.get(<constants[x]>)<inlineComment(x)>)" when constants[x]?;
+str value2IValue(value x) = value2IValue(x, ());
+str value2IValue(value x, map[value, int] constants)
+    = x in constants ? value2IValueConstant(x, constants) : doValue2IValue(x, constants);
+
+str value2IValueRec(value x, map[value, int] constants) = value2IValueConstant(x, constants) when x in constants;
 default str value2IValueRec(value x, map[value, int] constants) = doValue2IValue(x, constants);
 
-str doValue2IValue(bool b, map[value, int] constants) = "$VF.bool(<b>)";
-str doValue2IValue(int n, map[value, int] constants) = "$VF.integer(\"<n>\")";
-str doValue2IValue(real r, map[value, int] constants) = "$VF.real(<r>)";
-str doValue2IValue(rat rt, map[value, int] constants) = "$VF.rational(\"<rt>\")";
-str doValue2IValue(str s, map[value, int] constants) = "$VF.string(\"<escapeForJ(s)>\")";
+str doValue2IValue(bool b, map[value, int] constants) = "$RVF.bool(<b>)";
+str doValue2IValue(int n, map[value, int] constants) = "$RVF.integer(\"<n>\")";
+str doValue2IValue(real r, map[value, int] constants) = "$RVF.real(<r>)";
+str doValue2IValue(rat rt, map[value, int] constants) = "$RVF.rational(\"<rt>\")";
+str doValue2IValue(str s, map[value, int] constants) = "$RVF.string(\"<escapeForJ(s)>\")";
 
 str doValue2IValue(loc l, map[value, int] constants) {
-    base = "$create_aloc($VF.string(\"<l.uri>\"))";
-    return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
+    base = "$create_aloc($RVF.string(\"<l.uri>\"))";
+    return l.offset? ? "$RVF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
 }
 
 str doValue2IValue(datetime dt, map[value, int] constants) {
     if(dt.isDateTime)
-        return "$VF.datetime(<dt.year>, <dt.month>, <dt.day>, <dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>, <dt.timezoneOffsetHours>, <dt.timezoneOffsetMinutes>)";
+        return "$RVF.datetime(<dt.year>, <dt.month>, <dt.day>, <dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>, <dt.timezoneOffsetHours>, <dt.timezoneOffsetMinutes>)";
     if(dt.isDate)
-        return "$VF.date(<dt.year>, <dt.month>, <dt.day>)";
-    return "$VF.time(<dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>)";
+        return "$RVF.date(<dt.year>, <dt.month>, <dt.day>)";
+    return "$RVF.time(<dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>)";
 }
 
-str doValue2IValue(list[&T] lst, map[value, int] constants) = "$VF.list(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- lst ])>)";
-str doValue2IValue(set[&T] st, map[value, int] constants) = "$VF.set(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- st ])>)";
+str doValue2IValue(list[&T] lst, map[value, int] constants) = "$RVF.list(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- lst ])>)";
+str doValue2IValue(set[&T] st, map[value, int] constants) = "$RVF.set(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- st ])>)";
 
-str doValue2IValue(tuple[&A] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>)";
-str doValue2IValue(tuple[&A,&B] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>, <value2IValueRec(tup[9], constants)>)";
+str doValue2IValue(tuple[&A] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>)";
+str doValue2IValue(tuple[&A,&B] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup, map[value, int] constants) = "$RVF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>, <value2IValueRec(tup[9], constants)>)";
 
-str doValue2IValue(map[&K,&V] mp, map[value, int] constants) = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
+str doValue2IValue(map[&K,&V] mp, map[value, int] constants)
+    = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
 
 str doValue2IValue(type[&T] typeValue, map[value, int] constants) {
    return "$RVF.reifiedType(<value2IValueRec(typeValue.symbol, constants)>,<value2IValueRec(typeValue.definitions, constants)>)";
@@ -730,7 +736,7 @@ str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
     case /\-<l:[a-z]>/ => capitalize(l) 
 });
 
-str doValue2IValue(achar(int i), map[value, int] constants)  = "$RVF.character(<i>)";
+// str doValue2IValue(achar(int i), map[value, int] constants)  = "$RVF.character(<i>)";
 
 str doValue2IValue(Tree t:appl(Production prod, list[Tree] args), map[value, int] constants) {
     childrenContrib = isEmpty(args) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- args ])>";
@@ -752,17 +758,17 @@ default str doValue2IValue(node nd, map[value, int] constants) {
         kwparams = getKeywordParameters(nd);
         kwparamsContrib = isEmpty(kwparams) ? "" : ", keywordParameters=<kwparams>";
         name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
-        return "$VF.node(<name><childrenContrib><kwparamsContrib>)";
+        return "$RVF.node(<name><childrenContrib><kwparamsContrib>)";
     }
 }
 
 str doValue2IValue(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), map[value, int] constants) 
-    = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(\"<adtName>\"))";
 
 str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, int] constants) = adtName;
 
 str doValue2IValue(acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields), map[value, int] constants)
                  = "IConstructor";
 
@@ -812,7 +818,7 @@ str value2outertype(alrel(AType_)) = "IRelation\<IList\>";
 str value2outertype(aadt(str adtName, list[AType] _, SyntaxRole _)) = (adtName == "Tree") ? "ITree" : "IConstructor"; //asADTName(adtName);
 
 str value2outertype(acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields))
                  = "IConstructor";
 str value2outertype(areified(AType atype)) = "IConstructor";
@@ -822,8 +828,10 @@ default str value2outertype(AType t) = "IValue";
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
           
-str refType(AType t, JGenie jg, bool inTest)
-    = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
+str refType(AType t, JGenie jg, bool inTest){
+    base = isNonTerminalAType(t) ? asNTName(jg.shareType(t)) : jg.shareType(t);
+    return inTest ? "$me.<base>" : base;
+}
     
 str atype2vtype(aint(), JGenie jg, bool inTest=false) = "$TF.integerType()";
 str atype2vtype(abool(), JGenie jg, bool inTest=false) = "$TF.boolType()";
@@ -831,7 +839,7 @@ str atype2vtype(areal(), JGenie jg, bool inTest=false) = "$TF.realType()";
 str atype2vtype(arat(), JGenie jg, bool inTest=false) = "$TF.rationalType()";
 str atype2vtype(astr(), JGenie jg, bool inTest=false) = "$TF.stringType()";
 str atype2vtype(anum(), JGenie jg, bool inTest=false) = "$TF.numberType()";
-str atype2vtype(anode(list[AType fieldType] fields), JGenie jg, bool inTest=false) = "$TF.nodeType()";
+str atype2vtype(anode(list[AType] fields), JGenie jg, bool inTest=false) = "$TF.nodeType()";
 str atype2vtype(avoid(), JGenie jg, bool inTest=false) = "$TF.voidType()";
 str atype2vtype(avalue(), JGenie jg, bool inTest=false) = "$TF.valueType()";
 str atype2vtype(aloc(), JGenie jg, bool inTest=false) = "$TF.sourceLocationType()";
@@ -869,19 +877,21 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGeni
     if(isEmpty(parameters)){
         return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     } else {
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
-        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-    }
+        uninstantiated = all(p <- parameters, isTypeParameter(p));
+        suffix = uninstantiated ? "<size(parameters)>"
+                                : intercalate("_", [atype2idpart(p) | p <- parameters]);
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<suffix>";
+     }
  }   
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)   {
     if(isEmpty(parameters)){
-         return "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
+         return "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
     
         //return "$TF.constructor($TS, RascalValueFactory.Symbol_Sort, \"<adtName>\")";
     } else {
         //params = intercalate(", ", [atype2vtype(par, jg) | par <- parameters])  ;
        
-        //res = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <params>), $TS, p -\> Collections.emptySet())";
+        //res = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(\"<adtName>\"), <params>), $TS, p -\> Collections.emptySet())";
         //res = "$TF.constructor($TS, RascalValueFactory.Symbol_ParameterizedSort, \"<adtName>\", <params>)";
         //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
         
@@ -898,16 +908,19 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JG
         return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
     }
 }
+
+str atype2vtype(\start(AType atype), JGenie jg, bool inTest=false)
+    = atype2vtype(atype, jg, inTest=inTest);
     
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
-    = "$TF.constructor($TS, RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
+    = "$TF.constructor($TS, RascalValueFactory.Symbol, \"keywords\", $RVF.string(\"<adtName>\"))";
     
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
     = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
-    //= "$TF.constructor($TS, RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
+    //= "$TF.constructor($TS, RascalValueFactory.Symbol, \"layout\", $RVF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields), JGenie jg, bool inTest=false){
     res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.accessType(adt)>, \"<asUnqualifiedName(c.alabel)>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- fields])>)";
     return res;

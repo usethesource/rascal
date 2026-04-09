@@ -24,12 +24,9 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
+@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst6
- 
-import List;
 
- 
-value main() {
-  L = [1,2,3];
-  return size(L[1..2]);
-}
+data Symbol
+     = \label(str name, Symbol symbol);
+

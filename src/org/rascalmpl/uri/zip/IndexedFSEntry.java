@@ -37,26 +37,26 @@ import org.rascalmpl.uri.fs.FSEntry;
 public class IndexedFSEntry extends FSEntry {
     final int offset;
 
-    public IndexedFSEntry(long created, long lastModified, int offset) {
-        super(created, lastModified);
+    public IndexedFSEntry(long created, long lastModified, int offset, long size) {
+        super(created, lastModified, size);
         this.offset = offset;
     }
 
-    public IndexedFSEntry(@Nullable FileTime created, long lastModified, int offset) {
-        this(created == null ? lastModified : created.toMillis(), lastModified, offset);
+    public IndexedFSEntry(@Nullable FileTime created, long lastModified, int offset, long size) {
+        this(created == null ? lastModified : created.toMillis(), lastModified, offset, size);
     }
 
-    public IndexedFSEntry(long created, long lastModified) {
-        this(created, lastModified, -1);
+    public IndexedFSEntry(long created, long lastModified, long size) {
+        this(created, lastModified, -1, size);
     }
 
     public IndexedFSEntry(FSEntry e) {
-        this(e.getCreated(), e.getLastModified());
+        this(e.getCreated(), e.getLastModified(), e.getSize());
     }
 
 
     public IndexedFSEntry(ZipEntry ze, int offset) {
-        this(ze.getCreationTime(), ze.getTime(), offset);
+        this(ze.getCreationTime(), ze.getTime(), offset, ze.getSize());
     }
 
     public static IndexedFSEntry forFile(File file) {

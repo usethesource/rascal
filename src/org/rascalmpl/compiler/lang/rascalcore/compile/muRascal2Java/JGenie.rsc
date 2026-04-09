@@ -27,8 +27,6 @@ POSSIBILITY OF SUCH DAMAGE.
 @bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::JGenie
 
-import lang::rascal::\syntax::Rascal;
-
 import IO;
 import List;
 import Location;
@@ -82,7 +80,8 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
-        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
+        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions,
+        bool (loc,loc) isContainedIn
       )
     ;
     
@@ -90,11 +89,17 @@ JGenie makeJGenie(MuModule m,
                   map[str,TModel] tmodels, 
                   map[str,loc] moduleLocs, 
                   map[str, MuFunction] muFunctions){
-                  
+
+    // // temporary glue code
+    // map[str,TModel] tmodels = (moduleId2moduleName(mid) : tmodels[mid] | mid <- tmodels0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : moduleLocs[mid] | mid <- moduleLocs0);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : muFunctions0[mid] | mid <- muFunctions0);
+
     map[str,loc] allModuleLocs = moduleLocs;
-    map[loc,str] allLocs2Module = invertUnique(moduleLocs);
+    map[loc,str] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
+    MODID moduleId = moduleName2moduleId(moduleName);
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
@@ -119,8 +124,6 @@ JGenie makeJGenie(MuModule m,
     TModel currentTModel = tmodels[moduleName];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
     loc currentModuleScope = moduleLocs[moduleName];
-    set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
-    rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
     str functionName = "$UNKNOWN";
     MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
@@ -130,24 +133,23 @@ JGenie makeJGenie(MuModule m,
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
-    allExtendScopes = { b | <a, extendPath(), b> <- allPaths };
-    
-    extendScopesCurrentModule = { mscope | <currentModuleScope, extendPath(), mscope> <- allPaths };
-    importScopesCurrentModule = { mscope | <currentModuleScope, importPath(), mscope> <- allPaths} ;
-    flattenedImportScopes = importScopesCurrentModule + { mscope | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
+    extendScopesCurrentModule = { mscope.top | <currentModuleScope, extendPath(), mscope> <- allPaths };
+    importScopesCurrentModule = { mscope.top | <currentModuleScope, importPath(), mscope> <- allPaths} ;
+    flattenedImportScopes = importScopesCurrentModule + { mscope.top | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
     importAndExtendScopes = flattenedImportScopes + extendScopesCurrentModule;
    
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
-    
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
             bool(loc a, loc b) { return a != b && <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
-    
     JGenie thisJGenie;
    
+   bool _isContainedIn(loc inner, loc outer)
+        = isContainedIn(inner, outer, currentTModel.logical2physical);
+
     loc findDefiningModuleForDef(loc def){
         for(ms <- sortedImportAndExtendScopes){
-            if(isContainedIn(def, ms)){
+            if(_isContainedIn(def, ms)){
                return ms;
             }
         }
@@ -188,15 +190,10 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _getImportViaExtend(loc def, str mname){
-        ibe = importedByExtend[def];
-        if(isEmpty(ibe)){
-            return "";
-        }
-        edef = getFirstFrom(ibe);
-        emod = allLocs2Module[edef];
+        imod = findImportForDef(def);
+        emod = allLocs2Module[def];
         if(emod == mname) return "";
         res = "<module2field(emod)>.";
-        //println("_getImportViaExtend: <def> ==\> <res>");
         return res;
     }
     
@@ -227,9 +224,8 @@ JGenie makeJGenie(MuModule m,
         }
         for(ms <- sortedImportAndExtendScopes){
             for(Define def <- found_defs){
-                //println("def: <def>");
-                if(isContainedIn(def.scope, ms)){
-                    defMod = allLocs2Module[ms];
+                if(_isContainedIn(def.scope, ms)){
+                    defMod = allLocs2Module[ms.top];
                     res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
                     if(b)println("getTypeAccessor(<t>) =\> <res>)");
                     return res;
@@ -252,7 +248,7 @@ JGenie makeJGenie(MuModule m,
     
     bool importFromSameModule(list[loc] srcs){
         fst = srcs[0].top;
-        return all(src <- srcs, fst == src.top) && any(imp <- importScopesCurrentModule, isContainedIn(srcs[0], imp));
+        return all(src <- srcs, fst == src.top) && any(imp <- importScopesCurrentModule, _isContainedIn(srcs[0], imp));
     }
     
     @memo
@@ -268,7 +264,7 @@ JGenie makeJGenie(MuModule m,
                     
                     if(isSyntheticFunctionName(def.id)){
                         return baseName;
-                    } else if(isContainedIn(def.defined, currentModuleScope)){
+                    } else if(_isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
                             fun = muFunctionsByLoc[def.defined];
                             return isEmpty(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
@@ -290,7 +286,7 @@ JGenie makeJGenie(MuModule m,
                         if(isSyntheticFunctionName(baseName)){
                             return baseName;
                         }
-                        if(isContainedIn(def.defined, currentModuleScope)){
+                        if(_isContainedIn(def.defined, currentModuleScope)){
                             return baseName;
                         } else {
                             return def.scope in extendScopesCurrentModule ? "$me.<baseName>"
@@ -325,10 +321,10 @@ JGenie makeJGenie(MuModule m,
             return "<scopeIn>_<jname>";
         }
         
-        if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
+        if(any(d <- srcs, _isContainedIn(d, currentModuleScope))){
             return "$me.<jname>";
         }
-        alternative_defined_in_extended_module = any(d <- srcs, ms <- extendScopesCurrentModule, isContainedIn(d, ms));
+        alternative_defined_in_extended_module = any(d <- srcs, ms <- extendScopesCurrentModule, _isContainedIn(d, ms));
         if(alternative_defined_in_extended_module){
             return "$me.<jname>";
         }
@@ -339,7 +335,7 @@ JGenie makeJGenie(MuModule m,
     str definedInInnerScope(list[loc] srcs){
         scopeIn = "";
         for(d <- srcs){
-            if(isContainedIn(d, currentModuleScope)){
+            if(_isContainedIn(d, currentModuleScope)){
                 if(muFunctionsByLoc[d]?){
                     fun = muFunctionsByLoc[d];
                     if(fun.scopeIn == "") return "";
@@ -365,15 +361,15 @@ JGenie makeJGenie(MuModule m,
     list[MuExp] _getExternalRefs(loc src){
         if(fun2externals[src]?){
             fun = muFunctionsByLoc[src];
-            evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
+            evars = _isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
             return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
         return [];
     }
     
     bool _isDefinedInCurrentFunction(MuExp var){
-        definitions = currentTModel.definitions;
-        for(d <- definitions, def := definitions[d], var.name == def.id, isContainedIn(def.scope, function.src), def.idRole in variableRoles){
+        map[loc, Define] definitions = currentTModel.definitions;
+        for(d <- definitions, def := definitions[d], var.name == def.id, _isContainedIn(def.scope, function.src), def.idRole in variableRoles){
             return true;
         }
         return false;
@@ -381,7 +377,7 @@ JGenie makeJGenie(MuModule m,
     
     list[Keyword] _collectKwpFormals(MuFunction fun){
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
+        Scopes scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
         outer = scopes[fun.src];
         while (muFunctionsByLoc[outer]?){
@@ -561,7 +557,7 @@ JGenie makeJGenie(MuModule m,
         str tinits = "";
         str consinits = "";
         str adtinits_instantiate = "";
-        str adtinits = "";
+        str adtinits_noparam = "";
         str adtinits_param = "";
         str kwpTypeDecls = "";
         done = {};
@@ -581,16 +577,19 @@ JGenie makeJGenie(MuModule m,
         //println("-----------------------------------------");
         
         bool simpler(AType a, AType b) {
-            if(a == b) return false;
+            if(a == b || /b := a) return false;
             if(/a := b) return true;
             return isAtomicAType(a) && !isAtomicAType(b);
         }
         
         sorted_types = sort(domain(type2id), simpler);
-        //assert isSorted(sorted_types, simpler) : "Not properly sorted: <sorted_types>";
-        
+        //assert isSorted(sorted_types, less=simpler) : "Not properly sorted: <sorted_types>";
         //println("sorted_types:"); for(t <- sorted_types) println(t);
-        
+        smap = (dataSyntax()       : "$adt",
+                contextFreeSyntax(): "$sort",
+                lexicalSyntax()    : "$lex",
+                layoutSyntax()     : "$layouts",
+                keywordSyntax()    : "$keywords");
         for(t <- sorted_types){
             bottom-up visit(t) {
               case AType s:
@@ -599,27 +598,31 @@ JGenie makeJGenie(MuModule m,
                             aname = getUniqueADTName(a);
                             if(aname notin declared_ADT_names){
                                 declared_ADT_names += {aname};
+                                asr = smap[sr];
                                 tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
+                                if(asr in {"$sort", "$lex"}){
+                                    tdecls += "public final io.usethesource.vallang.type.Type <asNTName(type2id[s])>;\t/*<s>*/\n";
+                                }
                                 adtdef = "";
                                 if(isEmpty(parameters)){
-                                     switch(sr){
-                                          case dataSyntax():        adtdef = "$adt(\"<adtName>\")"; //"$TF.abstractDataType($TS, \"<adtName>\")";
-                                          case contextFreeSyntax(): adtdef = "$sort(\"<adtName>\")";
-                                          case lexicalSyntax():     adtdef = "$lex(\"<adtName>\")";
-                                          case layoutSyntax():      adtdef = "$layouts(\"<adtName>\")";
-                                          case keywordSyntax():     adtdef = "$keywords(\"<adtName>\")";
-                                      };
-                                     adtinits += "<type2id[s]> = <adtdef>;\n";
+                                    adtdef = "<asr>(\"<adtName>\")";
+                                    adtinits_noparam += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                    if(asr in {"$sort", "$lex"}){
+                                        adtinits_noparam += "<type2id[s]> = $adt(\"<adtName>\");\n";
+                                    }
                                 } else {
                                     if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
-                                        params = intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters]);
-                                        paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
+                                        tparams = "new Type[] { <intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters])> }";
+                                        vparams = "$RVF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
-                                             case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
-                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             case dataSyntax():        adtdef = "$parameterizedAdt(\"<adtName>\", <tparams>)";
+                                             case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <tparams>, <vparams>)";
+                                             case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <tparams>, <vparams>)";
                                          }
-                                        adtinits_param += "<type2id[s]> = <adtdef>;\n";
+                                        tinits += "<asr in {"$sort", "$lex"} ? asNTName(type2id[s]) : type2id[s]> = <adtdef>;\n";
+                                        if(asr in {"$sort", "$lex"}){
+                                            adtinits_param += "<type2id[s]> = $TF.abstractDataType($TS, \"<adtName>\", <tparams>);\n";
+                                         }
                                     } else {
                                         bindings = [];
                                         padt = a;
@@ -639,7 +642,8 @@ JGenie makeJGenie(MuModule m,
                                     }
                                 }
                             }
-                        } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := s){
+                        } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := s,
+                                !isSyntaxType(adtType)){
                             isLocal = isEmpty(_getATypeAccessor(s));
                             if(isLocal){
                                 cname = atype2idpart(c);                                 
@@ -662,7 +666,7 @@ JGenie makeJGenie(MuModule m,
             }
         }
         
-        tinits = adtinits + tinits + adtinits_param + adtinits_instantiate + consinits;
+        tinits = adtinits_noparam + tinits + adtinits_param + adtinits_instantiate + consinits;
         rdecls = "";
         rinits = "";
         for(t <- reified_constants){
@@ -676,7 +680,8 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _accessType(AType tp){
-        return "<_getATypeAccessor(tp)><_shareType(tp)>";
+        nm = isNonTerminalAType(tp) ? asNTName(_shareType(tp)) : _shareType(tp);
+        return "<_getATypeAccessor(tp)><nm>";
     }
     
     bool _isWildCard(str con){
@@ -723,8 +728,8 @@ JGenie makeJGenie(MuModule m,
     }
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
-        return    any(of <- overloads.ofunctions, isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
-               || any(oc <- overloads.oconstructors, isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
+        return    any(of <- overloads.ofunctions, _isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
+               || any(oc <- overloads.oconstructors, _isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
     }
     
     thisJGenie = 
@@ -761,7 +766,8 @@ JGenie makeJGenie(MuModule m,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,
-                _usesLocalFunctions
+                _usesLocalFunctions,
+                _isContainedIn
             );
     
      //thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions
