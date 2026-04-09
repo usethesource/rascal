@@ -75,6 +75,12 @@ import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileWithType;
 import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
 import org.rascalmpl.util.base64.StreamingBase64;
+import org.rascalmpl.util.functional.ThrowingConsumer;
+import org.rascalmpl.util.functional.ThrowingFunction;
+import org.rascalmpl.util.functional.ThrowingRunnable;
+import org.rascalmpl.util.functional.ThrowingSupplier;
+import org.rascalmpl.util.functional.ThrowingTriConsumer;
+import org.rascalmpl.util.functional.ThrowingTriFunction;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -123,36 +129,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     private void scheduleReconnect() {
         CompletableFuture.runAsync(() -> connect(), exec);
-    }
-
-    @FunctionalInterface
-    private interface ThrowingSupplier<T, E extends Exception> {
-        T get() throws E;
-    }
-    
-    @FunctionalInterface
-    private interface ThrowingFunction<T, R, E extends Exception> {
-        R apply(T t) throws E;
-    }
-
-    @FunctionalInterface
-    private interface ThrowingTriFunction<T, U, V, R, E extends Exception> {
-        R apply(T t, U u, V v) throws E;
-    }
-
-    @FunctionalInterface
-    private interface ThrowingRunnable<E extends Exception> {
-        void run() throws E;
-    }
-
-    @FunctionalInterface
-    private interface ThrowingConsumer<T, E extends Exception> {
-        void accept(T t) throws E;
-    }
-
-    @FunctionalInterface
-    private interface ThrowingTriConsumer<T, U, V, E extends Exception> {
-        void accept(T t, U u, V v) throws E;
     }
 
     private InputStream errorDetectingInputStream(InputStream original) {

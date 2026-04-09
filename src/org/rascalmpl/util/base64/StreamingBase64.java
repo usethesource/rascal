@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.rascalmpl.util.functional.ThrowingRunnable;
 
 /**
  * Streaming translations of base64 contents
@@ -55,7 +56,7 @@ public class StreamingBase64 {
      * 
      * The callback Runnable is run after the OutputStream closes
      */
-    public static OutputStream encode(Writer target, ThrowingRunnable onClose) {
+    public static OutputStream encode(Writer target, ThrowingRunnable<IOException> onClose) {
         return encode(target, true, onClose);
     }
 
@@ -75,7 +76,7 @@ public class StreamingBase64 {
      * 
      * The callback Runnable is run after the OutputStream closes
      */
-    public static OutputStream encode(Writer target, boolean padding, ThrowingRunnable onClose) {
+    public static OutputStream encode(Writer target, boolean padding, ThrowingRunnable<IOException> onClose) {
         return encode(Base64CharWriter.latinBytesTo(target), padding, onClose);
     } 
 
@@ -95,7 +96,7 @@ public class StreamingBase64 {
      * 
      * The callback Runnable is run after the OutputStream closes
      */
-    public static OutputStream encode(StringBuilder target, ThrowingRunnable onClose) {
+    public static OutputStream encode(StringBuilder target, ThrowingRunnable<IOException> onClose) {
         return encode(target, true, onClose);
     }
 
@@ -115,11 +116,11 @@ public class StreamingBase64 {
      * 
      * The callback Runnable is run after the OutputStream closes
      */
-    public static OutputStream encode(StringBuilder target, boolean padding, ThrowingRunnable onClose) {
+    public static OutputStream encode(StringBuilder target, boolean padding, ThrowingRunnable<IOException> onClose) {
         return encode(Base64CharWriter.latinBytesTo(target), padding, onClose);
     }
     
-    private static OutputStream encode(Base64CharWriter target, boolean padding, ThrowingRunnable onClose) {
+    private static OutputStream encode(Base64CharWriter target, boolean padding, ThrowingRunnable<IOException> onClose) {
         return new Base64EncodingOutputStream(target, padding, onClose);
     }
 
@@ -176,10 +177,5 @@ public class StreamingBase64 {
     /** fast-path function to write the decoded bytes to a outputstream */
     public static void decode(byte[] source, OutputStream target) throws IOException {
         Base64DecodingInputStream.direct(ByteReader.fromBytes(source), target);
-    }
-    
-    @FunctionalInterface
-    public interface ThrowingRunnable {
-        public void run() throws IOException;
     }
 }
