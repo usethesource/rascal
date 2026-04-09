@@ -450,11 +450,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         var content = new StringBuilder();
         return StreamingBase64.encode(content, () -> {
             cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-            try {
-                call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
-            } catch (IOException e) {
-                // Ignore
-            }
+            call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
             cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
         });
     }
