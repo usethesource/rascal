@@ -107,28 +107,26 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     private static final Duration LONGEST_TIMEOUT = Duration.ofMinutes(1);
 
-    private void connect() {
-        var timeout = Duration.ZERO;
-        while (true) {
-            try {
-                Thread.sleep(timeout.toMillis());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            var remote = startClient();
-            if (remote != null) {
-                this.remote = remote;
-                return;
-            }
-            timeout = timeout.plusMillis(10);
-            if (timeout.compareTo(LONGEST_TIMEOUT) >= 0) {
-                timeout = LONGEST_TIMEOUT;
-            }
+    private void connect(Duration nextTimeout) {
+        if (remote != null) {
+            return;
+        }
+        try {
+            remote = startClient();
+            assert remote != null;
+        } catch (RuntimeException | IOException e) {
+            CompletableFuture.delayedExecutor(nextTimeout.toMillis(), TimeUnit.MILLISECONDS, exec).execute(() -> {
+                var newTimeout = nextTimeout.plusMillis(10);
+                if (newTimeout.compareTo(LONGEST_TIMEOUT) >= 0) {
+                    newTimeout = LONGEST_TIMEOUT;
+                }
+                connect(newTimeout);
+            });
         }
     }
 
     private void scheduleReconnect() {
-        CompletableFuture.runAsync(() -> connect(), exec);
+        CompletableFuture.runAsync(() -> connect(Duration.ofMillis(10)), exec);
     }
 
     private InputStream errorDetectingInputStream(InputStream original) {
@@ -248,26 +246,21 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         };
     }
 
-    private IRemoteResolverRegistryServer startClient() {
-        try {
-            @SuppressWarnings("resource")
-            var socket = new Socket(InetAddress.getLoopbackAddress(), remoteResolverRegistryPort);
-            socket.setTcpNoDelay(true);
-            Launcher<IRemoteResolverRegistryServer> clientLauncher = new Launcher.Builder<IRemoteResolverRegistryServer>()
-                .setRemoteInterface(IRemoteResolverRegistryServer.class)
-                .setLocalService(this)
-                .setInput(errorDetectingInputStream(socket.getInputStream()))
-                .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
-                .configureGson(GsonUtils.complexAsJsonObject())
-                .setExecutorService(exec)
-                .create();
+    private IRemoteResolverRegistryServer startClient() throws RuntimeException, IOException {
+        @SuppressWarnings("resource")
+        var socket = new Socket(InetAddress.getLoopbackAddress(), remoteResolverRegistryPort);
+        socket.setTcpNoDelay(true);
+        Launcher<IRemoteResolverRegistryServer> clientLauncher = new Launcher.Builder<IRemoteResolverRegistryServer>()
+            .setRemoteInterface(IRemoteResolverRegistryServer.class)
+            .setLocalService(this)
+            .setInput(errorDetectingInputStream(socket.getInputStream()))
+            .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
+            .configureGson(GsonUtils.complexAsJsonObject())
+            .setExecutorService(exec)
+            .create();
 
-            clientLauncher.startListening();
-            return clientLauncher.getRemoteProxy();
-        } catch (RuntimeException | IOException e) {
-            System.err.println("Error setting up remote resolver registry connection, will reconnect: " + e.getMessage());
-            return null;
-        }
+        clientLauncher.startListening();
+        return clientLauncher.getRemoteProxy();
     }
 
     private static <T, U> U call(Function<T, CompletableFuture<U>> function, T argument) throws IOException {
