@@ -28,6 +28,7 @@ rascal-DEPENDENCIES.txt
 
 dependency-reduced-pom.xml
 .ipynb_checkpoints
+__pycache__
 .vscode/settings.json
 
 *.iml

@@ -111,10 +111,10 @@ public class Profiler extends Thread {
 						env = env.getParent();
 					}
 				if (env != null) {
-					Count currentCount = frame.get(env.getLocation());
+					Count currentCount = frame.get(env.getCreatorLocation());
 					if (currentCount == null) {
-						frame.put(env.getLocation(), new Count());
-						names.put(env.getLocation(), env.getName());
+						frame.put(env.getCreatorLocation(), new Count());
+						names.put(env.getCreatorLocation(), env.getName());
 					}
 					else {
 						currentCount.increment();

@@ -151,4 +151,12 @@ test bool escapedForLabel() {
     return true;
 }
 
+test bool escapedParameterAndPatternVar(){
+    bool f11(\a) = \a := 10;
+    bool f10(\a) = a := 10;
+    bool f01(a) = \a := 10;
+    bool f00(a) = a := 10;
+    
+    return f11(10) && f10(10) && f01(10) && f00(10);
+}
 
