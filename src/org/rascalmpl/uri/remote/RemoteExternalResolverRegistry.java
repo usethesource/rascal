@@ -122,7 +122,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     private void scheduleReconnect() {
-        CompletableFuture.runAsync(() -> connect());
+        CompletableFuture.runAsync(() -> connect(), exec);
     }
 
     @FunctionalInterface
