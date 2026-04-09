@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
+import org.rascalmpl.util.base64.StreamingBase64.ThrowingRunnable;
+
 /**
  * A stream that when bytes are written to it, will output base64 encoded bytes
  * to the writer interface. 
@@ -42,7 +44,7 @@ import java.util.Base64.Encoder;
 public class Base64EncodingOutputStream extends OutputStream {
     private final Encoder encoder;
     private final Base64CharWriter target;
-    private final Runnable onClose;
+    private final ThrowingRunnable onClose;
 
     private static final int ENC_INPUT_SIZE = 3 * 1024;
     private static final int ENC_OUTPUT_SIZE = 4 * 1024;
@@ -51,7 +53,7 @@ public class Base64EncodingOutputStream extends OutputStream {
     private byte[] buffer = new byte[ENC_INPUT_SIZE];
     private int written = 0;
 
-    public Base64EncodingOutputStream(Base64CharWriter writer, boolean padding, Runnable onClose) {
+    public Base64EncodingOutputStream(Base64CharWriter writer, boolean padding, ThrowingRunnable onClose) {
         encoder = padding ? Base64.getEncoder() : Base64.getEncoder().withoutPadding();
         this.target = writer;
         this.onClose = onClose;
