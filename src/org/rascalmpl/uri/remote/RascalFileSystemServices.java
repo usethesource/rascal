@@ -108,7 +108,9 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     public CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req) {
         return async(() -> {
             StringBuilder builder = new StringBuilder();
-            StreamingBase64.encode(reg.getInputStream(req.getLocation()), builder, true);
+            try (var stream = reg.getInputStream(req.getLocation())) {
+                StreamingBase64.encode(stream, builder, true);
+            }
             return new LocationContentResponse(builder.toString());
         });
     }
