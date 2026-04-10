@@ -33,8 +33,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -72,9 +70,8 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     private static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
 
-    private volatile @MonotonicNonNull IRemoteResolverRegistryClient client = null;
+    private volatile IRemoteResolverRegistryClient client = null;
 
-    @EnsuresNonNull("this.client")
     protected void provideClient(IRemoteResolverRegistryClient client) {
         this.client = client;
     }
