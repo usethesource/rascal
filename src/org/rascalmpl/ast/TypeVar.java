@@ -31,14 +31,14 @@ public abstract class TypeVar extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasBound() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getBound() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -108,7 +108,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 557 * name.hashCode() + 131 * bound.hashCode() ; 
+      return 797 + 149 * name.hashCode() + 877 * bound.hashCode() ; 
     } 
   
     
@@ -191,7 +191,7 @@ public abstract class TypeVar extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 149 * name.hashCode() ; 
+      return 401 + 787 * name.hashCode() ; 
     } 
   
     

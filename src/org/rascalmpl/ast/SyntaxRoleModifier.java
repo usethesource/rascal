@@ -31,7 +31,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   public org.rascalmpl.ast.TypeArg getArg() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -91,7 +91,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 + 563 * arg.hashCode() ; 
+      return 431 + 67 * arg.hashCode() ; 
     } 
   
     
@@ -165,7 +165,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 431 * arg.hashCode() ; 
+      return 19 + 181 * arg.hashCode() ; 
     } 
   
     
@@ -239,7 +239,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 19 * arg.hashCode() ; 
+      return 599 + 101 * arg.hashCode() ; 
     } 
   
     
@@ -313,7 +313,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 599 * arg.hashCode() ; 
+      return 421 + 277 * arg.hashCode() ; 
     } 
   
     
@@ -387,7 +387,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 421 * arg.hashCode() ; 
+      return 487 + 797 * arg.hashCode() ; 
     } 
   
     

@@ -31,7 +31,7 @@ public abstract class Toplevel extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declaration getDeclaration() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -91,7 +91,7 @@ public abstract class Toplevel extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 373 * declaration.hashCode() ; 
+      return 571 + 467 * declaration.hashCode() ; 
     } 
   
     

@@ -31,14 +31,14 @@ public abstract class UserType extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -98,7 +98,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 401 * name.hashCode() ; 
+      return 239 + 997 * name.hashCode() ; 
     } 
   
     
@@ -184,7 +184,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 239 * name.hashCode() + 997 * parameters.hashCode() ; 
+      return 641 + 701 * name.hashCode() + 13 * parameters.hashCode() ; 
     } 
   
     
