@@ -6,9 +6,9 @@ extend lang::rascal::upgrade::UpgradeBase;
 list[Message] report(Tree m) {
   result = [];
   visit(m) {
-    case (Pattern) `[<{Pattern ","}* before>,list[<Type elem>] <Name n>,<{Pattern ","}* after>]` : 
+    case (Pattern) `[<{Pattern ","}* _before>,list[<Type elem>] <Name n>,<{Pattern ","}* _after>]` : 
       result += [info("found list pattern to upgrade", elem.src)];
-    case (Pattern) `{<{Pattern ","}* before>,set[<Type elem>] <Name n>,<{Pattern ","}* after>}` : 
+    case (Pattern) `{<{Pattern ","}* _before>,set[<Type elem>] <Name n>,<{Pattern ","}* _after>}` : 
       result += [info("found list pattern to upgrade", elem.src)];
     case Pattern p : ;
   }
