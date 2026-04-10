@@ -93,7 +93,19 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
         collect(tp, c);
     if(tp is function) c.leaveScope(current);
     
-    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+    functionScopes = c.getScopeInfo(functionScope());
+    if(isEmpty(functionScopes)){
+      throw rascalCheckerInternalError(getLoc(current), "No surrounding function scope found for typed variable pattern");
+    }
+    for(<_, scopeInfo> <- functionScopes){
+        if(signatureInfo(Type returnType) := scopeInfo){
+             c.calculate("typed variable pattern", current, [tp, returnType], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+           break;
+        } else {
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
+        }
+    }
+
     if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
        orScopes = c.getScopeInfo(orScope());
