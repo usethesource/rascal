@@ -68,6 +68,12 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/isFile")
     CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req);
 
+    /**
+     * This endpoint allows for a richer response than what ISourceLocationInput offers.
+     * The {@link DirectoryListingResponse} and {@link DirectoryEntry} classes can be augmented in the future.
+     * @param req A request containing the source location to be listed
+     * @return A future containing a directory listing of the requested source location, or a wrapped {@link IOException}
+     */
     @JsonRequest("input/list")
     CompletableFuture<DirectoryListingResponse> list(ISourceLocationRequest req);
 
