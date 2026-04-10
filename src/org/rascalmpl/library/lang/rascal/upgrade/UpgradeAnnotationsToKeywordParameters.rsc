@@ -20,10 +20,8 @@ Tree update(Tree m) =
       when Expression init := getInitializer(t), Name name2 := getName(name)
       
     case (Expression) `<Expression e>@\\loc ? |unknown:///|` => (Expression) `<Expression e>.src`
-      when Name name2 := getName(name)
-
+      
     case (Expression) `<Expression e>@\\loc ? |unknown:///|(_,_,\<_,_\>,\<_,_\>)` => (Expression) `<Expression e>.src`
-      when Name name2 := getName(name)
 
     case (Expression) `<Expression e>@<Name name> ? <Expression c>` => (Expression) `<Expression e>.<Name name2> ? <Expression c>`
       when Name name2 := getName(name)
@@ -36,6 +34,10 @@ Tree update(Tree m) =
       
     case (Expression) `delAnnotations(<Expression e>)` => (Expression) `unset(<Expression e>)`
       
+    case (Expression) `delAnnotationsRec(<Expression e>)` => (Expression) `unsetRec(<Expression e>)`
+
+    case (Expression) `delAnnotation(<Expression e>, <Expression l>)` => (Expression) `unset(<Expression e>, <Expression l>)` 
+
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
       when Name name2 := getName(field)
 
