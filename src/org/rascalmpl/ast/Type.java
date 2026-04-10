@@ -31,63 +31,63 @@ public abstract class Type extends AbstractAST {
   }
 
   public org.rascalmpl.ast.BasicType getBasic() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSelector() {
     return false;
   }
 
   public org.rascalmpl.ast.DataTypeSelector getSelector() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFunction() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionType getFunction() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStructured() {
     return false;
   }
 
   public org.rascalmpl.ast.StructuredType getStructured() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasModifier() {
     return false;
   }
 
   public org.rascalmpl.ast.SyntaxRoleModifier getModifier() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTypeVar() {
     return false;
   }
 
   public org.rascalmpl.ast.TypeVar getTypeVar() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasUser() {
     return false;
   }
 
   public org.rascalmpl.ast.UserType getUser() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -147,7 +147,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 571 * basic.hashCode() ; 
+      return 691 + 701 * basic.hashCode() ; 
     } 
   
     
@@ -221,7 +221,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 691 * type.hashCode() ; 
+      return 19 + 137 * type.hashCode() ; 
     } 
   
     
@@ -295,7 +295,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 + 19 * function.hashCode() ; 
+      return 907 + 41 * function.hashCode() ; 
     } 
   
     
@@ -369,7 +369,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 137 + 907 * modifier.hashCode() ; 
+      return 59 + 823 * modifier.hashCode() ; 
     } 
   
     
@@ -443,7 +443,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 59 * selector.hashCode() ; 
+      return 139 + 293 * selector.hashCode() ; 
     } 
   
     
@@ -517,7 +517,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 823 + 139 * structured.hashCode() ; 
+      return 773 + 293 * structured.hashCode() ; 
     } 
   
     
@@ -591,7 +591,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 773 * symbol.hashCode() ; 
+      return 421 + 467 * symbol.hashCode() ; 
     } 
   
     
@@ -665,7 +665,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 421 * user.hashCode() ; 
+      return 181 + 383 * user.hashCode() ; 
     } 
   
     
@@ -739,7 +739,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 181 * typeVar.hashCode() ; 
+      return 263 + 463 * typeVar.hashCode() ; 
     } 
   
     

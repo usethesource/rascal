@@ -31,21 +31,21 @@ public abstract class Visit extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Case> getCases() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSubject() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getSubject() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStrategy() {
     return false;
   }
 
   public org.rascalmpl.ast.Strategy getStrategy() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -117,7 +117,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 173 * subject.hashCode() + 269 * cases.hashCode() ; 
+      return 349 + 251 * subject.hashCode() + 487 * cases.hashCode() ; 
     } 
   
     
@@ -222,7 +222,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 349 + 251 * strategy.hashCode() + 487 * subject.hashCode() + 421 * cases.hashCode() ; 
+      return 421 + 59 * strategy.hashCode() + 179 * subject.hashCode() + 197 * cases.hashCode() ; 
     } 
   
     

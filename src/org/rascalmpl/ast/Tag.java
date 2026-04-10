@@ -31,21 +31,21 @@ public abstract class Tag extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasContents() {
     return false;
   }
 
   public org.rascalmpl.ast.TagString getContents() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -115,7 +115,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 487 * name.hashCode() + 797 * contents.hashCode() ; 
+      return 787 + 397 * name.hashCode() + 191 * contents.hashCode() ; 
     } 
   
     
@@ -198,7 +198,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 787 + 397 * name.hashCode() ; 
+      return 977 + 173 * name.hashCode() ; 
     } 
   
     
@@ -282,7 +282,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 191 + 977 * name.hashCode() + 173 * expression.hashCode() ; 
+      return 541 + 491 * name.hashCode() + 331 * expression.hashCode() ; 
     } 
   
     
