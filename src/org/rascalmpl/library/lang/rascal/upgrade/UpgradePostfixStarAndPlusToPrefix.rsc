@@ -1,7 +1,7 @@
 @bootstrapParser
 module lang::rascal::upgrade::UpgradePostfixStarAndPlusToPrefix
 
-import lang::rascal::upgrade::UpgradeBase;
+extend lang::rascal::upgrade::UpgradeBase;
 
 list[Message] report(Tree m) {
   result = [];
