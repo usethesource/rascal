@@ -52,7 +52,7 @@ Name newName((Name) `src`) = (Name) `src`;
 Name newName((Name) `location`) = (Name) `src`;
 default Name newName(Name n) = n;
 
-test bool nameTest() = newName((Name) `location`) := (Name) `src`;
+test bool nameTest() = (Name) `src` := newName((Name) `location`);
 
 Expression getInitializer((Type) `rel[<{TypeArg ","}* elem>]`) = (Expression) `{}`;
 Expression getInitializer((Type) `list[<Type elem>]`) = (Expression) `[]`;
