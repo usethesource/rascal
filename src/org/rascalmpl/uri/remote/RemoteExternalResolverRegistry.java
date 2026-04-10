@@ -63,6 +63,7 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
@@ -70,8 +71,6 @@ import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryClient;
 import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileType;
-import org.rascalmpl.uri.vfs.IRemoteResolverRegistryServer.FileWithType;
 import org.rascalmpl.util.Lazy;
 import org.rascalmpl.util.NamedThreadPool;
 import org.rascalmpl.util.base64.StreamingBase64;
@@ -399,9 +398,9 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     public String[] list(ISourceLocation loc) throws IOException {
         var result = call(remote::list, new ISourceLocationRequest(loc));
         cachedDirectoryListing.put(loc, Lazy.defer(() -> {
-            return Stream.of(result).collect(Collectors.toMap(FileWithType::getName, e -> e.getType() == FileType.Directory));
+            return Stream.of(result.getEntries()).collect(Collectors.toMap(DirectoryEntry::getName, DirectoryEntry::isDirectory));
         }));
-        return Stream.of(result).map(FileWithType::getName).toArray(String[]::new);
+        return Stream.of(result.getEntries()).map(DirectoryEntry::getName).toArray(String[]::new);
     }
 
     @Override
