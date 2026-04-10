@@ -17,20 +17,20 @@ Tree update(Tree m) =
     case (Declaration) `<Tags tags> <Visibility _> anno <Type t> <Name adt>@<Name name>;` 
       => (Declaration) `<Tags tags> 
                        'data <Name adt>(<Type t> <Name name2> = <Expression init>);` 
-      when Expression init := getInitializer(t), Name name2 := getName(name)
+      when Expression init := getInitializer(t), Name name2 := newName(name)
       
     case (Expression) `<Expression e>@\\loc ? |unknown:///|` => (Expression) `<Expression e>.src`
       
     case (Expression) `<Expression e>@\\loc ? |unknown:///|(_,_,\<_,_\>,\<_,_\>)` => (Expression) `<Expression e>.src`
 
     case (Expression) `<Expression e>@<Name name> ? <Expression c>` => (Expression) `<Expression e>.<Name name2> ? <Expression c>`
-      when Name name2 := getName(name)
+      when Name name2 := newName(name)
       
     case (Expression) `<Expression e>@<Name name>` => (Expression) `<Expression e>.<Name name2>`
-      when Name name2 := getName(name)
+      when Name name2 := newName(name)
     
     case (Expression) `<Expression e>[@<Name name>=<Expression def>]` => (Expression) `<Expression e>[<Name name2>=<Expression def>]`
-      when Name name2 := getName(name)
+      when Name name2 := newName(name)
       
     case (Expression) `delAnnotations(<Expression e>)` => (Expression) `unset(<Expression e>)`
       
@@ -39,7 +39,7 @@ Tree update(Tree m) =
     case (Expression) `delAnnotation(<Expression e>, <Expression l>)` => (Expression) `unset(<Expression e>, <Expression l>)` 
 
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
-      when Name name2 := getName(field)
+      when Name name2 := newName(field)
 
     case (Catch) `catch NoSuchAnnotation(<Pattern e>) : <Statement body>`
       => (Catch) `catch NoSuchField(<Pattern e>) :
@@ -47,12 +47,12 @@ Tree update(Tree m) =
                  '  <Statement body>`
   };
 
-Name getName((Name) `\\loc`) = (Name) `src`;
-Name getName((Name) `src`) = (Name) `src`;
-Name getName((Name) `location`) = (Name) `src`;
-default Name getName(Name n) = n;
+Name newName((Name) `\\loc`) = (Name) `src`;
+Name newName((Name) `src`) = (Name) `src`;
+Name newName((Name) `location`) = (Name) `src`;
+default Name newName(Name n) = n;
 
-test bool nameTest() = getName((Name) `location`) := (Name) `src`;
+test bool nameTest() = newName((Name) `location`) := (Name) `src`;
 
 Expression getInitializer((Type) `rel[<{TypeArg ","}* elem>]`) = (Expression) `{}`;
 Expression getInitializer((Type) `list[<Type elem>]`) = (Expression) `[]`;
