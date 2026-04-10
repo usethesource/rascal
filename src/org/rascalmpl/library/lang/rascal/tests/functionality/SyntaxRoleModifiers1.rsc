@@ -61,11 +61,11 @@ test bool namePreservation2() {
     // this is a simple ad-hoc mock for the real explode function:
     syntax[&T] explode(data[&T] t:a()) = [syntax[A]] "a";
 
-    // the type signature of `implode` guarantees name preservation,
+    // the type signature of `explode` guarantees name preservation,
     // so explode of a data A will produce a syntax A without a type-checking error:
     syntax[A] x = explode(a());
 
-    // this is not the real test. Of course the dynamic type would be data[A].
+    // this is not the real test. Of course the dynamic type would be syntax[A].
     // the real test was the above assignment, where the static type system for
     // assignment and function return types would fail if we had a bug here.
     return sort("A") == typeOf(x);
