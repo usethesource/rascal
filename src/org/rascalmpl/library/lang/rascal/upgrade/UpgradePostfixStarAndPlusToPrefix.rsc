@@ -7,9 +7,9 @@ list[Message] report(Tree m) {
   result = [];
   visit(m) {
     case (Pattern) `[<{Pattern ","}* before>,list[<Type elem>] <Name n>,<{Pattern ","}* after>]` : 
-      result += [info("found list pattern to upgrade", elem.origin)];
+      result += [info("found list pattern to upgrade", elem.src)];
     case (Pattern) `{<{Pattern ","}* before>,set[<Type elem>] <Name n>,<{Pattern ","}* after>}` : 
-      result += [info("found list pattern to upgrade", elem.origin)];
+      result += [info("found list pattern to upgrade", elem.src)];
     case Pattern p : ;
   }
   
