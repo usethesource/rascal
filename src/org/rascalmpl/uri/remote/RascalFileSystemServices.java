@@ -40,6 +40,9 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
+import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
+import org.rascalmpl.uri.remote.jsonrpc.DirectoryListingResponse;
+import org.rascalmpl.uri.remote.jsonrpc.FileType;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChangeType;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
@@ -134,15 +137,15 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<FileWithType[]> list(ISourceLocationRequest req) {
+    public CompletableFuture<DirectoryListingResponse> list(ISourceLocationRequest req) {
         return async(() -> {
             ISourceLocation loc = req.getLocation();
             if (!reg.isDirectory(loc)) {
                 throw new NotDirectoryException(loc.toString());
             }
-            return Arrays.stream(reg.list(loc))
-                .map(l -> new FileWithType(URIUtil.getLocationName(l), reg.isDirectory(l) ? FileType.Directory : FileType.File))
-                .toArray(FileWithType[]::new);
+            return new DirectoryListingResponse(Arrays.stream(reg.list(loc))
+                .map(l -> new DirectoryEntry(URIUtil.getLocationName(l), new FileType[]{ reg.isDirectory(l) ? FileType.Directory : FileType.File }))
+                .toArray(DirectoryEntry[]::new));
         });
     }
 

@@ -30,10 +30,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
+import org.rascalmpl.uri.remote.jsonrpc.DirectoryListingResponse;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
 import org.rascalmpl.uri.remote.jsonrpc.NumberResponse;
@@ -69,7 +69,7 @@ public interface IRemoteResolverRegistryServer {
     CompletableFuture<BooleanResponse> isFile(ISourceLocationRequest req);
 
     @JsonRequest("input/list")
-    CompletableFuture<FileWithType[]> list(ISourceLocationRequest req);
+    CompletableFuture<DirectoryListingResponse> list(ISourceLocationRequest req);
 
     @JsonRequest("input/size")
     CompletableFuture<NumberResponse> size(ISourceLocationRequest req);
@@ -112,37 +112,4 @@ public interface IRemoteResolverRegistryServer {
 
     @JsonRequest("logical/resolveLocation")
     CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc);
-
-    public static class FileWithType {
-        @NonNull private final String name;
-        @NonNull private final FileType type;
-
-        public FileWithType(@NonNull String name, @NonNull FileType type) {
-            this.name = name;
-            this.type = type;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public FileType getType() {
-            return type;
-        }
-    }
-
-    public enum FileType {
-        Unknown(0), File(1), Directory(2), SymbolicLink(64);
-
-        private final int value;
-
-        private FileType(int val) {
-            assert val == 0 || val == 1 || val == 2 || val == 64;
-            this.value = val;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 }
