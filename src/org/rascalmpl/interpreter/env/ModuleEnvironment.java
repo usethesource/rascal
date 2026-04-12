@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -142,6 +143,10 @@ public class ModuleEnvironment extends Environment {
 	 */
 	public void clearLoadMessages() {
 		this.loadMessages.clear();
+	}
+
+	public Stream<IConstructor> streamLoadMessages() {
+		return loadMessages.stream();
 	}
 	
 	public void extend(ModuleEnvironment other) {
