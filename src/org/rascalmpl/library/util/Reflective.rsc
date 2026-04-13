@@ -31,10 +31,10 @@ public java str getLineSeparator();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@synopsis{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Just parse a module at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@synopsis{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Parse a module (including surrounding spaces) at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
@@ -428,6 +428,7 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
     
     newRascalPomFile(folder, name=name, group=group, version=version);
     newRascalMfFile(folder, name=name);
+    newRascalVsCodeSettings(folder);
     
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
@@ -541,3 +542,24 @@ private str pomXml(str name, str group, str version)
     '  \</build\>
     '\</project\>
     ";
+
+private str vscodeSettings() = "{
+                               '    \"search.exclude\": {
+                               '        \"/target/\": true,
+                               '    },
+                               '}";
+
+private loc vscodeFolder(loc folder) = folder + ".vscode";
+private loc vscodeSettingsFile(loc folder) = vscodeFolder(folder) + "settings.json";
+
+@synopsis{Create a `.vscode` folder for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+A `.vscode` folder will be generated and written.
+
+The project folder is created if it does not exist already.
+}
+void newRascalVsCodeSettings(loc folder) {
+    mkDirectory(vscodeFolder(folder));
+    writeFile(vscodeSettingsFile(folder), vscodeSettings());
+}

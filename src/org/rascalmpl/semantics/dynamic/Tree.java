@@ -273,9 +273,9 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			ISourceLocation location = getLocation();
 
 			if (location != null) {
-				java.util.Map<String,IValue> annos = new HashMap<String,IValue>();
-				annos.put("loc", location);
-				return makeResult(type, VF.appl(annos, production, flatten(w.done())), eval);
+				java.util.Map<String, IValue> kwParams = new HashMap<>();
+				kwParams.put(RascalValueFactory.Location, location);
+				return makeResult(type, VF.appl(kwParams, production, flatten(w.done())), eval);
 			}
 			else {
 				return makeResult(type, VF.appl(production, flatten(w.done())), eval);

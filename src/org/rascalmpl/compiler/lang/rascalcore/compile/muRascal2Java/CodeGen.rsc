@@ -73,25 +73,26 @@ int naux = 0;
 // Generate code and test class for a single Rascal module
 
 tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus ms){
-    map[str,TModel] tmodels = ms.tmodels;
-    map[str,loc] moduleLocs = ms .moduleLocs;
+    map[str,TModel] tmodels = (moduleId2moduleName(mid) : ms.tmodels[mid] | mid <- ms.tmodels);
+    map[str,loc] moduleLocs = (moduleId2moduleName(mid) : ms.moduleLocs[mid] | mid <- ms.moduleLocs);
     PathConfig pcfg = ms.pathConfig;
     naux = 0;
     moduleName = m.name;
+    MODID moduleId = moduleName2moduleId(moduleName);
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
-    <found, tm, ms> = getTModelForModule(moduleName, ms, convert=true);
+    <found, tm, ms> = getTModelForModule(moduleId, ms);
 
-    strPaths = { <getRascalModuleName(mloc1, pcfg), p, getRascalModuleName(mloc2, pcfg)> | <mloc1, p, mloc2> <- tm.paths };
-
-    extends = { mname | <moduleName, extendPath(), mname> <- strPaths };
-    imports = { mname | <moduleName, importPath(), mname> <- strPaths };
-    imports += { mname | imp <- imports, <imp, extendPath(), mname> <- strPaths};
+    //strPaths = { <getRascalModuleName(mloc1, pcfg), p, getRascalModuleName(mloc2, pcfg)> | <mloc1, p, mloc2> <- tm.paths };
+    paths = {<moduleId2moduleName(from), pr, moduleId2moduleName(to)> | <from, pr, to> <- tm.paths};
+    extends = { mname | <moduleName, extendPath(), mname> <- paths };
+    imports = { mname | <moduleName, importPath(), mname> <- paths };
+    imports += { mname | imp <- imports, <imp, extendPath(), mname> <- paths};
    
     loc2muFunction = (f.src : f | f <- m.functions);
     
     // Iteratively propagate external dependencies of functions
-    functions = m.functions;
+    list[MuFunction] functions = m.functions;
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
     }
@@ -107,8 +108,8 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, pcfg, jg);
     
-    facts = tm.facts;
-    cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) }
+    map[loc,AType] facts = tm.facts;
+    cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), jg.isContainedIn(def.scope, module_scope) }
                      + { t | loc k <- facts, /AType t:acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts[k],
                            !isEmpty(adt.parameters), any(p <- adt.parameters, !isTypeParameter(p))
                        };
@@ -456,8 +457,8 @@ tuple[int secondsTimeout, int maxSize] getMemoSettings(str memoString){
 
 // Copy from RascalDeclaration, move to separate module
 
-bool ignoreCompiler(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+bool hasIgnoreCompilerTag(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
@@ -465,9 +466,9 @@ str getMemoCache(MuFunction fun)
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
     //iprintln(fun); // print function
     
-    if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
+    if(!jg.isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
-    if(ignoreCompiler(fun.tags)) return <"", "", "">;
+    if(hasIgnoreCompilerTag(fun.tags)) return <"", "", "">;
     
     ftype = fun.ftype;
     jg.setFunction(fun);
@@ -996,7 +997,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
         externalRefs = jg.getExternalRefs(uid);
         externals = [ varName(var, jg) | var <- sort(externalRefs), !isVarDeclaredInFun(var, jg.getFunction())/*, var notin fun.formals*/];
     
-        if(isContainedIn(uid, jg.getModuleLoc())){
+        if(jg.isContainedIn(uid, jg.getModuleLoc())){
             fn = loc2muFunction[uid];
             kwactuals1 = jg.collectKwpFormals(fn);
             if(isEmpty(kwactuals) && !isEmpty(kwactuals1)) kwactuals = ["$kwpActuals"];

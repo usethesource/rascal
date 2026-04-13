@@ -750,9 +750,26 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
 // }
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
+    // println("filterOverloads: <overloads>, <arity>");
     rel[loc, IdRole, AType] filteredOverloads = {};
     list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
+
+    // Filter constructors first to avoid issues with vararg functions
+    for(ovl:<_, _, tp> <- overloads){
+        if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
+           if(size(fields) == arity){
+              filteredOverloads += ovl;
+              if(isEmpty(prevFormals)){
+                 prevFormals = fields; //<1>;
+              } else {
+                 for(int i <- index(fields)) {
+                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
+                 }
+              }
+            }
+        }
+    }
 
     for(ovl:<_, _, tp> <- overloads){
         if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
@@ -769,18 +786,7 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
               }
            }
         }
-        else if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
-           if(size(fields) == arity){
-              filteredOverloads += ovl;
-              if(isEmpty(prevFormals)){
-                 prevFormals = fields; //<1>;
-              } else {
-                 for(int i <- index(fields)) {
-                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
-                 }
-              }
-            }
-        }
+        
     }
     return <filteredOverloads, identicalFormals>;
 }
