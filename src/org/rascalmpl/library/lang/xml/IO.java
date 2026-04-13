@@ -2,8 +2,10 @@ package org.rascalmpl.library.lang.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.jsoup.Jsoup;
+import org.jsoup.internal.SimpleStreamReader;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Comment;
@@ -27,8 +30,12 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.nodes.XmlDeclaration;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
+import org.jsoup.parser.StreamParser;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.maybe.UtilMaybe;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -46,17 +53,22 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class IO {
-    private final IValueFactory vf;
+    private final IRascalValueFactory vf;
     private static final String SRC_ATTR = "src";
     private static final String QUALIFIED_SRC_ATTR = "rascal-src";
     private static final String SRCS_ATTR = "srcs";
     private static final String QUALIFIED_SRCS_ATTR = "rascal-srcs";
 
-    public IO(IValueFactory vf) {
+    private static final TypeFactory tf = TypeFactory.getInstance();
+    // `Maybe[value] ()`
+    private static final Type nextFunctionType = tf.functionType(UtilMaybe.Maybe.instantiate(Map.of(UtilMaybe.ParameterT, tf.valueType())), tf.tupleEmpty(), tf.tupleEmpty());
+
+    public IO(IRascalValueFactory vf) {
         this.vf = vf;
     }
     
@@ -79,7 +91,56 @@ public class IO {
             throw RuntimeExceptionFactory.malformedURI(loc.getURI().toASCIIString());
         } 
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public IFunction streamXML(ISourceLocation loc, IString elementName, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
+        if (inferCharset.getValue()) {
+            charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
+        }
+
+        try {
+            InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc);
+            Parser xmlParser = Parser.xmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue());   
+
+            StreamParser streamer = new StreamParser(xmlParser);
+            Reader ssr = new SimpleStreamReader(reader, Charset.forName(charset.getValue()));
+            
+            streamer.parse(ssr, loc.getURI().toString());
+
+            return vf.function(nextFunctionType, (args, kwargs) -> {
+                try {
+                    var elem = streamer.selectNext(elementName.getValue());
+
+                    if (elem == null) {
+                        // we're done
+                        try {
+                            reader.close();
+                            streamer.close();
+                        } catch (IOException e) { /* ignored */}
+
+                        return UtilMaybe.nothing();
+                    }
+                    else {
+                        try {
+                            return UtilMaybe.just(toINode(elem, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue()));
+                        }
+                        finally {
+                            // clean up to safe memory space just before the return jump
+                            elem.remove();
+                        }     
+                    }
+                }
+                catch (IOException e) {
+                    throw RuntimeExceptionFactory.io(e);
+                }
+            });        
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -291,7 +352,7 @@ public class IO {
             return vf.string(doc.outerHtml());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -309,7 +370,7 @@ public class IO {
             out.write(doc.outerHtml());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 

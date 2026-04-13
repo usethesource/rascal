@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class LocalVariableDeclaration extends AbstractAST {
   public LocalVariableDeclaration(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,7 +31,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declarator getDeclarator() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

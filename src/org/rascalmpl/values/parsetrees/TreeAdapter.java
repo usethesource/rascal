@@ -19,14 +19,16 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
+
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -43,9 +45,10 @@ public class TreeAdapter {
 	public static final String NORMAL = "Normal";
 	public static final String TYPE = "Type";
 	public static final String IDENTIFIER = "Identifier";
-	public static final String VARIABLE = "Variable";
-	public static final String CONSTANT = "Constant";
-	public static final String COMMENT = "Comment";
+	public static final String VARIABLE = "variable";
+	public static final String CONSTANT = "constant";
+	public static final String COMMENT = "comment";
+	public static final String COMMENT_LEGACY = "Comment";
 	public static final String TODO = "Todo";
 	public static final String QUOTE = "Quote";
 	public static final String META_AMBIGUITY = "MetaAmbiguity";
@@ -126,7 +129,8 @@ public class TreeAdapter {
 		IConstructor treeProd = getProduction(tree);
 		if (treeProd != null) {
 			String treeProdCategory = ProductionAdapter.getCategory(treeProd);
-			if (treeProdCategory != null && treeProdCategory.equals(COMMENT))
+			if (treeProdCategory != null &&
+				(treeProdCategory.equals(COMMENT) || treeProdCategory.equals(COMMENT_LEGACY)))
 				return true;
 		}
 		return false;
@@ -188,6 +192,23 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				var eprod = ProductionAdapter.getErrorProduction(prod);
+				int dot = ProductionAdapter.getErrorDot(prod);
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(eprod), field);
+				IList args = getArgs(tree);
+
+				if (index != -1) {
+					if (index < dot) {
+						// changing the normal part of the tree
+						return setArgs(tree, args.put(index, repl));
+					}
+					else {
+						// otherwise throw an exception to indicate the field does not exist due to a (recovered) parse error
+						throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(field, TreeAdapter.getLocation(tree));
+					}
 				}
 			}
 		}
@@ -264,6 +285,27 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				int dot = ProductionAdapter.getErrorDot(prod);
+				IConstructor eprod = ProductionAdapter.getErrorProduction(prod);
+				IList syms = ProductionAdapter.getSymbols(eprod);
+				int index = SymbolAdapter.indexOfLabel(syms, field);
+
+				if (index != -1) {
+					IConstructor sym = (IConstructor) syms.get(index);
+					sym = SymbolAdapter.stripLabelsAndConditions(sym);
+
+					if (index < dot) {
+						// we have parsed the field so we can just return it.
+						// this is a likely scenario
+						return new FieldResult(sym, (ITree) tree.getArgs().get(index));
+					}
+					else {
+						// otherwise throw an exception to indicate the field does not exist due to a (recovered) parse error
+						throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(field, TreeAdapter.getLocation(tree));
+					}
 				}
 			}
 		}
@@ -387,6 +429,10 @@ public class TreeAdapter {
 		return isAppl(tree) && isList(tree) && ProductionAdapter.isSeparatedList(getProduction(tree));
 	}
 
+	public static boolean isError(ITree tree) {
+		return isAppl(tree) && ProductionAdapter.isError(getProduction(tree));
+	}
+
 	public static IList getASTArgs(ITree tree) {
 		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
 			return getArgs(tree).delete(0).delete(1);
@@ -454,6 +500,9 @@ public class TreeAdapter {
 			ansiOpen.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
 			ansiClose.put(META_KEYWORD, Ansi.ansi().fg(Color.DEFAULT));
 
+			ansiOpen.put(VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
+			ansiClose.put(VARIABLE, Ansi.ansi().a(Attribute.ITALIC_OFF).fgBright(Color.DEFAULT));
+
 			ansiOpen.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
 			ansiClose.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC_OFF).fgBright(Color.DEFAULT));
 
@@ -465,6 +514,9 @@ public class TreeAdapter {
 
 			ansiOpen.put(COMMENT, Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
 			ansiClose.put(COMMENT, Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
+
+			ansiOpen.put(COMMENT_LEGACY, Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
+			ansiClose.put(COMMENT_LEGACY, Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
 		}
 
 		/**
@@ -941,9 +993,9 @@ public class TreeAdapter {
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
-			if (s == category)
+			if (s.equals(category)) {
 				writer.append(tree);
-			else {
+			} else {
 				IList z = getArgs(tree);
 				for (IValue q : z) {
 					if (!(q instanceof IConstructor))

@@ -48,7 +48,7 @@ public class IO {
 			return new ATermReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -57,10 +57,10 @@ public class IO {
 			return new ATermReader().read(values, stream);
 		} 
 		catch (FactTypeUseException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class IO {
 			new ATermWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 }

@@ -19,9 +19,6 @@ where each field is separated by a tabulation character (\t). One file may conta
 public java map[str, rel[str,str]] readRSF(loc nameRSFFile);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
-public java map[str, rel[str,str]] readRSF(loc nameRSFFile);
-
-@javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 public java map[str, type[value]] getRSFTypes(loc location);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}

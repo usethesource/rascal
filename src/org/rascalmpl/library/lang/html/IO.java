@@ -100,7 +100,7 @@ public class IO {
         } catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString());
         } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(factory.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -220,7 +220,7 @@ public class IO {
             return factory.string(doc.outerHtml());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -238,7 +238,7 @@ public class IO {
             out.write(doc.outerHtml());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -263,7 +263,6 @@ public class IO {
         Node node = normalise(cons, createElement(cons, dropOrigins));
         
         doc.appendChild(node);
-        
         return doc;
     }
 

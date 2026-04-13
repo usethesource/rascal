@@ -12,6 +12,8 @@
  */ 
 package org.rascalmpl.library.util;
 
+import java.util.Optional;
+
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
@@ -43,12 +45,11 @@ public class RunTests {
 
     public RunTests(IValueFactory vf) { }
 
-    
     public IList runTests(IString moduleName, IEvaluatorContext ctx) {
         return runTests(moduleName.getValue(), (Evaluator) ctx.getEvaluator());
     }
     
- // TODO: this has to be rewritten after we finish the compiler, using some Java reflection.
+    // TODO: this has to be rewritten after we finish the compiler, using some Java reflection.
     public static IList runTests(String module, Evaluator eval) {
         IValueFactory vf = eval.getValueFactory();
         ModuleEnvironment root = new ModuleEnvironment("***testroot***", eval.getHeap());
@@ -101,7 +102,7 @@ public class RunTests {
                 public void done() { }
             });
 
-            eval.runTests(eval.getMonitor());
+            eval.runTests(eval.getMonitor(), Optional.empty());
 
             return results.done();
         }

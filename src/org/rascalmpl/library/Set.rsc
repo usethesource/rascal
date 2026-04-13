@@ -32,7 +32,7 @@ import Set;
 ```
 Create a map from animals to number of legs.
 ```rascal-shell,continue
-legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
+legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millipede": 1000, "crab": 8, "cat": 4);
 ```
 Define function `nLegs` that returns the number of legs for each animal (or `0` when the animal is unknown):
 ```rascal-shell,continue
@@ -42,7 +42,7 @@ int nLegs(str animal){
 ```
 Now classify a set of animals:
 ```rascal-shell,continue
-classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, nLegs);
+classify({"bird", "dog", "human", "spider", "millipede", "zebra", "crab", "cat"}, nLegs);
 ```
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
@@ -58,7 +58,7 @@ import Set;
 ```
 Create a map from animals to number of legs.
 ```rascal-shell,continue
-legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
+legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millipede": 1000, "crab": 8, "cat": 4);
 ```
 Define function `nLegs` that returns the number of legs fro each animal (or `0` when the animal is unknown):
 ```rascal-shell,continue
@@ -69,7 +69,7 @@ bool similar(str a, str b) = nLegs(a) == nLegs(b);
 ```
 Now group a set of animals:
 ```rascal-shell,continue
-group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
+group({"bird", "dog", "human", "spider", "millipede", "zebra", "crab", "cat"}, similar);
 ```
 WARNING: check compiler.
 }
@@ -218,7 +218,7 @@ power1({1,2,3,4});
 }
 public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
-@synopsis{Apply a function to successive elements of a set and combine the results (__deprecated__).}
+@synopsis{Apply a function to successive elements of a set and combine the results.}
 @description{
 Apply the function `fn` to successive elements of set `s` starting with `unit`.
 }
@@ -229,11 +229,7 @@ int add(int x, int y) { return x + y; }
 reducer({10, 20, 30, 40}, add, 0); 
 ```
 }
-@pitfalls{
-:::warning
-This function is *deprecated*, use a reducer expression instead, such as `(init | fn(it,e) | e <- st)`.
-:::
-}
+@deprecated{Use a reducer expression instead, such as `(init | fn(it,e) | e <- st)`.}
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
 
@@ -255,7 +251,7 @@ public java int size(set[&T] st);
 
 public (&T <:num) sum(set[(&T <:num)] _:{}) {
 	throw ArithmeticException(
-		"For the emtpy set it is not possible to decide the correct precision to return.\n
+		"For the empty set it is not possible to decide the correct precision to return.\n
 		'If you want to call sum on empty set, use sum({0.000}+st) or sum({0r} +st) or sum({0}+st) 
 		'to make the set non-empty and indicate the required precision for the sum of the empty set 
 		");
@@ -276,7 +272,13 @@ public default (&T <:num) sum({(&T <: num) e, *(&T <: num) r})
 
 @synopsis{Pick an arbitrary element from a set.}
 @description{
+This _randomly_ picks one element from a set, unless the set is empty.
 
+:::warning
+Use ((getSingleFrom)) if you want the element from a singleton set. ((getOneFrom)) will silently
+continue even if there are more element present, which can be a serious threat to the validity of your
+analysis algorithm (arbitrary data is not considered).
+:::
 }
 @examples{
 ```rascal-shell
@@ -287,6 +289,16 @@ getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 ```
 }
+@benefits{
+* Random sampling can be an effective test input selection strategy.
+}
+@pitfalls{
+* The name ((getOneFrom)) does not convey randomness.
+* ((getOneFrom)) drops all the other elements.
+If you are sure there is only one element and you need it, then use ((getSingleFrom)). It will fail fast if your assumption is wrong.  
+* If you need more then one element, then repeatedly calling ((getOneFrom)) will be expensive. Have a look at ((util::Sampling)) for more effective
+sampling utilities.
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st);
 
@@ -294,14 +306,44 @@ public java &T getOneFrom(set[&T] st);
 @synopsis{Get "first" element from a set.}
 @description{
 Get "first" element of a set. Of course, sets are unordered and do not have a first element.
-However, we may assume that sets are internally ordered in some way and this ordering is reproducible.
+However, we could assume that sets are internally ordered in some way and this ordering is reproducible (it's deterministic up to hashing collisions).
 Applying `getFirstFrom` on the same set will always returns the same element.
+
+:::warning
+Use ((getSingleFrom)) if you want the element from a singleton set. ((getFirstFrom)) will silently
+continue even if there are more element present, which can be a serious threat to the validity of your
+analysis algorithm (arbitrary data is not considered).
+:::
 }
 @benefits{
 This function helps to make set-based code more deterministic, for instance, for testing purposes.
 }
+@pitfalls{
+* The deterministic order is _undefined_. This means it may be stable between runs, but not between releases of Rascal.
+* There are much better ways to iterate over the elements of a set:
+   * Use the `<-` enumerator operator in a `for` loop or a comprehension.
+   * Use list matching
+* ((getFirstFrom)) drops all the other elements
+   * If you are sure there is only one element and you need it, then use ((getSingleFrom)). It will fail fast if your assumption is wrong.
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getFirstFrom(set[&T] st);
+
+@synopsis{Get the only element from a singleton set.}
+@description{
+Get the only element of a singleton set. This fails with a ((CallFailed)) exception when the set is not a singleton.
+}
+@benefits{
+* ((getSingleFrom)) fails _fast_ if the assumption (parameter `st` is a singleton) is not met. 
+* If a binary relation `r` is injective (i.e. it models a function where each key only has one value) then all projections `r[key]` should produce singleton values: `{v}`. 
+Using ((getSingleFrom)) to get the element out makes sure we fail fast in case our assumptions were wrong, or they have changed.
+* Never use ((getFirstFrom)) or ((takeOneFrom)) if you can use ((getSingleFrom)).
+}
+@pitfalls{
+* ((CallFailed)) exceptions are sometimes hard to diagnose. Look at the stack trace to see that it was ((getSingleFrom))
+that caused it, and then look at  the parameter of ((CallFailed)) to see that the set was not a singleton.
+}
+public &T getSingleFrom(set[&T] st) = getFirstFrom(st) when size(st) == 1;
 
 // TODO temporary? replacement due to unexplained behaviour of compiler
 //public &T getFirstFrom({&T f, *&T _}) = f;
@@ -451,7 +493,7 @@ This function is fast if `k` is relatively small, say 10 out of a 1000 elements.
 It operates in O(n*k) time where n is the size of the set.
  
 If `k` is a larger value, say `k > 10`, then it's perhaps better to just sort the entire set 
-using the asympotically faster (n*log^2(n)) sort function and take the first `k` elements of the resulting list.
+using the asymptotically faster (n*log^2(n)) sort function and take the first `k` elements of the resulting list.
 
 If `k` is a negative number, `top` will return the largest `abs(k)` elements of the set instead of the smallest.
 }

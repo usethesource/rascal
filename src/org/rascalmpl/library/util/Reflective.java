@@ -13,41 +13,33 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
-
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.repl.LimitedLineWriter;
-import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
+import org.rascalmpl.repl.streams.LimitedWriter;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
@@ -69,16 +61,39 @@ import io.usethesource.vallang.type.Type;
 
 public class Reflective {
 	protected final IValueFactory values;
+	private final IRascalMonitor monitor;
+	private RascalSearchPath resolver;
 
-	public Reflective(IValueFactory values){
+	public Reflective(IValueFactory values, IRascalMonitor monitor, RascalSearchPath resolver) {
 		super();
 		this.values = values;
+		this.monitor = monitor;
+		this.resolver = resolver;
 	}
 	
 	public IString getRascalVersion() {
 	    return values.string(RascalManifest.getRascalVersionNumber());
 	}
 	
+	public ISourceLocation resolveProjectOnClasspath(IString projectName) {
+		try {
+			return PathConfig.resolveProjectOnClasspath(projectName.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
+	public ISourceLocation resolveModuleOnCurrentInterpreterSearchPath(IString moduleName) {
+		var result = resolver.resolveModule(moduleName.getValue());
+
+		if (result == null) {
+			throw RuntimeExceptionFactory.moduleNotFound(moduleName);
+		}
+
+		return result;
+	}
+
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
     }
@@ -86,33 +101,32 @@ public class Reflective {
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
-	            return PathConfig.fromSourceProjectRascalManifest(projectRoot, mode.getName().equals("compiler") ? RascalConfigMode.COMPILER :  RascalConfigMode.INTERPETER).asConstructor();
+	            return PathConfig.fromSourceProjectRascalManifest(
+					projectRoot, 
+					mode.getName().equals("compiler") ? RascalConfigMode.COMPILER : RascalConfigMode.INTERPRETER,
+					true).asConstructor();
 	        }
 	        else {
 	            throw new FileNotFoundException(projectRoot.toString());
 	        }
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 	
-	IEvaluator<?> getDefaultEvaluator(OutputStream stdout, OutputStream stderr) {
-		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, System.in, stderr, stdout, root, heap);
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		evaluator.setMonitor(new ConsoleRascalMonitor());
-		return evaluator;
+	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
+		return ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), stdout, stderr, monitor);
 	}
     
     
 	public IList evalCommands(IList commands, ISourceLocation loc) {
-	    OutputStream out = new ByteArrayOutputStream();
-	    OutputStream err = new ByteArrayOutputStream();
+		StringWriter out = new StringWriter();
+		StringWriter err = new StringWriter();
+		PrintWriter outStream = new PrintWriter(out);
+		PrintWriter errStream = new PrintWriter(err);
 		IListWriter result = values.listWriter();
-		IEvaluator<?> evaluator = getDefaultEvaluator(out, err);
+		IEvaluator<?> evaluator = getDefaultEvaluator(outStream, errStream);
 		int outOffset = 0;
 		int errOffset = 0;
 		
@@ -124,10 +138,15 @@ public class Reflective {
 				x = evaluator.eval(evaluator.getMonitor(), ((IString)v).getValue(), loc);
 			}
 			catch (Throwable e) {
+				errStream.flush();
 				errOut = err.toString().substring(errOffset);
 				errOffset += errOut.length();
 				errOut += e.getMessage();
 				exc = true;
+			}
+			finally {
+				outStream.flush();
+				errStream.flush();
 			}
 			String output = out.toString().substring(outOffset);
 			outOffset += output.length();
@@ -201,7 +220,7 @@ public class Reflective {
 	    return sw.toString();
 	  }
 	
-	protected char[] getResourceContent(ISourceLocation location) throws IOException{
+	protected static char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
 		Reader textStream = null;
 		
@@ -219,23 +238,17 @@ public class Reflective {
 		return data;
 	}
 	
-	public IValue parseModuleWithSpaces(ISourceLocation loc) {
-		IActionExecutor<ITree> actions = new NoActionExecutor();	
+	public static ITree parseModuleWithSpaces(ISourceLocation loc) {
 		try {
-			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
 	// Note -- copy in ReflectiveCompiled
 	
 	public IBool inCompiledMode() { return values.bool(false); }
-	
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name){
-		return watch(tp, val, name, values.string(""));
-	}
 	
 	protected String stripQuotes(IValue suffixVal){
 		String s1 = suffixVal.toString();
@@ -405,22 +418,6 @@ public class Reflective {
 		
 	}
 
-	// REFLECT -- copy in ReflectiveCompiled
-	public IValue watch(IValue tp, IValue val, IString name, IValue suffixVal){
-		ISourceLocation watchLoc;
-		String suffix = stripQuotes(suffixVal);
-		String name1 = stripQuotes(name);
-
-		String path = "watchpoints/" + (suffix.length() == 0 ? name1 : (name1 + "-" + suffix)) + ".txt";
-		try {
-			watchLoc = values.sourceLocation("home", null, path, null, null);
-		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
-		}
-		Prelude.writeTextValueFile(values, false, watchLoc, val);
-		return val;
-	}
-
 	public IInteger getFingerprint(IValue val, IBool concretePatterns){
 		return values.integer(ToplevelType.getFingerprint(val, concretePatterns.getValue()));
 	}
@@ -433,6 +430,10 @@ public class Reflective {
 		return values.integer(ToplevelType.getFingerprintNode(nd));
 	}
 
+	public IInteger getHashCode(IValue v) {
+		return values.integer(v.hashCode());
+	}
+	
 	public void throwNullPointerException() {
         throw new NullPointerException();
     }
