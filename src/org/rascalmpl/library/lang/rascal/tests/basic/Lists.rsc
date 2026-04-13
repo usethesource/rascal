@@ -7,6 +7,7 @@ import Boolean;
 import util::Math;
 import Type;
 import String;
+import ValueIO;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -68,7 +69,7 @@ int freq(&T x, list[&T] L) = (0 | eq(e, x) ? it + 1 : it | e <- L);
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
    int i = 0;
    int j = 0;
-   res = [];
+   list[&T] res = [];
    while(i < size(A) || j < size(B)){
             if(i < size(A) && arbBool()){
                res = res + [elementAt(A,i)];
@@ -83,7 +84,7 @@ public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
 
 // Merge two lists without keeping their order.
 public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
-   res = [];
+   list[&T] res = [];
    while(!(isEmpty(A) && isEmpty(B))){
             if(arbBool() && size(A) > 0){
                <x, A> = takeOneFrom(A);
@@ -246,6 +247,13 @@ test bool sliceSecondNegative(list[int] L) {
   return S == makeSlice(L, 0, size(L) - incr, size(L));
 }
 
+test bool sliceOutOfBoundIndex1() { L = [0,1,2,3,4,5,6,7,8,9]; return L[..] == [0,1,2,3,4,5,6,7,8,9];}
+test bool sliceOutOfBoundIndex2() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..] == [];}
+test bool sliceOutOfBoundIndex3() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..10] == [];}
+test bool sliceOutOfBoundIndex4() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..-11] == [9,8,7,6,5,4,3,2,1];}
+test bool sliceOutOfBoundIndex5() { L = [0,1,2,3,4,5,6,7,8,9]; return L[-15..-11] == [];}
+test bool sliceOutOfBoundIndex6() { L = [0,1,2,3,4,5,6,7,8,9]; return L[10..-5] == [9,8,7,6];}
+
 test bool assignSlice1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] = [10,20]; return L == [10,20,10,20,10,20,10,20,10,20];}
 test bool assignSlice2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] = [10,20]; return   L == [0,1,10,20,10,20,10,20,10,20];}
 test bool assignSlice3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] = [10,20]; return L == [0,1,10,20,10,20,6,7,8,9];}
@@ -285,9 +293,16 @@ test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,
 
 // TODO: add tests for /= and &= 
 
-@ignoreInterpreter{} test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
-@ignoreInterpreter{} test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
-@ignoreInterpreter{} test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
+test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
+test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
+test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
+
+// Nested Lists
+
+test bool AssignNestedList1(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; L[1][2] = 50; return L ==  [[0,1,2],[3,4,50],[6,7,8,9]]; }
+test bool AccessNestedList1(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; return L[1][2] == 5; }
+test bool AssignNestedList2(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; L[-2][-1] = 50; return L ==  [[0,1,2],[3,4,50],[6,7,8,9]]; }
+test bool AccessNestedList2(){ L = [[0,1,2],[3,4,5],[6,7,8,9]]; return L[-2][-1] == 5; }
 
 // Library functions
 

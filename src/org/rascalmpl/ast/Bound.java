@@ -31,7 +31,7 @@ public abstract class Bound extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

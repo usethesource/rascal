@@ -209,6 +209,9 @@ public class ResultFactory {
 					return (OverloadedFunction) value;
 				}
 			}
+			else if (value instanceof ComposedFunctionResult) {
+				return (Result<?>) value;
+			}
 			else {
 				// otherwise this is an abstract ICalleableValue
 				// for which no further operations are defined?

@@ -7,6 +7,7 @@
 }
 module lang::rascal::tests::basic::Sets
 
+import Exception;
 import Set;
 import List;
 import Relation;
@@ -119,6 +120,23 @@ test bool tst_takeOneFrom(set[int] S) {
   if(isEmpty(S)) return true;
   <x, S2> = takeOneFrom(S);
   return x in S && x notin S2 && size(S2) == size(S) - 1 && S2 < S;
+}
+
+test bool tst_getSingleFrom(set[int] S) {
+  if ({e} := S) {
+    return getSingleFrom(S) == e;
+  }
+  return true;
+}
+
+test bool tst_getSingleFromExample(str input) {
+  return getSingleFrom({input}) == input;
+}
+
+@expected{CallFailed}
+test bool tst_getSingleFromMore(str input, int i) {
+    getSingleFrom({input, i});
+    return false;
 }
 
 test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(x <- S, x in toList(S));

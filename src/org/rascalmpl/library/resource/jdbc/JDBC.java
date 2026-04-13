@@ -100,7 +100,7 @@ public class JDBC {
 	public static final Type table = TF.constructor(TS, Table, "table", TF.stringType(), "tableName", TF.listType(Column), "columns");
 
 	public static final Type nullableT = TF.parameterType("T");
-	public static final Type Nullable = TF.abstractDataType(TS, "Nullable", nullableT);
+	public static final Type Nullable = TF.abstractDataType(TS, "NULLable", nullableT);
 
 	private final IValueFactory vf;
 	private final ClassLoader loader;
@@ -703,12 +703,13 @@ public class JDBC {
 
 			if(rs.getMetaData().isNullable(idx) != ResultSetMetaData.columnNoNulls) {
 				Type resType = jdbc2pdbType(jdbcColumnType, true);
+				Type notnullresType = resType.getTypeParameters().getFieldType(0);
 
 				if (rs.wasNull()) {
-					Type nullT = TF.constructor(TS,  resType, "null");
+					Type nullT = TF.constructor(TS,  resType, "NULL");
 					res = vf.constructor(nullT);
 				} else {
-					Type notnullT = TF.constructor(TS, resType, "notnull", resType, "item");
+					Type notnullT = TF.constructor(TS, resType, "notNULL", notnullresType, "item");
 					res = vf.constructor(notnullT, res);
 				}
 			}

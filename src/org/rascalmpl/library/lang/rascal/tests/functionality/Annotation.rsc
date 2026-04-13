@@ -41,24 +41,28 @@ test bool boolannotations8() = true || /*documentation of old behavior: */ f(5) 
 //test bool annotationsInSets5() = true || /*documentation of old behavior: */ {f() [@pos=1]} + {g(2) [@pos=2]} == {f(), g(2)};
 //test bool annotationsInSets6() = true || /*documentation of old behavior: */ {X = {f() [@pos=1]} + {f() [@pos=2]}; {F elem} := X && (elem@pos == 2 || elem@pos == 1);};
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 test bool accessAnnoAsKeywordField(){
     F example = f();
     example@pos = 1;
     return example.pos == 1;
 }
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 test bool accessAnnoUpdateAsKeywordField(){
    F example = f();
    example@pos = 1;
    return example[@pos=2].pos == 2;
 }
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 test bool checkAnnoExistsAsKeywordField(){
    F example = f();
    example@pos = 1;
    return example.pos?;
 }
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 @ignoreInterpreter{TODO: JV this still fails}
 test bool KeywordFieldUpdateVisibleAsAnno(){
     F example = f();
@@ -66,6 +70,7 @@ test bool KeywordFieldUpdateVisibleAsAnno(){
    return example[pos=3]@\pos == 3;
 }
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 test bool KeywordAssignVisibleViaAnno1(){
     F example = f();
     example@pos = 1;
@@ -73,6 +78,7 @@ test bool KeywordAssignVisibleViaAnno1(){
     return example@pos == 4;
 }
 
+@ignoreCompiler{Annotations are not supported as keyword field}
 test bool KeywordAssignVisibleViaAnno2(){
     F example = f();
     example@pos = 1;

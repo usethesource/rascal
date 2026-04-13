@@ -19,25 +19,47 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class ShellCommand extends AbstractAST {
   public ShellCommand(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
   }
 
   
+  public boolean hasOptName() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.MonotonicNonNull QualifiedName getOptName() {
+    throw new UnsupportedOperationException(this.src.toString());
+  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
+  }
+  public boolean hasSign() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalEqualSign getSign() {
+    throw new UnsupportedOperationException(this.src.toString());
+  }
+  public boolean hasTerminator() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -48,13 +70,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Clear extends ShellCommand {
-    // Production: sig("Clear",[],breakable=false)
+    // Production: sig("Clear",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Clear(ISourceLocation src, IConstructor node ) {
+    public Clear(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -72,6 +96,16 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
     }
   
     @Override
@@ -79,19 +113,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Clear)) {
         return false;
       }        
-      return true ; 
+      Clear tmp = (Clear) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 283 ; 
+      return 283 + 727 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -100,15 +144,17 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Edit extends ShellCommand {
-    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
+    // Production: sig("Edit",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Edit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+    public Edit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
       this.name = name;
+      this.terminator = terminator;
     }
   
     @Override
@@ -136,6 +182,14 @@ public abstract class ShellCommand extends AbstractAST {
         return;
       }
       
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
     }
   
     @Override
@@ -144,12 +198,12 @@ public abstract class ShellCommand extends AbstractAST {
         return false;
       }        
       Edit tmp = (Edit) o;
-      return true && tmp.name.equals(this.name) ; 
+      return true && tmp.name.equals(this.name) && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 727 + 449 * name.hashCode() ; 
+      return 449 + 983 * name.hashCode() + 523 * terminator.hashCode() ; 
     } 
   
     
@@ -161,11 +215,20 @@ public abstract class ShellCommand extends AbstractAST {
     @Override
     public boolean hasName() {
       return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(terminator));
     }
             
   }
@@ -174,13 +237,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Help extends ShellCommand {
-    // Production: sig("Help",[],breakable=false)
+    // Production: sig("Help",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Help(ISourceLocation src, IConstructor node ) {
+    public Help(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -198,6 +263,16 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
     }
   
     @Override
@@ -205,19 +280,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Help)) {
         return false;
       }        
-      return true ; 
+      Help tmp = (Help) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 983 ; 
+      return 271 + 907 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -226,13 +311,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class History extends ShellCommand {
-    // Production: sig("History",[],breakable=false)
+    // Production: sig("History",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public History(ISourceLocation src, IConstructor node ) {
+    public History(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -250,6 +337,15 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
     }
   
@@ -258,19 +354,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof History)) {
         return false;
       }        
-      return true ; 
+      History tmp = (History) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 523 ; 
+      return 479 + 383 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -279,13 +385,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class ListDeclarations extends ShellCommand {
-    // Production: sig("ListDeclarations",[],breakable=false)
+    // Production: sig("ListDeclarations",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public ListDeclarations(ISourceLocation src, IConstructor node ) {
+    public ListDeclarations(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -303,6 +411,15 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
     }
   
@@ -311,19 +428,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof ListDeclarations)) {
         return false;
       }        
-      return true ; 
+      ListDeclarations tmp = (ListDeclarations) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 271 ; 
+      return 397 + 929 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -332,13 +459,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class ListModules extends ShellCommand {
-    // Production: sig("ListModules",[],breakable=false)
+    // Production: sig("ListModules",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public ListModules(ISourceLocation src, IConstructor node ) {
+    public ListModules(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -356,6 +485,15 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
     }
   
@@ -364,19 +502,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof ListModules)) {
         return false;
       }        
-      return true ; 
+      ListModules tmp = (ListModules) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 907 ; 
+      return 997 + 857 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -385,13 +533,15 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Quit extends ShellCommand {
-    // Production: sig("Quit",[],breakable=false)
+    // Production: sig("Quit",[arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Quit(ISourceLocation src, IConstructor node ) {
+    public Quit(ISourceLocation src, IConstructor node , org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.terminator = terminator;
     }
   
     @Override
@@ -409,6 +559,15 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
     }
   
@@ -417,19 +576,29 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Quit)) {
         return false;
       }        
-      return true ; 
+      Quit tmp = (Quit) o;
+      return true && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 479 ; 
+      return 127 + 607 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(terminator));
     }
             
   }
@@ -438,17 +607,21 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class SetOption extends ShellCommand {
-    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.Expression","expression")],breakable=false)
+    // Production: sig("SetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalEqualSign","sign"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalEqualSign sign;
     private final org.rascalmpl.ast.Expression expression;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public SetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.Expression expression) {
+    public SetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalEqualSign sign,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
       this.name = name;
+      this.sign = sign;
       this.expression = expression;
+      this.terminator = terminator;
     }
   
     @Override
@@ -476,9 +649,25 @@ public abstract class ShellCommand extends AbstractAST {
         return;
       }
       
+      $l = sign.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        sign.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
       $l = expression.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         expression.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
         return;
@@ -492,12 +681,12 @@ public abstract class ShellCommand extends AbstractAST {
         return false;
       }        
       SetOption tmp = (SetOption) o;
-      return true && tmp.name.equals(this.name) && tmp.expression.equals(this.expression) ; 
+      return true && tmp.name.equals(this.name) && tmp.sign.equals(this.sign) && tmp.expression.equals(this.expression) && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 383 + 397 * name.hashCode() + 929 * expression.hashCode() ; 
+      return 631 + 449 * name.hashCode() + 113 * sign.hashCode() + 659 * expression.hashCode() + 113 * terminator.hashCode() ; 
     } 
   
     
@@ -511,6 +700,15 @@ public abstract class ShellCommand extends AbstractAST {
       return true;
     }
     @Override
+    public org.rascalmpl.ast.OptionalEqualSign getSign() {
+      return this.sign;
+    }
+  
+    @Override
+    public boolean hasSign() {
+      return true;
+    }
+    @Override
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
@@ -518,11 +716,113 @@ public abstract class ShellCommand extends AbstractAST {
     @Override
     public boolean hasExpression() {
       return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(expression));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(sign), clone(expression), clone(terminator));
+    }
+            
+  }
+  public boolean isSetOptionTrue() {
+    return false;
+  }
+
+  static public class SetOptionTrue extends ShellCommand {
+    // Production: sig("SetOptionTrue",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
+  
+    public SetOptionTrue(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
+      super(src, node);
+      
+      this.name = name;
+      this.terminator = terminator;
+    }
+  
+    @Override
+    public boolean isSetOptionTrue() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandSetOptionTrue(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof SetOptionTrue)) {
+        return false;
+      }        
+      SetOptionTrue tmp = (SetOptionTrue) o;
+      return true && tmp.name.equals(this.name) && tmp.terminator.equals(this.terminator) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 163 + 491 * name.hashCode() + 887 * terminator.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(terminator));
     }
             
   }
@@ -531,13 +831,17 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Test extends ShellCommand {
-    // Production: sig("Test",[],breakable=false)
+    // Production: sig("Test",[arg("org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName","optName",isOptional=true),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
+    private final org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName optName;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Test(ISourceLocation src, IConstructor node ) {
+    public Test(ISourceLocation src, IConstructor node , org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName optName,  org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
+      this.optName = optName;
+      this.terminator = terminator;
     }
   
     @Override
@@ -555,6 +859,23 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
+      $l =  (optName == null) ? null : optName.getLocation();
+      if ($l != null && $l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optName.addForLineNumber($line, $result);
+      }
+      if ($l != null && $l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
     }
   
@@ -563,19 +884,38 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Test)) {
         return false;
       }        
-      return true ; 
+      Test tmp = (Test) o;
+      return true && java.util.Objects.equals(tmp.optName, this.optName) && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 997 ; 
+      return 547 + 293 * java.util.Objects.hashCode(optName) + 997 * terminator.hashCode() ; 
     } 
   
-    	
+    
+    @Override
+    public org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.MonotonicNonNull QualifiedName getOptName() {
+      return this.optName;
+    }
+  
+    @Override @org.checkerframework.checker.nullness.qual.EnsuresNonNullIf(expression="getOptName()", result=true) 
+    public boolean hasOptName() {
+      return this.optName != null;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null );
+      return newInstance(getClass(), src, (IConstructor) null , clone(optName), clone(terminator));
     }
             
   }
@@ -584,15 +924,17 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Undeclare extends ShellCommand {
-    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
+    // Production: sig("Undeclare",[arg("org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName","optName",isOptional=true),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
-    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName optName;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Undeclare(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+    public Undeclare(ISourceLocation src, IConstructor node , org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.Nullable QualifiedName optName,  org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
-      this.name = name;
+      this.optName = optName;
+      this.terminator = terminator;
     }
   
     @Override
@@ -612,9 +954,17 @@ public abstract class ShellCommand extends AbstractAST {
       }
       ISourceLocation $l;
       
-      $l = name.getLocation();
+      $l =  (optName == null) ? null : optName.getLocation();
+      if ($l != null && $l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        optName.addForLineNumber($line, $result);
+      }
+      if ($l != null && $l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        name.addForLineNumber($line, $result);
+        terminator.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
         return;
@@ -628,12 +978,105 @@ public abstract class ShellCommand extends AbstractAST {
         return false;
       }        
       Undeclare tmp = (Undeclare) o;
-      return true && tmp.name.equals(this.name) ; 
+      return true && java.util.Objects.equals(tmp.optName, this.optName) && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 857 + 127 * name.hashCode() ; 
+      return 881 + 313 * java.util.Objects.hashCode(optName) + 127 * terminator.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.@org.checkerframework.checker.nullness.qual.MonotonicNonNull QualifiedName getOptName() {
+      return this.optName;
+    }
+  
+    @Override @org.checkerframework.checker.nullness.qual.EnsuresNonNullIf(expression="getOptName()", result=true) 
+    public boolean hasOptName() {
+      return this.optName != null;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(optName), clone(terminator));
+    }
+            
+  }
+  public boolean isUnextend() {
+    return false;
+  }
+
+  static public class Unextend extends ShellCommand {
+    // Production: sig("Unextend",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
+  
+    public Unextend(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
+      super(src, node);
+      
+      this.name = name;
+      this.terminator = terminator;
+    }
+  
+    @Override
+    public boolean isUnextend() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandUnextend(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Unextend)) {
+        return false;
+      }        
+      Unextend tmp = (Unextend) o;
+      return true && tmp.name.equals(this.name) && tmp.terminator.equals(this.terminator) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 823 + 757 * name.hashCode() + 89 * terminator.hashCode() ; 
     } 
   
     
@@ -645,11 +1088,20 @@ public abstract class ShellCommand extends AbstractAST {
     @Override
     public boolean hasName() {
       return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(terminator));
     }
             
   }
@@ -658,15 +1110,17 @@ public abstract class ShellCommand extends AbstractAST {
   }
 
   static public class Unimport extends ShellCommand {
-    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name")],breakable=false)
+    // Production: sig("Unimport",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
   
     
     private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
   
-    public Unimport(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name) {
+    public Unimport(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
       super(src, node);
       
       this.name = name;
+      this.terminator = terminator;
     }
   
     @Override
@@ -694,6 +1148,14 @@ public abstract class ShellCommand extends AbstractAST {
         return;
       }
       
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
     }
   
     @Override
@@ -702,12 +1164,12 @@ public abstract class ShellCommand extends AbstractAST {
         return false;
       }        
       Unimport tmp = (Unimport) o;
-      return true && tmp.name.equals(this.name) ; 
+      return true && tmp.name.equals(this.name) && tmp.terminator.equals(this.terminator) ; 
     }
    
     @Override
     public int hashCode() {
-      return 607 + 631 * name.hashCode() ; 
+      return 619 + 401 * name.hashCode() + 463 * terminator.hashCode() ; 
     } 
   
     
@@ -719,11 +1181,113 @@ public abstract class ShellCommand extends AbstractAST {
     @Override
     public boolean hasName() {
       return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(name));
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(terminator));
+    }
+            
+  }
+  public boolean isUnsetOption() {
+    return false;
+  }
+
+  static public class UnsetOption extends ShellCommand {
+    // Production: sig("UnsetOption",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.OptionalTerminator","terminator")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.OptionalTerminator terminator;
+  
+    public UnsetOption(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.OptionalTerminator terminator) {
+      super(src, node);
+      
+      this.name = name;
+      this.terminator = terminator;
+    }
+  
+    @Override
+    public boolean isUnsetOption() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitShellCommandUnsetOption(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = terminator.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        terminator.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof UnsetOption)) {
+        return false;
+      }        
+      UnsetOption tmp = (UnsetOption) o;
+      return true && tmp.name.equals(this.name) && tmp.terminator.equals(this.terminator) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 317 + 857 * name.hashCode() + 353 * terminator.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.OptionalTerminator getTerminator() {
+      return this.terminator;
+    }
+  
+    @Override
+    public boolean hasTerminator() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(terminator));
     }
             
   }

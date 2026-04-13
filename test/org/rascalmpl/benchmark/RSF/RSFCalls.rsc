@@ -11,33 +11,49 @@
 module RSF::RSFCalls
 
 import Relation;
-import util::Math;
 import Set;
 import analysis::graphs::Graph;
 import lang::rsf::IO;
 import IO;
 import util::Benchmark;
 
-value main() = measure();
+void warmup(){
+  for(_ <- [0..5]){
+	measureOne();
+  }
+}
+void main() {
+	warmup();
+	used = 0;
+	for(_ <- [0..5]){
+		used += measure();
+	}
+	println("Total time (ms): <used>");
+}
 
-public bool measure(){
+public int measure(){
   return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);
 }
 
 public bool measureOne(){
-   return measure(["JHotDraw52.rsf"]);
+   measure(["JHotDraw52.rsf"]);
+   return true;
 }
 
-public bool measure(list[str] names){
-	loc p = {loc x} := findResources("RSF") ? x : |not-found:///|;
-	
+public int measure(list[str] names){
+	loc p = |not-found:///|;
+	if({loc x} := findResources("RSF")){
+		p = x;
+	}
+	//p = |file:///Users/paulklint/git/rascal//test/org/rascalmpl/benchmark/RSF/|;
+	begin = cpuTime();
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p + name);
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
-		println("<name>: CALL contains <n> tuples");
+		//println("<name>: CALL contains <n> tuples");
 		nTop = size(top(CALL));
-		println("<name>: size top <nTop>");
+		//println("<name>: size top <nTop>");
 	
 		time0 = realTime();
 		res1 = trans(CALL);          time1 = realTime();
@@ -48,16 +64,17 @@ public bool measure(list[str] names){
 		d2 = time2 - time1;
 		d3 = time3 - time2;
 		
-		println("Time (msec): trans <d1>, reachFromTop1 <d2>, reachFromTop2 <d3>");
+		//println("Time (msec): trans <d1>, reachFromTop1 <d2>, reachFromTop2 <d3>");
 		
 		size1 = size(res1); size2= size(res2); size3 = size(res3);
-		println("Size (elms): trans <size1>, reachFromTop1 <size2>, reachFromTop2 <size3>");
+		//println("Size (elms): trans <size1>, reachFromTop1 <size2>, reachFromTop2 <size3>");
 		if(res2 != res3){
 			println("***\> res2 != res3");
 		}
 		
-    }
-    return true;
+	}
+	println("Total time (ms): <(cpuTime() - begin)/1000000>");
+	return (cpuTime() - begin)/1000000;
 }
 
 public rel[str,str] trans(rel[str,str] CALL){

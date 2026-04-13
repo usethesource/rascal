@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Header extends AbstractAST {
   public Header(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,28 +31,28 @@ public abstract class Header extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Import> getImports() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParams() {
     return false;
   }
 
   public org.rascalmpl.ast.ModuleParameters getParams() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.QualifiedName getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTags() {
     return false;
   }
 
   public org.rascalmpl.ast.Tags getTags() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
