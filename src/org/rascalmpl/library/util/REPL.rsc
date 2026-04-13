@@ -2,8 +2,7 @@ module util::REPL
 
 extend Content;
 
-alias Completion
- = tuple[int offset, list[str] suggestions];
+alias Completion = map[str completion, str group];
 
 data REPL
   = repl(
@@ -13,13 +12,13 @@ data REPL
      str quit = "", 
      loc history = |home:///.term-repl-history|, 
      Content (str command) handler = echo,
-     Completion(str line, int cursor) completor = noSuggestions,
+     Completion(str line, str word) completor = noSuggestions,
      str () stacktrace = str () { return ""; }
    );
 
 private Content echo(str line) = plainText(line);
    
-private Completion noSuggestions(str _, int _) = <0, []>;
+private Completion noSuggestions(str _, str _) = ();
 
 alias Terminal = tuple[void() run, void(str) send];
 
@@ -36,7 +35,7 @@ java Terminal newREPL(REPL repl,
   str quit = repl.quit,
   loc history = repl.history,
   Content (str ) handler = repl.handler,
-  Completion(str , int) completor = repl.completor,
+  Completion(str , str) completor = repl.completor,
   str () stacktrace = repl.stacktrace);
 
 void startREPL(REPL repl, 
@@ -48,7 +47,7 @@ void startREPL(REPL repl,
   str quit = repl.quit,
   loc history = repl.history,
   Content (str ) handler = repl.handler,
-  Completion(str , int) completor = repl.completor,
+  Completion(str , str) completor = repl.completor,
   str () stacktrace = repl.stacktrace) {
   
   Terminal tm = newREPL(repl, title=title, welcome=welcome,

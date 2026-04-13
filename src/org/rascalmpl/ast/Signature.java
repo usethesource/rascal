@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Signature extends AbstractAST {
   public Signature(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,35 +31,35 @@ public abstract class Signature extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasModifiers() {
     return false;
   }
 
   public org.rascalmpl.ast.FunctionModifiers getModifiers() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasParameters() {
     return false;
   }
 
   public org.rascalmpl.ast.Parameters getParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasType() {
     return false;
   }
 
   public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -148,7 +149,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 113 * modifiers.hashCode() + 659 * type.hashCode() + 113 * name.hashCode() + 163 * parameters.hashCode() ; 
+      return 53 + 149 * modifiers.hashCode() + 127 * type.hashCode() + 827 * name.hashCode() + 431 * parameters.hashCode() ; 
     } 
   
     
@@ -291,7 +292,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 491 + 887 * modifiers.hashCode() + 547 * type.hashCode() + 293 * name.hashCode() + 997 * parameters.hashCode() + 881 * exceptions.hashCode() ; 
+      return 131 + 827 * modifiers.hashCode() + 2 * type.hashCode() + 449 * name.hashCode() + 89 * parameters.hashCode() + 233 * exceptions.hashCode() ; 
     } 
   
     

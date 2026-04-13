@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -49,8 +50,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -69,24 +68,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.CharSetUtils;
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
-import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.util.base64.StreamingBase64;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -128,12 +132,13 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	
+
     protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
@@ -141,16 +146,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
@@ -160,7 +163,15 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
+        return t.randomValue(
+			random,  
+			RandomTypesConfig.defaultConfig(new Random()).withoutRandomAbstractDatatypes(),
+			values, 
+			new TypeStore(), 
+			Collections.emptyMap(), 
+			depth, 
+			width
+		);
     }
 
 	
@@ -261,7 +272,7 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private String getTZString(int hourOffset, int minuteOffset) {
+	public static String getTZString(int hourOffset, int minuteOffset) {
 		String tzString = "GMT" + 
 			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
 			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
@@ -627,7 +638,7 @@ public class Prelude {
 		}
 	}
 
-	private Calendar getCalendarForDateTime(IDateTime inputDateTime) {
+	public static Calendar getCalendarForDateTime(IDateTime inputDateTime) {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
@@ -901,7 +912,7 @@ public class Prelude {
 			}
 		}
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
 		finally {
 			currentOutStream.flush();
@@ -944,7 +955,7 @@ public class Prelude {
 			w.write(arg, sw);
 			writeFile(sloc, values.list(values.string(sw.toString())), charset);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+			throw RuntimeExceptionFactory.io(e);		
 		}
 	}
 
@@ -956,7 +967,7 @@ public class Prelude {
 			w.write(arg, sw);
 			return values.string(sw.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+			throw RuntimeExceptionFactory.io(e);		
 		}
 	}
 	
@@ -993,7 +1004,7 @@ public class Prelude {
 			currentOutStream.println();
 		}
 		catch (IOException e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		    throw RuntimeExceptionFactory.io(e);
 		}
 		finally {
 			currentOutStream.flush();
@@ -1040,7 +1051,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1053,7 +1064,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -1066,7 +1077,7 @@ public class Prelude {
             REGISTRY.setLastModified(sloc, timestamp);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 	
@@ -1077,13 +1088,42 @@ public class Prelude {
 	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(REGISTRY.isFile(sloc));
 	}
+
+	public IBool isReadable(ISourceLocation sloc){
+		try {
+			return values.bool(REGISTRY.isReadable(sloc));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
+
+	public IBool isWritable(ISourceLocation sloc){
+		try {
+			return values.bool(REGISTRY.isWritable(sloc));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
 	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
 			REGISTRY.remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
+	public void rename(ISourceLocation from, ISourceLocation to, IBool overwrite) {
+		try {
+			REGISTRY.rename(from, to, overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -1092,7 +1132,7 @@ public class Prelude {
 	    REGISTRY.mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	    throw RuntimeExceptionFactory.io(e);
 	  }
 	}
 	
@@ -1112,7 +1152,7 @@ public class Prelude {
 		} catch (UnsupportedSchemeException e) {
 		    throw RuntimeExceptionFactory.schemeNotSupported(sloc);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		} 
 	}
 	
@@ -1140,7 +1180,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1203,9 +1243,9 @@ public class Prelude {
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		} catch (NoSuchAlgorithmException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"));
+			throw RuntimeExceptionFactory.io("Cannot load MD5 digest algorithm");
 		}
 	}
 
@@ -1246,7 +1286,7 @@ public class Prelude {
 			return translateHash(md);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("no such algorithm: " + e.getMessage()));
@@ -1258,7 +1298,7 @@ public class Prelude {
 			REGISTRY.copy(source, target, recursive.getValue(), overwrite.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1267,7 +1307,7 @@ public class Prelude {
 			REGISTRY.rename(source, target, overwrite.getValue());
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -1362,10 +1402,10 @@ public class Prelude {
 		} 
 		catch (UnsupportedOperationException e) {
 			assert false; // we tested for offset length above
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		} 
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
 		finally {
 			try {
@@ -1376,7 +1416,7 @@ public class Prelude {
 					postfix.close();
 				}
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+				throw RuntimeExceptionFactory.io(e);
 			}
 		}
 		
@@ -1395,7 +1435,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		return;
 	}
@@ -1416,7 +1456,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		} 
 	}
 	
@@ -1432,12 +1472,11 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
-		
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = REGISTRY.getInputStream(sloc)) {
-			byte bytes[] = new byte[FILE_BUFFER_SIZE];
+			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
 
 			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
@@ -1450,51 +1489,56 @@ public class Prelude {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 
 		return w.done();
 	}
 	
-    public IString readBase64(ISourceLocation sloc) {
-        int BUFFER_SIZE = 3 * 512;
-        Base64.Encoder encoder = Base64.getEncoder();
-        
-        try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
-            StringBuilder result = new StringBuilder();
-            byte[] chunk = new byte[BUFFER_SIZE];
-            int len = 0;
-            
-            // read multiples of 3 until not possible anymore
-            while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
-            }
-            
-            // read final chunk which is not a multiple of 3
-            if ( len > 0 ) {
-                 chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
-            }
-            
-            return values.string(result.toString());
+	public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+		StringBuilder result = new StringBuilder();
+		try (var source = REGISTRY.getInputStream(sloc)) {
+			StreamingBase64.encode(source, result, includePadding.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return values.string(result.toString());
+	}
+
+	public void writeBase64(ISourceLocation sloc, IString base64content) {
+		try (var output = REGISTRY.getOutputStream(sloc, false);) {
+			StreamingBase64.decode(base64content.asReader(), output);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+	
+	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			if (!includePadding.getValue()) {
+				encoded = encoded.replace("=", "");
+			}
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+		}
+    }
+
+	public void writeBase32(ISourceLocation sloc, IString base32Content) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			// The only relevant field we want to change set is the policy
+			Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(base32Content.getValue()));
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
-	public void writeBase64(ISourceLocation sloc, IString contents) {
-        int BUFFER_SIZE = 3 * 512;
-        Base64.Decoder decoder = Base64.getDecoder();
-        
-        try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			out.write(decoder.decode(contents.getValue()));
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-        }
-    }
-	
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -1550,7 +1594,7 @@ public class Prelude {
 			}
 			if (less.less(array[0], array[0])) {
 				throw RuntimeExceptionFactory.illegalArgument(less.less,
-					"Bad comparator: Did you use less-or-equals instead of less-than?");
+					"A reflexive comparator can not be used for sorting. At least one element is less than itself: " + less);
 			}
 			sort(0, size - 1);
 
@@ -1569,15 +1613,32 @@ public class Prelude {
 			int oldLow = low;
 			int oldHigh = high;
 
-			while (low < high) {
-				for (; less.less(array[low], pivot); low++);
-				for (; less.less(pivot, array[high]); high--);
+			try {
+				while (low < high) {
+					for (; less.less(array[low], pivot); low++);
+					for (; less.less(pivot, array[high]); high--);
 
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
+					if (low <= high) {
+						swap(low, high);
+						low++;
+						high--;
+					}
 				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				// now that we are crashing anyway, we can do some diagnostics.
+				// the hypothesis is that at least one element was not irreflexive, making
+				// one of the bounds pointers (low or high) shift beyond the edge of the array
+
+				for (IValue elem : array) {
+					if (less.less(elem, elem)) {
+					throw RuntimeExceptionFactory.illegalArgument(less.less,
+						"A reflexive comparator can not be used for sorting. At least one element is less than itself with the given comparator: " + elem);
+					}
+				}
+
+				// another cause for the same exception? 
+				throw e;
 			}
 
 			if (oldLow < high)
@@ -1637,9 +1698,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		
 		return writer.done();
 	}
@@ -1720,7 +1779,7 @@ public class Prelude {
 	}
 
 	public IValue last(IList lst)
-	// @doc{head -- get the last element of a list}
+	// @doc{last -- get the last element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(lst.length() - 1);
@@ -2349,21 +2408,25 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 	}
+
+	// public IFunction parser(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool hasSideEffects, ISet filters) {
+	// 	return rascalValues.parser(start, allowAmbiguity, maxAmbDepth, values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(false), filters);
+	// }
 
 	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+		return rascalValues.parser(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
-    }
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		return rascalValues.parsers(start, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+	}
 
 	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
-    }
+		return rascalValues.parsers(start, values.bool(true), values.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), values.bool(false), values.integer(0), values.integer(0), hasSideEffects, values.bool(true), filters);
+	}
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
 		try {
@@ -2373,24 +2436,31 @@ public class Prelude {
 			throw RuntimeExceptionFactory.javaCompilerException(e);
 		}
 		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+	}
+
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
+		try {
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		catch (ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+		IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, values.bool(false), filters);
 		}
-		catch (IOException | ClassNotFoundException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
 		}
-	}
-
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
-		}
-		catch (IOException | ClassNotFoundException e) {
+		catch (ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
@@ -2556,7 +2626,6 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
 		}
 		
-		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
 			if (type.isList() || splicing || isUntypedNodeType(type)) {
 				// if in node space, we also make a list; 
@@ -2585,7 +2654,6 @@ public class Prelude {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot match list with " + type));
 			}
 		}
-		//Changes end here
 		
 		if (TreeAdapter.isOpt(tree) && type.isBool()) {
 			IList args = TreeAdapter.getArgs(tree);
@@ -2656,21 +2724,7 @@ public class Prelude {
 			}
 			args = aw.done();
 			int length = args.length();
-			IMap comments = cw.done();
-			
-//			// this could be optimized.
-//			i = 0;
-//			int length = args.length();
-//			while (i < length) {
-//				if (TreeAdapter.isEmpty((IConstructor) args.get(i))) {
-//					length--;
-//					args = args.delete(i);
-//				}
-//				else {
-//					i++;
-//				}
-//			}
-			
+			IMap comments = cw.done();			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
 			
@@ -2678,8 +2732,7 @@ public class Prelude {
 				if (length == 1) {
 					// jump over injection
 					return implode(store, type, (ITree) args.get(0), splicing);
-				}
-				
+				}		
 				
 				// make a tuple if we're in node space
 				if (isUntypedNodeType(type)) {
@@ -3019,6 +3072,10 @@ public class Prelude {
 		
 		return values.string(chars);
 	}
+
+	public IString indent(IString indentation, IString content, IBool indentFirstLine) {
+		return content.indent(indentation, indentFirstLine.getValue());
+	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
@@ -3042,9 +3099,31 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
-		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
-		return values.string(s);
+		if (charSet.getValue().isEmpty()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString capitalize(IString src) {
@@ -3324,13 +3403,6 @@ public class Prelude {
 	  }
 	}	
 	
-	private static void copy(InputStream from, OutputStream to) throws IOException {
-	  final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-		int read;
-		while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-		  to.write(buffer, 0, read);
-		}
-	}
 	private void copy(Reader from, Writer to) throws IOException {
 		final char[] buffer = new char[FILE_BUFFER_SIZE / 2];
 		int read;
@@ -3339,48 +3411,56 @@ public class Prelude {
 		}
 	}
 
-
-	private String toBase64(InputStream src, int estimatedSize) throws IOException {
-	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  copy(src, encoder);
-	  encoder.close();
-	  return result.toString(StandardCharsets.ISO_8859_1.name());
+	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
+		StringBuilder result = new StringBuilder();
+		try (var writer = WriterOutputStream.builder()
+			.setCharset(charsetName.getValue())
+			.setWriteImmediately(false)
+			.setOutputStream(StreamingBase64.encode(result, includePadding.getValue()))
+			.getWriter()) {
+			in.write(writer);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return values.string(result.toString());
 	}
 
-	public IString toBase64(IString in) {
-	  try {
-	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	      return values.string(toBase64(bytes, in.length() * 2));
-	  } catch (IOException e) {
-	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	  }
+	public IString toBase64(ISourceLocation file, IBool includePadding) {
+		return readBase64(file, includePadding);
 	}
 
-	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = REGISTRY.getInputStream(file)) {
-	        return values.string(toBase64(in, 1024));
-	    }
-	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+	public IString fromBase64(IString in, IString charset) {
+		var buffer = new char[3 * 1024];
+		var result = values.string("");
+		try (var source = new InputStreamReader(StreamingBase64.decode(in.asReader()), charset.getValue())) {
+			int read;
+			while ((read = source.read(buffer)) != -1) {
+				result = result.concat(values.string(new String(buffer, 0, read)));
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
+		}
+		return result;
 	}
-	
-	
 
-	private void fromBase64(String src, OutputStream target) throws IOException {
-	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
-	  copy(Base64.getDecoder().wrap(bytes), target);
+	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
+		Base32 encoder = new Base32();
+		Charset charset = Charset.forName(charsetName.getValue());
+		String encoded = encoder.encodeToString(in.getValue().getBytes(charset));
+		if (!includePadding.getValue()) {
+			encoded = encoded.replace("=", "");
+		}
+		return values.string(encoded);
 	}
 
-	public IString fromBase64(IString in) {
-	    try {
-	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
-	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
-	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+	public IString fromBase32(IString in, IString charsetName) {
+		// The only relevant field we want to change is the policy
+		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		Charset charset = Charset.forName(charsetName.getValue());
+		return values.string(new String(data, charset));
 	}
 
 	public IValue toLowerCase(IString s)
@@ -3406,6 +3486,32 @@ public class Prelude {
 		return true;
 	}
 	
+	private boolean isUnicodeWhitespace(Integer cp) {
+		return Character.isSpaceChar(cp)
+			// Check for characters not included in 'space chars', but considered white space
+			|| cp == 0x0009 // \t
+			|| cp == 0x000A // \n
+			|| cp == 0x000B // VT
+			|| cp == 0x000C // FF
+			|| cp == 0x000D // \r
+			|| cp == 0x0085;// NEL
+	}
+
+	public IString removeWhitespace(IString str) {
+		StringBuilder b = new StringBuilder(str.length());
+		var iter = str.iterator();
+
+		while (iter.hasNext()) {
+			var codepoint = iter.next();
+			// Character.isWhitespace does not cover the complete range of Unicode whitespace
+			if (!isUnicodeWhitespace(codepoint)) {
+				b.appendCodePoint(codepoint);
+			}
+		}
+
+		return values.string(b.toString());
+	}
+
 	public IValue replaceAll(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){
@@ -3578,7 +3684,7 @@ public class Prelude {
 				return values.integer(total);
 			}
 			catch (IOException e) {
-				throw RuntimeExceptionFactory.io(e.getMessage());
+				throw RuntimeExceptionFactory.io(e);
 			}
 		}
 	}
@@ -3608,12 +3714,24 @@ public class Prelude {
 		}
 	}
 
+	public ISourceLocation mavenize(ISourceLocation jar) {
+		return MavenRepositoryURIResolver.mavenize(jar);
+	}
+
+	public ISourceLocation jarify(ISourceLocation jar) {
+		return JarURIResolver.jarify(jar);
+	}
+
 	public ISet findResources(IString fileName) {
 		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
 
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		return URIUtil.relativize(outside, inside);
+	}
+
+	public ISet capabilities(ISourceLocation loc) {
+		return URIResolverRegistry.getInstance().capabilities(loc);
 	}
 
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
@@ -3632,11 +3750,11 @@ public class Prelude {
 		}
 		catch (IOException e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
@@ -3682,13 +3800,13 @@ public class Prelude {
 			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
 		}
 		catch (FactTypeUseException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e.getMessage());
         } 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		    throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 	
@@ -3703,13 +3821,13 @@ public class Prelude {
 			throw RuntimeExceptionFactory.parseError(values.sourceLocation(URIUtil.rootLocation("unknown"), e.getOffset(), 1));
 		} 
 		catch (FactTypeUseException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 		catch (Exception e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+            throw RuntimeExceptionFactory.io(e.getMessage());
         }
 	}
 
@@ -3719,7 +3837,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
     }
 
@@ -3742,7 +3860,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
+			throw RuntimeExceptionFactory.io(ioex);
 		}
 	}
 
@@ -3767,7 +3885,7 @@ public class Prelude {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	
@@ -3804,7 +3922,10 @@ public class Prelude {
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
 	    Random random = new Random(seed.intValue());
-	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
+		// don't change the set of types dynamically. the test functions that use this function
+		// have already been type-checked in their static source context.
+		RandomTypesConfig typesConfig = RandomTypesConfig.defaultConfig(random).withoutRandomAbstractDatatypes();
+	    return start.randomValue(random, typesConfig, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph
@@ -3850,15 +3971,25 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final TypeStore store;
 
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.store = store;
+
+			var store = new TypeStore();
+			var tf = TypeFactory.getInstance();
+
+			var locationChangeType = tf.abstractDataType(store, "FileSystemChange");
+			created = tf.constructor(store, locationChangeType, "created", tf.sourceLocationType(), "file");
+			modified = tf.constructor(store, locationChangeType, "modified", tf.sourceLocationType(), "file");
+			deleted = tf.constructor(store, locationChangeType, "removed", tf.sourceLocationType(), "file");
 		}
 
 		@Override
@@ -3879,42 +4010,20 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-			
-			
-			return values.constructor(changeEvent, 
-				e.getLocation(),
-				convertChangeType(e.getChangeType()),
-				convertFileType(e.getType())
+			return values.constructor(convertChangeType(e.getChangeType()), 
+				e.getLocation()
 			);
 		}
 
-		private IValue convertFileType(ISourceLocationType type) {
-			Type file = store.lookupConstructors("file").iterator().next();
-			Type directory = store.lookupConstructors("directory").iterator().next();
-			
-			switch (type) {
-				case FILE:
-					return values.constructor(file);
-				case DIRECTORY:
-					return values.constructor(directory);
-			}
-
-			throw RuntimeExceptionFactory.illegalArgument();
-		}
-
-		private IValue convertChangeType(ISourceLocationChangeType changeType) {
-			Type deleted = store.lookupConstructors("deleted").iterator().next();
-			Type created = store.lookupConstructors("created").iterator().next();
-			Type modified = store.lookupConstructors("modified").iterator().next();
+		private Type convertChangeType(ISourceLocationChangeType changeType) {
 
 			switch (changeType) {
 				case DELETED:
-					return values.constructor(deleted);
+					return deleted;
 				case CREATED:
-					return values.constructor(created);
+					return created;
 				case MODIFIED:
-					return values.constructor(modified);
+					return modified;
 			}
 
 			throw RuntimeExceptionFactory.illegalArgument();
@@ -3941,7 +4050,7 @@ public class Prelude {
 
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values);
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
@@ -3949,7 +4058,7 @@ public class Prelude {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 
@@ -3967,8 +4076,97 @@ public class Prelude {
 			}
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e.getMessage());
+			throw RuntimeExceptionFactory.io(e);
 		}
+	}
+
+
+	// this fact that this is just a java function helps the jitter with inline it
+	private static boolean isSameFilePure(ISourceLocation a, ISourceLocation b) {
+		a = a.top();
+		b = b.top();
+		if (!a.hasFragment() && !b.hasFragment()) {
+			// fast path: use equals of ISourceLocations
+			return a.equals(b);
+		} 
+		// fallback, just compare everything except the fragment
+		return a.getScheme().equals(b.getScheme())
+			&& a.getAuthority().equals(b.getAuthority())
+			&& a.getPath().equals(b.getPath())
+			&& a.getQuery().equals(b.getQuery())
+			;
+	}
+
+	public IBool isSameFile(ISourceLocation a, ISourceLocation b) {
+		return values.bool(isSameFilePure(a, b));
+	}
+
+	public IBool isStrictlyContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		// original code would also do full equality, but we don't need that due to the logic in the outer &
+		// inner offset compares
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					(innerStart == outerStart && innerEnd < outerEnd)
+					|| (innerStart > outerStart && innerEnd <= outerEnd)
+				);
+			}
+			else {
+				return values.bool(inner.getLength() > 0);
+			}
+		}
+		return values.bool(false);
+	}
+
+	public IBool isContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					outerStart <= innerStart && innerEnd <= outerEnd
+				);
+			}
+			return values.bool(true);
+		}
+
+		return values.bool(!outer.hasOffsetLength());
+	}
+
+	public IBool isOverlapping(ISourceLocation first, ISourceLocation second) {
+		if (!isSameFilePure(first, second)) {
+			return values.bool(false);
+		}
+		if (first.hasOffsetLength()) {
+			if (second.hasOffsetLength()) {
+				int firstStart = first.getOffset();
+				int firstEnd = firstStart + first.getLength() - 1; // Inclusive
+				int secondStart = second.getOffset();
+				int secondEnd = secondStart + second.getLength() - 1; // Inclusive
+
+				return values.bool(
+					   (firstStart <= secondStart && secondStart <= firstEnd)
+					|| (secondStart <= firstStart && firstStart <= secondEnd)
+				);
+
+			}
+		}
+		return values.bool(true);
+
 	}
 
 

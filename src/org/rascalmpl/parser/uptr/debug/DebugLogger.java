@@ -9,6 +9,9 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.parser.gtd.util.DoubleStack;
+import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -152,5 +155,58 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 
 	public void filteredByCompletionFilter(AbstractStackNode<IConstructor> node, AbstractNode result){
 		out.println(String.format("Filtered by completion filter: %s", node));
+	}
+
+	@Override
+	public void reviving(int[] input, int location, Stack<AbstractStackNode<IConstructor>> unexpandableNodes,
+		Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
+		DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
+		DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
+			out.print("Reviving at ");
+			out.print(location);
+			out.print(": input='");
+			for (int i=0; i<8 && location+i < input.length; i++) {
+				out.print((char) input[location+i]);
+			}
+			out.print("', unexpandable=");
+
+			boolean first = true;
+			for (int i=0; i<unexpandableNodes.getSize(); i++) {
+				if (first) {
+					first = false;
+				} else {
+					out.print(", ");
+				}
+
+				out.print(unexpandableNodes.get(i));
+			}
+
+			if (unmatchableLeafNodes.getSize() > 0) {
+				out.print(", unmatchableLeafNodes=");
+				out.print(unmatchableLeafNodes.getSize());
+			}
+
+			if (unmatchableMidProductionNodes.getSize() > 0) {
+				out.print(", unmatchableMidProductionNodes=");
+				out.print(unmatchableMidProductionNodes.toString());
+			}
+
+			if (filteredNodes.getSize() > 0) {
+				out.print(", filteredNodes=");
+				out.print(filteredNodes.getSize());
+			}
+
+			out.println();
+	}
+
+	@Override
+	public void revived(DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes) {
+		out.println("Revived nodes:");
+		for (int i=0; i<recoveredNodes.size(); i++) {
+			out.print("    stack node: ");
+			out.print(recoveredNodes.getFirst(i));
+			out.print(", result node: ");
+			out.println(recoveredNodes.getSecond(i));
+		}
 	}
 }
