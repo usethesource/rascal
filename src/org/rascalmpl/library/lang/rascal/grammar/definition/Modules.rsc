@@ -15,6 +15,8 @@ import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Names;
 import Grammar;
 import Set;
+import IO;
+import util::Monitor;
 
 @memo
 @synopsis{Converts internal module representation of Rascal interpreter to single grammar definition}
@@ -57,6 +59,9 @@ public Grammar fuse(GrammarDefinition def) {
         result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
         todo += (\mod.extends - done);
     }
+    else {
+      warning("Fuse algorithm misses module definition for dependency <nm>", |unknown:///|);
+    }
   }
   
   return result;
@@ -74,11 +79,11 @@ public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
   // Tags tags "module" QualifiedName name ModuleParameters params Import* imports
   switch (\mod) {
     case \default(parameters(_, QualifiedName name, _, Import* is),_) :
-    return <deslash("<name>"), { "<i>" | \default(\default(QualifiedName i)) <- is } 
-                    , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
+    return <deslash("<name>"), { deslash("<i>") | \default(\default(QualifiedName i)) <- is } 
+                    , { deslash("<i>") | \extend(\default(QualifiedName i)) <- is }>;
     case \default(\default(_, QualifiedName name, Import* is), _) : 
-    return <deslash("<name>"), { "<i>" |  \default(\default(QualifiedName i)) <- is } 
-                    , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
+    return <deslash("<name>"), { deslash("<i>") |  \default(\default(QualifiedName i)) <- is } 
+                    , { deslash("<i>") | \extend(\default(QualifiedName i)) <- is }>; 
   }
   
   throw "unexpected module syntax <\mod>";

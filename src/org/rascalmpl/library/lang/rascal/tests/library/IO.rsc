@@ -13,6 +13,13 @@ test bool testFileCopyCompletely() {
     return readFile(|tmp:///longFile|) == readFile(|tmp:///shortFile|);
 }
 
+test bool testFileCopyRecursive() {
+    writeFile(|tmp:///a/b/c/d/longFile|, "123456789");
+    writeFile(|tmp:///a/b/e/shortFile|, "321");
+    copy(|tmp:///a/|, |tmp:///g/|, recursive=true, overwrite=true);
+    return readFile(|tmp:///a/b/c/d/longFile|) == readFile(|tmp:///g/b/c/d/longFile|);
+}
+
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
     watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
