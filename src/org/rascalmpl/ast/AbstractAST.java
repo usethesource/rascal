@@ -198,7 +198,6 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */
 	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-	  System.err.println("ambiguity at " + getLocation());
 		throw new NotYetImplemented(this);
 	}
 	
@@ -212,6 +211,15 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 */
 	public boolean isBreakable() {
 		return false;
+	}
+
+	/**
+	 * The debugger uses this to decide where to continue when you do "step-over".
+	 * By default this is beyond the current statement, but for block statements
+	 * we really want to go into the block (for example).
+	 */
+	public ISourceLocation getDebugStepScope() {
+		return getLocation();
 	}
 	
 	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {

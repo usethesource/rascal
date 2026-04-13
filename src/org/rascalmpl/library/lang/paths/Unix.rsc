@@ -8,7 +8,7 @@ The main function of this module, ((parseUnixPath)):
 * throws a ParseError if the path does not comply. 
 * ensures that if the file exists on system A, then the `loc` representation
 resolves to the same file on system A via any ((Library:module:IO)) function. 
-* and nothing more. No normalization, no interpretatioon of `.` and `..`, no changing of cases. 
+* and nothing more. No normalization, no interpretation of `.` and `..`, no changing of cases.
 This is left to downstream processors of `loc` values, if necessary. The current transformation
 is purely syntactical, and tries to preserve the semantics of the path as much as possible.
 }
@@ -26,7 +26,7 @@ lexical UnixPath
     = absolute: Slashes UnixFilePath?
     | relative: UnixFilePath 
     | home    : "~" (Slashes UnixFilePath)?
-    | user    : "~" UserName name (Slashes UnixFilePath)?
+    | user    : "~" UserName uname (Slashes UnixFilePath)?
     ;
 
 lexical UserName = ![/~]+;
@@ -36,7 +36,7 @@ lexical PathChar = ![/];
 lexical PathSegment
     = current: "."
     | parent : ".."
-    | name   : (PathChar \ "~" PathChar*) \ ".." \ "." \ "~"
+    | pname  : (PathChar \ "~" PathChar*) \ ".." \ "." \ "~"
     ;
 
 lexical Slashes = Slash+ !>> [/];
@@ -54,6 +54,12 @@ import ParseTree;
 hostname, share name and path segment names. Also all superfluous path separators are skipped.
 3. uses `loc + str` path concatenation with its builtin character encoding to construct the URI. Also
 the right path separators are introduced. 
+
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
 }
 loc parseUnixPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#UnixPath, input, src));
 
@@ -78,12 +84,12 @@ private loc mapPathToLoc((UnixPath) `~`)
     = |home:///|;
 
 @synopsis{User relative: relative to any specific user's home directory}
-private loc mapPathToLoc((UnixPath) `~<UserName name><Slash _><UnixFilePath path>`) 
-    = appendPath(|home:///../<name>/|, path);
+private loc mapPathToLoc((UnixPath) `~<UserName uname><Slash _><UnixFilePath path>`) 
+    = appendPath(|home:///../<uname>/|, path);
 
 @synopsis{User relative: relative to any specific user's home directory}
-private loc mapPathToLoc((UnixPath) `~<UserName name>`) 
-    = |home:///../<name>/|;
+private loc mapPathToLoc((UnixPath) `~<UserName uname>`) 
+    = |home:///../<uname>/|;
 
 private loc appendPath(loc root, UnixFilePath path)
     = (root | it + "<segment>" | segment <- path.segments);

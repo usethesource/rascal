@@ -16,11 +16,11 @@ import org.rascalmpl.library.util.PathConfig;
 
 /**
  * A ClassLoader which finds classes and resources in the
- * classloader location list of a PathConfig. @see IClassloaderLocationResolver
+ * libs location list of a PathConfig. @see IClassloaderLocationResolver
  * for more information on how we transform ISourceLocations to Classloaders. 
  */
 public class PathConfigClassLoader extends SourceLocationClassLoader {
     public PathConfigClassLoader(PathConfig pcfg, ClassLoader parent) {
-        super(pcfg.getClassloaders(), parent);
+        super(pcfg.getLibsAndTarget(), parent);
     }
 }

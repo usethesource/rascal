@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class PathPart extends AbstractAST {
   public PathPart(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,28 +31,28 @@ public abstract class PathPart extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPathChars() {
     return false;
   }
 
   public org.rascalmpl.ast.PathChars getPathChars() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTail() {
     return false;
   }
 
   public org.rascalmpl.ast.PathTail getTail() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasPre() {
     return false;
   }
 
   public org.rascalmpl.ast.PrePathChars getPre() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

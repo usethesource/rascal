@@ -1,12 +1,15 @@
 package org.rascalmpl.uri.jar;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
+import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -137,6 +140,12 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
         ISourceLocation jarUri = getResolvedJarPath(uri);
         return getTargetResolver(jarUri).lastModified(jarUri, getInsideJarPath(uri));
     }
+
+    @Override
+    public long created(ISourceLocation uri) throws IOException {
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).created(jarUri, getInsideJarPath(uri));
+    }
     
     @Override
     public String[] list(ISourceLocation uri) throws IOException {
@@ -154,4 +163,50 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
     public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
         return registry.getClassLoader(getResolvedJarPath(loc), parent);
     }
+
+    /**
+     * Turns the any location of a jar file, as long as it has the extension `.jar`
+     * to a location inside of that jarfile (the root).
+     * 
+     * For example: file:///myJar.jar  becomes jar+file:///myJar.jar!/
+     * 
+     * After this transformation you can search inside the jar using listEntries
+     * or getChildLocation.
+     */
+    public static ISourceLocation jarify(ISourceLocation loc) {
+        if (!loc.getPath().endsWith(".jar")) {
+            return loc;
+        }
+        
+        try {
+            loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
+            loc = URIUtil.changePath(loc, loc.getPath() + "!/");
+            return loc;
+        }
+        catch (URISyntaxException e) {
+            assert false;  // this can never happen;
+            return loc;
+        }
+    }
+
+    @Override
+    public FileAttributes stat(ISourceLocation uri) throws IOException {
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).stat(jarUri, getInsideJarPath(uri));
+    }
+
+    @Override
+    public long size(ISourceLocation uri) throws IOException {
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).size(jarUri, getInsideJarPath(uri));
+    }
+
+    @Override
+    public boolean isReadable(ISourceLocation uri) throws IOException {
+        if (exists(uri)) {
+            return true;
+        }
+        throw new FileNotFoundException(uri.toString());
+    }
+
 }

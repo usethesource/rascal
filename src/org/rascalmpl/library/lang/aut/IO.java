@@ -59,7 +59,7 @@ public class IO{
 				line = bufRead.readLine();
 			}
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(ioex);
 		}finally{
 			if(bufRead != null){
 				try{
@@ -111,7 +111,7 @@ public class IO{
 			fos = new PrintStream(file);
 			printTransitions(fos, value);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(ioex);
 		}finally{
 			if(fos != null){
 				fos.close();

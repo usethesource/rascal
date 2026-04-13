@@ -79,8 +79,8 @@ public class ConstructorFunction extends NamedFunction {
 		Set<GenericKeywordParameters> kws = callerEnvironment.lookupGenericKeywordParameters(constructorType.getAbstractDataType());
 		IWithKeywordParameters<? extends IConstructor> wkw = value.asWithKeywordParameters();
 		Environment old = ctx.getCurrentEnvt();
-		Environment resultEnv = new Environment(declarationEnvironment, URIUtil.rootLocation("initializer"), "keyword parameter initializer");
-		
+		Environment resultEnv = new Environment(declarationEnvironment, callerEnvironment, callerEnvironment.getCreatorLocation(), URIUtil.rootLocation("initializer"), "keyword parameter initializer");
+
 		// first we compute the keyword parameters for the abstract data-type:
 		for (GenericKeywordParameters gkw : kws) {
 			// for hygiene's sake, each list of generic params needs to be evaluated in its declaring environment
@@ -112,14 +112,17 @@ public class ConstructorFunction extends NamedFunction {
 						kwResult = def.interpret(eval);
 					}
 					
+					// apply the static type we expect from the declaration:
+					kwResult = ResultFactory.makeResult(kwType, kwResult.getValue(), ctx);
+
 					if (name.equals(label)) {
 						// we have the one we need, bail out quickly
 						return kwResult;
 					}
 					else {
-						env.declareVariable(kwResult.getStaticType(), name);
+						env.declareVariable(kwType, name);
 						env.storeVariable(name, kwResult);
-						resultEnv.declareVariable(kwResult.getStaticType(), name);
+						resultEnv.declareVariable(kwType, name);
 						resultEnv.storeVariable(name, kwResult);
 					}
 				}
@@ -157,7 +160,7 @@ public class ConstructorFunction extends NamedFunction {
 	            } 
 	            else {
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
-					IValue res = def.interpret(eval).value;
+					IValue res = def.interpret(eval).getValue();
 
 					if (!res.getType().isSubtypeOf(kwType)) {
 						throw new UnexpectedKeywordArgumentType(kwparam, kwType, res.getType(), ctx.getCurrentAST());

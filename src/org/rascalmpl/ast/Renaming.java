@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Renaming extends AbstractAST {
   public Renaming(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class Renaming extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getFrom() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTo() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getTo() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
