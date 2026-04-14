@@ -88,6 +88,7 @@ public class CommandlineParser {
         for (int i = 0; i < commandline.length; i++) {
             if (List.of("-help", "--help", "/?", "?", "\\?", "-?", "--?").contains(commandline[i].trim())) {
                 printMainHelpMessage(kwTypes);
+                out.flush();
                 System.exit(0);
             }
             else if (commandline[i].startsWith("-")) {
