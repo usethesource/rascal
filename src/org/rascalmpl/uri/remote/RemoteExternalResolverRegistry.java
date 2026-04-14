@@ -32,10 +32,6 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.NotDirectoryException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +61,7 @@ import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.RemoteIOError;
 import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
@@ -83,7 +80,6 @@ import org.rascalmpl.util.functional.ThrowingTriFunction;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.gson.JsonPrimitive;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -273,49 +269,9 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         } catch (CompletionException | ExecutionException e) {
             var cause = e.getCause();
             if (cause instanceof ResponseErrorException) {
-                throw translateException((ResponseErrorException) cause);
+                throw RemoteIOError.translate((ResponseErrorException) cause);
             }
             throw new IOException(e);
-        }
-    }
-
-    private static final int JsonRpcErrorCode_Generic = -1;
-    private static final int JsonRpcErrorCode_FileSystem = -2;
-    private static final int JsonRpcErrorCode_NativeRascal = -3;
-
-    private static IOException translateException(ResponseErrorException cause) {
-        var error = cause.getResponseError();
-        switch (error.getCode()) {
-            case JsonRpcErrorCode_Generic:
-                return new IOException("Generic error: " + error.getMessage());
-            case JsonRpcErrorCode_FileSystem: {
-                if (error.getData() instanceof JsonPrimitive) {
-                    var data = (JsonPrimitive) error.getData();
-                    if (data.isString()) {
-                        switch (data.getAsString()) {
-                            case "FileExists": // fall-through
-                            case "EntryExists":
-                                return new FileAlreadyExistsException(error.getMessage());
-                            case "FileNotFound": // fall-through
-                            case "EntryNotFound":
-                                return new NoSuchFileException(error.getMessage());
-                            case "FileNotADirectory": // fall-through
-                            case "EntryNotADirectory":
-                                return new NotDirectoryException(error.getMessage());
-                            case "FileIsADirectory": // fall-through
-                            case "EntryIsADirectory":
-                                return new IOException("File is a directory: " + error.getMessage());
-                            case "NoPermissions":
-                                return new AccessDeniedException(error.getMessage());
-                        }
-                    }
-                }
-                return new IOException("File system error: " + error.getMessage() + " data: " + error.getData());
-            }
-            case JsonRpcErrorCode_NativeRascal:
-                return new IOException("Rascal native schemes should not be forwarded");
-            default:
-                return new IOException("Missing case for: " + error);
         }
     }
 

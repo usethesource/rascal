@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
 import org.rascalmpl.uri.FileAttributes;
@@ -46,6 +45,7 @@ import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationChanged;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
 import org.rascalmpl.uri.remote.jsonrpc.NumberResponse;
+import org.rascalmpl.uri.remote.jsonrpc.RemoteIOError;
 import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
@@ -81,8 +81,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
             try {
                 job.run();
             } catch (IOException | RuntimeException e) {
-                //TODO (translate)
-                throw new CompletionException(e);
+                throw RemoteIOError.translate(e);
             }
         }, executor);
     }
@@ -92,7 +91,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
             try {
                 return job.get();
             } catch (IOException | RuntimeException e) {
-                throw new CompletionException(e);
+                throw RemoteIOError.translate(e);
             }
         }, executor);
     }
