@@ -44,14 +44,15 @@ syntax StringPart
   | \ifThenD      : "$if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
   | \ifThenElseD  : "$if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "}"
   | \whileD       : "$while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
-  | \forD         : "$for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
-  | \sep          : "$sep"   "{" NoLayout {StringPart NoLayout}* body NoLayout "}" // is removed as the first and the last part of a for-loop, but kept in the middle
+  | \forD         : "$for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}" // any first and final literal body part are dropped at the start and end
   | balancedCurlies: "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
   | \margin       : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
   | \characters   : StringCharacters characters
   | @deprecate \compatible  : StringPartOld old
   ;
-  
+
+// "$for (e <- elems) {$e, }"
+
 syntax StringPartOld
   = \hole      : "\<" Expression arg  "\>"+  
   | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
