@@ -145,6 +145,6 @@ public enum RemoteIOError {
                     }
                 }
             }
-        throw new IllegalArgumentException("Unexpected remote IO error", e);
+        return new IOException("Unexpected remote IO error", e);
     }
 }
