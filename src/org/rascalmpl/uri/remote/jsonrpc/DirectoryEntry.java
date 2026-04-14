@@ -67,6 +67,6 @@ public class DirectoryEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(name, types);
+        return 19 * name.hashCode() + 31 * Arrays.deepHashCode(types);
     }
 }
