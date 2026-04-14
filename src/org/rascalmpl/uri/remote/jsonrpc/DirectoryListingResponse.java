@@ -49,6 +49,6 @@ public class DirectoryListingResponse {
     
     @Override
     public int hashCode() {
-        return Arrays.hashCode(entries);
+        return Arrays.deepHashCode(entries);
     }
 }
