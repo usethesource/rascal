@@ -40,9 +40,10 @@ public class RascalTest extends AbstractCommandlineTool {
                 var parser = new CommandlineParser(out);
                 var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
                 var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
-                var pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
-                var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, term.reader(), out, err, monitor);
-                   
+                PathConfig pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
+                var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
+                var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
+                
                 var modules = listParameter(parsedArgs, "modules");
 
                 var modNames = new LinkedList<String>();
