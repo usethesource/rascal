@@ -60,7 +60,13 @@ public class RascalTest extends AbstractCommandlineTool {
                 }
 
                 eval.doImport(monitor, modNames.stream().toArray(String[]::new));
-                
+
+                boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting");
+
+                if (reporting) {
+                    eval.setTestResultListener(new JunitXMLReporter());
+                }
+
                 if (!eval.runTests(eval.getMonitor())) {
                     System.exit(1);
                 }
