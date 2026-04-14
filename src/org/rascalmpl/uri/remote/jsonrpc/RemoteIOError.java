@@ -52,11 +52,14 @@ public enum RemoteIOError {
     UnsupportedScheme(-7),
     IllegalSyntax(-8),
 
-    FileSystemError(-10),
+    WatchAlreadyDefined(-10),
+    WatchNotDefined(-11),
 
-    IsRascalNative(-20),
+    FileSystemError(-20),
 
-    JsonRpcError(-30),
+    IsRascalNative(-30),
+
+    JsonRpcError(-40),
 
     Unknown(-100)
     ;
@@ -132,6 +135,10 @@ public enum RemoteIOError {
                 return new IOException(message != "" ? message : "Unsupported scheme");
             case IllegalSyntax:
                 return new IOException(message != "" ? message : "Invalid Json syntax");
+            case WatchAlreadyDefined:
+                return new IOException(message != "" ? message : "Watch already defined");
+            case WatchNotDefined:
+                return new IOException(message != "" ? message : "Watch not defined");
             case FileSystemError:
                 return new IOException(message != "" ? message : "General file system error");
             case IsRascalNative:
