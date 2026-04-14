@@ -114,33 +114,34 @@ public enum RemoteIOError {
     }
 
     public static IOException translate(ResponseErrorException e) {
+        var message = e.getResponseError() != null ? e.getResponseError().getMessage() : "";
         switch (forCode(e.getResponseError().getCode())) {
             case FileExists:
-                return new FileAlreadyExistsException( "File exists");
+                return new FileAlreadyExistsException(message != "" ? message : "File exists");
             case FileNotFound:
-                return new FileNotFoundException("File does not exist");
+                return new FileNotFoundException(message != "" ? message : "File does not exist");
             case IsADirectory:
-                return new IOException("Location is a directory");
+                return new IOException(message != "" ? message : "Location is a directory");
             case IsNotADirectory:
-                return new NotDirectoryException("Location is not a directory");
+                return new NotDirectoryException(message != "" ? message : "Location is not a directory");
             case DirectoryIsNotEmpty:
-                return new DirectoryNotEmptyException("Directory is not empty");
+                return new DirectoryNotEmptyException(message != "" ? message : "Directory is not empty");
             case PermissionDenied:
-                return new AccessDeniedException("Permission denied");
+                return new AccessDeniedException(message != "" ? message : "Permission denied");
             case UnsupportedScheme:
-                return new IOException("Unsupported scheme");
+                return new IOException(message != "" ? message : "Unsupported scheme");
             case IllegalSyntax:
-                return new IOException("Invalid Json syntax");
+                return new IOException(message != "" ? message : "Invalid Json syntax");
             case FileSystemError:
-                return new IOException("General file system error");
+                return new IOException(message != "" ? message : "General file system error");
             case IsRascalNative:
-                return new IOException("Rascal native scheme should not be queried remotely");
+                return new IOException(message != "" ? message : "Rascal native scheme should not be queried remotely");
             case JsonRpcError:
-                return new IOException("General JSON-RPC error");
+                return new IOException(message != "" ? message : "General JSON-RPC error");
             case Unknown:
-                return new IOException("Unknown Remote IO error");
+                return new IOException(message != "" ? message : "Unknown Remote IO error");
             default:
-                throw new IllegalArgumentException("Unknown RemoteIOError " + e);
+                throw new IllegalArgumentException("Unexpected remote IO error: " + message, e);
         }
     }
 }
