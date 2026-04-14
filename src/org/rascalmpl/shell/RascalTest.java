@@ -1,23 +1,29 @@
 package org.rascalmpl.shell;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
+/**
+ * Runs all the tests in the modules given bij de -modules parameter (and their imported/extend modules)
+ * Given a -project parameter, the path configuration will be constructed automatically
+ */
 public class RascalTest extends AbstractCommandlineTool {
     private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
 
@@ -30,17 +36,29 @@ public class RascalTest extends AbstractCommandlineTool {
             var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
             var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
         
-            try {   
-                var eval = ShellEvaluatorFactory.getDefaultEvaluator(term.reader(), out, err, monitor);
+            try {
                 var parser = new CommandlineParser(out);
-			    var kwParams = parameterTypes();
-			    var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, kwParams);
-                
+                var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
+                var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
+                var pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
+                var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, term.reader(), out, err, monitor);
+                   
                 var modules = listParameter(parsedArgs, "modules");
 
+                var modNames = new LinkedList<String>();
                 for (IValue m : modules) {
-                    eval.doImport(monitor, ((IString) m).getValue());
+                    var l = (ISourceLocation) m;
+                    for (var src: pcfg.getSrcs()) {
+                        var rel = URIUtil.relativize((ISourceLocation) src, l);
+                        if (rel.getScheme().equals("relative")) {
+                            rel = URIUtil.changeExtension(rel, "");
+                            var mod = rel.getPath().substring(1).replaceAll("/", "::");
+                            modNames.add(mod);
+                        }
+                    }
                 }
+
+                eval.doImport(monitor, modNames.stream().toArray(String[]::new));
                 
                 if (!eval.runTests(eval.getMonitor())) {
                     System.exit(1);
