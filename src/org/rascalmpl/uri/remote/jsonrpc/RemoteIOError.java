@@ -76,14 +76,6 @@ public enum RemoteIOError {
         this.code = code;
     }
 
-    private static RemoteIOError forCode(int code) {
-        var error = codeToError.get(code);
-        if (error == null) {
-            throw new IllegalArgumentException("Unknown RemoteIOError code " + code);
-        }
-        return error;
-    }
-
     public static ResponseErrorException translate(Throwable original) {
         if (original != null) {
             var cause = original;
@@ -117,38 +109,42 @@ public enum RemoteIOError {
     }
 
     public static IOException translate(ResponseErrorException e) {
-        var message = e.getResponseError() != null ? e.getResponseError().getMessage() : "";
-        switch (forCode(e.getResponseError().getCode())) {
-            case FileExists:
-                return new FileAlreadyExistsException(message != "" ? message : "File exists");
-            case FileNotFound:
-                return new FileNotFoundException(message != "" ? message : "File does not exist");
-            case IsADirectory:
-                return new IOException(message != "" ? message : "Location is a directory");
-            case IsNotADirectory:
-                return new NotDirectoryException(message != "" ? message : "Location is not a directory");
-            case DirectoryIsNotEmpty:
-                return new DirectoryNotEmptyException(message != "" ? message : "Directory is not empty");
-            case PermissionDenied:
-                return new AccessDeniedException(message != "" ? message : "Permission denied");
-            case UnsupportedScheme:
-                return new IOException(message != "" ? message : "Unsupported scheme");
-            case IllegalSyntax:
-                return new IOException(message != "" ? message : "Invalid Json syntax");
-            case WatchAlreadyDefined:
-                return new IOException(message != "" ? message : "Watch already defined");
-            case WatchNotDefined:
-                return new IOException(message != "" ? message : "Watch not defined");
-            case FileSystemError:
-                return new IOException(message != "" ? message : "General file system error");
-            case IsRascalNative:
-                return new IOException(message != "" ? message : "Rascal native scheme should not be queried remotely");
-            case JsonRpcError:
-                return new IOException(message != "" ? message : "General JSON-RPC error");
-            case Unknown:
-                return new IOException(message != "" ? message : "Unknown Remote IO error");
-            default:
-                throw new IllegalArgumentException("Unexpected remote IO error: " + message, e);
-        }
+        if (e.getResponseError() != null) {
+            var message = e.getResponseError().getMessage();
+            var error = codeToError.get(e.getResponseError().getCode());
+            if (error != null) {
+                switch (error) {
+                    case FileExists:
+                        return new FileAlreadyExistsException(message != "" ? message : "File exists");
+                    case FileNotFound:
+                        return new FileNotFoundException(message != "" ? message : "File does not exist");
+                    case IsADirectory:
+                        return new IOException(message != "" ? message : "Location is a directory");
+                    case IsNotADirectory:
+                        return new NotDirectoryException(message != "" ? message : "Location is not a directory");
+                    case DirectoryIsNotEmpty:
+                        return new DirectoryNotEmptyException(message != "" ? message : "Directory is not empty");
+                    case PermissionDenied:
+                        return new AccessDeniedException(message != "" ? message : "Permission denied");
+                    case UnsupportedScheme:
+                        return new IOException(message != "" ? message : "Unsupported scheme");
+                    case IllegalSyntax:
+                        return new IOException(message != "" ? message : "Invalid Json syntax");
+                    case WatchAlreadyDefined:
+                        return new IOException(message != "" ? message : "Watch already defined");
+                    case WatchNotDefined:
+                        return new IOException(message != "" ? message : "Watch not defined");
+                    case FileSystemError:
+                        return new IOException(message != "" ? message : "General file system error");
+                    case IsRascalNative:
+                        return new IOException(message != "" ? message : "Rascal native scheme should not be queried remotely");
+                    case JsonRpcError:
+                        return new IOException(message != "" ? message : "General JSON-RPC error");
+                    case Unknown:
+                        return new IOException(message != "" ? message : "Unknown remote IO error");
+                    }
+                }
+            }
+        throw new IllegalArgumentException("Unexpected remote IO error", e);
     }
 }
