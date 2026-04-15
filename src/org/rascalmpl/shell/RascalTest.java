@@ -1,4 +1,5 @@
 package org.rascalmpl.shell;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -9,6 +10,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
+import org.rascalmpl.test.infrastructure.JUnitXMLReportListener;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -61,10 +63,10 @@ public class RascalTest extends AbstractCommandlineTool {
 
                 eval.doImport(monitor, modNames.stream().toArray(String[]::new));
 
-                boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting");
+                boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting"));
 
                 if (reporting) {
-                    eval.setTestResultListener(new JunitXMLReporter());
+                    eval.setTestResultListener(new JUnitXMLReportListener(URIUtil.getChildLocation(projectRoot, "target"), eval.getHeap().moduleFiles()));
                 }
 
                 if (!eval.runTests(eval.getMonitor())) {
@@ -102,7 +104,8 @@ public class RascalTest extends AbstractCommandlineTool {
 		
 		return tf.tupleType(
 			PathConfig.PathConfigType, "pcfg",
-			ll, "modules"
+			ll, "modules",
+            tf.boolType(), "reporting"
 		);
 	}
 
