@@ -3,6 +3,7 @@ package org.rascalmpl.test.infrastructure;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
@@ -12,36 +13,41 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class JUnitXMLReportListener implements ITestResultListener {
     private XMLStreamWriter out;
-    private final File folder;
-    private final Map<String, File> modules;
+    private final ISourceLocation folder;
+    private final Map<String, ISourceLocation> modules;
     private String current = null;
 
-    public JUnitXMLReportListener(File outputFolder, Map<String, File> modules) {
-        this.folder = new File(outputFolder, "surefire-reports");
+    public JUnitXMLReportListener(ISourceLocation outputFolder, Map<String, ISourceLocation> modules) {
+        this.folder = URIUtil.getChildLocation(outputFolder, "surefire-reports");
         this.modules = modules;
     }
 
     @Override
     public void start(String context, int count) {
         try {
-            current = context;
-            out = XMLOutputFactory.newDefaultFactory().createXMLStreamWriter(new FileOutputStream(targetXML(context)));
+            current = context;  
+            var xmlFile = targetXML(context);
+
+            out = XMLOutputFactory.newDefaultFactory()
+                .createXMLStreamWriter(URIResolverRegistry.getInstance().getOutputStream(xmlFile, false));
             out.writeStartDocument();
             out.writeStartElement("testsuite");    
         }
-        catch (FileNotFoundException | XMLStreamException e) {
+        catch (IOException | XMLStreamException e) {
             System.err.println("unexpected failure during test reporting");
             throw new RuntimeException(e);   
         }
     }
 
-    private File targetXML(String context) {
-        return new File(folder, context.replaceAll("::", File.separator).concat(".xml"));
+    private ISourceLocation targetXML(String context) {
+        return URIUtil.getChildLocation(folder, context.replaceAll("::", ".").concat(".xml"));
     }
 
     @Override
@@ -98,6 +104,8 @@ public class JUnitXMLReportListener implements ITestResultListener {
         try {
             out.writeEndElement();
             out.writeEndDocument();
+            out.flush();
+            out.close();
         }
         catch (XMLStreamException e) {
             System.err.println("unexpected error during test reporting");
