@@ -136,7 +136,7 @@ public class URIResolverRegistry {
 	}
 
 	public synchronized void registerRemoteResolverRegistry(RemoteExternalResolverRegistry registry) {
-		if (this.externalRegistry != null) {
+		if (this.externalRegistry == null) {
 			this.externalRegistry = registry;
 			watchers.setExternalRegistry(registry);
 		}
