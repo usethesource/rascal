@@ -102,13 +102,26 @@ int main(list[str] args) {
     storeParsersForModules(pcfg);
 }
 ```
+
+Or, you could use the ((PathConfig)) parameter feature of `main` functions. The Rascal maven plugin will
+make sure to pass the proper ((PathConfig)) parameter to your main function:
+```rascal
+module YourMainModule
+
+import util::Reflective;
+import lang::rascal::grammar::storage::ModuleParserStorage;
+
+int main(PathConfig pcfg = pathConfig()) {
+    storeParsersForModules(pcfg);
+}
+```
 }
 void storeParsersForModules(PathConfig pcfg) {
-    storeParsersForModules({*find(src, "rsc") | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
+    storeParsersForModules({*find(src, "rsc", exclude={*pcfg.ignores}) | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
 }
     
 void storeParsersForModules(set[loc] moduleFiles, PathConfig pcfg) {
-    storeParsersForModules({parseModule(m) | m <- moduleFiles, bprintln("Loading <m>")}, pcfg);
+    storeParsersForModules({parseModule(m) | m <- moduleFiles, m notin pcfg.ignores, bprintln("Loading <m>")}, pcfg);
 }
 
 void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
