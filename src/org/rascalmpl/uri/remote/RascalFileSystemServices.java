@@ -70,11 +70,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     private static final ExecutorService executor = NamedThreadPool.cachedDaemon("rascal-vfs");
 
-    private volatile IRemoteResolverRegistryClient client = null;
-
-    protected void provideClient(IRemoteResolverRegistryClient client) {
-        this.client = client;
-    }
+    protected volatile IRemoteResolverRegistryClient client = null;
 
     private CompletableFuture<Void> async(ThrowingRunnable<IOException> job) {
         return CompletableFuture.runAsync(() -> {
