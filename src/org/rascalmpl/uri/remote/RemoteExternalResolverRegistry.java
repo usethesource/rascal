@@ -329,15 +329,19 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
+    private ISourceLocationRequest req(ISourceLocation loc) {
+        return new ISourceLocationRequest(loc);
+    }
+
     @Override
     public InputStream getInputStream(ISourceLocation loc) throws IOException {
-        return StreamingBase64.decode(call(getRemote()::readFile, new ISourceLocationRequest(loc)).getContent());
+        return StreamingBase64.decode(call(getRemote()::readFile, req(loc)).getContent());
     }
 
     @Override
     public boolean exists(ISourceLocation loc) {
         try {
-            return call(getRemote()::exists, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::exists, req(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -345,12 +349,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public long lastModified(ISourceLocation loc) throws IOException {
-        return call(getRemote()::lastModified, new ISourceLocationRequest(loc)).getTimestamp();
+        return call(getRemote()::lastModified, req(loc)).getTimestamp();
     }
 
     @Override
     public long size(ISourceLocation loc) throws IOException {
-        return call(getRemote()::size, new ISourceLocationRequest(loc)).getNumber();
+        return call(getRemote()::size, req(loc)).getNumber();
     }
 
     private Boolean cachedIsDirectory(ISourceLocation loc) {
@@ -369,7 +373,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             if (cached != null) {
                 return cached;
             }
-            return call(getRemote()::isDirectory, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::isDirectory, req(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -382,7 +386,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             if (cached != null) {
                 return !cached;
             }
-            return call(getRemote()::isFile, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::isFile, req(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -390,7 +394,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isReadable(ISourceLocation loc) throws IOException {
-        return call(getRemote()::isReadable, new ISourceLocationRequest(loc)).getValue();
+        return call(getRemote()::isReadable, req(loc)).getValue();
     }
 
     /**
@@ -406,7 +410,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
-        var result = call(getRemote()::list, new ISourceLocationRequest(loc));
+        var result = call(getRemote()::list, req(loc));
         cachedDirectoryListing.put(loc, Lazy.defer(() -> {
             return Stream.of(result.getEntries()).collect(Collectors.toMap(DirectoryEntry::getName, DirectoryEntry::isDirectory));
         }));
@@ -420,7 +424,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public FileAttributes stat(ISourceLocation loc) throws IOException {
-        return call(getRemote()::stat, new ISourceLocationRequest(loc));
+        return call(getRemote()::stat, req(loc));
     }
 
     @Override
@@ -436,7 +440,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public void mkDirectory(ISourceLocation loc) throws IOException {
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        call(getRemote()::mkDirectory, new ISourceLocationRequest(loc));
+        call(getRemote()::mkDirectory, req(loc));
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
@@ -456,7 +460,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isWritable(ISourceLocation loc) throws IOException {
-        return call(getRemote()::isWritable, new ISourceLocationRequest(loc)).getValue();
+        return call(getRemote()::isWritable, req(loc)).getValue();
     }
 
     @Override
