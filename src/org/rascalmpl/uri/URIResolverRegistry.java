@@ -137,7 +137,7 @@ public class URIResolverRegistry {
 
 	public synchronized void registerRemoteResolverRegistry(int remoteResolverRegistryPort) {
 		if (externalRegistry == null) {
-			var registry = createSpecializedRemoteResolverRegistry(remoteResolverRegistryPort);
+			var registry = createCustomRemoteResolverRegistry(remoteResolverRegistryPort);
 			if (registry == null)  {
 				registry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
 			}
@@ -146,20 +146,20 @@ public class URIResolverRegistry {
 		}
 	}
 
-	private synchronized RemoteExternalResolverRegistry createSpecializedRemoteResolverRegistry(int remoteResolverRegistryPort) {
-		var specializedRemoteResolverRegistryClass = System.getProperty("rascal.specializedRemoteResolverRegistryClass");
-		if (specializedRemoteResolverRegistryClass != null) {
+	private synchronized RemoteExternalResolverRegistry createCustomRemoteResolverRegistry(int remoteResolverRegistryPort) {
+		var customRemoteResolverRegistryClass = System.getProperty("rascal.customRemoteResolverRegistryClass");
+		if (customRemoteResolverRegistryClass != null) {
 			try {
-				var clazz = Thread.currentThread().getContextClassLoader().loadClass(specializedRemoteResolverRegistryClass);
+				var clazz = Thread.currentThread().getContextClassLoader().loadClass(customRemoteResolverRegistryClass);
 				var instance = clazz.getConstructor(int.class).newInstance(remoteResolverRegistryPort);
 				if (instance instanceof RemoteExternalResolverRegistry) {
 					return (RemoteExternalResolverRegistry) instance;
 				} else {
-					System.err.println("Provided specialized remote resolver registry class name `" + specializedRemoteResolverRegistryClass
+					System.err.println("Provided custom remote resolver registry class name `" + customRemoteResolverRegistryClass
 						+ "` does not derive from RemoteExternalResolverRegistry; using default implementation instead. ");
 				}
 			} catch (Exception e) {
-				System.err.println("Provided specialized remote resolver registry class name `" + specializedRemoteResolverRegistryClass
+				System.err.println("Provided custom remote resolver registry class name `" + customRemoteResolverRegistryClass
 					+ "` could not be instantiated; using default implementation instead. " + e.getMessage());
 			}
 		}
