@@ -45,11 +45,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
@@ -87,7 +88,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Default implementation for access to a remote file system.
  */
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry, IRemoteResolverRegistryClient {
-    private volatile IRemoteResolverRegistryServer remote = null;
+    private final AtomicReference<IRemoteResolverRegistryServer> remote = new AtomicReference<>(null);
     private static final ExecutorService exec = NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry");
 
     private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
@@ -95,20 +96,29 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     private final int remoteResolverRegistryPort;
 
+    /**
+     * We keep track of whether a first connection to a remote resolver registry has been made.
+     * During initialization, the thread is blocked, see {@link #getRemote}.
+     */
+    private volatile boolean firstConnectionEstablished = false;
+
     public RemoteExternalResolverRegistry(int remoteResolverRegistryPort) {
         this.remoteResolverRegistryPort = remoteResolverRegistryPort;
-        scheduleReconnect();
+        scheduleReconnect(null);
     }
 
     private static final Duration LONGEST_TIMEOUT = Duration.ofMinutes(1);
 
     private void connect(Duration nextTimeout) {
-        if (remote != null) {
+        if (remote.get() != null) {
             return;
         }
         try {
-            remote = startClient();
-            assert remote != null;
+            var newClient = startClient();
+            if (!remote.compareAndSet(null, newClient.getRight())) {
+                newClient.getLeft().close();
+            }
+            firstConnectionEstablished = true;
         } catch (RuntimeException | IOException e) {
             CompletableFuture.delayedExecutor(nextTimeout.toMillis(), TimeUnit.MILLISECONDS, exec).execute(() -> {
                 var newTimeout = nextTimeout.plusMillis(10);
@@ -120,145 +130,189 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
-    private void scheduleReconnect() {
-        CompletableFuture.runAsync(() -> connect(Duration.ofMillis(10)), exec);
+    private void scheduleReconnect(IRemoteResolverRegistryServer oldServer) {
+        if (remote.compareAndSet(oldServer, null)) {
+            CompletableFuture.runAsync(() -> connect(Duration.ofMillis(10)), exec);
+        }
     }
 
-    private InputStream errorDetectingInputStream(InputStream original) {
-        return new InputStream() {
-            private <T> T socketExceptionCatcher(ThrowingSupplier<T, IOException> function) throws IOException {
-                try {
-                    return function.get();
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
+    private IRemoteResolverRegistryServer getRemote() throws IOException {
+        for (var i = 0; i < 1000 && !firstConnectionEstablished; i++) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-            
-            private <T, R> R socketExceptionCatcher(ThrowingFunction<T, R, IOException> function, T t) throws IOException {
-                try {
-                    return function.apply(t);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
-
-            private <T, U, V, R> R socketExceptionCatcher(ThrowingTriFunction<T, U, V, R, IOException> function, T t, U u, V v) throws IOException {
-                try {
-                    return function.apply(t, u, v);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
-            
-            @Override
-            public int read() throws IOException {
-                return socketExceptionCatcher(original::read);
-            }
-
-            @Override
-            public int read(byte[] b, int off, int len) throws IOException {
-                return socketExceptionCatcher(original::read, b, off, len);
-            }
-
-            @Override
-            public int available() throws IOException {
-                return socketExceptionCatcher(original::available);
-            }
-            
-            @Override
-            public long skip(long n) throws IOException {
-                return socketExceptionCatcher(original::skip, n);
-            }
-
-            @Override
-            public void close() throws IOException {
-                original.close();
-            }
-            
-            @Override
-            public byte[] readNBytes(int len) throws IOException {
-                return socketExceptionCatcher(original::readNBytes, len);
-            }
-
-            @Override
-            public int readNBytes(byte[] b, int off, int len) throws IOException {
-                return socketExceptionCatcher(original::readNBytes, b, off, len);
-            }
-        };
+        }
+        var result = remote.get();
+        if (result == null) {
+            throw new IOException("Not connected to remote external resolver registry");
+        }
+        return result;
     }
 
-    private OutputStream errorDetectingOutputStream(OutputStream original) {
-        return new OutputStream() {
-            private void socketExceptionCatcher(ThrowingRunnable<IOException> runnable) throws IOException {
-                try {
-                    runnable.run();
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
+    private class ErrorDetectingInputStream extends InputStream {
+        private final InputStream original;
 
-            private <T> void socketExceptionCatcher(ThrowingConsumer<T, IOException> consumer, T t) throws IOException {
-                try {
-                    consumer.accept(t);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
+        public ErrorDetectingInputStream(InputStream original) {
+            this.original = original;
+        }
 
-            private <T, U, V> void socketExceptionCatcher(ThrowingTriConsumer<T, U, V, IOException> consumer, T t, U u, V v) throws IOException {
-                try {
-                    consumer.accept(t, u, v);
-                } catch (SocketException e) {
-                    scheduleReconnect();
-                    throw e;
-                }
-            }
+        private IRemoteResolverRegistryServer server;
 
-            @Override
-            public void write(int b) throws IOException {
-                socketExceptionCatcher(original::write, b);
-            }
-            
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                socketExceptionCatcher(original::write, b, off, len);
-            }
+        public void connect(IRemoteResolverRegistryServer server) {
+            this.server = server;
+        }
 
-            @Override
-            public void flush() throws IOException {
-                socketExceptionCatcher(original::flush);
+        private <T> T socketExceptionCatcher(ThrowingSupplier<T, IOException> function) throws IOException {
+            try {
+                return function.get();
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
             }
+        }
+        
+        private <T, R> R socketExceptionCatcher(ThrowingFunction<T, R, IOException> function, T t) throws IOException {
+            try {
+                return function.apply(t);
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
+            }
+        }
 
-            @Override
-            public void close() throws IOException {
-                original.close();
+        private <T, U, V, R> R socketExceptionCatcher(ThrowingTriFunction<T, U, V, R, IOException> function, T t, U u, V v) throws IOException {
+            try {
+                return function.apply(t, u, v);
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
             }
-        };
+        }
+        
+        @Override
+        public int read() throws IOException {
+            return socketExceptionCatcher(original::read);
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            return socketExceptionCatcher(original::read, b, off, len);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return socketExceptionCatcher(original::available);
+        }
+        
+        @Override
+        public long skip(long n) throws IOException {
+            return socketExceptionCatcher(original::skip, n);
+        }
+
+        @Override
+        public void close() throws IOException {
+            original.close();
+        }
+        
+        @Override
+        public byte[] readNBytes(int len) throws IOException {
+            return socketExceptionCatcher(original::readNBytes, len);
+        }
+
+        @Override
+        public int readNBytes(byte[] b, int off, int len) throws IOException {
+            return socketExceptionCatcher(original::readNBytes, b, off, len);
+        }
     }
 
-    private IRemoteResolverRegistryServer startClient() throws RuntimeException, IOException {
+    private class ErrorDetectingOutputStream extends OutputStream {
+        private final OutputStream original;
+
+        public ErrorDetectingOutputStream(OutputStream original) {
+            this.original = original;
+        }
+
+        private IRemoteResolverRegistryServer server;
+
+        public void connect(IRemoteResolverRegistryServer server) {
+            this.server = server;
+        }
+        
+        private void socketExceptionCatcher(ThrowingRunnable<IOException> runnable) throws IOException {
+            try {
+                runnable.run();
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
+            }
+        }
+
+        private <T> void socketExceptionCatcher(ThrowingConsumer<T, IOException> consumer, T t) throws IOException {
+            try {
+                consumer.accept(t);
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
+            }
+        }
+
+        private <T, U, V> void socketExceptionCatcher(ThrowingTriConsumer<T, U, V, IOException> consumer, T t, U u, V v) throws IOException {
+            try {
+                consumer.accept(t, u, v);
+            } catch (SocketException e) {
+                scheduleReconnect(server);
+                throw e;
+            }
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            socketExceptionCatcher(original::write, b);
+        }
+        
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            socketExceptionCatcher(original::write, b, off, len);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            socketExceptionCatcher(original::flush);
+        }
+
+        @Override
+        public void close() throws IOException {
+            original.close();
+        }
+    }
+
+    private Pair<Socket, IRemoteResolverRegistryServer> startClient() throws RuntimeException, IOException {
         @SuppressWarnings("resource")
         var socket = new Socket(InetAddress.getLoopbackAddress(), remoteResolverRegistryPort);
         socket.setTcpNoDelay(true);
+        var inputStream = new ErrorDetectingInputStream(socket.getInputStream());
+        var outputStream = new ErrorDetectingOutputStream(socket.getOutputStream());
+        
         Launcher<IRemoteResolverRegistryServer> clientLauncher = new Launcher.Builder<IRemoteResolverRegistryServer>()
             .setRemoteInterface(IRemoteResolverRegistryServer.class)
             .setLocalService(this)
-            .setInput(errorDetectingInputStream(socket.getInputStream()))
-            .setOutput(errorDetectingOutputStream(socket.getOutputStream()))
+            .setInput(inputStream)
+            .setOutput(outputStream)
             .configureGson(GsonUtils.complexAsJsonObject())
             .setExecutorService(exec)
             .create();
 
         clientLauncher.startListening();
-        return clientLauncher.getRemoteProxy();
+        var remote = clientLauncher.getRemoteProxy();
+
+        inputStream.connect(remote);
+        outputStream.connect(remote);
+        return Pair.of(socket, remote);
     }
 
-    private static <T, U> U call(Function<T, CompletableFuture<U>> function, T argument) throws IOException {
+    private static <T, U> U call(ThrowingFunction<T, CompletableFuture<U>, IOException> function, T argument) throws IOException {
         try {
             return function.apply(argument).get(1, TimeUnit.MINUTES);
         } catch (TimeoutException e) {
@@ -277,13 +331,13 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public InputStream getInputStream(ISourceLocation loc) throws IOException {
-        return StreamingBase64.decode(call(remote::readFile, new ISourceLocationRequest(loc)).getContent());
+        return StreamingBase64.decode(call(getRemote()::readFile, new ISourceLocationRequest(loc)).getContent());
     }
 
     @Override
     public boolean exists(ISourceLocation loc) {
         try {
-            return call(remote::exists, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::exists, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -291,12 +345,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public long lastModified(ISourceLocation loc) throws IOException {
-        return call(remote::lastModified, new ISourceLocationRequest(loc)).getTimestamp();
+        return call(getRemote()::lastModified, new ISourceLocationRequest(loc)).getTimestamp();
     }
 
     @Override
     public long size(ISourceLocation loc) throws IOException {
-        return call(remote::size, new ISourceLocationRequest(loc)).getNumber();
+        return call(getRemote()::size, new ISourceLocationRequest(loc)).getNumber();
     }
 
     private Boolean cachedIsDirectory(ISourceLocation loc) {
@@ -315,7 +369,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             if (cached != null) {
                 return cached;
             }
-            return call(remote::isDirectory, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::isDirectory, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -328,7 +382,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             if (cached != null) {
                 return !cached;
             }
-            return call(remote::isFile, new ISourceLocationRequest(loc)).getValue();
+            return call(getRemote()::isFile, new ISourceLocationRequest(loc)).getValue();
         } catch (IOException e) {
             return false;
         }
@@ -336,7 +390,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean isReadable(ISourceLocation loc) throws IOException {
-        return call(remote::isReadable, new ISourceLocationRequest(loc)).getValue();
+        return call(getRemote()::isReadable, new ISourceLocationRequest(loc)).getValue();
     }
 
     /**
@@ -352,7 +406,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public String[] list(ISourceLocation loc) throws IOException {
-        var result = call(remote::list, new ISourceLocationRequest(loc));
+        var result = call(getRemote()::list, new ISourceLocationRequest(loc));
         cachedDirectoryListing.put(loc, Lazy.defer(() -> {
             return Stream.of(result.getEntries()).collect(Collectors.toMap(DirectoryEntry::getName, DirectoryEntry::isDirectory));
         }));
@@ -366,7 +420,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public FileAttributes stat(ISourceLocation loc) throws IOException {
-        return call(remote::stat, new ISourceLocationRequest(loc));
+        return call(getRemote()::stat, new ISourceLocationRequest(loc));
     }
 
     @Override
@@ -374,7 +428,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         var content = new StringBuilder();
         return StreamingBase64.encode(content, () -> {
             cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-            call(remote::writeFile, new WriteFileRequest(loc, content.toString(), append));
+            call(getRemote()::writeFile, new WriteFileRequest(loc, content.toString(), append));
             cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
         });
     }
@@ -382,7 +436,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public void mkDirectory(ISourceLocation loc) throws IOException {
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        call(remote::mkDirectory, new ISourceLocationRequest(loc));
+        call(getRemote()::mkDirectory, new ISourceLocationRequest(loc));
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
@@ -390,24 +444,24 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     public void remove(ISourceLocation loc) throws IOException {
         cachedDirectoryListing.invalidate(loc);
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
-        call(remote::remove, new RemoveRequest(loc, true));
+        call(getRemote()::remove, new RemoveRequest(loc, true));
         cachedDirectoryListing.invalidate(loc);
         cachedDirectoryListing.invalidate(URIUtil.getParentLocation(loc));
     }
 
     @Override
     public void setLastModified(ISourceLocation loc, long timestamp) throws IOException {
-        call(remote::setLastModified, new SetLastModifiedRequest(loc, timestamp));
+        call(getRemote()::setLastModified, new SetLastModifiedRequest(loc, timestamp));
     }
 
     @Override
     public boolean isWritable(ISourceLocation loc) throws IOException {
-        return call(remote::isWritable, new ISourceLocationRequest(loc)).getValue();
+        return call(getRemote()::isWritable, new ISourceLocationRequest(loc)).getValue();
     }
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        return call(remote::resolveLocation, new ISourceLocationRequest(input)).getLocation();
+        return call(getRemote()::resolveLocation, new ISourceLocationRequest(input)).getLocation();
     }
 
     @Override
@@ -419,7 +473,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                 watch = new Watchers();
                 watch.addNewWatcher(watcher);
                 watchersById.put(watch.getId(), watch);
-                call(remote::watch, new WatchRequest(root, recursive, watch.getId()));
+                call(getRemote()::watch, new WatchRequest(root, recursive, watch.getId()));
                 watchers.put(key, watch);
             }
             watch.addNewWatcher(watcher);
@@ -438,7 +492,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
                     return;
                 }
                 watchersById.remove(watch.getId());
-                call(remote::unwatch, new WatchRequest(root, recursive, watch.getId()));
+                call(getRemote()::unwatch, new WatchRequest(root, recursive, watch.getId()));
             }
         }
     }
@@ -446,7 +500,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     @Override
     public boolean supportsRecursiveWatch() {
         try {
-            return call(n -> remote.supportsRecursiveWatch(), null).getValue();
+            return call(n -> getRemote().supportsRecursiveWatch(), null).getValue();
         } catch (IOException e) {
             return false;
         }
