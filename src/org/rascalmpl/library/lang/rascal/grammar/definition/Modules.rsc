@@ -18,7 +18,7 @@ import Set;
 import IO;
 import util::Monitor;
 
-syntax HereLocation = ();
+private loc here = |std:///lang/rascal/syntax/grammar/definition/Modules|;
 
 @memo
 @synopsis{Converts internal module representation of Rascal interpreter to single grammar definition}
@@ -54,7 +54,7 @@ public Grammar fuse(GrammarDefinition def) {
   deps = dependencies(def);
   
   if (!def.modules[def.main]?) {
-    jobWarning("the main module is unavailable <def.main> (ignored)", (HereLocation)``@\loc);
+    jobWarning("the main module is unavailable <def.main> (ignored)", here);
   }
 
   while (todo != {}) {
@@ -64,7 +64,7 @@ public Grammar fuse(GrammarDefinition def) {
     \mod = def.modules[nm];
 
     for (str i <- deps[nm], !def.modules[i]?) {
-      jobWarning("<nm> imports or extends the unavailable module <i> (ignored)", (HereLocation)``@\loc);
+      jobWarning("<nm> imports or extends the unavailable module <i> (ignored)", here);
     }
 
     result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
