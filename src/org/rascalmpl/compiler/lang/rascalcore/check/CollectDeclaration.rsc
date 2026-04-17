@@ -303,14 +303,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 
     c.enterLubScope(decl);
         collect(decl.tags, c);
-        <tpnames, tpbounds> = collectSignature(decl.signature, c);
-        //println("tpnames: <tpnames>");
-        //iprintln("tpbounds:"); iprintln(tpbounds);
-        //
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), signatureInfo(signature.\type));
-
-
+        <tpnames, tpbounds> = collectSignature(decl.signature, c);
+       
         dt = defType([signature], AType(Solver s) {
              ft = s.getType(signature);
 
@@ -477,7 +473,7 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
             rtU = updateBounds(rt, minB);
             formalsList = [ updateBounds(fm, minB) | fm <- formalsList ];
             kwFormalsList = [ kwf[fieldType = updateBounds(kwf.fieldType, minB)] | kwf <- computeKwFormals(kwFormals, s) ];
-            ft = afunc(rt, formalsList, kwFormalsList);
+            ft = afunc(rtU, formalsList, kwFormalsList);
             //ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minB);
             return ft;
         });
