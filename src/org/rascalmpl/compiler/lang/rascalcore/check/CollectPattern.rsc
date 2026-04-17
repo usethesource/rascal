@@ -92,8 +92,21 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     if(tp is function) c.enterScope(current);
         collect(tp, c);
     if(tp is function) c.leaveScope(current);
-    
-    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+    calcDeps = [tp];
+    functionScopes = c.getScopeInfo(functionScope());
+    if(!isEmpty(functionScopes)){
+        for(<_, scopeInfo> <- functionScopes){
+            if(signatureInfo(Type returnType) := scopeInfo){
+                calcDeps += returnType;
+                break;
+            } else {
+                throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
+            }
+        }
+    }
+    c.calculate("typed variable pattern", current, calcDeps, AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+ 
+
     if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
        orScopes = c.getScopeInfo(orScope());
