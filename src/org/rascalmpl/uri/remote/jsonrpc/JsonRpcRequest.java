@@ -26,40 +26,10 @@
  */
 package org.rascalmpl.uri.remote.jsonrpc;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class SetLastModifiedRequest extends ISourceLocationRequest {
-    private final long timestamp;
-
-    public SetLastModifiedRequest(ISourceLocation loc, long timestamp) {
-        super(loc);
-        this.timestamp = timestamp;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
-        return (T) new SetLastModifiedRequest(transformer.apply(loc), timestamp);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SetLastModifiedRequest) {
-            var other = (SetLastModifiedRequest)obj;
-            return super.equals(other) && timestamp == other.timestamp;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), timestamp);
-    }
+public interface JsonRpcRequest {
+    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer);
 }

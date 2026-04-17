@@ -27,6 +27,7 @@
 package org.rascalmpl.uri.remote.jsonrpc;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -46,6 +47,12 @@ public class WatchRequest extends ISourceLocationRequest {
 
     public boolean isRecursive() {
         return recursive;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
+        return (T) new WatchRequest(transformer.apply(loc), recursive, watchId);
     }
 
     @Override
