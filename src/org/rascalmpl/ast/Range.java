@@ -31,21 +31,21 @@ public abstract class Range extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Char getCharacter() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasEnd() {
     return false;
   }
 
   public org.rascalmpl.ast.Char getEnd() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasStart() {
     return false;
   }
 
   public org.rascalmpl.ast.Char getStart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

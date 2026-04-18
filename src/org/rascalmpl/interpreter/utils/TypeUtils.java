@@ -23,7 +23,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public final class TypeUtils {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	
-	public static Type typeOf(List<TypeArg> args, Environment env) {
+	public static Type typeOf(List<TypeArg> args, Environment env, boolean noVoid) {
 		Type[] fieldTypes = new Type[args.size()];
 		String[] fieldLabels = new String[args.size()];
 
@@ -34,6 +34,10 @@ public final class TypeUtils {
 		for (TypeArg arg : args) {
 			fieldTypes[i] = arg.getType().typeOf(env, null, false);
 
+			if (noVoid && fieldTypes[i].isBottom()) {
+				return fieldTypes[i];
+			}
+			
 			if (arg.isNamed()) {
 				fieldLabels[i] = Names.name(arg.getName());
 				someLabeled = true;

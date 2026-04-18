@@ -27,7 +27,7 @@ arbBool();
 ```
 }
 @benefits{
-* `arbInt` is a convenient generator for arbitrary binary choices.
+* `arbBool` is a convenient generator for arbitrary binary choices.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}

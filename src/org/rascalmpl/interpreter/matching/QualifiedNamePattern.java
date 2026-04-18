@@ -144,8 +144,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		}
 		else {
 			// equality check
-			if(debug)System.err.printf("subject.getTYpe() = %s, varRes.getType() = %s\n", subject.getValue().getType(), varRes.getStaticType());
-			if (subject.getValue().getType().isSubtypeOf(varRes.getStaticType())) {
+			if(debug)System.err.printf("subject.getType() = %s, varRes.getType() = %s\n", subject.getValue().getType(), varRes.getStaticType());
+			if (subject.getValue().getType().isSubtypeOf(varRes.getDynamicType())) {
 				if(debug) {
 					System.err.println("returns " + subject.equals(varRes));
 				}

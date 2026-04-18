@@ -3,6 +3,7 @@
 module lang::rascal::tests::functionality::Reification
 
 import ParseTree;
+import Set;
 
 data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
 data D[&T] = d1(&T fld);
@@ -21,7 +22,8 @@ test bool reifyValue() = #value.symbol == \value();
 test bool reifyList() = #list[int].symbol == \list(\int());
 test bool reifySet() = #set[int].symbol == \set(\int());
 
-@ignore{Not implemented}
+@ignoreInterpreter{Not implemented}
+@ignoreCompiler{Not implemented}
 test bool reifyBag() = #bag[int].symbol == \bag(\int());
 
 test bool reifyMap() = #map[int,str].symbol == \map(\int(),\str());
@@ -49,7 +51,7 @@ test bool reifyReified3() = #type[D[int]].symbol == \reified(\adt("D", [\int()])
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
 test bool allConstructorsAreDefined() 
-  = (0 | it + 1 | /cons(_,_,_,_) := #P.definitions) == 7;
+  = size(#P.definitions[adt("P",[])].alternatives) == 7;
 
 test bool allConstructorsForAnAlternativeDefineTheSameSort() 
   = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
@@ -58,6 +60,12 @@ test bool typeParameterReificationIsStatic1(&F _) = #&F.symbol == \parameter("F"
 test bool typeParameterReificationIsStatic2(list[&F] _) = #list[&F].symbol == \list(\parameter("F",\value()));
 
 @ignore{issue #1007}
+// Fails for:
+// Type parameters:
+// 	&T<:list[&F] => list[void]
+// 	&F => void
+// Actual parameters:
+// 	list[void] =>[]
 test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
 
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
@@ -65,15 +73,15 @@ test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeO
 // New tests which can be enabled after succesful bootstrap
 data P(int size = 0);
 
-@ignore{Does not work after changed TypeReifier in compiler}
+@ignore{To be investigated}
 test bool allConstructorsHaveTheCommonKwParam()
   =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
    
-@ignoreCompiler{Does not work after changed TypeReifier in compiler}  
+@ignoreCompiler{To be investigated}  
 test bool axiomHasItsKwParam()
   =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
 
-@ignore{Does not work after changed TypeReifier in compiler}  
+@ignore{To be investigated}  
 test bool axiomsKwParamIsExclusive()
   =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
   

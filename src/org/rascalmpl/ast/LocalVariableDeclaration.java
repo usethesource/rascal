@@ -31,7 +31,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Declarator getDeclarator() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

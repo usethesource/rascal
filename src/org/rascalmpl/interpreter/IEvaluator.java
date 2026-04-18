@@ -60,6 +60,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 * @param currentAST the AST that is causes the suspension.
 	 */
 	public void notifyAboutSuspension(AbstractAST currentAST);
+	public void notifyAboutSuspensionException(Exception t);
 
 	/*
 	 * Evaluation.
