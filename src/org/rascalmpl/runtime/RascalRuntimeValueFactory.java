@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -313,8 +313,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
         checkPreconditions(startSort, reifiedGrammar.getType());
-            
-        String name = getParserMethodName(startSort);
 
         return function(functionType, new ParseFunction(this, caller, allowAmbiguity, null, allowRecovery, maxRecoveryTokens, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }

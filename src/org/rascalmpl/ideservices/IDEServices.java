@@ -26,6 +26,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -43,7 +44,7 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri, String title, int viewColumn);
+  void browse(URI uri, IString title, IInteger viewColumn);
 
   /**
    * Open an editor for file at given path.
@@ -64,22 +65,6 @@ public interface IDEServices extends IRascalMonitor {
    */
   default ISourceLocation resolveProjectLocation(ISourceLocation input) {
     return input;
-  }
-
-  /**
-   * Registers a new language definition with the surrounding IDE. Multiple registries for the same language are supported, registration order determines priority.
-   * @param language
-   */
-  default void registerLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
-  }
-
-  /**
-   * Unregisters a language definition with the surrounding IDE. Can be partial if module & function are not empty strings.
-   * @param language
-   */
-  default void unregisterLanguage(IConstructor language) {
-    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
   /**
@@ -233,7 +218,7 @@ public interface IDEServices extends IRascalMonitor {
    * 
    * @param serverPort
    */
-  default void startDebuggingSession(int serverPort){
+  default void startDebuggingSession(int serverPort) {
     
   }
 
@@ -243,7 +228,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param processID
    * @param serverPort
    */
-  default void registerDebugServerPort(int processID, int serverPort){
+  default void registerDebugServerPort(int processID, int serverPort) {
     
   }
 

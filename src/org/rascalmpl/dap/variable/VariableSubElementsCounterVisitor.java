@@ -27,7 +27,10 @@
 package org.rascalmpl.dap.variable;
 
 import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.*;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -79,6 +82,10 @@ public class VariableSubElementsCounterVisitor implements IValueVisitor<Variable
 
     @Override
     public VariableSubElementsCounter visitConstructor(IConstructor o) throws RuntimeException {
+        if(o.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+            // Special case for trees
+            return visitTree((ITree) o);
+        }
         return new VariableSubElementsCounter((o.mayHaveKeywordParameters() ? o.asWithKeywordParameters().getParameters().size() : 0)+o.arity(), 0);
     }
 
@@ -117,5 +124,16 @@ public class VariableSubElementsCounterVisitor implements IValueVisitor<Variable
         else{
             return new VariableSubElementsCounter(6, 0);
         }
+    }
+
+    public VariableSubElementsCounter visitTree(ITree o) throws RuntimeException {
+        if (SymbolAdapter.isStartSort(TreeAdapter.getType(o))) { // skip the start symbol
+            IList skippedStarto = o.getArgs().delete(0).delete(1);
+            if(skippedStarto.length()>0 && skippedStarto.get(0) instanceof ITree){
+			    o = (ITree) skippedStarto.get(0);
+            }
+		}
+        IList args = TreeAdapter.getASTArgs(o);
+        return new VariableSubElementsCounter(0, args.length());
     }
 }

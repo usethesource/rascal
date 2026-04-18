@@ -13,14 +13,20 @@ import org.rascalmpl.repl.rascal.RascalReplServices;
 public class REPLRunner implements ShellRunner {
 
     private final Terminal term;
-    
+    private final int remoteIDEServicesPort;
+
     public REPLRunner(Terminal term) {
+        this(term, -1);
+    }
+    
+    public REPLRunner(Terminal term, int remoteIDEServicesPort) {
         this.term = term;
+        this.remoteIDEServicesPort = remoteIDEServicesPort;
     }
 
     @Override
     public void run(String[] args) throws IOException {
-        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(), getHistoryFile()), term);
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL(remoteIDEServicesPort), getHistoryFile()), term);
         repl.run();
     }
 

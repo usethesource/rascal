@@ -134,7 +134,7 @@ public class TestEvaluator {
                             // TODO: add bound type parameters
                             return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
                         }
-                    }, env.getRoot().getStore(), tries, maxDepth, maxWidth, typesConfig);
+                    }, env.getStore(), tries, maxDepth, maxWidth, typesConfig);
                     
                     eval.getOutPrinter().flush();
                     eval.getErrorPrinter().flush();

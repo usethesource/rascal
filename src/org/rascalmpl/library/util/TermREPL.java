@@ -33,12 +33,14 @@ import org.rascalmpl.repl.parametric.ParametricReplService;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import com.google.gson.stream.JsonWriter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -248,15 +250,15 @@ public class TermREPL {
                 }
 
                 @Override
-                public String webTitle() {
+                public IString webTitle() {
                     // TODO: extract from ADT
-                    return id;
+                    return ValueFactoryFactory.getValueFactory().string(id);
                 }
 
                 @Override
-                public int webviewColumn() {
+                public IInteger webviewColumn() {
                     // TODO: extract from ADT
-                    return 1;
+                    return ValueFactoryFactory.getValueFactory().integer(1);
                 }
                 
             };
@@ -280,6 +282,7 @@ public class TermREPL {
 
             IValue dtf = kws.getParameter("dateTimeFormat");
             IValue dai = kws.getParameter("dateTimeAsInt");
+            IValue ras = kws.getParameter("rationalsAsString");
             IValue formatters = kws.getParameter("formatter");
             IValue ecn = kws.getParameter("explicitConstructorNames");
             IValue edt = kws.getParameter("explicitDataTypes");
@@ -288,6 +291,7 @@ public class TermREPL {
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                 .setFormatters((IFunction) formatters)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
                 .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
                 .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                 ;

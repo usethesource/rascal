@@ -34,7 +34,7 @@ import util::UUID;
 @description{
 A PathConfig is the result of dependency resolution and other configuration steps. Typically,
 IDEs produce the information to fill a PathConfig, such that language tools can consume it
-transparantly. A PathConfig is also a log of the configuration process. Typically a single
+transparently. A PathConfig is also a log of the configuration process. Typically a single
 ((pathConfig)) instance configures the language processor for a single source project tree.
 
 * `projectRoot` is the root directory of the source project tree that is being configured.

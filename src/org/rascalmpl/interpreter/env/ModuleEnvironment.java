@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -43,16 +45,21 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.capsule.SetMultimap;
+import io.usethesource.capsule.core.PersistentTrieSetMultimap;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -65,28 +72,26 @@ import io.usethesource.vallang.type.TypeStore;
  * A module environment represents a module object (i.e. a running module).
  * It manages imported modules and visibility of the
  * functions and variables it declares. 
- * 
- * TODO: add management of locally declared types and constructors
- * 
  */
 public class ModuleEnvironment extends Environment {
-	protected final GlobalEnvironment heap;
+	private final GlobalEnvironment heap;
 	/** Map of imported modules to resolved ModuleEnvironments, will only be empty in case of a module was in a cycle or got reloaded and failed during the reload. use {@link #importedModulesResolved} to lazily resolve the modules. */
-	protected Map<String, Optional<ModuleEnvironment>> importedModules;
-	protected Set<String> extended;
-	protected TypeStore typeStore;
-	protected Set<IValue> productions;
-	protected Map<Type, List<KeywordFormal>> generalKeywordParameters;
-	protected Map<String, NonTerminalType> concreteSyntaxTypes;
+	private Map<String, Optional<ModuleEnvironment>> importedModules;
+	private Set<String> extended;
+	private TypeStore typeStore;
+	private Set<IValue> productions;
+	private Map<Type, List<KeywordFormal>> generalKeywordParameters;
+	private Map<String, NonTerminalType> concreteSyntaxTypes;
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String deprecated;
-	protected Map<String, AbstractFunction> resourceImporters;
-	protected Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
-	protected Map<String, List<AbstractFunction>> cachedPublicFunctions;
+	private List<IConstructor> loadMessages = new LinkedList<>();
+	private Map<String, AbstractFunction> resourceImporters;
+	private Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
+	private Map<String, List<AbstractFunction>> cachedPublicFunctions;
 	
-	protected static final TypeFactory TF = TypeFactory.getInstance();
+	private static final TypeFactory TF = TypeFactory.getInstance();
 
 	public final static String SHELL_MODULE = "$";
 	
@@ -105,27 +110,6 @@ public class ModuleEnvironment extends Environment {
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
 	}
-	
-	/**
-	 * This constructor creates a shallow copy of the given environment
-	 * 
-	 * @param env
-	 */
-	protected ModuleEnvironment(ModuleEnvironment env) {
-		super(env);
-		this.heap = env.heap;
-		this.importedModules = env.importedModules;
-		this.concreteSyntaxTypes = env.concreteSyntaxTypes;
-		this.productions = env.productions;
-		this.typeStore = env.typeStore;
-		this.initialized = env.initialized;
-		this.syntaxDefined = env.syntaxDefined;
-		this.bootstrap = env.bootstrap;
-		this.resourceImporters = env.resourceImporters;
-		this.cachedGeneralKeywordParameters = null;
-		this.cachedPublicFunctions = null;
-		this.deprecated = env.deprecated;
-	}
 
 	@Override
 	public void reset() {
@@ -139,6 +123,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.loadMessages.clear();
 		this.generalKeywordParameters = new HashMap<>();
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
@@ -148,6 +133,20 @@ public class ModuleEnvironment extends Environment {
 		importedModules.replaceAll((k, v) -> Optional.empty());
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+	}
+
+	/**
+	 * This is useful for the tutor and the eval repl where we 
+	 * sometimes need to forget about previous errors without
+	 * actually fixing them. This is not for the real REPL, where
+	 * we _do_ want to be reminded of previous erroneous initializations.
+	 */
+	public void clearLoadMessages() {
+		this.loadMessages.clear();
+	}
+
+	public Stream<IConstructor> streamLoadMessages() {
+		return loadMessages.stream();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -253,6 +252,22 @@ public class ModuleEnvironment extends Environment {
 		if (productions != null) {
 			productions.clear();
 		}
+	}
+
+	public void addLoadError(String message, ISourceLocation loc, String trace) {
+		loadMessages.add(Messages.addCause(Messages.error(message, loc), trace, loc));
+	}
+
+	public void addLoadWarning(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.warning(message, loc));
+	}
+
+	public void addLoadInfo(String message, ISourceLocation loc) {
+		loadMessages.add(Messages.info(message, loc));
+	}
+
+	public void writeLoadMessages(PrintWriter out) {
+		Messages.write(loadMessages.stream().collect(IRascalValueFactory.getInstance().listWriter()), out);
 	}
 	
 	public boolean definesSyntax() {
@@ -430,18 +445,22 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void unImport(String moduleName) {
-		var old = importedModules.remove(moduleName);
-		if (old != null && old.isPresent()) {
-			typeStore.unimportStores(old.get().getStore());
+		if (importedModules != null) {
+			var old = importedModules.remove(moduleName);
+			if (old != null && old.isPresent()) {
+				typeStore.unimportStores(old.get().getStore());
+			}
 		}
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
 	}
 	
 	public void unExtend(String moduleName) {
-		extended.remove(moduleName);
-		cachedGeneralKeywordParameters = null;
-		cachedPublicFunctions = null;
+		if (extended != null) {
+			extended.remove(moduleName);
+		}
+		
+		clearLookupCaches();
 	}
 
 	@Override
@@ -496,12 +515,7 @@ public class ModuleEnvironment extends Environment {
 
 	
 	@Override
-	public void storeVariable(String name, Result<IValue> value) {
-//		if (value instanceof AbstractFunction) {
-//			storeFunction(name, (AbstractFunction) value);
-//			return;
-//		}
-		
+	public void storeVariable(String name, Result<IValue> value) {		
 		Result<IValue> result = super.getFrameVariable(name);
 		
 		if (result != null) {
@@ -574,22 +588,29 @@ public class ModuleEnvironment extends Environment {
 		collection.addAll(lookupCachedFunctions(name));
 	}
 
+	private List<AbstractFunction> lookupFunctionsNoCache(String name) {
+		var result = new ArrayList<AbstractFunction>();
+		super.getAllFunctions(name, result);
+			
+		for (ModuleEnvironment mod : importedModulesResolved)  {	
+			if (mod != null) {
+				mod.getLocalPublicFunctions(name, result);
+			}
+		}
+		return result;
+	}
+
 	private List<AbstractFunction> lookupCachedFunctions(String name) {
 		if (cachedPublicFunctions == null) {
 			cachedPublicFunctions = io.usethesource.capsule.Map.Transient.of();
 		}
-		return cachedPublicFunctions.computeIfAbsent(name, n -> {
-			var result = new ArrayList<AbstractFunction>();
-			super.getAllFunctions(n, result);
-			
-			for (ModuleEnvironment mod : importedModulesResolved) {
-				
-				if (mod != null) {
-					mod.getLocalPublicFunctions(n, result);
-				}
-			}
-			return result;
-		});
+
+		if (!initialized) {
+			return lookupFunctionsNoCache(name);
+		}
+		else {
+			return cachedPublicFunctions.computeIfAbsent(name, this::lookupFunctionsNoCache);
+		}
 	}
 	
 	@Override
@@ -1139,6 +1160,34 @@ public class ModuleEnvironment extends Environment {
 		return Collections.<String>emptySet();
 	}
 	
+	/**
+	 * This collects only "extends" edges starting from the current module
+	 * @return
+	 */
+	public SetMultimap.Transient<String, String> collectExtendsGraph() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		SetMultimap.Transient<String, String> result = PersistentTrieSetMultimap.transientOf();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getExtends()) {
+				  result.__put(mod, e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
+	}
+
 	public Set<String> getExtendsTransitive() {
 		List<String> todo = new LinkedList<String>();
 		Set<String> done = new HashSet<String>();
