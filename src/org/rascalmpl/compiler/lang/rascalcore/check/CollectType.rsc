@@ -844,7 +844,7 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     pname = prettyPrintName(n);
-
+    calcDeps = addReturnTypeDependency(current, tp, c);
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
@@ -856,20 +856,21 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
         c.fact(current, n);
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter", current, [n, *calcDeps], AType (Solver s) { return s.getType(n)[closed=closed]; });
         //if(debugTP)println("Use <pname> at <current@\loc>");
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(!isEmpty(tpbounds[pname])){
             bnds = toList(tpbounds[pname]);
-            c.calculate("type parameter with bound", n, bnds,
+            c.calculate("type parameter with bound", n, bnds + calcDeps,
                 AType(Solver s){
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
                 });
         } else {
-            c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
+            c.calculate("type parameter with bound", n, [tp, *calcDeps], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
         }
-        c.fact(current, n);
+        //c.fact(current, n);
+        c.calculate("type parameter with bound", current, [tp, *calcDeps], AType(Solver s){ return  s.getType(n); });
     }
 
     collect(tp, c);

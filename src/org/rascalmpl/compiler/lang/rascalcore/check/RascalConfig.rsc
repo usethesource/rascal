@@ -47,6 +47,8 @@ import lang::rascalcore::compile::util::Names;
 import analysis::typepal::StringSimilarity;
 import analysis::typepal::LocationChecks;
 
+import lang::rascalcore::check::DependencyViewer;
+
 import IO;
 import List;
 import Map;
@@ -403,6 +405,7 @@ rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
 // Enhance TModel before running Solver by 
 
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
+    //viewDependencies(m);
     return m[paths = enhancePathRelation(m.paths)];
 }
 

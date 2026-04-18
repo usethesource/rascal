@@ -11,13 +11,16 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::Checker;
 import lang::rascal::\syntax::Rascal;
-loc root = |memory://e0711529-477e-4a4c-b44b-44b00157728eXXX|;
+
+// this uuid matters
+loc root = |memory://36a14c42-e4e6-41e0-a59a-ac11f637070c|;
 
 PathConfig pcfg = pathConfig(
     srcs = [root + "src"],
     bin = root + "bin",
     libs = []
 );
+
 // this name matters
 str moduleName = "TestModule612d1";
 
@@ -25,7 +28,7 @@ loc writeModule() {
     loc moduleLoc = pcfg.srcs[0] + "<moduleName>.rsc";
     // the spaces before &T seems to matter?
     writeFile(moduleLoc, 
-        "module TestModule612d1\r\n \r\n    &T \<: int f(&T \<: num _) = 1;"
+        "module TestModule612d1\r\n \n    &T \<: int f(&T \<: num _) = 1;"
     );
     return moduleLoc;
 }
@@ -74,7 +77,7 @@ void findCollission(loc l) {
     }
 }
 
-
+ 
 void main() {
     remove(root, recursive = true);
     l = writeModule();
