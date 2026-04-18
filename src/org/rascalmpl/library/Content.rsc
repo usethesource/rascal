@@ -2,6 +2,7 @@
 @synopsis{Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.}
 module Content
 
+import lang::json::IO;
 
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
 on the terminal.}
@@ -34,8 +35,8 @@ garbage collected after 30 minutes, you can consider wrapping the same callback 
 a webserver using the ((util::Webserver::serve)) function.
 }
 data Content 
-  = content(str id, Response (Request) callback, str title=id, int viewColumn=1)
-  | content(Response response, str title="*static content*", int viewColumn=1)
+  = content(str id, Response (Request) callback, str title = id, ViewColumn viewColumn = normalViewColumn(1))
+  | content(Response response, str title="*static content*", ViewColumn viewColumn = normalViewColumn(1))
   ;
 
 
@@ -80,30 +81,34 @@ which involves a handy, automatic, encoding of Rascal values into json values.
 data Response 
   = response(Status status, str mimeType, map[str,str] header, str content)
   | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", bool explicitConstructorNames=false, bool explicitDataTypes=false)
+  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; },
+      bool explicitConstructorNames=false, bool explicitDataTypes=false, bool dateTimeAsInt=true, bool rationalsAsString=false)
   ;
   
-
 @synopsis{Utility to quickly render a string as HTML content}  
 Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
-
 
 @synopsis{Utility to quickly report an HTTP error with a user-defined message}
 Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
 
-
 @synopsis{Utility to quickly make a plaintext response.}
 Response plain(str text) = response(ok(), "text/plain", (), text);
-
 
 @synopsis{Utility to serve a file from any source location.}
 Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);
 
+@synopsis{Utility to quickly serve any rascal value as a json text.}
+@benefits{
+This comes in handy for asynchronous HTTP requests from Javascript clients. Rascal Values are
+fully transformed to their respective JSON serialized form before being communicated over HTTP.
+}
+default  Response response(value val, map[str,str] header = ()) = jsonResponse(ok(), header, val);
 
-@synopsis{Utility to quickly serve any rascal value as a json text. This comes in handy for
-asynchronous HTTP requests from Javascript.}
-default  Response response(value val, map[str,str] header = ())             = jsonResponse(ok(), header, val);
-  
+@synopsis{Utility to quickly serve any rascal value as a json text, formatting data-types on-the-fly using a `formatter` function}
+@benefits{
+Fast way of producing JSON strings for embedded DSLs on the Rascal side.
+}
+Response response(value val, JSONFormatter[value] formatter, map[str,str] header = ()) = jsonResponse(ok(), header, val, formatter=formatter);
 
 @synopsis{Encoding of HTTP status}  
 data Status 
@@ -153,3 +158,23 @@ public map[str extension, str mimeType] mimeTypes = (
         "exe" : "application/octet-stream",
         "class" : "application/octet-stream"
    );  
+
+@synopsis{Hint the IDE where to open the next web view or editor}
+@description{
+The `viewColumn`  decides where in the IDE a web client or editor is opened,
+_if_ the current IDE honors this parameter. 
+
+There are _9_ possible
+view columns: 1, 2, 3, 4, 5, 6, 7, 8, 9. 
+
+Next to this:
+* view column `-1` is converted to the _currently active_ view column before the editor is opened.
+* view column `-2` is chosen to be a view column _beside_ (to the right) of the currently active view column.
+
+All other view column integers are ignored and interpreted as `-1`.
+}
+alias ViewColumn=int;
+
+ViewColumn activeViewColumn() = -1;
+ViewColumn besideViewColumn() = -2;
+ViewColumn normalViewColumn(int v) = v when v >= 1 && v <= 9;

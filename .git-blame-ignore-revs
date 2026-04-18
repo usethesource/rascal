@@ -1,0 +1,12 @@
+# List of commits that shouldn't be included in `git blame`. 
+# Github and other tools already support it if it's this exact filename
+# But you have to teach your own git about this by running this command (in this repo)
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# indent fix for JSON
+31b1031ade5d84f9c60e30d17da3b55e78d291fb
+
+# fixing tabs & spaces mixed
+0d048e15683740b5c944be5333ec0680df825e47
+23ec4b622bbe503ef013be5a458e45ae6fd89b97
+200b0352084be9435c64aa60c550edd24a59131b

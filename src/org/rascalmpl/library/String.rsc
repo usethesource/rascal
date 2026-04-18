@@ -101,6 +101,8 @@ str deescape(str s)  {
         case /^\\<c: [\" \' \< \> \\]>/ => c
         case /^\\t/ => "\t"
         case /^\\n/ => "\n"
+        case /^\\f/ => "\f"
+        case /^\\b/ => "\b"
         case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
@@ -250,6 +252,21 @@ public str left(str s, int n, str pad)
 {
   return format(s, "left", n, pad);
 }
+
+
+@synopsis{Remove all whitespace from a string.}
+@description{
+Return a copy of `subject` in which all occurrences of Unicode whitespace characters have been removed.
+}
+@examples{
+```rascal-shell
+import String;
+removeWhitespace("\rabra\ncada bra\t");
+removeWhitespace("Uni\u1680code")
+```
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str removeWhitespace(str subject);
 
 
 @synopsis{Replace all occurrences of a string in another string.}
@@ -525,7 +542,7 @@ squeeze("hello", "el") == squeeze("hello", #[el]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Use the other squeence function that accepts Rascal character class syntax.}
+@deprecated{Use the other squeeze function that accepts Rascal character class syntax.}
 public java str squeeze(str src, str charSet);
 
 @synopsis{Squeeze repeated occurrences of characters.}
@@ -580,10 +597,10 @@ public java str uncapitalize(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toBase64(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
 
-@synopsis{Decode a base-32 encoded string.}
+@synopsis{Decode a base-64 encoded string.}
 @description {
-  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
-  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+  Convert a base-64 encoded string to bytes and then convert these bytes to a string using the specified character set.
+  The base-64 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str fromBase64(str src, str charset=DEFAULT_CHARSET);
@@ -598,7 +615,7 @@ public java str toBase32(str src, str charset=DEFAULT_CHARSET, bool includePaddi
 
 @synopsis{Decode a base-32 encoded string.}
 @description {
-  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified character set.
   The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -641,7 +658,7 @@ toLocation("http://grammarware.net");
 toLocation("document.xml");
 ```
 }
-@deprecated{Use ((Location::locFromWindowsPath)) for example; toLocation does not handle all intricasies of path notation.}
+@deprecated{Use ((lang::paths::Windows::parseWindowsPath)) for example; toLocation does not handle all intricacies of path notation.}
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 
@@ -663,3 +680,19 @@ str substitute(str src, map[loc,str] s) {
     order = sort([ k | k <- s ], bool(loc a, loc b) { return a.offset < b.offset; });
     return ( src | subst1(it, x, s[x]) | x <- order );
 }
+
+@synopsis{Indent a block of text}
+@description{
+Every line in `content` will be indented using the characters
+of `indentation`.
+}
+@benefits{
+* This operation executes in constant time, independent of the size of the content
+or the indentation.
+* Indent is the identity function if `indentation == ""`
+}
+@pitfalls{
+* This function works fine if `indentation` is not spaces or tabs; but it does not make much sense. 
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java str indent(str indentation, str content, bool indentFirstLine=false);

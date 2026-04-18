@@ -565,10 +565,12 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
         return error("jar should have jar extension");
     }
 
-    groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
-    artifactId = jar.parent.parent.file;
-    version    = jar.parent.file;
-    file       = jar.file;
+    jar = relativize(|home:///.m2/repository|, jar);
+
+    str groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    str artifactId = jar.parent.parent.file;
+    str version    = jar.parent.file;
+    str file       = jar.file;
 
     if (file != "<artifactId>-<version>.jar") {
         return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
@@ -583,33 +585,16 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
 
 test bool mvnSchemeTest() {
     debug = false;
-    jarFiles = find(|mvn:///|, "jar");
+    jarFiles = find(|home:///.m2/repository|, "jar");
 
     // check whether the implementation of the scheme holds the contract specified in the assert
     for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
         // this is the contract:
-        mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
-
-        assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
-                                                                 '  jar: <jar>
-                                                                 '  mvnLoc: <mvnLoc>";
-
-        assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
-
-        assert exists(mvnLoc + "!") : "<mvnLoc + "!"> should resolve to the jarified root and exist";
-
-        // not all jars contain a META-INF folder
-        if (exists(mvnLoc + "!/META-INF")) {
-            // but if they do then this relation holds
-
-            assert exists(mvnLoc + "META-INF")
-                : "<mvnLoc + "META-INF"> should exist and resolved to the jarified location inside.";
-
-            assert resolveLocation(mvnLoc + "!/META-INF") == resolveLocation(mvnLoc + "META-INF")
-                : "Two different ways of resolving inside the jar (with and without !) should be equivalent";
-
-            assert (mvnLoc + "META-INF").ls == [e[path=e.path[2..]] | e <- (mvnLoc + "!/META-INF").ls]
-                : "listings should be equal mod ! for <mvnLoc + "META-INF">";
+        loc mvnLoc = |mvn://<groupId>--<artifactId>--<version>|;
+        
+        if (!exists(mvnLoc)) {
+            println("<mvnLoc> does not exist.");
+            return false;
         }
     }
 
@@ -622,15 +607,107 @@ test bool mvnSchemeTest() {
     return true;
 }
 
-@synopsis{Nested clones in different scopes are acceptable}
-int fun_with_clone(int n){
-    if(n > 0){
-        int h(int n) = 2*n;
-        return h(n);
-    } else {
-        int h(int n) = 2*n;
-        return h(n);
-    }
+
+test bool fileWorks() = testLocWorksRoot(resolveLocation(|home:///|));
+
+test bool memoryWorks() {
+    loc memTest = |memory://locations-loc-test|;
+    writeFile(memTest + "/a/a.txt", "Hoi");
+    return testLocWorksRoot(memTest);
 }
 
-test bool noCodeClone() = fun_with_clone(3) == 6;
+test bool jarWorks() {
+    for (f := findFile(|home:///.m2/repository|, ext = "jar")) {
+        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"], isWritable = false);
+    }
+    return false;
+}
+
+test bool mavenWorks() {
+    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|, isWritable = false);
+    }
+    return false;
+}
+
+private bool testLocWorksRoot(loc existing,bool isWritable = true) {
+    println("Start file path: <existing>");
+    assert exists(existing) : "Start loc should exist";
+    testLocWorks(existing, isWritable);
+
+    loc subPath = findFile(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    subPath = findDirectory(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    loc nonExisting = existing + "not$__$there";
+    println("Not existing: <nonExisting>");
+    assert !exists(nonExisting) : "Subpath should exist";
+    testLocWorks(nonExisting, isWritable);
+
+    return true;
+}
+
+private loc findFile(loc l, str ext = "") {
+    for (f <- l.ls, isFile(f) && (ext == "" || f.extension == ext)) {
+        return f;
+    }
+    for (f <- l.ls, isDirectory(f)) {
+        result = findFile(f, ext= ext);
+        if (result.scheme != "invalid") {
+            return result;
+        }
+    }
+    return |invalid:///file|;
+}
+
+private loc findDirectory(loc l) {
+    for (f <- l.ls, isDirectory(f)) {
+        return f;
+    }
+    throw "There should be at least a single directory inside of it";
+}
+
+private void testLocWorks(loc l, bool shouldWrite) {
+    println("\texists: <exists(l)>");
+    println("\tisFile: <isFile(l)>");
+    println("\tisDirectory: <isDirectory(l)>");
+    if (exists(l)) {
+        println("\tlastModified: <lastModified(l)>");
+        if (isDirectory(l)) {
+            println("\tcontents: <l.ls>");
+            println("\tcontents: <listEntries(l)>");
+        }
+        else {
+            println("\tisWriteable: <isWritable(l)>");
+            println("\tisReadable: <isReadable(l)>");
+        }
+    }
+    else if (shouldWrite) {
+        try {
+            remove(l);
+        }
+        catch IO(_): throw "Removing file that does not exist should not cause an exception";
+        if (isFile(l)) {
+            copyLoc = l.parent + "nested";
+            copy(l.parent, copyLoc, recursive=true, overwrite=true);
+            sameContents = readFile(l) == readFile(copyLoc + l.file);
+            println("\tcopy: <sameContents>");
+            assert sameContents: "It should be possible to copy a file";
+        }
+
+    }
+
+    if (!exists(l) || !isDirectory(l)) {
+        try {
+            println("\tcontents: <l.ls>");
+            assert false: "ls on a non-directory should have thrown an IO exception";
+        }
+        catch IO(_) : true;
+    }
+}

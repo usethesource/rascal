@@ -39,6 +39,10 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		result = new LiteralNode(production, literal);
 	}
+
+	public int[] getLiteral() {
+		return literal;
+	}
 	
 	private LiteralStackNode(LiteralStackNode<P> original, int startLocation){
 		super(original, startLocation);
@@ -76,24 +80,34 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	public AbstractNode getResult(){
 		return result;
 	}
+
+	@Override
+	public String toShortString() {
+		return "'" + new String(literal, 0, literal.length) + "'";
+	}
 	
+	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		for (int i : literal) {
-			sb.appendCodePoint(i);
-		}
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
+		StringBuilder sb = new StringBuilder("lit['");
+		sb.append(new String(literal, 0, literal.length));
+		sb.append("',");
+		sb.append(super.toString());
 		
+		sb.append(']');
+
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof LiteralStackNode)) return false;
 		
@@ -103,4 +117,10 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

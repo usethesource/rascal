@@ -31,14 +31,14 @@ public abstract class Mapping_Expression extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getFrom() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTo() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getTo() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

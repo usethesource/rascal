@@ -24,49 +24,66 @@ import Set;
 import String;
 import Exception;
 
-import lang::paths::Windows;
-import lang::paths::Unix;
-
 @synopsis{Extracts a path relative to a parent location.}
 @description{
-So from `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
-If the outside does not envelop the inside, then the original loc is returned.
+* From `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
+* If the outside does not envelop the inside, then the original loc is returned.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 java loc relativize(loc outside, loc inside);
 
 @synopsis{Find the first `haystack` folder the `needle` can be found in and relativize it, or fail.}
-loc relativize(list[loc] haystack, loc needle) {
+@description{
+* From `[|x:///a/b|]` as haystack and `|x:///a/b/c|` as needle this makes `|relative:///c|`.
+* If none of the `haystack` locations contain the `needle`, a `PathNotFound` exception is thrown.
+}
+loc relativize(list[loc] haystack, loc needle) throws PathNotFound {
     if (h <- haystack, loc r := relativize(h, needle), r != needle) {
         return r;
     }
-    else {
-        fail relativize;
+    throw PathNotFound(needle);
+}
+
+@synopsis{Concatenate a relative path to a given surrounding path}
+@description{
+* `relative` must be of scheme `relative:///` or `SchemeNotSupported` will be thrown
+* ((resolve)) is the opposite of ((relativize))
+* the return value does not necessarily exist
+}
+loc resolve(loc outside, loc relative) = outside + relative.path when relative.scheme == "relative";
+default loc resolve(loc _, loc relative) {
+    throw SchemeNotSupported(relative);
+}
+
+@synopsis{Find the right folder in which a relative location is to be found and return the complete path}
+@description{
+* `relative` must be of scheme `relative:///`
+* ((resolve)) is the opposite of ((relativize))
+* if a file can not be found in any of the `haystack` folders, then `PathNotFound`` is thrown.
+* if `force` is true then a location relative to the first element of the haystack will be returned, even if the file was not found anywhere in the haystack.
+}
+loc resolve(list[loc] haystack, loc relative, bool force = false) throws PathNotFound {
+    assert relative.scheme == "relative";
+    assert haystack != [];
+
+    for (loc outside <- haystack, loc candidate := resolve(outside, relative), exists(candidate)) {
+        return candidate;
     }
+
+    if (force && haystack != []) {
+        return resolve(haystack[0], relative);
+    }
+
+    throw PathNotFound(relative);
 }
 
-@synopsis{Convert Windows path syntax to a `loc` value}
-@description{
-This conversion supports generic Windows path syntax, including:
-* Absolute drive-specific: `C:\Program Files`
-* Relative drive-specific: `C:hello.txt`
-* Relative: `hello.txt`
-* Directory-relative: `\hello.txt`
-* UNC format: `\\system07\C$\`
+@synopsis{Shortens an absolute path to a jar inside the local maven repository.}
+@javaClass{org.rascalmpl.library.Prelude}
+java loc mavenize(loc jar);
 
-Windows paths, against popular believe, support both `/` and `\` as path separators.
-}
-loc locFromWindowsPath(str path) = parseWindowsPath(path);
-
-@synopsis{Convert Unix path syntax to a `loc` value}
-@description{
-This conversion supports generic Unix path syntax, including:
-* Absolute: `/usr/local/bin`
-* Relative: `hello.txt`
-* Home: `~/hello.txt`
-* User: `~userName\hello.txt`
-}
-loc locFromUnixPath(str path) = parseUnixPath(path);
+@synopsis{If the location points to a jar file, then this modifies the scheme and the path to point _inside_ of the jar.}
+@javaClass{org.rascalmpl.library.Prelude}
+java loc jarify(loc jar);
 
 @synopsis{Check that two locations refer to the same file.}    
 @javaClass{org.rascalmpl.library.Prelude}
@@ -77,7 +94,7 @@ java bool isSameFile(loc l, loc r);
 When the two locations refer to different files, their paths are compared as string.
 When they refer to the same file, their offsets are compared when present.
 }
-@pittfalls{
+@pitfalls{
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l, loc r)
