@@ -31,14 +31,14 @@ public abstract class KeywordFormals extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.KeywordFormal> getKeywordFormalList() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasOptionalComma() {
     return false;
   }
 
   public org.rascalmpl.ast.OptionalComma getOptionalComma() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

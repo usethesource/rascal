@@ -486,7 +486,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
 						org.rascalmpl.ast.QualifiedName qname = this.getExpression().getQualifiedName();
 						
-						if (eval.getCurrentEnvt().isNameFinal(qname)) {
+						if (eval.getCurrentEnvt().isFunctionFinal(qname)) {
 							this.cachedPrefix = function;
 							registerCacheHandler(eval);
 						}

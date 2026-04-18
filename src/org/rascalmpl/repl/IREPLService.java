@@ -32,7 +32,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jline.reader.Completer;
+import org.jline.reader.CompletionMatcher;
 import org.jline.reader.Parser;
+import org.jline.reader.impl.CompletionMatcherImpl;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.ideservices.IDEServices;
@@ -56,6 +58,10 @@ public interface IREPLService {
      */
     default List<Completer> completers() {
         return Collections.emptyList();
+    }
+
+    default CompletionMatcher completionMatcher() {
+        return new CompletionMatcherImpl();
     }
 
     /**

@@ -409,7 +409,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
        swriter = muTmpStrWriter("swriter", fuid);
        buildRegExp = muValueBlock(astr(),
                                   muConInit(swriter, muPrim("open_string_writer", astr(), [], [], e@\loc)) + 
-                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | exp <- fragmentCode ] +
+                                  [ muPrim("add_string_writer", astr(), [getType(exp)], [swriter, exp], e@\loc) | MuExp exp <- fragmentCode ] +
                                   muPrim("close_string_writer", astr(), [astr()], [swriter], e@\loc));
        return  <buildRegExp, vars>; 
    }  
@@ -1623,7 +1623,7 @@ private bool isDefinition(Pattern pat){
 private bool isDefinedOutsidePat(loc def, Pattern container){
     try {
         defined = getDefinition(def); 
-        return !isContainedIn(defined, container@\loc);
+        return !isContainedIn(defined, container@\loc);     // TODO: adapt
     } catch: {
          return false;
     }
@@ -2281,7 +2281,7 @@ default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subje
             minus_two_delta = -2 * 1;
             trueCont = top-down-break visit(trueCont) { 
                 case muForAll( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
-                case muForAny( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
+                // case muForAny( _, _, _, muDescendantMatchIterator(_, _), _, _): {if(first) { first = false; fail;}} // skip nested descandants
                 case muBlock([muIncNativeInt(_, muCon(minus_two_delta)), muFail(_)]): {;}    // prevent cascading insertion of decrement ??TOD -2 => -2*delta
                 case mf: muFail(_) => muBlock([muIncNativeInt(cursor, muCon(minus_two_delta)), mf]) 
             };
@@ -2498,7 +2498,7 @@ default value translatePatternAsConstant(Pattern p){
 value translateConcretePatternAsConstant(p:appl(Production::prod(sort(str A),[Symbol::lit(str litA)],{}),[appl(prod(Symbol::lit(litA),[\char-class([CharRange::range(int charA,charA)])], {}),[Tree::char(charA)])])) {
     return p;
 }
-value translateConcretePatternAsConstant(p:Production::prod(Symbol::lit(str charA),[\char-class([CharRange::range(int charA,charA)])],{})) {
+value translateConcretePatternAsConstant(p:Production::prod(Symbol::lit(str charA),[\char-class([CharRange::range(int charR,charR)])],{})) {
     return p;
 }
 value translateConcretePatternAsConstant(p:appl(Production::prod(Symbol::sort(str A), [Symbol::lit(str Alit)], {}),[appl(prod(lit(Alit), [\char-class([CharRange::range(int charA, charA)])], {}), [Tree::char(charA)])])) {

@@ -31,14 +31,14 @@ public abstract class ConcreteHole extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasSymbol() {
     return false;
   }
 
   public org.rascalmpl.ast.Sym getSymbol() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

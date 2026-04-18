@@ -17,7 +17,6 @@ import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
-import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.project.IDEProjectURIResolver;
 import org.rascalmpl.uri.project.IDETargetURIResolver;
 import org.rascalmpl.uri.project.ProjectURIResolver;
@@ -61,31 +60,18 @@ public class ShellEvaluatorFactory {
     private static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
-        stdout.println("Rascal " + RascalManifest.getRascalVersionNumber());
-        stdout.println("Rascal search path:");
         for (var srcPath : pcfg.getSrcs()) {
-            var path = MavenRepositoryURIResolver.mavenize((ISourceLocation)srcPath);
-            stdout.println("- " + path);
-            evaluator.addRascalSearchPath(path);
+            evaluator.addRascalSearchPath((ISourceLocation) srcPath);
         }
 
         var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
-        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
-        stdout.println("Rascal classloader path:");
-        for (var lib : libs) {
-            var path = (ISourceLocation)lib;
-            stdout.println("- " + lib);
-            evaluator.addRascalSearchPath(path);
+        
+        for (var lib : pcfg.getLibs()) {
+            evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
-        evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
 
-        if (!pcfg.getMessages().isEmpty()) {
-            stdout.println("PathConfig messages:");
-            Messages.write(pcfg.getMessages(), pcfg.getSrcs(), stdout);
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(pcfg.getMessages());
-            }
-        }
+        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
+        evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
 
         return evaluator;
     }
@@ -106,6 +92,12 @@ public class ShellEvaluatorFactory {
         var projectRoot = PathConfig.inferProjectRoot(projectFile);
         setupProjectResolver(projectRoot, monitor);
         var pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
+        pcfg.reportConfigurationInfo();
+        
+        if (!pcfg.getMessages().isEmpty()) {
+            Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
+        }
+
         return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
     }
 

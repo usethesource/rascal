@@ -30,8 +30,11 @@ module lang::rascalcore::check::ModuleLocations
 import IO;
 import List;
 import String;
+import Message;
 import util::Reflective;
 import util::FileSystem;
+import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::LogicalLocations;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -55,6 +58,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
@@ -70,7 +74,8 @@ loc getRascalModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
+    mloc = |unknown:///|;
+    throw error("Module `<qualifiedModuleName>` not found", mloc, causes=[info("Using PathConfig: <iprintToString(pcfg)>", mloc)] );
 }
 
 tuple[str,str] splitFileExtension(str path){
@@ -96,16 +101,22 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-
-@synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
+@memo{expireAfter(minutes=5),maximumSize(500)}
+@synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
 
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    
+    if(isRascalLogicalLoc(moduleLoc)){
+        path = moduleLoc.path;
+        if(path[0] == "/"){
+            path = path[1..];
+        }
+        return replaceAll(path, "/", "::");
+    }
     if(!( rscFile || tplFile )){
-        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories

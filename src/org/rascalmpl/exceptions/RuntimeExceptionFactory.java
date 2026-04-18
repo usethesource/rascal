@@ -16,9 +16,18 @@
 *******************************************************************************/
 package org.rascalmpl.exceptions;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
+
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -28,7 +37,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This class defines and implements all dynamic (run-time) exceptions that
@@ -91,6 +99,9 @@ public class RuntimeExceptionFactory {
     // NotImplemented
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
 
+	// this comes from lang::json::IO
+	public static final Type NoOffsetParseError = TF.constructor(TS, Exception, "NoOffsetParseError", TF.sourceLocationType(), "location", TF.integerType(), "line", TF.integerType(), "column");
+
 	public static final Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
     
 	public static final Type PermissionDenied = TF.constructor(TS,Exception,"PermissionDenied",TF.stringType(), "message");
@@ -107,6 +118,8 @@ public class RuntimeExceptionFactory {
     public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
     public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation");
 	
+	public static final Type ParseErrorRecovery = TF.constructor(TS, Exception, "ParseErrorRecovery", Exception, "trigger", TF.sourceLocationType(), "location");
+
 	// The "official" exceptions that a Rascal program can catch (alphabetical order)
 	
     // ambiguity
@@ -430,10 +443,44 @@ public class RuntimeExceptionFactory {
 	public static Throw io(IString msg) {
         return new Throw(VF.constructor(IO, msg));
     }
+
 	
 	public static Throw io(String msg) {
-        return new Throw(VF.constructor(IO, VF.string(msg)));
+        return io(VF.string(msg));
     }
+
+	private static String mapIOException(IOException ex) {
+		var msg = ex.getMessage();
+		if (ex instanceof FileSystemException) {
+			// nio exceptions lack proper messages, they are encoded in the class name
+			if (ex instanceof DirectoryNotEmptyException) {
+				return "Directory is not empty: " + msg;
+			}
+			if (ex instanceof FileAlreadyExistsException) {
+				return "File already exists: " + msg;
+			}
+			if (ex instanceof NoSuchFileException) {
+				return "No such file: " + msg;
+			}
+			if (ex instanceof NotDirectoryException) {
+				return "Not a directory: " + msg;
+			}
+		}
+		if (ex instanceof FileNotFoundException) {
+			// not all paths throw a proper message, they often only have the path name
+			return "No such file: " + msg;
+		}
+		// otherwise fallback to the message
+		return msg;
+	}
+
+	public static Throw io(IOException ex) {
+		return io(mapIOException(ex));
+	}
+
+	public static Throw io(IOException ex, AbstractAST ast, StackTrace trace) {
+		return io(VF.string(mapIOException(ex)), ast, trace);
+	}
 	
 	public static Throw io(IString msg, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(IO, msg), ast != null ? ast.getLocation() : null, trace);
@@ -640,7 +687,12 @@ public class RuntimeExceptionFactory {
 			.asWithKeywordParameters().setParameter("path", VF.string(path)));
     }   
 
-	
+	public static Throw jsonParseError(ISourceLocation file, int line, int col, String cause, String path) {
+         return new Throw(VF.constructor(NoOffsetParseError, file, VF.integer(line), VF.integer(col))
+			.asWithKeywordParameters().setParameter("reason", VF.string(cause))
+			.asWithKeywordParameters().setParameter("path", VF.string(path)));
+    }
+
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast != null ? ast.getLocation() : null, trace);
 	}	
@@ -740,4 +792,15 @@ public class RuntimeExceptionFactory {
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast != null ? ast.getLocation() : null, trace);
 	}
+
+	// ParseErrorRecovery -- not in Exception, defined in ParseTree.rsc
+	public static Throw parseErrorRecovery(IValue trigger, ISourceLocation loc) {
+		return new Throw(VF.constructor(ParseErrorRecovery, trigger, loc));
+	}
+
+	public static Throw parseErrorRecoveryNoSuchField(String name, ISourceLocation loc) {
+		return new Throw(VF.constructor(ParseErrorRecovery, VF.constructor(NoSuchField, VF.string(name)), loc));
+	}
+
+   
 }

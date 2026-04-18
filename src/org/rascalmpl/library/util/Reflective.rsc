@@ -13,6 +13,7 @@
 module util::Reflective
 
 extend util::PathConfig;
+
 import IO;
 import List;
 import ParseTree;
@@ -30,10 +31,10 @@ public java str getLineSeparator();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@synopsis{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Just parse a module at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@synopsis{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Parse a module (including surrounding spaces) at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
@@ -83,6 +84,18 @@ in making configuration issues tractable.
 }
 @javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@synopsis{Search a module name in the interpreter's search path}
+@description{
+This exists to help debugging interactive loading and reloading of Rascal modules
+by the REPL and the interpreter. It does not work in a compiled context.
+}
+@pitfalls{
+This is internal information for the interpreter and should not be used by client code.
+Only for debugging purposes of the interpreter and the REPL.
+}
+java loc resolveModuleOnCurrentInterpreterSearchPath(str moduleName);
 
 @synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
@@ -368,15 +381,6 @@ public java bool inCompiledMode();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str diff(value old, value new);
 
-@synopsis{Watch value val: 
-- running in interpreted mode: write val to a file, 
-- running in compiled mode: compare val with previously written value}
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name, value suffix);
-
 @synopsis{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, bool concretePatterns);
@@ -424,6 +428,7 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
     
     newRascalPomFile(folder, name=name, group=group, version=version);
     newRascalMfFile(folder, name=name);
+    newRascalVsCodeSettings(folder);
     
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
@@ -537,3 +542,24 @@ private str pomXml(str name, str group, str version)
     '  \</build\>
     '\</project\>
     ";
+
+private str vscodeSettings() = "{
+                               '    \"search.exclude\": {
+                               '        \"/target/\": true,
+                               '    },
+                               '}";
+
+private loc vscodeFolder(loc folder) = folder + ".vscode";
+private loc vscodeSettingsFile(loc folder) = vscodeFolder(folder) + "settings.json";
+
+@synopsis{Create a `.vscode` folder for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+A `.vscode` folder will be generated and written.
+
+The project folder is created if it does not exist already.
+}
+void newRascalVsCodeSettings(loc folder) {
+    mkDirectory(vscodeFolder(folder));
+    writeFile(vscodeSettingsFile(folder), vscodeSettings());
+}
