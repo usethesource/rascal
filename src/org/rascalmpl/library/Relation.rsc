@@ -258,7 +258,7 @@ public rel[&T0,&T1,&T2,&T3,&T4] domainX (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
 @examples{
 ```rascal-shell
 import Relation;
-legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>};
+legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millipede", 1000>, <"crab", 8>, <"cat", 4>};
 groupDomainByRange(legs);
 ```
 }

@@ -36,6 +36,7 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::TestConfigs;
 
 
 void main() = checkTestSources([]);
@@ -61,22 +62,22 @@ void checkTestSources(list[str] cmdLineArgs) {
    total = 0;
    
    list[str] modulesToCheck = [];
-   
+   pcfg = getAllSrcREPOPathConfig(keep=true);
    if("all" in cmdLineArgs){
-      modulesToCheck = getRascalModules(|std:///|, genCompilerConfig.typepalPathConfig);               
+      modulesToCheck = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);         
    } else {         
       testFolders = [ //|std:///lang/rascal/tests|,
                        //REPO + "/rascal-core/lang/rascalcore/check::tests",
                        REPO + "/typepal/src/"
                     ];
-      modulesToCheck = [ *getRascalModules(testFolder, genCompilerConfig.typepalPathConfig)
+      modulesToCheck = [ *getRascalModules(testFolder, pcfg)
                        | testFolder <- testFolders
                       ];
     }
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
+   ignoredModules = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   modulesToCheck -= ignored; 
+   modulesToCheck -= ignoredModules; 
    
    list[str] exceptions = [];
    int n = size(modulesToCheck);
@@ -91,7 +92,7 @@ void checkTestSources(list[str] cmdLineArgs) {
    }
    println("Checked <n> test modules");
    println("<size(exceptions)> failed to check: <exceptions>");
-   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
+   if(!isEmpty(ignoredModules)) { println("Ignored: <ignoredModules>"); }
    secs = total/1000000000;
    println("Time: <secs> seconds");
 }

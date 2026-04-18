@@ -11,7 +11,7 @@ As a basic principle, the symbols for declared types always link to their defini
 We cater for languages to have a subtype relation to be defined, and a least upper bound computation. 
 }
 @benefits{
-* symbolic types can be analyzed and manipulated symbolically, i.e. to instatiate parametrized types.
+* symbolic types can be analyzed and manipulated symbolically, i.e. to instantiate parametrized types.
 * symbolic types can be used directly as constraint variables for type inference or type-based refactoring purposes.
 }
 @pitfalls{

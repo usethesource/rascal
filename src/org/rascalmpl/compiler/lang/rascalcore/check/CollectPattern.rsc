@@ -34,8 +34,6 @@ module lang::rascalcore::check::CollectPattern
 extend lang::rascalcore::check::CheckerCommon;
 
 extend lang::rascalcore::check::CollectLiteral;
-
-import lang::rascal::\syntax::Rascal;
 import String;
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
@@ -72,7 +70,7 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
        c.fact(current, aset(avoid()));
     }
     c.push(patternContainer, "set");
-    collect(elements0, c);
+        collect(elements0, c);
     c.pop(patternContainer);
 }
 
@@ -94,8 +92,21 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     if(tp is function) c.enterScope(current);
         collect(tp, c);
     if(tp is function) c.leaveScope(current);
-    
-    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+    calcDeps = [tp];
+    functionScopes = c.getScopeInfo(functionScope());
+    if(!isEmpty(functionScopes)){
+        for(<_, scopeInfo> <- functionScopes){
+            if(signatureInfo(Type returnType) := scopeInfo){
+                calcDeps += returnType;
+                break;
+            } else {
+                throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
+            }
+        }
+    }
+    c.calculate("typed variable pattern", current, calcDeps, AType(Solver s){  return s.getType(tp)[alabel=uname]; });
+ 
+
     if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
        orScopes = c.getScopeInfo(orScope());
@@ -148,7 +159,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isWildCard(base)){
        if(inPatternNames(base, c)){
-          c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
+          c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), constructorId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -158,7 +169,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
        } else {
           if(c.isAlreadyDefined(base, name)){
-            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
+            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), constructorId()});
             c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
           } else {
             tau = c.newTypeVar(name);

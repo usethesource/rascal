@@ -31,28 +31,28 @@ public abstract class Comprehension extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasResults() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getResults() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasFrom() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getFrom() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasTo() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getTo() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

@@ -35,7 +35,6 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::agrammar::definition::Attributes;
-import lang::rascal::\syntax::Rascal;
 import IO;
 import Map;
 
@@ -58,8 +57,8 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     adtName = prettyPrintName(userType.name);
     
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { 
-        c.report(info(current, "Ignoring declaration of `<adtName>`"));
+    if(hasIgnoreCompilerTag(tagsMap)) { 
+        c.report(info(adtName, "Ignoring declaration of `<adtName>`"));
         return;
     }
     
@@ -70,7 +69,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     dt = isEmpty(typeParameters) ? defType(aadt(adtName, [], dataSyntax()))
                                  : defType(typeParameters, AType(Solver s) { return aadt(adtName, [ s.getType(tp)[closed=true] | tp <- typeParameters], dataSyntax()); });
     
-    dt.md5 = md5Hash("<adtName><dataCounter>");
+    dt.md5 = normalizedMD5Hash(adtName, dataCounter);
     dataCounter += 1;
     if(!isEmpty(commonKeywordParameterList)) dt.commonKeywordFields = commonKeywordParameterList;
     c.define(adtName, dataId(), current, dt);
@@ -119,8 +118,6 @@ AType(Solver) makeKeywordFieldType(str fieldName, KeywordFormal kwf)
   
         return fldType[alabel=fieldName]; 
       };
-         
-int variantCounter = 0;
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
     
@@ -144,7 +141,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = md5Hash("<currentModuleName><adtName><name><unparseNoLayout(current)>");
+                dt.md5 = normalizedMD5Hash(currentModuleName, adtName, name, current);
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
@@ -155,22 +152,20 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             declaredFieldNames += fieldName;
             kwfType = kwf.\type;
             dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
-            dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><consArity><kwfType><fieldName>");
+            dt.md5 = normalizedMD5Hash(currentModuleName, adtName, dataCounter, name, consArity, kwfType, fieldName);
             c.define(fieldName, keywordFieldId(), kwf.name, dt);  
         }
     
         scope = c.getScope();
         c.enterScope(current);
             args = "<for(arg <- arguments){><arg is named ? "<arg.\type> <arg.name>" : "<arg>"> <}>";
-            md5Contrib = "<currentModuleName><adtName><dataCounter><name>( <args>)";
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);
                     kwFormalTypes = [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
-                })[md5 = md5Hash(md5Contrib)]);
-            variantCounter += 1;
+                })[md5 = normalizedMD5Hash(currentModuleName, adtName, dataCounter, name, args)]);
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);
                  // The standard rules would declare arguments and kwFormals as variableId();

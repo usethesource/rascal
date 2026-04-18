@@ -15,7 +15,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class UtilMaybe {
     private static final TypeStore store = new TypeStore();
     private static final TypeFactory TF = TypeFactory.getInstance();
-    private static final Type ParameterT = TF.parameterType("A");
+    public static final Type ParameterT = TF.parameterType("A");
     public static final Type Maybe;
     private static final Type Maybe_nothing;
     private static final Type Maybe_just;

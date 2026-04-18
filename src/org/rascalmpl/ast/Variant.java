@@ -31,21 +31,21 @@ public abstract class Variant extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasKeywordArguments() {
     return false;
   }
 
   public org.rascalmpl.ast.KeywordFormals getKeywordArguments() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasName() {
     return false;
   }
 
   public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   
@@ -127,7 +127,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 41 * name.hashCode() + 59 * arguments.hashCode() + 823 * keywordArguments.hashCode() ; 
+      return 401 + 787 * name.hashCode() + 239 * arguments.hashCode() + 997 * keywordArguments.hashCode() ; 
     } 
   
     

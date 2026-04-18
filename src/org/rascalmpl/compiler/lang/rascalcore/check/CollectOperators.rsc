@@ -26,17 +26,16 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @bootstrapParser
 module lang::rascalcore::check::CollectOperators
- 
-extend lang::rascalcore::check::CheckerCommon;
+
 import lang::rascalcore::check::BacktrackFree;
 
 import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectExpression;
 
-import lang::rascal::\syntax::Rascal;
-
 import Node;
 import Set;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 // ---- is
 
@@ -151,7 +150,7 @@ void collect(current: (Expression) `<Expression arg> ?`, Collector c){
     c.fact(current, abool());
     checkIsDefinedArg(arg, c);
     collect(arg, c); 
-    c.require("non void", arg, [], makeNonVoidRequirement(arg, "Argument of is-defined operator _ ?)"));
+    c.require("non void", arg, [], makeNonVoidRequirement(arg, "Argument of is-defined operator _ ?"));
 }
 
 // ---- negation

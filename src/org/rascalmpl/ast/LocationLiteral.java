@@ -31,14 +31,14 @@ public abstract class LocationLiteral extends AbstractAST {
   }
 
   public org.rascalmpl.ast.PathPart getPathPart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasProtocolPart() {
     return false;
   }
 
   public org.rascalmpl.ast.ProtocolPart getProtocolPart() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

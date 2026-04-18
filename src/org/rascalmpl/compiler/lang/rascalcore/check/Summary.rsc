@@ -36,6 +36,7 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::Import;
 import analysis::typepal::TModel;
+import analysis::typepal::ConvertTModel;
 
 import util::Reflective;
 
@@ -51,11 +52,8 @@ data PathConfig(
     loc generatedTestResources =|unknown:///|
 );
 
-@doc{
-.Synopsis
-Summary of a Rascal module for use in IDE
-
-.Description
+@synopsis{Summary of a Rascal module for use in IDE}
+@description{
 A `ModuleSummary` summarizes a Rascal module for the benefit of IDE support like
 * Show type of current symbol.
 * Goto definition.
@@ -74,7 +72,9 @@ private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
     
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
-    tm = convertTModel2PhysicalLocs(tm);
+    if (!tm.usesPhysicalLocs) {
+        tm = convertTModel2PhysicalLocs(tm);
+    }
     // Extract @doc and @synopsis tags
     map[loc def, str synopsis] synopses = ();
     map[loc def, loc docloc] docLocs = ();
@@ -100,53 +100,42 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
         [vocabulary=getVocabulary(tm)]
         [synopses=synopses]
         [docLocs=docLocs];
-}    
-    
-@doc{
-.Synopsis
-Make a ModuleSummary.
 }
+
+ModuleSummary makeSummary(str qualifiedModuleName, loc tplLoc) {
+    try {
+        return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
+    } catch IO(_): {
+        return moduleSummary();
+    }
+}
+
+@synopsis{Make a ModuleSummary.}
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
     if(<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)){
-        try {
-            return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
-        } catch IO(_): {
-            return moduleSummary();
-        }
+        return makeSummary(qualifiedModuleName, tplLoc);
     }
     else {
         return moduleSummary();
     }
 }
 
-@doc{
-.Synopsis
-Get all definitions for a given use.
-}
+@synopsis{Get all definitions for a given use.}
 set[loc] getDefinitions(ModuleSummary summary, loc use){
     return summary.useDef[use] ? {};
 }
 
-@doc{
-.Synopsis
-Get the (pretty printed) type for a given use.
-}
+@synopsis{Get the (pretty printed) type for a given use.}
 str getType(ModuleSummary summary, loc use){
     return summary.locationTypes[use] ? "";
 }
 
-@doc{
-.Synopsis
-Get all definitions for a given definition.
-}
+@synopsis{Get all definitions for a given definition.}
 set[loc] getUses(ModuleSummary s, loc def){
     return invert(s.useDef)[def];
 }
 
-@doc{
-.Synopsis
-Get the doc string for a given definition.
-}
+@synopsis{Get the doc string for a given definition.}
 str getDocForDefinition(loc def){
     try {
         d = readFile(def);
@@ -167,10 +156,10 @@ str getSynopsis(str docContents){
 
 ModuleSummary example1() {
     pcfg = pathConfig(
-            srcs=[|std:///|], 
-            bin = |project://rascal-core/target/test-classes|,
-            generatedSources = |project://rascal-core/target/generated-test-sources|,
-            generatedResources = |project://rascal-core/target/generated-test-resources|,
+            srcs=[|project://rascal|], 
+            bin = |target://rascal|,
+            generatedSources = |project://rascal/target/generated-test-sources|,
+            generatedResources = |project://rascal/target/generated-test-resources|,
             libs = []);
     return makeSummary("Boolean", pcfg);
 }
@@ -182,14 +171,19 @@ value main(){
 
 // Simple sanity tests. Any change in Boolean.rsc will break these tests.
 test bool synopsis1()
-    = example1().synopses[ |project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1538,254,<80,0>,<94,1>)] == "Convert Boolean value to string.";
+    = bprintln(example1().synopses) && example1().synopses[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1618,268,<80,0>,<94,1>))] == "Convert Boolean value to string.";
 
 test bool vocabulary1()
-    = example1().vocabulary == {"Boolean","toString","toInt","toReal","fromString","arbBool"};
+    = example1().vocabulary ==
+        {"SchemeNotSupported","sentence","ArithmeticException","IO","message","first","MalFormedURI","toReal","classpath","Timeout","JavaCompilation","b","Java","InvalidUseOfDateTime","Boolean",
+         "IndexOutOfBounds","nonterminal","cause","cls","PermissionDenied","StackOverflow","NoParent","name","EmptyList","uri","toString","JavaException","IllegalTypeArgument","Ambiguity","Exception",
+         "NotImplemented","EmptyMap","MultipleKey","index","NoMainFunction","NoSuchField","IllegalArgument","s","DateTimeParsingError","locs","second","InvalidUseOfTime","NoSuchElement","label","toInt",
+         "PathNotFound","line","InvalidURI","InvalidUseOfDate","ParseError","location","EmptySet","v","arguments","column","NoSuchAnnotation","NoSuchKey","RuntimeException","class","ImplodeError",
+         "DateTimePrintingError","source","arbBool","ModuleNotFound","CallFailed","fromString","UnavailableInformation","InvalidUseOfLocation","RegExpSyntaxError","AssertionFailed","key"};
 
 test bool usedef1() 
-    = example1().useDef[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(935,1,<39,6>,<39,7>)] 
-      == {|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(923,1,<37,27>,<37,28>)};
+    = example1().useDef[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(974,1,<39,6>,<39,7>))] 
+      == {resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(960,1,<37,27>,<37,28>))};
 
 test bool locationTypes1()
-    = example1().locationTypes[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1023,48,<45,8>,<45,56>)] == "RuntimeException";
+    = example1().locationTypes[resolveLocation(|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1068,48,<45,8>,<45,56>))] == "RuntimeException";

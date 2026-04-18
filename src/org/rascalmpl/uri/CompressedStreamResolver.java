@@ -163,6 +163,15 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
 	    registry.setLastModified(getActualURI(uri), timestamp);
 	}
+
+	@Override
+	public boolean isWritable(ISourceLocation uri) throws IOException {
+		return registry.isWritable(getActualURI(uri));
+	}
+	@Override
+	public boolean isReadable(ISourceLocation uri) throws IOException {
+		return registry.isReadable(getActualURI(uri));
+	}
 	
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
@@ -183,4 +192,15 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	public boolean supportsHost() {
 		return true;
 	}
+	
+	@Override
+	public FileAttributes stat(ISourceLocation uri) throws IOException {
+		return registry.stat(getActualURI(uri));
+	}
+
+	@Override
+	public long size(ISourceLocation uri) throws IOException {
+		return registry.size(getActualURI(uri));
+	}
+
 }
