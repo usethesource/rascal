@@ -177,7 +177,7 @@ test bool RecursiveDataTypeNoPossibleHiddenRecursion() = unexpectedDeclarationIn
       void main() { p = or(t(),t()); and(t1,t2) := p; }
    "); 
 
-test bool NoDataDecl() = cannotMatchInModule("
+test bool NoDataDecl() = argumentMismatchInModule("
    module NoDataDecl
       data Prop = f();
       data Bool = and(list[Prop], list[Prop]) | t(); 

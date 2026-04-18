@@ -89,7 +89,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
  
     /** 
-     * @param input   mvn://groupid!artifactId!version/path
+     * @param input   mvn://groupid--artifactId--version/path
      * @return        a file:/// reference to the jar file that is designated by the authority.
      * @throws IOException when the authority does not designate a jar file
      */
@@ -97,7 +97,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         String authority = input.getAuthority();
 
         if (authority.isEmpty()) {
-            throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
+            throw new IOException("missing mvn://groupid--artifactId--version/ as the authority in " + input);
         }
 
         var parts = authority.split(GROUP_ARTIFACT_VERSION_SEPARATOR);
@@ -124,7 +124,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             return URIUtil.getChildLocation(root, jarPath);  
         }
         else {
-            throw new IOException("Pattern mvn:///groupId!artifactId!version did not match on " + input);
+            throw new IOException("Pattern mvn://groupId--artifactId--version did not match on " + input);
         }
     }
 

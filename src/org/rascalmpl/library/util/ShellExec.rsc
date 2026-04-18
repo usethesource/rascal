@@ -11,7 +11,7 @@
 module util::ShellExec
 
 @synopsis{Start a new external process.}
-@deprecrated{
+@deprecated{
 Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
@@ -26,7 +26,8 @@ in the underlying system's search path.
 
 The arguments to `args` given are all converted to strings before passing them into the command.
 Special treatment is given to `loc` arguments, which are first resolved to `file:///` schemes and
-then printed to OS-specific absolute path names.
+then printed to OS-specific absolute path names. Also `list[loc]` and set[loc] are treated by
+converting to OS-specific path strings, separated by Java's `File.pathSeparator`. 
 
 For environment variables in `envVars` the same treatment is given to convert values to strings.
 }
@@ -34,7 +35,7 @@ For environment variables in `envVars` the same treatment is given to convert va
 java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] envVars = ());
 
 @synopsis{start, run and kill an external process returning its output as a string.}
-@deprecrated{
+@deprecated{
 Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.
 }
 str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
@@ -52,7 +53,7 @@ str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], ma
    return result;
 }
 
-@deprecrated{
+@deprecated{
 Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.
 }
 tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {

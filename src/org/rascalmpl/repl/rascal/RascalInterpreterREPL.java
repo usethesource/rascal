@@ -49,14 +49,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.dap.DebugSocketServer;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.ideservices.RemoteIDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -92,6 +93,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     protected DebugSocketServer debugServer;
 
+    protected final int ideServicesPort;
+
     @Override
     public ITree parseCommand(String command) {
         Objects.requireNonNull(eval, "Not initialized yet");
@@ -101,6 +104,12 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     public RascalInterpreterREPL() {
+        this(-1);
+    }
+
+    public RascalInterpreterREPL(int ideServicesPort) {
+        this.ideServicesPort = ideServicesPort;
+
         this.printer = new RascalValuePrinter() {
             @Override
             protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
@@ -123,7 +132,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
-        return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
+        if (ideServicesPort == -1) {
+            return new BasicIDEServices(err, monitor, term, URIUtil.rootLocation("cwd"));
+        }
+        return new RemoteIDEServices(ideServicesPort, err, monitor, term, URIUtil.rootLocation("cwd"));
     }
 
     /**
@@ -131,7 +143,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
         var evaluator = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
-        debugServer = new DebugSocketServer(evaluator, services);
+        debugServer = new DebugSocketServer(evaluator, services, PROMPT_LOCATION);
         return evaluator;
     }
 
@@ -217,8 +229,10 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             try {
                 Set<String> changes = new HashSet<>();
                 changes.addAll(dirtyModules);
-                dirtyModules.removeAll(changes);
-                eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("reloader"));
+                if (!changes.isEmpty()) {
+                    dirtyModules.removeAll(changes);
+                    eval.reloadModules(eval.getMonitor(), changes, URIUtil.rootLocation("prompt"));
+                }
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
@@ -323,4 +337,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         }
     }
 
+    public void clearModuleLoadMessages() {
+        eval.getHeap().clearModuleLoadMessage();
+    }
 }
