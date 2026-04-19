@@ -257,7 +257,6 @@ public java void iprint(value arg, int lineLimit = 1000);
 See ((IO-iprint)) for a version that displays the result on the console
 and ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline.
-
 }
 @examples{
 ```rascal-shell
