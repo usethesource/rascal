@@ -1,4 +1,4 @@
-@synopsis{A semantics for text and file patching based on ((FileSystemChange)) and ((TextEdit)) operators.} 
+@synopsis{A semantics for text and file patching based on ((TextEdits-FileSystemChange)) and ((TextEdits-TextEdits)) operators.} 
 @description{
 This module provides the same functionality as ((util::IDEServices)) for executing ((FileSystemChange))s.
 Instead of deferring to the IDE to execute the patches and include them in the undo stack and preview modes,
@@ -48,7 +48,7 @@ void executeFileSystemChange(changed(loc file)) {
     setLastModified(file, now());
 }
 
-@synopsis{Edit a file according to the given ((TextEdit)) instructions}
+@synopsis{Edit a file according to the given ((TextEdits-TextEdit)) instructions}
 void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     str content = readFile(file);
 
@@ -57,12 +57,12 @@ void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     writeFile(file.top, content);
 }
 
-@synopsis{Edit a string according to the given ((TextEdit)) instructions}
+@synopsis{Edit a string according to the given ((TextEdits-TextEdit)) instructions}
 @description{
-If you have a patch in the shape of a list of ((TextEdit))s, then this function
+If you have a patch in the shape of a list of ((TextEdits-TextEdit))s, then this function
 applies it for you.
 
-Good sources of correct ((TextEdit)):
+Good sources of correct ((TextEdits-TextEdit)):
 * ((analysis::diff::edits::HiFiTreeDiff))
 * ((analysis::diff::edits::HiFiLayoutDiff))
 }
