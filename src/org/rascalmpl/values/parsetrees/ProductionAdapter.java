@@ -21,6 +21,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 
 import org.rascalmpl.exceptions.ImplementationError;
@@ -82,6 +83,40 @@ public class ProductionAdapter {
 		
 		return writer.done();
 	}
+
+	public static int getErrorDot(IConstructor prod) {
+		if (!isError(prod)) {
+			throw new ImplementationError("This is not an error production: " + prod);
+		}
+
+		return ((IInteger)prod.get(2)).intValue();
+	}
+
+	public static IConstructor getErrorProduction(IConstructor prod) {
+		if (!isError(prod)) {
+			throw new ImplementationError("This is not an error production: " + prod);
+		}
+
+		return ((IConstructor) prod.get(1));
+	}
+
+	public static int getAstArgCount(IConstructor prod) {
+		int count = 0;
+		boolean isLayout = false;
+		for (IValue child : ProductionAdapter.getSymbols(prod)) {
+			if (isLayout) {
+				isLayout = false;
+			} else {
+				IConstructor symbol = SymbolAdapter.delabel((IConstructor) child);
+				if (!SymbolAdapter.isLiteral(symbol) && !SymbolAdapter.isCILiteral(symbol)) {
+					count++;
+				}
+				isLayout = true; // Next symbol will be layout
+			}
+		}
+
+		return count;
+	}
 	
 	public static boolean isContextFree(IConstructor tree) {
 		IConstructor t = getType(tree);
@@ -139,6 +174,14 @@ public class ProductionAdapter {
 	public static boolean isRegular(IConstructor tree) {
 		return tree.getConstructorType() == RascalValueFactory.Production_Regular;
 	}
+	
+	public static boolean isSkipped(IConstructor tree) {
+        return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
+    }
+
+	public static boolean isError(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Production_Error;
+	}
 
 	public static boolean isSeparatedList(IConstructor tree) {
 		IConstructor rhs = getType(tree);
@@ -158,11 +201,15 @@ public class ProductionAdapter {
 	}
 
 	public static String getCategory(IConstructor tree) {
+		return getTagValue(tree, "category");
+	}
+
+	public static String getTagValue(IConstructor tree, String name) {
 		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
 				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
 					IValue value = ((IConstructor)attr).get("tag");
-					if (value.getType().isNode() && ((INode) value).getName().equals("category")) {
+					if (value.getType().isNode() && ((INode) value).getName().equals(name)) {
 						return ((IString) ((INode) value).get(0)).getValue();
 					}
 				}

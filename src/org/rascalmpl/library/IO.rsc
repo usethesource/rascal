@@ -18,6 +18,7 @@ The following input/output functions are defined:
 module IO
 
 import Exception;
+extend analysis::diff::edits::FileSystemChanges;
 
 @synopsis{All functions in this module that have a charset parameter use this as default.}
 private str DEFAULT_CHARSET = "UTF-8";
@@ -100,6 +101,36 @@ is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an examp
 java set[loc] findResources(str fileName);
 set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
 
+@synopsis{Search for a single resource instance, and fail if no or multiple instances are found}
+@description{
+This is a utility wrapper around ((findResources)).
+It processes the result set of ((findResources)) to:
+* return a singleton location if the `fileName`` was found.
+* throw an IO exception if no instances of `fileName` was found.
+* throw an IO exception if multiple instances of `fileName` were found.
+}
+@benefits{
+* Save some code to unpack of the set that ((findResources)) produces.
+}
+@pitfalls{
+* ((getResource)) searches for all instances in the entire run-time context of the current 
+module. So if the search path (classpath) grows, new similar files may be added that match and this
+function will start throwing IO exceptions. If you can influence the `fileName`, then make sure
+to pick a name that is always going to be unique for the current project. 
+}
+loc getResource(str fileName) throws IO {
+  result = findResources(fileName);
+
+  switch (result) {
+    case {}: 
+      throw IO("<fileName> not found");
+    case {loc singleton}: 
+      return singleton;
+    default:
+      throw IO("<fileName> found more than once: <result>");
+  }
+}
+ 
 @synopsis{Append a value to a file.}
 @description{
 Append a textual representation of some values to an existing or a newly created file:
@@ -295,6 +326,29 @@ Check whether location `file` is actually a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isFile(loc file);
+
+@synopsis{Check whether a given location is a readable file}
+@description{
+Tries to predict whether a `file` is readable. 
+If the file does not exist, this will throw an exception
+}
+@pitfalls{
+There are (rare) cases where it will return `true`` and ((readFile)) will still throw an exception (and even less likely but possible for the inverse).
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isReadable(loc file) throws PathNotFound;
+
+@synopsis{Check whether a given location is a writable file (and not readonly/non-existing).}
+@description{
+Tries to predict whether a file `file` is writable. 
+If the file does not exist, this will throw an exception
+}
+@pitfalls{
+There are cases where it will return `true`` and ((writeFile)) will still throw an exception (and even less likely but possible for the inverse).
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isWritable(loc file) throws PathNotFound;
+
 
 
 
@@ -533,24 +587,43 @@ Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
+@synopsis{Read the content of a file and return it as a base-64 encoded string.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase64(loc file)
+public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
-Use readBase64 instead. Uuencode was a misnomer.
+Use readBase64 instead.
 }
 public str uuencode(loc file) = readBase64(file);
 
+@synopsis{Decode a base-64 encoded string and write the resulting bytes to a file.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase65 instead. Uudecode was a misnomer.
+Use writeBase64 instead.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
+@synopsis{Read the content of a file and return it as a base-32 encoded string.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase32(loc file, bool includePadding=true)
+throws PathNotFound, IO;
+
+@synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase32(loc file, str content)
+throws PathNotFound, IO;
 
 @synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
@@ -603,8 +676,21 @@ throws PathNotFound, IO
 
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Remove files or directories}
 public java void remove(loc file, bool recursive=true) throws IO;
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Rename files or directories}
+@benefits{
+* will rename between schemes and within schemes, seamlessly.
+* within schemes renaming is implemented as close to the operating system rename functionality as possible. This can be very fast.
+}
+@pitfalls{
+* Between-scheme renaming can cause large recursive copy operations:
+   - that can take a lot more time
+   - if interrupted on the OS level will leave semi-copied target files and not-yet-removed origins
+}
+public java void rename(loc from, loc to, bool overwrite=false) throws IO;
 
 @synopsis{Write values to a file.}
 @description{
@@ -662,46 +748,77 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(loc file)
+@deprecated{
+Use `readBase64` instead.
+}
+public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Is an alias for ((rename))}
 java void move(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java loc arbLoc();
 
-data LocationChangeEvent
-    = changeEvent(loc src, LocationChangeType changeType, LocationType \type);
-
-data LocationChangeType
-    = created() 
-    | deleted() 
-    | modified();
-
-data LocationType
-    = file() 
-    | directory();
+@javaClass{org.rascalmpl.library.Prelude}
+java void watch(loc src, bool recursive, void (FileSystemChange event) watcher);
 
 @javaClass{org.rascalmpl.library.Prelude}
-java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+java void unwatch(loc src, bool recursive, void (FileSystemChange event) watcher);
+
+@synopsis{Categories of IO capabilities for loc schemes}
+@description{
+* ((reading)) includes at least these functions:
+   * ((readFile))
+   * ((lastModified)) and ((created))
+   * ((exists))
+   * ((isFile)) and ((isDirectory))
+   * `loc.ls`, and ((listEntries)) 
+* ((writing)) includes at least these functions:
+   * ((writeFile))
+   * ((mkDirectory))
+   * ((remove))
+   * ((rename)) and ((move))
+* ((classloading)) means that for this scheme a specialized/optimized ClassLoader can be produced at run-time. By
+default an abstract (slower) ClassLoader can be built using `read` capabilities on `.class` files.
+* ((watching)) means that for this scheme a file watcher can be instantiated. By default 
+a slower more generic file watcher is created based on capturing `write` actions.
+   * ((resolving)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
+rewritten to a more concrete URI on-demand. Logical URIs can be nested arbitrarily.
+
+These capabilities extend naturally to other IO functions that use the internal versions of the above functionality, 
+such as used in ((ValueIO)) and ((lang::json::IO)), etc.
+}
+@pitfalls{
+* IO capabilities are not to be confused with file _permissions_. It is still possible that a file
+has write capabilities, but writing is denied by the OS due to a lack of permissions.
+}
+data IOCapability
+  = reading()
+  | writing()
+  | classloading()
+  | resolving()
+  | watching()
+  ;
 
 @javaClass{org.rascalmpl.library.Prelude}
-java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+@synopsis{List the IO capabilities of a loc (URI) scheme}
+java set[IOCapability] capabilities(loc location);

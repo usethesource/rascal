@@ -12,9 +12,15 @@
 @bootstrapParser
 module util::Reflective
 
-import ParseTree;
+extend util::PathConfig;
+
 import IO;
+import List;
+import ParseTree;
 import String;
+import util::FileSystem;
+import Message;
+
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
@@ -25,10 +31,10 @@ public java str getLineSeparator();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@synopsis{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Just parse a module at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@synopsis{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
+@synopsis{Parse a module (including surrounding spaces) at a given location without any further processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
@@ -37,16 +43,7 @@ data RascalConfigMode
     | interpreter()
     ;
 
-data PathConfig 
-    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
-  = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] ignores = [],              // List of locations to ignore from the source files
-               loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
-               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
-               list[loc] classloaders = [|system:///|]      // TODO: must generate the same defaults as in PathConfig
-              );
-
+@deprecated{not in use anymore}
 data RascalManifest
   = rascalManifest(
       str \Project-Name = "Project",
@@ -58,6 +55,7 @@ data RascalManifest
       list[str] \Required-Dependencies = []
     ); 
 
+@deprecated{not in use anymore}
 data JavaBundleManifest
   = javaManifest(
       str \Manifest-Version = "",
@@ -71,12 +69,43 @@ data JavaBundleManifest
       list[str] \Bundle-ClassPath = [],
       list[str] \Import-Package = [] 
     );
-          
+
+@synopsis{Makes the location of a jar file explicit, based on the project name}
+@description{
+The classpath of the current JVM is searched and jar files are searched that contain
+META-INF/MANIFEST.MF file that match the given `projectName`.
+}
+@benefits{
+* This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
+into testing ((PathConfig))s.
+* The classpath is not used implicitly in this way, but rather explicitly. This helps
+in making configuration issues tractable.
+* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+}
+@javaClass{org.rascalmpl.library.util.Reflective}
+java loc resolveProjectOnClasspath(str projectName);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@synopsis{Search a module name in the interpreter's search path}
+@description{
+This exists to help debugging interactive loading and reloading of Rascal modules
+by the REPL and the interpreter. It does not work in a compiled context.
+}
+@pitfalls{
+This is internal information for the interpreter and should not be used by client code.
+Only for debugging purposes of the interpreter and the REPL.
+}
+java loc resolveModuleOnCurrentInterpreterSearchPath(str moduleName);
+
+@synopsis{Makes the location of the currently running rascal jar explicit.}
+loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
+
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
 @synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
   META-INF/RASCAL.MF files.}
+@deprecated{Not in use anymore.}
 PathConfig applyManifests(PathConfig cfg) {
    mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
@@ -93,15 +122,20 @@ PathConfig applyManifests(PathConfig cfg) {
    cfg.libs = [*expandlibs(p) | p <- cfg.libs];
    cfg.bin  = expandBin(cfg.bin);
    
-   // TODO: here we add features for Require-Libs by searching in a repository of installed
-   // jars. This has to be resolved recursively.
-   
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
-    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
+@deprecated{Function will be moved to Rascal compiler}
+str makeFileName(str qualifiedModuleName, str extension = "rsc") {
+    str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
+    int n = findLast(qnameSlashes, "/");
+    str prefix = extension == "rsc" ? "" : "$";
+    str package = extension == "rsc" ? "" : "rascal/";
+    qnameSlashes = n < 0 ? "<prefix>" + qnameSlashes : qnameSlashes[0..n] + "/<prefix>" + qnameSlashes[n+1..];
+    return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
+}
 
+@deprecated{Function will be moved to Rascal compiler}
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
         fileLoc = dir + filePath;
@@ -113,62 +147,143 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
-    fileName = makeFileName(qualifiedModuleName, extension=extension);
+@deprecated{Function will be moved to Rascal compiler}
+@synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
             return fileLoc;
         }
     }
-    throw "Module <qualifiedModuleName> not found, <pcfg>";
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    for(loc dir <- pcfg.libs){
+        fileLoc = dir + fileName;
+        
+        if(exists(fileLoc)){
+            return fileLoc;
+        }
+    }
+    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 tuple[str,str] splitFileExtension(str path){
     int n = findLast(path, ".");
     if(n < 0) return <path, "">;
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
-str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", "tpl"}){
+@deprecated{Function will be moved to Rascal compiler}
+@synopsis{Determine length of common suffix of list of strings}
+int commonSuffix(list[str] dir, list[str] m)
+    = commonPrefix(reverse(dir), reverse(m));
+
+@deprecated{Function will be moved to Rascal compiler}
+@synopsis{Determine length of common prefix of list of strings}
+int commonPrefix(list[str] rdir, list[str] rm){
+    for(int i <- index(rm)){
+        if(i >= size(rdir)){
+            return i;
+        } else if(rdir[i] != rm[i]){
+            return i;
+        } else {
+            continue;
+        }
+    }
+    return size(rm);
+}
+
+@deprecated{Function will be moved to Rascal compiler}
+@synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
+str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
+
+    rscFile = endsWith(modulePath, "rsc");
+    tplFile = endsWith(modulePath, "tpl");
     
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
+    if(!( rscFile || tplFile )){
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
-   
-    for(loc dir <- pcfg.srcs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           moduleName = replaceLast(moduleName, ".rsc", "");
-           if(moduleName[0] == "/"){
-              moduleName = moduleName[1..];
-           }
-           moduleName = replaceAll(moduleName, "/", "::");
-           return moduleName;
+    
+    // Find matching .rsc file in source directories
+    if(rscFile){
+        for(loc dir <- pcfg.srcs){
+            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)){
+                moduleName = replaceFirst(modulePath, dir.path, "");
+                if(exists(dir + moduleName)){
+                    <moduleName, ext> = splitFileExtension(moduleName);
+                    if(moduleName[0] == "/"){
+                        moduleName = moduleName[1..];
+                    }
+                    moduleName = replaceAll(moduleName, "/", "::");
+                    return moduleName;
+                }
+            }
         }
     }
     
-     for(loc dir <- pcfg.libs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(ext in extensions){
-               if(moduleName[0] == "/"){
-                  moduleName = moduleName[1..];
-               }
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
-           }
+    // Find longest matching .tpl file in library directories
+  
+    <modulePathNoExt, ext> = splitFileExtension(modulePath);
+    while(modulePathNoExt[0] == "/"){
+        modulePathNoExt = modulePathNoExt[1..];
+    }
+    
+    modulePathAsList = split("/", modulePathNoExt);
+    if(tplFile){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
+    }
+    if(modulePathAsList[0] == "rascal"){
+         modulePathAsList = modulePathAsList[1..];
+    }
+    modulePathReversed = reverse(modulePathAsList);
+    
+    int longestSuffix = 0;
+    for(loc dir <- pcfg.libs){
+        dir = dir + "rascal";
+        dpath = dir.path;
+       
+        while(dpath[0] == "/"){
+            dpath = dpath[1..];
+        }
+       
+        for(loc file <- find(dir, "tpl")){
+            candidate = replaceFirst(file.path, dpath, "");    
+            <candidate, ext> = splitFileExtension(candidate);
+            while(candidate[0] == "/"){
+                candidate = candidate[1..];
+            }
+            
+            candidateAsList = split("/", candidate);
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
+            // println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
+                        
+            if(n > longestSuffix){
+                longestSuffix = n;
+            }
         }
     }
     
-    
+    if(longestSuffix > 0){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
+        return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
+    }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
-
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for reading}
 @description{
 Given a module name, a file name extension, and a PathConfig,
@@ -218,7 +333,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     return <false, |error:///|>;
 }
 
-
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for writing}
 @description{
 Given a module name, a file name extension, and a PathConfig,
@@ -266,15 +381,6 @@ public java bool inCompiledMode();
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str diff(value old, value new);
 
-@synopsis{Watch value val: 
-- running in interpreted mode: write val to a file, 
-- running in compiled mode: compare val with previously written value}
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-public java &T watch(type[&T] tp, &T val, str name, value suffix);
-
 @synopsis{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, bool concretePatterns);
@@ -319,10 +425,11 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
         throw "Folder <name> should have only lowercase characters, digits and dashes from [a-z0-9\\-]";
     }
     
-    mkDirectory(pomFile(folder).parent);
-    writeFile(pomFile(folder), pomXml(name, group, version));
-    mkDirectory(metafile(folder).parent);
-    writeFile(metafile(folder), rascalMF(name));
+    
+    newRascalPomFile(folder, name=name, group=group, version=version);
+    newRascalMfFile(folder, name=name);
+    newRascalVsCodeSettings(folder);
+    
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
 }
@@ -343,8 +450,34 @@ private str rascalMF(str name)
   = "Manifest-Version: 0.0.1
     'Project-Name: <name>
     'Source: src/main/rascal
-    'Require-Libraries: 
-    ";
+    '
+    '";
+
+@synopsis{Create a new META-INF/RASCAL.MF file.}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a META-INF/RASCAL.MF file will be generated and written.
+
+The folder is created if it does not exist already.
+}
+void newRascalMfFile(loc folder, str name=folder.file) {
+    mkDirectory(metafile(folder).parent);
+    writeFile(metafile(folder), rascalMF(name));
+}
+
+@synopsis{Create a new pom.xml for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a pom.xml file will be generated and written.  
+
+The folder is created if it does not exist already.
+}
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    mkDirectory(folder);
+    writeFile(pomFile(folder), pomXml(name, group, version));
+} 
 
 private str pomXml(str name, str group, str version)  
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
@@ -409,3 +542,24 @@ private str pomXml(str name, str group, str version)
     '  \</build\>
     '\</project\>
     ";
+
+private str vscodeSettings() = "{
+                               '    \"search.exclude\": {
+                               '        \"/target/\": true,
+                               '    },
+                               '}";
+
+private loc vscodeFolder(loc folder) = folder + ".vscode";
+private loc vscodeSettingsFile(loc folder) = vscodeFolder(folder) + "settings.json";
+
+@synopsis{Create a `.vscode` folder for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+A `.vscode` folder will be generated and written.
+
+The project folder is created if it does not exist already.
+}
+void newRascalVsCodeSettings(loc folder) {
+    mkDirectory(vscodeFolder(folder));
+    writeFile(vscodeSettingsFile(folder), vscodeSettings());
+}

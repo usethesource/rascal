@@ -2,7 +2,6 @@
 module util::Webserver
 
 extend Content;
-import IO;
     
 @javaClass{org.rascalmpl.library.util.Webserver}
 java void serve(loc server, Response (Request) callback, bool asDaemon = true);

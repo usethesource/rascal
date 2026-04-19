@@ -135,7 +135,7 @@ syntax Expression
   > left or: Expression lhs "||" Expression rhs
   > cond: Expression!cond cond "?" Expression!cond then ":" Expression elseExp
   > right (
-      assign: Expression lhs "=" !>> ([=][=]?) Expression rhs
+      assign: Expression lhs "=" !>> [=] Expression rhs
     | assignMul: Expression lhs "*=" Expression rhs
     | assignDiv: Expression lhs "/=" Expression rhs
     | assignRem: Expression lhs "%=" Expression rhs
@@ -312,8 +312,8 @@ lexical Whitespace
   ;
 
 lexical Comment
-  = @category="Comment" "/*" CommentChar* "*/"
-  | @category="Comment" "//" ![\n]*  $
+  = @category="comment" "/*" CommentChar* "*/"
+  | @category="comment" "//" ![\n]*  $
   ;
 
 lexical CommentChar

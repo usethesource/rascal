@@ -78,7 +78,7 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new ListStackNode<P>(this, startLocation);
+		return new ListStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P>[] getChildren(){
@@ -93,6 +93,12 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 		return emptyChild;
 	}
 
+	@Override
+	public String toShortString() {
+		return name;
+	}
+
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
@@ -103,10 +109,16 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof ListStackNode)) return false;
 		
@@ -116,4 +128,10 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

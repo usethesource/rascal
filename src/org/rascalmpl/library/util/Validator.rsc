@@ -29,31 +29,36 @@ private data RuntimeException = none();
 @synopsis{To validate nodes we can try whether or not it can be matched to a constructor of a defined data type with the same name and (resp. validating) children.}
 @memo
 &T validate(type[&T] expected, node v, list[value] path = [], bool relaxed=false) {
-    if (expected.symbol == \node()) {
-        return v;
+    Symbol lookup(str name, [*_,label(key, sym),*_]) = sym;
+    default Symbol lookup(str _, list[Symbol] _) = \value();
+    Symbol unlabel(label(_, Symbol sym)) = sym;
+    default Symbol unlabel(Symbol sym)  = sym;
+
+    if (expected.symbol == \node(), &T vv := v) {
+        return vv;
     }
     
   	if (def:adt(_, _) := expected.symbol, grammar := expected.definitions) {
 	    RuntimeException msg = none();
 	    name = getName(v);
-	    
+	    children = getChildren(v);
+        params = getKeywordParameters(v);
+        int arity = size(children);
+
+        candidates // first the constructors with the right name
+            = [<name, symbols, kwTypes> | /\cons(label(name, def), symbols, kwTypes, _) := grammar[def]?{}, size(symbols) == arity]
+            + // then the constructors with different names (only in relaxed mode)
+              [<other, symbols, kwTypes> | relaxed, /\cons(label(str other:!name, _), symbols, kwTypes, _) := grammar[def]?{}, size(symbols) == arity]      
+            ;
+
         // there may be several constructors with this name; we try them all, backtracking over already validated sub-values:
-        for (/\cons(label(str otherName:name, def), list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] _) := grammar[def]?[]
-            // if the constructors with the right name are exhausted, we try the others (in relaxed mode)
-            || <true, name, def, /\cons(label(otherName, _), list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] _)> := <relaxed, name, def, grammar[def]?[]>) {
-            children = getChildren(v);
-            params = getKeywordParameters(v);
-        
-            if (size(children) != size(symbols)) {
-                continue;
-            }
-            
+        for (<otherName, symbols, kwTypes> <- candidates) {
             try {
                 // for the recursion it's important that we @memo the results to avoid rework in the next cycle of the surrounding for loop
-                children = [validate(type(sym, grammar), children[i], path=path+[i], relaxed=relaxed) | i <- index(children), label(_, Symbol sym) := symbols[i]];
+                children = [validate(type(unlabel(symbols[i]), grammar), children[i], path=path+[i], relaxed=relaxed) | i <- index(children)];
                 
                 // similarly for recursion into the keyword parameters, we @memo this function to make sure we don't do sub-trees again and again:
-                params = (key:validate(type(sym, grammar), params[key], path=path+[key], relaxed=relaxed) | key <- params, [*_,label(key, sym),*_] := kwTypes || <key, sym> := <key, \value()>);
+                params = (key:validate(type(lookup(name, kwTypes), grammar), params[key], path=path+[key], relaxed=relaxed) | key <- params);
                 
                 // TODO: make a more specific and faster version of `make` that can apply a specific constructor directly
                 return make(expected, otherName, children, params);

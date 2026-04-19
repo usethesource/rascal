@@ -5,6 +5,7 @@ import java.io.StringReader;
 
 import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
@@ -12,6 +13,7 @@ import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.RascalValueFactory;
@@ -86,7 +88,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
   protected static class layouts_$default$ {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerMap());
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -107,7 +109,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
   protected static class start__Stmt {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerMap());
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -130,7 +132,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
   protected static class Expr {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerMap());
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -149,7 +151,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
   protected static class Stmt {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerMap());
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -211,7 +213,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
   protected static class layouts_WS {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerMap());
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(new IntegerKeyedHashMap<>(), new IntegerMap());
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -249,7 +251,7 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
 
   @Override
   public ITree executeParser() {
-    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+    return parse("start__Stmt", null, "if (x)\n\tif (x)\n\t\t{}".toCharArray(), INodeFlattener.UNLIMITED_AMB_DEPTH, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   }
 
   @Override

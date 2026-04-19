@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Replacement extends AbstractAST {
   public Replacement(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -30,14 +31,14 @@ public abstract class Replacement extends AbstractAST {
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
   public boolean hasReplacementExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getReplacementExpression() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(this.src.toString());
   }
 
   

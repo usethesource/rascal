@@ -53,12 +53,14 @@ import io.usethesource.vallang.IValueFactory;
  * Interface needs to be properly split up in different compoments.
  */
 public interface IEvaluator<T> extends IEvaluatorContext {
+	public static final String LOADING_JOB_CONSTANT = "loading modules";
 
 	/**
 	 * Notify subscribers about a suspension caused while interpreting the program.
 	 * @param currentAST the AST that is causes the suspension.
 	 */
 	public void notifyAboutSuspension(AbstractAST currentAST);
+	public void notifyAboutSuspensionException(Exception t);
 
 	/*
 	 * Evaluation.
@@ -118,7 +120,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public ITree parseCommand(IRascalMonitor monitor, String command,
 			ISourceLocation location);
 
-	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException;
+	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
