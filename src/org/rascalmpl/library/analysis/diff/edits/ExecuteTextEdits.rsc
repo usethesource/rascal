@@ -1,3 +1,15 @@
+@synopsis{A semantics for text and file patching based on ((FileSystemChange)) and ((TextEdit)) operators.} 
+@description{
+This module provides the same functionality as ((util::IDEServices)) for executing ((FileSystemChange))s.
+Instead of deferring to the IDE to execute the patches and include them in the undo stack and preview modes,
+this code simply directly patches strings and files.
+
+
+}
+@benefits{
+* This module is very useful for batch execution of large scale renovation rewrites, 
+* or for _testing_ refactoring code without all the UI dependencies.
+}
 module analysis::diff::edits::ExecuteTextEdits
 
 extend analysis::diff::edits::TextEdits;
@@ -45,11 +57,28 @@ void executeFileSystemChange(changed(loc file, list[TextEdit] edits)) {
     writeFile(file.top, content);
 }
 
-str executeTextEdits(str content, list[TextEdit] edits) {
-    // assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
-    //     return e1.range.offset < e2.range.offset; 
-    // });
+@synopsis{Edit a string according to the given ((TextEdit)) instructions}
+@description{
+If you have a patch in the shape of a list of ((TextEdit))s, then this function
+applies it for you.
 
+Good sources of correct ((TextEdit)):
+* ((analysis::diff::edits::HiFiTreeDiff))
+* ((analysis::diff::edits::HiFiLayoutDiff))
+}
+@benefits{
+* fast way to reconstruct an entire file based on a list of changes to that file.
+* the `str` interface helps with unit testing of refactoring tools without file IO.
+* use ((executeFileSystemChange)) for a file based interface to the same functionality.
+}
+@pitfalls{
+* the list of edits _must be_ sorted on the offset, or this algorithm will not have the desired effect.
+* the individual edits' range must not overlap, or this algorithm will not have the desired effect.
+* the text edits must have been derived earlier from the current state of the string. There is a clear
+semantic dependency between `content` and `edits` that the caller of the function must respect to get the desired effect.
+Not doing so would be like throwing a patch of file A on a completely different file B.
+}
+str executeTextEdits(str content, list[TextEdit] edits) {
     int cursor = 0;
 
     // linear-time streamed reconstruction of the entire text
