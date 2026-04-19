@@ -226,4 +226,4 @@ private Symbol striprec(Symbol x) = visit(x) { case Symbol s => strip(s) };
 
 private Symbol strip(label(_, Symbol s)) = strip(s);
 private Symbol strip(conditional(Symbol s, _)) = strip(s);
-default Symbol strip(Symbol s) = s;
+private default Symbol strip(Symbol s) = s;
