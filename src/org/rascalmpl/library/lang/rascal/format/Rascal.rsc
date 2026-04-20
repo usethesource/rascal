@@ -37,6 +37,16 @@ import util::Formatters;
 import util::Monitor;
 import util::Reflective;
 
+@synopsis{Format an entire Rascal file, in-place.}
+public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
+
+@synopsis{Format a Rascal module string}
+public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
+
+@synopsis{Format a Rascal statement string}
+public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
+
+public void(loc) formatAllRascalFiles = allFilesFormatter(#start[Module], toBox);
 
 @synopsis{Format any Rascal module and dump the result as a string}
 void debugFormatRascalFile(loc \module, bool console=false, bool HTML=!console, FormattingOptions opts = formattingOptions(), bool dumpEdits=false) {
@@ -1161,15 +1171,3 @@ Box toBox((TypeVar) `&<Name n> \<: <Type bound>`)
         L("\<:"), 
         toBox(bound));
 
-// TODO: put these functions on top after the function cache issue has been resolved:
-
-@synopsis{Format an entire Rascal file, in-place.}
-public void (loc) formatRascalFile = fileFormatter(#start[Module], toBox);
-
-@synopsis{Format a Rascal module string}
-public str (str) formatRascalModule = stringFormatter(#start[Module], toBox);
-
-@synopsis{Format a Rascal statement string}
-public str (str) formatRascalStatement = stringFormatter(#Statement, toBox, opts=formattingOptions(trimFinalNewlines=true, insertFinalNewline=false));
-
-public void(loc) formatAllRascalFiles = allFilesFormatter(#start[Module], toBox);

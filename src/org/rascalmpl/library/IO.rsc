@@ -528,9 +528,6 @@ public &T printlnExp(str msg, &T v) {
 
 
 @synopsis{Raw print of a value.}
-@description{
-
-}
 @pitfalls{
 This function is only available for internal use in the Rascal development team.
 }
@@ -540,9 +537,6 @@ public java void rprint(value arg);
     
 
 @synopsis{Raw print of a value followed by newline.}
-@description{
-
-}
 @pitfalls{
 This function is only available for internal use in the Rascal development team.
 }
