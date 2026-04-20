@@ -1,6 +1,6 @@
 @synopsis{A semantics for text and file patching based on ((TextEdits-FileSystemChange)) and ((TextEdits-TextEdit)) operators.} 
 @description{
-This module provides the same functionality as ((util::IDEServices)) for executing ((FileSystemChange))s.
+This module provides the same functionality as ((util::IDEServices)) for executing ((TextEdits-FileSystemChange))s.
 Instead of deferring to the IDE to execute the patches and include them in the undo stack and preview modes,
 this code simply directly patches strings and files.
 
