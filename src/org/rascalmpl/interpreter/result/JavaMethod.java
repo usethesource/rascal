@@ -137,7 +137,8 @@ public class JavaMethod extends NamedFunction {
 		}
 		// check parameters are a subtype
 		for (int i = 0; i < actualStaticTypes.length; i++) {
-			if (!actualStaticTypes[i].isSubtypeOf(formals.getFieldType(i))) {
+			if (!actualStaticTypes[i].isSubtypeOf(formals.getFieldType(i)) 
+			 && !actuals[i].getType().isSubtypeOf(formals.getFieldType(i))) {
 				throw new MatchFailed();
 			}
 		}
