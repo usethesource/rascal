@@ -25,8 +25,6 @@ the pipeline may change layout (whitespace and comments and capitalization of ca
 module analysis::diff::edits::HiFiLayoutDiff
 
 extend analysis::diff::edits::HiFiTreeDiff;
-import ParseTree; // this should not be necessary because imported by HiFiTreeDiff
-import String; // this should not be be necessary because imported by HiFiTreeDiff
 import lang::rascal::grammar::definition::Characters;
 import IO;
 
