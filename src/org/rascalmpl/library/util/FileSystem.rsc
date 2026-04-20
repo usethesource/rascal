@@ -22,7 +22,7 @@ data FileSystem
 * Using `exclude` you can avoid going into certain directories or filter specific files from the result.  
 * With `checkExist=true` the `l` parameter is checked to exist before the file system is crawled and a PathNotFound exception is thrown if not.
 }  
-FileSystem crawl(loc l, set[loc] exclude= {}, bool checkExist=true) throws PathNotFound
+FileSystem crawl(loc l, set[loc] exclude= {}, bool checkExist=false) throws PathNotFound
   = isDirectory(l) ? directory(l, {crawl(e, exclude=exclude, checkExist=false) | e <- l.ls, l notin exclude}) : file(l)
   when checkExist ==> throwNotExist(l)
   ;
@@ -33,7 +33,7 @@ FileSystem crawl(loc l, set[loc] exclude= {}, bool checkExist=true) throws PathN
 * Using `exclude` you can avoid going into certain directories or filter specific files from the result.  
 * With `checkExist=true` the `l` parameter is checked to exist before the file system is crawled and a PathNotFound exception is thrown if not.
 }
-set[loc] files(loc l, set[loc] exclude={}, bool checkExist=true) throws PathNotFound
+set[loc] files(loc l, set[loc] exclude={}, bool checkExist=false) throws PathNotFound
   = isDirectory(l) ? { *files(e, exclude=exclude, checkExist=false) | e <- l.ls, e notin exclude} : {l} 
   when checkExist ==> throwNotExist(l);
 
@@ -43,7 +43,7 @@ set[loc] files(loc l, set[loc] exclude={}, bool checkExist=true) throws PathNotF
 * Using `exclude` you can avoid going into certain directories or filter specific files from the result.  
 * With `checkExist=true` the `f` parameter is checked to exist before the file system is crawled and a PathNotFound exception is thrown if not.
 }
-set[loc] find(loc f, bool (loc) filt, set[loc] exclude = {}, bool checkExist=true) throws PathNotFound
+set[loc] find(loc f, bool (loc) filt, set[loc] exclude = {}, bool checkExist=false) throws PathNotFound
   = isDirectory(f) 
       ? {*find(c, filt, exclude=exclude, checkExist=false) | c <- f.ls, c notin exclude} + ((filt(f) && f notin exclude) ? {f} : { }) 
       : (filt(f) ? {f} : { })
@@ -56,11 +56,11 @@ set[loc] find(loc f, bool (loc) filt, set[loc] exclude = {}, bool checkExist=tru
 * Using `exclude` you can avoid going into certain directories or filter specific files from the result.  
 * With `checkExist=true` the `f` parameter is checked to exist before the file system is crawled and a PathNotFound exception is thrown if not.
 }
-set[loc] find(loc f, str ext, set[loc] exclude={}, bool checkExist=true) throws PathNotFound
+set[loc] find(loc f, str ext, set[loc] exclude={}, bool checkExist=false) throws PathNotFound
   = find(f, bool (loc l) { return l.extension == ext; }, exclude=exclude, checkExist=checkExist);
 
 @synopsis{Lists all files recursively ignored files and directories starting with a dot.}
-set[loc] visibleFiles(loc l, bool checkExist=true) throws PathNotFound {
+set[loc] visibleFiles(loc l, bool checkExist=false) throws PathNotFound {
   if (checkExist) {
     throwNotExist(l);
   }
@@ -68,7 +68,7 @@ set[loc] visibleFiles(loc l, bool checkExist=true) throws PathNotFound {
     return {};
   }
   if (isDirectory(l)) {
-    return {*visibleFiles(f) | f <- l.ls}; 
+    return {*visibleFiles(f, checkExist=false) | f <- l.ls}; 
   }
   return {l};
 }
