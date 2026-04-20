@@ -117,7 +117,7 @@ int main(PathConfig pcfg = pathConfig()) {
 ```
 }
 void storeParsersForModules(PathConfig pcfg) {
-    storeParsersForModules({*find(src, "rsc", exclude={*pcfg.ignores}) | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
+    storeParsersForModules({*find(src, "rsc", exclude={*pcfg.ignores}, checkExist=true) | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
 }
     
 void storeParsersForModules(set[loc] moduleFiles, PathConfig pcfg) {
