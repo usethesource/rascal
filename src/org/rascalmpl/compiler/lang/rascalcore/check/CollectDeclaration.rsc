@@ -625,7 +625,7 @@ void collect(Parameters parameters, Collector c){
        } else {
             scope = c.getScope();
 
-            c.calculate("formals", parameters, [*formals,*kwFormals]/*+addReturnTypeDependency(parameters, parameters, c)*/,
+            c.calculate("formals", parameters, [],
                 AType(Solver s) {
                     formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                     int last = size(formalTypes) -1;
