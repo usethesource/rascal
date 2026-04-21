@@ -88,23 +88,6 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
                 AType (Solver s){ return alist(lubList([s.getType(e) | e <- elements0])); });
     c.pop(patternContainer);
 }
-
-list[Tree] addReturnTypeDependency(Tree current, Tree tp, Collector c){
-    if(/TypeVar _ := current){
-        functionScopes = c.getScopeInfo(functionScope());
-        if(!isEmpty(functionScopes)){
-            for(<_, scopeInfo> <- functionScopes){
-                if(signatureInfo(Type returnType) := scopeInfo){
-                    return [tp, returnType];
-                } else {
-                    throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
-                }
-            }
-        }
-    }
-    return [tp];
-}
-// ---- typed variable pattern
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
