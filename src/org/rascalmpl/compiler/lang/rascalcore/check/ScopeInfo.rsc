@@ -34,6 +34,7 @@ module lang::rascalcore::check::ScopeInfo
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ATypeExceptions;
 
 public /*const*/ str patternContainer = "patternContainer";
 public /*const*/ str patternNames     = "patternNames";
