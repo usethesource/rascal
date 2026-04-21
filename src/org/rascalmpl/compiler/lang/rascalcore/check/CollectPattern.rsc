@@ -71,6 +71,8 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
     }
     c.push(patternContainer, "set");
         collect(elements0, c);
+        c.calculate("set pattern", current, [e | e <- elements0],
+                AType (Solver s){ return alist(lubList([s.getType(e) | e <- elements0])); });
     c.pop(patternContainer);
 }
 
@@ -82,11 +84,13 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
     }
     c.push(patternContainer, "list");
         collect(elements0, c);
+        c.calculate("list pattern", current, [e | e <- elements0],
+                AType (Solver s){ return alist(lubList([s.getType(e) | e <- elements0])); });
     c.pop(patternContainer);
 }
 
 list[Tree] addReturnTypeDependency(Tree current, Tree tp, Collector c){
-    if(/TypeVar _ := tp){
+    if(/TypeVar _ := current){
         functionScopes = c.getScopeInfo(functionScope());
         if(!isEmpty(functionScopes)){
             for(<_, scopeInfo> <- functionScopes){
@@ -123,11 +127,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        }
        c.define(uname, formalOrPatternFormal(c), name, defType(tp));
     } else {
-        if(calcDeps == [tp]){
-            c.fact(name, tp);
-        } else {
-            c.calculate("variable <name>", name, calcDeps, AType(Solver s) { return s.getType(tp); });
-        }
+        c.calculate("variable <name>", name, calcDeps, AType(Solver s) { return s.getType(tp); });
     }
 }
 
