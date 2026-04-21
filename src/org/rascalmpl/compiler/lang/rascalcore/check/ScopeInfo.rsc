@@ -158,5 +158,20 @@ void endUseBoundedTypeParameters(Collector c){
     if(useBoundedTP(_) !:= handler)
         throw "beginUseBoundedTypeParameters/endUseBoundedTypeParameters not properly nested";
 }
- 
+list[Tree] addReturnTypeDependency(Tree current, Tree tp, Collector c){
+    if(/TypeVar _ := current){
+        functionScopes = c.getScopeInfo(functionScope());
+        if(!isEmpty(functionScopes)){
+            for(<_, scopeInfo> <- functionScopes){
+                if(signatureInfo(Type returnType) := scopeInfo){
+                    return [tp, returnType];
+                } else {
+                    throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
+                }
+            }
+        }
+    }
+    return [tp];
+}
+
  data OrInfo = orInfo(set[str] vars);
