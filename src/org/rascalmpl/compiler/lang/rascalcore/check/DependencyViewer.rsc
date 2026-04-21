@@ -202,7 +202,7 @@ void viewDependencies(TModel tm){
             nodeLinker=getNodeSource,
             nodeLabeler=getNodeLabel, 
             styles=styles,
-            \layout=defaultDagreLayout());
+            \layout=defaultDagreLayout()[ranker=\tight-tree()]);
 
     showInteractiveContent(graph(edges, cfg=cfg));
 }
