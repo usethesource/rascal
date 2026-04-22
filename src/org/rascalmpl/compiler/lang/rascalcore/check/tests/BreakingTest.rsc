@@ -15,7 +15,8 @@ import lang::rascal::\syntax::Rascal;
 
 
 // this uuid matters
-loc root = |memory://6e17d46a-06e9-42aa-bd98-182ca2dbd8d3/|;
+loc root = |memory://36a14c42-e4e6-41e0-a59a-ac11f637070c|;
+
 PathConfig pcfg = pathConfig(
     srcs = [root + "src"],
     bin = root + "bin",
@@ -28,9 +29,7 @@ loc writeModule() {
     loc moduleLoc = pcfg.srcs[0] + "<moduleName>.rsc";
     // the spaces before &T seems to matter?
     writeFile(moduleLoc, 
-        "module <moduleName>
-        '   &T \<: int f(&T \<: num _) = 42;
-        '"
+        "module TestModule612d1\n \n &T \<: int f(&T \<: num _) = 1;"
     );
     return moduleLoc;
 }
@@ -111,6 +110,6 @@ void main() {
     remove(root, recursive = true);
     l = writeModule();
     typecheckModule(l);
-    findCollission(l);
-    findTModelCollisions();
+    //findCollission(l);
+    //findTModelCollisions();
 }

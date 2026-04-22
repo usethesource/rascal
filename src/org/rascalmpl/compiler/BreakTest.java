@@ -6,24 +6,20 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.ISourceLocation;
-
 public class BreakTest {
 
     // private static final String BREAKING_MODULE = "lang::rascalcore::check::tests::ChangeScenarioTests";
@@ -34,7 +30,7 @@ public class BreakTest {
     // notCompatibleAfterChangingFunctionArgument
     // notCompatibleAfterChangingFunctionArgument
 
-    private static final int PARALLEL_RUNS = 8; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
+    private static final int PARALLEL_RUNS = 4; // set to 1 to avoid any multi-threading interactions, but it might take 20 rounds or something
     private static final int TRIES = 1000 / PARALLEL_RUNS;
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -51,10 +47,10 @@ public class BreakTest {
                 var tr = new Thread(() -> {
                     try {
                         if (crashTestFreshEval(monitor, error, name, failed)) {
-                            failed.set(true);
                             error.flush();
                             System.err.println("We got a failure, exiting now!");
                             Thread.sleep(1000);
+                            failed.set(true);
                         }
                     }
                     catch (InterruptedException e) {
@@ -73,6 +69,7 @@ public class BreakTest {
             error.close();
         }
         if (failed.get()) {
+            Thread.sleep(2000);
             System.out.flush();
             System.err.flush();
             System.exit(1);
@@ -131,9 +128,15 @@ public class BreakTest {
                 // clean up memory
                 var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestConfigs");
                 if (memoryModule != null ) {
-                var testRoot = memoryModule.getFrameVariable("testRoot");
                 try {
-                    URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
+                    var testRoot = (ISourceLocation)memoryModule.getFrameVariable("testRoot").getValue();
+                    if (iFailed.get()) {
+                        try (var contents = URIResolverRegistry.getInstance().getCharacterReader(URIUtil.getChildLocation(testRoot, "src/TestModule612d1.rsc"))) {
+                            err.println("File contents:\n");
+                            contents.transferTo(err);
+                        }
+                    }
+                    URIResolverRegistry.getInstance().remove(testRoot, true);
                 }
                 catch (Throwable e) {
                     err.println("Failure to cleanup the cache");
@@ -147,6 +150,7 @@ public class BreakTest {
             errorPrinter.println("❌❌❌ Test run failed: " + name);
             errorPrinter.println("Job output:");
             errorPrinter.println(output.toString());
+            errorPrinter.flush();
             failed.set(true);
             return true;
         }
@@ -200,13 +204,22 @@ public class BreakTest {
                                 // clean up memory
                                 var memoryModule = evaluator.getHeap().getModule("lang::rascalcore::check::TestConfigs");
                                 if (memoryModule != null) {
-                                    var testRoot = memoryModule.getFrameVariable("testRoot");
                                     try {
-                                        URIResolverRegistry.getInstance().remove((ISourceLocation)testRoot.getValue(), true);
+                                        var testRoot = (ISourceLocation)memoryModule.getFrameVariable("testRoot").getValue();
+                                        //if (iFailed.get()) {
+                                            try (var contents = URIResolverRegistry.getInstance().getCharacterReader(URIUtil.getChildLocation(testRoot, "src/TestModule612d1.rsc"))) {
+                                                err.println("File contents:\n");
+                                                contents.transferTo(err);
+                                            }
+                                        //}
+                                        URIResolverRegistry.getInstance().remove(testRoot, true);
                                     }
                                     catch (Throwable e) {
                                         err.println("Failure to cleanup the cache");
                                     }
+                                }
+                                else {
+                                    err.println("Could not clear test module");
                                 }
                             }
                         }
