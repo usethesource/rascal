@@ -28,7 +28,7 @@ loc writeModule() {
     loc moduleLoc = pcfg.srcs[0] + "<moduleName>.rsc";
     // the spaces before &T seems to matter?
     writeFile(moduleLoc, 
-        "module TestModule612d1\r\n \n    &T \<: int f(&T \<: num _) = 1;"
+        "module TestModule612d1\n \n &T \<: int f(&T \<: num _) = 1;"
     );
     return moduleLoc;
 }
