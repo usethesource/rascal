@@ -53,7 +53,7 @@ public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefini
         return <{prod2prod(\lex("<n>"), p)}, nothing()>;
       case \keyword(nonterminal(Nonterminal n), Prod p) : 
         return <{prod2prod(keywords("<n>"), p)}, nothing()>;
-      default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
+      default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd.src>"; }
     }
 } 
    

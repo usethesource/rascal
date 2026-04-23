@@ -4,7 +4,7 @@ import ParseTree;
 
 &T<:Tree cycleDetectionFilter(amb(set[&T<:Tree] alts)) {
   if (/t:cycle(_,_) <- alts) {
-    throw "Cycle detected at <t@\loc>";
+    throw "Cycle detected at <t.src>";
   }
   else {
     fail cycleDetectionFilter;

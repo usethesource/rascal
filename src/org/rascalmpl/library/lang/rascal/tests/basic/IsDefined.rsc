@@ -243,41 +243,42 @@ test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 // Annotations
 
 data F = f3() | f3(int n) | g(int n) | deep(F f);
-anno int F@pos;
+ 
+data F(int pos = 10);
 
-test bool isDefinedAnno1() = (f3()[@pos=1])@pos?;
+test bool isDefinedAnno1() = (f3()[pos=1]).pos?;
 
-test bool isDefinedAnno2() = !(f3()@pos)?;
+test bool isDefinedAnno2() = !(f3().pos)?;
 
-test bool isDefinedAnno3() = ((f3()[@pos=1])@pos ? 10) == 1;
+test bool isDefinedAnno3() = ((f3()[pos=1]).pos) == 1;
 
-test bool isDefinedAnno4() = ((f3())@pos ? 10) == 10;
+test bool isDefinedAnno4() = ((f3()).pos) == 10;
 
 test bool isDefinedAnno5(){
     X = f3(); 
-    X@pos ? 0 += 1;
-    return X@pos == 1;
+    X.pos ? 0 += 1;
+    return X.pos == 1;
 }
 
 test bool isDefinedAnno6(){
-    X = f3()[@pos=1];
-    X@pos ? 0 += 1;
-    return X@pos == 2;
+    X = f3()[pos=1];
+    X.pos ? 0 += 1;
+    return X.pos == 2;
 }
 
 test bool isDefinedAnno7(){
     X = f3(); 
-    X@pos ?= 3;
-    return X@pos == 3;
+    X.pos ?= 3;
+    return X.pos == 3;
 }
 
 test bool isDefinedAnno8(){
-    X = f3()[@pos = 1]; 
-    X@pos ?= 3;
-    return X@pos == 1;
+    X = f3()[pos=1]; 
+    X.pos ?= 3;
+    return X.pos == 1;
 }
 
-test bool isDefinedAnno9() = f3()[@pos = 1] has pos;
+test bool isDefinedAnno9() = f3()[pos=1] has pos;
 
 // TODO we can not tell this anymore since annotations are now simulated using keyword parameters.
 // the keyword parameter "is" always there due to their semantics of having defaults..
