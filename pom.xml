@@ -66,7 +66,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${project.build.directory}/generated-resources</directory>
+                <directory>${project.build.directory}/src/rascal</directory>
             </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
@@ -178,7 +178,7 @@
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
-                            <authors>${project.basedir}/AUTHORS.md</authors>
+                            <!--<authors>${project.basedir}/AUTHORS.md</authors> -->
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
                             <version>${project.version}</version>
