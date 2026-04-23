@@ -592,6 +592,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
             c.define(tpname, typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
+            //c.calculate("bounded type var", tp, [tp, returnType], makeTypeGetter(tp));
         }
     }
 
