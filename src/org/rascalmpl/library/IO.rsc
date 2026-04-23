@@ -18,6 +18,7 @@ The following input/output functions are defined:
 module IO
 
 import Exception;
+
 extend analysis::diff::edits::FileSystemChanges;
 
 @synopsis{All functions in this module that have a charset parameter use this as default.}
@@ -208,7 +209,6 @@ exists(|std:///IO.rsc|);
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool exists(loc file);
-
 
 @synopsis{Find a named file in a list of locations.}
 @examples{
