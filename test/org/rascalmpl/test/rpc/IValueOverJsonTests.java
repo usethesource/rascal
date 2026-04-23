@@ -117,7 +117,7 @@ public class IValueOverJsonTests {
     public void teardown() throws IOException {
         close(client);
         close(server);
-        // give the json rpc server a bit of time to actually close everything before we jank away the streams
+        // give the JSON-RPC server a bit of time to actually close everything before we jank away the streams
         CompletableFuture.delayedExecutor(100, TimeUnit.MILLISECONDS).execute(() -> {
             try {
                 close(is0);
@@ -129,7 +129,6 @@ public class IValueOverJsonTests {
             catch (IOException ignored) {
                 System.err.println("Closing the streams failed with: " + ignored.getMessage());
                 ignored.printStackTrace();
-
              }
         });
     }
