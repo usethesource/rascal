@@ -32,6 +32,42 @@ syntax Literal
 syntax Expression = concrete: Concrete concrete;
 syntax Pattern    = concrete: Concrete concrete;
 
+layout NoLayout = @Manual ();
+
+syntax StringLiteral 
+  = \default: "\"" NoLayout Indentation indent NoLayout  {StringPart NoLayout}* body NoLayout "\"";
+
+syntax StringPart
+  = \var          : "$" NoLayout QualifiedName variable 
+  | \expr         : "$(" Expression result KeywordArguments[Expression] keywordArguments ")"
+  | \block        : "${" Statement+ statements "}"
+  | \ifThenD      : "$if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
+  | \ifThenElseD  : "$if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "}"
+  | \whileD       : "$while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
+  | \forD         : "$for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "}" // any first and final literal body part are dropped at the start and end
+  | balancedCurlies: "{" NoLayout {StringPart NoLayout}* body NoLayout "}"
+  | \margin       : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
+  | \characters   : StringCharacters characters
+  | @deprecate \compatible  : StringPartOld old
+  ;
+
+// "$for (e <- elems) {$e, }"
+
+syntax StringPartOld
+  = \hole      : "\<" Expression arg  "\>"+  
+  | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStatsThen "}" 
+                            "else"  "{"  Statement* preStatsElse "\>" NoLayout {StringPart NoLayout}* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
+  | \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
+  | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
+  ;
+
+lexical StringCharacters = @category="Constant" StringCharacter+ chars !>> ![\" \' \< \> \n ~];
+lexical Indentation
+  = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
+  ;
+
 lexical Concrete 
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
@@ -300,16 +336,6 @@ syntax ProtocolPart
 	= nonInterpolated: ProtocolChars protocolChars 
 	| interpolated: PreProtocolChars pre Expression expression ProtocolTail tail ;
 
-syntax StringTemplate
-	= ifThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| ifThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	| \for       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
-
-lexical PreStringChars
-	= @category="string" [\"] StringCharacter* [\<] ;
-
 lexical CaseInsensitiveStringConstant
 	= @category="string" "\'" StringCharacter* chars "\'" ;
 
@@ -372,11 +398,6 @@ syntax Assignable
 	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
-lexical StringConstant
-	= @category="string" "\"" StringCharacter* chars "\"" ;
-
-
-
 syntax Assoc
 	= associative: "assoc" 
 	| left: "left" 
@@ -392,19 +413,15 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\" \' \< \> \\ b f n r t] 
+	= "\\" [$ { } \" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
+	| ![$ { } \" \' \< \> \\]
 	;
 
 lexical JustTime
 	= "$T" TimePartNoTZ !>> [+\-] "$"
 	| "$T" TimePartNoTZ TimeZonePart "$"
 	;
-
-lexical MidStringChars
-	= @category="string" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
 	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
@@ -499,11 +516,6 @@ lexical OptionalTerminator
 	| present: ";"
 	;
 
-syntax StringMiddle
-	= mid: MidStringChars mid 
-	| template: MidStringChars mid StringTemplate template StringMiddle tail 
-	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
-
 syntax QualifiedName
 	= \default: {Name "::"}+ names !>> "::" ;
 
@@ -518,11 +530,6 @@ lexical DecimalIntegerLiteral
 
 syntax DataTypeSelector
 	= selector: QualifiedName sort "." Name production ;
-
-syntax StringTail
-	= midInterpolated: MidStringChars mid Expression expression StringTail tail 
-	| post: PostStringChars post 
-	| midTemplate: MidStringChars mid StringTemplate template StringTail tail ;
 
 syntax PatternWithAction
 	= replacing: Pattern pattern "=\>" Replacement replacement 
@@ -580,11 +587,6 @@ syntax Visibility
 	= \private: "private" 
 	| \default: 
 	| \public: "public" ;
-
-syntax StringLiteral
-	= template: PreStringChars pre StringTemplate template StringTail tail 
-	| interpolated: PreStringChars pre Expression expression StringTail tail 
-	| nonInterpolated: StringConstant constant ;
 
 lexical Comment
 	= @category="comment" "/*" (![*] | [*] !>> [/])* "*/" 
@@ -802,9 +804,6 @@ syntax ProdModifier
 syntax Toplevel
 	= givenVisibility: Declaration declaration ;
 
-lexical PostStringChars
-	= @category="string" [\>] StringCharacter* [\"] ;
-
 lexical HexIntegerLiteral
 	= [0] [X x] [0-9 A-F a-f]+ !>> [0-9 A-Z _ a-z] ;
 
@@ -837,8 +836,8 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="string" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="string" ![\  \" \' \- \< \> \[ \\ \]] 
+	= @category="string" "\\" [{ } \  \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="string" ![{ } \  \" \' \- \< \> \[ \\ \]] 
 	| @category="string" UnicodeEscape 
     ; 
     
