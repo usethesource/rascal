@@ -987,7 +987,7 @@ public abstract class Statement extends AbstractAST {
     }
     @Override
     public boolean isBreakable() {
-      return true;
+      return !this.expression.isCallOrTree();
     }        
   }
   public boolean isFail() {
