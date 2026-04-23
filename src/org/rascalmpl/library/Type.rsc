@@ -104,6 +104,14 @@ data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
 
+data Symbol = \data(Symbol modified); // to-data modifier
+
+Symbol \data(\data(Symbol s)) = \data(s);
+Symbol \data(adt(n, ps))      = adt(n, ps);
+
+bool subtype(\data(Symbol s), \node())        = true;
+bool subtype(\data(parameter(_,_)), adt(_,_)) = true;
+
 @synopsis{rel types are syntactic sugar for sets of tuples.}
 Symbol \rel(list[Symbol] symbols) 
      = \set(\tuple(symbols));
@@ -111,7 +119,6 @@ Symbol \rel(list[Symbol] symbols)
 @synopsis{lrel types are syntactic sugar for lists of tuples.}
 Symbol \lrel(list[Symbol] symbols) 
      = \list(\tuple(symbols));
-
 
 @synopsis{Overloaded/union types are always reduced to the least upper bound of their constituents.}
 @description{
@@ -318,8 +325,31 @@ This function can be used to validate external data sources against a data type 
 java &T make(type[&T] typ, str name, list[value] args);
  
 @javaClass{org.rascalmpl.library.Type}
-java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
- 
+public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
+
+@javaClass{org.rascalmpl.library.Type}
+@synopsis{Instantiate a constructor value by first declaring the given constructor and then applying it to the given parameters.}
+@description{
+The grammar rules for data constructors in a reified type can inversely be applied
+again to construct constructor instances, dynamically.
+
+This "reflection" feature is dynamically typed, so we don't know statically which type
+of ADT will come out.
+}
+@examples{
+This is the value-ified represention of `data Exp = constant(int n)`:
+```rascal-shell
+import Type;
+rule = cons(label("constant",adt("Exp",[])),[label("n",\int())],[],{});
+// we can use it to instantiate a constructor value that uses that rule:
+example = make(rule, [1]);
+// to illustrate we now construct it the normal way and test for equivalence:
+data Exp = constant(int n);
+example == constant(1);
+```
+}
+public java node make(Production cons, list[value] args, map[str,value] keywordArgs=());
+
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
 As opposed to the # operator, which produces the type of a value statically, this
@@ -343,4 +373,7 @@ Note that the `typeOf` function does not produce definitions, like the
 reify operator `#` does, since values may escape the scope in which they've been constructed.
 }
 @javaClass{org.rascalmpl.library.Type}
-java Symbol typeOf(value v);
+public java Symbol typeOf(value v);
+
+@javaClass{org.rascalmpl.library.Type}
+public java Production getConstructor(&A <: node constructor);
