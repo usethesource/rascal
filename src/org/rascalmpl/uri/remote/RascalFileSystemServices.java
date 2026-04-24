@@ -197,6 +197,11 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
+    public CompletableFuture<BooleanResponse> supportsCopy() {
+        return async(() -> new BooleanResponse(true));
+    }
+
+    @Override
     public CompletableFuture<Void> watch(WatchRequest params) {
         return async(() -> {
             URIResolverRegistry.getInstance().watch(params.getLocation(), params.isRecursive(), changed -> 
