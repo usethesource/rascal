@@ -26,6 +26,7 @@
  */
 package org.rascalmpl.uri.vfs;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -33,6 +34,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
+import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryListingResponse;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.LocationContentResponse;
