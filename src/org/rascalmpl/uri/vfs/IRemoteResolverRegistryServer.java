@@ -43,6 +43,7 @@ import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SourceLocationResponse;
+import org.rascalmpl.uri.remote.jsonrpc.StringResponse;
 import org.rascalmpl.uri.remote.jsonrpc.TimestampResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
@@ -87,6 +88,12 @@ public interface IRemoteResolverRegistryServer {
 
     @JsonRequest("input/isReadable")
     CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req);
+
+    @JsonRequest("input/getCharset")
+    CompletableFuture<StringResponse> getInputCharset(ISourceLocationRequest req);
+    
+    @JsonRequest("output/getCharset")
+    CompletableFuture<StringResponse> getOutputCharset(ISourceLocationRequest req);
 
     @JsonRequest("output/setLastModified")
     CompletableFuture<Void> setLastModified(SetLastModifiedRequest req);

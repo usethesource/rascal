@@ -50,6 +50,7 @@ import org.rascalmpl.uri.remote.jsonrpc.RemoveRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RenameRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SetLastModifiedRequest;
 import org.rascalmpl.uri.remote.jsonrpc.SourceLocationResponse;
+import org.rascalmpl.uri.remote.jsonrpc.StringResponse;
 import org.rascalmpl.uri.remote.jsonrpc.TimestampResponse;
 import org.rascalmpl.uri.remote.jsonrpc.WatchRequest;
 import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
@@ -164,6 +165,16 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     @Override
     public CompletableFuture<BooleanResponse> isWritable(ISourceLocationRequest req) {
         return async(() -> new BooleanResponse(reg.isWritable(req.getLocation())));
+    }
+
+    @Override
+    public CompletableFuture<StringResponse> getInputCharset(ISourceLocationRequest req) {
+        return getOutputCharset(req);
+    }
+
+    @Override
+    public CompletableFuture<StringResponse> getOutputCharset(ISourceLocationRequest req) {
+        return async(() -> new StringResponse(reg.getCharset(req.getLocation()).name()));
     }
 
     @Override
