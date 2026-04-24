@@ -36,4 +36,9 @@ public interface IExternalResolverRegistry extends ISourceLocationInputOutput, I
     default String authority() {
         throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
     }
+
+    @Override
+    default boolean supportsHost() {
+        return false;
+    }
 }
