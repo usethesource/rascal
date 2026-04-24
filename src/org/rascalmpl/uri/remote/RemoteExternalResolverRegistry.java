@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +61,7 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 import org.rascalmpl.uri.remote.jsonrpc.RemoteIOError;
@@ -329,6 +331,21 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
+    private static <T> T call(Callable<CompletableFuture<T>> function) throws IOException {
+        try {
+            return function.call().get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UnsupportedOperationException("Thread should have been interrupted");
+        } catch (Exception e) {
+            var cause = e.getCause();
+            if (cause instanceof ResponseErrorException) {
+                throw RemoteIOError.translate((ResponseErrorException) cause);
+            }
+            throw new IOException(e);
+        }
+    }
+
     private ISourceLocationRequest req(ISourceLocation loc) {
         return new ISourceLocationRequest(loc);
     }
@@ -474,6 +491,18 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         call(getRemote()::copy, new CopyRequest(from, to, recursive, overwrite));
     }
 
+    @Override
+    public boolean supportsCopy() {
+        try {
+            return call(getRemote()::supportsCopy).getValue();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * We keep track of multiple remote watch registrations for a single (remote) location and register a watch remotely only once.
+     */
     @Override
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         synchronized (watchers) {

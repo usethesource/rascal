@@ -107,6 +107,9 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("output/copy")
     CompletableFuture<Void> copy(CopyRequest req);
 
+    @JsonRequest("output/supportsCopy")
+    CompletableFuture<BooleanResponse> supportsCopy();
+
     @JsonRequest("watcher/watch")
     CompletableFuture<Void> watch(WatchRequest req);
 
