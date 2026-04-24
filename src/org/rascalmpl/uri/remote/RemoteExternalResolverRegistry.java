@@ -469,6 +469,12 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @Override
+    public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
+        throws IOException {
+        call(getRemote()::copy, new CopyRequest(from, to, recursive, overwrite));
+    }
+
+    @Override
     public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher, boolean recursive) throws IOException {
         synchronized (watchers) {
             var key = new WatchSubscriptionKey(root, recursive);
