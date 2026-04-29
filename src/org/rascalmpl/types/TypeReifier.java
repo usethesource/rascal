@@ -119,12 +119,18 @@ public class TypeReifier {
      */
     public Type productionToConstructorType(IConstructor prod) {
         if (prod.getConstructorType() == RascalValueFactory.Symbol_Prod) {
+            // this is due to the type-checker accidentally representing productions as Symbols
             return productionToConstructorType(convertSymbolProdToProduction(prod));
         }
         
-        // TODO remove check after bootstrap suc6
-        IConstructor adt = (IConstructor) (prod.has("adt") ?  prod.get("adt") : prod.get("def"));
-        return TypeFactory.getInstance().fromSymbol(prod, new TypeStore(), x -> x == adt ? Collections.singleton(prod) : Collections.emptySet()); 
+        // this conditional is not needed; used to be for bad bootstrap in the RVM
+        IConstructor adt = SymbolAdapter.delabel((IConstructor) (prod.has("adt") ?  prod.get("adt") : prod.get("def")));
+        TypeStore store = new TypeStore();
+
+        // we store the rule in a grammar lookup function such that it can be added to the store as "side-effect"
+        Type sym = TypeFactory.getInstance().fromSymbol(adt, store, x -> x == adt ? Collections.singleton(prod) : Collections.emptySet()); 
+        // return the single rule that was defined into the store for this symbol:
+        return store.lookupAlternatives(sym).iterator().next();
     }
 
     /**

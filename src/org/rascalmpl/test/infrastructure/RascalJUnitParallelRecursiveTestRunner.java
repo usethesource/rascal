@@ -260,7 +260,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             
                             // register a failing module to make sure we report failure later on. 
                             
-                            Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                            Description testDesc = Description.createTestDescription(module, module, new CompilationFailed() {
                                 @Override
                                 public Class<? extends Annotation> annotationType() {
                                     return getClass();
@@ -277,7 +277,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         if (!moduleEnv.getTests().isEmpty()) {
                             Description modDesc = Description.createSuiteDescription(module);
                             for (AbstractFunction f : moduleEnv.getTests()) {
-                                modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
+                                modDesc.addChild(Description.createTestDescription(module, RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
                             }
                             descriptions.add(modDesc);
                             testModules.add(modDesc);
