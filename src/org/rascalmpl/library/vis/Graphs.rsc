@@ -129,7 +129,7 @@ default loc defaultNodeLinker(&T _) = |nothing:///|;
 @synopsis{A NodeLabeler maps node identities to descriptive node labels}
 alias NodeLabeler[&T]= str (&T _id2);
 
-@synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
+@synopsis{The default node labeler searches for any `str` in the identity, or otherwise a file name of a `loc`}
 str defaultNodeLabeler(/str s) = s;
 str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
