@@ -72,8 +72,8 @@ lrel[NodeId,NodeId] srcDependsOn(NodeId src, list[loc] dependsOn)
 lrel[NodeId,NodeId] srcDependsOn(NodeId l, NodeId r, list[loc] dependsOn)
     = srcDependsOn(l, dependsOn) + srcDependsOn(r, dependsOn);
 
-lrel[NodeId,NodeId] calcEdges(c:calcType(loc src, AType atype)) {
-    id = getNodeId(c);
+lrel[NodeId,NodeId] calcEdges(Calculator c:calcType(loc src, AType atype)) {
+    NodeId id = getNodeId(c);
     node2src[id] = src;
     node2label[id] = "<id>: <getText(src)>";
     src2calc[src] = id;
