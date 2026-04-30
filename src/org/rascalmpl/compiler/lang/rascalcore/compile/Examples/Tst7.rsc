@@ -1,19 +1,51 @@
 module lang::rascalcore::compile::Examples::Tst7
-  
 
-list[&T] tail([&T _, *&T t]) = t;
+// import ParseTree;
 
-&T top([&T t, *&T _]) = t;
+// syntax Aas
+//  = nil: [a]*
+//  | a:   [a][a]*
+//  | aas: [a][a][a]*
+//  ;
+//  &T <:Tree ambFilter(amb(set[&T <:Tree] alternatives)) {
+//  set[&T <:Tree] result = {a | Aas a <- alternatives, !(a is nil)};
+//  if ({&T <: Tree oneTree} := result) {
+//    return oneTree;
+//  }
+//  return ParseTree::amb(result);
+// }
+
+@javaClass{org.rascalmpl.library.Prelude}
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar); 
+          
+                   
+      
+list[&T] emptyList(type[&T] _) = [];  // ok
+
+// &T f(&T x) { &T y = 1; return x;} // <==== error
+
+// void f(&T x) { &T y = 1; }   // <==== error
+
+void g(&T x) { &T <: int y  = 1; }   // ok
+
+// &T get1(list[&T] _) = 1;  // <==== error
+
+&T <: int get2(list[&T] _) = 1;  // ok
+
+&T <: num sub(&T <:num x, &T<:num y) = x - y;  // ok
+
+map[&K, &V] domainR1(map[&K, &V] M, set[&K] S)  // ok
+   = (k : M[k] | &K k <- M, k in S);
+
+list[&T] tail([&T _, *&T t]) = t;  // ok
+
+&T top([&T t, *&T _]) = t;  // ok
                
-&T getFirstFrom([&T f, *&T _]) = f;
+&T getFirstFrom([&T f, *&T _]) = f;  // ok
 
-&T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
+&T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t); //ok
+      
+&T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
 
-&T <: int f(&T <: num _) = 1;   
-   
-  
-// int f(int n, int m) = 3;                 
-       
-    
-                     
-                                     
+list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];                       
+                                 
