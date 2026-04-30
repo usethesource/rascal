@@ -598,9 +598,15 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
     }
 
     // Due to their special treatment, missing type parameters are not detected by typepal but have to
-    // detected explicitly.
+    // be detected explicitly.
 
     missing = seenInReturn - seenInParams;
+    for(TypeVar x <- typeParamsInReturn){
+        xname = "<x.name>";
+        if(xname in missing && c.isAlreadyDefined(xname, x)){
+        missing -= xname;
+        }
+    }
     if(!isEmpty(missing)){
         missing = {"&<m>" | m <- missing };
         c.report(error(signature, "Type parameter(s) %v in return type of function %q not bound by its formal parameters", missing, signature.name));
