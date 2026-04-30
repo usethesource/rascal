@@ -47,5 +47,19 @@ list[&T] tail([&T _, *&T t]) = t;  // ok
       
 &T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
 
-list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];                       
-                                 
+list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];   // ok
+
+// Following ok
+alias GatherResult[&T] = tuple[bool trueOnAllPaths, set[&T] results];
+data Graph[&T];     
+data CFGNode;           
+public GatherResult[&T] gatherOnAllReachedPaths(Graph[CFGNode] g, CFGNode startNode, bool(CFGNode cn) pred, bool(CFGNode cn) stop, &T (CFGNode cn) gather, bool includeStartNode = false) {
+	GatherResult[&T] traverser(CFGNode currentNode) = traverser({currentNode});
+	
+	GatherResult[&T] traverser(set[CFGNode] currentNodes) {
+		GatherResult[&T] res = < true, { } >;
+		return res;
+	}
+	
+	return traverser(startNode);
+}
