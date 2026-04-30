@@ -552,7 +552,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
     // during collection.  We cannot declare or use type parameters as they are encountered during collect
     // since their open/closed status has to be taken into account and that depends on the more global
     // context of the signature or function declaration in which they occur. That is why we explicitly create
-    //  uses and defs nof type parameters.
+    // uses and defs for type parameters.
 
     typeParamsInParameters = [*getTypeParams(t) | t <- formals + kwFormals];
 
@@ -572,6 +572,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
                 c.use(tpbound.name, {typeVarId()});
             }
         }
+        seenInReturn += "<tp.name>";
         c.use(tp.name, {typeVarId()});
         c.calculate("typevar in result type", tp, [tp.name], makeTypeGetter(tp,closed=true));
     }
@@ -592,7 +593,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
             c.define(tpname, typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
-            //c.calculate("bounded type var", tp, [tp, returnType], makeTypeGetter(tp));
+            // c.calculate("bounded type var", tp, [tp], makeTypeGetter(tp));
         }
     }
 
@@ -625,7 +626,7 @@ void collect(Parameters parameters, Collector c){
        } else {
             scope = c.getScope();
 
-            c.calculate("formals", parameters, [],
+            c.calculate("formals", parameters, [] /*formals+kwFormals*/,
                 AType(Solver s) {
                     formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                     int last = size(formalTypes) -1;
@@ -654,6 +655,7 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     returnExprType = s.getType(returnExpr);
+    // println("returnRequirement: <returnExpr>, declared: <declaredReturnType>, actual: <returnExprType>");
     FailMessage msg = p:/aparameter(_,_) := declaredReturnType
                       ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
                       : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
