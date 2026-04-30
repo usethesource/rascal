@@ -72,7 +72,7 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
     c.push(patternContainer, "set");
         collect(elements0, c);
         c.calculate("set pattern", current, [e | e <- elements0],
-                AType (Solver s){ return alist(lubList([s.getType(e) | e <- elements0])); });
+                AType (Solver s){ return aset(lubList([s.getType(e) | e <- elements0])); });
     c.pop(patternContainer);
 }
 
@@ -94,8 +94,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     if(tp is function) c.enterScope(current);
         collect(tp, c);
     if(tp is function) c.leaveScope(current);
-    calcDeps = addReturnTypeDependency(current, tp, c);
-    c.calculate("typed variable pattern", current, calcDeps, AType(Solver s){ return s.getType(tp)[alabel=uname]; });
+    c.calculate("typed variable pattern", current, [tp], AType(Solver s){ return s.getType(tp)[alabel=uname]; });
  
     if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
@@ -110,7 +109,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        }
        c.define(uname, formalOrPatternFormal(c), name, defType(tp));
     } else {
-        c.calculate("variable <name>", name, calcDeps, AType(Solver s) { return s.getType(tp); });
+        c.calculate("variable <name>", name, [tp], AType(Solver s) { return s.getType(tp); });
     }
 }
 
