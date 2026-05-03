@@ -80,6 +80,7 @@ data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 // Information needed for checking return statement
 data SignatureInfo
     = signatureInfo(Signature signature)
+    | signatureInfo(Type returnType, Parameters parameters)
     ;
 
 // Determine how type parameters (TypeVar in Rascal grammar) will be treated:

@@ -1,6 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst7
 
 // list[int] f(list[int] L) = [x | x <- L, x > 0];
+    
+bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
+ = !any([*_, &T a, &T b, *_] := l, less(b, a));
                      
 // // int f(int n, int m, bool b = false) = 2;
        
@@ -49,7 +52,7 @@ module lang::rascalcore::compile::Examples::Tst7
 
 // &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t); //ok
         
-// &T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
+&T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
        
 &T <: int f(&T <: num x = 0) = 1; // discussie; ik (en checker) denken ok    
                    
