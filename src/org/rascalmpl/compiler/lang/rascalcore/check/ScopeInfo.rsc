@@ -34,7 +34,6 @@ module lang::rascalcore::check::ScopeInfo
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::ATypeExceptions;
 
 public /*const*/ str patternContainer = "patternContainer";
 public /*const*/ str patternNames     = "patternNames";
@@ -80,7 +79,7 @@ data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
 // Information needed for checking return statement
 data SignatureInfo
-    = signatureInfo(Type returnType)
+    = signatureInfo(Signature signature)
     ;
 
 // Determine how type parameters (TypeVar in Rascal grammar) will be treated:
@@ -159,5 +158,5 @@ void endUseBoundedTypeParameters(Collector c){
     if(useBoundedTP(_) !:= handler)
         throw "beginUseBoundedTypeParameters/endUseBoundedTypeParameters not properly nested";
 }
-
+ 
  data OrInfo = orInfo(set[str] vars);

@@ -304,7 +304,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     c.enterLubScope(decl);
         collect(decl.tags, c);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), signatureInfo(signature.\type));
+        c.setScopeInfo(scope, functionScope(), signatureInfo(signature));
         <tpnames, tpbounds> = collectSignature(decl.signature, c);
        
         dt = defType([signature], AType(Solver s) {
@@ -389,7 +389,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                   // We do in this case not check that the type of the expression as a whole is compatible with the return type.
                   // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
             } else {
-                c.require("check on return type `<fname>`", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, signature.\type));
+                c.require("check on return type `<fname>`", decl.expression, [decl.expression, signature], makeReturnRequirement(decl.expression, signature));
             }
             collect(decl.expression, c);
         }
@@ -439,6 +439,7 @@ str md5Contrib4signature(Signature signature){
 tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c){
     returnType  = signature.\type;
     parameters  = signature.parameters;
+    formals     = getFormals(parameters);
     kwFormals   = getKwFormals(parameters);
 
     beginUseTypeParameters(c, closed=true);
@@ -474,6 +475,16 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
             formalsList = [ updateBounds(fm, minB) | fm <- formalsList ];
             kwFormalsList = [ kwf[fieldType = updateBounds(kwf.fieldType, minB)] | kwf <- computeKwFormals(kwFormals, s) ];
             ft = afunc(rtU, formalsList, kwFormalsList);
+            if(!isEmpty(tpnames)){
+                for(int i <- index(formalsList)){
+                    s.fact(formals[i], formalsList[i]);
+                    // println("*** add fact: <formals[i]> =\> <formalsList[i]>");
+                }
+                for(int i <- index(kwFormalsList)){
+                    s.fact( kwFormals[i], kwFormalsList[i].fieldType);
+                    // println("*** add fact: <kwFormals[i]> =\> <kwFormalsList[i].fieldType>");
+                }
+            }
             //ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minB);
             return ft;
         });
@@ -632,7 +643,7 @@ void collect(Parameters parameters, Collector c){
        } else {
             scope = c.getScope();
 
-            c.calculate("formals", parameters, [] /*formals+kwFormals*/,
+            c.calculate("formals", parameters, formals+kwFormals,
                 AType(Solver s) {
                     formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                     int last = size(formalTypes) -1;
@@ -649,17 +660,19 @@ void collect(Parameters parameters, Collector c){
     endPatternScope(c);
 }
 
-void(Solver) makeReturnRequirement(Tree returnExpr, Type returnType)
+void(Solver) makeReturnRequirement(Tree returnExpr, Signature signature)
     = void(Solver s){
-        returnRequirement(returnExpr, s.getType(returnType), s);
+        returnRequirement(returnExpr, signature, s);
     };
 
-void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
-    = void(Solver s){
-        returnRequirement(returnExpr, returnAType, s);
-    };
+// void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType, Parameters parameters)
+//     = void(Solver s){
+//         returnRequirement(returnExpr, parameters, returnAType, s);
+//     };
 
-void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
+void returnRequirement(Tree returnExpr, Signature signature, Solver s){
+    sigType = s.getType(signature);
+    declaredReturnType = sigType.ret;
     returnExprType = s.getType(returnExpr);
     // println("returnRequirement: <returnExpr>, declared: <declaredReturnType>, actual: <returnExprType>");
     FailMessage msg = p:/aparameter(_,_) := declaredReturnType
@@ -699,9 +712,9 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     functionScopes = c.getScopeInfo(functionScope());
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
-        if(signatureInfo(Type returnType) := scopeInfo){
-           c.require("check return type", current, [statement, returnType], makeReturnRequirement(statement, returnType));
-           c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
+        if(signatureInfo(Signature signature) := scopeInfo){
+           c.require("check return type", current, [statement, signature], makeReturnRequirement(statement, signature));
+           c.fact(current, signature.\type); // Note that type of the return statement as a whole is the function's return type
            collect(statement, c);
            return;
         } else {
