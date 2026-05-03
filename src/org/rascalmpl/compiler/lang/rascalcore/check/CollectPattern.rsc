@@ -88,6 +88,8 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
                 AType (Solver s){ return alist(lubList([s.getType(e) | e <- elements0])); });
     c.pop(patternContainer);
 }
+
+// ---- typed variable pattern
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");

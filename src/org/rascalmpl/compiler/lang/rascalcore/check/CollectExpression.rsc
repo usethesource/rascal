@@ -230,7 +230,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), signatureInfo(returnType));
+        c.setScopeInfo(scope, functionScope(), signatureInfo(returnType, parameters));
 
         beginUseTypeParameters(c, closed=true);
             collect(returnType, c); // any type parameters in return type remain closed (closed=true);
@@ -454,7 +454,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
         try {
             c.fact(current, makeListType(lubList([ c.getType(r) | r <- res])));
         } catch TypeUnavailable(): {
-            c.calculate("list comprehension results", current, res,
+            c.calculate("list comprehension results", current, gens + res,
                 AType(Solver s){
                     return makeListType(lubList([ s.getType(r) | r <- res]));
                 });
