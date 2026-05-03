@@ -665,6 +665,12 @@ void(Solver) makeReturnRequirement(Tree returnExpr, Signature signature)
         returnRequirement(returnExpr, signature, s);
     };
 
+void(Solver) makeReturnRequirement(Tree returnExpr, Type returnType)
+    = void(Solver s){
+        returnRequirement(returnExpr, s.getType(returnType), s);
+    };
+
+
 // void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType, Parameters parameters)
 //     = void(Solver s){
 //         returnRequirement(returnExpr, parameters, returnAType, s);
@@ -673,6 +679,12 @@ void(Solver) makeReturnRequirement(Tree returnExpr, Signature signature)
 void returnRequirement(Tree returnExpr, Signature signature, Solver s){
     sigType = s.getType(signature);
     declaredReturnType = sigType.ret;
+    returnRequirement(returnExpr, s.getType(declaredReturnType), s);
+}
+
+void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
+    // sigType = s.getType(signature);
+    // declaredReturnType = sigType.ret;
     returnExprType = s.getType(returnExpr);
     // println("returnRequirement: <returnExpr>, declared: <declaredReturnType>, actual: <returnExprType>");
     FailMessage msg = p:/aparameter(_,_) := declaredReturnType
@@ -712,6 +724,12 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     functionScopes = c.getScopeInfo(functionScope());
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
+        if(signatureInfo(Type returnType, Parameters parameters) := scopeInfo){
+           c.require("check return type", current, [statement, returnType, parameters], makeReturnRequirement(statement, returnType));
+           c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
+           collect(statement, c);
+           return;
+        } else
         if(signatureInfo(Signature signature) := scopeInfo){
            c.require("check return type", current, [statement, signature], makeReturnRequirement(statement, signature));
            c.fact(current, signature.\type); // Note that type of the return statement as a whole is the function's return type

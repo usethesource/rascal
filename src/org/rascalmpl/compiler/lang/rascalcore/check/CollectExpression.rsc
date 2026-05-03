@@ -230,6 +230,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
+        clos_name = closureName(current);
         c.setScopeInfo(scope, functionScope(), signatureInfo(returnType, parameters));
 
         beginUseTypeParameters(c, closed=true);
@@ -242,7 +243,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
 
         collect(stats, c); // TODO take parameter bounds into account!
 
-        clos_name = closureName(current);
+        
         bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
