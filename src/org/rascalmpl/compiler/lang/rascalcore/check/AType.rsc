@@ -440,6 +440,8 @@ bool asubtype(a:anode(list[AType] l), AType b){
             return true;
         case anode(list[AType] r):
             return l <= r;
+        case adt: aadt(str _, list[AType] _, _):
+             return true;
         case \start(t):
             return asubtype(a, t);
         case avalue():

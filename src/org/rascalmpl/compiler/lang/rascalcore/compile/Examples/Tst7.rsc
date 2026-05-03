@@ -1,9 +1,19 @@
 module lang::rascalcore::compile::Examples::Tst7
 
+ 
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
+
+data Tree;
+
+Tree mergeRec(Tree t) {
+      return setKeywordParameters(t, ());
+    }
+
 // list[int] f(list[int] L) = [x | x <- L, x > 0];
     
-bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
- = !any([*_, &T a, &T b, *_] := l, less(b, a));
+// bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
+//  = !any([*_, &T a, &T b, *_] := l, less(b, a));
                      
 // // int f(int n, int m, bool b = false) = 2;
        
@@ -52,9 +62,9 @@ bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a 
 
 // &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t); //ok
         
-&T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
+// &T <: int f(&T <: num _) = 1; // discussie; ik (en checker) denken ok    
        
-&T <: int f(&T <: num x = 0) = 1; // discussie; ik (en checker) denken ok    
+// &T <: int f(&T <: num x = 0) = 1; // discussie; ik (en checker) denken ok    
                    
 // list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];   // ok
 
