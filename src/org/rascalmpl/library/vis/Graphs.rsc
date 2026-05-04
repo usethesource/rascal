@@ -20,12 +20,13 @@ This module is quite new and may undergo some tweaks in the coming time.
 }
 module vis::Graphs
 
-import lang::html::IO;
-import lang::html::AST;
-import util::IDEServices;
 import Content;
-import ValueIO;
+import IO;
 import Set;
+import ValueIO;
+import lang::html::AST;
+import lang::html::IO;
+import util::IDEServices;
 
 @synopsis{Optional configuration attributes for graph style and graph layout}
 @description{
@@ -462,14 +463,17 @@ data CytoStyle
 @synopsis{A combinator language that translates down to strings in JSON}
 @description{
 * For field names you can use the names, or the dot notation for array indices and fields of objects: `"labels.0"`, `"name.first"`.
-* `and` and `or` can not be nested; this will lead to failure to select anything at all. The or must be outside and the and must be inside.
 * `node()` selects all nodes
 * `edge()` selects all edges
-}    
+} 
+@pitfalls{
+* `not`, `and`, and `or` can not be nested; this will lead to failure to select anything at all. The or must be outside and the and must be inside.
+}   
 data CytoSelector
     = \node()
     | \edge()
     | \id(str id)
+    | \not(CytoSelector sel)
     | \and(list[CytoSelector] conjuncts)
     | \or(list[CytoSelector] disjuncts)
     | \equal(str field, str \value)
@@ -479,6 +483,35 @@ data CytoSelector
     | \greaterEqual(str field, int limit)
     | \lessEqual(str field, int limit) 
     | \className(str)
+    | animated()
+    | unanimate()
+    | selected()
+    | unselected()
+    | selectable()
+    | unselectable()
+    | locked()
+    | unlocked()
+    | visible()
+    | hidden()
+    | transparent()
+    | backgrounding()
+    | nonbackgrounding()
+    | grabbed()
+    | free()
+    | grabbable()
+    | ungrabbable()
+    | active()
+    | inactive()
+    | touch()
+    | removed()
+    | inside()
+    | parent()
+    | childless()
+    | child()
+    | nonorphan()
+    | compound()
+    | loop()
+    | simple()
     ;
 
 @synopsis{Short-hand for a node with a single condition}
@@ -491,18 +524,55 @@ CytoSelector \edge(CytoSelector condition) = and([\edge(), condition]);
 str more(set[str] names) = "<for (str n <- sort(names)) {><n> <}>"[..-1];
 
 @synopsis{Serialize a ((CytoSelector)) to string for client side expression.}
-str formatCytoSelector(\node()) = "node";
-str formatCytoSelector(\edge()) = "edge";
-str formatCytoSelector(\id(str i)) = formatCytoSelector(equal("id", i));
-str formatCytoSelector(and(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)><}>";
-str formatCytoSelector(or(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)>,<}>"[..-1];
-str formatCytoSelector(className(str class)) = ".<class>";
-str formatCytoSelector(equal(str field, str val)) = "[<field> = \"<val>\"]";
-str formatCytoSelector(equal(str field, int lim)) = "[<field> = <lim>]";
-str formatCytoSelector(greater(str field, int lim)) = "[<field> \> <lim>]";
-str formatCytoSelector(greaterEqual(str field, int lim)) = "[<field> \>= <lim>]";
-str formatCytoSelector(lessEqual(str field, int lim)) = "[<field> \<= <lim>]";
-str formatCytoSelector(less(str field, int lim)) = "[<field> \< <lim>]";
+str formatCytoSelector(\node(), bool nested=false) = "node";
+str formatCytoSelector(\edge(), bool nested=false) = "edge";
+str formatCytoSelector(\id(str i), bool nested=false) = formatCytoSelector(equal("id", i));
+str formatCytoSelector(\not(CytoSelector sel), bool nested=false) = !nested 
+    ? "not(<formatCytoSelector(sel, nested=true)>)"
+    : str () { throw "CytoSelector `not` may not be nested under `or`, `and` or not."; }();
+str formatCytoSelector(and(list[CytoSelector] cjs), bool nested=false) = !nested 
+    ? "<for (cj <- cjs) {><formatCytoSelector(cj, nested=true)><}>"
+    : str () { throw "CytoSelector `and` may not be nested under `or`, `and` or `not`."; }();
+str formatCytoSelector(or(list[CytoSelector] cjs), bool nested=false) = !nested 
+    ? "<for (cj <- cjs) {><formatCytoSelector(cj, nested=true)>,<}>"[..-1]
+    : str () { throw "CytoSelector `or` may not be nested under `or`, `and` or `not`."; }();
+str formatCytoSelector(className(str class), bool nested=false) = ".<class>";
+str formatCytoSelector(equal(str field, str val), bool nested=false) = "[<field> = \"<val>\"]";
+str formatCytoSelector(equal(str field, int lim), bool nested=false) = "[<field> = <lim>]";
+str formatCytoSelector(greater(str field, int lim), bool nested=false) = "[<field> \> <lim>]";
+str formatCytoSelector(greaterEqual(str field, int lim), bool nested=false) = "[<field> \>= <lim>]";
+str formatCytoSelector(lessEqual(str field, int lim), bool nested=false) = "[<field> \<= <lim>]";
+str formatCytoSelector(less(str field, int lim), bool nested=false) = "[<field> \< <lim>]";
+str formatCytoSelector(animated(), bool nested=false) = ":animated";
+str formatCytoSelector(unanimate(), bool nested=false) = ":unanimate";
+str formatCytoSelector(selected(), bool nested=false) = ":selected";
+str formatCytoSelector(unselected(), bool nested=false) = ":unselected";
+str formatCytoSelector(selectable(), bool nested=false) = ":selectable";
+str formatCytoSelector(unselectable(), bool nested=false) = ":unselectable";
+str formatCytoSelector(locked(), bool nested=false) = ":locked";
+str formatCytoSelector(unlocked(), bool nested=false) = ":unlocked";
+str formatCytoSelector(visible(), bool nested=false) = ":visible";
+str formatCytoSelector(hidden(), bool nested=false) = ":hidden";
+str formatCytoSelector(transparent(), bool nested=false) = ":transparent";
+str formatCytoSelector(backgrounding(), bool nested=false) = ":backgrounding";
+str formatCytoSelector(nonbackgrounding(), bool nested=false) = ":nonbackgrounding";
+str formatCytoSelector(grabbed(), bool nested=false) = ":grabbed";
+str formatCytoSelector(free(), bool nested=false) = ":free";
+str formatCytoSelector(grabbable(), bool nested=false) = ":grabbable";
+str formatCytoSelector(ungrabbable(), bool nested=false) = ":ungrabbable";
+str formatCytoSelector(active(), bool nested=false) = ":active";
+str formatCytoSelector(inactive(), bool nested=false) = ":inactive";
+str formatCytoSelector(touch(), bool nested=false) = ":touch";
+str formatCytoSelector(removed(), bool nested=false) = ":removed";
+str formatCytoSelector(inside(), bool nested=false) = ":inside";
+str formatCytoSelector(parent(), bool nested=false) = ":parent";
+str formatCytoSelector(childless(), bool nested=false) = ":childless";
+str formatCytoSelector(child(), bool nested=false) = ":child";
+str formatCytoSelector(nonorphan(), bool nested=false) = ":nonorphan";
+str formatCytoSelector(compound(), bool nested=false) = ":compound";
+str formatCytoSelector(loop(), bool nested=false) = ":loop";
+str formatCytoSelector(simple(), bool nested=false) = ":simple";
+
 
 @synopsis{Choice of different node layout algorithms.}
 @description{
@@ -566,6 +636,12 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     )
     | dagreLayout(
         CytoLayoutName name = dagre(),
+        int rankSep=100,
+        int nodeSep=10,
+        int edgeSep=2,
+        int padding=30,
+        bool useDagreEdgeControlPoints = true,
+        bool debugDagreEdgeControlPoints = false,
         num spacingFactor = .1,
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
@@ -618,8 +694,14 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
         animate=false,
+        rankSep=100,
+        nodeSep=100,
+        edgeSep=10,
+        padding=30,
         spacingFactor=spacingFactor,
-        ranker=\network-simplex()
+        ranker=\network-simplex(),
+        useDagreEdgeControlPoints=true,
+        debugDagreEdgeControlPoints=false
     );
 
 
@@ -638,7 +720,11 @@ Response (Request) graphServer(Cytoscape ch) {
         return response(writeHTMLString(text("could not edit <pms>")));
     }
 
-    Response reply(get(/^\/cytoscape/)) {
+    Response reply(get(/^\/cytoscape-dagre.js/)) {
+        return fileResponse(getResource("org/rascalmpl/library/vis/cytoscape-dagre.js"), "application/javascript", ());
+    }
+
+    Response reply(get(/^\/cytoscape$/)) {
         return response(ch, formatCytoSelector);
     }
 
@@ -665,7 +751,7 @@ private HTMLElement plotHTML()
         head([ 
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
-            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
+            script([], src="./cytoscape-dagre.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
@@ -689,6 +775,23 @@ private HTMLElement plotHTML()
                     '           })) ;
                     '       }
                     '   });
+                    '  // setup a basic node-hover interaction framework
+                    '  cy.on(\'mouseover\', \'node\', function(e) {
+                    '    const sel = e.target;
+                    '    sel.addClass(\'hovered-node\');
+                    '    sel.outgoers().addClass(\'hovered-out\');
+                    '    sel.incomers().addClass(\'hovered-in\');
+                    '    sel.incomers(\'edge\').addClass(\'hovered-in\');
+                    '    sel.outgoers(\'edge\').addClass(\'hovered-out\');
+                    '  });
+                    '  cy.on(\'mouseout\', \'node\', function(e) {
+                    '    const sel = e.target;
+                    '    sel.removeClass(\'hovered-node\');
+                    '    sel.outgoers().removeClass(\'hovered-out\');
+                    '    sel.incomers().removeClass(\'hovered-in\');
+                    '    sel.incomers(\'edge\').removeClass(\'hovered-in\');
+                    '    sel.outgoers(\'edge\').removeClass(\'hovered-out\');
+                    '  });
                     '});
                     '")
             ], \type="text/javascript")
