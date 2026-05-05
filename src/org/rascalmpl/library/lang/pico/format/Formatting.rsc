@@ -47,18 +47,18 @@ list[TextEdit] formatPicoTree(start[Program] file) {
 
 @synopsis{Format while}
 Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
-    = V([
-        H([L("while"), toBox(e, opts=opts), L("do")]),
-        I([toBox(block, opts=opts)]),
+    = V(
+        H(L("while"), HV(toBox(e, opts=opts)), L("do")),
+        I(toClusterBox(block, opts=opts)),
         L("od")
-    ]); 
+    ); 
 
 @synopsis{Format if-then-else }
 Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`, FO opts = fo())
-    = V([
-        H([L("if"), toBox(e, opts=opts), L("then")]),
-            I([toBox(thenPart, opts=opts)]),
+    = V(
+        H(L("if"), HV(toBox(e, opts=opts)), L("then")),
+            I(toClusterBox(thenPart, opts=opts)),
         L("else"),
-            I([toBox(elsePart, opts=opts)]),
+            I(toClusterBox(elsePart, opts=opts)),
         L("fi")
-    ]); 
+    ); 
