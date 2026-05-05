@@ -82,7 +82,15 @@ list[str] nodeClassifier(str simpson) = [
 styles = [
     cytoStyleOf( 
         selector=or([\node(className("top")),\node(className("bottom"))]),
-        style=defaultNodeStyle()[shape=CytoNodeShape::diamond()]
+        style=cytoNodeStyle(shape=CytoNodeShape::diamond())
+    ),
+    cytoStyleOf( 
+        selector=\node(className("bottom")),
+        style=cytoNodeStyle(\background-color="yellow", color="black")
+    ),
+    cytoStyleOf( 
+        selector=\node(className("top")),
+        style=cytoNodeStyle(\background-color="orange")
     )
 ];
 // we pick a sensible layout
@@ -130,7 +138,7 @@ default loc defaultNodeLinker(&T _) = |nothing:///|;
 @synopsis{A NodeLabeler maps node identities to descriptive node labels}
 alias NodeLabeler[&T]= str (&T _id2);
 
-@synopsis{The default node labeler searches for any `str` in the identity, or otherwise a file name of a `loc`}
+@synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
 str defaultNodeLabeler(/str s) = s;
 str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
@@ -224,51 +232,52 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
+
 
 data CytoNodeShape
     = \ellipse()
@@ -307,7 +316,7 @@ data Cytoscape
     );
 
 data CytoData
-  = cytodata(CytoElement \data, list[str] classes=[]);
+  = cytodata(CytoElement \data, str classes="");
 
 data CytoElement
   = \node(str id, str label=id, str editor="|none:///|")
@@ -368,6 +377,9 @@ data CytoStyleOf
 
 CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoStyleOf(selector=\node(), style=style);
 CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoStyleOf(selector=\edge(), style=style);
+
+@synopsis{flattens a list of classes to a single string}
+private str flattenClasses(list[str] classes) = "<for (cl <- classes) {><cl> <}>"[..-1];
 
 @synopsis{Instantiates a default node style}
 @description{
@@ -483,6 +495,9 @@ data CytoSelector
     | \greaterEqual(str field, int limit)
     | \lessEqual(str field, int limit) 
     | \className(str)
+    | \hover()
+    | \hover-in()
+    | \hover-out()
     | animated()
     | unanimate()
     | selected()
@@ -531,10 +546,10 @@ str formatCytoSelector(\not(CytoSelector sel), bool nested=false) = !nested
     ? "not(<formatCytoSelector(sel, nested=true)>)"
     : str () { throw "CytoSelector `not` may not be nested under `or`, `and` or not."; }();
 str formatCytoSelector(and(list[CytoSelector] cjs), bool nested=false) = !nested 
-    ? "<for (cj <- cjs) {><formatCytoSelector(cj, nested=true)><}>"
+    ? "<for (CytoSelector cj <- cjs) {><formatCytoSelector(cj, nested=true)><}>"
     : str () { throw "CytoSelector `and` may not be nested under `or`, `and` or `not`."; }();
 str formatCytoSelector(or(list[CytoSelector] cjs), bool nested=false) = !nested 
-    ? "<for (cj <- cjs) {><formatCytoSelector(cj, nested=true)>,<}>"[..-1]
+    ? "<for (CytoSelector cj <- cjs) {><formatCytoSelector(cj, nested=cj is and ? false : true)>,<}>"[..-1]
     : str () { throw "CytoSelector `or` may not be nested under `or`, `and` or `not`."; }();
 str formatCytoSelector(className(str class), bool nested=false) = ".<class>";
 str formatCytoSelector(equal(str field, str val), bool nested=false) = "[<field> = \"<val>\"]";
@@ -543,6 +558,9 @@ str formatCytoSelector(greater(str field, int lim), bool nested=false) = "[<fiel
 str formatCytoSelector(greaterEqual(str field, int lim), bool nested=false) = "[<field> \>= <lim>]";
 str formatCytoSelector(lessEqual(str field, int lim), bool nested=false) = "[<field> \<= <lim>]";
 str formatCytoSelector(less(str field, int lim), bool nested=false) = "[<field> \< <lim>]";
+str formatCytoSelector(hover(), bool nested=false) = formatCytoSelector(className("hover"));
+str formatCytoSelector(\hover-in(), bool nested=false) = formatCytoSelector(className("hover-in"));
+str formatCytoSelector(\hover-out(), bool nested=false) = formatCytoSelector(className("hover-out"));
 str formatCytoSelector(animated(), bool nested=false) = ":animated";
 str formatCytoSelector(unanimate(), bool nested=false) = ":unanimate";
 str formatCytoSelector(selected(), bool nested=false) = ":selected";
@@ -636,10 +654,10 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     )
     | dagreLayout(
         CytoLayoutName name = dagre(),
-        int rankSep=100,
-        int nodeSep=10,
-        int edgeSep=2,
-        int padding=30,
+        int rankSep=-1,
+        int nodeSep=-1,
+        int edgeSep=-1,
+        int padding=-1,
         bool useDagreEdgeControlPoints = true,
         bool debugDagreEdgeControlPoints = false,
         num spacingFactor = .1,
@@ -694,10 +712,6 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
         animate=false,
-        rankSep=100,
-        nodeSep=100,
-        edgeSep=10,
-        padding=30,
         spacingFactor=spacingFactor,
         ranker=\network-simplex(),
         useDagreEdgeControlPoints=true,
@@ -778,19 +792,19 @@ private HTMLElement plotHTML()
                     '  // setup a basic node-hover interaction framework
                     '  cy.on(\'mouseover\', \'node\', function(e) {
                     '    const sel = e.target;
-                    '    sel.addClass(\'hovered-node\');
-                    '    sel.outgoers().addClass(\'hovered-out\');
-                    '    sel.incomers().addClass(\'hovered-in\');
-                    '    sel.incomers(\'edge\').addClass(\'hovered-in\');
-                    '    sel.outgoers(\'edge\').addClass(\'hovered-out\');
+                    '    sel.addClass(\'hover\');
+                    '    sel.outgoers().addClass(\'hover-out\');
+                    '    sel.incomers().addClass(\'hover-in\');
+                    '    sel.incomers(\'edge\').addClass(\'hover-in\');
+                    '    sel.outgoers(\'edge\').addClass(\'hover-out\');
                     '  });
                     '  cy.on(\'mouseout\', \'node\', function(e) {
                     '    const sel = e.target;
-                    '    sel.removeClass(\'hovered-node\');
-                    '    sel.outgoers().removeClass(\'hovered-out\');
-                    '    sel.incomers().removeClass(\'hovered-in\');
-                    '    sel.incomers(\'edge\').removeClass(\'hovered-in\');
-                    '    sel.outgoers(\'edge\').removeClass(\'hovered-out\');
+                    '    sel.removeClass(\'hover\');
+                    '    sel.outgoers().removeClass(\'hover-out\');
+                    '    sel.incomers().removeClass(\'hover-in\');
+                    '    sel.incomers(\'edge\').removeClass(\'hover-in\');
+                    '    sel.outgoers(\'edge\').removeClass(\'hover-out\');
                     '  });
                     '});
                     '")
