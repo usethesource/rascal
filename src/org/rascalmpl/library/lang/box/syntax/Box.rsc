@@ -78,8 +78,6 @@ or per cell Box.
 }
 data Row = R(list[Box] cells);
 
-// Row R(Box cells...) = _R(cells);
-
 data Alignment = l() | r() | c();  
 
 @synopsis{NULL can be used to return a Box that will completely disappear in the surrounding context.}
