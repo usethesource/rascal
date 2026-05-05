@@ -478,8 +478,18 @@ data CytoStyle
 * `node()` selects all nodes
 * `edge()` selects all edges
 } 
+@benefits{
+* ((CytoSelector)) represents the full power of Cytoscape selector syntax
+* If multiple selectors apply to a node or an edge, the proposed styles are _merged_ up to attribute name collisions. The last one in the list always wins in case of a collision.
+Merging helps in keeping CytoSelectors plain and simple.
+* ((CytoSelector)) offers `hover`, `hover-in` and `hover-out` on top of the standard CytoScape selectors. These can be used to select styles for:
+   1. `hover`: the node that is currently hovered.
+   2. `hover-in`: edges coming into the hovered node and their source node.
+   3. `hover-out`: edges going out of the hovered node and their target node.
+}
 @pitfalls{
-* `not`, `and`, and `or` can not be nested; this will lead to failure to select anything at all. The or must be outside and the and must be inside.
+* `not`, `and`, and `or` can not be nested freely (as the grammar does suggest); this will lead to failure to select anything at all. The or must be outside and the and must be inside. You _can_ nest
+one level of `and` under an outermost level of `or`. Illegal nesting will lead to an early runtime exception.
 }   
 data CytoSelector
     = \node()
@@ -529,6 +539,15 @@ data CytoSelector
     | simple()
     ;
 
+@synopsis{reduces short-hand `hover` to class selector}
+CytoSelector hover() = className("hover");
+
+@synopsis{reduces short-hand `hover-in` to class selector}
+CytoSelector \hover-in() = className("hover-in");
+
+@synopsis{reduces short-hand `hover-out` to class selector}
+CytoSelector \hover-out() = className("hover-out");
+
 @synopsis{Short-hand for a node with a single condition}
 CytoSelector \node(CytoSelector condition) = and([\node(), condition]);
 
@@ -558,9 +577,6 @@ str formatCytoSelector(greater(str field, int lim), bool nested=false) = "[<fiel
 str formatCytoSelector(greaterEqual(str field, int lim), bool nested=false) = "[<field> \>= <lim>]";
 str formatCytoSelector(lessEqual(str field, int lim), bool nested=false) = "[<field> \<= <lim>]";
 str formatCytoSelector(less(str field, int lim), bool nested=false) = "[<field> \< <lim>]";
-str formatCytoSelector(hover(), bool nested=false) = formatCytoSelector(className("hover"));
-str formatCytoSelector(\hover-in(), bool nested=false) = formatCytoSelector(className("hover-in"));
-str formatCytoSelector(\hover-out(), bool nested=false) = formatCytoSelector(className("hover-out"));
 str formatCytoSelector(animated(), bool nested=false) = ":animated";
 str formatCytoSelector(unanimate(), bool nested=false) = ":unanimate";
 str formatCytoSelector(selected(), bool nested=false) = ":selected";
