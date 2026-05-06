@@ -53,6 +53,19 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
         *["external" | n in    m.external],
         *["project"  | n notin m.external]
     ];
+
+    int edgeWeight(str from, str to) {
+        if (<from, to> in g o gClosed, <from, from> notin gClosed, <to, to> notin gClosed) {
+            return 1; // transitive edges should not influence things.
+        }
+        else if (<from, to> in m.extends) {
+            // extend structure is very important
+            return 1;
+        }
+        else {
+            return 1;
+        }
+    }
     
     gClosed = g+;
 
@@ -97,7 +110,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
 
         cytoStyleOf(
             selector=\edge(className("transitive")),               
-            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.50"]  
         )
 ,
         cytoStyleOf(
@@ -116,11 +129,12 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
     default loc modLinker(value _) = |nothing:///|;
 
     cfg = cytoGraphConfig(
-        \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=200][ranker=\longest-path()],
+        \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=200][ranker=\longest-path()][debugDagreEdgeControlPoints=true],
         styles=styles,
         title="Rascal Import/Extend Graph",
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
+        edgeWeigher=edgeWeight,
         nodeLinker=modLinker
     );
 
