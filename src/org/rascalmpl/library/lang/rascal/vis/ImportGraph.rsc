@@ -79,22 +79,22 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
 
     styles = [
         cytoStyleOf( 
-            selector=\node(\className("hovered-node")),
+            selector=\node(\className("hover")),
             style=defaultNodeStyle()[\background-color="yellow"][color="black"]
         ),
 
         cytoStyleOf( 
-            selector=\node(className("hovered-in")),
+            selector=\node(className("hover-in")),
             style=defaultNodeStyle()[\background-color="red"][color="black"] 
         ),
 
         cytoStyleOf( 
-            selector=\node(className("hovered-out")),
+            selector=\node(className("hover-out")),
             style=defaultNodeStyle()[\background-color="orange"][color="black"]
         ),
 
         cytoStyleOf( 
-            selector=\edge(className("hovered-out")),
+            selector=\edge(className("hover-out")),
             style=defaultEdgeStyle()[\line-color="orange"]
         ),
 
