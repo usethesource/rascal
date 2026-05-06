@@ -128,10 +128,20 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
 
     default loc modLinker(value _) = |nothing:///|;
 
+    str modTip(str name) {
+        return "module <name> 
+               '<if (m.imports[name] != {}) {>
+               '<for (str i <- sort(m.imports[name])) {>import <i>;
+               '<}><}>
+               '<if (m.extends[name] != {}) {><for (str i <- sort(m.extends[name])) {>extend <i>;
+               '<}><}>";
+    }
+
     cfg = cytoGraphConfig(
         \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=200][ranker=\longest-path()][debugDagreEdgeControlPoints=true],
         styles=styles,
         title="Rascal Import/Extend Graph",
+        nodeTipper=modTip,
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
         edgeWeigher=edgeWeight,
