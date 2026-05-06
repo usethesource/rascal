@@ -36,11 +36,13 @@ and style properties.
 * title - does what it says
 * nodeLinker - makes nodes clickable by providing an editor location
 * nodeLabeler - allows simplification or elaboration on node labels beyond their identity string
+* nodeTipper - allows tagging additional information to be showed on demand for a node
 * nodeClassifier - labels nodes with classes in order to later select them for specific styling
 * edgeLabeler - allows simplification or elaboration on edge labels 
 * layout - defines and configured the graph layout algorithm
 * nodeStyle - defines the default style for all nodes
 * edgeStyle - defines the default style for all edges
+* edgeWeigher - defines a function to weigh every edge
 * style - collects specific styles for specific ((CytoSelector)) edge/node selectors using ((CytoStyleOf)) tuples.
 
 Typically the functions passed into this configuration are closures that capture and use the original
@@ -116,7 +118,8 @@ data CytoGraphConfig = cytoGraphConfig(
     str title="Graph", 
 
     NodeLinker[&T]     nodeLinker     = defaultNodeLinker, 
-    NodeLabeler[&T]    nodeLabeler    = defaultNodeLabeler,  
+    NodeLabeler[&T]    nodeLabeler    = defaultNodeLabeler,
+    NodeTipper[&T]     nodeTipper     = defaultNodeTipper,  
     NodeClassifier[&T] nodeClassifier = defaultNodeClassifier, 
     EdgeLabeler[&T]    edgeLabeler    = defaultEdgeLabeler, 
     EdgeClassifier[&T] edgeClassifier = defaultEdgeClassifier,
@@ -126,7 +129,8 @@ data CytoGraphConfig = cytoGraphConfig(
 
     CytoStyle nodeStyle      = defaultNodeStyle(), 
     CytoStyle edgeStyle      = defaultEdgeStyle(), 
-    list[CytoStyleOf] styles = []
+    list[CytoStyleOf] styles = [],
+    str css = ""
 );
 
 @synopsis{A NodeLinker maps node identities to a source location to link to}
@@ -139,10 +143,16 @@ default loc defaultNodeLinker(&T _) = |nothing:///|;
 @synopsis{A NodeLabeler maps node identities to descriptive node labels}
 alias NodeLabeler[&T]= str (&T _id2);
 
+@synopsis{A NodeTipper maps node identities to extended information about a node which is shown on demand}
+alias NodeTipper[&T]= str (&T _id2);
+
 @synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
 str defaultNodeLabeler(/str s) = s;
 str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
+
+@synopsis{The default node tipper does nothing}
+default str defaultNodeTipper(&T v) = "";
 
 @synopsis{A NodeClassifier maps node identities to classes that are used later to select specific layout and coloring options.}
 alias NodeClassifier[&T] = list[str] (&T _id3);
@@ -239,50 +249,50 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label="<e>"), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"),  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
       ;
 
 
@@ -326,7 +336,7 @@ data CytoData
   = cytodata(CytoElement \data, str classes="");
 
 data CytoElement
-  = \node(str id, str label=id, str editor="|none:///|")
+  = \node(str id, str label=id, str tip = "", str editor="|none:///|")
   | \edge(str source, str target, str id="<source>-<target>", str label="", int weight = 1)
   ;
 
@@ -830,8 +840,45 @@ private HTMLElement plotHTML()
                     '    sel.incomers(\'edge\').removeClass(\'hover-in\');
                     '    sel.outgoers(\'edge\').removeClass(\'hover-out\');
                     '  });
-                    '});
-                    '")
+                    '
+                    '  // setup tooltip feature
+                    '  const tooltip = document.createElement(\'div\');
+                    '
+                    '  Object.assign(tooltip.style, {
+                    '        position: \'absolute\',
+                    '        pointerEvents: \'none\',
+                    '        padding: \'6px 8px\',
+                    '        background: \'rgba(20,20,20,0.9)\',
+                    '        color: \'#fff\',
+                    '        borderRadius: \'4px\',
+                    '        fontSize: \'12px\',
+                    '        whiteSpace: \'pre\',
+                    '        display: \'none\',
+                    '        zIndex: 9999
+                    '  });
+                    '
+                    '  cy.container().appendChild(tooltip);
+                    '
+                    '  cy.on(\'mouseover\', \'node\', (evt) =\> {
+                    '       const n = evt.target;
+                    '       const text = n.data(\'tip\');
+                    '
+                    '       if (text) {
+                    '         tooltip.textContent = text;
+                    '         tooltip.style.display = \'block\';
+                    '       }
+                    '  });
+                    '
+                    '  cy.on(\'mouseout\', \'node\', () =\> {
+                    '      tooltip.style.display = \'none\';
+                    '  });
+                    '
+                    '  cy.on(\'mousemove\', (evt) =\> {
+                    '     const e = evt.originalEvent;
+                    '     tooltip.style.left = (e.pageX + 12) + \'px\';
+                    '     tooltip.style.top  = (e.pageY + 12) + \'px\';
+                    '  });
+                    '});")
             ], \type="text/javascript")
         ])
     ]);
