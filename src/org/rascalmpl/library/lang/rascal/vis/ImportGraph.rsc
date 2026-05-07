@@ -17,16 +17,17 @@ is clearly visible.
 @bootstrapParser
 module lang::rascal::vis::ImportGraph
 
-import util::Reflective;
-import vis::Graphs;
-import lang::rascal::grammar::definition::Modules;
-import lang::rascal::\syntax::Rascal;
 import Exception;
+import IO;
+import Set;
+import String;
+import analysis::graphs::Graph;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::definition::Modules;
 import util::FileSystem;
 import util::IDEServices;
-import IO;
-import analysis::graphs::Graph;
-import Set;
+import util::Reflective;
+import vis::Graphs;
 
 @synopsis{If `projectName` is an open project in the current IDE, the visualize its import/extend graph.}
 void importGraph(str projectName, bool hideExternals=true) {
@@ -137,13 +138,16 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
                '<}><}>";
     }
 
+    str modLabel(str name) = split("::", name)[-1];
+
     cfg = cytoGraphConfig(
-        \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=200][ranker=\longest-path()][debugDagreEdgeControlPoints=true],
+        \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=100][debugDagreEdgeControlPoints=false],
         styles=styles,
         title="Rascal Import/Extend Graph",
         nodeTipper=modTip,
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
+        nodeLabeler=modLabel,
         edgeWeigher=edgeWeight,
         nodeLinker=modLinker
     );
