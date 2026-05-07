@@ -130,8 +130,10 @@ data CytoGraphConfig = cytoGraphConfig(
     CytoStyle nodeStyle      = defaultNodeStyle(), 
     CytoStyle edgeStyle      = defaultEdgeStyle(), 
     list[CytoStyleOf] styles = [],
-    str css = ""
+    list[HTMLElement] header = [tooltipCSS()],
+    list[HTMLElement] footer = [toEditorClick(), hoverListeners(), tooltipListeners()]
 );
+
 
 @synopsis{A NodeLinker maps node identities to a source location to link to}
 alias NodeLinker[&T] = loc (&T _id1);
@@ -244,7 +246,9 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
             cytoEdgeStyleOf(cfg.edgeStyle),
             *cfg.styles
         ],
-        \layout=cfg.\layout
+        \layout=cfg.\layout,
+        header=cfg.header,
+        footer=cfg.footer
     );
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
@@ -268,31 +272,31 @@ list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cyto
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, to> <- v]
+      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, to> <- v]
+      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
+      [cytodata(\edge("<from>", "<to>", label="<e>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), classes=flattenClasses(cfg.edgeClassifier(from,to)))) | <from, e, to> <- v]
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 
@@ -329,7 +333,9 @@ data Cytoscape
     = cytoscape(
         list[CytoData] elements = [],
         list[CytoStyleOf] style=[],
-        CytoLayout \layout = cytolayout()
+        CytoLayout \layout = cytolayout(),
+        list[HTMLElement] header = [],
+        list[HTMLElement] footer = []
     );
 
 data CytoData
@@ -692,7 +698,7 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         int edgeSep=-1,
         int padding=-1,
         bool useDagreEdgeControlPoints = true,
-        bool debugDagreEdgeControlPoints = false,
+        bool debugDagreEdgeControlPoints = true,
         num spacingFactor = .1,
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
@@ -772,12 +778,12 @@ Response (Request) graphServer(Cytoscape ch) {
     }
 
     Response reply(get(/^\/cytoscape$/)) {
-        return response(ch, formatCytoSelector);
+        return response(ch[header=[]][footer=[]], formatCytoSelector);
     }
 
     // returns the main page that also contains the callbacks for retrieving data and configuration
     default Response reply(get(_)) {
-        return response(writeHTMLString(plotHTML()));
+        return response(writeHTMLString(plotHTML(header=ch.header, footer=ch.footer)));
     }
 
     return reply;
@@ -793,7 +799,7 @@ This client features:
 
 This client mirrors the server defined by ((graphServer)).
 }
-private HTMLElement plotHTML()
+private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] footer = [])
     = html([
         head([ 
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
@@ -805,80 +811,102 @@ private HTMLElement plotHTML()
                          '  position: absolute;
                          '  top: 0px;
                          '  left: 0px;
-                         '}")])
+                         '}")]),
+            *header
         ]),
         body([
             div([], id="visualization"),
             script([
                 \data(
-                    "fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
+                    "window.cy = fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
                     '   cs.layout.edgeWeight = edge =\> edge.data(\'weight\') || 1;
-                    '   const cy = cytoscape(cs);
-                    '   cy.on(\'tap\', \'node\', function (evt) {
-                    '       var n = evt.target;
-                    '       if (n.data(\'editor\') !== undefined) {
-                    '           fetch(\'/editor?\' + new URLSearchParams({
-                    '                src: n.data(\'editor\')
-                    '           })) ;
-                    '       }
-                    '   });
-                    '  // setup a basic node-hover interaction framework
-                    '  cy.on(\'mouseover\', \'node\', function(e) {
-                    '    const sel = e.target;
-                    '    sel.addClass(\'hover\');
-                    '    sel.outgoers().addClass(\'hover-out\');
-                    '    sel.incomers().addClass(\'hover-in\');
-                    '    sel.incomers(\'edge\').addClass(\'hover-in\');
-                    '    sel.outgoers(\'edge\').addClass(\'hover-out\');
-                    '  });
-                    '  cy.on(\'mouseout\', \'node\', function(e) {
-                    '    const sel = e.target;
-                    '    sel.removeClass(\'hover\');
-                    '    sel.outgoers().removeClass(\'hover-out\');
-                    '    sel.incomers().removeClass(\'hover-in\');
-                    '    sel.incomers(\'edge\').removeClass(\'hover-in\');
-                    '    sel.outgoers(\'edge\').removeClass(\'hover-out\');
-                    '  });
-                    '
-                    '  // setup tooltip feature
-                    '  const tooltip = document.createElement(\'div\');
-                    '
-                    '  Object.assign(tooltip.style, {
-                    '        position: \'absolute\',
-                    '        pointerEvents: \'none\',
-                    '        padding: \'6px 8px\',
-                    '        background: \'rgba(20,20,20,0.9)\',
-                    '        color: \'#fff\',
-                    '        borderRadius: \'4px\',
-                    '        fontSize: \'12px\',
-                    '        whiteSpace: \'pre\',
-                    '        display: \'none\',
-                    '        zIndex: 9999
-                    '  });
-                    '
-                    '  cy.container().appendChild(tooltip);
-                    '
-                    '  cy.on(\'mouseover\', \'node\', (evt) =\> {
-                    '       const n = evt.target;
-                    '       const text = n.data(\'tip\');
-                    '
-                    '       if (text) {
-                    '         tooltip.textContent = text;
-                    '         tooltip.style.display = \'block\';
-                    '       }
-                    '  });
-                    '
-                    '  cy.on(\'mouseout\', \'node\', () =\> {
-                    '      tooltip.style.display = \'none\';
-                    '  });
-                    '
-                    '  cy.on(\'mousemove\', (evt) =\> {
-                    '     const e = evt.originalEvent;
-                    '     tooltip.style.left = (e.pageX + 12) + \'px\';
-                    '     tooltip.style.top  = (e.pageY + 12) + \'px\';
-                    '  });
+                    '   return cytoscape(cs);
                     '});")
-            ], \type="text/javascript")
+            ], \type="text/javascript"),
+            *footer,
+            div([], class="tooltip")
         ])
     ]);
+
+HTMLElement tooltipCSS()
+    = style([\data(
+        ".tooltip {
+        '    position: absolute;
+        '    pointer-events: none;
+        '    padding: 6px 8px;
+        '    background: rgba(20,20,20,0.7);
+        '    color: #fff;
+        '    border-radius: 4px;
+        '    font-size: 12px;
+        '    white-space: pre;
+        '    display: none;
+        '    z-index: 9999
+        '}"
+    )]);
+
+HTMLElement hoverListeners()
+    = script([\data(
+        "window.cy.then(cy =\> {
+        '    cy.on(\'mouseover\', \'node\', function(e) {
+        '      const sel = e.target;
+        '      sel.addClass(\'hover\');
+        '      sel.outgoers().addClass(\'hover-out\');
+        '      sel.incomers().addClass(\'hover-in\');
+        '      sel.incomers(\'edge\').addClass(\'hover-in\');
+        '      sel.outgoers(\'edge\').addClass(\'hover-out\');
+        '    });
+        '    cy.on(\'mouseout\', \'node\', function(e) {
+        '      const sel = e.target;
+        '      sel.removeClass(\'hover\');
+        '      sel.outgoers().removeClass(\'hover-out\');
+        '      sel.incomers().removeClass(\'hover-in\');
+        '      sel.incomers(\'edge\').removeClass(\'hover-in\');
+        '      sel.outgoers(\'edge\').removeClass(\'hover-out\');
+        '    });
+        '  return cy;
+        '  });"
+    )]);
+
+HTMLElement toEditorClick()
+    = script([\data(
+        "window.cy = window.cy.then(cy =\> {
+        '   cy.on(\'tap\', \'node\', function (evt) {
+        '   const n = evt.target;
+        '   if (n.data(\'editor\') !== undefined) {
+        '       fetch(\'/editor?\' + new URLSearchParams({
+        '            src: n.data(\'editor\')
+        '       })) ;
+        '   }
+        '});
+        'return cy;
+        '});"
+    )]);
+
+HTMLElement tooltipListeners()
+    = script([\data(
+        "window.cy = window.cy.then(cy =\> {
+        '    const tooltip = document.querySelector(\'.tooltip\'); 
+        '    cy.on(\'mouseover\', \'node\', (evt) =\> {
+        '       const n = evt.target;
+        '       const text = n.data(\'tip\');
+        '
+        '       if (text) {
+        '         tooltip.textContent = text;
+        '         tooltip.style.display = \'block\';
+        '       }
+        '    });
+        '  
+        '    cy.on(\'mouseout\', \'node\', () =\> {
+        '      tooltip.style.display = \'none\';
+        '    });
+        '
+        '    cy.on(\'mousemove\', (evt) =\> {
+        '       const e = evt.originalEvent;
+        '       tooltip.style.left = (e.pageX + 12) + \'px\';
+        '       tooltip.style.top  = (e.pageY + 12) + \'px\';
+        '    });
+        '
+        '    return cy;
+        '});"
+    )]);
