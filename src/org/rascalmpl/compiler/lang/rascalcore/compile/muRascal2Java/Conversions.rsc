@@ -84,7 +84,7 @@ str atype2javatype(avoid())                 = "void";
 
 str atype2javatype(tvar(_))                 = "IValue";
 
-str atype2javatype(\start(AType t))         = atype2javatype(t);
+str atype2javatype(\start(AType t, _))      = "ITree";
 
 str atype2javatype(overloadedAType(rel[loc, IdRole, AType] overloads))
     = atype2javatype(lubList(toList(overloads<2>)));
@@ -166,7 +166,7 @@ str atype2idpart(\iter-star-seps(AType atype, list[AType] separators))
                                                      = "iter_star_seps_<atype2idpart(atype)>"; 
 str atype2idpart(\alt(set[AType] alternatives))      = "alt_"; //TODO
 str atype2idpart(\seq(list[AType] atypes))           = "seq_";  //TODO
-str atype2idpart(\start(AType atype))                = "start_<atype2idpart(atype)>";
+str atype2idpart(\start(AType atype, _))             = "start_<atype2idpart(atype)>";
 str atype2idpart(\conditional(AType atype, set[ACondition] conditions))
                                                      = atype2idpart(atype);
 
@@ -465,7 +465,7 @@ private str atype2IValue1(AType::\alt(set[AType] alternatives) , map[AType, set[
 private str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)   
     = "$RVF.constructor(RascalValueFactory.Symbol_Seq, <atype2IValue(symbols, defs)>)";
  
-private str atype2IValue1(AType::\start(AType symbol), map[AType, set[AType]] defs)
+private str atype2IValue1(AType::\start(AType symbol, _), map[AType, set[AType]] defs)
     = "$RVF.constructor(RascalValueFactory.Symbol_Start, <atype2IValue(symbol, defs)>)";   
 
 //private str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
@@ -909,7 +909,7 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JG
     }
 }
 
-str atype2vtype(\start(AType atype), JGenie jg, bool inTest=false)
+str atype2vtype(\start(AType atype, _), JGenie jg, bool inTest=false)
     = atype2vtype(atype, jg, inTest=inTest);
     
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    

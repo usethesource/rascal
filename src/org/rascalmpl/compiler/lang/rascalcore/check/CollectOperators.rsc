@@ -580,9 +580,6 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
         AType(Solver s) {
             subjectType = s.getType(expression);
             checkNonVoid(expression, subjectType, s, "Second argument of match operator _ := _");
-            if(isStartNonTerminalType(subjectType)){
-                subjectType = getStartNonTerminalType(subjectType);
-            }
             patType = getPatternType(pat, subjectType, scope, s);
             s.instantiate(subjectType);
             instantiateAndCompare(current, patType, subjectType, s);
