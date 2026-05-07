@@ -154,7 +154,7 @@ str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
 
 @synopsis{The default node tipper does nothing}
-default str defaultNodeTipper(&T v) = "";
+default str defaultNodeTipper(&T _v) = "";
 
 @synopsis{A NodeClassifier maps node identities to classes that are used later to select specific layout and coloring options.}
 alias NodeClassifier[&T] = list[str] (&T _id3);
