@@ -50,28 +50,14 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
       + { <from, to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external, hideTestModules ==> {from, to} & m.tests == {}}
       ;
 
+    gClosed = g+;
+
     list[str] nodeClass(str n) = [
         *["external" | n in    m.external],
         *["project"  | n notin m.external]
     ];
 
-    int edgeWeight(str from, str to) {
-        if (<from, to> in g o gClosed, <from, from> notin gClosed, <to, to> notin gClosed) {
-            return 1; // transitive edges should not influence things.
-        }
-        else if (<from, to> in m.extends) {
-            // extend structure is very important
-            return 1;
-        }
-        else {
-            return 1;
-        }
-    }
-    
-    gClosed = g+;
-
     list[str] edgeClass(str from, str to) = [
-        *["nottop"    | from != "_"],
         *["extend"     | <from, to> in m.extends],
         *["import"     | <from, to> in m.imports],
         *["transitive" | <from, to> in g o gClosed, <from, from> notin gClosed, <to,to> notin gClosed],
@@ -97,11 +83,6 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
         cytoStyleOf( 
             selector=\edge(className("hover-out")),
             style=defaultEdgeStyle()[\line-color="orange"]
-        ),
-
-        cytoStyleOf( 
-            selector=\node(id("_")),
-            style=defaultNodeStyle()[visibility="hidden"]
         ),
 
         cytoStyleOf(
@@ -141,14 +122,13 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
     str modLabel(str name) = split("::", name)[-1];
 
     cfg = cytoGraphConfig(
-        \layout=defaultDagreLayout()[ranker=\network-simplex()][rankSep=100][debugDagreEdgeControlPoints=false],
+        \layout=defaultDagreLayout()[rankSep=100],
         styles=styles,
         title="Rascal Import/Extend Graph",
         nodeTipper=modTip,
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
         nodeLabeler=modLabel,
-        edgeWeigher=edgeWeight,
         nodeLinker=modLinker
     );
 

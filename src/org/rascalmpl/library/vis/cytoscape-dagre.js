@@ -135,26 +135,6 @@ var EPSILON = 0.001; // what does it mean to be too close to 0?
 function DagreLayout(options) {
   this.options = assign({}, defaults, options);
 }
-
-// adds visible nodes for all the edge control points.
-function debugEdge(cy, id, e, options) {
-  if (e.points && options.debugDagreEdgeControlPoints) {
-    e.points.forEach(function (p, i) {
-      cy.add({
-        data: {
-          id: "edgepoint_".concat(id.name, "__d").concat(i)
-        },
-        classes: 'edgepoint',
-        position: {
-          x: p.x,
-          y: p.y
-        },
-        selectable: false,
-        grabbable: false
-      });
-    });
-  }
-}
 function subtract(a, b) {
   return {
     x: noZero(a.x - b.x),
@@ -201,23 +181,6 @@ function buildEdgeFrame(src, tgt) {
     normal: normal,
     len: len
   };
-}
-function addEdgePointStyle(cy, options) {
-  if (options.debugDagreEdgeControlPoints) {
-    cy.style().selector('node.edgepoint').style({
-      'background-color': '#ff0000',
-      'width': 8,
-      'height': 8,
-      'shape': 'diamond'
-    }).update();
-  }
-  cy.style().selector('edge[controlPointDistances]').style({
-    'curve-style': 'unbundled-bezier',
-    'control-point-weights': 'data(controlPointWeights)',
-    'control-point-distances': 'data(controlPointDistances)',
-    'edge-distances': 'intersection',
-    'edge-ends-overlap': 'false'
-  }).update();
 }
 function noZero(x) {
   if (Math.abs(x) < EPSILON) {
@@ -284,15 +247,9 @@ function dagreEdgeToCytoscapeEdge(dEdge, cEdge) {
   var controlPointDistances = coords.slice(1, -1).map(function (c) {
     return c.distance;
   });
-  var sp = subtract(dEdge.points.at(0), fromNode);
-  var sourcePoint = "".concat(sp.x, "px ").concat(sp.y, "px");
-  var tp = subtract(dEdge.points.at(-1), toNode);
-  var targetPoint = "".concat(tp.x, "px ").concat(tp.y, "px");
   var result = {
     controlPointWeights: controlPointWeights,
-    controlPointDistances: controlPointDistances,
-    sourcePoint: sourcePoint,
-    targetPoint: targetPoint
+    controlPointDistances: controlPointDistances
   };
   return result;
 }
@@ -436,13 +393,15 @@ DagreLayout.prototype.run = function () {
     });
   });
   if (options.useDagreEdgeControlPoints) {
-    addEdgePointStyle(cy, options);
+    if (options.automaticDagreEdgeStyle) {
+      cy.edges().addClass('useDagreEdgeControlPoints');
+      cy.style().selector('edge.useDagreEdgeControlPoints').style(options.getDagreEdgeStyle()).update();
+    }
     g.edges().forEach(function (id) {
       var cyEdge = cy.getElementById(id.name);
       var dEdge = g.edge(id);
       if (dEdge && dEdge.points) {
-        debugEdge(cy, id, dEdge, options);
-        cyEdge.data(dagreEdgeToCytoscapeEdge(dEdge, cyEdge));
+        cyEdge.scratch(dagreEdgeToCytoscapeEdge(dEdge, cyEdge));
       }
     });
   }
@@ -472,11 +431,11 @@ var defaults = {
   ranker: undefined,
   // Type of algorithm to assigns a rank to each node in the input graph.
   // Possible values: network-simplex, tight-tree or longest-path
-  minLen: function minLen(edge) {
+  minLen: function minLen(_edge) {
     return 1;
   },
   // number of ranks to keep between the source and target of the edge
-  edgeWeight: function edgeWeight(edge) {
+  edgeWeight: function edgeWeight(_edge) {
     return 1;
   },
   // higher weight edges are generally made shorter and straighter than lower weight edges
@@ -492,11 +451,29 @@ var defaults = {
   // whether labels should be included in determining the space used by a node
   useDagreEdgeControlPoints: false,
   // enable bezier curves using dagre control points
-  debugDagreEdgeControlPoints: false,
-  // visualizes dagre's edge control points as nodes
+  /**
+   * Automatically adds edge class '.useDagreEdgeControlPoints' to all edges and configure it with this.dagreEdgeStyle.
+   * If set to `false` and `useDagreEdgeControlPoints` is `true` then apply `this.dagreEdgeStyle` yourself.
+   */
+  automaticDagreEdgeStyle: this.useDagreEdgeControlPoints,
+  /**
+   * Defines the style for rendering dagre edge control points stored by the layout algorithm
+   * if `useDagreEdgeControlPoints` is `true` and `automaticDagreEdgeStyle` is `true`
+   */
+  dagreEdgeStyle: {
+    'curve-style': 'unbundled-bezier',
+    'control-point-weights': function controlPointWeights(ele) {
+      return ele.scratch('controlPointWeights');
+    },
+    'control-point-distances': function controlPointDistances(ele) {
+      return ele.scratch('controlPointDistances');
+    },
+    'edge-distances': 'intersection',
+    'edge-ends-overlap': false
+  },
   animate: false,
   // whether to transition the node positions
-  animateFilter: function animateFilter(node, i) {
+  animateFilter: function animateFilter(_node, i) {
     return true;
   },
   // whether to animate specific nodes when animation is on; non-animated nodes immediately go to their final positions
