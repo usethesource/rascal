@@ -43,6 +43,6 @@ data Request(loc uri = |http://www.example.com|, str \content-type = "text/plain
 @javaClass{org.rascalmpl.library.util.Webclient}
 java Response fetch(Request request);
 
-@synopsis{Short-hand for a string post}
-Request post(str path, str body, loc uri = |http://www.example.com|) 
-    = post(uri = uri, path, str (type[str] _) { return body; });
+// @synopsis{Short-hand for a string post}
+// Request post(str path, str body, loc uri = |http://www.example.com|) 
+//     = post(uri = uri, path, str (type[str] _) { return body; });

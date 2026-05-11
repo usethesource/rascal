@@ -1,6 +1,8 @@
 package org.rascalmpl.library.util;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -8,16 +10,16 @@ import java.net.http.HttpResponse;
 import java.util.stream.Collectors;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -37,7 +39,9 @@ public class Webclient {
     private HttpRequest makeGetRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
         return HttpRequest.newBuilder()
-            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .uri(URIUtil.getChildLocation(
+                (ISourceLocation) params.getParameter("uri"), 
+                ((IString) input.get("path")).getValue()).getURI())
             .GET()
             .build();
     }
@@ -45,6 +49,7 @@ public class Webclient {
     private HttpRequest makePutRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
         var postBody = (IFunction) input.get("body");
+        var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
 
         return HttpRequest.newBuilder()
             .uri(((ISourceLocation) params.getParameter("uri")).getURI())
@@ -106,17 +111,19 @@ public class Webclient {
         try {
             var request = makeRequest(input);
             var response = HttpClient
-                .newHttpClient()
-                .send(request, HttpResponse.BodyHandlers.ofString());
+                .newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build()
+                .send(request, HttpResponse.BodyHandlers.ofInputStream());
 
-            return translateTextResponse(response);
+            return translateTextResponse(request.uri().toString(), response);
         }
         catch (IOException | InterruptedException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
 
-    private IConstructor translateTextResponse(HttpResponse<String> response) {
+    private IConstructor translateTextResponse(String url, HttpResponse<InputStream> response) throws IOException {
         var headers = response
             .headers()
             .map()
@@ -128,15 +135,25 @@ public class Webclient {
             )))
             .collect(vf.mapWriter());
 
-        var body = vf.string(response.body());
-        var status = toStatusConstructor(response.statusCode());
+        long totalBytes = response.headers()
+            .firstValueAsLong("Content-Length")
+            .orElse(-1);
 
-        var respCons = store.lookupConstructors("response").iterator().next();
+        var input = totalBytes > 0 
+            ? new MonitoredInputStream(response.body(), monitor, "Fetching " + url, totalBytes)
+            : response.body(); 
 
         var contentType = response.headers().firstValue("Content-Type");
         
         var mimeType = vf.string(contentType.get().split(";")[0]);
-        
+
+        // TODO: extract from contentType if present
+        var charset = "utf-8";
+
+        var body = vf.string(new String(Prelude.consumeInputStream(input), charset));
+        var status = toStatusConstructor(response.statusCode());
+        var respCons = store.lookupConstructors("response").iterator().next();
+
         return vf.constructor(respCons, status, mimeType, headers, body);
     }
 
@@ -212,6 +229,65 @@ public class Webclient {
             default:
                 // if we don't understand the error code; let's call it an internal error
                 return vf.constructor(store.lookupConstructor(statusType, "internalError", tf.tupleEmpty()));
+        }
+    }
+
+    private class MonitoredInputStream extends FilterInputStream {
+        private final IRascalMonitor monitor;
+        private final String jobName;
+
+        private final long totalBytes;
+        private long bytesRead = 0;
+        private boolean started = false;
+        private boolean done = false;
+
+        public MonitoredInputStream(InputStream in, IRascalMonitor monitor, String jobName, long totalBytes) {
+            super(in);
+            this.totalBytes = totalBytes;
+            this.monitor = monitor;
+            this.jobName = jobName;
+        }
+
+        private void ensureStarted() {
+            if (!started) {
+                started = true;
+                monitor.jobStart(jobName, Integer.MAX_VALUE);
+            }
+        }
+
+        private void updateProgress(int bytesRead) {
+            ensureStarted();
+            long numberOfTheseSteps  = (int) (totalBytes / bytesRead);
+            int stepSize = (int) (Integer.MAX_VALUE / numberOfTheseSteps);
+            monitor.jobStep(jobName, "", java.lang.Math.max(stepSize, 1));
+            checkDone();
+        }
+
+        private void checkDone() {
+            if (!done && bytesRead >= totalBytes) {
+                done = true;
+                monitor.jobEnd(jobName, true);
+            }
+        }
+
+        @Override
+        public int read() throws IOException {
+            int b = super.read();
+            if (b != -1) {
+                bytesRead += 1;
+                updateProgress(1);
+            }
+            return b;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int n = super.read(b, off, len);
+            if (n > 0) {
+                bytesRead += n;
+                updateProgress(n);
+            }
+            return n;
         }
     }
   }
