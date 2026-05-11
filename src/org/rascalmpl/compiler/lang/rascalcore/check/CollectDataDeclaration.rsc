@@ -72,7 +72,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     dt.md5 = normalizedMD5Hash(adtName, dataCounter);
     dataCounter += 1;
     if(!isEmpty(commonKeywordParameterList)) dt.commonKeywordFields = commonKeywordParameterList;
-    c.define(adtName, dataId(), current, dt);
+    c.define(prettyPrintName(userType.name), dataId(), current, dt);
        
     adtParentScope = c.getScope();
     c.enterScope(current);
@@ -142,7 +142,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
                 dt.md5 = normalizedMD5Hash(currentModuleName, adtName, name, current);
-                c.define(fieldName, fieldId(), ta.name, dt);
+                c.define(prettyPrintName(ta.name), fieldId(), ta.name, dt);
             }
         }
         
@@ -153,7 +153,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             kwfType = kwf.\type;
             dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
             dt.md5 = normalizedMD5Hash(currentModuleName, adtName, dataCounter, name, consArity, kwfType, fieldName);
-            c.define(fieldName, keywordFieldId(), kwf.name, dt);  
+            c.define(prettyPrintName(kwf.name), keywordFieldId(), kwf.name, dt);  
         }
     
         scope = c.getScope();
