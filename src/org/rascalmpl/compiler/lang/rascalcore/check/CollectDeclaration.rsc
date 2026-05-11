@@ -583,13 +583,13 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
                 c.use(tpbound.name, {typeVarId()});
             }
         }
-        tpname = "<tp.name>";
+        tpname = prettyPrintName(tp.name);
         if(tpname in seenInParams){
             c.use(tp.name, {typeVarId()});
             c.fact(tp, tp.name);
         } else {
             seenInParams += tpname;
-            c.define("<tp.name>", typeVarId(), tp.name,
+            c.define(prettyPrintName(tp.name), typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
         }
