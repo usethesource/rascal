@@ -379,11 +379,7 @@ public class Webserver {
             throw RuntimeExceptionFactory.io(e);
         }
     }
-
-
-
-
-
+    
     public void shutdown(ISourceLocation server) {
         NanoHTTPD nano = servers.get(server);
         if (nano != null) {
