@@ -563,7 +563,7 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
-    un = unescape("<n>");
+    un = prettyPrintName("<n>");
     md5Contrib = [];
     if(!isEmpty(c.getStack(currentAlternative)) && <SyntaxDefinition adt, str cname, syms> := c.top(currentAlternative)){
         md5Contrib += [adt.defined, cname, syms];
@@ -572,7 +572,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     }
 
     // TODO require symbol is nonterminal
-    c.define(unescape("<n>"), fieldId(), n, defType([symbol],
+    c.define(prettyPrintName("<n>"), fieldId(), n, defType([symbol],
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
           return res;

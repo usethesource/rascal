@@ -87,7 +87,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, defType(avoid()));
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         c.require("non-void", vst.subject, [], makeNonVoidRequirement(vst.subject, "Subject of visit"));
         c.fact(current, vst.subject);
@@ -453,7 +453,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
     c.enterCompositeScope([conditions, thenPart]); // thenPart may refer to variables defined in conditions
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, defType(avoid()));
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         condList = [cond | Expression cond <- conditions];
         c.fact(current, avalue());
@@ -605,7 +605,7 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
 void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, Collector c){
     c.enterScope(current);
         if(label is \default){
-           c.define("<label.name>", labelId(), label.name, defType(avoid()));
+           c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
         c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
@@ -715,7 +715,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
             if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(splitQualifiedName(name)<1>, variableId(), name, defLub([statement],
+                c.define(prettyPrintName(name.names[-1]), variableId(), name, defLub([statement],
                     AType(Solver s){
                         // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
                         // handle the combination of return and possible exception thrown by s.getType properly
@@ -728,7 +728,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
              if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(splitQualifiedName(name)<1>, variableId(), name, defLub([statement, name],  AType(Solver s){
+                c.define(prettyPrintName(name.names[-1]), variableId(), name, defLub([statement, name],  AType(Solver s){
                     return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
                 }));
             }
@@ -1042,7 +1042,7 @@ private AType computeDefaultAssignableType(Statement current, AType receiverType
     return receiverType;
 }
 
-set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
+set[str] getNames(Statement s) = {prettyPrintName(nm) | /QualifiedName nm := s};
 
 private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
     c.report(error(current, "Constructor assignable is not supported by the compiler"));
@@ -1092,11 +1092,11 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
    }
 
    names = getReceiver(receiver, c);
-   flatNames = ["<nm>" | nm <- names];
+   flatNames = [prettyPrintName(nm) | nm <- names];
    elms = [elm | elm <- elements];
    namesInRhs = getNames(rhs);
    taus = [c.newTypeVar(nm) | nm <- names];
-   for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
+   for(int i <- index(names), flatNames[i] notin namesInRhs){c.define(prettyPrintName(names[i]), variableId(), names[i], defLub([rhs], makeDef(i)));}
 
    for(name <- names) c.useLub(name, variableRoles);
 
