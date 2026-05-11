@@ -3,6 +3,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.stream.Collectors;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -34,16 +35,45 @@ public class Webclient {
     }
 
     private HttpRequest makeGetRequest(IConstructor input) {
-        return HttpRequest getRequest = HttpRequest.newBuilder()
+        var params = input.asWithKeywordParameters();
+        return HttpRequest.newBuilder()
             .uri(((ISourceLocation) params.getParameter("uri")).getURI())
             .GET()
             .build();
     }
 
+    private HttpRequest makePutRequest(IConstructor input) {
+        var params = input.asWithKeywordParameters();
+        var postBody = (IFunction) input.get("body");
+
+        return HttpRequest.newBuilder()
+            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .PUT(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
+            .build();
+    }
+
+    private HttpRequest makeDeleteRequest(IConstructor input) {
+        var params = input.asWithKeywordParameters();
+
+        return HttpRequest.newBuilder()
+            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .DELETE()
+            .build();
+    }
+
+    private HttpRequest makeHeadRequest(IConstructor input) {
+        var params = input.asWithKeywordParameters();
+
+        return HttpRequest.newBuilder()
+            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .method("HEAD", BodyPublishers.noBody())
+            .build();
+    }
+
     private HttpRequest makePostRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
-        IFunction postBody = (IFunction) input.get("body");
-        IConstructor rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
+        var postBody = (IFunction) input.get("body");
+        var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
                     
         return HttpRequest.newBuilder()
             .uri(((ISourceLocation) params.getParameter("uri")).getURI())
@@ -56,11 +86,22 @@ public class Webclient {
             case "get":
                 return makeGetRequest(input);
             case "post":
-                    return makePostRequest(input);
+                return makePostRequest(input);
+            case "put":
+                return makePutRequest(input);
+            case "delete":
+                return makeDeleteRequest(input);
+            case "head":
+                return makeHeadRequest(input);
+
             default:
                 throw RuntimeExceptionFactory.illegalArgument(input);
         }
     }
+
+    /**
+     * This is the main API method for the Rascal side
+     */
     public IConstructor fetch(IConstructor input) {
         try {
             var request = makeRequest(input);
@@ -76,7 +117,7 @@ public class Webclient {
     }
 
     private IConstructor translateTextResponse(HttpResponse<String> response) {
-        IMap headers = response
+        var headers = response
             .headers()
             .map()
             .entrySet()
@@ -87,22 +128,22 @@ public class Webclient {
             )))
             .collect(vf.mapWriter());
 
-        IString body = vf.string(response.body());
-        IConstructor status = toStatusConstructor(response.statusCode());
+        var body = vf.string(response.body());
+        var status = toStatusConstructor(response.statusCode());
 
-        Type respCons = store.lookupConstructors("response").iterator().next();
+        var respCons = store.lookupConstructors("response").iterator().next();
 
         var contentType = response.headers().firstValue("Content-Type");
         
-        IString mimeType = vf.string(contentType.get().split(";")[0]);
+        var mimeType = vf.string(contentType.get().split(";")[0]);
         
         return vf.constructor(respCons, status, mimeType, headers, body);
     }
 
-    IConstructor toStatusConstructor(int stCode) {
-        Type statusType = store.lookupAbstractDataType("Status");
+    private IConstructor toStatusConstructor(int stCode) {
+        var statusType = store.lookupAbstractDataType("Status");
 
-        Status status = Status.lookup(stCode);
+        var status = Status.lookup(stCode);
         switch (status) {
             case OK:
                 return vf.constructor(store.lookupConstructor(statusType, "ok", tf.tupleEmpty()));
