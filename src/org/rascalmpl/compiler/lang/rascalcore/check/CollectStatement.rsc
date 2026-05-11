@@ -293,7 +293,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(loopName, labelId(), label.name, defType(avoid()));
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // record appends in body, initially []
         condList = [cond | Expression cond <- conditions];
@@ -339,7 +339,7 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(loopName, labelId(), label.name, defType(avoid()));
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.require("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
@@ -361,7 +361,7 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(loopName, labelId(), label.name, defType(avoid()));
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         condList = [cond | Expression cond <- conditions];
@@ -715,7 +715,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
             if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(base, variableId(), name, defLub([statement],
+                c.define(splitQualifiedName(name)<1>, variableId(), name, defLub([statement],
                     AType(Solver s){
                         // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
                         // handle the combination of return and possible exception thrown by s.getType properly
@@ -728,7 +728,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
              if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){
+                c.define(splitQualifiedName(name)<1>, variableId(), name, defLub([statement, name],  AType(Solver s){
                     return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
                 }));
             }

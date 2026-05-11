@@ -118,7 +118,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
                 }
             }
        }
-       c.define(uname, formalOrPatternFormal(c), name, defType(tp));
+       c.define(unescape("<name>"), formalOrPatternFormal(c), name, defType(tp));
     } else {
        c.fact(name, tp);
     }
@@ -137,7 +137,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
             });
        } else {
           c.push(patternNames, <uname, getLoc(name)>);
-          c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ 
+          c.define(unescape("<name>"), formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ 
             res = alist(s.getType(tp))[alabel=uname];
             return res;
              }));
@@ -166,7 +166,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
        if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
        if(isTopLevelParameter(c)){
           c.fact(current, avalue(alabel=unescape(prettyPrintBaseName(name))));  
-          c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
+          c.define(splitQualifiedName(name)<1>, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
        } else {
           if(c.isAlreadyDefined(base, name)){
             c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), constructorId()});
@@ -174,7 +174,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           } else {
             tau = c.newTypeVar(name);
             c.fact(name, tau); //<====
-            c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { 
+            c.define(splitQualifiedName(name)<1>, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { 
                 return s.getType(tau)[alabel=unescape(prettyPrintBaseName(name))]; 
             }));
           }
@@ -231,7 +231,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
             }
           }   
           
-          c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
+          c.define(unescape("<argName>"), formalOrPatternFormal(c), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
        } else {
           c.calculate("typed anonymous variable in splice pattern", argName, [tp], 
@@ -254,7 +254,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
            if(isTopLevelParameter(c)){
               c.fact(current, avalue());
               if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
-              c.define(base, formalId(), argName, defLub([], AType(Solver _) { return avalue(); }));
+              c.define(splitQualifiedName(argName)<1>, formalId(), argName, defLub([], AType(Solver _) { return avalue(); }));
            } else {
               if(c.isAlreadyDefined("<argName>", argName)) {
                   c.use(argName, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
@@ -263,7 +263,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
                   tau = c.newTypeVar(current); // <== argName;
                   c.fact(current, tau);    // <===
                   if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
-                  c.define(base, formalOrPatternFormal(c), argName, 
+                  c.define(splitQualifiedName(argName)<1>, formalOrPatternFormal(c), argName, 
                             defLub([], AType(Solver s) { 
                             return inSet ? makeSetType(s.getType(tau)) : makeListType(s.getType(tau));}));
               }
@@ -328,7 +328,7 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
     } else {
         c.push(patternNames, <uname, getLoc(name)>);
         scope = c.getScope();
-        c.define(uname, formalOrPatternFormal(c), name, 
+        c.define(unescape("<name>"), formalOrPatternFormal(c), name, 
                  defLub([pattern], AType(Solver s) { 
                     try{
                         return s.getType(pattern);
@@ -357,7 +357,7 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
                 }
             }
         }   
-        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
+        c.define(unescape("<name>"), formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
     }
 }
 

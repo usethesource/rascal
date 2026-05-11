@@ -255,7 +255,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
         alwaysSucceeds = all(pat <- formals, pat is typedVariable && /(Statement) `fail <Target _>;` := stats);
         if(!alwaysSucceeds) dt.canFail = true;
 
-        c.defineInScope(parentScope, clos_name, functionId(), current, dt);
+        c.defineInScope(parentScope, clos_name /* Unique string, not derived from `current` */, functionId(), current, dt);
 
         if(!returnsViaAll && "<returnType>" != "void"){
                 c.report(error(current, "Missing return statement"));

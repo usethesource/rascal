@@ -98,7 +98,7 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
               c.useLub(name, {formalOrPatternFormal(c)});
            } else {
                c.push(patternNames, uname);
-               c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+               c.define(prettyPrintName(name), formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
            }
         }
     }

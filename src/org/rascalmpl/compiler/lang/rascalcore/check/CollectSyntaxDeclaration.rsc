@@ -82,7 +82,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         syndefCounter += 1;
 
         // Define the syntax symbol itself and all labelled alternatives as constructors
-        c.define(adtName, idRole, current, dt);
+        c.define(nonterminalType.adtName, idRole, current, dt);
 
         adtParentScope = c.getScope();
         c.enterScope(current);
