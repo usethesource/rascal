@@ -732,24 +732,6 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     }
 }
 
-// private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
-//     return;
-//     if((Expression) `<QualifiedName qn>` := current, size([nm | nm <- qn.names]) > 1){
-//         return;
-//     }
-//     coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
-//     if(size(coverloads) > 1){
-//         ovl1 = coverloads[0];
-//         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
-//         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-//         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-//         s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v",
-//                              ovl1.atype.alabel,
-//                              qualifyHint,
-//                              argHint));
-//                              }
-// }
-
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     // println("filterOverloads: <overloads>, <arity>");
     rel[loc, IdRole, AType] filteredOverloads = {};
