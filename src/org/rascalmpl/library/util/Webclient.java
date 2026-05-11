@@ -1,25 +1,21 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.List;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -37,25 +33,42 @@ public class Webclient {
         this.tf = tf;
     }
 
+    private HttpRequest makeGetRequest(IConstructor input) {
+        return HttpRequest getRequest = HttpRequest.newBuilder()
+            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .GET()
+            .build();
+    }
+
+    private HttpRequest makePostRequest(IConstructor input) {
+        var params = input.asWithKeywordParameters();
+        IFunction postBody = (IFunction) input.get("body");
+        IConstructor rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
+                    
+        return HttpRequest.newBuilder()
+            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .POST(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
+            .build();
+    }
+
+    private HttpRequest makeRequest(IConstructor input) {
+        switch (input.getName()) {
+            case "get":
+                return makeGetRequest(input);
+            case "post":
+                    return makePostRequest(input);
+            default:
+                throw RuntimeExceptionFactory.illegalArgument(input);
+        }
+    }
     public IConstructor fetch(IConstructor input) {
         try {
-            var params = input.asWithKeywordParameters();
+            var request = makeRequest(input);
+            var response = HttpClient
+                .newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
 
-            switch (input.getName()) {
-                case "get":
-                    HttpRequest request = HttpRequest.newBuilder()
-                        .uri(((ISourceLocation) params.getParameter("uri")).getURI())
-                        .GET()
-                        .build();
-                
-                    HttpResponse<String> response =
-                    HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-
-                    return translateTextResponse(response);
-                default: 
-                    // not yet implemented
-                    throw RuntimeExceptionFactory.illegalArgument(input);
-            }
+            return translateTextResponse(response);
         }
         catch (IOException | InterruptedException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
@@ -98,7 +111,7 @@ public class Webclient {
             case ACCEPTED:
                 return vf.constructor(store.lookupConstructor(statusType, "accepted", tf.tupleEmpty()));
             case BAD_REQUEST:
-                return vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.tupleEmpty()))
+                return vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.tupleEmpty()));
             case CONFLICT:
                 return vf.constructor(store.lookupConstructor(statusType, "conflict", tf.tupleEmpty()));
             case CREATED:
@@ -156,7 +169,8 @@ public class Webclient {
             case UNSUPPORTED_MEDIA_TYPE:
                 return vf.constructor(store.lookupConstructor(statusType, "unsupportedMediaType", tf.tupleEmpty()));
             default:
-                break;
+                // if we don't understand the error code; let's call it an internal error
+                return vf.constructor(store.lookupConstructor(statusType, "internalError", tf.tupleEmpty()));
         }
     }
   }
