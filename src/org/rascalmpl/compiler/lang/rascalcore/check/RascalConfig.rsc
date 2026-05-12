@@ -56,6 +56,9 @@ import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
+// Define the normalization function to be used in `define` and `defineInScope`
+str rascalNormalizeName(str name) = prettyPrintName(name);
+
 //Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     set[IdRole] roles = { defines[def].idRole | def <- defs };
@@ -644,6 +647,8 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,
+
+        normalizeName                 = rascalNormalizeName,
 
         mayOverload                   = rascalMayOverload,
 
