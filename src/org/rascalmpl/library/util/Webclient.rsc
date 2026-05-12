@@ -47,7 +47,7 @@ data Status
 data Request(
     loc host = |http://www.example.com|, 
     str \content-type = "text/plain",
-    BodyExpectation body = text()
+    BodyExpectation body = textBody()
     );
 
 @synopsis{Short-hand for construction of JSON post bodies}
