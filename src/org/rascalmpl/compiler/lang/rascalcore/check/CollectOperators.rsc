@@ -620,7 +620,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
             } else  
                 throw TypeUnavailable();
           
-            c.define(prettyPrintName(name), formalOrPatternFormal(c), name, defType(patType));
+            c.define("<name>", formalOrPatternFormal(c), name, defType(patType));
             c.fact(pat, patType);
             c.fact(current, abool());
             return;  

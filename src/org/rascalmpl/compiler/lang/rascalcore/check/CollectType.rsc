@@ -518,7 +518,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
         } else {
-            c.define(prettyPrintName("<n>"), typeVarId(), n, defType(aparameter(pname,treeType, closed=closed)));
+            c.define("<n>", typeVarId(), n, defType(aparameter(pname,treeType, closed=closed)));
             //println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);
@@ -572,7 +572,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     }
 
     // TODO require symbol is nonterminal
-    c.define(prettyPrintName("<n>"), fieldId(), n, defType([symbol],
+    c.define("<n>", fieldId(), n, defType([symbol],
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
           return res;
@@ -812,7 +812,7 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             } else {
                 throw "collect TypeVar: currentAdt not found";
             }
-            c.define(prettyPrintName(n), typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
+            c.define("<n>", typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
         }
         c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
@@ -850,7 +850,7 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
             c.use(n, {typeVarId() });
             //if(debugTP)println("Use <pname> at <current@\loc>");
         } else {
-            c.define(prettyPrintName(n), typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
+            c.define("<n>", typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //if(debugTP)println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);

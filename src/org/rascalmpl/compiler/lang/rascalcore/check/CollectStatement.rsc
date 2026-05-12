@@ -87,7 +87,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.require("non-void", vst.subject, [], makeNonVoidRequirement(vst.subject, "Subject of visit"));
         c.fact(current, vst.subject);
@@ -115,7 +115,7 @@ void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.calculate("visit", current, [vst.subject],
             AType(Solver s){
@@ -293,7 +293,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // record appends in body, initially []
         condList = [cond | Expression cond <- conditions];
@@ -339,7 +339,7 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.require("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
@@ -361,7 +361,7 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         condList = [cond | Expression cond <- conditions];
@@ -453,7 +453,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
     c.enterCompositeScope([conditions, thenPart]); // thenPart may refer to variables defined in conditions
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         condList = [cond | Expression cond <- conditions];
         c.fact(current, avalue());
@@ -472,7 +472,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
     c.enterCompositeScope([conditions, thenPart]);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         condList = [cond | cond <- conditions];
 
@@ -495,7 +495,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Case+ cases> }`, Collector c){
     c.enterScope(current);
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(e, false));
@@ -605,7 +605,7 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
 void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, Collector c){
     c.enterScope(current);
         if(label is \default){
-           c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+           c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         stats = [ s | Statement s <- statements ];
         c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
@@ -715,7 +715,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
             if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(prettyPrintName(name.names[-1]), variableId(), name, defLub([statement],
+                c.define("<name.names[-1]>", variableId(), name, defLub([statement],
                     AType(Solver s){
                         // TODO: this seemingly redundant call is needed; suspicion: the interpreter does not
                         // handle the combination of return and possible exception thrown by s.getType properly
@@ -728,7 +728,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
              if(c.isAlreadyDefined("<name>", name)){
                 c.use(name, variableRoles);
             } else {
-                c.define(prettyPrintName(name.names[-1]), variableId(), name, defLub([statement, name],  AType(Solver s){
+                c.define("<name.names[-1]>", variableId(), name, defLub([statement, name],  AType(Solver s){
                     return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s);
                 }));
             }
@@ -1096,7 +1096,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
    elms = [elm | elm <- elements];
    namesInRhs = getNames(rhs);
    taus = [c.newTypeVar(nm) | nm <- names];
-   for(int i <- index(names), flatNames[i] notin namesInRhs){c.define(prettyPrintName(names[i]), variableId(), names[i], defLub([rhs], makeDef(i)));}
+   for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
 
    for(name <- names) c.useLub(name, variableRoles);
 
@@ -1202,7 +1202,7 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
     scope = c.getScope();
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
         for(var <- variables){
-            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, defType([varType], makeGetSyntaxType(varType)));
+            c.defineInScope(scope, "<var.name>", variableId(), var.name, defType([varType], makeGetSyntaxType(varType)));
 
             if(var is initialized){
                 initial = var.initial;

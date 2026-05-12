@@ -181,7 +181,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<uname>";
 
          // Define the constructor
-        c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType([current],
+        c.defineInScope(adtParentScope, "<name>", constructorId(), name, defType([current],
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
