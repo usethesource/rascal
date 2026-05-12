@@ -51,7 +51,8 @@ data Request(
     );
 
 @synopsis{Short-hand for construction of JSON post bodies}
-Request jsonPost(str path, &T content, loc host=|http://www.example.com|) = post(path, &T (type[&T] _expected) { return content; }, host=host);
+Request jsonPost(str path, &T content, loc host=|http://www.example.com|, BodyExpectation body = textBody()) 
+    = post(path, &T (type[&T] _expected) { return content; }, host=host, body=body);
 
 @javaClass{org.rascalmpl.library.util.Webclient}
 java Response fetch(Request request);
