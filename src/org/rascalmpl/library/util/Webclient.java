@@ -3,23 +3,38 @@ package org.rascalmpl.library.util;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.StringWriter;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.stream.Collectors;
+import java.io.Writer;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.lang.json.internal.JsonValueReader;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -28,20 +43,24 @@ public class Webclient {
     private final IRascalMonitor monitor;
     private final TypeStore store;
     private final TypeFactory tf;
+    private final TypeReifier tr;
 
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
         this.vf = vf;
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
+        this.tr = new TypeReifier(vf);
     }
 
     private HttpRequest makeGetRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
+        var host = ((ISourceLocation) params.getParameter("host"));
+        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
+        var path = ((IString) input.get("path")).getValue();
+
         return HttpRequest.newBuilder()
-            .uri(URIUtil.getChildLocation(
-                (ISourceLocation) params.getParameter("uri"), 
-                ((IString) input.get("path")).getValue()).getURI())
+            .uri(URIUtil.getChildLocation(host, path).getURI())
             .GET()
             .build();
     }
@@ -50,40 +69,67 @@ public class Webclient {
         var params = input.asWithKeywordParameters();
         var postBody = (IFunction) input.get("body");
         var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
+        var host = ((ISourceLocation) params.getParameter("host"));
 
         return HttpRequest.newBuilder()
-            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
             .PUT(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
             .build();
     }
 
     private HttpRequest makeDeleteRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
+        var host = ((ISourceLocation) params.getParameter("host"));
 
         return HttpRequest.newBuilder()
-            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
             .DELETE()
             .build();
     }
 
     private HttpRequest makeHeadRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
+        var host = ((ISourceLocation) params.getParameter("host"));
 
         return HttpRequest.newBuilder()
-            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
+            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
             .method("HEAD", BodyPublishers.noBody())
             .build();
     }
 
     private HttpRequest makePostRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
-        var postBody = (IFunction) input.get("body");
-        var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
-                    
-        return HttpRequest.newBuilder()
-            .uri(((ISourceLocation) params.getParameter("uri")).getURI())
-            .POST(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
-            .build();
+        var postBody = (IFunction) input.get("content");
+        var rt = new TypeReifier(vf).typeToValue(tf.valueType(), store, vf.map());
+        var host = ((ISourceLocation) params.getParameter("host"));
+        var val = postBody.call(rt);
+        var path = ((IString) input.get("path")).getValue();
+
+        try {
+            PipedOutputStream out = new PipedOutputStream();
+            PipedInputStream in = new PipedInputStream(out, 64 * 1024);
+
+            Thread writer = new Thread(() -> {
+                try (OutputStream os = out; Writer w = new OutputStreamWriter(out)) {
+                    JsonWriter jsonWriter = new JsonWriter(w);
+                    JsonValueWriter jsonOut = new JsonValueWriter();
+                    jsonOut.write(jsonWriter, val);
+                }
+                catch (Exception e) {
+                    throw RuntimeExceptionFactory.io(e.getMessage());
+                }
+            });
+
+            writer.start();
+            
+            return HttpRequest.newBuilder()
+                .uri(URIUtil.getChildLocation(host, path).getURI())
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> in))
+                .build();
+        }
+        catch (IOException e) {
+           throw RuntimeExceptionFactory.io(e.getMessage());
+        }
     }
 
     private HttpRequest makeRequest(IConstructor input) {
@@ -116,14 +162,14 @@ public class Webclient {
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
 
-            return translateTextResponse(request.uri().toString(), response);
+            return translateResponse(request.uri().toString(), (IConstructor) input.asWithKeywordParameters().getParameter("body"), response);
         }
         catch (IOException | InterruptedException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
 
-    private IConstructor translateTextResponse(String url, HttpResponse<InputStream> response) throws IOException {
+    private IConstructor translateResponse(String url, IConstructor expect, HttpResponse<InputStream> response) throws IOException {
         var headers = response
             .headers()
             .map()
@@ -149,12 +195,32 @@ public class Webclient {
 
         // TODO: extract from contentType if present
         var charset = "utf-8";
-
-        var body = vf.string(new String(Prelude.consumeInputStream(input), charset));
+        
         var status = toStatusConstructor(response.statusCode());
-        var respCons = store.lookupConstructors("response").iterator().next();
 
-        return vf.constructor(respCons, status, mimeType, headers, body);
+        Type respCons;
+        IString body;
+
+        switch (expect != null ? expect.getName() : "textBody") {
+            case "jsonBody":
+                JsonReader jsonReader = new JsonReader(new InputStreamReader(input));
+                JsonValueReader parser = new JsonValueReader(vf, store, monitor, URIUtil.assumeCorrectLocation(url));
+                respCons = store.lookupConstructors("jsonResponse").iterator().next();
+                var value = parser.read(jsonReader, tr.valueToType((IConstructor) expect.get("expected")));
+                return vf.constructor(respCons, status, headers, value);
+            case "fileBody":
+                respCons = store.lookupConstructors("fileResponse").iterator().next();
+                var loc = (ISourceLocation) expect.get("storage");
+                try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
+                    input.transferTo(out);
+                }
+                return vf.constructor(respCons, loc, mimeType, headers);
+            case "textBody":
+            default:
+                respCons = store.lookupConstructors("response").iterator().next();
+                body = vf.string(new String(Prelude.consumeInputStream(input), charset));
+                return vf.constructor(respCons, status, mimeType, headers, body);
+        }
     }
 
     private IConstructor toStatusConstructor(int stCode) {
@@ -255,7 +321,11 @@ public class Webclient {
             }
         }
 
-        private void updateProgress(int bytesRead) {
+        private void updateProgress(int bytesRead) throws InterruptedIOException {
+            if (monitor.jobIsCanceled(jobName)) {
+                throw new InterruptedIOException(jobName);
+            }
+
             ensureStarted();
             long numberOfTheseSteps  = (int) (totalBytes / bytesRead);
             int stepSize = (int) (Integer.MAX_VALUE / numberOfTheseSteps);
