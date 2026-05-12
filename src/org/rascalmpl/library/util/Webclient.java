@@ -70,9 +70,11 @@ public class Webclient {
         var postBody = (IFunction) input.get("body");
         var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
         var host = ((ISourceLocation) params.getParameter("host"));
+        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
+        var path = ((IString) input.get("path")).getValue();
 
         return HttpRequest.newBuilder()
-            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
+            .uri(URIUtil.getChildLocation(host, path).getURI())
             .PUT(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
             .build();
     }
@@ -80,9 +82,11 @@ public class Webclient {
     private HttpRequest makeDeleteRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
         var host = ((ISourceLocation) params.getParameter("host"));
+        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
+        var path = ((IString) input.get("path")).getValue();
 
         return HttpRequest.newBuilder()
-            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
+            .uri(URIUtil.getChildLocation(host, path).getURI())
             .DELETE()
             .build();
     }
@@ -90,9 +94,11 @@ public class Webclient {
     private HttpRequest makeHeadRequest(IConstructor input) {
         var params = input.asWithKeywordParameters();
         var host = ((ISourceLocation) params.getParameter("host"));
+        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
+        var path = ((IString) input.get("path")).getValue();
 
         return HttpRequest.newBuilder()
-            .uri(host != null ? host.getURI() : URIUtil.assumeCorrect("http://www.example.com"))
+            .uri(URIUtil.getChildLocation(host, path).getURI())
             .method("HEAD", BodyPublishers.noBody())
             .build();
     }
@@ -161,7 +167,6 @@ public class Webclient {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
-
             return translateResponse(request.uri().toString(), (IConstructor) input.asWithKeywordParameters().getParameter("body"), response);
         }
         catch (IOException | InterruptedException e) {
