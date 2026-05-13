@@ -1,12 +1,11 @@
 module lang::rascal::tests::concrete::SyntaxKeywordFields
 
-import Node;
 import ParseTree;
 
 syntax A = "a";
 syntax B = "b" | [b]; // ambiguous on purpose
 
-// we only allow declarations on Tree for now, for lack of a syntax to declare them on non-terminals.
+// we only allow keyword parameters on Tree for now, for lack of a syntax to declare them on non-terminals.
 data Tree(str y = "y");
 
 &T<:Tree get(&T<:Tree e) = e;
