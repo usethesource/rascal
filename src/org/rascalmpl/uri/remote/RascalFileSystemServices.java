@@ -168,12 +168,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<StringResponse> getInputCharset(ISourceLocationRequest req) {
-        return getOutputCharset(req);
-    }
-
-    @Override
-    public CompletableFuture<StringResponse> getOutputCharset(ISourceLocationRequest req) {
+    public CompletableFuture<StringResponse> getCharset(ISourceLocationRequest req) {
         return async(() -> new StringResponse(reg.getCharset(req.getLocation()).name()));
     }
 

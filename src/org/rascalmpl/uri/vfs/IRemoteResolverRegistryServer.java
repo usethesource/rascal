@@ -89,12 +89,9 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/isReadable")
     CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req);
 
-    @JsonRequest("input/getCharset")
-    CompletableFuture<StringResponse> getInputCharset(ISourceLocationRequest req);
+    @JsonRequest("getCharset")
+    CompletableFuture<StringResponse> getCharset(ISourceLocationRequest req);
     
-    @JsonRequest("output/getCharset")
-    CompletableFuture<StringResponse> getOutputCharset(ISourceLocationRequest req);
-
     @JsonRequest("output/setLastModified")
     CompletableFuture<Void> setLastModified(SetLastModifiedRequest req);
 
