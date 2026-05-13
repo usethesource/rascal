@@ -279,16 +279,16 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, Form
 
     return list[TextEdit] (&G <: Tree tree) {
         try {
-            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), tree@\loc.top), ci=opts.caseInsensitivity);
+            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), tree.src.top), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree@\loc.top.file>|(place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
+            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree@\loc.top.file>|(place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
+            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
             return [];
         }  
     };
@@ -330,17 +330,17 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, Formatt
     return list[TextEdit] (Tree tree) {
         try {
             str formatted = format(style(tree));
-            str indented = subIndent(tree@\loc, "<formatted>", "<tree>");
-            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), indented, tree@\loc), ci=opts.caseInsensitivity);
+            str indented = subIndent(tree.src, "<formatted>", "<tree>");
+            return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), indented, tree.src), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree@\loc.top.file>|(tree@\loc.offset + place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
+            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(tree.src.offset + place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree@\loc.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree@\loc.file>|(tree@\loc.offset + place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
+            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.file>|(tree.src.offset + place.offset, place.length));
             return [];
         }  
     };
@@ -440,7 +440,7 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
         &G tree = p(nonterminal, input, stub);
         try {
             str formatted = format(style(tree));
-            str indented = subIndent(tree@\loc, "<formatted>", input);
+            str indented = subIndent(tree.src, "<formatted>", input);
             return layoutDiff(tree, p(nonterminal, indented, stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 

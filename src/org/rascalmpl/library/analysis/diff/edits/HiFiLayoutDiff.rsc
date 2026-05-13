@@ -179,7 +179,7 @@ private str learnComments(Tree original, Tree replacement) {
 
     if (/\n/ !:= replString) {
         // no newline in the repl string, so no indentation available for what follows the comment...
-        newIndent = "<for (_ <- [0..replacement@\loc.begin.column]) {> <}>";
+        newIndent = "<for (_ <- [0..replacement.src.begin.column]) {> <}>";
     }
 
     // we always place sequential comments vertically, because we don't know if we are dealing

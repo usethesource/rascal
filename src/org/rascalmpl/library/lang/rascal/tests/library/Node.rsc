@@ -27,11 +27,11 @@ public ANODE A1 = leaf(3);
 public ANODE A2 = leaf(3)[pos=1][label="a"];
 public ANODE A3 = a(leaf(10)[pos=1][label="a"], leaf(20)[pos=2][label="b"])[pos=3][label="c"];
 
-test bool delAnnotation1() = !delAnnotation(A1, "pos").pos?;
-test bool delAnnotation2() = !delAnnotation(A2, "pos").pos?;
-test bool delAnnotation3() = delAnnotation(A2, "pos").label == "a";
-test bool delAnnotation4() = !delAnnotation(A3, "pos").pos?;
-test bool delAnnotation5() = delAnnotation(A3, "pos").label == "c";
+test bool delAnnotation1() = !unset(A1, "pos").pos?;
+test bool delAnnotation2() = !unset(A2, "pos").pos?;
+test bool delAnnotation3() = unset(A2, "pos").label == "a";
+test bool delAnnotation4() = !unset(A3, "pos").pos?;
+test bool delAnnotation5() = unset(A3, "pos").label == "c";
 
 
 // delAnnotations
@@ -52,20 +52,20 @@ test bool delAnnotations10() = ANODE n := unset(A3)[1] && n.label == "b";
 
 
 // delAnnotationsRec
-test bool delAnnotationsRec1() = !delAnnotationsRec(A1).pos?;
-test bool delAnnotationsRec2() = !delAnnotationsRec(A1).label?;
+test bool delAnnotationsRec1() = !unsetRec(A1).pos?;
+test bool delAnnotationsRec2() = !unsetRec(A1).label?;
 
-test bool delAnnotationsRec3() = !delAnnotationsRec(A2).pos?;
-test bool delAnnotationsRec4() = !delAnnotationsRec(A2).label?;
+test bool delAnnotationsRec3() = !unsetRec(A2).pos?;
+test bool delAnnotationsRec4() = !unsetRec(A2).label?;
 
-test bool delAnnotationsRec5() = !delAnnotationsRec(A3).pos?;
-test bool delAnnotationsRec6() = !delAnnotationsRec(A3).label?;
+test bool delAnnotationsRec5() = !unsetRec(A3).pos?;
+test bool delAnnotationsRec6() = !unsetRec(A3).label?;
 
-test bool delAnnotationsRec7() = ANODE n := delAnnotationsRec(A3)[0] && !n.pos?;
-test bool delAnnotationsRec8() = ANODE n := delAnnotationsRec(A3)[0] && !n.label?;
+test bool delAnnotationsRec7() = ANODE n := unsetRec(A3)[0] && !n.pos?;
+test bool delAnnotationsRec8() = ANODE n := unsetRec(A3)[0] && !n.label?;
 
-test bool delAnnotationsRec9() = ANODE n := delAnnotationsRec(A3)[1] && !n.pos?;
-test bool delAnnotationsRec10() = ANODE n := delAnnotationsRec(A3)[1] && !n.label?;
+test bool delAnnotationsRec9() = ANODE n := unsetRec(A3)[1] && !n.pos?;
+test bool delAnnotationsRec10() = ANODE n := unsetRec(A3)[1] && !n.label?;
 
 // getAnnotations
 test bool getAnnotations1() = getAnnotations(A1) == ();
