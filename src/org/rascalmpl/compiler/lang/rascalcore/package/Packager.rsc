@@ -100,9 +100,9 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
               when l.top in paths
 
           // \loc annotations on Trees are not visited by `visit` automatically
-          case Tree t => t[@\loc = inheritPosition(sourceLookup + paths[Top], t@\loc)]
-              when t@\loc?, 
-                   loc Top := t@\loc.top, 
+          case Tree t => t[src=inheritPosition(sourceLookup + paths[Top], t.src)]
+              when t.src?, 
+                   loc Top := t.src.top, 
                    Top in paths
 
           // remove infos and warnings

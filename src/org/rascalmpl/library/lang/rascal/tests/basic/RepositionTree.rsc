@@ -7,7 +7,7 @@ import String;
 
 loc facPico = |project://rascal/src/org/rascalmpl/library/lang/pico/examples/fac.pico|;
 
-private list[loc] collect(Tree t) = [s@\loc | /Tree s := t, s@\loc?];
+private list[loc] collect(Tree t) = [s.src | /Tree s := t, s.src?];
 
 test bool repositionSimulatesReparse() {
     t1 = parse(#start[Program], facPico);
@@ -39,7 +39,7 @@ test bool charsFromLeftToRight() {
     t1 = parse(#start[Program], facPico);
     t2 = reposition(t1, markChar=true);
     allChars = [ch | /ch:char(_) := t2];
-    sortedChars = sort(allChars, bool (Tree c1, Tree c2) { return c1@\loc.offset < c2@\loc.offset;});
+    sortedChars = sort(allChars, bool (Tree c1, Tree c2) { return c1.src.offset < c2.src.offset;});
 
     return allChars == sortedChars;
 }

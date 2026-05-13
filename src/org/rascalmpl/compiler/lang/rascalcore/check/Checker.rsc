@@ -318,14 +318,14 @@ ModuleStatus rascalTModelForLocs(
                         <success, pt, ms> = getModuleParseTree(m, ms);
                         if(success){
                             if(compilerConfig.infoModuleChecked){
-                                imsgs += [info("Checked <moduleId2moduleName(m)>", pt.header.name@\loc)];
+                                imsgs += [info("Checked <moduleId2moduleName(m)>", pt.header.name.src)];
                             }
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");
                                 inameId = moduleName2moduleId(iname);
                                 if(hasProperty(inameId, ms, tpl_version_error(), rsc_not_found())){
-                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
+                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod.src);
                                 }
                                 if(inameId notin usedModules){
                                    if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){
@@ -339,7 +339,7 @@ ModuleStatus rascalTModelForLocs(
                                    }
                                    if((inameId in component || hasProperty(inameId, ms, checked())) && hasNotProperty(inameId, ms, rsc_not_found())){
                                     if(imod is \default){
-                                         imsgs += warning("Unused import of `<iname>`", imod@\loc);
+                                         imsgs += warning("Unused import of `<iname>`", imod.src);
                                        } //else { //TODO: maybe add option to turn off info messages?
                                          //imsgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
                                        //}
@@ -469,7 +469,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             tagsMap = getTags(pt.header.tags);
 
             if(hasIgnoreCompilerTag(tagsMap)) {
-                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
+                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name.src) };
                     ms = addProperty(mid, ms, ModuleProperty::ignored());
             }
             idTrees[mid] = pt;

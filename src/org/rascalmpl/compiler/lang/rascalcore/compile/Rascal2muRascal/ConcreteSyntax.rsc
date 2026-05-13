@@ -55,25 +55,25 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    @doc{parse fragment or store parse error in the TModel}
    Tree parseFragment(t:appl(prod(label("typed",lex("Concrete")), _, _),[_,_,Tree varsym,_,_,_,_, parts,_])) {
       try {
-         sym = atype2symbol(getType(varsym@\loc));
+         sym = atype2symbol(getType(varsym.src));
          return appl(prod(label("parsed",Symbol::lex("Concrete")), [sym], {}), [
                    doParseFragment(sym, parts.args, rules)
-                ])[@\loc=t@\loc];
+                ])[src=t.src];
       }
       catch ParseError(_) : {
-        throw CompileTimeError(error("Parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", t@\loc)); 
+        throw CompileTimeError(error("Parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", t.src)); 
       }
       catch Ambiguity(loc _location, str nonterminal, str sentence): {
-        throw CompileTimeError(error("Ambiguity in concrete syntax fragment for <nonterminal>: `<sentence>`", /*location*/ t@\loc)); 
+        throw CompileTimeError(error("Ambiguity in concrete syntax fragment for <nonterminal>: `<sentence>`", /*location*/ t.src)); 
       }
    }
 
-   ignoredFunctionLocs = {fd@\loc | /FunctionDeclaration fd := M, hasIgnoreCompilerTag(getTags(fd.tags)) };
+   ignoredFunctionLocs = {fd.src | /FunctionDeclaration fd := M, hasIgnoreCompilerTag(getTags(fd.tags)) };
 
    M = top-down-break visit(M) {
      case Tree t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
-          => appl(p, [parseFragment(concrete)])[@\loc=t@\loc]
-          when !any(loc ign <- ignoredFunctionLocs, isContainedIn(t@\loc, ign, tm.logical2physical))
+          => appl(p, [parseFragment(concrete)])[src=t.src]
+          when !any(loc ign <- ignoredFunctionLocs, isContainedIn(t.src, ign, tm.logical2physical))
    }
    
    return <M, tm>;
@@ -96,7 +96,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
       
       // here we weave in a unique and indexed sub-string for which a special rule
       // was added by the parser generator: 
-      holeType = atype2symbol(getType(hole.args[2]@\loc));
+      holeType = atype2symbol(getType(hole.args[2].src));
       return "\u0000<denormalize(holeType)>:<index>\u0000";
    }
    
@@ -106,9 +106,9 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    // now parse the input to get a Tree (or a ParseError is thrown)
    if(type[Tree] tp := type(sym, rules)){
         Tree tree = ParseTree::parse(tp, input, |todo:///|);
-        return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
+        return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0].src);
    } else {
-        throw InternalCompilerError(error("Illegal type <sym> in concrete syntax fragment `<for (p <- parts){><p><}>`", parts[0]@\loc));
+        throw InternalCompilerError(error("Illegal type <sym> in concrete syntax fragment `<for (p <- parts){><p><}>`", parts[0].src));
    }
 }
 
@@ -147,10 +147,10 @@ RestoreState restoreHoles(t:char(int c), map[int, Tree] _, loc _, int offset, in
 RestoreState restoreHoles(Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]),
                            map[int, Tree] holes, loc _, int _, int _, int _) { 
    Tree typedVar = holes[toInt("<i>")];
-   return <appl(prod(label("$MetaHole", varType),[Symbol::sort("ConcreteHole")], {\tag("holeType"(ht))}), [typedVar])[@\loc=typedVar@\loc],
-            typedVar@\loc.offset + typedVar@\loc.length,
-            typedVar@\loc.end.line,
-            typedVar@\loc.end.column
+   return <appl(prod(label("$MetaHole", varType),[Symbol::sort("ConcreteHole")], {\tag("holeType"(ht))}), [typedVar])[src=typedVar.src],
+            typedVar.src.offset + typedVar.src.length,
+            typedVar.src.end.line,
+            typedVar.src.end.column
             >;
 }
 
@@ -165,7 +165,7 @@ default RestoreState restoreHoles(Tree v:appl(Production p, list[Tree] args), ma
       append a;
    }
 
-   return <appl(p, newArgs)[@\loc=file(offset, curOffset - offset, <line, column>, <curLine, curColumn>)],
+   return <appl(p, newArgs)[src=file(offset, curOffset - offset, <line, column>, <curLine, curColumn>)],
             curOffset, curLine, curColumn>;
 }
 
