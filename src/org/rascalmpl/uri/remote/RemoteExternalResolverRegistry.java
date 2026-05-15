@@ -493,11 +493,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean supportsCopy() {
-        try {
-            return call(getRemote()::supportsCopy).getValue();
-        } catch (IOException e) {
-            return false;
-        }
+        //External resolver registries should support this
+        return true;
     }
 
     /**
@@ -538,11 +535,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public boolean supportsRecursiveWatch() {
-        try {
-            return call(n -> getRemote().supportsRecursiveWatch(), null).getValue();
-        } catch (IOException e) {
-            return false;
-        }
+        //External resolver registries should support this
+        return true;
     }
 
     @Override
