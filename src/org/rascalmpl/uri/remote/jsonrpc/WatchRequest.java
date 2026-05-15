@@ -34,8 +34,8 @@ import org.rascalmpl.uri.SourceLocationTransformer;
 import io.usethesource.vallang.ISourceLocation;
 
 public class WatchRequest extends ISourceLocationRequest {
-    private final String watchId;
     private final boolean recursive;
+    private final String watchId;
 
     public WatchRequest(ISourceLocation loc, boolean recursive, String watchId) {
         super(loc);
@@ -43,12 +43,12 @@ public class WatchRequest extends ISourceLocationRequest {
         this.watchId = watchId;
     }
 
-    public String getWatchId() {
-        return watchId;
-    }
-
     public boolean isRecursive() {
         return recursive;
+    }
+    
+    public String getWatchId() {
+        return watchId;
     }
 
     @SuppressWarnings("unchecked")
