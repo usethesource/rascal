@@ -29,9 +29,11 @@ package org.rascalmpl.uri.remote.jsonrpc;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.rascalmpl.uri.SourceLocationTransformer;
+
 import io.usethesource.vallang.ISourceLocation;
 
-public class RenameRequest implements JsonRpcRequest {
+public class RenameRequest implements SourceLocationTransformer {
     private final ISourceLocation from;
     private final ISourceLocation to;
     private final boolean overwrite;
@@ -56,7 +58,7 @@ public class RenameRequest implements JsonRpcRequest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
+    public <T extends SourceLocationTransformer> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
         return (T) new RenameRequest(transformer.apply(from), transformer.apply(to), overwrite);
     }
 

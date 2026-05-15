@@ -29,9 +29,11 @@ package org.rascalmpl.uri.remote.jsonrpc;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.rascalmpl.uri.SourceLocationTransformer;
+
 import io.usethesource.vallang.ISourceLocation;
 
-public class ISourceLocationRequest implements JsonRpcRequest {
+public class ISourceLocationRequest implements SourceLocationTransformer {
     protected final ISourceLocation loc;
 
     public ISourceLocationRequest(ISourceLocation loc) {
@@ -44,7 +46,7 @@ public class ISourceLocationRequest implements JsonRpcRequest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
+    public <T extends SourceLocationTransformer> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
         return (T) new ISourceLocationRequest(transformer.apply(loc));
     }
 

@@ -24,12 +24,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri.remote.jsonrpc;
+package org.rascalmpl.uri;
 
 import java.util.function.Function;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public interface JsonRpcRequest {
-    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer);
+public interface SourceLocationTransformer {
+    public <T extends SourceLocationTransformer> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer);
 }
