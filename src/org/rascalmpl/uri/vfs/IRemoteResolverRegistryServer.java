@@ -113,17 +113,11 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("output/copy")
     CompletableFuture<Void> copy(CopyRequest req);
 
-    @JsonRequest("output/supportsCopy")
-    CompletableFuture<BooleanResponse> supportsCopy();
-
     @JsonRequest("watcher/watch")
     CompletableFuture<Void> watch(WatchRequest req);
 
     @JsonRequest("watcher/unwatch")
     CompletableFuture<Void> unwatch(WatchRequest req);
-
-    @JsonRequest("watcher/supportsRecursiveWatch")
-    CompletableFuture<BooleanResponse> supportsRecursiveWatch();
 
     @JsonRequest("logical/resolveLocation")
     CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc);
