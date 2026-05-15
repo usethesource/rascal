@@ -29,6 +29,8 @@ package org.rascalmpl.uri.remote.jsonrpc;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.rascalmpl.uri.SourceLocationTransformer;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class WriteFileRequest extends ISourceLocationRequest {
@@ -51,7 +53,7 @@ public class WriteFileRequest extends ISourceLocationRequest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonRpcRequest> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
+    public <T extends SourceLocationTransformer> T transformLocations(Function<ISourceLocation, ISourceLocation> transformer) {
         return (T) new WriteFileRequest(transformer.apply(loc), content, append);
     }
 
