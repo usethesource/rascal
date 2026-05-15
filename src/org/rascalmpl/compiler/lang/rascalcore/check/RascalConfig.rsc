@@ -56,6 +56,9 @@ import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
+// Define the normalization function to be used in `define` and `defineInScope`
+str rascalNormalizeName(str name) = prettyPrintName(name);
+
 //Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     set[IdRole] roles = { defines[def].idRole | def <- defs };
@@ -411,7 +414,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    moduleScopes = { t@\loc | t <- range(namedTrees) };
+    moduleScopes = { t.src | t <- range(namedTrees) };
 
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
@@ -516,7 +519,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
-                         current@\loc);
+                         current.src);
         s.addMessages([msg]);
     }
 }
@@ -644,6 +647,8 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,
+
+        normalizeName                 = rascalNormalizeName,
 
         mayOverload                   = rascalMayOverload,
 
