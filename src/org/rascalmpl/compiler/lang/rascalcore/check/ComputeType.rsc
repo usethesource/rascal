@@ -142,7 +142,15 @@ void(Solver) makeNonVoidRequirement(Tree t, str msg)
 void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
     = void(Solver s) {
         checkNonVoid(t, s, msg ); 
-        if(isOverloadedAType(s.getType(t))) s.report(error(t, msg + " is ambiguous and should be resolved"));
+        AType resolution = s.getType(t);
+
+        if (isOverloadedAType(resolution)) {
+            causes = 
+                [ info("Candidate <i+1>: <prettyAType(alt)>.", pos) 
+                | <i, <loc pos, _, AType alt>> := zip2(size([0..resolution.overloads]), resolution.overloads)
+                ];
+            s.report(error(t, msg + " can not be resolved to a single type.", causes=causes));
+        }
     };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
