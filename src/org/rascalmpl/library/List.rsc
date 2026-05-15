@@ -965,6 +965,10 @@ lrel[&T first, &U second] zip2(list[&T] a, &T defA, list[&U] b, &U defB) {
 	return [<tmpA[i], tmpB[i]> | i <- index(tmpA)];
 }
 
+@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element.}
+lrel[int index, &T elem] zipi(list[&T] a) 
+  = zip2(index(a), a);
+
 @synopsis{Make a list of pairs from three lists of the same length.}
 lrel[&T first, &U second, &V third] zip3(list[&T] a, list[&U] b, list[&V] c) {
 	if(size(a) != size(b) || size(a) != size(c))
