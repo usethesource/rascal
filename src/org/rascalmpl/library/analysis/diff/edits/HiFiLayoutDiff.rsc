@@ -56,7 +56,7 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
     list[TextEdit] rec(
         t:appl(prod(Symbol tS, _, _), list[Tree] tArgs), // layout is not necessarily parsed with the same rules (i.e. comments are lost!)
         u:appl(prod(Symbol uS, _, _), list[Tree] uArgs))
-        = [replace(t@\loc, repl) | tArgs != uArgs, str repl := (recoverComments ? learnComments(t, u) : "<u>"), repl != "<t>" /* do not edit anything if nothing has changed */] 
+        = [replace(t.src, repl) | tArgs != uArgs, str repl := (recoverComments ? learnComments(t, u) : "<u>"), repl != "<t>" /* do not edit anything if nothing has changed */] 
         when 
             delabel(tS) is layouts, 
             delabel(uS) is layouts,
@@ -80,13 +80,13 @@ list[TextEdit] layoutDiff(Tree original, Tree formatted, bool recoverComments = 
             case asIs():
                 return [];
             case asFormatted():
-                return [replace(t@\loc, result) | str result := "<u>", result != yield];
+                return [replace(t.src, result) | str result := "<u>", result != yield];
             case toUpper():
-                return [replace(t@\loc, result) | str result := toUpperCase(yield), result != yield]; 
+                return [replace(t.src, result) | str result := toUpperCase(yield), result != yield]; 
             case toLower():
-                return [replace(t@\loc, result) | str result := toLowerCase(yield), result != yield]; 
+                return [replace(t.src, result) | str result := toLowerCase(yield), result != yield]; 
             case toCapitalized():
-                return [replace(t@\loc, result) | str result := capitalize(yield), result != yield];
+                return [replace(t.src, result) | str result := capitalize(yield), result != yield];
             default:
                 throw "unexpected option: <ci>";
         }
@@ -179,7 +179,7 @@ private str learnComments(Tree original, Tree replacement) {
 
     if (/\n/ !:= replString) {
         // no newline in the repl string, so no indentation available for what follows the comment...
-        newIndent = "<for (_ <- [0..replacement@\loc.begin.column]) {> <}>";
+        newIndent = "<for (_ <- [0..replacement.src.begin.column]) {> <}>";
     }
 
     // we always place sequential comments vertically, because we don't know if we are dealing

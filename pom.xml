@@ -8,7 +8,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.43.0-PREVIEW1</tag>
+        <tag>v0.43.0-BOOT1</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.42.0</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.43.0-BOOT2</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -458,7 +458,8 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.16.7</version>
+            <!-- WATCH OUT USE OF BOOT version -->
+            <version>0.17.0-BOOT2</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
