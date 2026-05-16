@@ -771,10 +771,6 @@ Response (Request) graphServer(Cytoscape ch) {
         return response(writeHTMLString(text("could not edit <pms>")));
     }
 
-    Response reply(get(/^\/cytoscape-dagre.js/)) {
-        return fileResponse(getResource("org/rascalmpl/library/vis/cytoscape-dagre.js"), "application/javascript", ());
-    }
-
     Response reply(get(/^\/cytoscape$/)) {
         return response(ch[header=[]][footer=[]], formatCytoSelector);
     }
