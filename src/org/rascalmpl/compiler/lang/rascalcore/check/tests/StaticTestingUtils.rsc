@@ -204,21 +204,21 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] defuses, Mod
 	map[loc, str] loc2name = ();
 	top-down-break visit(pt){
 		case Name nm: {
-			names["<nm>"] ? [] += [nm@\loc];
-			loc2name[nm@\loc] = "<nm>";
+			names["<nm>"] ? [] += [nm.src];
+			loc2name[nm.src] = "<nm>";
 		}
 		case QualifiedName nm: {
-			names["<nm>"] ? [] += [nm@\loc];
-			loc2name[nm@\loc] = "<nm>";
+			names["<nm>"] ? [] += [nm.src];
+			loc2name[nm.src] = "<nm>";
 		}
 		case Nonterminal nm: {
-			names["<nm>"] ? [] += [nm@\loc];
-			loc2name[nm@\loc] = "<nm>";
+			names["<nm>"] ? [] += [nm.src];
+			loc2name[nm.src] = "<nm>";
 		}
 
 		case NonterminalLabel nm: {
-			names["<nm>"] ? [] += [nm@\loc];
-			loc2name[nm@\loc] = "<nm>";
+			names["<nm>"] ? [] += [nm.src];
+			loc2name[nm.src] = "<nm>";
 		}
 	}
 	println("names:"); iprintln(names);

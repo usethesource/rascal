@@ -42,7 +42,7 @@ str formatPicoString(str file) {
 @synopsis{Pico Format function for reuse in file, str or IDE-based formatting contexts}
 list[TextEdit] formatPicoTree(start[Program] file) {
     formatted = format(toBox(file));
-    return layoutDiff(file, parse(#start[Program], formatted, file@\loc.top));
+    return layoutDiff(file, parse(#start[Program], formatted, file.src.top));
 }
 
 @synopsis{Format while}
