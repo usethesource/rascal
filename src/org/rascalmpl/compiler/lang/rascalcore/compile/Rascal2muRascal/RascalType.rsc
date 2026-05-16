@@ -36,5 +36,5 @@ import ParseTree;
  */
  
  AType translateType(Type tp) {
-    return getType(tp@\loc);
+    return getType(tp.src);
 }

@@ -20,11 +20,11 @@ jobs:
     steps: 
       - uses: actions/checkout@v4
 
-      - uses: s4u/maven-settings-action@v3.1.0
-        if: ${{ env.IS_OWN_PR != '' }}
-        with:
-          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
-          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      # - uses: s4u/maven-settings-action@v3.1.0
+      #   if: ${{ env.IS_OWN_PR != '' }}
+      #   with:
+      #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+      #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
       - uses: actions/setup-java@v4
         with:
           java-version: 11
@@ -65,11 +65,11 @@ jobs:
           chromedriver-version: '107.0.5304.62'
       - run: which chromedriver
 
-      - uses: s4u/maven-settings-action@v3.1.0
-        if: ${{ env.IS_OWN_PR != '' }}
-        with:
-          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
-          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      # - uses: s4u/maven-settings-action@v3.1.0
+      #   if: ${{ env.IS_OWN_PR != '' }}
+      #   with:
+      #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+      #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
       
       - uses: actions/checkout@v4
 
@@ -160,11 +160,11 @@ jobs:
     steps: 
       - uses: actions/checkout@v4
 
-      - uses: s4u/maven-settings-action@v3.1.0
-        if: ${{ env.IS_OWN_PR != '' }}
-        with:
-          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
-          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      # - uses: s4u/maven-settings-action@v3.1.0
+      #   if: ${{ env.IS_OWN_PR != '' }}
+      #   with:
+      #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+      #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
       - uses: actions/setup-java@v4
         with:
           java-version: 11
@@ -197,11 +197,11 @@ jobs:
     steps: 
       - uses: actions/checkout@v4
 
-      - uses: s4u/maven-settings-action@v3.1.0
-        if: ${{ env.IS_OWN_PR != '' }}
-        with:
-          servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
-          mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
+      # - uses: s4u/maven-settings-action@v3.1.0
+      #   if: ${{ env.IS_OWN_PR != '' }}
+      #   with:
+      #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
+      #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
       - uses: actions/setup-java@v4
         with:
           java-version: 11
