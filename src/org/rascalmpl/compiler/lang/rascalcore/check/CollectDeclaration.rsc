@@ -475,16 +475,16 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
             formalsList = [ updateBounds(fm, minB) | fm <- formalsList ];
             kwFormalsList = [ kwf[fieldType = updateBounds(kwf.fieldType, minB)] | kwf <- computeKwFormals(kwFormals, s) ];
             ft = afunc(rtU, formalsList, kwFormalsList);
-            if(!isEmpty(tpnames)){
-                for(int i <- index(formalsList)){
-                    s.fact(formals[i], formalsList[i]);
-                    // println("*** add fact: <formals[i]> =\> <formalsList[i]>");
-                }
-                for(int i <- index(kwFormalsList)){
-                    s.fact( kwFormals[i], kwFormalsList[i].fieldType);
-                    // println("*** add fact: <kwFormals[i]> =\> <kwFormalsList[i].fieldType>");
-                }
-            }
+            // if(!isEmpty(tpnames)){
+            //     for(int i <- index(formalsList)){
+            //         s.fact(formals[i], formalsList[i]);
+            //         // println("*** add fact: <formals[i]> =\> <formalsList[i]>");
+            //     }
+            //     for(int i <- index(kwFormalsList)){
+            //         s.fact( kwFormals[i], kwFormalsList[i].fieldType);
+            //         // println("*** add fact: <kwFormals[i]> =\> <kwFormalsList[i].fieldType>");
+            //     }
+            // }
             //ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minB);
             return ft;
         });
