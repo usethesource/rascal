@@ -227,7 +227,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
-        clos_name = closureName(current);
+        clos_name = generateClosureName();
         c.setScopeInfo(scope, functionScope(), signatureInfo(returnType, parameters));
 
         beginUseTypeParameters(c, closed=true);
