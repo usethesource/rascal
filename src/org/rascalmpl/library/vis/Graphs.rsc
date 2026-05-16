@@ -798,7 +798,7 @@ private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] fo
         head([ 
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
-            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape-dagre/3.0.0/cytoscape-dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@3.0.0/cytoscape-dagre.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
