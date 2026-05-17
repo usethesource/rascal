@@ -17,16 +17,17 @@ is clearly visible.
 @bootstrapParser
 module lang::rascal::vis::ImportGraph
 
-import util::Reflective;
-import vis::Graphs;
-import lang::rascal::grammar::definition::Modules;
-import lang::rascal::\syntax::Rascal;
 import Exception;
+import IO;
+import Set;
+import String;
+import analysis::graphs::Graph;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::definition::Modules;
 import util::FileSystem;
 import util::IDEServices;
-import IO;
-import analysis::graphs::Graph;
-import Set;
+import util::Reflective;
+import vis::Graphs;
 
 @synopsis{If `projectName` is an open project in the current IDE, the visualize its import/extend graph.}
 void importGraph(str projectName, bool hideExternals=true) {
@@ -41,21 +42,20 @@ void importGraph(loc projectRoot, bool hideExternals=true) {
 }
 
 @synopsis{Visualizes an import/extend graph for all the modules in the srcs roots of the current PathConfig}
-void importGraph(PathConfig pcfg, bool hideExternals=true) {
+void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=true) {
     m = getProjectModel(pcfg.srcs);
     
     // let's start with a simple graph and elaborate on details in later versions
-    g = { <from, to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
-      + { <from, to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
-      + { <"_" , to> |  to <- top(m.imports + m.extends) } // pull up the top modules
+    g = { <from, to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external, hideTestModules ==> {from, to} & m.tests == {}}
+      + { <from, to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external, hideTestModules ==> {from, to} & m.tests == {}}
       ;
+
+    gClosed = g+;
 
     list[str] nodeClass(str n) = [
         *["external" | n in    m.external],
         *["project"  | n notin m.external]
     ];
-    
-    gClosed = g+;
 
     list[str] edgeClass(str from, str to) = [
         *["extend"     | <from, to> in m.extends],
@@ -65,27 +65,51 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     ];
 
     styles = [
-        cytoStyleOf( 
-            selector=\edge(equal("source", "_")),
-            style=defaultEdgeStyle()[visibility="hidden"]
-        ),
-
-        cytoStyleOf( 
-            selector=\node(id("_")),
-            style=defaultNodeStyle()[visibility="hidden"]
-        ),
-
         cytoStyleOf(
             selector=\edge(className("extend")),
             style=defaultEdgeStyle()[\line-style="dashed"] 
         ),
+        
+        cytoStyleOf( 
+            selector=\node(\className("hover")),
+            style=defaultNodeStyle()[\background-color="yellow"][color="black"]
+        ),
+
+        cytoStyleOf( 
+            selector=\edge(\className("hover")),
+            style=defaultEdgeStyle()[\line-color="red"][color="black"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(className("hover-in")),
+            style=defaultNodeStyle()[\background-color="red"][color="black"] 
+        ),
+
+        cytoStyleOf( 
+            selector=\node(className("hover-out")),
+            style=defaultNodeStyle()[\background-color="orange"][color="black"]
+        ),
+
+        cytoStyleOf( 
+            selector=\edge(className("hover-out")),
+            style=defaultEdgeStyle()[\line-color="orange"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(className("hover-source")),
+            style=defaultNodeStyle()[\background-color="orange"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(className("hover-target")),
+            style=defaultNodeStyle()[\background-color="red"]
+        ),
 
         cytoStyleOf(
             selector=\edge(className("transitive")),               
-            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.50"]  
         )
-        ,
-
+,
         cytoStyleOf(
             selector=\edge(className("cyclic")),               
             style=defaultEdgeStyle()[opacity="1"][\line-opacity="1"][\width=10]  
@@ -101,14 +125,34 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
+    str modTip(str name) {
+        return "module <name> 
+               '<if (m.imports[name] != {}) {>
+               '<for (str i <- sort(m.imports[name])) {>import <i>;
+               '<}><}>
+               '<if (m.extends[name] != {}) {><for (str i <- sort(m.extends[name])) {>extend <i>;
+               '<}><}>";
+    }
+
+    str importTip(str from, str to) {
+        kind = <from, to> in m.imports ? "imports" : "extends";
+        return "<from>
+               '<kind>
+               '<to>";
+    }
+
+    str modLabel(str name) = split("::", name)[-1];
+
     cfg = cytoGraphConfig(
-        \layout=defaultDagreLayout()[ranker=\network-simplex()],
+        \layout=defaultDagreLayout()[rankSep=100],
         styles=styles,
         title="Rascal Import/Extend Graph",
+        nodeTipper=modTip,
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
-        nodeLinker=modLinker,
-        edgeStyle=defaultEdgeStyle()[\curve-style=taxi()]
+        edgeTipper=importTip,
+        nodeLabeler=modLabel,
+        nodeLinker=modLinker
     );
 
     showInteractiveContent(graph(g, cfg=cfg), title=cfg.title);
@@ -117,6 +161,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
 data ProjectModel = projectModel(
     set[str]      modules = {},
+    set[str]      tests = {},
     set[str]      external = {},
     rel[str, str] imports = {},
     rel[str, str] extends = {},
@@ -133,7 +178,8 @@ ProjectModel getProjectModel(list[loc] srcs) {
         modules = {*m.modules | m <- models},
         imports = {*m.imports | m <- models},
         extends = {*m.extends | m <- models},
-        files   = {*m.files   | m <- models}
+        files   = {*m.files   | m <- models},
+        tests  =  {*m.tests   | m <- models}
     );
 
     wholeWorld.external = wholeWorld.imports<1> + wholeWorld.extends<1> - wholeWorld.modules;
@@ -152,7 +198,8 @@ ProjectModel getProjectModel(loc file) {
             modules = {name},
             imports = {name} * imps,
             extends = {name} * exts,
-            files   = {<name, file>}
+            files   = {<name, file>},
+            tests   = {name | /test/ := file.path}
         );
     }
     catch ParseError(_) : 
