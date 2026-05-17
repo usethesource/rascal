@@ -1381,9 +1381,6 @@ MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expr
     } else if(isMapAType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } else if(isADTAType(tp)){
-        if(asubtype(tp, treeType) && uname == "loc"){ //TODO: remove when loc anno has been removed
-            uname = "src";
-        }
         return muSetField(tp, getType(expression), translate(expression), uname, translate(val));
     } else if(isLocAType(tp)){
         return muSetField(tp, getType(expression), translate(expression), uname, translate(val));
