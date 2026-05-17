@@ -1006,6 +1006,11 @@ public abstract class Expression extends AbstractAST {
     public boolean isCallOrTree() { 
       return true; 
     }
+
+    @Override
+    public boolean isBreakable() {
+      return true;
+    } 
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
