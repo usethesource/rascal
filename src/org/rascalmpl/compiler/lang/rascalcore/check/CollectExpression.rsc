@@ -1241,9 +1241,13 @@ private AType do_computeSetAnnotationType(Tree current, AType t1, AType tn, ATyp
 // TODO: Deprecated
 void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Expression repl> ]`, Collector c) {
     pname = prettyPrintName(name);
-    if(pname != "loc"){
+    if (pname == "loc") {
+        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field."));
+    }
+    else {
         c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     }
+
     c.use(name, {annoId()});
     c.calculate("set annotation", current, [expression, name, repl],
         AType(Solver s){
@@ -1275,9 +1279,9 @@ private AType do_computeGetAnnotationType(Tree current, AType t1, AType tn, Solv
 // TODO: Deprecated
 void collect(current:(Expression) `<Expression expression>@<Name name>`, Collector c) {
     pname = prettyPrintName(name);
-    if(pname != "loc"){
-        c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-    }
+    
+    c.report(warning(current, "Annotations are deprecated, use keyword fields instead"));
+
     c.use(name, {annoId()});
     c.calculate("get annotation", current, [expression, name],
         AType(Solver s){

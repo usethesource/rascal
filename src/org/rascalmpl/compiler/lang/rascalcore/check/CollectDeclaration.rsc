@@ -205,9 +205,8 @@ void collect(Tag tg, Collector c){
 // Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
     pname = prettyPrintName(name);
-    if(pname != "loc"){
-        c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-    }
+    
+    c.report(warning(current, "Annotations are deprecated, use keyword fields instead"));
 
     tagsMap = getTags(tags);
     if(hasIgnoreCompilerTag(tagsMap)) {
