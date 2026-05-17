@@ -540,6 +540,8 @@ data CytoSelector
     | \hover()
     | \hover-in()
     | \hover-out()
+    | \hover-source()
+    | \hover-target()
     | animated()
     | unanimate()
     | selected()
@@ -571,14 +573,47 @@ data CytoSelector
     | simple()
     ;
 
-@synopsis{reduces short-hand `hover` to class selector}
+@synopsis{Selects hovered nodes and edges}
+@description{
+Nodes and edges which are "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries,
+and automatically loose it again on leaving those boundaries.
+}
 CytoSelector hover() = className("hover");
 
-@synopsis{reduces short-hand `hover-in` to class selector}
+@synopsis{Selectes incoming edges to a hovered node and their source nodes}
+@description{
+Edges for which the target nodes is "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries of said node,
+and automatically loose it again on leaving those boundaries. Also the source nodes
+of these edges are tagged with the same class.
+}
 CytoSelector \hover-in() = className("hover-in");
 
-@synopsis{reduces short-hand `hover-out` to class selector}
+@synopsis{Selectes outgoing edges to a hovered node and their target nodes}
+@description{
+Edges for which the source nodes is "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries of said node,
+and automatically loose it again on leaving those boundaries. Also the target nodes
+at the end of these edges are tagged with this class.
+}
 CytoSelector \hover-out() = className("hover-out");
+
+@synopsis{selects the source nodes of a hovered edge}
+@description{
+Nodes which are the source node of a "hovered" edge by the mouse pointer
+automatically receive this class on entering there respective boundaries of said edge,
+and automatically loose it again on leaving those boundaries.
+}
+CytoSelector \hover-source() = className("hover-source");
+
+@synopsis{Selects the target node of a hovered edge}
+@description{
+Nodes which are the target node of a "hovered" edge by the mouse pointer
+automatically receive this class on entering there respective boundaries of said edge,
+and automatically loose it again on leaving those boundaries.
+}
+CytoSelector \hover-target() = className("hover-target");
 
 @synopsis{Short-hand for a node with a single condition}
 CytoSelector \node(CytoSelector condition) = and([\node(), condition]);
