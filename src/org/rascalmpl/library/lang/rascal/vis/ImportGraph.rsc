@@ -65,9 +65,19 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
     ];
 
     styles = [
+        cytoStyleOf(
+            selector=\edge(className("extend")),
+            style=defaultEdgeStyle()[\line-style="dashed"] 
+        ),
+        
         cytoStyleOf( 
             selector=\node(\className("hover")),
             style=defaultNodeStyle()[\background-color="yellow"][color="black"]
+        ),
+
+        cytoStyleOf( 
+            selector=\edge(\className("hover")),
+            style=defaultEdgeStyle()[\line-color="red"][color="black"]
         ),
 
         cytoStyleOf( 
@@ -85,9 +95,14 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
             style=defaultEdgeStyle()[\line-color="orange"]
         ),
 
-        cytoStyleOf(
-            selector=\edge(className("extend")),
-            style=defaultEdgeStyle()[\line-style="dashed"] 
+        cytoStyleOf( 
+            selector=\node(className("hover-source")),
+            style=defaultNodeStyle()[\background-color="orange"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(className("hover-target")),
+            style=defaultNodeStyle()[\background-color="red"]
         ),
 
         cytoStyleOf(

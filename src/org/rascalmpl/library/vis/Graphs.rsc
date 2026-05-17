@@ -869,8 +869,20 @@ HTMLElement hoverListeners()
         '      sel.incomers(\'edge\').removeClass(\'hover-in\');
         '      sel.outgoers(\'edge\').removeClass(\'hover-out\');
         '    });
-        '  return cy;
-        '  });"
+        '    cy.on(\'mouseover\', \'edge\', function(e) {
+        '      const sel = e.target;
+        '      sel.addClass(\'hover\');
+        '      sel.source().addClass(\'hover-source\');
+        '      sel.target().addClass(\'hover-target\');
+        '    });
+        '    cy.on(\'mouseout\', \'edge\', function(e) {
+        '      const sel = e.target;
+        '      sel.removeClass(\'hover\');
+        '      sel.source().removeClass(\'hover-source\');
+        '      sel.target().removeClass(\'hover-target\');
+        '    });
+        '    return cy;
+        '});"
     )]);
 
 HTMLElement toEditorClick()
