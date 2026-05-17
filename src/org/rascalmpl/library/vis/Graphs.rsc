@@ -698,6 +698,7 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         int edgeSep=-1,
         int padding=-1,
         bool useDagreEdgeControlPoints = true,
+        bool automaticDagreEdgeStyle = true,
         num spacingFactor = .1,
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
@@ -752,7 +753,8 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
         animate=false,
         spacingFactor=spacingFactor,
         ranker=\network-simplex(),
-        useDagreEdgeControlPoints=true
+        useDagreEdgeControlPoints=true,
+        automaticDagreEdgeStyle=true
     );
 
 
