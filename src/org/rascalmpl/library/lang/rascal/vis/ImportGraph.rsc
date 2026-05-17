@@ -69,6 +69,16 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
             selector=\edge(className("extend")),
             style=defaultEdgeStyle()[\line-style="dashed"] 
         ),
+
+        cytoStyleOf(
+            selector=\edge(className("transitive")),               
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.50"]  
+        )
+,
+        cytoStyleOf(
+            selector=\edge(className("cyclic")),               
+            style=defaultEdgeStyle()[opacity="1"][\line-opacity="1"][\width=10]  
+        ),
         
         cytoStyleOf( 
             selector=\node(\className("hover")),
@@ -77,7 +87,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
 
         cytoStyleOf( 
             selector=\edge(\className("hover")),
-            style=defaultEdgeStyle()[\line-color="red"][color="black"]
+            style=defaultEdgeStyle()[\line-color="red"][\target-arrow-color="red"]
         ),
 
         cytoStyleOf( 
@@ -92,7 +102,12 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
 
         cytoStyleOf( 
             selector=\edge(className("hover-out")),
-            style=defaultEdgeStyle()[\line-color="orange"]
+            style=defaultEdgeStyle()[\line-color="orange"][\target-arrow-color="orange"]
+        ),
+
+        cytoStyleOf( 
+            selector=\edge(className("hover-in")),
+            style=defaultEdgeStyle()[\line-color="red"][\target-arrow-color="red"]
         ),
 
         cytoStyleOf( 
@@ -103,16 +118,6 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
         cytoStyleOf( 
             selector=\node(className("hover-target")),
             style=defaultNodeStyle()[\background-color="red"]
-        ),
-
-        cytoStyleOf(
-            selector=\edge(className("transitive")),               
-            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.50"]  
-        )
-,
-        cytoStyleOf(
-            selector=\edge(className("cyclic")),               
-            style=defaultEdgeStyle()[opacity="1"][\line-opacity="1"][\width=10]  
         )
     ];
 
