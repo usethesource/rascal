@@ -37,6 +37,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -429,10 +431,23 @@ public abstract class $RascalModule {
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		return adtType;
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] params){
+		return $TF.abstractDataType($TS, adtName, params);
+	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
 		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(adtName)));
 	}
+
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), bindings));
+	}
+
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] parameters, IList bindings) {
+		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), bindings));
+	}
+
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
 		return $RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(adtName)));
