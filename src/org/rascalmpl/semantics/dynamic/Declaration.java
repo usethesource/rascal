@@ -60,6 +60,8 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			__eval.warning("Annotations are deprecated. Use keyword fields instead.", src);
+			
 			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt(), __eval, false);
 			String name = Names.name(this.getName());
 
