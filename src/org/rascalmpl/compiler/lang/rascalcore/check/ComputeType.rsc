@@ -147,7 +147,7 @@ void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
         if (isOverloadedAType(resolution)) {
             causes = 
                 [ info("Candidate <i+1>: <prettyAType(alt)>.", pos) 
-                | <i, <loc pos, _, AType alt>> := zipi(resolution.overloads)
+                | <i, <loc pos, _, AType alt>> <- zipi(resolution.overloads)
                 ];
             s.report(error(t, msg + " can not be resolved to a single type.", causes=causes));
         }
