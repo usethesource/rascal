@@ -965,9 +965,27 @@ lrel[&T first, &U second] zip2(list[&T] a, &T defA, list[&U] b, &U defB) {
 	return [<tmpA[i], tmpB[i]> | i <- index(tmpA)];
 }
 
-@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element.}
-lrel[int index, &T elem] zipi(list[&T] a) 
-  = zip2(index(a), a);
+@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element of a list.}
+lrel[int index, &T elem] zipi(list[&T] a)  {
+  int i = 0;
+  return for (&T e <- a) {
+    append <i, e>;
+    i += 1;
+  }
+}
+
+@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element a set.}
+@description{
+Useful for a countable iteration over a set. 
+Does not make an intermediate copy of the set, but iterates over the elements.
+}
+lrel[int index, &T elem] zipi(set[&T] a) {
+  int i = 0;
+  return for (&T e <- a) {
+    append <i, e>;
+    i += 1;
+  }
+}
 
 @synopsis{Make a list of pairs from three lists of the same length.}
 lrel[&T first, &U second, &V third] zip3(list[&T] a, list[&U] b, list[&V] c) {
