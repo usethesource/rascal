@@ -18,6 +18,8 @@ import Set;
 import IO;
 import util::Monitor;
 
+private loc here = |std:///lang/rascal/syntax/grammar/definition/Modules|;
+
 @memo
 @synopsis{Converts internal module representation of Rascal interpreter to single grammar definition}
 public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
@@ -51,22 +53,28 @@ public Grammar fuse(GrammarDefinition def) {
   done = {};
   deps = dependencies(def);
   
+  if (!def.modules[def.main]?) {
+    jobWarning("the main module is unavailable <def.main> (ignored)", here);
+  }
+
   while (todo != {}) {
     <nm,todo> = takeOneFrom(todo);
     done += nm; 
-    if(def.modules[nm]?){
-        \mod = def.modules[nm];
-        result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
-        todo += (\mod.extends - done);
+    
+    \mod = def.modules[nm];
+
+    for (str i <- deps[nm], !def.modules[i]?) {
+      jobWarning("<nm> imports or extends the unavailable module <i> (ignored)", here);
     }
-    else {
-      warning("Fuse algorithm misses module definition for dependency <nm>", |unknown:///|);
-    }
+
+    result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
+    todo += (\mod.extends - done);
   }
   
   return result;
 }
  
+
 
 
 public GrammarModule module2grammar(Module \mod) {
