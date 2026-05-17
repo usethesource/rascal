@@ -119,6 +119,13 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
                '<}><}>";
     }
 
+    str importTip(str from, str to) {
+        kind = <from, to> in m.imports ? "imports" : "extends";
+        return "<from>
+               '<kind>
+               '<to>";
+    }
+
     str modLabel(str name) = split("::", name)[-1];
 
     cfg = cytoGraphConfig(
@@ -128,6 +135,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true, bool hideTestModules=
         nodeTipper=modTip,
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
+        edgeTipper=importTip,
         nodeLabeler=modLabel,
         nodeLinker=modLinker
     );
