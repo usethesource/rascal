@@ -852,11 +852,9 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
             c.define("<n>", typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //if(debugTP)println("Define <pname> at <current@\loc>");
         }
-        //c.fact(current, n);
         c.calculate("type parameter, 1", current, [n, tp], AType (Solver s) { return s.getType(n)[closed=closed]; });
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
-        //c.fact(current, tp);
         c.calculate("type parameter, 2", current, [n, tp], AType (Solver s) { 
                 return s.getType(n)[closed=closed]; });
         //if(debugTP)println("Use <pname> at <current@\loc>");
