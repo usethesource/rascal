@@ -1,11 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst7
+import List;
+import IO;
+alias Corpus = map[str Product, str Version];
 
-public void find(str name, list[loc] path)  {
-  if (dir <- path, f := (dir + "/<name>")) { 
-    ;
-  }
+data Expr;
+data QueryResult
+	= exprResult(loc l, Expr e)
+	;
+
+public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
+	mr = ( p2 : size([ e | <p1,_,e> <- res ]) | p2 <- corpus );
+	for (p <- sort([p | str p <- mr<0>])) println("<p>:<mr[p]>");
 }
-
+ 
 // syntax Module = "module";
 // data Tree;
 
