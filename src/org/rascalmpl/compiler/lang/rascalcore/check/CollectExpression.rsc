@@ -452,7 +452,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
         try {
             c.fact(current, makeListType(lubList([ c.getType(r) | r <- res])));
         } catch TypeUnavailable(): {
-            c.calculate("list comprehension results", current, gens + res,
+            c.calculate("list comprehension results", current, res,
                 AType(Solver s){
                     return makeListType(lubList([ s.getType(r) | r <- res]));
                 });
