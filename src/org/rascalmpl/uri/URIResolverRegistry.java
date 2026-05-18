@@ -44,6 +44,7 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.uri.remote.RemoteExternalResolverRegistry;
 import org.rascalmpl.uri.watch.WatchRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -65,12 +66,7 @@ public class URIResolverRegistry {
 	private final Map<String, Map<String, ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 
-	// we allow the user to define (using -Drascal.fallbackResolver=fully.qualified.classname) a single class that will handle
-	// scheme's not statically registered. That class should implement at least one of these interfaces
-	private volatile @Nullable ISourceLocationInput fallbackInputResolver;
-	private volatile @Nullable ISourceLocationOutput fallbackOutputResolver;
-	private volatile @Nullable ILogicalSourceLocationResolver fallbackLogicalResolver;
-	private volatile @Nullable IClassloaderLocationResolver fallbackClassloaderResolver;
+	private volatile @Nullable IExternalResolverRegistry externalRegistry;
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -116,14 +112,58 @@ public class URIResolverRegistry {
 		try {
 			Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
 			Collections.list(resources).forEach(f -> loadServices(f));
-			var fallbackResolverClassName = System.getProperty("rascal.fallbackResolver");
-			if (fallbackResolverClassName != null) {
-				loadFallback(fallbackResolverClassName);
-			}
 		}
 		catch (IOException e) {
 			throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
 		}
+
+		var remoteResolverRegistryPort = getRemoteResolverRegistryPort();
+        if (remoteResolverRegistryPort != null) {
+			registerRemoteResolverRegistry(remoteResolverRegistryPort);
+        }
+	}
+
+	public static Integer getRemoteResolverRegistryPort() {
+		var remoteResolverRegistryPortProperty = System.getProperty("rascal.remoteResolverRegistryPort");
+		if (remoteResolverRegistryPortProperty != null) {
+			try {
+				return Integer.parseInt(remoteResolverRegistryPortProperty);
+			} catch (NumberFormatException e) {
+				System.err.println("WARNING: Invalid remoteResolverRegistryPort environment variable: " + remoteResolverRegistryPortProperty + " is not parseable as integer");
+			}
+		}
+		return null;
+	}
+
+	public synchronized void registerRemoteResolverRegistry(int remoteResolverRegistryPort) {
+		if (externalRegistry == null) {
+			var registry = createCustomRemoteResolverRegistry(remoteResolverRegistryPort);
+			if (registry == null)  {
+				registry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
+			}
+			this.externalRegistry = registry;
+			watchers.setExternalRegistry(registry);
+		}
+	}
+
+	private synchronized RemoteExternalResolverRegistry createCustomRemoteResolverRegistry(int remoteResolverRegistryPort) {
+		var customRemoteResolverRegistryClass = System.getProperty("rascal.customRemoteResolverRegistryClass");
+		if (customRemoteResolverRegistryClass != null) {
+			try {
+				var clazz = Thread.currentThread().getContextClassLoader().loadClass(customRemoteResolverRegistryClass);
+				var instance = clazz.getConstructor(int.class).newInstance(remoteResolverRegistryPort);
+				if (instance instanceof RemoteExternalResolverRegistry) {
+					return (RemoteExternalResolverRegistry) instance;
+				} else {
+					System.err.println("Provided custom remote resolver registry class name `" + customRemoteResolverRegistryClass
+						+ "` does not derive from RemoteExternalResolverRegistry; using default implementation instead. ");
+				}
+			} catch (Exception e) {
+				System.err.println("Provided custom remote resolver registry class name `" + customRemoteResolverRegistryClass
+					+ "` could not be instantiated; using default implementation instead. " + e.getMessage());
+			}
+		}
+		return null;
 	}
 
 	public Set<String> getRegisteredInputSchemes() {
@@ -151,46 +191,6 @@ public class URIResolverRegistry {
 		catch (NoSuchMethodException e) {
 			return clazz.newInstance();
 		}
-	}
-
-	private void loadFallback(String fallbackClass) {
-		try {
-			Object instance = constructService(fallbackClass);
-			boolean ok = false;
-			if (instance instanceof ILogicalSourceLocationResolver) {
-				fallbackLogicalResolver = (ILogicalSourceLocationResolver) instance;
-				ok = true;
-			}
-
-			if (instance instanceof ISourceLocationInput) {
-				fallbackInputResolver = (ISourceLocationInput) instance;
-				ok = true;
-			}
-
-			if (instance instanceof ISourceLocationOutput) {
-				fallbackOutputResolver = (ISourceLocationOutput) instance;
-				ok = true;
-			}
-
-			if (instance instanceof IClassloaderLocationResolver) {
-				fallbackClassloaderResolver = (IClassloaderLocationResolver) instance;
-				ok = true;
-			}
-
-			if (instance instanceof ISourceLocationWatcher) {
-				watchers.setFallback((ISourceLocationWatcher) instance);
-			}
-			if (!ok) {
-				System.err.println("WARNING: could not load fallback resolver " + fallbackClass
-					+ " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
-			}
-		}
-		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException
-			| IllegalArgumentException | InvocationTargetException | SecurityException  e) {
-			System.err.println("WARNING: could not load resolver due to " + e.getMessage());
-			e.printStackTrace();
-		}
-
 	}
 
 	private void loadServices(URL nextElement) {
@@ -402,9 +402,9 @@ public class URIResolverRegistry {
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
 		
-		if (fallbackLogicalResolver != null) {
-			var fallbackResult = resolveAndFixOffsets(loc == null ? original : loc, fallbackLogicalResolver, Collections.emptyList());
-			return fallbackResult == null ? loc : fallbackResult;
+		if (externalRegistry != null) {
+			var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
+			return externalResult == null ? loc : externalResult;
 		}
 		return loc;
 	}
@@ -464,7 +464,7 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return fallbackInputResolver;
+			return externalRegistry;
 		}
 		return result;
 	}
@@ -480,7 +480,6 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return fallbackClassloaderResolver;
 		}
 		return result;
 	}
@@ -496,7 +495,7 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return fallbackOutputResolver;
+			return externalRegistry;
 		}
 		return result;
 	}
@@ -1118,7 +1117,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean hasNativelyWatchableResolver(ISourceLocation loc) {
-		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme()) || watchers.hasFallback();
+		return watchers.hasNativeSupport(loc.getScheme()) || watchers.hasNativeSupport(safeResolve(loc).getScheme()) || watchers.hasExternalRegistry();
 	}
 
 	public FileAttributes stat(ISourceLocation loc) throws IOException {

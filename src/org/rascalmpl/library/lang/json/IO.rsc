@@ -175,7 +175,8 @@ java void writeJSON(loc target, value val,
   bool dropOrigins=true, 
   JSONFormatter[value] formatter = str (value _) { fail; }, 
   bool explicitConstructorNames=false, 
-  bool explicitDataTypes=false
+  bool explicitDataTypes=false,
+  bool fileLocationsAsPathOnly=true
 );
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
@@ -184,7 +185,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false, bool fileLocationsAsPathOnly=true);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{
