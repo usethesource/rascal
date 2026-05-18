@@ -641,11 +641,11 @@ test bool DoubleField() {
                 '
                 'syntax Exp 
                 '    = Id
-                '    | left Exp lhs "*" Exp rhs
-                '    \> left Exp lhs "+" Exp rhs
+                '    | left Exp lhs \"*\" Exp rhs
+                '    \> left Exp lhs \"+\" Exp rhs
                 '    ;
                 '
-                'test bool expLhs() {
+                'test bool expSrc() {
                 '    Exp tmp = (Exp) `a + b`;
                 '    Exp tmp2 = tmp.lhs; 
                 '    return (Exp) `a` := tmp2;
@@ -656,5 +656,30 @@ test bool DoubleField() {
                 '    Exp tmp2 = tmp.lhs; 
                 '    Exp tmp3 = tmp.lhs.lhs; 
                 '    return (Exp) `a` := tmp3;
+                '}");
+}
+
+test bool SyntaxFieldSrc() {
+    return checkModuleOK("module Exp
+                'import ParseTree;
+                '
+                'layout L = [\\ \\t\\n]*;
+                '
+                'lexical Id = [a-z];
+                '
+                'syntax Exp 
+                '    = Id
+                '    | left Exp lhs \"*\" Exp rhs
+                '    \> left Exp lhs \"+\" Exp rhs
+                '    ;
+                '
+                'test bool expSrc() {
+                '    Exp tmp = (Exp) `a + b`;
+                '    return loc _ := tmp.src;
+                '}
+                '
+                'test bool expLhsSrc() {
+                '    Exp tmp = (Exp) `a + b + c`;
+                '    return loc _ := tmp.lhs.src;
                 '}");
 }
