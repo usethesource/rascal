@@ -92,7 +92,7 @@ void collect(Module current, Collector c){
     if(deprecated){
         c.report(warning(header.name, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
     }
-    c.define(mname, moduleId(), current, defType(tmod));
+    c.define("<header.name>", moduleId(), current, defType(tmod));
 
     c.push(key_current_module, mname);
     c.enterScope(current);
@@ -175,7 +175,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             if(isWildCard(vname)){
                 c.report(warning(var, "Variable names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
             }
-            c.defineInScope(scope, vname, moduleVariableId(), var.name, dt);
+            c.defineInScope(scope, "<var.name>", moduleVariableId(), var.name, dt);
 
             if(var is initialized){
                 initial = var.initial;
@@ -222,7 +222,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     // if(isWildCard(pname)){
     //     c.report(error(name, "Annotation names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
-    c.define(pname, annoId(), current, dt);
+    c.define("<name>", annoId(), current, dt);
     collect(tags, annoType, onType, c);
 }
 
@@ -237,7 +237,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
     dt.md5 = normalizedMD5Hash(current);
-    c.define(kwformalName, keywordFormalId(), current, dt);
+    c.define("<name>", keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             expType = s.getType(expression);
@@ -304,7 +304,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     c.enterLubScope(decl);
         collect(decl.tags, c);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), signatureInfo(signature.\type));
+        c.setScopeInfo(scope, functionScope(), signatureInfo(signature));
         <tpnames, tpbounds> = collectSignature(decl.signature, c);
        
         dt = defType([signature], AType(Solver s) {
@@ -389,7 +389,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                   // We do in this case not check that the type of the expression as a whole is compatible with the return type.
                   // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
             } else {
-                c.require("check on return type `<fname>`", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, signature.\type));
+                c.require("check on return type `<fname>`", decl.expression, [decl.expression, signature], makeReturnRequirement(decl.expression, signature));
             }
             collect(decl.expression, c);
         }
@@ -416,7 +416,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         endUseBoundedTypeParameters(c);
 
         dt.md5 = normalizedMD5Hash(md5Contrib);
-        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
+        c.defineInScope(parentScope, "<fname>", functionId(), current, dt);
     c.leaveScope(decl);
     c.pop(currentFunction);
     if(isEmpty(fstk)){
@@ -439,6 +439,7 @@ str md5Contrib4signature(Signature signature){
 tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c){
     returnType  = signature.\type;
     parameters  = signature.parameters;
+    formals     = getFormals(parameters);
     kwFormals   = getKwFormals(parameters);
 
     beginUseTypeParameters(c, closed=true);
@@ -474,6 +475,16 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
             formalsList = [ updateBounds(fm, minB) | fm <- formalsList ];
             kwFormalsList = [ kwf[fieldType = updateBounds(kwf.fieldType, minB)] | kwf <- computeKwFormals(kwFormals, s) ];
             ft = afunc(rtU, formalsList, kwFormalsList);
+            // if(!isEmpty(tpnames)){
+            //     for(int i <- index(formalsList)){
+            //         s.fact(formals[i], formalsList[i]);
+            //         // println("*** add fact: <formals[i]> =\> <formalsList[i]>");
+            //     }
+            //     for(int i <- index(kwFormalsList)){
+            //         s.fact( kwFormals[i], kwFormalsList[i].fieldType);
+            //         // println("*** add fact: <kwFormals[i]> =\> <kwFormalsList[i].fieldType>");
+            //     }
+            // }
             //ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minB);
             return ft;
         });
@@ -552,7 +563,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
     // during collection.  We cannot declare or use type parameters as they are encountered during collect
     // since their open/closed status has to be taken into account and that depends on the more global
     // context of the signature or function declaration in which they occur. That is why we explicitly create
-    //  uses and defs nof type parameters.
+    // uses and defs for type parameters.
 
     typeParamsInParameters = [*getTypeParams(t) | t <- formals + kwFormals];
 
@@ -572,6 +583,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
                 c.use(tpbound.name, {typeVarId()});
             }
         }
+        seenInReturn += "<tp.name>";
         c.use(tp.name, {typeVarId()});
         c.calculate("typevar in result type", tp, [tp.name], makeTypeGetter(tp,closed=true));
     }
@@ -583,22 +595,29 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
                 c.use(tpbound.name, {typeVarId()});
             }
         }
-        tpname = "<tp.name>";
+        tpname = prettyPrintName(tp.name);
         if(tpname in seenInParams){
             c.use(tp.name, {typeVarId()});
             c.fact(tp, tp.name);
         } else {
             seenInParams += tpname;
-            c.define(tpname, typeVarId(), tp.name,
+            c.define("<tp.name>", typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
+            // c.calculate("bounded type var", tp, [tp], makeTypeGetter(tp));
         }
     }
 
     // Due to their special treatment, missing type parameters are not detected by typepal but have to
-    // detected explicitly.
+    // be detected explicitly.
 
     missing = seenInReturn - seenInParams;
+    for(TypeVar x <- typeParamsInReturn){
+        xname = "<x.name>";
+        if(xname in missing && c.isAlreadyDefined(xname, x)){
+        missing -= xname;
+        }
+    }
     if(!isEmpty(missing)){
         missing = {"&<m>" | m <- missing };
         c.report(error(signature, "Type parameter(s) %v in return type of function %q not bound by its formal parameters", missing, signature.name));
@@ -624,7 +643,7 @@ void collect(Parameters parameters, Collector c){
        } else {
             scope = c.getScope();
 
-            c.calculate("formals", parameters, [],
+            c.calculate("formals", parameters, [], //formals+kwFormals,
                 AType(Solver s) {
                     formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                     int last = size(formalTypes) -1;
@@ -641,18 +660,33 @@ void collect(Parameters parameters, Collector c){
     endPatternScope(c);
 }
 
+void(Solver) makeReturnRequirement(Tree returnExpr, Signature signature)
+    = void(Solver s){
+        returnRequirement(returnExpr, signature, s);
+    };
+
 void(Solver) makeReturnRequirement(Tree returnExpr, Type returnType)
     = void(Solver s){
         returnRequirement(returnExpr, s.getType(returnType), s);
     };
 
-void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
-    = void(Solver s){
-        returnRequirement(returnExpr, returnAType, s);
-    };
+
+// void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType, Parameters parameters)
+//     = void(Solver s){
+//         returnRequirement(returnExpr, parameters, returnAType, s);
+//     };
+
+void returnRequirement(Tree returnExpr, Signature signature, Solver s){
+    sigType = s.getType(signature);
+    declaredReturnType = sigType.ret;
+    returnRequirement(returnExpr, s.getType(declaredReturnType), s);
+}
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
+    // sigType = s.getType(signature);
+    // declaredReturnType = sigType.ret;
     returnExprType = s.getType(returnExpr);
+    // println("returnRequirement: <returnExpr>, declared: <declaredReturnType>, actual: <returnExprType>");
     FailMessage msg = p:/aparameter(_,_) := declaredReturnType
                       ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
                       : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
@@ -690,9 +724,15 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     functionScopes = c.getScopeInfo(functionScope());
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
-        if(signatureInfo(Type returnType) := scopeInfo){
-           c.require("check return type", current, [statement, returnType], makeReturnRequirement(statement, returnType));
+        if(signatureInfo(Type returnType, Parameters parameters) := scopeInfo){
+           c.require("check return type", current, [statement, returnType, parameters], makeReturnRequirement(statement, returnType));
            c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
+           collect(statement, c);
+           return;
+        } else
+        if(signatureInfo(Signature signature) := scopeInfo){
+           c.require("check return type", current, [statement, signature], makeReturnRequirement(statement, signature));
+           c.fact(current, signature.\type); // Note that type of the return statement as a whole is the function's return type
            collect(statement, c);
            return;
         } else {
@@ -715,7 +755,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     //     c.report(warning(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
 
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, base)]);
+    c.define("<name>", aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, base)]);
     c.enterScope(current);
         collect(tags, base, c);
     c.leaveScope(current);
@@ -739,7 +779,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         append tp.typeVar;
     }
 
-    c.define(aliasName, aliasId(), name, defType(typeParams + base, AType(Solver s){
+    c.define("<name>", aliasId(), name, defType(typeParams + base, AType(Solver s){
         bindings = ();
         params = for(int i <- index(typeParams)){
             ptype = s.getType(typeParams[i]);
