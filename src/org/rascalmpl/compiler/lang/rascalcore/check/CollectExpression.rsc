@@ -1072,7 +1072,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
+    c.useViaType(expression, field, {fieldId(), keywordFieldId()}); 
     c.require("non void or overloaded", expression, [], makeNonVoidNonOverloadedRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);
@@ -1238,11 +1238,10 @@ private AType do_computeSetAnnotationType(Tree current, AType t1, AType tn, ATyp
     return avalue();
 }
 
-// TODO: Deprecated
 void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Expression repl> ]`, Collector c) {
     pname = prettyPrintName(name);
     if (pname == "loc") {
-        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field."));
+        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field.");
     }
     else {
         c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
@@ -1281,7 +1280,7 @@ void collect(current:(Expression) `<Expression expression>@<Name name>`, Collect
     pname = prettyPrintName(name);
     
     if (pname == "loc") {
-        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field."));
+        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field.");
     }
     else {
         c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
