@@ -1241,7 +1241,7 @@ private AType do_computeSetAnnotationType(Tree current, AType t1, AType tn, ATyp
 void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Expression repl> ]`, Collector c) {
     pname = prettyPrintName(name);
     if (pname == "loc") {
-        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field.");
+        c.report(error(current, "The Tree@\\loc annotation has been replaced by the Tree.src keyword field."));
     }
     else {
         c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
@@ -1280,7 +1280,7 @@ void collect(current:(Expression) `<Expression expression>@<Name name>`, Collect
     pname = prettyPrintName(name);
     
     if (pname == "loc") {
-        c.report(error(current, "The Tree@\loc annotation has been replaced by the Tree.src keyword field.");
+        c.report(error(current, "The Tree@\\loc annotation has been replaced by the Tree.src keyword field."));
     }
     else {
         c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
