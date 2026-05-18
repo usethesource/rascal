@@ -193,13 +193,13 @@ list[TextEdit] treeDiff(Tree a, a) = [];
 list[TextEdit] treeDiff(
     Tree t:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args), 
     Tree u)
-    = treeDiff(appl(prod(s, syms, attrs), args)[@\loc=t@\loc?|bla:///|], u);
+    = treeDiff(appl(prod(s, syms, attrs), args)[src=t.src], u);
 
 // skip production labels of original rules when diffing, to be able to focus on the Symbol constructor for downstream case-distinction
 list[TextEdit] treeDiff(
     Tree t,
     Tree u:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args))
-    = treeDiff(t, appl(prod(s, syms, attrs), args)[@\loc=u@\loc?|bla:///|]);
+    = treeDiff(t, appl(prod(s, syms, attrs), args)[src=u.src]);
 
 // matched layout trees generate empty diffs such that the original is maintained
 list[TextEdit] treeDiff(
@@ -223,21 +223,21 @@ list[TextEdit] treeDiff(
 list[TextEdit] treeDiff(
     t:appl(prod(lex(str l), _, _), list[Tree] _), 
     r:appl(prod(lex(l)    , _, _), list[Tree] _))
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))]
+    = [replace(t.src, learnIndentation(t.src, "<r>", "<t>"))]
     when t != r;
 
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
 default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
+    = [replace(t.src, learnIndentation(t.src, "<r>", "<t>"))];
 
 // If list production are the same, then the element lists can still be of different length
 // and we switch to listDiff which has different heuristics than normal trees to detect large identical sublists.
 list[TextEdit] treeDiff(
     Tree t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
     appl(p, list[Tree] bElems))
-    = listDiff(t@\loc, seps(reg), aElems, bElems);
+    = listDiff(t.src, seps(reg), aElems, bElems);
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
 default list[TextEdit] treeDiff(t:appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
@@ -308,7 +308,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
             // first the minimal length pairwise replacements, essential for finding accidental commonalities
             + [*treeDiff(a, b) | <a, b> <- zip2(originals[..common], replacements[..common])]
             // then we either remove the tail that became shorter:
-            + [replace(cover([after(last@\loc), cover(originals[common+1..])]), "") | size(originals) > size(replacements), [*_, last] := originals[..common]]
+            + [replace(cover([after(last.src), cover(originals[common+1..])]), "") | size(originals) > size(replacements), [*_, last] := originals[..common]]
             // or we add new elements to the end, while inheriting indentation from the originals:
             + [replace(after(span), learnIndentation(span, yield(replacements[common..]), yield(originals))) | size(originals) < size(replacements)]
         ;
@@ -348,7 +348,7 @@ default tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span,
 
 // only one element removed in front, then we are done
 tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 0, [Tree a, *Tree tail], [*tail])
-    = <[replace(a@\loc, "")], [], []>;
+    = <[replace(a.src, "")], [], []>;
 
 // only one element removed in front, plus 1 separator, then we are done because everything is the same
 tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 1, 
@@ -369,7 +369,7 @@ default tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc spa
     = <[], a, b>;
 
 @synopsis{convenience overload for shorter code}
-private loc fromUntil(Tree from, Tree until) = fromUntil(from@\loc, until@\loc);
+private loc fromUntil(Tree from, Tree until) = fromUntil(from.src, until.src);
 
 @synopsis{Compute location span that is common between an element and a succeeding element}
 @description{
@@ -386,14 +386,14 @@ private int end(loc src) = src.offset + src.length;
 private loc after(loc src) = src(end(src), 0);
 
 private loc endCover(loc span, []) = span(span.offset + span.length, 0);
-private loc endCover(loc span, [Tree x]) = x@\loc;
+private loc endCover(loc span, [Tree x]) = x.src;
 private default loc endCover(loc span, list[Tree] l) = cover(l);
 
 private loc beginCover(loc span, []) = span(span.offset, 0);
-private loc beginCover(loc span, [Tree x]) = x@\loc;
+private loc beginCover(loc span, [Tree x]) = x.src;
 private default loc beginCover(loc span, list[Tree] l) = cover(l);
 
-private loc cover(list[Tree] elems:[_, *_]) = cover([e@\loc | Tree e <- elems, e@\loc?]);
+private loc cover(list[Tree] elems:[_, *_]) = cover([e.src | Tree e <- elems, e.src?]);
 
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";

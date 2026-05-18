@@ -518,7 +518,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
         } else {
-            c.define(pname, typeVarId(), n, defType(aparameter(pname,treeType, closed=closed)));
+            c.define("<n>", typeVarId(), n, defType(aparameter(pname,treeType, closed=closed)));
             //println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);
@@ -563,7 +563,7 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
-    un = unescape("<n>");
+    un = prettyPrintName("<n>");
     md5Contrib = [];
     if(!isEmpty(c.getStack(currentAlternative)) && <SyntaxDefinition adt, str cname, syms> := c.top(currentAlternative)){
         md5Contrib += [adt.defined, cname, syms];
@@ -572,7 +572,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     }
 
     // TODO require symbol is nonterminal
-    c.define(un, fieldId(), n, defType([symbol],
+    c.define("<n>", fieldId(), n, defType([symbol],
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
           return res;
@@ -812,7 +812,7 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             } else {
                 throw "collect TypeVar: currentAdt not found";
             }
-            c.define(pname, typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
+            c.define("<n>", typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
         }
         c.calculate("type parameter without bound", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
@@ -844,33 +844,35 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     pname = prettyPrintName(n);
-
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
             //if(debugTP)println("Use <pname> at <current@\loc>");
         } else {
-            c.define(pname, typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
+            c.define("<n>", typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //if(debugTP)println("Define <pname> at <current@\loc>");
         }
-        c.fact(current, n);
+        //c.fact(current, n);
+        c.calculate("type parameter, 1", current, [n, tp], AType (Solver s) { return s.getType(n)[closed=closed]; });
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        //c.fact(current, tp);
+        c.calculate("type parameter, 2", current, [n, tp], AType (Solver s) { 
+                return s.getType(n)[closed=closed]; });
         //if(debugTP)println("Use <pname> at <current@\loc>");
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(!isEmpty(tpbounds[pname])){
             bnds = toList(tpbounds[pname]);
-            c.calculate("type parameter with bound", n, bnds,
+            c.calculate("type parameter with bound, 1", n, bnds + [tp],
                 AType(Solver s){
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
                 });
         } else {
-            c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
+            c.calculate("type parameter with bound, 2", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
         }
-        c.fact(current, n);
-    }
+        c.fact(current, tp);
+     }
 
     collect(tp, c);
 }

@@ -485,7 +485,7 @@ AType getType(loc l) {
 }
 
 AType getType(Tree e) {
-    return getType(e@\loc);
+    return getType(e.src);
 }
 
 // Get the type of an expression as string
@@ -493,7 +493,7 @@ AType getType(Tree e) {
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) {
-    tp = getType(e@\loc);
+    tp = getType(e.src);
 	if(aparameter(str _, AType bound) := tp) {
 		return "<getName(bound)>";
 	}
