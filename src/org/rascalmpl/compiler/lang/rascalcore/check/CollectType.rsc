@@ -571,7 +571,10 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         throw "Cannot compute md5 for <current>";
     }
 
-    // TODO require symbol is nonterminal
+    // NB: by induction a non-terminal role is already required for symbol:
+    //   * either it is a Nonterminal name and the rule for Nonterminal covers this requirement
+    //   * or it is a more complex Sym which are non-terminals by definition
+
     c.define("<n>", fieldId(), n, defType([symbol],
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
