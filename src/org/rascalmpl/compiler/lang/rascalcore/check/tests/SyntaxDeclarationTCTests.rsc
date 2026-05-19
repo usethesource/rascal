@@ -660,26 +660,39 @@ test bool DoubleField() {
 }
 
 test bool SyntaxFieldSrc() {
-    return checkModuleOK("module Exp
-                'import ParseTree;
-                '
-                'layout L = [\\ \\t\\n]*;
-                '
-                'lexical Id = [a-z];
-                '
-                'syntax Exp 
-                '    = Id
-                '    | left Exp lhs \"*\" Exp rhs
-                '    \> left Exp lhs \"+\" Exp rhs
-                '    ;
-                '
-                'test bool expSrc() {
-                '    Exp tmp = (Exp) `a + b`;
-                '    return loc _ := tmp.src;
-                '}
-                '
-                'test bool expLhsSrc() {
-                '    Exp tmp = (Exp) `a + b + c`;
-                '    return loc _ := tmp.lhs.src;
-                '}");
+    return checkModuleOK(
+        "module Exp
+        'import ParseTree;
+        '
+        'layout L = [\\ \\t\\n]*;
+        '
+        'lexical Id = [a-z];
+        '
+        'syntax Exp 
+        '    = Id
+        '    | left Exp lhs \"*\" Exp rhs
+        '    \> left Exp lhs \"+\" Exp rhs
+        '    ;
+        '
+        'test bool expSrc() {
+        '    Exp tmp = (Exp) `a + b`;
+        '    return loc _ := tmp.src;
+        '}
+        '
+        'test bool expLhsSrc() {
+        '    Exp tmp = (Exp) `a + b + c`;
+        '    return loc _ := tmp.lhs.src;
+        '}");
+}
+
+test bool SyntaxFieldInRascalSyntax() {
+    return checkModuleOK(
+        "module RascalWithFunction
+        '
+        'import lang::rascal::\\syntax::Rascal;
+        'import ParseTree;
+        '
+        'loc translateAddFunction(Expression e) {
+        '   return e.lhs.src;
+        '}");
 }
