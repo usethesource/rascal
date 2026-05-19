@@ -331,21 +331,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         }
     }
 
-    private static <T> T call(Callable<CompletableFuture<T>> function) throws IOException {
-        try {
-            return function.call().get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new UnsupportedOperationException("Thread should have been interrupted");
-        } catch (Exception e) {
-            var cause = e.getCause();
-            if (cause instanceof ResponseErrorException) {
-                throw RemoteIOError.translate((ResponseErrorException) cause);
-            }
-            throw new IOException(e);
-        }
-    }
-
     private ISourceLocationRequest req(ISourceLocation loc) {
         return new ISourceLocationRequest(loc);
     }
