@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,7 +83,7 @@ public enum RemoteIOError {
             if (original instanceof CompletionException) {
                 cause = original.getCause();
             }
-            if (cause instanceof FileNotFoundException) {
+            if (cause instanceof FileNotFoundException || cause instanceof NoSuchFileException) {
                 return createException(FileNotFound, cause, "File does not exist");
             } else if (cause instanceof UnsupportedSchemeException) {
                 return createException(FileNotFound, cause, "Unsupported scheme");
