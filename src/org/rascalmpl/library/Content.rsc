@@ -3,6 +3,7 @@
 module Content
 
 import lang::json::IO;
+import IO;
 
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
 on the terminal.}
@@ -51,9 +52,6 @@ Content file(loc src) = content(response(src));
 @synopsis{Directly serve the contents of a string as plain text}
 Content plainText(str text) = content(plain(text));
 
-alias Body = value (type[value] expected);
-
-
 @synopsis{Request values represent what a browser is asking for, most importantly the URL path.}
 @description{
 A request value also contains the full HTTP headers, the URL parameters as a `map[str,str]`
@@ -65,10 +63,32 @@ and possibly uploaded content, also coded as a map[str,str]. From the constructo
 }
 data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
   = get (str path)
-  | put (str path, Body content)
-  | post(str path, Body content)
+  | put (str path, BodyProvider content)
+  | post(str path, BodyProvider content)
   | delete(str path)
   | head(str path)
+  ;
+
+@synopsis{Special (non-HTTP standard) options to create POST and Response body internals.}
+@description{
+This interface bridges Rascal data to the HTTP protocol. Typically large input 
+such as (composite) strings and JSON code is _streamed_ onto the HTTP socket.
+}
+data BodyProvider
+  = fromText(str content)
+  | fromJSON(value object, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; },
+      bool explicitConstructorNames=false, bool explicitDataTypes=false, bool dateTimeAsInt=true, bool rationalsAsString=false)
+  | fromFile(loc source)
+  ;
+
+@synsopsis{Special (non-HTTP standard) to consume POST and Response bodies.}
+@description{
+This interface bridges data on HTTP sockets back into Rascal. 
+}
+data BodyConsumer[&T]
+  = toText(str () reader)
+  | toJSON(type[&T] expect, &T () consumer)
+  | toFile(loc target)
   ;
 
 @synopsis{A response encodes what is send back from the server to the browser client.}
@@ -77,15 +97,34 @@ The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
 }                                            
-data Response 
-  = response(Status status, str mimeType, map[str,str] header, str content)
-  | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; },
+data Response = response(Status, str mimeType, map[str, str] header, BodyProvider body);
+
+@synopsis{Convenience function for construction a JSON response value}
+Response jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; },
       bool explicitConstructorNames=false, bool explicitDataTypes=false, bool dateTimeAsInt=true, bool rationalsAsString=false)
+  = response(status, "application/json", header, fromJSON(val, dateTimeFormat=dateTimeFormat, formatter=formatter, explicitConstructorNames=explicitConstructorNames,
+    explicitDataTypes=explicitDataTypes, dateTimeAsInt=dateTimeAsInt, rationalsAsString=rationalsAsString));
+
+@synopsis{Convenience function for construction a text response value}
+Response response(Status status, str mimeType, map[str,str] header, str content)
+  = response(status, mimeType, header, fromText(content));
+
+@synopsis{Convenience function for file response value}
+Response fileResponse(loc file, str mimeType, map[str,str] header)
+  = exists(file) 
+    ? response(ok(), mimeType, header, fromFile(file))
+    : response(notFound(), "text/plain", (), fromText("<file> not found."))
   ;
-  
+
+@synopsis{Convenience function for construction a file response value with automatic mimetype}
+Response fileResponse(loc file, map[str,str] header)
+  = exists(file) 
+    ? response(ok(), mimeTypes[file.extension]?"text/plain", header, fromFile(file))
+    : response(notFound(), "text/plain", (), fromText("<file> not found."))
+  ;
+
 @synopsis{Utility to quickly render a string as HTML content}  
-Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
+Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, fromText(content));
 
 @synopsis{Utility to quickly report an HTTP error with a user-defined message}
 Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
