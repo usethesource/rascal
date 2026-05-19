@@ -280,6 +280,12 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
        ){
         return containerType;
     }
+    if(   keywordFieldId() in idRolesSel
+       && selectorName == "src"
+       && (isTreeType(containerType) || isNonTerminalAType(containerType))
+       ){
+        return aloc();
+    }
 
     for(kwf <- containerDef.defInfo.commonKeywordFields){
         if(prettyPrintName(kwf.name) == selectorName){
