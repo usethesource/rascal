@@ -604,7 +604,6 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
             c.define("<tp.name>", typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
-            // c.calculate("bounded type var", tp, [tp], makeTypeGetter(tp));
         }
     }
 
@@ -643,7 +642,7 @@ void collect(Parameters parameters, Collector c){
        } else {
             scope = c.getScope();
 
-            c.calculate("formals", parameters, [], //formals+kwFormals,
+            c.calculate("formals", parameters, formals+kwFormals,
                 AType(Solver s) {
                     formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                     int last = size(formalTypes) -1;
@@ -670,12 +669,6 @@ void(Solver) makeReturnRequirement(Tree returnExpr, Type returnType)
         returnRequirement(returnExpr, s.getType(returnType), s);
     };
 
-
-// void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType, Parameters parameters)
-//     = void(Solver s){
-//         returnRequirement(returnExpr, parameters, returnAType, s);
-//     };
-
 void returnRequirement(Tree returnExpr, Signature signature, Solver s){
     sigType = s.getType(signature);
     declaredReturnType = sigType.ret;
@@ -683,10 +676,7 @@ void returnRequirement(Tree returnExpr, Signature signature, Solver s){
 }
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
-    // sigType = s.getType(signature);
-    // declaredReturnType = sigType.ret;
     returnExprType = s.getType(returnExpr);
-    // println("returnRequirement: <returnExpr>, declared: <declaredReturnType>, actual: <returnExprType>");
     FailMessage msg = p:/aparameter(_,_) := declaredReturnType
                       ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
                       : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
