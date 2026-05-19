@@ -71,7 +71,6 @@ data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str
   | head(str path)
   ;
 
-
 @synopsis{A response encodes what is send back from the server to the browser client.}
 @description{
 The three kinds of responses, encode either content that is already a `str`,
