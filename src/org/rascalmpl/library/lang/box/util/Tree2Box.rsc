@@ -314,7 +314,7 @@ Box toClusterBox(list[Tree] lst, FO opts=fo()) {
 
     list[Box] cluster([*Tree pre, Tree last, Tree first, *Tree post])
         = [V([*[toBox(p, opts=opts) | p <- pre], toBox(last, opts=opts)], vs=0), *cluster([first, *post])]
-        when first@\loc.begin.line - last@\loc.end.line > 1
+        when first.src.begin.line - last.src.end.line > 1
         ;
 
     default list[Box] cluster(list[Tree] l) = [V([toBox(e, opts=opts) | e <- l], vs=0)];

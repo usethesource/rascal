@@ -139,7 +139,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.alabel;
        
-       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
+       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp.src, module_scope, l2p)){
             kwType = kw.fieldType;
             defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
@@ -176,7 +176,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, getterName, 0, adtType, dataId());
         failCode = muFailReturn(returnType);
-        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
+        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp.src, module_scope, l2p)){
             kwType = kw.fieldType;
             str commonKwFieldName = unescape(kwType.alabel);
             if(commonKwFieldName == kwFieldName){
@@ -198,7 +198,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope, l2p)){
+    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp.src, module_scope, l2p)){
         kwType = kw.fieldType;
         defaultExp = kw.defaultExp;
         seen += kwType;
@@ -491,8 +491,8 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      formalVars = for(i <- index(formalsList)){
         pname = getParameterName(formalsList, i);
         ndummies += size(dummyFormalsInType(getType(formalsList[i])));
-        if(hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc)){
-            pos = getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc);
+        if(hasParameterName(formalsList, i) && !isUse(formalsList[i].src)){
+            pos = getPositionInScope(pname, getParameterNameAsTree(formalsList, i).src);
             //println("<pname>: pos = <pos>, ndummies = <ndummies>, pos - ndummies = <pos - ndummies>");
             //if(pos - ndummies > 0) pos -= ndummies;
             append muVar(pname, fuid, pos, unsetRec(getType(formalsList[i]), "alabel"), formalId());
