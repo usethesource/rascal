@@ -111,7 +111,8 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        }
        c.define("<name>", formalOrPatternFormal(c), name, defType(tp));
     } else {
-        c.calculate("variable <name>", name, [tp], AType(Solver s) { return s.getType(tp); });
+        c.fact(name, tp);
+        //c.calculate("variable <name>", name, [tp], AType(Solver s) { return s.getType(tp); });
     }
 }
 
