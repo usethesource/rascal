@@ -92,7 +92,7 @@ void collect(Module current, Collector c){
     if(deprecated){
         c.report(warning(header.name, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
     }
-    c.define(mname, moduleId(), current, defType(tmod));
+    c.define("<header.name>", moduleId(), current, defType(tmod));
 
     c.push(key_current_module, mname);
     c.enterScope(current);
@@ -175,7 +175,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             if(isWildCard(vname)){
                 c.report(warning(var, "Variable names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
             }
-            c.defineInScope(scope, vname, moduleVariableId(), var.name, dt);
+            c.defineInScope(scope, "<var.name>", moduleVariableId(), var.name, dt);
 
             if(var is initialized){
                 initial = var.initial;
@@ -222,7 +222,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     // if(isWildCard(pname)){
     //     c.report(error(name, "Annotation names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
-    c.define(pname, annoId(), current, dt);
+    c.define("<name>", annoId(), current, dt);
     collect(tags, annoType, onType, c);
 }
 
@@ -237,7 +237,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
     dt.md5 = normalizedMD5Hash(current);
-    c.define(kwformalName, keywordFormalId(), current, dt);
+    c.define("<name>", keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             expType = s.getType(expression);
@@ -416,7 +416,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         endUseBoundedTypeParameters(c);
 
         dt.md5 = normalizedMD5Hash(md5Contrib);
-        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
+        c.defineInScope(parentScope, "<fname>", functionId(), current, dt);
     c.leaveScope(decl);
     c.pop(currentFunction);
     if(isEmpty(fstk)){
@@ -583,13 +583,13 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
                 c.use(tpbound.name, {typeVarId()});
             }
         }
-        tpname = "<tp.name>";
+        tpname = prettyPrintName(tp.name);
         if(tpname in seenInParams){
             c.use(tp.name, {typeVarId()});
             c.fact(tp, tp.name);
         } else {
             seenInParams += tpname;
-            c.define(tpname, typeVarId(), tp.name,
+            c.define("<tp.name>", typeVarId(), tp.name,
                 defType(toList(typeParamBounds[tpname]), makeBoundDef(tp, typeParamBounds, closed=false)));
             c.fact(tp, tp.name);
         }
@@ -715,7 +715,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     //     c.report(warning(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
     // }
 
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, base)]);
+    c.define("<name>", aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = normalizedMD5Hash(md5Contrib4Tags(tags), visibility, name, base)]);
     c.enterScope(current);
         collect(tags, base, c);
     c.leaveScope(current);
@@ -739,7 +739,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         append tp.typeVar;
     }
 
-    c.define(aliasName, aliasId(), name, defType(typeParams + base, AType(Solver s){
+    c.define("<name>", aliasId(), name, defType(typeParams + base, AType(Solver s){
         bindings = ();
         params = for(int i <- index(typeParams)){
             ptype = s.getType(typeParams[i]);

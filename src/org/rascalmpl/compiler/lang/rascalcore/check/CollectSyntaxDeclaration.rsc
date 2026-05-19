@@ -82,7 +82,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         syndefCounter += 1;
 
         // Define the syntax symbol itself and all labelled alternatives as constructors
-        c.define(adtName, idRole, current, dt);
+        c.define(nonterminalType.adtName, idRole, current, dt);
 
         adtParentScope = c.getScope();
         c.enterScope(current);
@@ -160,13 +160,15 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
     symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, loc adtParentScope> := c.top(currentAdt)){
+        uname = prettyPrintName(name);
+
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s) {
                 try {
                     return s.getType(current);
                  } catch _: {
-                    res = aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
+                    res = aprod(computeProd(current, uname, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
                     return res;
                  }
             });
@@ -176,10 +178,10 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         } else {
             println("*** Collect: <adt> is not a SyntaxDefinition ***");
         }
-        qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
+        qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<uname>";
 
          // Define the constructor
-        c.defineInScope(adtParentScope, unescape("<name>"), constructorId(), name, defType([current],
+        c.defineInScope(adtParentScope, "<name>", constructorId(), name, defType([current],
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
@@ -187,7 +189,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<unescape("<name>")>"] 
+                    fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<uname>"] 
                              | sym <- symbols,
                                !isTerminalSym(sym),
                                tsym := s.getType(sym),
@@ -197,11 +199,11 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 
                     def = \start(sdef) := def ? sdef : def;
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
-                    return acons(def, fields, [], alabel=unescape("<name>"));
+                    return acons(def, fields, [], alabel=uname);
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=normalizedMD5Hash(adt, current)]);
         beginUseTypeParameters(c,closed=true);
-            c.push(currentAlternative, <adt, "<name>", syms>);
+            c.push(currentAlternative, <adt, uname, syms>);
                 collect(symbols, c);
             c.pop(currentAlternative);
         endUseTypeParameters(c);
