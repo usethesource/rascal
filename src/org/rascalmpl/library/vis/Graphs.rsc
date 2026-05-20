@@ -20,12 +20,13 @@ This module is quite new and may undergo some tweaks in the coming time.
 }
 module vis::Graphs
 
-import lang::html::IO;
-import lang::html::AST;
-import util::IDEServices;
 import Content;
-import ValueIO;
+import IO;
 import Set;
+import ValueIO;
+import lang::html::AST;
+import lang::html::IO;
+import util::IDEServices;
 
 @synopsis{Optional configuration attributes for graph style and graph layout}
 @description{
@@ -35,11 +36,14 @@ and style properties.
 * title - does what it says
 * nodeLinker - makes nodes clickable by providing an editor location
 * nodeLabeler - allows simplification or elaboration on node labels beyond their identity string
+* nodeTipper - allows tagging additional information to be showed on demand for a node
+* edgeTipper - allows tagging additonal informaiton to be showed on demand for an edge
 * nodeClassifier - labels nodes with classes in order to later select them for specific styling
 * edgeLabeler - allows simplification or elaboration on edge labels 
 * layout - defines and configured the graph layout algorithm
 * nodeStyle - defines the default style for all nodes
 * edgeStyle - defines the default style for all edges
+* edgeWeigher - defines a function to weigh every edge
 * style - collects specific styles for specific ((CytoSelector)) edge/node selectors using ((CytoStyleOf)) tuples.
 
 Typically the functions passed into this configuration are closures that capture and use the original
@@ -81,7 +85,15 @@ list[str] nodeClassifier(str simpson) = [
 styles = [
     cytoStyleOf( 
         selector=or([\node(className("top")),\node(className("bottom"))]),
-        style=defaultNodeStyle()[shape=CytoNodeShape::diamond()]
+        style=cytoNodeStyle(shape=CytoNodeShape::diamond())
+    ),
+    cytoStyleOf( 
+        selector=\node(className("bottom")),
+        style=cytoNodeStyle(\background-color="yellow", color="black")
+    ),
+    cytoStyleOf( 
+        selector=\node(className("top")),
+        style=cytoNodeStyle(\background-color="orange")
     )
 ];
 // we pick a sensible layout
@@ -107,17 +119,24 @@ data CytoGraphConfig = cytoGraphConfig(
     str title="Graph", 
 
     NodeLinker[&T]     nodeLinker     = defaultNodeLinker, 
-    NodeLabeler[&T]    nodeLabeler    = defaultNodeLabeler,  
+    NodeLabeler[&T]    nodeLabeler    = defaultNodeLabeler,
+    NodeTipper[&T]     nodeTipper     = defaultNodeTipper, 
     NodeClassifier[&T] nodeClassifier = defaultNodeClassifier, 
+
     EdgeLabeler[&T]    edgeLabeler    = defaultEdgeLabeler, 
+    EdgeTipper[&T]     edgeTipper     = defaultEdgeTipper,
     EdgeClassifier[&T] edgeClassifier = defaultEdgeClassifier,
+    EdgeWeigher[&T]    edgeWeigher    = defaultEdgeWeigher,
     
     CytoLayout \layout  = defaultCoseLayout(), 
 
     CytoStyle nodeStyle      = defaultNodeStyle(), 
     CytoStyle edgeStyle      = defaultEdgeStyle(), 
-    list[CytoStyleOf] styles = []
+    list[CytoStyleOf] styles = [],
+    list[HTMLElement] header = [tooltipCSS()],
+    list[HTMLElement] footer = [toEditorClick(), hoverListeners(), tooltipListeners()]
 );
+
 
 @synopsis{A NodeLinker maps node identities to a source location to link to}
 alias NodeLinker[&T] = loc (&T _id1);
@@ -129,10 +148,16 @@ default loc defaultNodeLinker(&T _) = |nothing:///|;
 @synopsis{A NodeLabeler maps node identities to descriptive node labels}
 alias NodeLabeler[&T]= str (&T _id2);
 
-@synopsis{The default node labeler searches for any `str` in the identity, or otherwise a file name of a `loc`}
+@synopsis{A NodeTipper maps node identities to extended information about a node which is shown on demand}
+alias NodeTipper[&T]= str (&T _id2);
+
+@synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
 str defaultNodeLabeler(/str s) = s;
 str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
+
+@synopsis{The default node tipper does nothing}
+default str defaultNodeTipper(&T _v) = "";
 
 @synopsis{A NodeClassifier maps node identities to classes that are used later to select specific layout and coloring options.}
 alias NodeClassifier[&T] = list[str] (&T _id3);
@@ -151,6 +176,18 @@ alias EdgeLabeler[&T]= str (&T _source, &T _target);
 
 @synopsis{The default edge labeler returns the empty label for all edges.}
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
+
+@synopsis{An EdgeTipper maps edge identities to extended information about a node which is shown on demand}
+alias EdgeTipper[&T]= str (&T _from, &T _to);
+
+@synopsis{The default edge tipper does nothing}
+default str defaultEdgeTipper(&T _from, &T _to) = "";
+
+@synopsis{An EdgeWeigher decides for each individual edge how important it is to optimize its length (shorten it) with respect to the other edges.}
+alias EdgeWeigher[&T] = int(&T _source, &T _target);
+
+@synopsis{The default edge weigher returns 1 for all edges, so that each edge has the same importance in the optimization criterion.}
+int defaultEdgeWeigher(&T _source, &T _target) = 1;
 
 
 @synopsis{A graph plot from a binary list relation.}
@@ -218,56 +255,59 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
             cytoEdgeStyleOf(cfg.edgeStyle),
             *cfg.styles
         ],
-        \layout=cfg.\layout
+        \layout=cfg.\layout,
+        header=cfg.header,
+        footer=cfg.footer
     );
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label="<e>", tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
+
 
 data CytoNodeShape
     = \ellipse()
@@ -302,15 +342,17 @@ data Cytoscape
     = cytoscape(
         list[CytoData] elements = [],
         list[CytoStyleOf] style=[],
-        CytoLayout \layout = cytolayout()
+        CytoLayout \layout = cytolayout(),
+        list[HTMLElement] header = [],
+        list[HTMLElement] footer = []
     );
 
 data CytoData
-  = cytodata(CytoElement \data, list[str] classes=[]);
+  = cytodata(CytoElement \data, str classes="");
 
 data CytoElement
-  = \node(str id, str label=id, str editor="|none:///|")
-  | \edge(str source, str target, str id="<source>-<target>", str label="")
+  = \node(str id, str label=id, str tip = "", str editor="|none:///|")
+  | \edge(str source, str target, str id="<source>-<target>", str label="", str tip = "", int weight = 1)
   ;
 
 data CytoHorizontalAlign
@@ -367,6 +409,9 @@ data CytoStyleOf
 
 CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoStyleOf(selector=\node(), style=style);
 CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoStyleOf(selector=\edge(), style=style);
+
+@synopsis{flattens a list of classes to a single string}
+private str flattenClasses(list[str] classes) = "<for (cl <- classes) {><cl> <}>"[..-1];
 
 @synopsis{Instantiates a default node style}
 @description{
@@ -462,14 +507,27 @@ data CytoStyle
 @synopsis{A combinator language that translates down to strings in JSON}
 @description{
 * For field names you can use the names, or the dot notation for array indices and fields of objects: `"labels.0"`, `"name.first"`.
-* `and` and `or` can not be nested; this will lead to failure to select anything at all. The or must be outside and the and must be inside.
 * `node()` selects all nodes
 * `edge()` selects all edges
-}    
+} 
+@benefits{
+* ((CytoSelector)) represents the full power of Cytoscape selector syntax
+* If multiple selectors apply to a node or an edge, the proposed styles are _merged_ up to attribute name collisions. The last one in the list always wins in case of a collision.
+Merging helps in keeping CytoSelectors plain and simple.
+* ((CytoSelector)) offers `hover`, `hover-in` and `hover-out` on top of the standard CytoScape selectors. These can be used to select styles for:
+   1. `hover`: the node that is currently hovered.
+   2. `hover-in`: edges coming into the hovered node and their source node.
+   3. `hover-out`: edges going out of the hovered node and their target node.
+}
+@pitfalls{
+* `not`, `and`, and `or` can not be nested freely (as the grammar does suggest); this will lead to failure to select anything at all. The or must be outside and the and must be inside. You _can_ nest
+one level of `and` under an outermost level of `or`. Illegal nesting will lead to an early runtime exception.
+}   
 data CytoSelector
     = \node()
     | \edge()
     | \id(str id)
+    | \not(CytoSelector sel)
     | \and(list[CytoSelector] conjuncts)
     | \or(list[CytoSelector] disjuncts)
     | \equal(str field, str \value)
@@ -479,7 +537,83 @@ data CytoSelector
     | \greaterEqual(str field, int limit)
     | \lessEqual(str field, int limit) 
     | \className(str)
+    | \hover()
+    | \hover-in()
+    | \hover-out()
+    | \hover-source()
+    | \hover-target()
+    | animated()
+    | unanimate()
+    | selected()
+    | unselected()
+    | selectable()
+    | unselectable()
+    | locked()
+    | unlocked()
+    | visible()
+    | hidden()
+    | transparent()
+    | backgrounding()
+    | nonbackgrounding()
+    | grabbed()
+    | free()
+    | grabbable()
+    | ungrabbable()
+    | active()
+    | inactive()
+    | touch()
+    | removed()
+    | inside()
+    | parent()
+    | childless()
+    | child()
+    | nonorphan()
+    | compound()
+    | loop()
+    | simple()
     ;
+
+@synopsis{Selects hovered nodes and edges}
+@description{
+Nodes and edges which are "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries,
+and automatically loose it again on leaving those boundaries.
+}
+CytoSelector hover() = className("hover");
+
+@synopsis{Selectes incoming edges to a hovered node and their source nodes}
+@description{
+Edges for which the target nodes is "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries of said node,
+and automatically loose it again on leaving those boundaries. Also the source nodes
+of these edges are tagged with the same class.
+}
+CytoSelector \hover-in() = className("hover-in");
+
+@synopsis{Selectes outgoing edges to a hovered node and their target nodes}
+@description{
+Edges for which the source nodes is "hovered" by the mouse pointer
+automatically receive this class on entering there respective boundaries of said node,
+and automatically loose it again on leaving those boundaries. Also the target nodes
+at the end of these edges are tagged with this class.
+}
+CytoSelector \hover-out() = className("hover-out");
+
+@synopsis{selects the source nodes of a hovered edge}
+@description{
+Nodes which are the source node of a "hovered" edge by the mouse pointer
+automatically receive this class on entering there respective boundaries of said edge,
+and automatically loose it again on leaving those boundaries.
+}
+CytoSelector \hover-source() = className("hover-source");
+
+@synopsis{Selects the target node of a hovered edge}
+@description{
+Nodes which are the target node of a "hovered" edge by the mouse pointer
+automatically receive this class on entering there respective boundaries of said edge,
+and automatically loose it again on leaving those boundaries.
+}
+CytoSelector \hover-target() = className("hover-target");
 
 @synopsis{Short-hand for a node with a single condition}
 CytoSelector \node(CytoSelector condition) = and([\node(), condition]);
@@ -491,18 +625,55 @@ CytoSelector \edge(CytoSelector condition) = and([\edge(), condition]);
 str more(set[str] names) = "<for (str n <- sort(names)) {><n> <}>"[..-1];
 
 @synopsis{Serialize a ((CytoSelector)) to string for client side expression.}
-str formatCytoSelector(\node()) = "node";
-str formatCytoSelector(\edge()) = "edge";
-str formatCytoSelector(\id(str i)) = formatCytoSelector(equal("id", i));
-str formatCytoSelector(and(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)><}>";
-str formatCytoSelector(or(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)>,<}>"[..-1];
-str formatCytoSelector(className(str class)) = ".<class>";
-str formatCytoSelector(equal(str field, str val)) = "[<field> = \"<val>\"]";
-str formatCytoSelector(equal(str field, int lim)) = "[<field> = <lim>]";
-str formatCytoSelector(greater(str field, int lim)) = "[<field> \> <lim>]";
-str formatCytoSelector(greaterEqual(str field, int lim)) = "[<field> \>= <lim>]";
-str formatCytoSelector(lessEqual(str field, int lim)) = "[<field> \<= <lim>]";
-str formatCytoSelector(less(str field, int lim)) = "[<field> \< <lim>]";
+str formatCytoSelector(\node(), bool nested=false) = "node";
+str formatCytoSelector(\edge(), bool nested=false) = "edge";
+str formatCytoSelector(\id(str i), bool nested=false) = formatCytoSelector(equal("id", i));
+str formatCytoSelector(\not(CytoSelector sel), bool nested=false) = !nested 
+    ? "not(<formatCytoSelector(sel, nested=true)>)"
+    : str () { throw "CytoSelector `not` may not be nested under `or`, `and` or not."; }();
+str formatCytoSelector(and(list[CytoSelector] cjs), bool nested=false) = !nested 
+    ? "<for (CytoSelector cj <- cjs) {><formatCytoSelector(cj, nested=true)><}>"
+    : str () { throw "CytoSelector `and` may not be nested under `or`, `and` or `not`."; }();
+str formatCytoSelector(or(list[CytoSelector] cjs), bool nested=false) = !nested 
+    ? "<for (CytoSelector cj <- cjs) {><formatCytoSelector(cj, nested=cj is and ? false : true)>,<}>"[..-1]
+    : str () { throw "CytoSelector `or` may not be nested under `or`, `and` or `not`."; }();
+str formatCytoSelector(className(str class), bool nested=false) = ".<class>";
+str formatCytoSelector(equal(str field, str val), bool nested=false) = "[<field> = \"<val>\"]";
+str formatCytoSelector(equal(str field, int lim), bool nested=false) = "[<field> = <lim>]";
+str formatCytoSelector(greater(str field, int lim), bool nested=false) = "[<field> \> <lim>]";
+str formatCytoSelector(greaterEqual(str field, int lim), bool nested=false) = "[<field> \>= <lim>]";
+str formatCytoSelector(lessEqual(str field, int lim), bool nested=false) = "[<field> \<= <lim>]";
+str formatCytoSelector(less(str field, int lim), bool nested=false) = "[<field> \< <lim>]";
+str formatCytoSelector(animated(), bool nested=false) = ":animated";
+str formatCytoSelector(unanimate(), bool nested=false) = ":unanimate";
+str formatCytoSelector(selected(), bool nested=false) = ":selected";
+str formatCytoSelector(unselected(), bool nested=false) = ":unselected";
+str formatCytoSelector(selectable(), bool nested=false) = ":selectable";
+str formatCytoSelector(unselectable(), bool nested=false) = ":unselectable";
+str formatCytoSelector(locked(), bool nested=false) = ":locked";
+str formatCytoSelector(unlocked(), bool nested=false) = ":unlocked";
+str formatCytoSelector(visible(), bool nested=false) = ":visible";
+str formatCytoSelector(hidden(), bool nested=false) = ":hidden";
+str formatCytoSelector(transparent(), bool nested=false) = ":transparent";
+str formatCytoSelector(backgrounding(), bool nested=false) = ":backgrounding";
+str formatCytoSelector(nonbackgrounding(), bool nested=false) = ":nonbackgrounding";
+str formatCytoSelector(grabbed(), bool nested=false) = ":grabbed";
+str formatCytoSelector(free(), bool nested=false) = ":free";
+str formatCytoSelector(grabbable(), bool nested=false) = ":grabbable";
+str formatCytoSelector(ungrabbable(), bool nested=false) = ":ungrabbable";
+str formatCytoSelector(active(), bool nested=false) = ":active";
+str formatCytoSelector(inactive(), bool nested=false) = ":inactive";
+str formatCytoSelector(touch(), bool nested=false) = ":touch";
+str formatCytoSelector(removed(), bool nested=false) = ":removed";
+str formatCytoSelector(inside(), bool nested=false) = ":inside";
+str formatCytoSelector(parent(), bool nested=false) = ":parent";
+str formatCytoSelector(childless(), bool nested=false) = ":childless";
+str formatCytoSelector(child(), bool nested=false) = ":child";
+str formatCytoSelector(nonorphan(), bool nested=false) = ":nonorphan";
+str formatCytoSelector(compound(), bool nested=false) = ":compound";
+str formatCytoSelector(loop(), bool nested=false) = ":loop";
+str formatCytoSelector(simple(), bool nested=false) = ":simple";
+
 
 @synopsis{Choice of different node layout algorithms.}
 @description{
@@ -566,6 +737,12 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     )
     | dagreLayout(
         CytoLayoutName name = dagre(),
+        int rankSep=-1,
+        int nodeSep=-1,
+        int edgeSep=-1,
+        int padding=-1,
+        bool useDagreEdgeControlPoints = true,
+        bool automaticDagreEdgeStyle = true,
         num spacingFactor = .1,
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
@@ -619,7 +796,9 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
         name=CytoLayoutName::dagre(),
         animate=false,
         spacingFactor=spacingFactor,
-        ranker=\network-simplex()
+        ranker=\network-simplex(),
+        useDagreEdgeControlPoints=true,
+        automaticDagreEdgeStyle=true
     );
 
 
@@ -638,13 +817,13 @@ Response (Request) graphServer(Cytoscape ch) {
         return response(writeHTMLString(text("could not edit <pms>")));
     }
 
-    Response reply(get(/^\/cytoscape/)) {
-        return response(ch, formatCytoSelector);
+    Response reply(get(/^\/cytoscape$/)) {
+        return response(ch[header=[]][footer=[]], formatCytoSelector);
     }
 
     // returns the main page that also contains the callbacks for retrieving data and configuration
     default Response reply(get(_)) {
-        return response(writeHTMLString(plotHTML()));
+        return response(writeHTMLString(plotHTML(header=ch.header, footer=ch.footer)));
     }
 
     return reply;
@@ -660,37 +839,139 @@ This client features:
 
 This client mirrors the server defined by ((graphServer)).
 }
-private HTMLElement plotHTML()
+private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] footer = [])
     = html([
         head([ 
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
-            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@3.0.0/cytoscape-dagre.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
                          '  position: absolute;
                          '  top: 0px;
                          '  left: 0px;
-                         '}")])
+                         '}")]),
+            *header
         ]),
         body([
             div([], id="visualization"),
             script([
                 \data(
-                    "fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
+                    "window.cy = fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
-                    '   const cy = cytoscape(cs);
-                    '   cy.on(\'tap\', \'node\', function (evt) {
-                    '       var n = evt.target;
-                    '       if (n.data(\'editor\') !== undefined) {
-                    '           fetch(\'/editor?\' + new URLSearchParams({
-                    '                src: n.data(\'editor\')
-                    '           })) ;
-                    '       }
-                    '   });
-                    '});
-                    '")
-            ], \type="text/javascript")
+                    '   cs.layout.edgeWeight = edge =\> edge.data(\'weight\') || 1;
+                    '   return cytoscape(cs);
+                    '});")
+            ], \type="text/javascript"),
+            *footer,
+            div([], class="tooltip")
         ])
     ]);
+
+HTMLElement tooltipCSS()
+    = style([\data(
+        ".tooltip {
+        '    position: absolute;
+        '    pointer-events: none;
+        '    padding: 6px 8px;
+        '    background: rgba(20,20,20,0.7);
+        '    color: #fff;
+        '    border-radius: 4px;
+        '    font-size: 12px;
+        '    white-space: pre;
+        '    display: none;
+        '    z-index: 9999
+        '}"
+    )]);
+
+HTMLElement hoverListeners()
+    = script([\data(
+        "window.cy.then(cy =\> {
+        '    cy.on(\'mouseover\', \'node\', function(e) {
+        '      const sel = e.target;
+        '      sel.addClass(\'hover\');
+        '      sel.outgoers().addClass(\'hover-out\');
+        '      sel.incomers().addClass(\'hover-in\');
+        '      sel.incomers(\'edge\').addClass(\'hover-in\');
+        '      sel.outgoers(\'edge\').addClass(\'hover-out\');
+        '    });
+        '    cy.on(\'mouseout\', \'node\', function(e) {
+        '      const sel = e.target;
+        '      sel.removeClass(\'hover\');
+        '      sel.outgoers().removeClass(\'hover-out\');
+        '      sel.incomers().removeClass(\'hover-in\');
+        '      sel.incomers(\'edge\').removeClass(\'hover-in\');
+        '      sel.outgoers(\'edge\').removeClass(\'hover-out\');
+        '    });
+        '    cy.on(\'mouseover\', \'edge\', function(e) {
+        '      const sel = e.target;
+        '      sel.addClass(\'hover\');
+        '      sel.source().addClass(\'hover-source\');
+        '      sel.target().addClass(\'hover-target\');
+        '    });
+        '    cy.on(\'mouseout\', \'edge\', function(e) {
+        '      const sel = e.target;
+        '      sel.removeClass(\'hover\');
+        '      sel.source().removeClass(\'hover-source\');
+        '      sel.target().removeClass(\'hover-target\');
+        '    });
+        '    return cy;
+        '});"
+    )]);
+
+HTMLElement toEditorClick()
+    = script([\data(
+        "window.cy.then(cy =\> {
+        '   cy.on(\'tap\', \'node\', function (evt) {
+        '   const n = evt.target;
+        '   if (n.data(\'editor\') !== undefined) {
+        '       fetch(\'/editor?\' + new URLSearchParams({
+        '            src: n.data(\'editor\')
+        '       })) ;
+        '   }
+        '});
+        'return cy;
+        '});"
+    )]);
+
+HTMLElement tooltipListeners()
+    = script([\data(
+        "window.cy.then(cy =\> {
+        '    const tooltip = document.querySelector(\'.tooltip\'); 
+        '    cy.on(\'mouseover\', \'node\', (evt) =\> {
+        '       const n = evt.target;
+        '       const text = n.data(\'tip\');
+        '
+        '       if (text) {
+        '         tooltip.textContent = text;
+        '         tooltip.style.display = \'block\';
+        '       }
+        '    });
+        '    cy.on(\'mouseover\', \'edge\', (evt) =\> {
+        '       const n = evt.target;
+        '       const text = n.data(\'tip\');
+        '
+        '       if (text) {
+        '         tooltip.textContent = text;
+        '         tooltip.style.display = \'block\';
+        '       }
+        '    });
+        '  
+        '    cy.on(\'mouseout\', \'node\', () =\> {
+        '      tooltip.style.display = \'none\';
+        '    });
+        '
+        '    cy.on(\'mousemove\', (evt) =\> {
+        '       const e = evt.originalEvent;
+        '       tooltip.style.left = (e.pageX + 12) + \'px\';
+        '       tooltip.style.top  = (e.pageY + 12) + \'px\';
+        '    });
+        '
+        '    cy.on(\'mouseout\', \'edge\', () =\> {
+        '      tooltip.style.display = \'none\';
+        '    });
+        '
+        '    return cy;
+        '});"
+    )]);
