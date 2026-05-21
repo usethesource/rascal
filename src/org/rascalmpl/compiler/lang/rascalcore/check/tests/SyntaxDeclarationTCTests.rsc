@@ -630,3 +630,25 @@ test bool Issue1353() {
             value main() = hello();
     ");               
 }
+
+test bool srcFromExpressionFieldsOK(){
+    return checkModuleOK("
+        module SrcFromExpressionFieldsOK
+            import lang::rascal::\\syntax::Rascal;
+            loc lhsFetch(Expression e){
+                return e.lhs.src;
+            }
+
+            void lhsReplace(Expression e){
+                e.lhs.src = |unknown:///|;
+            }
+
+            loc rhsFetch(Expression e){
+                return e.rhs.src;
+            }
+
+            void rhsReplace(Expression e){
+                 e.rhs.src = |unknown:///|;
+            }
+    ");
+}
