@@ -75,7 +75,7 @@ tuple[str,str] extractModuleNameAndBody(str moduleText){
 
 loc composeModule(str stmts){
     return writeModule(
-        "module TestModule
+        "module TestModule<md5Hash(stmts)[..5]>
         'value main(){
         '    <stmts>\n
         '    return true;
@@ -83,14 +83,14 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(|memory:///test-modules/|, recursive = true);
+	remove(testRoot, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
 loc writeModule(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
-    mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
+    mloc = testModulesRoot +  "<cleanName(mname)>.rsc";
     writeFile(mloc, moduleText);
     return mloc;
 }
@@ -101,7 +101,7 @@ list[loc] writeModules(str modules...)
 void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();
 	name = cleanName(mname);
-	remove(|memory:///test-modules/<name>.rsc|);
+	remove(testModulesRoot + "<name>.rsc");
 	remove(pcfg.generatedResources + "<name>.tpl");
 }
 
@@ -109,14 +109,13 @@ void printModules(){
 	println("\<\<\<\<");
 	for(f <- find(|memory:///|, "rsc")){
 		println("<f> <lastModified(f)>:
-				'<readFile(f)>");
+		        '<readFile(f)>");
 	}
 	for(f <- find(|memory:///|, "tpl")){
 		println("<f>: <lastModified(f)>");
 	}
 	println("\>\>\>\>");
 }
-
 
 set[Message] getErrorMessages(ModuleStatus r)
     =  { m | m <- getAllMessages(r), m is error };
