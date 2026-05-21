@@ -1056,8 +1056,22 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
     c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
-    c.require("non void or overloaded", expression, [], makeNonVoidNonOverloadedRequirement(expression, "Base expression of field selection"));
-    c.fact(current, field);
+    c.calculate("field access", current, [expression, field],
+        AType(Solver s){
+            expType = s.getType(expression);
+            fieldType = s.getType(field);
+
+            if(isVoidAType(expType)) s.report(error(expression, "Base expression of field selection should not have type `void`"));
+            if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){
+                ovls  = overloads<2>;
+                if(any(ov1 <- ovls, ov2 <- ovls, ov1 != ov2, !comparable(ov1, ov2))){
+                    s.report(error(expression, "Base expression `%s` of field selection should have a unique type, found %v", expression, ovls));
+                }
+            }
+            
+            return fieldType;
+        });
+
     collect(expression, c);
 }
 
@@ -1068,7 +1082,8 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
     //c.use(field, {fieldId(), keywordFieldId()});
     c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){
-                fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
+                expType = s.getType(expression);
+                fieldType = computeFieldTypeWithADT(expType, field, scope, s);
                 replType = s.getType(repl);
 
                 bindings = ();
@@ -1091,7 +1106,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                  checkNonVoid(expression, s, "Base expression of field update`");
                  checkNonVoid(repl, s, "Replacement expression of field update`");
                  s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to field %q of type %t", replType, field, fieldType));
-                 return s.getType(expression);
+                 return expType;
         });
     collect(expression, repl, c);
 }
@@ -1128,7 +1143,6 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
                 projection_overloads += <key, role, computeFieldProjectionType(current, tp, fields, s)>;
             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
-//>>>         catch e: /* continue with next overload */;
         }
         if(isEmpty(projection_overloads))  s.report(error(current, "Illegal projection %t", base));
         return overloadedAType(projection_overloads);
