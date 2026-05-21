@@ -1,5 +1,6 @@
 package org.rascalmpl.library.util;
 
+import java.io.BufferedOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,21 +8,29 @@ import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.StringWriter;
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Flow.Subscriber;
 import java.util.stream.Collectors;
-import java.io.Writer;
+import java.util.stream.Stream;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
-import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -31,9 +40,14 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -43,113 +57,275 @@ public class Webclient {
     private final IRascalMonitor monitor;
     private final TypeStore store;
     private final TypeFactory tf;
-    private final TypeReifier tr;
+    private final ExecutorService executor;
+    private final HttpClient.Builder client;
 
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
         this.vf = vf;
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
-        this.tr = new TypeReifier(vf);
+        this.executor = Executors.newCachedThreadPool();
+        this.client = HttpClient.newBuilder();
     }
 
-    private HttpRequest makeGetRequest(IConstructor input) {
-        var params = input.asWithKeywordParameters();
-        var host = ((ISourceLocation) params.getParameter("host"));
-        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
-        var path = ((IString) input.get("path")).getValue();
+    private String[] makeHeaders(IMap headers) {
+        return headers
+            .stream()
+            .map(ITuple.class::cast)
+            .flatMap((ITuple t) -> Stream.of(
+                ((IString) t.get(0)).getValue(),
+                ((IString) t.get(1)).getValue()
+            ))
+            .toArray(String[]::new)
+            ;
+    }
 
-        return HttpRequest.newBuilder()
-            .uri(URIUtil.getChildLocation(host, path).getURI())
+    private HttpRequest makeGetRequest(IConstructor input, URI uri, String[] headers) {
+        return HttpRequest.newBuilder(uri)
+            .headers(headers)
             .GET()
             .build();
     }
 
-    private HttpRequest makePutRequest(IConstructor input) {
-        var params = input.asWithKeywordParameters();
-        var postBody = (IFunction) input.get("body");
-        var rt = new TypeReifier(vf).typeToValue(tf.stringType(), store, vf.map());
-        var host = ((ISourceLocation) params.getParameter("host"));
-        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
-        var path = ((IString) input.get("path")).getValue();
-
-        return HttpRequest.newBuilder()
-            .uri(URIUtil.getChildLocation(host, path).getURI())
-            .PUT(HttpRequest.BodyPublishers.ofString(((IString) postBody.call(rt)).getValue()))
+    private HttpRequest makePutRequest(IConstructor input, URI uri, String[] headers, String charset) {        
+        return HttpRequest.newBuilder(uri)
+            .headers(headers)
+            .PUT(publishBody(input, charset))
             .build();
     }
 
-    private HttpRequest makeDeleteRequest(IConstructor input) {
-        var params = input.asWithKeywordParameters();
-        var host = ((ISourceLocation) params.getParameter("host"));
-        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
-        var path = ((IString) input.get("path")).getValue();
-
-        return HttpRequest.newBuilder()
-            .uri(URIUtil.getChildLocation(host, path).getURI())
+    private HttpRequest makeDeleteRequest(IConstructor input, URI uri, String[] headers) {
+        return HttpRequest.newBuilder(uri)
+            .headers(headers)
             .DELETE()
             .build();
     }
 
-    private HttpRequest makeHeadRequest(IConstructor input) {
-        var params = input.asWithKeywordParameters();
-        var host = ((ISourceLocation) params.getParameter("host"));
-        host = host == null ? URIUtil.assumeCorrectLocation("http://www.example.com") : host;
-        var path = ((IString) input.get("path")).getValue();
+    private URI requireHost(IConstructor input) {
+        ISourceLocation host = (ISourceLocation) input.asWithKeywordParameters().getParameter("host");
+        IString path = (IString) input.get("path");
 
-        return HttpRequest.newBuilder()
-            .uri(URIUtil.getChildLocation(host, path).getURI())
+        if (host == null) {
+            throw RuntimeExceptionFactory.illegalArgument(input, "missing `host` field");
+        }
+
+        if (!host.getPath().equals("/") && !host.getPath().equals("")) {
+            throw RuntimeExceptionFactory.illegalArgument(host, "path after hostname should be given with the \'path\' parameter of a request");
+        }
+
+        // TODO: query, fragment
+        return URIUtil.getChildLocation(host, path.getValue()).getURI();
+    }
+
+    private HttpRequest makeHeadRequest(IConstructor input, URI uri, String[] headers) {
+        return HttpRequest.newBuilder(uri)
+            .headers(headers)
             .method("HEAD", BodyPublishers.noBody())
             .build();
     }
 
-    private HttpRequest makePostRequest(IConstructor input) {
-        var params = input.asWithKeywordParameters();
-        var postBody = (IFunction) input.get("content");
-        var rt = new TypeReifier(vf).typeToValue(tf.valueType(), store, vf.map());
-        var host = ((ISourceLocation) params.getParameter("host"));
-        var val = postBody.call(rt);
-        var path = ((IString) input.get("path")).getValue();
+    private OutputStreamBodySupplier publishJsonBody(IConstructor input, String charset) {    
+        // make a stream to write to that can also be pulled from by the HTTP client API.
+        OutputStreamBodySupplier supplier = new OutputStreamBodySupplier();
 
-        try {
-            PipedOutputStream out = new PipedOutputStream();
-            PipedInputStream in = new PipedInputStream(out, 64 * 1024);
+        // start the asynchronous task of writing the JSON string to the outputstream
+        // TODO: how do make sure this job starts and really runs? 
+        executor.submit(() -> { 
+            IWithKeywordParameters<?> kws = input.asWithKeywordParameters().getParameter("options").asWithKeywordParameters();
+            IString dtf = kws.getParameter("dateTimeFormat");
+            IBool dai = kws.getParameter("dateTimeAsInt");
+            IBool ras = kws.getParameter("rationalsAsString");
+            IFunction formatters = kws.getParameter("formatter");
+            IBool ecn = kws.getParameter("explicitConstructorNames");
+            IBool edt = kws.getParameter("explicitDataTypes");
 
-            Thread writer = new Thread(() -> {
-                try (OutputStream os = out; Writer w = new OutputStreamWriter(out)) {
-                    JsonWriter jsonWriter = new JsonWriter(w);
-                    JsonValueWriter jsonOut = new JsonValueWriter();
-                    jsonOut.write(jsonWriter, val);
-                }
-                catch (Exception e) {
-                    throw RuntimeExceptionFactory.io(e.getMessage());
-                }
-            });
-
-            writer.start();
+            JsonValueWriter writer = new JsonValueWriter()
+                .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setFormatters(formatters)
+                .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+                .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+                ;
             
-            return HttpRequest.newBuilder()
-                .uri(URIUtil.getChildLocation(host, path).getURI())
-                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> in))
-                .build();
+            try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(supplier, charset))) {
+                writer.write(jsonWriter, input);
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+        }, true);
+
+        return supplier;
+    }
+
+    private BodyPublisher publishFileBody(IConstructor kind, IConstructor input) {
+        final var loc = (ISourceLocation) input.get("source");
+
+        // have to hope that the encoding matches the actual contents of the stream
+
+        return BodyPublishers.ofInputStream(() -> {
+            try {
+                return URIResolverRegistry.getInstance().getInputStream(loc);
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+        });
+    }
+
+    private BodyPublisher publishTextBody(IConstructor input, String charset) {
+        final var text = (IString) input.get("source");
+        return BodyPublishers.ofInputStream(() -> new ReaderInputStream(text.asReader(), charset));
+    }
+
+    /**
+     * This is for PUT and POST requests that need to send data along with the request
+     */
+    private BodyPublisher publishBody(IConstructor input, String charset) {
+        var postBody = (IConstructor) input.get("content");
+       
+        if (!postBody.getName().equals("send")) {
+            throw RuntimeExceptionFactory.illegalArgument(postBody, "Client-side POST should send a Body, not receive one");
         }
-        catch (IOException e) {
-           throw RuntimeExceptionFactory.io(e.getMessage());
+      
+        final var kind = (IConstructor) postBody.get("kind");
+
+        switch (kind.getName()) {
+            case "json":
+                return publishJsonBody(postBody, charset);
+            case "file":
+                return publishFileBody(kind, postBody);
+            case "text":
+                return publishTextBody(postBody, charset);
+            default:
+                return null;
         }
+    }
+    
+    /**
+     * On demand streamer for the HttpClient API (for sending bodies for PUT and POST)
+     */
+    private static class OutputStreamBodySupplier extends BufferedOutputStream implements BodyPublisher {  
+        private final List<Subscriber<? super ByteBuffer>> subscribers;  
+        
+        public OutputStreamBodySupplier() {  
+            super(new PublishingStream());  
+            this.subscribers = ((PublishingStream)super.out).subscribers;  
+        }  
+        
+        /**  
+         * The buffed outputstream will take care to collect the bytes untill there's a decent chunk to forward to the consumers  
+         */  
+        private static class PublishingStream extends OutputStream {  
+            private final List<Subscriber<? super ByteBuffer>> subscribers = new CopyOnWriteArrayList<>();  
+
+            @Override  
+            public void write(int b) throws IOException {  
+                for (var sub: subscribers) {  
+                    sub.onNext(ByteBuffer.wrap(new byte[] { (byte)(b & 0xFF) }));  
+                }  
+            }  
+
+            @Override  
+            public void write(byte[] b, int off, int len) throws IOException {  
+                for (var sub: subscribers) {  
+                    sub.onNext(ByteBuffer.wrap(b, off, len).asReadOnlyBuffer());  
+                }  
+            }  
+
+            @Override  
+            public void close() throws IOException {  
+                for (var sub: subscribers) {  
+                    sub.onComplete();  
+                }  
+            }  
+        }  
+
+        @Override  
+        public void subscribe(Subscriber<? super ByteBuffer> subscriber) {  
+            this.subscribers.add(subscriber);  
+        }  
+
+        @Override  
+        public long contentLength() {  
+            return -1;  
+        }  
+    }
+
+    private HttpRequest makePostRequest(IConstructor input, URI uri, String[] headers, String charset) {
+        return HttpRequest.newBuilder()
+            .uri(uri)
+            .headers(headers)
+            .POST(publishBody(input, charset))
+            .build();
+    }
+
+    private String defaultContentType(IConstructor input) {
+        if (input.getName().equals("post") || input.getName().equals("put")) {
+            var body = (IConstructor) input.get("content");
+            var kind = (IConstructor) body.get("kind");
+
+            switch (kind.getName()) {
+                case "json":
+                    return "application/json";
+                case "file":
+                    return "application/octet-stream";
+                case "text":
+                default:
+                    return "text/plain";
+            }
+        }
+
+        // only post and put have content to send
+        return "";
     }
 
     private HttpRequest makeRequest(IConstructor input) {
+        var host = requireHost(input);
+        var headers = (IMap) input.asWithKeywordParameters().getParameter("header");
+
+        if (headers == null) {
+            headers = vf.map();
+        }
+
+        var charset = ((IString) input.asWithKeywordParameters().getParameter("charset"));
+
+        if (charset == null) {
+            charset = vf.string(StandardCharsets.UTF_8.name());
+        }
+
+        var contentType = ((IString) input.asWithKeywordParameters().getParameter("content-type"));
+        
+        if (contentType == null) {
+            contentType = vf.string(defaultContentType(input));
+        }
+
+        if (headers.get(vf.string("Content-Type")) != null) {
+            throw RuntimeExceptionFactory.illegalArgument(input, "For POST and PUT, use the keyword fields 'content-type' and 'charset' instead of the 'Content-Type' header field.");
+        }
+
+        if (contentType.length() != 0) {
+            headers = headers.put(vf.string("Content-Type"), vf.string(contentType + ";charset=" + charset));
+        }        
+
+        // need at least one header to avoid IllegalArgumentExceptions  by the HTTP builder
+        headers = headers.put(vf.string("User-Agent"), vf.string("rascal-stdlib"));
+
+        var httpHeaders = makeHeaders(headers);
+
         switch (input.getName()) {
             case "get":
-                return makeGetRequest(input);
+                return makeGetRequest(input, host, httpHeaders);
             case "post":
-                return makePostRequest(input);
+                return makePostRequest(input, host, httpHeaders, charset.getValue());
             case "put":
-                return makePutRequest(input);
+                return makePutRequest(input, host, httpHeaders, charset.getValue());
             case "delete":
-                return makeDeleteRequest(input);
+                return makeDeleteRequest(input, host, httpHeaders);
             case "head":
-                return makeHeadRequest(input);
+                return makeHeadRequest(input, host, httpHeaders);
 
             default:
                 throw RuntimeExceptionFactory.illegalArgument(input);
@@ -162,8 +338,7 @@ public class Webclient {
     public IConstructor fetch(IConstructor input) {
         try {
             var request = makeRequest(input);
-            var response = HttpClient
-                .newBuilder()
+            var response = client
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
@@ -171,6 +346,82 @@ public class Webclient {
         }
         catch (IOException | InterruptedException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
+        }
+    }
+
+    /*
+     * This creates a Body::receive() constructor that wraps a lambda to call and receive the data
+     * from the HTTP response as a Rascal value. The intermediate step is required such that the 
+     * caller of `fetch` can express their expectations on the data and call appropriate parsing,
+     * validation and binding mechanisms. The options are encoded as `BodyKind`.
+     * 
+     * Also this generated function asks for a reified type parameter for (dynamic) type safety
+     * and validation of abstract grammars during reception of the body.
+     */
+    private IFunction createBodyReceiver(InputStream input, String url, String contentType, String charset) {        
+        var BodyKind = store.lookupAbstractDataType("BodyKind");
+        var rt = RascalTypeFactory.getInstance().reifiedType(tf.parameterType("T"));
+        var ft = tf.functionType(tf.parameterType("T"), tf.tupleType(BodyKind, rt), tf.tupleEmpty());
+
+        return vf.function(ft, (args, kwargs) -> {
+            IConstructor kind = (IConstructor) args[0];
+            IConstructor reified = (IConstructor) args[1];
+            Type expect = reified.getType().getTypeParameters().getFieldType(0);
+
+            switch (kind.getName()) {
+            case "json":
+                return receiveJsonBody(input, url, kind, expect, contentType, charset);
+            case "file":
+                return receiveFileBody(input, kind, expect);
+            case "text":
+            default:
+                return receiveTextBody(input, kind, expect, contentType, charset);
+            }
+        });
+    }
+
+    private IValue receiveTextBody(InputStream input, IConstructor kind, Type expect, String contentType, String charset) {
+        if (!expect.isSubtypeOf(tf.stringType())) {
+            throw RuntimeExceptionFactory.illegalArgument(kind, "a text response expects a `str` type");
+        }
+
+        if (!contentType.contains("text/")) {
+            throw RuntimeExceptionFactory.illegalArgument(kind, "a text response was expected but the mimetype is " + contentType);
+        }
+
+        try {
+            return vf.string(Prelude.consumeInputStream(new InputStreamReader(input, charset)));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    private IValue receiveFileBody(InputStream input, IConstructor kind, Type expect) {
+        ISourceLocation loc = (ISourceLocation) kind.get("storage");
+
+        // note that mimetype and charset are kept as-is during the download directly to disk
+        try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
+            input.transferTo(out);
+            return loc;
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    private IValue receiveJsonBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
+        if (!contentType.equals("application/json")) {
+            throw RuntimeExceptionFactory.illegalArgument(kind, "expected content-type 'application/json', got: " + contentType);
+        }
+
+        try {
+            JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
+            JsonValueReader parser = new JsonValueReader(vf, store, monitor, URIUtil.assumeCorrectLocation(url));
+            return parser.read(jsonReader, expect);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
@@ -194,38 +445,38 @@ public class Webclient {
             ? new MonitoredInputStream(response.body(), monitor, "Fetching " + url, totalBytes)
             : response.body(); 
 
-        var contentType = response.headers().firstValue("Content-Type");
-        
-        var mimeType = vf.string(contentType.get().split(";")[0]);
-
-        // TODO: extract from contentType if present
-        var charset = "utf-8";
-        
+        String mimeType = getMimeType(response.headers());
+        String charset = getCharset(response.headers());
         var status = toStatusConstructor(response.statusCode());
 
-        Type respCons;
-        IString body;
+        Type respCons = store.lookupConstructors("response").iterator().next();
+        IFunction bodyReceiver = createBodyReceiver(input, url, mimeType, charset);
+        Type bodyConstructor = store.lookupConstructors("receive").iterator().next();
+        IConstructor body = vf.constructor(bodyConstructor, bodyReceiver);
 
-        switch (expect != null ? expect.getName() : "textBody") {
-            case "jsonBody":
-                JsonReader jsonReader = new JsonReader(new InputStreamReader(input));
-                JsonValueReader parser = new JsonValueReader(vf, store, monitor, URIUtil.assumeCorrectLocation(url));
-                respCons = store.lookupConstructors("jsonResponse").iterator().next();
-                var value = parser.read(jsonReader, tr.valueToType((IConstructor) expect.get("expected")));
-                return vf.constructor(respCons, status, headers, value);
-            case "fileBody":
-                respCons = store.lookupConstructors("fileResponse").iterator().next();
-                var loc = (ISourceLocation) expect.get("storage");
-                try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-                    input.transferTo(out);
-                }
-                return vf.constructor(respCons, loc, mimeType, headers);
-            case "textBody":
-            default:
-                respCons = store.lookupConstructors("response").iterator().next();
-                body = vf.string(new String(Prelude.consumeInputStream(input), charset));
-                return vf.constructor(respCons, status, mimeType, headers, body);
+        return vf.constructor(respCons, status, vf.string(mimeType), headers, body);
+    }
+
+    private String getCharset(HttpHeaders headers) {
+        String contentType = headers.firstValue("Content-Type").orElse("text/plain");
+        String result = StandardCharsets.UTF_8.name();
+
+        String[] parts = contentType.split(";");
+        if (parts.length > 1) {
+            String[] assign = parts[1].split("=");
+
+            if (assign[0].equals("charset")) {
+                result = assign[1].trim();
+            }
         }
+        
+        return result;
+    }
+
+    private String getMimeType(HttpHeaders headers) {
+        String contenType = headers.firstValue("Content-Type").orElse("text/plain");
+        String[] parts = contenType.split(";");
+        return parts[0].trim();
     }
 
     private IConstructor toStatusConstructor(int stCode) {

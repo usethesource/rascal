@@ -43,7 +43,6 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.StopREPLException;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.completers.CompletionMatcherWithEscapes;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
