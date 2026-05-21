@@ -1056,13 +1056,19 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
     c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
-    c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
     c.calculate("field access", current, [expression, field],
         AType(Solver s){
+            expType = s.getType(expression);
             fieldType = s.getType(field);
-            if(overloadedAType(rel[loc, IdRole, AType] overloads) := fieldType){
-                return ( avoid() | alub(it, tp) | tp <- overloads<2>);
+
+            if(isVoidAType(expType)) s.report(error(e, "Base expression of field selection should not have type `void`"));
+            if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){
+                ovls  = overloads<2>;
+                if(any(ov1 <- ovls, ov2 <- ovls, ov1 != ov2, !comparable(ov1, ov2))){
+                    s.report(error(expression, "Base expression `%s` of field selection should have a unique type, found %v", expression, ovls));
+                }
             }
+            
             return fieldType;
         });
 
