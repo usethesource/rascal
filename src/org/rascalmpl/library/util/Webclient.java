@@ -17,10 +17,8 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +45,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -57,7 +54,7 @@ public class Webclient {
     private final IRascalMonitor monitor;
     private final TypeStore store;
     private final TypeFactory tf;
-    private final ExecutorService executor;
+    // private final ExecutorService executor;
     private final HttpClient.Builder client;
 
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
@@ -65,7 +62,7 @@ public class Webclient {
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
-        this.executor = Executors.newCachedThreadPool();
+        // this.executor = Executors.newCachedThreadPool();
         this.client = HttpClient.newBuilder();
     }
 
@@ -125,39 +122,45 @@ public class Webclient {
             .build();
     }
 
-    private OutputStreamBodySupplier publishJsonBody(IConstructor input, String charset) {    
-        // make a stream to write to that can also be pulled from by the HTTP client API.
-        OutputStreamBodySupplier supplier = new OutputStreamBodySupplier();
+    private BodyPublisher publishJsonBody(IConstructor input, String charset) {    
+        return new BodyPublisher() {    
+            @Override
+            public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
+                // executor.submit(() -> { 
+                    IConstructor options = input.asWithKeywordParameters().getParameter("options");
+                    Map<String, IValue> kws = options != null 
+                        ? options.asWithKeywordParameters().getParameters() 
+                        : Collections.emptyMap(); 
+                    IString dtf = (IString) kws.get("dateTimeFormat");
+                    IBool dai = (IBool) kws.get("dateTimeAsInt");
+                    IBool ras = (IBool) kws.get("rationalsAsString");
+                    IFunction formatters = (IFunction) kws.get("formatter");
+                    IBool ecn = (IBool) kws.get("explicitConstructorNames");
+                    IBool edt = (IBool) kws.get("explicitDataTypes");
 
-        // start the asynchronous task of writing the JSON string to the outputstream
-        // TODO: how do make sure this job starts and really runs? 
-        executor.submit(() -> { 
-            IWithKeywordParameters<?> kws = input.asWithKeywordParameters().getParameter("options").asWithKeywordParameters();
-            IString dtf = kws.getParameter("dateTimeFormat");
-            IBool dai = kws.getParameter("dateTimeAsInt");
-            IBool ras = kws.getParameter("rationalsAsString");
-            IFunction formatters = kws.getParameter("formatter");
-            IBool ecn = kws.getParameter("explicitConstructorNames");
-            IBool edt = kws.getParameter("explicitDataTypes");
-
-            JsonValueWriter writer = new JsonValueWriter()
-                .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                .setFormatters(formatters)
-                .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
-                .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
-                .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
-                .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
-                ;
-            
-            try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(supplier, charset))) {
-                writer.write(jsonWriter, input);
+                    JsonValueWriter writer = new JsonValueWriter()
+                        .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                        .setFormatters(formatters)
+                        .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                        .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+                        .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                        .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+                        ;
+                    
+                    try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(new OutputStreamPublisher(subscriber), charset))) {
+                        writer.write(jsonWriter, input);
+                    }
+                    catch (IOException e) {
+                        throw RuntimeExceptionFactory.io(e);
+                    }
+                // }, true);
             }
-            catch (IOException e) {
-                throw RuntimeExceptionFactory.io(e);
-            }
-        }, true);
 
-        return supplier;
+            @Override
+            public long contentLength() {
+                return -1;
+            }     
+        };
     }
 
     private BodyPublisher publishFileBody(IConstructor kind, IConstructor input) {
@@ -207,50 +210,35 @@ public class Webclient {
     /**
      * On demand streamer for the HttpClient API (for sending bodies for PUT and POST)
      */
-    private static class OutputStreamBodySupplier extends BufferedOutputStream implements BodyPublisher {  
-        private final List<Subscriber<? super ByteBuffer>> subscribers;  
+    private static class OutputStreamPublisher extends BufferedOutputStream {  
         
-        public OutputStreamBodySupplier() {  
-            super(new PublishingStream());  
-            this.subscribers = ((PublishingStream)super.out).subscribers;  
+        public OutputStreamPublisher(Subscriber<? super ByteBuffer> subscriber) {  
+            super(new PublishingStream(subscriber));  
         }  
-        
         /**  
          * The buffed outputstream will take care to collect the bytes untill there's a decent chunk to forward to the consumers  
          */  
         private static class PublishingStream extends OutputStream {  
-            private final List<Subscriber<? super ByteBuffer>> subscribers = new CopyOnWriteArrayList<>();  
+            private final Subscriber<? super ByteBuffer> subscriber;  
+
+            public PublishingStream(Subscriber<? super ByteBuffer> subscriber) {
+                this.subscriber = subscriber;
+            }
 
             @Override  
-            public void write(int b) throws IOException {  
-                for (var sub: subscribers) {  
-                    sub.onNext(ByteBuffer.wrap(new byte[] { (byte)(b & 0xFF) }));  
-                }  
+            public void write(int b) throws IOException {      
+                subscriber.onNext(ByteBuffer.wrap(new byte[] { (byte)(b & 0xFF) }));         
             }  
 
             @Override  
             public void write(byte[] b, int off, int len) throws IOException {  
-                for (var sub: subscribers) {  
-                    sub.onNext(ByteBuffer.wrap(b, off, len).asReadOnlyBuffer());  
-                }  
+                subscriber.onNext(ByteBuffer.wrap(b, off, len).asReadOnlyBuffer());   
             }  
 
             @Override  
             public void close() throws IOException {  
-                for (var sub: subscribers) {  
-                    sub.onComplete();  
-                }  
+                subscriber.onComplete();  
             }  
-        }  
-
-        @Override  
-        public void subscribe(Subscriber<? super ByteBuffer> subscriber) {  
-            this.subscribers.add(subscriber);  
-        }  
-
-        @Override  
-        public long contentLength() {  
-            return -1;  
         }  
     }
 
@@ -342,10 +330,16 @@ public class Webclient {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return translateResponse(request.uri().toString(), (IConstructor) input.asWithKeywordParameters().getParameter("body"), response);
+            var body = (IConstructor) input.asWithKeywordParameters().getParameter("body");
+
+            return translateResponse(request.uri().toString(), body, response);
         }
-        catch (IOException | InterruptedException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
         }
     }
 
