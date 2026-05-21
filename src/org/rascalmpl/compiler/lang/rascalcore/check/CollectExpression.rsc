@@ -1061,7 +1061,7 @@ void collect(current: (Expression) `<Expression expression> . <Name field>`, Col
             expType = s.getType(expression);
             fieldType = s.getType(field);
 
-            if(isVoidAType(expType)) s.report(error(e, "Base expression of field selection should not have type `void`"));
+            if(isVoidAType(expType)) s.report(error(expression, "Base expression of field selection should not have type `void`"));
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){
                 ovls  = overloads<2>;
                 if(any(ov1 <- ovls, ov2 <- ovls, ov1 != ov2, !comparable(ov1, ov2))){
