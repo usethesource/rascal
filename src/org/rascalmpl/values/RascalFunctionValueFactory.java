@@ -80,6 +80,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -209,6 +210,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
                 else {
+                    // this can happen only if the function is injected from the Java side
+                    // so it is not a static error! we let the function fail so it can not produce illegal output
+                    if (!returnValue.getType().isSubtypeOf(resultType)) {
+                        throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
+                    }
                     return ResultFactory.makeResult(resultType, returnValue, ctx);
                 }
             }

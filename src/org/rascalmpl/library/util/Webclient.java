@@ -385,24 +385,24 @@ public class Webclient {
             Type expect = reified.getType().getTypeParameters().getFieldType(0);
 
             switch (kind.getName()) {
-            case "json":
-                return receiveJsonBody(input, url, kind, expect, contentType, charset);
-            case "file":
-                return receiveFileBody(input, kind, expect);
-            case "text":
-            default:
-                return receiveTextBody(input, kind, expect, contentType, charset);
+                case "json":
+                    return receiveJsonBody(input, url, kind, expect, contentType, charset);
+                case "file":
+                    return receiveFileBody(input, kind, expect);
+                case "text":
+                default:
+                    return receiveTextBody(input, url, kind, expect, contentType, charset);
             }
         });
     }
 
-    private IValue receiveTextBody(InputStream input, IConstructor kind, Type expect, String contentType, String charset) {
+    private IValue receiveTextBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
         if (!expect.isSubtypeOf(tf.stringType())) {
-            throw RuntimeExceptionFactory.illegalArgument(kind, "a text response expects a `str` type");
+            monitor.warning("a text response expects a `str` type, but we have " + expect, URIUtil.assumeCorrectLocation(url));
         }
 
         if (!contentType.contains("text/")) {
-            throw RuntimeExceptionFactory.illegalArgument(kind, "a text response was expected but the mimetype is " + contentType);
+            monitor.warning("a text response was expected but the mimetype is " + contentType, URIUtil.assumeCorrectLocation(url));
         }
 
         try {
