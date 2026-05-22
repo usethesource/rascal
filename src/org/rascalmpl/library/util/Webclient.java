@@ -9,13 +9,16 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -402,11 +405,16 @@ public class Webclient {
 
             assert response != null;
             assert body != null;
-            
+
             return translateResponse(request.uri().toString(), body, response);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
+            if (e.getMessage() == null || e.getMessage().length() == 0) {
+                throw RuntimeExceptionFactory.io(e.getClass().getName());    
+            }
+            else {
+                throw RuntimeExceptionFactory.io(e);
+            }
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
