@@ -19,10 +19,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.input.ReaderInputStream;
+import org.checkerframework.checker.units.qual.s;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -54,7 +58,7 @@ public class Webclient {
     private final IRascalMonitor monitor;
     private final TypeStore store;
     private final TypeFactory tf;
-    // private final ExecutorService executor;
+    private final ExecutorService executor;
     private final HttpClient.Builder client;
 
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
@@ -62,7 +66,7 @@ public class Webclient {
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
-        // this.executor = Executors.newCachedThreadPool();
+        this.executor = Executors.newCachedThreadPool();
         this.client = HttpClient.newBuilder();
     }
 
@@ -123,10 +127,12 @@ public class Webclient {
     }
 
     private BodyPublisher publishJsonBody(IConstructor input, String charset) {    
-        return new BodyPublisher() {    
+        return new BodyPublisher() {  
             @Override
             public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
-                // executor.submit(() -> { 
+                final var publisher = new OutputStreamPublisher(subscriber);
+
+                executor.submit(() -> { 
                     IConstructor options = input.asWithKeywordParameters().getParameter("options");
                     Map<String, IValue> kws = options != null 
                         ? options.asWithKeywordParameters().getParameters() 
@@ -147,13 +153,13 @@ public class Webclient {
                         .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                         ;
                     
-                    try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(new OutputStreamPublisher(subscriber), charset))) {
+                    try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(publisher, charset))) {
                         writer.write(jsonWriter, input);
                     }
                     catch (IOException e) {
                         throw RuntimeExceptionFactory.io(e);
                     }
-                // }, true);
+                }, true);
             }
 
             @Override
@@ -218,11 +224,12 @@ public class Webclient {
         /**  
          * The buffed outputstream will take care to collect the bytes untill there's a decent chunk to forward to the consumers  
          */  
-        private static class PublishingStream extends OutputStream {  
+        private static class PublishingStream extends OutputStream implements Subscription {  
             private final Subscriber<? super ByteBuffer> subscriber;  
 
             public PublishingStream(Subscriber<? super ByteBuffer> subscriber) {
                 this.subscriber = subscriber;
+                subscriber.onSubscribe(this);
             }
 
             @Override  
@@ -238,6 +245,21 @@ public class Webclient {
             @Override  
             public void close() throws IOException {  
                 subscriber.onComplete();  
+            }
+
+            @Override
+            public void request(long n) {
+                // @DavyLandman we can not implement this pull model if we are a writer
+            }
+
+            @Override
+            public void cancel() {
+                try {
+                    close();
+                }
+                catch (IOException e) {
+                    // ignore
+                }
             }  
         }  
     }
