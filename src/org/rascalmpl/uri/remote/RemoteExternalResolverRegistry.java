@@ -492,7 +492,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             var watch = watchers.get(key);
             if (watch == null) {
                 watch = new Watchers();
-                watch.addNewWatcher(watcher);
                 watchersById.put(watch.getId(), watch);
                 call(getRemote()::watch, new WatchRequest(root, recursive, watch.getId()));
                 watchers.put(key, watch);
