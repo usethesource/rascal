@@ -29,10 +29,14 @@ package org.rascalmpl.uri.remote;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import org.rascalmpl.uri.FileAttributes;
+import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
@@ -202,20 +206,23 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
         return async(() -> reg.copy(req.getFrom(), req.getTo(), req.isRecursive(), req.isOverwrite()));
     }
 
-    @Override
-    public CompletableFuture<Void> watch(WatchRequest params) {
-        return async(() -> {
-            URIResolverRegistry.getInstance().watch(params.getLocation(), params.isRecursive(), changed -> 
+    private final Map<String, Consumer<ISourceLocationWatcher.ISourceLocationChanged>> watchCallbacks = new ConcurrentHashMap<>();
+
+    private Consumer<ISourceLocationWatcher.ISourceLocationChanged> getWatchCallback(String watchId) {
+        return watchCallbacks.computeIfAbsent(watchId, id -> changed ->
                 client.sourceLocationChanged(new ISourceLocationChanged(
-                    changed.getLocation(), ISourceLocationChangeType.translate(changed.getChangeType()), params.getWatchId()
-                ))
-            );
-        });
+                    changed.getLocation(), ISourceLocationChangeType.translate(changed.getChangeType()), id
+                )));
+    }
+
+    @Override
+    public CompletableFuture<Void> watch(WatchRequest req) {
+        return async(() -> URIResolverRegistry.getInstance().watch(req.getLocation(), req.isRecursive(), getWatchCallback(req.getWatchId())));
     }
 
     @Override
     public CompletableFuture<Void> unwatch(WatchRequest req) {
-        return async(() -> URIResolverRegistry.getInstance().unwatch(req.getLocation(), req.isRecursive(), e -> {}));
+        return async(() -> URIResolverRegistry.getInstance().unwatch(req.getLocation(), req.isRecursive(), getWatchCallback(req.getWatchId())));
     }
 
     @Override
