@@ -429,12 +429,7 @@ public class Webclient {
             return translateResponse(request.uri().toString(), response);
         }
         catch (IOException e) {
-            if (e.getMessage() == null || e.getMessage().length() == 0) {
-                throw RuntimeExceptionFactory.io(e.getClass().getName());    
-            }
-            else {
-                throw RuntimeExceptionFactory.io(e);
-            }
+            throw RuntimeExceptionFactory.io(e.getClass().getName());    
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();

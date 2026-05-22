@@ -467,10 +467,17 @@ public class RuntimeExceptionFactory {
 				return "Not a directory: " + msg;
 			}
 		}
+		
 		if (ex instanceof FileNotFoundException) {
 			// not all paths throw a proper message, they often only have the path name
 			return "No such file: " + msg;
 		}
+
+		if (msg == null || msg.length() == 0) {
+			// the class name has the information about what is going on
+			msg = ex.getClass().getSimpleName();
+		}
+
 		// otherwise fallback to the message
 		return msg + (ex.getCause() != null ? (", due to: " + ex.getCause().getMessage()) : "");
 	}
