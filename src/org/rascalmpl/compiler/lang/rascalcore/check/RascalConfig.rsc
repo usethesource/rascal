@@ -47,6 +47,8 @@ import lang::rascalcore::compile::util::Names;
 import analysis::typepal::StringSimilarity;
 import analysis::typepal::LocationChecks;
 
+import lang::rascalcore::check::DependencyViewer;
+
 import IO;
 import List;
 import Map;
@@ -406,6 +408,7 @@ rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
 // Enhance TModel before running Solver by 
 
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
+    // viewDependencies(m);
     return m[paths = enhancePathRelation(m.paths)];
 }
 
@@ -441,7 +444,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                     r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     if(!comparable(r1, r2)){
-                        causes = [ info("ther declaration with comparable arguments", d2.defined) ];
+                        causes = [ info("the declaration with comparable arguments", d2.defined) ];
                         msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined, causes=causes) ];
                         s.addMessages(msgs);
                     }
@@ -517,7 +520,7 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         ovl1 = coverloads[0];
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        argHint = "<isEmpty(qualifyHint) ? " " : " or ">make argument type(s) more precise";
         msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
                          current.src);
         s.addMessages([msg]);

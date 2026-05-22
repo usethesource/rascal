@@ -34,6 +34,10 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::check::ModuleLocations;
 // import lang::rascalcore::CompilerPathConfig;
 
+import util::UUID;
+
+
+
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
@@ -65,6 +69,9 @@ loc TMP_COMPILED_RASCAL = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
+public loc testRoot = uuid()[scheme="memory"];
+public loc testModulesRoot = testRoot + "src";
+
 private int npc = 0;
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}
 @description{
@@ -75,10 +82,10 @@ public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(
-        srcs = [ |memory:///test-modules/|, |std:///|  ],
-        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        srcs = [ testModulesRoot, |std:///|  ],
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ ]
     );
 }
@@ -93,10 +100,10 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(
-        srcs = [ |memory:///test-modules/| ],
-        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        generatedResources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        srcs = [ testModulesRoot ],
+        bin = testRoot + "rascal-tests-bin-<snpc>",
+        generatedSources = testRoot + "generated-test-sources-<snpc>",
+        generatedResources = testRoot + "generated-test-resources-<snpc>",
         libs = [ |lib://rascal| ]
     );
 }
@@ -109,7 +116,7 @@ public PathConfig getRascalProjectTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [|project://rascal/src/org/rascalmpl/library|],
-        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|,
+        bin = testRoot + "rascal-lib-bin-<snpc>",
         libs = []
     );
 }
