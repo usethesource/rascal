@@ -23,10 +23,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -275,30 +277,44 @@ public class Webclient {
          */  
         private static class PublishingStream extends OutputStream implements Subscription {  
             private final Subscriber<? super ByteBuffer> subscriber;  
+            CountDownLatch latch = new CountDownLatch(1);
 
             public PublishingStream(Subscriber<? super ByteBuffer> subscriber) {
                 this.subscriber = subscriber;
                 subscriber.onSubscribe(this);
             }
 
+            private void waitForFirstRequest() {
+                try {
+                    latch.await();
+                }
+                catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
+            
             @Override  
             public void write(int b) throws IOException {      
+                waitForFirstRequest();
                 subscriber.onNext(ByteBuffer.wrap(new byte[] { (byte)(b & 0xFF) }));         
             }  
 
             @Override  
             public void write(byte[] b, int off, int len) throws IOException {  
+                waitForFirstRequest();
                 subscriber.onNext(ByteBuffer.wrap(b, off, len).asReadOnlyBuffer());   
             }  
 
             @Override  
             public void close() throws IOException {  
+                waitForFirstRequest();
                 subscriber.onComplete();  
             }
 
             @Override
             public void request(long n) {
-                // @DavyLandman we can not implement this pull model if we are a writer
+                // open the stream
+                latch.countDown();
             }
 
             @Override
@@ -362,7 +378,7 @@ public class Webclient {
         }
 
         if (headers.get(vf.string("Content-Type")) != null) {
-            throw RuntimeExceptionFactory.illegalArgument(input, "For POST and PUT, use the keyword fields 'content-type' and 'charset' instead of the 'Content-Type' header field.");
+            monitor.warning("For POST and PUT, use the keyword fields 'content-type' and 'charset' instead of the 'Content-Type' header field.", vf.sourceLocation(host));
         }
 
         if (contentType.length() != 0) {
@@ -487,7 +503,9 @@ public class Webclient {
 
     private IValue receiveJsonBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
         if (!contentType.equals("application/json")) {
-            throw RuntimeExceptionFactory.illegalArgument(kind, "expected content-type 'application/json', got: " + contentType);
+            monitor.warning("Expected content-type 'application/json', got: " + contentType, URIUtil.assumeCorrectLocation(url));
+            // this is probably of the wrong type, but it will lead to an informative error message
+            return receiveTextBody(input, url, kind, expect, contentType, charset);
         }
 
         try {
