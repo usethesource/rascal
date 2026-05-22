@@ -631,68 +631,24 @@ test bool Issue1353() {
     ");               
 }
 
-test bool DoubleField() {
-    return checkModuleOK("module Exp
-                'import ParseTree;
-                '
-                'layout L = [\\ \\t\\n]*;
-                '
-                'lexical Id = [a-z];
-                '
-                'syntax Exp 
-                '    = Id
-                '    | left Exp lhs \"*\" Exp rhs
-                '    \> left Exp lhs \"+\" Exp rhs
-                '    ;
-                '
-                'test bool expSrc() {
-                '    Exp tmp = (Exp) `a + b`;
-                '    Exp tmp2 = tmp.lhs; 
-                '    return (Exp) `a` := tmp2;
-                '}
-                '
-                'test bool expLhsLhs() {
-                '    Exp tmp = (Exp) `a + b + c`;
-                '    Exp tmp2 = tmp.lhs; 
-                '    Exp tmp3 = tmp.lhs.lhs; 
-                '    return (Exp) `a` := tmp3;
-                '}");
-}
+test bool srcFromExpressionFieldsOK(){
+    return checkModuleOK("
+        module SrcFromExpressionFieldsOK
+            import lang::rascal::\\syntax::Rascal;
+            loc lhsFetch(Expression e){
+                return e.lhs.src;
+            }
 
-test bool SyntaxFieldSrc() {
-    return checkModuleOK(
-        "module Exp
-        'import ParseTree;
-        '
-        'layout L = [\\ \\t\\n]*;
-        '
-        'lexical Id = [a-z];
-        '
-        'syntax Exp 
-        '    = Id
-        '    | left Exp lhs \"*\" Exp rhs
-        '    \> left Exp lhs \"+\" Exp rhs
-        '    ;
-        '
-        'test bool expSrc() {
-        '    Exp tmp = (Exp) `a + b`;
-        '    return loc _ := tmp.src;
-        '}
-        '
-        'test bool expLhsSrc() {
-        '    Exp tmp = (Exp) `a + b + c`;
-        '    return loc _ := tmp.lhs.src;
-        '}");
-}
+            void lhsReplace(Expression e){
+                e.lhs.src = |unknown:///|;
+            }
 
-test bool SyntaxFieldInRascalSyntax() {
-    return checkModuleOK(
-        "module RascalWithFunction
-        '
-        'import lang::rascal::\\syntax::Rascal;
-        'import ParseTree;
-        '
-        'loc translateAddFunction(Expression e) {
-        '   return e.lhs.src;
-        '}");
+            loc rhsFetch(Expression e){
+                return e.rhs.src;
+            }
+
+            void rhsReplace(Expression e){
+                 e.rhs.src = |unknown:///|;
+            }
+    ");
 }

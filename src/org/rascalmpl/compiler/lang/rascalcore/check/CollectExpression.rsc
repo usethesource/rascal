@@ -227,7 +227,8 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), signatureInfo(returnType));
+        clos_name = generateClosureName();
+        c.setScopeInfo(scope, functionScope(), signatureInfo(returnType, parameters));
 
         beginUseTypeParameters(c, closed=true);
             collect(returnType, c); // any type parameters in return type remain closed (closed=true);
@@ -239,7 +240,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
 
         collect(stats, c); // TODO take parameter bounds into account!
 
-        clos_name = generateClosureName();
+        
         bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
@@ -728,24 +729,6 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     }
 }
 
-// private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
-//     return;
-//     if((Expression) `<QualifiedName qn>` := current, size([nm | nm <- qn.names]) > 1){
-//         return;
-//     }
-//     coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
-//     if(size(coverloads) > 1){
-//         ovl1 = coverloads[0];
-//         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
-//         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-//         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-//         s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v",
-//                              ovl1.atype.alabel,
-//                              qualifyHint,
-//                              argHint));
-//                              }
-// }
-
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     // println("filterOverloads: <overloads>, <arity>");
     rel[loc, IdRole, AType] filteredOverloads = {};
@@ -1072,9 +1055,23 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId()}); 
-    c.require("non void or overloaded", expression, [], makeNonVoidNonOverloadedRequirement(expression, "Base expression of field selection"));
-    c.fact(current, field);
+    c.useViaType(expression, field, {fieldId(), keywordFieldId()});
+    c.calculate("field access", current, [expression, field],
+        AType(Solver s){
+            expType = s.getType(expression);
+            fieldType = s.getType(field);
+
+            if(isVoidAType(expType)) s.report(error(expression, "Base expression of field selection should not have type `void`"));
+            if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){
+                ovls  = overloads<2>;
+                if(any(ov1 <- ovls, ov2 <- ovls, ov1 != ov2, !comparable(ov1, ov2))){
+                    s.report(error(expression, "Base expression `%s` of field selection should have a unique type, found %v", expression, ovls));
+                }
+            }
+            
+            return fieldType;
+        });
+
     collect(expression, c);
 }
 
@@ -1085,7 +1082,8 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
     //c.use(field, {fieldId(), keywordFieldId()});
     c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){
-                fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
+                expType = s.getType(expression);
+                fieldType = computeFieldTypeWithADT(expType, field, scope, s);
                 replType = s.getType(repl);
 
                 bindings = ();
@@ -1108,7 +1106,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                  checkNonVoid(expression, s, "Base expression of field update`");
                  checkNonVoid(repl, s, "Replacement expression of field update`");
                  s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to field %q of type %t", replType, field, fieldType));
-                 return s.getType(expression);
+                 return expType;
         });
     collect(expression, repl, c);
 }
@@ -1145,7 +1143,6 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
                 projection_overloads += <key, role, computeFieldProjectionType(current, tp, fields, s)>;
             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
-//>>>         catch e: /* continue with next overload */;
         }
         if(isEmpty(projection_overloads))  s.report(error(current, "Illegal projection %t", base));
         return overloadedAType(projection_overloads);

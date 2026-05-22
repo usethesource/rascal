@@ -139,20 +139,6 @@ void(Solver) makeVarInitRequirement(Variable var)
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
 
-void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
-    = void(Solver s) {
-        checkNonVoid(t, s, msg ); 
-        AType resolution = s.getType(t);
-
-        if (isOverloadedAType(resolution)) {
-            causes = 
-                [ info("Candidate <i+1>: <prettyAType(alt)>.", pos) 
-                | <i, <loc pos, _, AType alt>> <- zipi(resolution.overloads)
-                ];
-            s.report(error(t, msg + " can not be resolved to a single type.", causes=causes));
-        }
-    };
-
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
 
     requireFullyInstantiated(s, t1);
