@@ -401,12 +401,10 @@ public class Webclient {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
-            var body = (IConstructor) input.asWithKeywordParameters().getParameter("body");
 
             assert response != null;
-            assert body != null;
 
-            return translateResponse(request.uri().toString(), body, response);
+            return translateResponse(request.uri().toString(), response);
         }
         catch (IOException e) {
             if (e.getMessage() == null || e.getMessage().length() == 0) {
@@ -502,7 +500,7 @@ public class Webclient {
         }
     }
 
-    private IConstructor translateResponse(String url, IConstructor expect, HttpResponse<InputStream> response) throws IOException {
+    private IConstructor translateResponse(String url, HttpResponse<InputStream> response) throws IOException {
         var headers = response
             .headers()
             .map()
