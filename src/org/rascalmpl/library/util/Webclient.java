@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.input.ReaderInputStream;
@@ -36,7 +38,10 @@ import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -49,6 +54,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -127,52 +133,37 @@ public class Webclient {
     }
 
     private BodyPublisher publishJsonBody(IConstructor input, String charset) {    
-        return new BodyPublisher() {  
-            @Override
-            public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
-                final var publisher = new OutputStreamPublisher(subscriber);
+        IConstructor options = input.asWithKeywordParameters().getParameter("options");
+        Map<String, IValue> kws = options != null 
+            ? options.asWithKeywordParameters().getParameters() 
+            : Collections.emptyMap(); 
+        IString dtf = (IString) kws.get("dateTimeFormat");
+        IBool dai = (IBool) kws.get("dateTimeAsInt");
+        IBool ras = (IBool) kws.get("rationalsAsString");
+        IFunction formatters = (IFunction) kws.get("formatter");
+        IBool ecn = (IBool) kws.get("explicitConstructorNames");
+        IBool edt = (IBool) kws.get("explicitDataTypes");
+        JsonValueWriter valueWriter = new JsonValueWriter()
+            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+            .setFormatters(formatters)
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+            .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+            ;
 
-                executor.submit(() -> { 
-                    IConstructor options = input.asWithKeywordParameters().getParameter("options");
-                    Map<String, IValue> kws = options != null 
-                        ? options.asWithKeywordParameters().getParameters() 
-                        : Collections.emptyMap(); 
-                    IString dtf = (IString) kws.get("dateTimeFormat");
-                    IBool dai = (IBool) kws.get("dateTimeAsInt");
-                    IBool ras = (IBool) kws.get("rationalsAsString");
-                    IFunction formatters = (IFunction) kws.get("formatter");
-                    IBool ecn = (IBool) kws.get("explicitConstructorNames");
-                    IBool edt = (IBool) kws.get("explicitDataTypes");
-
-                    JsonValueWriter writer = new JsonValueWriter()
-                        .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                        .setFormatters(formatters)
-                        .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
-                        .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
-                        .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
-                        .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
-                        ;
-                    
-                    try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(publisher, charset))) {
-                        writer.write(jsonWriter, input);
-                    }
-                    catch (IOException e) {
-                        throw RuntimeExceptionFactory.io(e);
-                    }
-                }, true);
+        return new WriterBodyPublisher(-1, (w) -> {            
+            try (JsonWriter jsonWriter = new JsonWriter(w)) {
+                valueWriter.write(jsonWriter, input);
             }
-
-            @Override
-            public long contentLength() {
-                return -1;
-            }     
-        };
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io(e);
+            }
+        });
     }
 
     private BodyPublisher publishFileBody(IConstructor kind, IConstructor input) {
         final var loc = (ISourceLocation) input.get("source");
-
-        // have to hope that the encoding matches the actual contents of the stream
 
         return BodyPublishers.ofInputStream(() -> {
             try {
@@ -185,8 +176,55 @@ public class Webclient {
     }
 
     private BodyPublisher publishTextBody(IConstructor input, String charset) {
-        final var text = (IString) input.get("source");
-        return BodyPublishers.ofInputStream(() -> new ReaderInputStream(text.asReader(), charset));
+        final var value = input.get("source");
+
+        if (value.getType().isString()) {
+            var text = (IString) value;
+            return BodyPublishers.ofInputStream(() -> new ReaderInputStream(text.asReader(), charset));
+        }
+        else if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+            return new WriterBodyPublisher(-1, (w) -> TreeAdapter.yield((ITree) value, w));  
+        } 
+        else {
+            return new WriterBodyPublisher(-1, (w) -> new StandardTextWriter().write(value, w));
+        }			
+    }
+
+    @FunctionalInterface 
+    interface WriterFunction {
+        void accept(Writer writer) throws IOException;
+    }
+    
+    /**
+     * A reusable publisher for different kinds of uses of a Writer.
+     */
+    private class WriterBodyPublisher implements BodyPublisher {
+        private final WriterFunction writerConsumer;
+        private long length;
+
+        WriterBodyPublisher(long length, WriterFunction write) {
+            this.writerConsumer = write;
+            this.length = length;
+        }
+
+        @Override
+        public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
+            final var publisher = new OutputStreamPublisher(subscriber);
+
+            executor.submit(() -> { 
+                try (OutputStreamWriter w = new OutputStreamWriter(publisher)) {
+                    writerConsumer.accept(w);
+                }
+                catch (IOException e) {
+                    throw RuntimeExceptionFactory.io(e);
+                }
+            }, true);
+        }
+
+        @Override
+        public long contentLength() {
+            return length;
+        }
     }
 
     /**
