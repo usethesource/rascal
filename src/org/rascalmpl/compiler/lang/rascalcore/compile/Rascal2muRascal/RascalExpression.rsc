@@ -1489,10 +1489,6 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression> \< <{Field ","
 MuExp translateGuarded(exp: (Expression) `<Expression expression>@<Name name>`){
    tp = getType(expression);
    uname = unescape("<name>");
-   //if(asubtype(tp, treeType) && uname == "loc"){ //TODO: remove when loc anno has been removed
-   //     uname = "src";
-   //     return  muGuardedGetField(getType(exp), getType(expression), translate(expression), uname);
-   //}
    return muGuardedGetAnno(translate(expression), getType(exp), uname);
 }
 
