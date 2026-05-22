@@ -284,15 +284,21 @@ public class Webclient {
                 subscriber.onSubscribe(this);
             }
 
+            /**
+             * If we don't wait for the first call to `request` the HttpClient
+             * framework is (sometimes) not ready to accept the first call to `onNext`
+             * and throws NPEs. This semaphor avoids the situation alltogether.
+             */
             private void waitForFirstRequest() {
                 try {
+                    // await is very fast after the count has gone to 0.
                     latch.await();
                 }
                 catch (InterruptedException e) {
                     // do nothing
                 }
             }
-            
+
             @Override  
             public void write(int b) throws IOException {      
                 waitForFirstRequest();
