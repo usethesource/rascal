@@ -178,6 +178,7 @@ public class Webclient {
     private BodyPublisher publishTextBody(IConstructor input, String charset) {
         final var value = input.get("source");
 
+        // Note this intentionally mimicks the semantics of IO::writeFile
         if (value.getType().isString()) {
             var text = (IString) value;
             return BodyPublishers.ofInputStream(() -> new ReaderInputStream(text.asReader(), charset));
@@ -190,6 +191,10 @@ public class Webclient {
         }			
     }
 
+    /** 
+     * for injecting writer consumers into WriterBodyPublisher
+     * and not having to handle IOException in the lambda body.
+     */
     @FunctionalInterface 
     interface WriterFunction {
         void accept(Writer writer) throws IOException;
@@ -211,6 +216,9 @@ public class Webclient {
         public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
             final var publisher = new OutputStreamPublisher(subscriber);
 
+            // without this asynchronous task, the publisher subscription
+            // will not have completed before the first write comes.
+            // it remains a question if we have a race here.
             executor.submit(() -> { 
                 try (OutputStreamWriter w = new OutputStreamWriter(publisher)) {
                     writerConsumer.accept(w);
@@ -392,6 +400,9 @@ public class Webclient {
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
             var body = (IConstructor) input.asWithKeywordParameters().getParameter("body");
 
+            assert response != null;
+            assert body != null;
+            
             return translateResponse(request.uri().toString(), body, response);
         }
         catch (IOException e) {
@@ -434,6 +445,10 @@ public class Webclient {
         });
     }
 
+    /**
+     * TODO: it makes sense to call generated parsers or the StandardTextReader, to
+     * mirror what we do when we send text data (unparse and StandardTextWriter).
+     */
     private IValue receiveTextBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
         if (!expect.isSubtypeOf(tf.stringType())) {
             monitor.warning("a text response expects a `str` type, but we have " + expect, URIUtil.assumeCorrectLocation(url));
