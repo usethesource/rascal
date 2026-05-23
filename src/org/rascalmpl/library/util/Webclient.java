@@ -677,7 +677,7 @@ public class Webclient {
             }
 
             ensureStarted();
-            long numberOfTheseSteps  = (int) (totalBytes / bytesRead);
+            long numberOfTheseSteps  = (int) (totalBytes / bytesRead) + 1;
             int stepSize = (int) (Integer.MAX_VALUE / numberOfTheseSteps);
             monitor.jobStep(jobName, "", java.lang.Math.max(stepSize, 1));
             checkDone();
