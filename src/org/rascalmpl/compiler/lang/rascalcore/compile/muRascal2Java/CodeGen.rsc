@@ -900,7 +900,6 @@ JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp 
 
 // muGetAnno
 JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
-    if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
     return "$annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }
 //TODO: the "_resultType" (instead of "resultType") is essential to
@@ -908,7 +907,6 @@ JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
 
 // muGuardedGetAnno
 JCode trans(muGuardedGetAnno(MuExp exp, AType _resultType, str annoName), JGenie jg){
-   if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
    return "$guarded_annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }    
 
@@ -1054,7 +1052,6 @@ str prefix(str moduleName, JGenie jg){
 JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName, str moduleName), JGenie jg){
     adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<size(adtType.parameters)>";
     if(asubtype(adtType, treeType)){
-        if(fieldName == "loc") fieldName = "src"; // TODO: remove when @\loc is gone
         adtName = "Tree";
     }
     return "<prefix(moduleName,jg)>$getkw_<adtName>_<asJavaName(fieldName,completeId=false)>(<transWithCast(adtType, cons, jg)>)";
@@ -1063,7 +1060,6 @@ JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str
 JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
     adtName = getUniqueADTName(adt);
     if(asubtype(adt, treeType)){
-        if(fieldName == "loc") fieldName = "src";   // TODO: remove when @\loc is gone
         adtName = "Tree";
     }
     isConsKwField = fieldName in {kwf.fieldType.alabel | kwf <- kwFields};

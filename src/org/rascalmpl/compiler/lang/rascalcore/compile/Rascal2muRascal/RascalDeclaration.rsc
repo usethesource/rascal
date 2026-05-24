@@ -205,9 +205,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         str kwFieldName = unescape(kwType.alabel);
         if(kwFieldName in generated_common_getters) continue;
         generated_common_getters += kwFieldName;
-        if(asubtype(adtType, treeType)){
-            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
-        }
+        
         //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
         if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
