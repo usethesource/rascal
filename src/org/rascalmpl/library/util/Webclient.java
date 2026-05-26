@@ -4,21 +4,17 @@ import java.io.BufferedOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -28,18 +24,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.input.ReaderInputStream;
-import org.checkerframework.checker.units.qual.s;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -48,7 +38,6 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -71,6 +60,7 @@ public class Webclient {
     private final TypeFactory tf;
     private final ExecutorService executor;
     private final HttpClient.Builder client;
+    private final WebBody body;
 
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
         this.vf = vf;
@@ -79,6 +69,7 @@ public class Webclient {
         this.tf = tf;
         this.executor = Executors.newCachedThreadPool();
         this.client = HttpClient.newBuilder();
+        this.body = new WebBody(store, tf, vf, monitor);
     }
 
     private String[] makeHeaders(IMap headers) {
@@ -437,88 +428,6 @@ public class Webclient {
         }
     }
 
-    /*
-     * This creates a Body::receive() constructor that wraps a lambda to call and receive the data
-     * from the HTTP response as a Rascal value. The intermediate step is required such that the 
-     * caller of `fetch` can express their expectations on the data and call appropriate parsing,
-     * validation and binding mechanisms. The options are encoded as `BodyKind`.
-     * 
-     * Also this generated function asks for a reified type parameter for (dynamic) type safety
-     * and validation of abstract grammars during reception of the body.
-     */
-    private IFunction createBodyReceiver(InputStream input, String url, String contentType, String charset) {        
-        var BodyKind = store.lookupAbstractDataType("BodyKind");
-        var rt = RascalTypeFactory.getInstance().reifiedType(tf.parameterType("T"));
-        var ft = tf.functionType(tf.parameterType("T"), tf.tupleType(BodyKind, rt), tf.tupleEmpty());
-
-        return vf.function(ft, (args, kwargs) -> {
-            IConstructor kind = (IConstructor) args[0];
-            IConstructor reified = (IConstructor) args[1];
-            Type expect = reified.getType().getTypeParameters().getFieldType(0);
-
-            switch (kind.getName()) {
-                case "json":
-                    return receiveJsonBody(input, url, kind, expect, contentType, charset);
-                case "file":
-                    return receiveFileBody(input, kind, expect);
-                case "text":
-                default:
-                    return receiveTextBody(input, url, kind, expect, contentType, charset);
-            }
-        });
-    }
-
-    /**
-     * TODO: it makes sense to call generated parsers or the StandardTextReader, to
-     * mirror what we do when we send text data (unparse and StandardTextWriter).
-     */
-    private IValue receiveTextBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
-        if (!expect.isSubtypeOf(tf.stringType())) {
-            monitor.warning("a text response expects a `str` type, but we have " + expect, URIUtil.assumeCorrectLocation(url));
-        }
-
-        if (!contentType.contains("text/")) {
-            monitor.warning("a text response was expected but the mimetype is " + contentType, URIUtil.assumeCorrectLocation(url));
-        }
-
-        try {
-            return vf.string(Prelude.consumeInputStream(new InputStreamReader(input, charset)));
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-    }
-
-    private IValue receiveFileBody(InputStream input, IConstructor kind, Type expect) {
-        ISourceLocation loc = (ISourceLocation) kind.get("storage");
-
-        // note that mimetype and charset are kept as-is during the download directly to disk
-        try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-            input.transferTo(out);
-            return loc;
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-    }
-
-    private IValue receiveJsonBody(InputStream input, String url, IConstructor kind, Type expect, String contentType, String charset) {
-        if (!contentType.equals("application/json")) {
-            monitor.warning("Expected content-type 'application/json', got: " + contentType, URIUtil.assumeCorrectLocation(url));
-            // this is probably of the wrong type, but it will lead to an informative error message
-            return receiveTextBody(input, url, kind, expect, contentType, charset);
-        }
-
-        try {
-            JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
-            JsonValueReader parser = new JsonValueReader(vf, store, monitor, URIUtil.assumeCorrectLocation(url));
-            return parser.read(jsonReader, expect);
-        }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e);
-        }
-    }
-
     private IConstructor translateResponse(String url, HttpResponse<InputStream> response) throws IOException {
         var headers = response
             .headers()
@@ -544,7 +453,7 @@ public class Webclient {
         var status = toStatusConstructor(response.statusCode());
 
         Type respCons = store.lookupConstructors("response").iterator().next();
-        IFunction bodyReceiver = createBodyReceiver(input, url, mimeType, charset);
+        IFunction bodyReceiver = body.createBodyReceiver(input, url, mimeType, charset);
         Type bodyConstructor = store.lookupConstructors("receive").iterator().next();
         IConstructor body = vf.constructor(bodyConstructor, bodyReceiver);
 

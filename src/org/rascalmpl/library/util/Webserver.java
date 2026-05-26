@@ -1,18 +1,16 @@
 package org.rascalmpl.library.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,24 +18,21 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
-import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
-import org.rascalmpl.types.RascalTypeFactory;
-import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -59,24 +54,56 @@ public class Webserver {
     private final IRascalValueFactory vf;
     private final TypeStore store;
     private final PrintWriter out;
+    private final IRascalMonitor monitor;
+    private final ExecutorService executorService;
 
+    private final Type requestType;
+    private final  Type post;
+    private final  Type get;
+    private final  Type head;
+    private final  Type delete;
+    private final  Type put;
+    private final  Type receive;
+    private final  Type bodyType;
+	
     private final Map<ISourceLocation, NanoHTTPD> servers;
     private final Map<IConstructor,Status> statusValues = new HashMap<>();
-    private final IRascalMonitor monitor;
-    private Type requestType;
-    private Type post;
-    private Type get;
-    private Type head;
-    private Type delete;
-    private Type put;
-    private Type functionType;
-
-    public Webserver(IRascalValueFactory vf, TypeStore store, PrintWriter out, IRascalMonitor monitor) {
+    private final WebBody body;
+	
+    
+    public Webserver(IRascalValueFactory vf, TypeFactory tf, TypeStore store, PrintWriter out, IRascalMonitor monitor) {
         this.vf = vf;
         this.store = store;
         this.out = out;
         this.monitor = monitor;
         this.servers = new HashMap<>();
+        this.body = new WebBody(store, TypeFactory.getInstance(), vf, monitor);
+        this.executorService = Executors.newCachedThreadPool();
+
+        Type statusType = store.lookupAbstractDataType("Status");
+
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "ok", tf.voidType())), Status.OK);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "created", tf.voidType())), Status.CREATED);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "accepted", tf.voidType())), Status.ACCEPTED);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "noContent", tf.voidType())), Status.NO_CONTENT);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "partialContent", tf.voidType())), Status.PARTIAL_CONTENT);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "redirect", tf.voidType())), Status.REDIRECT);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notModified", tf.voidType())), Status.NOT_MODIFIED);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.voidType())), Status.BAD_REQUEST);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "unauthorized", tf.voidType())), Status.UNAUTHORIZED);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "forbidden", tf.voidType())), Status.FORBIDDEN);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
+        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
+
+        this.requestType = store.lookupAbstractDataType("Request");
+        this.bodyType = store.lookupAbstractDataType("Body");
+        this.get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
+        this.put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), bodyType));
+        this.post = store.lookupConstructor(requestType, "post",  tf.tupleType(tf.stringType(), bodyType));
+        this.delete = store.lookupConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
+        this.head = store.lookupConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
+        this.receive = store.lookupConstructor(bodyType, "receive").iterator().next();
     }
 
 
@@ -102,10 +129,13 @@ public class Webserver {
         NanoHTTPD server = new NanoHTTPD(host, port) {
 
             @Override
-            public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
-                Map<String, String> files) {
+            public Response serve(IHTTPSession session) {
+                var method = session.getMethod();
+                var parms = session.getParms();
+                var headers = session.getHeaders();
+
                 try {
-                    IConstructor request = makeRequest(uri, method, headers, parms, files);
+                    IConstructor request = makeRequest(uri.getHost(), uri.getPath(), method, headers, parms, session.getInputStream());
                     CompletableFuture<IValue> rascalResponse = executor.apply(request);
                     return translateResponse(method, rascalResponse.get());
                 }
@@ -146,12 +176,35 @@ public class Webserver {
                 return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "500 INTERNAL SERVER ERROR:\n\n" + actualException.getMessage());
             }
 
-            private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
-                Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
+            private String getMimeType(Map<String, String> headers) {
+                String contenType = headers.getOrDefault("Content-Type", "text/plain");
+                String[] parts = contenType.split(";");
+                return parts[0].trim();
+            }
+
+             private String getCharset(Map<String, String> headers) {
+                String contentType = headers.getOrDefault("Content-Type", "text/plain");
+                String result = StandardCharsets.UTF_8.name();
+
+                String[] parts = contentType.split(";");
+                if (parts.length > 1) {
+                    String[] assign = parts[1].split("=");
+
+                    if (assign[0].equals("charset")) {
+                        result = assign[1].trim();
+                    }
+                }
+                
+                return result;
+            }
+
+            private IConstructor makeRequest(String host, String path, Method method, Map<String, String> headers,
+                Map<String, String> parms, InputStream inputStream) throws FactTypeUseException, IOException {
                 Map<String,IValue> kws = new HashMap<>();
                 kws.put("parameters", makeMap(parms));
-                kws.put("uploads", makeMap(files));
                 kws.put("headers", makeMap(headers));
+                var mimeType = getMimeType(headers);
+                var charset = getCharset(headers);
 
                 switch (method) {
                     case HEAD:
@@ -161,84 +214,51 @@ public class Webserver {
                     case GET:
                         return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
                     case PUT:
-                        return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
+                        return vf.constructor(put, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(inputStream, host, mimeType, charset))}, kws);
                     case POST:
-                        return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
+                        return vf.constructor(post, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(inputStream, host, mimeType, charset))}, kws);
                     default:
                         throw new IOException("Unhandled request " + method);
                 }
             }
 
-            protected IValue getContent(Map<String, String> parms, String contentParamName) throws IOException {
-                return vf.function(functionType, (argValues, keyArgValues) -> {
-                    try {
-                        TypeStore store = new TypeStore();
-                        Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
-
-                        if (topType.isString()) {
-                            // if #str is requested we literally provide the content
-                            return getRawContent(parms, contentParamName);
-                        }
-                        else {
-                            // otherwise the content is parsed as JSON and validated against the given type
-                            IValue dtf = keyArgValues.get("dateTimeFormat");
-                         
-                            return new JsonValueReader(vf, store, monitor, null)
-                                .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                                .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
-                        }
-                    } catch (IOException e) {
-                        throw RuntimeExceptionFactory.io(e);
-                    } catch ( URISyntaxException e) {
-                        throw RuntimeExceptionFactory.io(e.getMessage());
-                    }
-                });
-            }
-
-            private Reader getRawContentReader(Map<String, String> parms, String contentParamName) throws FileNotFoundException {
-                String path = parms.get(contentParamName);
-                if (path != null && !path.isEmpty()) {
-                    return new FileReader(path);
-                }
-                else {
-                    // empty content is a valid response (data could be in the parameters map)
-                    return new StringReader("");
-                }
-            }
-
-            private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
-                String path = parms.get(contentParamName);
-                if (path != null && !path.isEmpty()) {
-                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path), "UTF-8", true);
-                }
-                else {
-                    // empty content is a valid response.
-                    return vf.string("");
-                }
-            }
-
             private Response translateResponse(Method method, IValue value) throws IOException {
                 IConstructor cons = (IConstructor) value;
+                IConstructor body = (IConstructor) cons.get("content");
+                IConstructor kind = (IConstructor) body.get("kind");
+                IMap header = (IMap) cons.get("header");
+                IString contentType = (IString) cons.get("contentType");
+                Status status = translateStatus((IConstructor) cons.get("status"));
+
                 initMethodAndStatusValues(store);
 
-                switch (cons.getName()) {
-                    case "fileResponse":
-                        return translateFileResponse(method, cons);
-                    case "jsonResponse":
-                        return translateJsonResponse(method, cons);
-                    case "response":
-                        return translateTextResponse(method, cons);
+                switch (kind.getName()) {
+                    case "file":
+                        return translateFileResponse(
+                            status,
+                            kind.asWithKeywordParameters().getParameter("storage"),
+                            kind.asWithKeywordParameters().getParameter("header")
+                        );
+                    case "json":
+                        return translateJsonResponse(
+                            status,
+                            contentType,
+                            header,
+                            kind.asWithKeywordParameters().getParameter("options"), 
+                            body.get("source"));
+                    case "text":
                     default:
-                        throw new IOException("Unknown response kind: " + value);
+                        return translateTextResponse(
+                            method,
+                            status, 
+                            contentType,
+                            header,
+                            (IString) body.get("source"));
                 }
             }
 
-            private Response translateJsonResponse(Method method, IConstructor cons) {
-                IMap header = (IMap) cons.get("header");
-                IValue data = cons.get("val");
-                Status status = translateStatus((IConstructor) cons.get("status"));
-                IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
-
+            private Response translateJsonResponse(Status status, IString contentType, IMap header, IConstructor options, IValue data) {
+                IWithKeywordParameters<? extends IConstructor> kws = options.asWithKeywordParameters();
                 IValue dtf = kws.getParameter("dateTimeFormat");
                 IValue dai = kws.getParameter("dateTimeAsInt");
                 IValue ras = kws.getParameter("rationalsAsString");
@@ -256,47 +276,60 @@ public class Webserver {
                     ;
 
                 try {
-                    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    // ToDO: with a PipedInputStream we can shave off 20% here, probably and save
-                    // a lot of memory if the JSON file is going to be big.
-                    JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-                    
-                    writer.write(out, data);
-                    out.flush();
-                    out.close();
+                    PipedOutputStream w = new PipedOutputStream();
+                    PipedInputStream r = new PipedInputStream(w);
+                    Deque<IOException> exceptions = new ConcurrentLinkedDeque<>();
 
-                    // TODO: this can be a chunkedResponse for larger objects
-                    Response response = newFixedLengthResponse(status, "application/json", new ByteArrayInputStream(baos.toByteArray()), baos.size());
+                    var jsonStreamer = executorService.submit(() -> {
+                        try {
+                            JsonWriter out = new JsonWriter(new OutputStreamWriter(w, Charset.forName("UTF-8")));  
+                            writer.write(out, data);
+                            out.flush();
+                            out.close();
+                            return true;
+                        }
+						catch (IOException e) {
+                            exceptions.add(e);
+                            return false;
+						}
+                    });
+
+                    // TODO: check if this is asynchronous
+                    Response response = newChunkedResponse(status, contentType.getValue(), r);
                     addHeaders(response, header);
+                    
+                    try {
+                        // TODO: check if this does not block
+                        if (!jsonStreamer.get() || exceptions.size() > 1) {
+                            throw exceptions.peek();
+                        }
+                    }
+					catch (InterruptedException e) {
+                        throw new IOException("JSON serialization was not finished");
+                    }
+                    catch (ExecutionException e) {
+                        throw new IOException(e.getCause());
+					}
+
                     return response;
                 }
                 catch (IOException e) {
-                    // this should not happen in theory
-                    throw new RuntimeException("Could not create piped inputstream");
+                    return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "JSON serialization failed: " + e + "\n");
                 }
             }
 
-            private Response translateFileResponse(Method method, IConstructor cons) {
-                ISourceLocation l = (ISourceLocation) cons.get("file");
-                IString mimeType = (IString) cons.get("mimeType");
-                IMap header = (IMap) cons.get("header");
-
-                Response response;
+            private Response translateFileResponse(Status status, IMap header, ISourceLocation storage) {
                 try {
-                    response = newChunkedResponse(Status.OK, mimeType.getValue(), URIResolverRegistry.getInstance().getInputStream(l));
+                    Response response = newChunkedResponse(status, "application/octet-stream", URIResolverRegistry.getInstance().getInputStream(storage));
                     addHeaders(response, header);
                     return response;
-                } catch (IOException e) {
-                    return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
+                } 
+                catch (IOException e) {
+                    return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", "IO failed " + e + "\n");
                 } 
             }
 
-            private Response translateTextResponse(Method method, IConstructor cons) {
-                IString mimeType = (IString) cons.get("mimeType");
-                IMap header = (IMap) cons.get("header");
-                IString data = (IString) cons.get("content");
-                Status status = translateStatus((IConstructor) cons.get("status"));
-
+            private Response translateTextResponse(Method method, Status status, IString contentType, IMap header, IString data) {
                 if (method != Method.HEAD) {
                     switch (status) {
                         case BAD_REQUEST:
@@ -314,7 +347,7 @@ public class Webserver {
                 }
 
                 try {
-                    var fixedContentType = new ContentType(mimeType.getValue()).tryUTF8();
+                    var fixedContentType = new ContentType(contentType.getValue()).tryUTF8();
                     Response response = newChunkedResponse(status, fixedContentType.getContentTypeHeader(), toInputStream(data, Charset.forName(fixedContentType.getEncoding())));
                     addHeaders(response, header);
                     return response;
@@ -433,34 +466,6 @@ public class Webserver {
     }
 
     private void initMethodAndStatusValues(TypeStore store) {
-        if (statusValues.isEmpty() || requestType == null) {
-            TypeFactory tf = TypeFactory.getInstance();
-            Type statusType = store.lookupAbstractDataType("Status");
-
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "ok", tf.voidType())), Status.OK);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "created", tf.voidType())), Status.CREATED);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "accepted", tf.voidType())), Status.ACCEPTED);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "noContent", tf.voidType())), Status.NO_CONTENT);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "partialContent", tf.voidType())), Status.PARTIAL_CONTENT);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "redirect", tf.voidType())), Status.REDIRECT);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notModified", tf.voidType())), Status.NOT_MODIFIED);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.voidType())), Status.BAD_REQUEST);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "unauthorized", tf.voidType())), Status.UNAUTHORIZED);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "forbidden", tf.voidType())), Status.FORBIDDEN);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
-            statusValues.put(vf.constructor(store.lookupConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
-
-            requestType = store.lookupAbstractDataType("Request");
-
-            RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-            functionType = tf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.tupleEmpty());
-
-            get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
-            put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));
-            post = store.lookupConstructor(requestType, "post",  tf.tupleType(tf.stringType(), functionType));
-            delete = store.lookupConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
-            head = store.lookupConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
-        }
+        
     }
 }
