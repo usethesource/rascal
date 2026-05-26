@@ -67,7 +67,7 @@ bool matches(str subject, str pat){
 
 tuple[str,str] extractModuleNameAndBody(str moduleText){
 	txt = trim(moduleText);
-	if(/module\s*<nm:[A-Z][A-Za-z0-9:]*>\s*<body:.*$>/s := txt){
+	if(/module\s*<nm:[A-Za-z0-9:]*>\s*<body:.*$>/s := txt){
 		return <nm, body>;
 	}
 	throw "Cannot extract module name from <moduleText>";
@@ -88,9 +88,13 @@ void clearMemory() {
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
-loc writeModule(str moduleText){
+loc writeModule(str moduleText, str altName="", str altPath=""){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
-    mloc = testModulesRoot +  "<cleanName(mname)>.rsc";
+	if(altName?){
+		mname = altName;
+	}
+	mname = replaceAll(mname, "::", "/");
+    mloc = testModulesRoot +  altPath + "<cleanName(mname)>.rsc";
     writeFile(mloc, moduleText);
     return mloc;
 }
@@ -475,7 +479,8 @@ list[str] unexpectedDeclarationMsgs = [
 	"Non-well-formed _ type, labels must be distinct",
 	"Self import not allowed",
 	"Extend cycle not allowed",
-	"Mixed import/extend cycle not allowed"
+	"Mixed import/extend cycle not allowed",
+	"Module name _ is incompatible with its file location"
 ];
 
 bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())

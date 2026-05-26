@@ -99,7 +99,24 @@ void collect(Module current, Collector c){
         collect(header, body, c);
     c.leaveScope(current);
 }
+// CodeActions for incorrect module name
 
+list[CodeAction] moduleNameProposal(QualifiedName moduleName, str proposedName)
+    =
+    [ action(
+        title="Replace by `<proposedName>`", 
+        edits=[changed([replace(moduleName.src, proposedName)])]
+      )
+    ];
+
+FailMessage moduleNameMessage(loc mloc, QualifiedName qualifiedModuleName, str mname, PathConfig pcfg){
+    msg = error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, mloc.top);
+    try {
+        proposal = getRascalModuleName(mloc, pcfg);
+        msg.fixes = moduleNameProposal(qualifiedModuleName, proposal);
+    } catch _: /* ignore any exceptions */;
+    return msg;
+}
 void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
     pcfgVal = c.getStack(key_pathconfig);
     if([PathConfig pcfg] := pcfgVal){
@@ -107,10 +124,10 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
         try {
             mloc1 = getRascalModuleLocation(mname, pcfg);
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
-                c.report(error(qualifiedModuleName, "Module name `%v` is incompatible with its file location %v", mname, mloc));
+                c.report(moduleNameMessage(mloc1, qualifiedModuleName, mname, pcfg));
             }
-        } catch str e: {
-            c.report(error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, e));
+        } catch error(e, l, causes=causes): {
+            c.report(moduleNameMessage(mloc, qualifiedModuleName, mname, pcfg));
         }
     } else if(isEmpty(pcfgVal)){
         return;
