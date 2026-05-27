@@ -12,9 +12,14 @@ java void shutdown(loc server);
 test bool testWebServer() {
    loc testLoc = |http://localhost:10001|;
    
-   // simple get
-   // Response testServer(get("/hello")) = response("hello world!");
-   Response testServer(p:post("/upload8", value (type[value] _) stuff)) = response("uploaded: <p.parameters["firstname"]> <stuff(#value)>");   
+  Response testServer(post("/post", Body b)) 
+    = response("posted: <b.receiver(json(), #node)>");   
+
+  Response testServer(put("/put", Body b)) 
+    = response("put: <b.receiver(json(), #str)>");   
+
+  Response testServer(g:get("/get")) 
+    = response("get: <g.headers>");   
    
    try {
       serve(testLoc, testServer);
@@ -23,6 +28,7 @@ test bool testWebServer() {
    catch value exception:
      throw exception;
    finally {
-     shutdown(testLoc);
+    ;
+    //  shutdown(testLoc);
    }
 }

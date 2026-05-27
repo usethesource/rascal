@@ -191,7 +191,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 Map<Type, Type> dynamicRenamings = new HashMap<>();
                 bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, staticFunctionType.getFieldTypes(), renamings, dynamicRenamings, env); 
 
-               
                 IValue returnValue = func.apply(argValues, keyArgValues);
 
                 Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());

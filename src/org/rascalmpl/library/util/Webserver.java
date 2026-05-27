@@ -133,9 +133,10 @@ public class Webserver {
                 var method = session.getMethod();
                 var parms = session.getParms();
                 var headers = session.getHeaders();
-
+                var path = session.getUri(); // method misnomer
+                
                 try {
-                    IConstructor request = makeRequest(uri.getHost(), uri.getPath(), method, headers, parms, session.getInputStream());
+                    IConstructor request = makeRequest(vf.sourceLocation(uri), path, method, headers, parms, session.getInputStream());
                     CompletableFuture<IValue> rascalResponse = executor.apply(request);
                     return translateResponse(method, rascalResponse.get());
                 }
@@ -171,9 +172,8 @@ public class Webserver {
                     && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed;
             }
             
-
             private Response handleGeneralThrowable(Throwable actualException) {
-                return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "500 INTERNAL SERVER ERROR:\n\n" + actualException.getMessage());
+                return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "500 INTERNAL SERVER ERROR:\n\n" + actualException.getMessage() + "\n");
             }
 
             private String getMimeType(Map<String, String> headers) {
@@ -198,7 +198,7 @@ public class Webserver {
                 return result;
             }
 
-            private IConstructor makeRequest(String host, String path, Method method, Map<String, String> headers,
+            private IConstructor makeRequest(ISourceLocation host, String path, Method method, Map<String, String> headers,
                 Map<String, String> parms, InputStream inputStream) throws FactTypeUseException, IOException {
                 Map<String,IValue> kws = new HashMap<>();
                 kws.put("parameters", makeMap(parms));
@@ -224,10 +224,10 @@ public class Webserver {
 
             private Response translateResponse(Method method, IValue value) throws IOException {
                 IConstructor cons = (IConstructor) value;
-                IConstructor body = (IConstructor) cons.get("content");
+                IConstructor body = (IConstructor) cons.get("body");
                 IConstructor kind = (IConstructor) body.get("kind");
                 IMap header = (IMap) cons.get("header");
-                IString contentType = (IString) cons.get("contentType");
+                IString contentType = (IString) cons.get("mimeType");
                 Status status = translateStatus((IConstructor) cons.get("status"));
 
                 initMethodAndStatusValues(store);
@@ -295,7 +295,7 @@ public class Webserver {
                     });
 
                     // TODO: check if this is asynchronous
-                    Response response = newChunkedResponse(status, contentType.getValue(), r);
+                    Response response = newChunkedResponse(status, contentType.getValue() + ";charset=utf-8", r);
                     addHeaders(response, header);
                     
                     try {

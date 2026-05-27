@@ -91,7 +91,7 @@ and possibly uploaded content, also coded as a map[str,str]. From the constructo
 @pitfalls{
 * Note that `put` and `post` have not been implemented yet in the REPL server.
 }
-data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
+data Request (map[str, str] headers = (), map[str, str] parameters = ())
   = get (str path)
   | put (str path, Body content)
   | post(str path, Body content)
@@ -105,7 +105,7 @@ The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
 }                                            
-data Response = response(Status, str mimeType, map[str, str] header, Body body);
+data Response = response(Status status, str mimeType, map[str, str] header, Body body);
 
 @synopsis{Bodies can be sent or received, depending on the context (client or)}
 @description{

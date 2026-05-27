@@ -414,10 +414,13 @@ public class Webclient {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
                 .send(request, HttpResponse.BodyHandlers.ofInputStream());
-
+            var host = (ISourceLocation) input.asWithKeywordParameters().getParameter("host");
+            if (host == null) {
+                host = URIUtil.correctLocation("http", "localhost", "");
+            }
             assert response != null;
 
-            return translateResponse(request.uri().toString(), response);
+            return translateResponse(host, response);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e.getClass().getName());    
@@ -428,7 +431,7 @@ public class Webclient {
         }
     }
 
-    private IConstructor translateResponse(String url, HttpResponse<InputStream> response) throws IOException {
+    private IConstructor translateResponse(ISourceLocation url, HttpResponse<InputStream> response) throws IOException {
         var headers = response
             .headers()
             .map()
