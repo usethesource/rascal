@@ -667,6 +667,14 @@ void collect(current:(Assignable) `\< <{Assignable ","}+ elements> \>`, Collecto
 }
 
 void collect(current:(Assignable) `<Assignable receiver> @ <Name annotation>`, Collector c){
+    pname = prettyPrintName(annotation);
+    if (pname == "loc") {
+        c.report(error(current, "The Tree@\\loc annotation has been replaced by the Tree.src keyword field."));
+    }
+    else {
+        c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+    }
+
     collect(receiver, annotation, c);
 }
 
@@ -1112,8 +1120,15 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
   //collect(elements, c);
 }
 
-// TODO: Deprecated
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
+    pname = prettyPrintName(n);
+    if (pname == "loc") {
+        c.report(error(current, "The Tree@\\loc annotation has been replaced by the Tree.src keyword field."));
+    }
+    else {
+        c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+    }
+
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
    c.useLub(names[0], variableRoles);
