@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
@@ -29,6 +31,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.html.IO;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -43,6 +46,7 @@ import com.google.gson.stream.JsonWriter;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -61,15 +65,19 @@ public class Webclient {
     private final ExecutorService executor;
     private final HttpClient.Builder client;
     private final WebBody body;
+    private final org.rascalmpl.library.lang.html.IO html;
+    private final org.rascalmpl.library.lang.xml.IO xml;
 
-    public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf) {
+    public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf, PrintWriter out, PrintWriter err) {
         this.vf = vf;
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
         this.executor = Executors.newCachedThreadPool();
         this.client = HttpClient.newBuilder();
-        this.body = new WebBody(store, tf, vf, monitor);
+        this.body = new WebBody(store, tf, vf, monitor, out, err);
+        this.html = new org.rascalmpl.library.lang.html.IO(vf, store, out, err);
+        this.xml = new org.rascalmpl.library.lang.xml.IO(vf);
     }
 
     private String[] makeHeaders(IMap headers) {
@@ -117,8 +125,27 @@ public class Webclient {
             throw RuntimeExceptionFactory.illegalArgument(host, "path after hostname should be given with the \'path\' parameter of a request");
         }
 
-        // TODO: query, fragment
-        return URIUtil.getChildLocation(host, path.getValue()).getURI();
+        IMap params = (IMap) input.asWithKeywordParameters().getParameter("parameters");
+        if (params == null) {
+            params = vf.map();
+        }
+
+        var result =  URIUtil.getChildLocation(host, path.getValue());
+        
+        try {
+            if (!params.isEmpty()) {
+                var query = "?" + params.stream()
+                    .map(ITuple.class::cast)
+                    .map(t -> ((IString) t.get(0)).getValue() + "=" + ((IString) t.get(1)).getValue())
+                    .collect(Collectors.joining("&"));
+                result = URIUtil.changeQuery(host, query);
+            }
+        }
+        catch (URISyntaxException e) {
+            throw RuntimeExceptionFactory.malformedURI(e.getMessage());
+        }
+
+        return result.getURI();
     }
 
     private HttpRequest makeHeadRequest(IConstructor input, URI uri, String[] headers) {
@@ -157,6 +184,35 @@ public class Webclient {
             }
         });
     }
+
+    private BodyPublisher publishHTMLBody(IConstructor input, String charset) {    
+       
+        return new WriterBodyPublisher(-1, (w) -> {            
+            html.writeHTML(w, input, 
+                vf.string(charset), 
+               (IConstructor) null, 
+                vf.bool(false), 
+                vf.bool(false),
+                vf.integer(4),
+                vf.integer(10),
+                (IConstructor) null,
+                vf.bool(true),
+                vf.bool(false));
+        });
+    }
+
+    private BodyPublisher publishXMLBody(IConstructor input, String charset) {    
+        return new WriterBodyPublisher(-1, (w) -> {            
+            xml.writeXML(w, input, 
+                vf.string(charset), 
+                vf.bool(false), 
+                vf.bool(false),
+                vf.integer(4),
+                vf.integer(10),
+                vf.bool(true));
+        });
+    }
+
 
     private BodyPublisher publishFileBody(IConstructor kind, IConstructor input) {
         final var loc = (ISourceLocation) input.get("source");
@@ -246,6 +302,10 @@ public class Webclient {
         switch (kind.getName()) {
             case "json":
                 return publishJsonBody(postBody, charset);
+            case "html":
+                return publishHTMLBody(postBody, charset);
+            case "xml":
+                return publishHTMLBody(postBody, charset);            
             case "file":
                 return publishFileBody(kind, postBody);
             case "text":

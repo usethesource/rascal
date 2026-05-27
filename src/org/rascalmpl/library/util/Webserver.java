@@ -69,15 +69,14 @@ public class Webserver {
     private final Map<ISourceLocation, NanoHTTPD> servers;
     private final Map<IConstructor,Status> statusValues = new HashMap<>();
     private final WebBody body;
-	
     
-    public Webserver(IRascalValueFactory vf, TypeFactory tf, TypeStore store, PrintWriter out, IRascalMonitor monitor) {
+    public Webserver(IRascalValueFactory vf, TypeFactory tf, TypeStore store, PrintWriter out, IRascalMonitor monitor, PrintWriter err) {
         this.vf = vf;
         this.store = store;
         this.out = out;
         this.monitor = monitor;
         this.servers = new HashMap<>();
-        this.body = new WebBody(store, TypeFactory.getInstance(), vf, monitor);
+        this.body = new WebBody(store, TypeFactory.getInstance(), vf, monitor, out, err);
         this.executorService = Executors.newCachedThreadPool();
 
         Type statusType = store.lookupAbstractDataType("Status");
@@ -246,6 +245,8 @@ public class Webserver {
                             header,
                             kind.asWithKeywordParameters().getParameter("options"), 
                             body.get("source"));
+                    case "xml": // TODO
+                    case "html": // TODO
                     case "text":
                     default:
                         return translateTextResponse(

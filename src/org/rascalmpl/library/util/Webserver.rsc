@@ -16,7 +16,7 @@ test bool testWebServer() {
     = response("posted: <b.receiver(json(), #node)>");   
 
   Response testServer(put("/put", Body b)) 
-    = response("put: <b.receiver(json(), #str)>");   
+    = response("put: <b.receiver(json(), #node)>");   
 
   Response testServer(g:get("/get")) 
     = response("get: <g.headers>");   

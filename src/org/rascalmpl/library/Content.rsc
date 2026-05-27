@@ -133,6 +133,8 @@ such as (composite) strings and JSON code is _streamed_ onto the HTTP socket.
 data BodyKind
   = text()
   | json(JSONOptions options=jsonOptions())
+  | html()
+  | xml()
   | file(loc storage=|unknown:///|)
   ;
 

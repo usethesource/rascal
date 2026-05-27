@@ -104,7 +104,24 @@ public class IO {
         }
     }
 
-    private IValue toConstructorTree(Document doc, ISourceLocation file, boolean includeEndTags) {
+    public IValue readHTMLStream(InputStream reader, ISourceLocation base, IBool trackOrigins, IBool includeEndTags) {
+        try {
+            Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+                
+            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
+            
+            return toConstructorTree(doc, trackOrigins.getValue() ? base : null, includeEndTags.getValue());
+        } catch (MalformedURLException e) {
+            throw RuntimeExceptionFactory.malformedURI(base.getURI().toASCIIString());
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public IValue toConstructorTree(Document doc, ISourceLocation file, boolean includeEndTags) {
         IConstructor result = factory.constructor(htmlConstructor, 
                     factory.list(
                         toConstructorTree(doc.head(), file, includeEndTags), 
@@ -233,6 +250,16 @@ public class IO {
     public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
+            writeHTML(out, cons, charset, escapeMode, outline, prettyPrint, indentAmount, maxPaddingWidth, syntax, dropOrigins, normalise);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public void writeHTML(Writer out, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
+        
+        try {
             Document doc = createHTMLDocument(cons, dropOrigins.getValue(), normalise.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml());
@@ -246,12 +273,12 @@ public class IO {
         int maxPaddingWidth, String syntax) {
         return new OutputSettings()
             .charset(charset)
-            .escapeMode(EscapeMode.valueOf(escapeMode.replaceAll("Mode", "")))
+            .escapeMode(escapeMode == null ? EscapeMode.base: EscapeMode.valueOf(escapeMode.replaceAll("Mode", "")))
             .outline(outline)
             .prettyPrint(prettyPrint)
             .indentAmount(indentAmount)
             .maxPaddingWidth(maxPaddingWidth)
-            .syntax(Syntax.valueOf(syntax.replaceAll("Syntax", "")));
+            .syntax(syntax == null ? Syntax.html : Syntax.valueOf(syntax.replaceAll("Syntax", "")));
     }
 
     /**

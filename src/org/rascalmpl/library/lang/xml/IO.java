@@ -70,23 +70,32 @@ public class IO {
     }
     
     public IValue readXML(ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
-        if (inferCharset.getValue()) {
-            charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
-        }
-       
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
-            Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
-                .setTrackPosition(trackOrigins.getValue())
-                ;
-            
-            Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), xmlParser);
-            
-            return toINode(doc, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
+            return readXMLInputStream(reader, loc, fullyQualify, trackOrigins, includeEndTags, ignoreComments, ignoreWhitespace, charset, inferCharset);
         } 
         catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(loc.getURI().toASCIIString());
         } 
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public IValue readXMLInputStream(InputStream reader, ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
+        if (inferCharset.getValue()) {
+            charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
+        }
+       
+        try {
+            Parser xmlParser = Parser.xmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+                
+            Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), xmlParser);
+                
+            return toINode(doc, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
+        }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e);
         }
@@ -330,6 +339,15 @@ public class IO {
     public void writeXMLFile(ISourceLocation file, IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IBool dropOrigins) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
+            writeXML(out, cons, charset, outline, prettyPrint, indentAmount, maxPaddingWidth, dropOrigins);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public void writeXML(Writer out, IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IBool dropOrigins) {
+        try {
             Document doc = createXMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue()));
             out.write(doc.outerHtml());
@@ -338,6 +356,7 @@ public class IO {
             throw RuntimeExceptionFactory.io(e);
         }
     }
+
 
     private OutputSettings createOutputSettings(String charset, boolean outline, boolean prettyPrint, int indentAmount, int maxPaddingWidth) {
         return new OutputSettings()
