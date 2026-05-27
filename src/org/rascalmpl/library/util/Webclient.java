@@ -1,14 +1,10 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -17,42 +13,20 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Flow.Subscriber;
-import java.util.concurrent.Flow.Subscription;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.library.lang.html.IO;
-import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
-
-import com.google.gson.stream.JsonWriter;
-
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -62,22 +36,16 @@ public class Webclient {
     private final IRascalMonitor monitor;
     private final TypeStore store;
     private final TypeFactory tf;
-    private final ExecutorService executor;
     private final HttpClient.Builder client;
     private final WebBody body;
-    private final org.rascalmpl.library.lang.html.IO html;
-    private final org.rascalmpl.library.lang.xml.IO xml;
-
+    
     public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf, PrintWriter out, PrintWriter err) {
         this.vf = vf;
         this.monitor = monitor;
         this.store = store;
         this.tf = tf;
-        this.executor = Executors.newCachedThreadPool();
         this.client = HttpClient.newBuilder();
         this.body = new WebBody(store, tf, vf, monitor, out, err);
-        this.html = new org.rascalmpl.library.lang.html.IO(vf, store, out, err);
-        this.xml = new org.rascalmpl.library.lang.xml.IO(vf);
     }
 
     private String[] makeHeaders(IMap headers) {
@@ -155,138 +123,6 @@ public class Webclient {
             .build();
     }
 
-    private BodyPublisher publishJsonBody(IConstructor input, String charset) {    
-        IConstructor options = input.asWithKeywordParameters().getParameter("options");
-        Map<String, IValue> kws = options != null 
-            ? options.asWithKeywordParameters().getParameters() 
-            : Collections.emptyMap(); 
-        IString dtf = (IString) kws.get("dateTimeFormat");
-        IBool dai = (IBool) kws.get("dateTimeAsInt");
-        IBool ras = (IBool) kws.get("rationalsAsString");
-        IFunction formatters = (IFunction) kws.get("formatter");
-        IBool ecn = (IBool) kws.get("explicitConstructorNames");
-        IBool edt = (IBool) kws.get("explicitDataTypes");
-        JsonValueWriter valueWriter = new JsonValueWriter()
-            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setFormatters(formatters)
-            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
-            .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
-            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
-            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
-            ;
-
-        return new WriterBodyPublisher(-1, (w) -> {            
-            try (JsonWriter jsonWriter = new JsonWriter(w)) {
-                valueWriter.write(jsonWriter, input);
-            }
-            catch (IOException e) {
-                throw RuntimeExceptionFactory.io(e);
-            }
-        });
-    }
-
-    private BodyPublisher publishHTMLBody(IConstructor input, String charset) {    
-       
-        return new WriterBodyPublisher(-1, (w) -> {            
-            html.writeHTML(w, input, 
-                vf.string(charset), 
-               (IConstructor) null, 
-                vf.bool(false), 
-                vf.bool(false),
-                vf.integer(4),
-                vf.integer(10),
-                (IConstructor) null,
-                vf.bool(true),
-                vf.bool(false));
-        });
-    }
-
-    private BodyPublisher publishXMLBody(IConstructor input, String charset) {    
-        return new WriterBodyPublisher(-1, (w) -> {            
-            xml.writeXML(w, input, 
-                vf.string(charset), 
-                vf.bool(false), 
-                vf.bool(false),
-                vf.integer(4),
-                vf.integer(10),
-                vf.bool(true));
-        });
-    }
-
-
-    private BodyPublisher publishFileBody(IConstructor kind, IConstructor input) {
-        final var loc = (ISourceLocation) input.get("source");
-
-        return BodyPublishers.ofInputStream(() -> {
-            try {
-                return URIResolverRegistry.getInstance().getInputStream(loc);
-            }
-            catch (IOException e) {
-                throw RuntimeExceptionFactory.io(e);
-            }
-        });
-    }
-
-    private BodyPublisher publishTextBody(IConstructor input, String charset) {
-        final var value = input.get("source");
-
-        // Note this intentionally mimicks the semantics of IO::writeFile
-        if (value.getType().isString()) {
-            var text = (IString) value;
-            return BodyPublishers.ofInputStream(() -> new ReaderInputStream(text.asReader(), charset));
-        }
-        else if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-            return new WriterBodyPublisher(-1, (w) -> TreeAdapter.yield((ITree) value, w));  
-        } 
-        else {
-            return new WriterBodyPublisher(-1, (w) -> new StandardTextWriter().write(value, w));
-        }			
-    }
-
-    /** 
-     * for injecting writer consumers into WriterBodyPublisher
-     * and not having to handle IOException in the lambda body.
-     */
-    @FunctionalInterface 
-    interface WriterFunction {
-        void accept(Writer writer) throws IOException;
-    }
-    
-    /**
-     * A reusable publisher for different kinds of uses of a Writer.
-     */
-    private class WriterBodyPublisher implements BodyPublisher {
-        private final WriterFunction writerConsumer;
-        private long length;
-
-        WriterBodyPublisher(long length, WriterFunction write) {
-            this.writerConsumer = write;
-            this.length = length;
-        }
-
-        @Override
-        public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
-            final var publisher = new OutputStreamPublisher(subscriber);
-
-            // without this asynchronous task, the publisher subscription
-            // will not have completed before the first write comes.
-            // it remains a question if we have a race here.
-            executor.submit(() -> { 
-                try (OutputStreamWriter w = new OutputStreamWriter(publisher)) {
-                    writerConsumer.accept(w);
-                }
-                catch (IOException e) {
-                    throw RuntimeExceptionFactory.io(e);
-                }
-            }, true);
-        }
-
-        @Override
-        public long contentLength() {
-            return length;
-        }
-    }
-
     /**
      * This is for PUT and POST requests that need to send data along with the request
      */
@@ -301,91 +137,20 @@ public class Webclient {
 
         switch (kind.getName()) {
             case "json":
-                return publishJsonBody(postBody, charset);
+                return BodyPublishers.ofInputStream(() -> body.sendJsonBody(postBody, charset));
             case "html":
-                return publishHTMLBody(postBody, charset);
+                return BodyPublishers.ofInputStream(() -> body.sendHTMLBody(postBody, charset));
             case "xml":
-                return publishHTMLBody(postBody, charset);            
+                return BodyPublishers.ofInputStream(() -> body.sendXMLBody(postBody, charset));
             case "file":
-                return publishFileBody(kind, postBody);
+                return BodyPublishers.ofInputStream(() -> body.sendFileBody(postBody));
             case "text":
-                return publishTextBody(postBody, charset);
+                return BodyPublishers.ofInputStream(() -> body.sendTextBody(postBody, charset));
             default:
                 return null;
         }
     }
     
-    /**
-     * On demand streamer for the HttpClient API (for sending bodies for PUT and POST)
-     */
-    private static class OutputStreamPublisher extends BufferedOutputStream {  
-        
-        public OutputStreamPublisher(Subscriber<? super ByteBuffer> subscriber) {  
-            super(new PublishingStream(subscriber));  
-        }  
-        /**  
-         * The buffed outputstream will take care to collect the bytes untill there's a decent chunk to forward to the consumers  
-         */  
-        private static class PublishingStream extends OutputStream implements Subscription {  
-            private final Subscriber<? super ByteBuffer> subscriber;  
-            CountDownLatch latch = new CountDownLatch(1);
-
-            public PublishingStream(Subscriber<? super ByteBuffer> subscriber) {
-                this.subscriber = subscriber;
-                subscriber.onSubscribe(this);
-            }
-
-            /**
-             * If we don't wait for the first call to `request` the HttpClient
-             * framework is (sometimes) not ready to accept the first call to `onNext`
-             * and throws NPEs. This semaphor avoids the situation alltogether.
-             */
-            private void waitForFirstRequest() {
-                try {
-                    // await is very fast after the count has gone to 0.
-                    latch.await();
-                }
-                catch (InterruptedException e) {
-                    // do nothing
-                }
-            }
-
-            @Override  
-            public void write(int b) throws IOException {      
-                waitForFirstRequest();
-                subscriber.onNext(ByteBuffer.wrap(new byte[] { (byte)(b & 0xFF) }));         
-            }  
-
-            @Override  
-            public void write(byte[] b, int off, int len) throws IOException {  
-                waitForFirstRequest();
-                subscriber.onNext(ByteBuffer.wrap(b, off, len).asReadOnlyBuffer());   
-            }  
-
-            @Override  
-            public void close() throws IOException {  
-                waitForFirstRequest();
-                subscriber.onComplete();  
-            }
-
-            @Override
-            public void request(long n) {
-                // open the stream
-                latch.countDown();
-            }
-
-            @Override
-            public void cancel() {
-                try {
-                    close();
-                }
-                catch (IOException e) {
-                    // ignore
-                }
-            }  
-        }  
-    }
-
     private HttpRequest makePostRequest(IConstructor input, URI uri, String[] headers, String charset) {
         return HttpRequest.newBuilder()
             .uri(uri)
