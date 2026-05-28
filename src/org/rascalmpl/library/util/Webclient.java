@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,26 +127,28 @@ public class Webclient {
     /**
      * This is for PUT and POST requests that need to send data along with the request
      */
-    private BodyPublisher publishBody(IConstructor input, String charset) {
+    private BodyPublisher publishBody(IConstructor input) {
         var postBody = (IConstructor) input.get("content");
        
         if (!postBody.getName().equals("send")) {
             throw RuntimeExceptionFactory.illegalArgument(postBody, "Client-side POST should send a Body, not receive one");
         }
       
+        final var charset = (IString) postBody.asWithKeywordParameters().getParameter("charset");
         final var kind = (IConstructor) postBody.get("kind");
+        final var cs = charset != null ? charset.getValue() : "utf-8";
 
         switch (kind.getName()) {
             case "json":
-                return BodyPublishers.ofInputStream(() -> body.sendJsonBody(postBody, charset));
+                return BodyPublishers.ofInputStream(() -> body.sendJsonBody(postBody, cs));
             case "html":
-                return BodyPublishers.ofInputStream(() -> body.sendHTMLBody(postBody, charset));
+                return BodyPublishers.ofInputStream(() -> body.sendHTMLBody(postBody, cs));
             case "xml":
-                return BodyPublishers.ofInputStream(() -> body.sendXMLBody(postBody, charset));
+                return BodyPublishers.ofInputStream(() -> body.sendXMLBody(postBody, cs));
             case "file":
                 return BodyPublishers.ofInputStream(() -> body.sendFileBody(postBody));
             case "text":
-                return BodyPublishers.ofInputStream(() -> body.sendTextBody(postBody, charset));
+                return BodyPublishers.ofInputStream(() -> body.sendTextBody(postBody, cs));
             default:
                 return null;
         }

@@ -24,4 +24,4 @@ HTMLElement fetchWebPage(loc url)
 
 @synopsis{Exemple use of the fetch API to call a JSON parametrized webservice and read the response as JSON}
 &T callWebService(loc url, value parameters, type[&T] expected)
-    = fetch(post(url.path, send(json(), parameters), host=url[path=""])).body.receiver(json(), expected);
+    = postJSON(url, parameters).body.receiver(json(), expected);
