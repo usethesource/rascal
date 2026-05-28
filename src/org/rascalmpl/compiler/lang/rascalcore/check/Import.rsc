@@ -458,7 +458,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key, tm.logical2physical), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
 
-        m1.messages = tm.messages;
+        m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, tm.logical2physical)];
         ms.messages[currentModule] = toSet(m1.messages);
 
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
