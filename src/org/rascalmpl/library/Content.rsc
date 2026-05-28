@@ -168,13 +168,13 @@ Response fileResponse(loc source, map[str,str] headers)
   ;
 
 @synopsis{Utility to quickly render a string as HTML content}  
-Response response(str content, map[str,str] headers = ()) = response(ok(), send(text(), content, mimeType="text/html"), headers=headers);
+Response response(str content, map[str,str] header = ()) = response(ok(), send(text(), content, mimeType="text/html"), headers=header);
 
 @synopsis{Utility to quickly render an HTMLElement DOM as HTML content}  
-Response response(HTMLElement content, map[str,str] headers = ()) = response(ok(), send(html(), content, mimeType="text/html"), headers=headers);
+Response response(HTMLElement content, map[str,str] header = ()) = response(ok(), send(html(), content, mimeType="text/html"), headers=header);
 
 @synopsis{Utility to quickly report an HTTP error with a user-defined message}
-Response response(Status status, str explanation, map[str,str] headers = ()) = response(status, send(text(), explanation), headers=headers);
+Response response(Status status, str explanation, map[str,str] headers = ()) = response(status, send(text(), explanation), headers=header);
 
 @synopsis{Utility to quickly make a plaintext response.}
 Response plain(str text) = response(ok(), send(text(), text));

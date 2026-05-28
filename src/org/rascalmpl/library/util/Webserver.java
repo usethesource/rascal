@@ -245,12 +245,12 @@ public class Webserver {
                 if (header == null) {
                     header = vf.map();
                 }
-                IString mimeType = (IString) b.get("mimeType");
+                IString mimeType = b.asWithKeywordParameters().getParameter("mimeType");
                 if (mimeType == null) {
                     mimeType = vf.string("text/plain");
                 }
                 Status status = translateStatus((IConstructor) cons.get("status"));
-                IString charset = (IString) b.get("charset");
+                IString charset = b.asWithKeywordParameters().getParameter("charset");
                 if (charset == null) {
                     charset = vf.string("utf-8");
                 }
@@ -419,25 +419,25 @@ public class Webserver {
                         return vf.constructor(responseCons, statusOK, getBody);
                     case "/post/json":
                     case "/put/json":
-                        var receiveJsonBody = ((IFunction) args[0]).call(vf.constructor(jsonCons), nodeT);
+                        var receiveJsonBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(jsonCons), nodeT);
                         assert receiveJsonBody.getType() == tf.nodeType();
                         var postJsonBody = vf.constructor(sendCons, vf.constructor(jsonCons), receiveJsonBody);
                         return vf.constructor(responseCons, statusOK, postJsonBody);
                     case "/post/html":
                     case "/put/html":
-                        var receiveHTMLBody = ((IFunction) args[0]).call(vf.constructor(htmlCons), htmlT);
+                        var receiveHTMLBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(htmlCons), htmlT);
                         assert receiveHTMLBody.getType() == htmlElementType;
                         var postHTMLBody = vf.constructor(sendCons, vf.constructor(htmlCons), receiveHTMLBody);
                         return vf.constructor(responseCons, statusOK, postHTMLBody);
                     case "/post/xml":
                     case "/put/xml":
-                        var receiveXMLBody = ((IFunction) args[0]).call(vf.constructor(xmlCons), nodeT);
+                        var receiveXMLBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(xmlCons), nodeT);
                         assert receiveXMLBody.getType() == tf.nodeType();
                         var postXMLBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveXMLBody);
                         return vf.constructor(responseCons, statusOK, postXMLBody);
                     case "/post/text":
                     case "/put/text":
-                        var receiveTextBody = ((IFunction) args[0]).call(vf.constructor(textCons), strT);
+                        var receiveTextBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(textCons), strT);
                         assert receiveTextBody.getType() == tf.stringType();
                         var postTextBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveTextBody);
                         return vf.constructor(responseCons, statusOK, postTextBody);
