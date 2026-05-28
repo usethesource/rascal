@@ -2,7 +2,9 @@
 @synopsis{Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.}
 module Content
 
-import lang::json::IO;
+extend lang::json::IO;
+extend lang::html::IO;
+extend lang::xml::IO;
 import IO;
 
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
@@ -74,10 +76,8 @@ public map[str extension, str mimeType] mimeTypes = (
 @synopsis{Directly serve a static html page}
 Content html(str html) = content(response(html));
 
-
 @synopsis{Directly serve the contents of a file}
 Content file(loc src) = content(response(src));
-
 
 @synopsis{Directly serve the contents of a string as plain text}
 Content plainText(str text) = content(plain(text));

@@ -41,7 +41,6 @@ public class Webserver {
     private final PrintWriter out;
     private final IRascalMonitor monitor;
 
-
     private final Type requestType;
     private final  Type post;
     private final  Type get;
@@ -60,7 +59,7 @@ public class Webserver {
         this.out = out;
         this.monitor = monitor;
         this.servers = new HashMap<>();
-        this.body = new WebBody(store, TypeFactory.getInstance(), vf, monitor, out, err);
+        this.body = new WebBody(store, tf, vf, monitor, out, err);
 
         Type statusType = store.lookupAbstractDataType("Status");
 
@@ -87,7 +86,6 @@ public class Webserver {
         this.head = store.lookupConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
         this.receive = store.lookupConstructor(bodyType, "receive").iterator().next();
     }
-
 
     public void serve(ISourceLocation url, final IFunction callback, IBool asDeamon) {
         URI uri = url.getURI();
@@ -302,10 +300,8 @@ public class Webserver {
     public void shutdown(ISourceLocation server) {
         NanoHTTPD nano = servers.get(server);
         if (nano != null) {
-            //if (nano.isAlive()) {
             nano.stop();
             servers.remove(server);
-            //}
         }
         else {
             throw RuntimeExceptionFactory.illegalArgument(server, "could not shutdown");

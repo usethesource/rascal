@@ -10,7 +10,6 @@
 module lang::html::IO
 
 extend lang::html::AST;
-import Content;
 
 data HTMLEscapeMode
   = baseMode()
@@ -58,6 +57,3 @@ yield a syntactically correct (X)HTML file.
 }
 @javaClass{org.rascalmpl.library.lang.html.IO}
 java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true, bool normalise=true);
-
-@synopsis{Convenience function to visualize an HTMLElement tree in the browser}
-Content serve(HTMLElement elem) = html(writeHTMLString(elem));
