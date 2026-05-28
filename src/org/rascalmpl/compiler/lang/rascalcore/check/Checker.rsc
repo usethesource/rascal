@@ -585,7 +585,7 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
 }
 
 list[ModuleMessages] reportModuleMessages(ModuleStatus ms){
-    moduleIds = domain(ms.moduleLocs);
+    moduleIds = { mid | mid <- ms.status, checked() in ms.status[mid] };
     messagesNoModule = {*ms.messages[mid] | MODID mid <- ms.messages, (mid notin moduleIds || mid notin ms.moduleLocs)} + toSet(ms.pathConfig.messages);
     msgs = [ program(mid, (ms.messages[mid] ? {}) + messagesNoModule) | MODID mid <- moduleIds ];
     if(isEmpty(msgs) && !isEmpty(messagesNoModule)){
