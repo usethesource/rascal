@@ -67,7 +67,7 @@ bool matches(str subject, str pat){
 
 tuple[str,str] extractModuleNameAndBody(str moduleText){
 	txt = trim(moduleText);
-	if(/module\s*<nm:[A-Z][A-Za-z0-9:]*>\s*<body:.*$>/s := txt){
+	if(/module\s*<nm:[A-Za-z0-9:]*>\s*<body:.*$>/s := txt){
 		return <nm, body>;
 	}
 	throw "Cannot extract module name from <moduleText>";
@@ -75,7 +75,7 @@ tuple[str,str] extractModuleNameAndBody(str moduleText){
 
 loc composeModule(str stmts){
     return writeModule(
-        "module TestModule
+        "module TestModule<md5Hash(stmts)[..5]>
         'value main(){
         '    <stmts>\n
         '    return true;
@@ -83,14 +83,18 @@ loc composeModule(str stmts){
 }
 
 void clearMemory() {
-	remove(|memory:///test-modules/|, recursive = true);
+	remove(testRoot, recursive = true);
 }
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
-loc writeModule(str moduleText){
+loc writeModule(str moduleText, str altName="", str altPath=""){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
-    mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
+	if(altName?){
+		mname = altName;
+	}
+	mname = replaceAll(mname, "::", "/");
+    mloc = testModulesRoot +  altPath + "<cleanName(mname)>.rsc";
     writeFile(mloc, moduleText);
     return mloc;
 }
@@ -101,7 +105,7 @@ list[loc] writeModules(str modules...)
 void removeModule(str mname){
 	pcfg = getDefaultTestingPathConfig();
 	name = cleanName(mname);
-	remove(|memory:///test-modules/<name>.rsc|);
+	remove(testModulesRoot + "<name>.rsc");
 	remove(pcfg.generatedResources + "<name>.tpl");
 }
 
@@ -109,14 +113,13 @@ void printModules(){
 	println("\<\<\<\<");
 	for(f <- find(|memory:///|, "rsc")){
 		println("<f> <lastModified(f)>:
-				'<readFile(f)>");
+		        '<readFile(f)>");
 	}
 	for(f <- find(|memory:///|, "tpl")){
 		println("<f>: <lastModified(f)>");
 	}
 	println("\>\>\>\>");
 }
-
 
 set[Message] getErrorMessages(ModuleStatus r)
     =  { m | m <- getAllMessages(r), m is error };
@@ -324,7 +327,7 @@ list[str] unexpectedTypeMsgs = [
 		"Expected a binary relation, found _",
 		"Constructor _ is overloaded",
 		"Expression _ is overloaded",
-		"Base expression of field selection is ambiguous and should be resolved"
+		"Base expression _ of field selection should have a unique type"
 ];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
@@ -476,7 +479,8 @@ list[str] unexpectedDeclarationMsgs = [
 	"Non-well-formed _ type, labels must be distinct",
 	"Self import not allowed",
 	"Extend cycle not allowed",
-	"Mixed import/extend cycle not allowed"
+	"Mixed import/extend cycle not allowed",
+	"Module name _ is incompatible with its file location"
 ];
 
 bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())

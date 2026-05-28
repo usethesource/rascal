@@ -571,7 +571,10 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         throw "Cannot compute md5 for <current>";
     }
 
-    // TODO require symbol is nonterminal
+    // NB: by induction a non-terminal role is already required for symbol:
+    //   * either it is a Nonterminal name and the rule for Nonterminal covers this requirement
+    //   * or it is a more complex Sym which are non-terminals by definition
+
     c.define("<n>", fieldId(), n, defType([symbol],
         AType(Solver s){
             res = s.getType(symbol)[alabel=un];
@@ -853,24 +856,25 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
             c.define("<n>", typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //if(debugTP)println("Define <pname> at <current@\loc>");
         }
-        c.fact(current, n);
+        c.calculate("type parameter, 1", current, [n, tp], AType (Solver s) { return s.getType(n)[closed=closed]; });
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
-        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        c.calculate("type parameter, 2", current, [n, tp], AType (Solver s) { 
+                return s.getType(n)[closed=closed]; });
         //if(debugTP)println("Use <pname> at <current@\loc>");
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(!isEmpty(tpbounds[pname])){
             bnds = toList(tpbounds[pname]);
-            c.calculate("type parameter with bound", n, bnds,
+            c.calculate("type parameter with bound, 1", n, bnds + [tp],
                 AType(Solver s){
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
                 });
         } else {
-            c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
+            c.calculate("type parameter with bound, 2", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
         }
-        c.fact(current, n);
-    }
+        c.fact(current, tp);
+     }
 
     collect(tp, c);
 }
