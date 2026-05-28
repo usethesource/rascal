@@ -7,6 +7,8 @@ extend lang::html::IO;
 extend lang::xml::IO;
 import IO;
 
+private str DEFAULT_CHARSET = "UTF-8";
+
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
 on the terminal.}
 @description{
@@ -91,7 +93,7 @@ and possibly uploaded content, also coded as a map[str,str]. From the constructo
 @pitfalls{
 * Note that `put` and `post` have not been implemented yet in the REPL server.
 }
-data Request (map[str, str] headers = (), map[str, str] parameters = ())
+data Request (map[str, str] headers = (), map[str, str] parameters = (), loc host=|http://localhost|)
   = get (str path)
   | put (str path, Body content)
   | post(str path, Body content)
@@ -121,7 +123,7 @@ conversions (formatters, parsers and validators) are activated on
 the bridge between Rascal and the HTTP protocol.
 }
 data Body
-  = send(BodyKind kind, value source)
+  = send(BodyKind kind, value source, str mimeType="text/plain", str charset=DEFAULT_CHARSET)
   | receive(&T (BodyKind kind, type[&T] expect) receiver)
   ;
 
