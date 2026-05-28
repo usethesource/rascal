@@ -309,8 +309,11 @@ public class Webclient {
         IFunction bodyReceiver = body.createBodyReceiver(input, url, mimeType, charset);
         Type bodyConstructor = store.lookupConstructors("receive").iterator().next();
         IConstructor body = vf.constructor(bodyConstructor, bodyReceiver);
-
-        return vf.constructor(respCons, status, vf.string(mimeType), headers, body);
+        body = body.asWithKeywordParameters().setParameter("mimetype", vf.string(mimeType));
+        
+        return vf.constructor(respCons, status, body)
+            .asWithKeywordParameters()
+            .setParameter("headers", headers);
     }
 
     private String getCharset(HttpHeaders headers) {

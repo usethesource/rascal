@@ -33,26 +33,21 @@ java void serve(loc server, Response (Request) callback, bool asDaemon = true);
 @synopsis{Stops a server}
 java void shutdown(loc server);
 
-test bool testWebServer() {
-   loc testLoc = |http://localhost:10001|;
-   
-  Response testServer(post("/post", Body b)) 
-    = response("posted: <b.receiver(json(), #node)>");   
-
-  Response testServer(put("/put", Body b)) 
-    = response("put: <b.receiver(json(), #node)>");   
-
-  Response testServer(g:get("/get")) 
-    = response("get: <g.headers>");   
-   
-   try {
-      serve(testLoc, testServer);
-      return true;
-   }
-   catch value exception:
-     throw exception;
-   finally {
-    ;
-    //  shutdown(testLoc);
-   }
+@synopsis{Starts a test server that does not need the Rascal execution lock when handling a request.}
+@description{
+* `/get` returns `ok`
+* `/post/text` and `/put/text` accept proper textual uploads, parses it to `str`, checks the type and returns is as proper string again.
+* `/post/json` and `/put/json` accept any JSON upload, parse it to a `node`, check the type and return it as json again.
+* `/post/html` and `/put/html` accept proper HTML uploads, parses it to HTMLElements, checks the type and returns is as proper HTML again.
+* `/post/xml` and `/put/xml` accept proper XML uploads, parses it to `node`, checks the type and returns is as proper XML again.
+* `/head` returns the headers of the request as text.
 }
+@benefits{
+* can be used to test the ((util::Webclient)) without deadlock
+* offers all HTTP2 methods as an echo server to test the internals of the ((serve)) function.
+}
+@pitfalls{
+* only default mimetypes and charsets are used.
+}
+@javaClass{org.rascalmpl.library.util.Webserver}
+java void startTestEchoServer(int port=10001);

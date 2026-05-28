@@ -107,7 +107,12 @@ The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
 }                                            
-data Response = response(Status status, str mimeType, map[str, str] header, Body body);
+data Response(map[str, str] headers = ())
+  = response(Status status, Body body);
+
+@deprecated{Use the data constructor without the mimetype and express the mimetype on the body and the headers as a keyword field.}
+Response response(Status status, str mimeType, map[str, str] headers, Body body)
+  = response(status, body[mimeType=mimeType], headers=headers);
 
 @synopsis{Bodies can be sent or received, depending on the context (client or)}
 @description{
@@ -141,35 +146,38 @@ data BodyKind
   ;
 
 @synopsis{Convenience function for construction a JSON response value}
-Response jsonResponse(Status status, map[str,str] header, value val, JSONOptions options = jsonOptions())
-  = response(status, "application/json", header, send(json(options=options), val));
+Response jsonResponse(Status status, map[str,str] headers, value val, JSONOptions options = jsonOptions())
+  = response(status,send(json(options=options), val, mimeType="application/json"), headers=headers);
 
 @synopsis{Convenience function for construction a text response value}
-Response response(Status status, str mimeType, map[str,str] header, str content)
-  = response(status, mimeType, header, send(text(), content));
+Response response(Status status, str mimeType, map[str,str] headers, str content)
+  = response(status, send(text(), content, mimeType=mimeType), headers=headers);
 
 @synopsis{Convenience function for file response value}
-Response fileResponse(loc source, str mimeType, map[str,str] header)
+Response fileResponse(loc source, str mimeType, map[str,str] headers)
   = exists(source) 
-    ? response(ok(), mimeType, header, send(file(), source))
-    : response(notFound(), "text/plain", (), send(text(), "<file> not found."))
+    ? response(ok(), send(file(), source, mimeType=mimeType), headers=headers)
+    : response(notFound(), send(text(), "<file> not found."))
   ;
 
 @synopsis{Convenience function for construction a file response value with automatic mimetype}
-Response fileResponse(loc source, map[str,str] header)
+Response fileResponse(loc source, map[str,str] headers)
   = exists(source) 
-    ? response(ok(), mimeTypes[source.extension]?"text/plain", header, send(file(), source))
-    : response(notFound(), "text/plain", (), send(text(), "<source> not found."))
+    ? response(ok(), send(file(), source, mimeType=mimeTypes[source.extension]?"text/plain"), headers=headers)
+    : response(notFound(), send(text(), "<source> not found."), headers=headers)
   ;
 
 @synopsis{Utility to quickly render a string as HTML content}  
-Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, send(text(), content));
+Response response(str content, map[str,str] headers = ()) = response(ok(), send(text(), content, mimeType="text/html"), headers=headers);
+
+@synopsis{Utility to quickly render an HTMLElement DOM as HTML content}  
+Response response(HTMLElement content, map[str,str] headers = ()) = response(ok(), send(html(), content, mimeType="text/html"), headers=headers);
 
 @synopsis{Utility to quickly report an HTTP error with a user-defined message}
-Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
+Response response(Status status, str explanation, map[str,str] headers = ()) = response(status, send(text(), explanation), headers=headers);
 
 @synopsis{Utility to quickly make a plaintext response.}
-Response plain(str text) = response(ok(), "text/plain", (), text);
+Response plain(str text) = response(ok(), send(text(), text));
 
 @synopsis{Utility to serve a file from any source location.}
 Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);

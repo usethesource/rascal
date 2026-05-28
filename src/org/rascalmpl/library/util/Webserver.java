@@ -23,9 +23,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
@@ -33,6 +36,7 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -49,6 +53,15 @@ public class Webserver {
     private final IRascalMonitor monitor;
 
     private final Type requestType;
+    private final Type responseType;
+    private final Type responseCons;
+    private final Type sendCons;
+    private final Type kindType;
+    private final Type textCons;
+    private final Type jsonCons;
+    private final Type xmlCons;
+    private final Type htmlCons;
+    private final Type htmlElementType;
     private final  Type post;
     private final  Type get;
     private final  Type head;
@@ -57,9 +70,13 @@ public class Webserver {
     private final  Type receive;
     private final  Type bodyType;
 	
+    private final IConstructor statusOK;
+    private final IConstructor statusNotFound;
+
     private final Map<ISourceLocation, NanoHTTPD> servers;
     private final Map<IConstructor,Status> statusValues = new HashMap<>();
     private final WebBody body;
+    
     
     public Webserver(IRascalValueFactory vf, TypeFactory tf, TypeStore store, PrintWriter out, IRascalMonitor monitor, PrintWriter err) {
         this.vf = vf;
@@ -70,7 +87,10 @@ public class Webserver {
 
         Type statusType = store.lookupAbstractDataType("Status");
 
-        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "ok", tf.voidType())), Status.OK);
+        this.statusOK = vf.constructor(store.lookupConstructor(statusType, "ok", tf.voidType()));
+        this.statusNotFound = vf.constructor(store.lookupConstructor(statusType, "notFound", tf.voidType()));
+
+        statusValues.put(statusOK, Status.OK);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "created", tf.voidType())), Status.CREATED);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "accepted", tf.voidType())), Status.ACCEPTED);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "noContent", tf.voidType())), Status.NO_CONTENT);
@@ -80,12 +100,21 @@ public class Webserver {
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.voidType())), Status.BAD_REQUEST);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "unauthorized", tf.voidType())), Status.UNAUTHORIZED);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "forbidden", tf.voidType())), Status.FORBIDDEN);
-        statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
+        statusValues.put(statusNotFound, Status.NOT_FOUND);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
         statusValues.put(vf.constructor(store.lookupConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
 
         this.requestType = store.lookupAbstractDataType("Request");
+        this.responseType = store.lookupAbstractDataType("Response");
+        this.responseCons = store.lookupConstructor(responseType, "response").iterator().next();
         this.bodyType = store.lookupAbstractDataType("Body");
+        this.kindType = store.lookupAbstractDataType("BodyKind");
+        this.htmlElementType = store.lookupAbstractDataType("HTMLElement");
+        this.sendCons = store.lookupConstructor(bodyType, "send").iterator().next();
+        this.textCons = store.lookupConstructor(kindType, "text").iterator().next();
+        this.jsonCons = store.lookupConstructor(kindType, "json").iterator().next();
+        this.xmlCons = store.lookupConstructor(kindType, "xml").iterator().next();
+        this.htmlCons = store.lookupConstructor(kindType, "html").iterator().next();
         this.get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
         this.put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), bodyType));
         this.post = store.lookupConstructor(requestType, "post",  tf.tupleType(tf.stringType(), bodyType));
@@ -212,7 +241,10 @@ public class Webserver {
                 IConstructor cons = (IConstructor) value;
                 IConstructor b = (IConstructor) cons.get("body");
                 IConstructor kind = (IConstructor) b.get("kind");
-                IMap header = (IMap) cons.get("header");
+                IMap header = (IMap) cons.asWithKeywordParameters().getParameter("headers");
+                if (header == null) {
+                    header = vf.map();
+                }
                 IString mimeType = (IString) b.get("mimeType");
                 if (mimeType == null) {
                     mimeType = vf.string("text/plain");
@@ -361,5 +393,62 @@ public class Webserver {
         catch (Throwable t) {
             target.completeExceptionally(t);
         }
+    }
+
+    /**
+     * This exercises the entire server infrastructure without locking the interpreter
+     */
+    public void startTestEchoServer(IInteger port) {
+        TypeFactory tf = TypeFactory.getInstance();
+        Type serverFunction = tf.functionType(responseType, tf.tupleType(requestType), tf.tupleEmpty());
+        TypeReifier tr = new TypeReifier(vf);
+
+        serve(
+            URIUtil.correctLocation("http", "localhost:" + port, ""),
+            vf.function(serverFunction, (args, kwArgs) -> {
+                IConstructor request = (IConstructor) args[0];
+                IMap headers = request.asWithKeywordParameters().getParameter("headers");
+                String path = ((IString) request.get(0)).getValue();
+                IValue nodeT = tr.typeToValue(tf.nodeType(), new TypeStore(), vf.map());
+                IValue strT = tr.typeToValue(tf.stringType(), new TypeStore(), vf.map());
+                IValue htmlT = tr.typeToValue(htmlElementType, new TypeStore(), vf.map());
+                
+                switch (path) {
+                    case "/get":
+                        var getBody = vf.constructor(sendCons, vf.constructor(textCons), vf.string("ok"));
+                        return vf.constructor(responseCons, statusOK, getBody);
+                    case "/post/json":
+                    case "/put/json":
+                        var receiveJsonBody = ((IFunction) args[0]).call(vf.constructor(jsonCons), nodeT);
+                        assert receiveJsonBody.getType() == tf.nodeType();
+                        var postJsonBody = vf.constructor(sendCons, vf.constructor(jsonCons), receiveJsonBody);
+                        return vf.constructor(responseCons, statusOK, postJsonBody);
+                    case "/post/html":
+                    case "/put/html":
+                        var receiveHTMLBody = ((IFunction) args[0]).call(vf.constructor(htmlCons), htmlT);
+                        assert receiveHTMLBody.getType() == htmlElementType;
+                        var postHTMLBody = vf.constructor(sendCons, vf.constructor(htmlCons), receiveHTMLBody);
+                        return vf.constructor(responseCons, statusOK, postHTMLBody);
+                    case "/post/xml":
+                    case "/put/xml":
+                        var receiveXMLBody = ((IFunction) args[0]).call(vf.constructor(xmlCons), nodeT);
+                        assert receiveXMLBody.getType() == tf.nodeType();
+                        var postXMLBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveXMLBody);
+                        return vf.constructor(responseCons, statusOK, postXMLBody);
+                    case "/post/text":
+                    case "/put/text":
+                        var receiveTextBody = ((IFunction) args[0]).call(vf.constructor(textCons), strT);
+                        assert receiveTextBody.getType() == tf.stringType();
+                        var postTextBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveTextBody);
+                        return vf.constructor(responseCons, statusOK, postTextBody);
+                    case "/head":
+                        var headBody = vf.constructor(sendCons, vf.constructor(textCons), vf.string(headers.toString()));
+                        return vf.constructor(responseCons, statusOK, headBody);
+                    default: // 404
+                        var notFoundBody = vf.constructor(sendCons, vf.constructor(textCons), vf.string(path + " was not found."));
+                        return vf.constructor(responseCons, statusNotFound, notFoundBody);
+                }
+            })
+        , vf.bool(true));
     }
 }
