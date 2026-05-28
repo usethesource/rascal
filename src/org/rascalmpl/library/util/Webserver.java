@@ -206,11 +206,16 @@ public class Webserver {
                 IConstructor b = (IConstructor) cons.get("body");
                 IConstructor kind = (IConstructor) b.get("kind");
                 IMap header = (IMap) cons.get("header");
-                IString mimeType = (IString) cons.get("mimeType");
+                IString mimeType = (IString) b.get("mimeType");
+                if (mimeType == null) {
+                    mimeType = vf.string("text/plain");
+                }
                 Status status = translateStatus((IConstructor) cons.get("status"));
-                // TODO: find a source for the charset in the API
-                String charset = "utf-8";
-                String contentType = mimeType + ";charset=" + charset;
+                IString charset = (IString) b.get("charset");
+                if (charset == null) {
+                    charset = vf.string("utf-8");
+                }
+                String contentType = mimeType.getValue() + ";charset=" + charset.getValue();
 
                 if (method != Method.HEAD) {
                     switch (status) {
@@ -233,14 +238,14 @@ public class Webserver {
                     case "file":
                         r = newChunkedResponse(status, contentType, body.sendFileBody(b));
                     case "json":
-                        r = newChunkedResponse(status, contentType, body.sendJsonBody(b, charset));
+                        r = newChunkedResponse(status, contentType, body.sendJsonBody(b, charset.getValue()));
                     case "xml": 
-                        r = newChunkedResponse(status, contentType, body.sendXMLBody(b, charset));
+                        r = newChunkedResponse(status, contentType, body.sendXMLBody(b, charset.getValue()));
                     case "html": 
-                        r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset));
+                        r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset.getValue()));
                     case "text":
                     default:
-                        r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset));
+                        r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset.getValue()));
                 }
 
                 addHeaders(r, header, contentType);
