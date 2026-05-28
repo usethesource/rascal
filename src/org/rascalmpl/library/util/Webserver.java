@@ -237,12 +237,16 @@ public class Webserver {
                 switch (kind.getName()) {
                     case "file":
                         r = newChunkedResponse(status, contentType, body.sendFileBody(b));
+                        break;
                     case "json":
                         r = newChunkedResponse(status, contentType, body.sendJsonBody(b, charset.getValue()));
+                        break;
                     case "xml": 
                         r = newChunkedResponse(status, contentType, body.sendXMLBody(b, charset.getValue()));
+                        break;
                     case "html": 
                         r = newChunkedResponse(status, contentType, body.sendHTMLBody(b, charset.getValue()));
+                        break;
                     case "text":
                     default:
                         r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset.getValue()));
