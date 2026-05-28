@@ -147,13 +147,12 @@ public class WebBody {
             monitor.warning("Expected content-type 'application/json', got: " + contentType, url);
         }
 
-        try {
-            JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
+        try (JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset))) {
             JsonValueReader parser = new JsonValueReader(vf, store, monitor, url);
             return parser.read(jsonReader, expect);
         }
         catch (IOException e) {
-        throw RuntimeExceptionFactory.io(e);
+            throw RuntimeExceptionFactory.io(e);
         }
     }
 
