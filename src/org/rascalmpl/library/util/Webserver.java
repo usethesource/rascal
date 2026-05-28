@@ -242,7 +242,7 @@ public class Webserver {
                     case "xml": 
                         r = newChunkedResponse(status, contentType, body.sendXMLBody(b, charset.getValue()));
                     case "html": 
-                        r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset.getValue()));
+                        r = newChunkedResponse(status, contentType, body.sendHTMLBody(b, charset.getValue()));
                     case "text":
                     default:
                         r = newChunkedResponse(status, contentType, body.sendTextBody(b, charset.getValue()));
