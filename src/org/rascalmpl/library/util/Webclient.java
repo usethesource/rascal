@@ -13,7 +13,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,23 +60,40 @@ public class Webclient {
             ;
     }
 
-    private HttpRequest makeGetRequest(IConstructor input, URI uri, String[] headers) {
+    /**
+     * Creates a proper Content-Type header field from keyword parameters,
+     * filling in defaults for missing ones.
+     */
+    private IMap contentType(IConstructor input, IMap headers) {
+        var mimeType = (IString) input.asWithKeywordParameters().getParameter("mimeType");
+        if (mimeType == null) {
+            mimeType = vf.string("text/plain");
+        }
+        var charset = (IString) input.asWithKeywordParameters().getParameter("charset");
+        if (charset == null) {
+            charset = vf.string("utf-8");
+        }
+
+        return headers.put(vf.string("Content-Type"), mimeType.concat(vf.string(";charset=").concat(charset)));
+    }
+
+    private HttpRequest makeGetRequest(IConstructor input, URI uri, IMap headers) {
         return HttpRequest.newBuilder(uri)
-            .headers(headers)
+            .headers(makeHeaders(headers))
             .GET()
             .build();
     }
 
-    private HttpRequest makePutRequest(IConstructor input, URI uri, String[] headers, String charset) {        
+    private HttpRequest makePutRequest(IConstructor input, URI uri, IMap headers) {        
         return HttpRequest.newBuilder(uri)
-            .headers(headers)
-            .PUT(publishBody(input, charset))
+            .headers(makeHeaders(contentType(input, headers)))
+            .PUT(publishBody(input))
             .build();
     }
 
-    private HttpRequest makeDeleteRequest(IConstructor input, URI uri, String[] headers) {
+    private HttpRequest makeDeleteRequest(IConstructor input, URI uri, IMap headers) {
         return HttpRequest.newBuilder(uri)
-            .headers(headers)
+            .headers(makeHeaders(headers))
             .DELETE()
             .build();
     }
@@ -117,9 +133,9 @@ public class Webclient {
         return result.getURI();
     }
 
-    private HttpRequest makeHeadRequest(IConstructor input, URI uri, String[] headers) {
+    private HttpRequest makeHeadRequest(IConstructor input, URI uri, IMap headers) {
         return HttpRequest.newBuilder(uri)
-            .headers(headers)
+            .headers(makeHeaders(headers))
             .method("HEAD", BodyPublishers.noBody())
             .build();
     }
@@ -154,11 +170,11 @@ public class Webclient {
         }
     }
     
-    private HttpRequest makePostRequest(IConstructor input, URI uri, String[] headers, String charset) {
+    private HttpRequest makePostRequest(IConstructor input, URI uri, IMap headers) {
         return HttpRequest.newBuilder()
             .uri(uri)
-            .headers(headers)
-            .POST(publishBody(input, charset))
+            .headers(makeHeaders(contentType(input, headers)))
+            .POST(publishBody(input))
             .build();
     }
 
@@ -213,19 +229,17 @@ public class Webclient {
         // need at least one header to avoid IllegalArgumentExceptions  by the HTTP builder
         headers = headers.put(vf.string("User-Agent"), vf.string("rascal-stdlib"));
 
-        var httpHeaders = makeHeaders(headers);
-
         switch (input.getName()) {
             case "get":
-                return makeGetRequest(input, host, httpHeaders);
+                return makeGetRequest(input, host, headers);
             case "post":
-                return makePostRequest(input, host, httpHeaders, charset.getValue());
+                return makePostRequest(input, host, headers);
             case "put":
-                return makePutRequest(input, host, httpHeaders, charset.getValue());
+                return makePutRequest(input, host, headers);
             case "delete":
-                return makeDeleteRequest(input, host, httpHeaders);
+                return makeDeleteRequest(input, host, headers);
             case "head":
-                return makeHeadRequest(input, host, httpHeaders);
+                return makeHeadRequest(input, host, headers);
 
             default:
                 throw RuntimeExceptionFactory.illegalArgument(input);
