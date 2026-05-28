@@ -54,11 +54,22 @@ public class IO {
     }
 
     private IValue doReadJSON(Reader in, 
-        IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
-        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) throws IOException {
-
+        IValue type, ISourceLocation loc, IConstructor options) throws IOException {
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
+        var kws = options.asWithKeywordParameters();
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool lenient = (IBool) kws.getParameter("lenient");
+        IFunction parsers = (IFunction) kws.getParameter("parser");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool tor = (IBool) kws.getParameter("trackOrigins");
+        IMap nulls = (IMap) kws.getParameter("nulls");
+
+        if (nulls == null) {
+            throw RuntimeExceptionFactory.io("JSON option `nulls` must have been set.");
+        }
+       
         
         if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
             // ignore the default parser
@@ -67,13 +78,13 @@ public class IO {
 
         try {
             return new JsonValueReader(values, store, monitor, loc)
-                    .setCalendarFormat(dateTimeFormat.getValue())
-                    .setLenient(lenient.getValue())
+                    .setCalendarFormat(dtf != null ? dtf.getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                    .setLenient(lenient != null ? lenient.getValue() : false)
                     .setParsers(parsers) 
-                    .setNulls(unreify(nulls))
-                    .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                    .setExplicitDataTypes(explicitDataTypes.getValue())
-                    .setTrackOrigins(trackOrigins.getValue())
+                    .setNulls(unreify(nulls)) // nulls must be explicit in the options constructor
+                    .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                    .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+                    .setTrackOrigins(tor != null ? ((IBool) tor).getValue() : false)
                     .read(in, start);
         }
         catch (NullPointerException e) {
@@ -81,48 +92,53 @@ public class IO {
         }
     }
         
-    public IValue readJSON(
-        IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
-        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
-
+    public IValue readJSON(IValue type, ISourceLocation loc, IConstructor options) {
         try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
-            return doReadJSON(in, type, loc, dateTimeFormat, lenient, trackOrigins, parsers, nulls, explicitConstructorNames, explicitDataTypes);
+            return doReadJSON(in, type, loc, options);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e);
         }
     }
 
-    public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
-        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
+    public IValue parseJSON(IValue type, IString src, IConstructor options) {
        
         try (Reader in = new StringReader(src.getValue())) {
-            return doReadJSON(in, type, null, dateTimeFormat, lenient, trackOrigins, parsers, nulls, explicitConstructorNames, explicitDataTypes);
+            return doReadJSON(in, type, null, options);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e);
         }
     }
 
-    public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat,
-        IBool dateTimeAsInt, IBool rationalsAsString, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
-        IBool explicitDataTypes) {
+    public void writeJSON(ISourceLocation loc, IValue value, IConstructor options) {
+        var kws = options.asWithKeywordParameters();
+        int indent = ((IInteger) kws.getParameter("indent")).intValue();
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool dai = (IBool) kws.getParameter("dateTimeAsInt");
+        IBool ras = (IBool) kws.getParameter("rationalsAsString");
+        IFunction formatters = (IFunction) kws.getParameter("formatter");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool upl = (IBool) kws.getParameter("unpackLocations");
+        IBool dor = (IBool) kws.getParameter("dropOrigins");
+        
         try (JsonWriter out =
             new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false),
                 Charset.forName("UTF8")))) {
-            if (indent.intValue() > 0) {
-                out.setIndent("        ".substring(0, indent.intValue() % 9));
+            if (indent > 0) {
+                out.setIndent("        ".substring(0, indent % 9));
             }
 
             new JsonValueWriter()
-                .setCalendarFormat(dateTimeFormat.getValue())
-                .setDatesAsInt(dateTimeAsInt.getValue())
-                .setRationalsAsString(rationalsAsString.getValue())
-                .setUnpackedLocations(unpackedLocations.getValue())
-                .setDropOrigins(dropOrigins.getValue())
-                .setFormatters(formatter)
-                .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+                .setUnpackedLocations(upl != null ? ((IBool) upl).getValue() : false)
+                .setDropOrigins(dor != null ? ((IBool) dor).getValue() : true)
+                .setFormatters(formatters)
+                .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                 .write(out, value);
         }
         catch (IOException e) {
@@ -130,24 +146,33 @@ public class IO {
         }
     }
 
-    public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IBool rationalsAsString,
-        IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
-        IBool explicitDataTypes) {
+    public IString asJSON(IValue value, IConstructor options) {
+        var kws = options.asWithKeywordParameters();
+        int indent = ((IInteger) kws.getParameter("indent")).intValue();
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool dai = (IBool) kws.getParameter("dateTimeAsInt");
+        IBool ras = (IBool) kws.getParameter("rationalsAsString");
+        IFunction formatters = (IFunction) kws.getParameter("formatter");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool upl = (IBool) kws.getParameter("unpackLocations");
+        IBool dor = (IBool) kws.getParameter("dropOrigins");
+       
         StringWriter string = new StringWriter();
 
         try (JsonWriter out = new JsonWriter(string)) {
-            if (indent.intValue() > 0) {
-                out.setIndent("        ".substring(0, indent.intValue() % 9));
+            if (indent > 0) {
+                out.setIndent("        ".substring(0, indent % 9));
             }
             new JsonValueWriter()
-                .setCalendarFormat(dateTimeFormat.getValue())
-                .setDatesAsInt(dateTimeAsInt.getValue())
-                .setRationalsAsString(rationalsAsString.getValue())
-                .setUnpackedLocations(unpackedLocations.getValue())
-                .setDropOrigins(dropOrigins.getValue())
-                .setFormatters(formatter)
-                .setExplicitConstructorNames(explicitConstructorNames.getValue())
-                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+                .setUnpackedLocations(upl != null ? ((IBool) upl).getValue() : false)
+                .setDropOrigins(dor != null ? ((IBool) dor).getValue() : true)
+                .setFormatters(formatters)
+                .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                 .write(out, value);
 
             return values.string(string.toString());

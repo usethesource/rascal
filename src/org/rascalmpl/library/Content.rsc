@@ -132,21 +132,11 @@ such as (composite) strings and JSON code is _streamed_ onto the HTTP socket.
 }
 data BodyKind
   = text()
-  | json(JSONOptions options=jsonOptions())
+  | json(JSONOptions options=jsonOptions(nulls=defaultJSONNULLValues))
   | html()
   | xml()
   | file(loc storage=|unknown:///|)
   ;
-
-data JSONOptions
-  = jsonOptions(
-      str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", 
-      JSONFormatter[value] formatter = str (value _) { fail; },
-      bool explicitConstructorNames=false, 
-      bool explicitDataTypes=false, 
-      bool dateTimeAsInt=true, 
-      bool rationalsAsString=false
-  );
 
 @synopsis{Convenience function for construction a JSON response value}
 Response jsonResponse(Status status, map[str,str] header, value val, JSONOptions options = jsonOptions())
