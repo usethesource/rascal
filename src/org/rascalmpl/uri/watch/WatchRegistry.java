@@ -122,7 +122,7 @@ public class WatchRegistry {
         else if (hasResolvers.test(resolvedLoc)) {
             startSimulatedWatch(loc, recursive, callback, resolvedLoc);
         }
-        else if (externalRegistry != null) {
+        else if (hasExternalRegistry()) {
             externalRegistry.watch(resolvedLoc, callback, recursive);
         }
     }
@@ -220,7 +220,7 @@ public class WatchRegistry {
                 entries.removeIf(p -> p.isRecursive() == recursive && p.getHandler() == finalCallback);
             }
         }
-        else if (externalRegistry != null) {
+        else if (hasExternalRegistry()) {
             externalRegistry.unwatch(loc, callback, recursive);
         }
     }
