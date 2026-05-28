@@ -403,8 +403,12 @@ public class URIResolverRegistry {
 		}
 		
 		if (externalRegistry != null) {
-			var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
-			return externalResult == null ? loc : externalResult;
+			try {
+				var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
+				return externalResult == null ? loc : externalResult;
+			} catch (IOException e) {
+				// Ignore remote IO errors
+			}
 		}
 		return loc;
 	}
