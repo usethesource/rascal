@@ -7,8 +7,8 @@
  */
 package org.rascalmpl.library.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -140,13 +140,15 @@ public class Webserver {
 
             @Override
             public Response serve(IHTTPSession session) {
+
                 var method = session.getMethod();
                 var parms = session.getParms();
                 var headers = session.getHeaders();
                 var path = session.getUri(); // method misnomer
+
                 
                 try {
-                    IConstructor request = makeRequest(vf.sourceLocation("http", "localhost" + port, path), path, method, headers, parms, session.getInputStream());
+                    IConstructor request = makeRequest(vf.sourceLocation("http", "localhost" + port, path), path, method, headers, parms, session);
                     CompletableFuture<IValue> rascalResponse = executor.apply(request);
                     if (rascalResponse.isCompletedExceptionally()) {
                         rascalResponse.handle((v, e) -> {
@@ -197,13 +199,13 @@ public class Webserver {
             }
 
             private String getMimeType(Map<String, String> headers) {
-                String contenType = headers.getOrDefault("Content-Type", "text/plain");
+                String contenType = headers.getOrDefault("content-type", "text/plain");
                 String[] parts = contenType.split(";");
                 return parts[0].trim();
             }
 
              private String getCharset(Map<String, String> headers) {
-                String contentType = headers.getOrDefault("Content-Type", "text/plain");
+                String contentType = headers.getOrDefault("content-type", "text/plain");
                 String result = StandardCharsets.UTF_8.name();
 
                 String[] parts = contentType.split(";");
@@ -219,13 +221,20 @@ public class Webserver {
             }
 
             private IConstructor makeRequest(ISourceLocation host, String path, Method method, Map<String, String> headers,
-                Map<String, String> parms, InputStream inputStream) throws FactTypeUseException, IOException {
+                Map<String, String> parms, IHTTPSession session) throws FactTypeUseException, IOException, ResponseException {
                 Map<String,IValue> kws = new HashMap<>();
                 kws.put("parameters", makeMap(parms));
                 kws.put("headers", makeMap(headers));
                 var mimeType = getMimeType(headers);
                 var charset = getCharset(headers);
-
+                Map<String, String> files = new HashMap<>();
+                session.parseBody(files);
+                String postBody = files.get("postData");
+                
+                // alas NanoHTTPD's session.getInputStream does not provide clean access to the body
+                // (we would encounter chunking meta code for example)
+                // so we have to use their own parser that reads the body into a string and stream from that.
+                        
                 switch (method) {
                     case HEAD:
                         return vf.constructor(head, new IValue[]{vf.string(path)}, kws);
@@ -233,10 +242,18 @@ public class Webserver {
                         return vf.constructor(delete, new IValue[]{vf.string(path)}, kws);
                     case GET:
                         return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
-                    case PUT:
-                        return vf.constructor(put, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(inputStream, host, mimeType, charset))}, kws);
+                    case PUT:  
+                        if (postBody == null) {
+                            throw new IOException("expected a non-empty body. possible mimetype mismatch: " + mimeType);
+                        }
+                        var putBodyStream = new ByteArrayInputStream(postBody.getBytes("utf-8"));
+                        return vf.constructor(put, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(putBodyStream, host, mimeType, charset))}, kws);
                     case POST:
-                        return vf.constructor(post, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(inputStream, host, mimeType, charset))}, kws);
+                        if (postBody == null) {
+                            throw new IOException("expected a non-empty body. possible mimetype mismatch: " + mimeType);
+                        }
+                        var postBodyStream = new ByteArrayInputStream(postBody.getBytes("utf-8"));
+                        return vf.constructor(method == Method.PUT ? put : post, new IValue[]{vf.string(path), vf.constructor(receive, body.createBodyReceiver(postBodyStream, host, mimeType, charset))}, kws);
                     default:
                         throw new IOException("Unhandled request " + method);
                 }
@@ -304,7 +321,7 @@ public class Webserver {
                 response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
                 response.addHeader("Pragma", "no-cache");
                 response.addHeader("Expires", "0");                
-                response.addHeader("Content-Type", contentType);
+                response.addHeader("content-type", contentType);
 
                 for (IValue key : header) {
                     response.addHeader(((IString) key).getValue(), ((IString) header.get(key)).getValue());

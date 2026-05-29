@@ -73,16 +73,17 @@ public class Webclient {
      * filling in defaults for missing ones.
      */
     private IMap contentType(IConstructor input, IMap headers) {
-        var mimeType = (IString) input.asWithKeywordParameters().getParameter("mimeType");
+        IConstructor body = (IConstructor) input.get("content");
+        var mimeType = (IString) body.asWithKeywordParameters().getParameter("mimeType");
         if (mimeType == null) {
-            mimeType = vf.string("text/plain");
+            mimeType = vf.string(defaultContentType(input));
         }
-        var charset = (IString) input.asWithKeywordParameters().getParameter("charset");
+        var charset = (IString) body.asWithKeywordParameters().getParameter("charset");
         if (charset == null) {
             charset = vf.string("utf-8");
         }
 
-        return headers.put(vf.string("Content-Type"), mimeType.concat(vf.string(";charset=").concat(charset)));
+        return headers.put(vf.string("content-type"), mimeType.concat(vf.string(";charset=").concat(charset)));
     }
 
     private HttpRequest makeGetRequest(IConstructor input, URI uri, IMap headers) {
@@ -157,7 +158,7 @@ public class Webclient {
         if (!postBody.getName().equals("send")) {
             throw RuntimeExceptionFactory.illegalArgument(postBody, "Client-side POST should send a Body, not receive one");
         }
-      
+    
         final var charset = (IString) postBody.asWithKeywordParameters().getParameter("charset");
         final var kind = (IConstructor) postBody.get("kind");
         final var cs = charset != null ? charset.getValue() : "utf-8";
@@ -196,6 +197,10 @@ public class Webclient {
                     return "application/json";
                 case "file":
                     return "application/octet-stream";
+                case "html":
+                    return "text/html";
+                case "xml":
+                    return "text/xml";
                 case "text":
                 default:
                     return "text/plain";
@@ -214,28 +219,8 @@ public class Webclient {
             headers = vf.map();
         }
 
-        var charset = ((IString) input.asWithKeywordParameters().getParameter("charset"));
-
-        if (charset == null) {
-            charset = vf.string(StandardCharsets.UTF_8.name());
-        }
-
-        var contentType = ((IString) input.asWithKeywordParameters().getParameter("content-type"));
-        
-        if (contentType == null) {
-            contentType = vf.string(defaultContentType(input));
-        }
-
-        if (headers.get(vf.string("Content-Type")) != null) {
-            monitor.warning("For POST and PUT, use the keyword fields 'content-type' and 'charset' instead of the 'Content-Type' header field.", vf.sourceLocation(host));
-        }
-
-        if (contentType.length() != 0) {
-            headers = headers.put(vf.string("Content-Type"), vf.string(contentType + ";charset=" + charset));
-        }        
-
         // need at least one header to avoid IllegalArgumentExceptions  by the HTTP builder
-        headers = headers.put(vf.string("User-Agent"), vf.string("rascal-stdlib"));
+        headers = headers.put(vf.string("User-Agent"), vf.string("rascal"));
 
         switch (input.getName()) {
             case "get":
@@ -317,7 +302,7 @@ public class Webclient {
     }
 
     private String getCharset(HttpHeaders headers) {
-        String contentType = headers.firstValue("Content-Type").orElse("text/plain");
+        String contentType = headers.firstValue("content-type").orElse("text/plain");
         String result = StandardCharsets.UTF_8.name();
 
         String[] parts = contentType.split(";");
@@ -333,7 +318,7 @@ public class Webclient {
     }
 
     private String getMimeType(HttpHeaders headers) {
-        String contenType = headers.firstValue("Content-Type").orElse("text/plain");
+        String contenType = headers.firstValue("content-type").orElse("text/plain");
         String[] parts = contenType.split(";");
         return parts[0].trim();
     }
