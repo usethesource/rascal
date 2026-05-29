@@ -38,7 +38,11 @@ void serve(loc server, Response (Request) callback, bool asDaemon = true) {
 
 @javaClass{org.rascalmpl.library.util.Webserver}
 @synopsis{Stops a server}
-java void shutdown(loc server);
+java void shutdown(int port);
+
+@synopsis{Stops a server via a localhost URL with a port number}
+@deprecated{Use the ((shutdown)) function with the port number directly.}
+void shutdown(loc server) = shutdown(server.port);
 
 @synopsis{Starts a test server that does not need the Rascal execution lock when handling a request.}
 @description{

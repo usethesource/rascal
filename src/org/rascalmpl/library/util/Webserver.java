@@ -71,7 +71,7 @@ public class Webserver {
     private final IConstructor statusOK;
     private final IConstructor statusNotFound;
 
-    private final Map<ISourceLocation, NanoHTTPD> servers;
+    private final Map<IInteger, NanoHTTPD> servers;
     private final Map<IConstructor,Status> statusValues = new HashMap<>();
     private final WebBody body;
     
@@ -315,9 +315,8 @@ public class Webserver {
         };
 
         try {
-            var url = URIUtil.correctLocation("http", "localhost" + port, "");
             server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
-            servers.put(url, server);
+            servers.put(pPort, server);
            
             if (!asDeamon.getValue()) {
                 out.println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
@@ -334,21 +333,21 @@ public class Webserver {
                     }
                 }
                 server.stop();
-                servers.remove(url);
+                servers.remove(pPort);
             }
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(e);
         }
     }
     
-    public void shutdown(ISourceLocation server) {
-        NanoHTTPD nano = servers.get(server);
+    public void shutdown(IInteger port) {
+        NanoHTTPD nano = servers.get(port);
         if (nano != null) {
             nano.stop();
-            servers.remove(server);
+            servers.remove(port);
         }
         else {
-            throw RuntimeExceptionFactory.illegalArgument(server, "could not shutdown");
+            monitor.warning("Server at port " + port + " was not running anymore", URIUtil.correctLocation("http", "localhost:" + port, ""));
         }
     }
 
