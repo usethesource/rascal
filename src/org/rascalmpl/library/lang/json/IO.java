@@ -71,7 +71,7 @@ public class IO {
         }
        
         
-        if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+        if (parsers != null && parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
             // ignore the default parser
             parsers = null;
         }
@@ -148,7 +148,10 @@ public class IO {
 
     public IString asJSON(IValue value, IConstructor options) {
         var kws = options.asWithKeywordParameters();
-        int indent = ((IInteger) kws.getParameter("indent")).intValue();
+        IInteger indent = ((IInteger) kws.getParameter("indent"));
+        if (indent == null) {
+            indent = values.integer(0);
+        }
         IString dtf = (IString) kws.getParameter("dateTimeFormat");
         IBool dai = (IBool) kws.getParameter("dateTimeAsInt");
         IBool ras = (IBool) kws.getParameter("rationalsAsString");
@@ -161,8 +164,8 @@ public class IO {
         StringWriter string = new StringWriter();
 
         try (JsonWriter out = new JsonWriter(string)) {
-            if (indent > 0) {
-                out.setIndent("        ".substring(0, indent % 9));
+            if (indent.intValue() > 0) {
+                out.setIndent("        ".substring(0, indent.intValue() % 9));
             }
             new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")

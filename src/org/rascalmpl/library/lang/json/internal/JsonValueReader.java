@@ -1068,7 +1068,7 @@ public class JsonValueReader {
     }
 
     public JsonValueReader setParsers(IFunction parsers) {
-        if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+        if (parsers != null && parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
             // ignore the default parser
             parsers = null;
         }
