@@ -10,7 +10,6 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -123,13 +121,10 @@ public class Webserver {
         this.receive = store.lookupConstructor(bodyType, "receive").iterator().next();
     }
 
-    public void serve(ISourceLocation url, final IFunction callback, IBool asDeamon) {
-        URI uri = url.getURI();
-
-        int port = uri.getPort() != -1 ? uri.getPort() : 80;
-        String host = uri.getHost() != null ? uri.getHost() : "localhost";
-        host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
-
+    public void serve(IInteger pPort, final IFunction callback, IBool asDeamon) {
+        int port = pPort.intValue();
+        String host = "127.0.0.1"; // NanoHttp tries to resolve localhost, which isn't what we want!
+        
         BlockingQueue<Runnable> mainThreadExecutor;
         final Function<IValue, CompletableFuture<IValue>> executor;
         if (asDeamon.getValue()) {
@@ -151,7 +146,7 @@ public class Webserver {
                 var path = session.getUri(); // method misnomer
                 
                 try {
-                    IConstructor request = makeRequest(vf.sourceLocation(uri), path, method, headers, parms, session.getInputStream());
+                    IConstructor request = makeRequest(vf.sourceLocation("http", "localhost" + port, path), path, method, headers, parms, session.getInputStream());
                     CompletableFuture<IValue> rascalResponse = executor.apply(request);
                     return translateResponse(method, rascalResponse.get());
                 }
@@ -320,6 +315,7 @@ public class Webserver {
         };
 
         try {
+            var url = URIUtil.correctLocation("http", "localhost" + port, "");
             server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
             servers.put(url, server);
            
@@ -398,13 +394,13 @@ public class Webserver {
     /**
      * This exercises the entire server infrastructure without locking the interpreter
      */
-    public void startTestEchoServer(IInteger port) {
+    public void startEchoServerJava(IInteger port) {
         TypeFactory tf = TypeFactory.getInstance();
         Type serverFunction = tf.functionType(responseType, tf.tupleType(requestType), tf.tupleEmpty());
         TypeReifier tr = new TypeReifier(vf);
 
         serve(
-            URIUtil.correctLocation("http", "localhost:" + port, ""),
+            port,
             vf.function(serverFunction, (args, kwArgs) -> {
                 IConstructor request = (IConstructor) args[0];
                 IMap headers = request.asWithKeywordParameters().getParameter("headers");
