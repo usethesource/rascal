@@ -148,6 +148,16 @@ public class Webserver {
                 try {
                     IConstructor request = makeRequest(vf.sourceLocation("http", "localhost" + port, path), path, method, headers, parms, session.getInputStream());
                     CompletableFuture<IValue> rascalResponse = executor.apply(request);
+                    if (rascalResponse.isCompletedExceptionally()) {
+                        rascalResponse.handle((v, e) -> {
+                            if (e instanceof Throw) {
+                                throw (Throw) e;
+                            }
+                            else {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    }
                     return translateResponse(method, rascalResponse.get());
                 }
                 catch (CancellationException e) {

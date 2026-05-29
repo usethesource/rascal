@@ -31,7 +31,7 @@ test bool testGet()
 
 test bool testPostJSON()
     = testRoundtrip(bool (loc host) {
-        node example = "main"("sub"(1), "sub"(2));
+        node example = "main"(name="Yogi Bear");
         return fetch(post("/post/json", send(json(), example), host=host))
                 .body
                 .receiver(json(), #node) 
