@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Map;
@@ -31,6 +31,7 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
@@ -56,20 +57,18 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class WebBody {
     private final ExecutorService executor;
-    private final TypeStore store;
     private final IRascalValueFactory vf;
     private final TypeFactory tf;
     private final IRascalMonitor monitor;
     private final org.rascalmpl.library.lang.html.IO html;
     private final org.rascalmpl.library.lang.xml.IO xml;
 
-    public WebBody(TypeStore store, TypeFactory tf, IRascalValueFactory vf, IRascalMonitor monitor, PrintWriter out, PrintWriter err) {
+    public WebBody(TypeFactory tf, IRascalValueFactory vf, IRascalMonitor monitor) {
         this.executor = Executors.newCachedThreadPool();
-        this.store = store;
         this.tf = tf;
         this.vf = vf;
         this.monitor = monitor;
-        this.html = new org.rascalmpl.library.lang.html.IO(vf, store, out, err);
+        this.html = new org.rascalmpl.library.lang.html.IO(vf);
         this.xml = new org.rascalmpl.library.lang.xml.IO(vf);
     }
 
@@ -85,20 +84,21 @@ public class WebBody {
      * 
      * Also this generated function asks for a reified type parameter for (dynamic) type safety
      * and validation of abstract grammars during reception of the body.
-     */
-    public IFunction createBodyReceiver(InputStream input, ISourceLocation url, String contentType, String charset) {        
-        var BodyKind = store.lookupAbstractDataType("BodyKind");
+     */ 
+    public IFunction createBodyReceiver(InputStream input, ISourceLocation url, String contentType, String charset) {           
+        TypeStore store = new TypeStore();
+        var BodyKind = tf.abstractDataType(store, "BodyKind");
         var rt = RascalTypeFactory.getInstance().reifiedType(tf.parameterType("T"));
         var ft = tf.functionType(tf.parameterType("T"), tf.tupleType(BodyKind, rt), tf.tupleEmpty());
 
         return vf.function(ft, (args, kwargs) -> {
             IConstructor kind = (IConstructor) args[0];
             IConstructor reified = (IConstructor) args[1];
-            Type expect = reified.getType().getTypeParameters().getFieldType(0);
+            Type expect = new TypeReifier(vf).valueToType((IConstructor) reified, store);
 
             switch (kind.getName()) {
                 case "json":
-                    return receiveJsonBody(input, url, kind, expect, contentType, charset);
+                    return receiveJsonBody(input, url, kind, expect, store, contentType, charset);
                 case "html":
                     return receiveHTMLBody(input, url, kind, expect, contentType, charset);
                 case "xml":
@@ -142,14 +142,14 @@ public class WebBody {
         }
     }
 
-    private IValue receiveJsonBody(InputStream input, ISourceLocation url, IConstructor kind, Type expect, String contentType, String charset) {
+    private IValue receiveJsonBody(InputStream input, ISourceLocation url, IConstructor kind, Type expect, TypeStore store, String contentType, String charset) {
         if (!contentType.equals("application/json")) {
             monitor.warning("Expected content-type 'application/json', got: " + contentType, url);
         }
 
         try {
             // this reader must not be closed! The framework will do this. Otherwise the socket will
-            // be closed prematurely.
+            // be closed prematurely (HttpClient)
             JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
             JsonValueReader parser = new JsonValueReader(vf, store, monitor, url);
             return parser.read(jsonReader, expect);
@@ -194,7 +194,7 @@ public class WebBody {
         void accept(Writer writer) throws IOException;
     }
 
-    public InputStream sendJsonBody(IConstructor input, String charset) {    
+    public WriterFunction sendJsonBody(IConstructor input, String charset) {    
         IConstructor options = input.asWithKeywordParameters().getParameter("options");
         Map<String, IValue> kws = options != null 
             ? options.asWithKeywordParameters().getParameters() 
@@ -214,14 +214,14 @@ public class WebBody {
             .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
             ;
         
-        return writeToInputStream((w) -> {
+        return (w) -> {
             JsonWriter jsonW = new JsonWriter(w);
             valueWriter.write(jsonW, input.get("source"));
-        }, charset);
+        };
     }
 
-    public InputStream sendHTMLBody(IConstructor input, String charset) {    
-        return writeToInputStream((w) -> {            
+    public WriterFunction sendHTMLBody(IConstructor input, String charset) {    
+        return (w) -> {            
             html.writeHTML(w, (IConstructor) input.get("source"), 
                 vf.string(charset), 
                (IConstructor) null, 
@@ -232,11 +232,11 @@ public class WebBody {
                 (IConstructor) null,
                 vf.bool(true),
                 vf.bool(false));
-        }, charset);
+        };
     }
 
-    public InputStream sendXMLBody(IConstructor input, String charset) {    
-        return writeToInputStream((w) -> {            
+    public WriterFunction sendXMLBody(IConstructor input, String charset) {    
+        return (w) -> {            
             xml.writeXML(w, input.get("source"), 
                 vf.string(charset), 
                 vf.bool(false), 
@@ -244,7 +244,7 @@ public class WebBody {
                 vf.integer(4),
                 vf.integer(10),
                 vf.bool(true));
-        }, charset);
+        };
     }
 
     public InputStream sendFileBody(IConstructor input) {
@@ -274,11 +274,38 @@ public class WebBody {
         }			
     }
 
+    public WriterFunction writeTextBody(IConstructor input, String charset) {
+        final var value = input.get("source");
+
+        // Note this intentionally mimicks the semantics of IO::writeFile
+        if (value.getType().isString()) {
+            return (WriterFunction) (Writer w) -> {
+                ((IString) value).write(w);
+            };
+        }
+        else if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+            return (WriterFunction) (Writer w) -> {
+                TreeAdapter.yield((ITree) value, w);
+            };
+        } 
+        else {
+            return (WriterFunction) (Writer w) -> {
+                new StandardTextWriter().write(value, w);
+            };
+        }			
+    }
+
+    public void writeToOutputStream(OutputStream out, WriterFunction write, String charset) throws UnsupportedEncodingException, IOException {
+        try (Writer w = new OutputStreamWriter(out, charset)) {
+            write.accept(w);
+        }
+    }
+
     /** 
      * This turns Writers into InputStreams, taking care of proper exception
      * handling, encodings, liveness and cancellation.
      */
-    private InputStream writeToInputStream(WriterFunction write, String charset) {
+    public InputStream writeToInputStream(WriterFunction write, String charset) {
         try {
             final PipedInputStream result = new PipedInputStream(8192);
             final PipedOutputStream out = new PipedOutputStream(result);

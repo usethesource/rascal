@@ -29,7 +29,6 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
@@ -53,7 +52,7 @@ public class Webclient {
         this.store = store;
         this.tf = tf;
         this.client = HttpClient.newBuilder();
-        this.body = new WebBody(store, tf, vf, monitor, out, err);
+        this.body = new WebBody(tf, vf, monitor);
     }
 
     private String[] makeHeaders(IMap headers) {
@@ -80,7 +79,7 @@ public class Webclient {
         }
         var charset = (IString) body.asWithKeywordParameters().getParameter("charset");
         if (charset == null) {
-            charset = vf.string("utf-8");
+            charset = vf.string(StandardCharsets.UTF_8.name());
         }
 
         return headers.put(vf.string("content-type"), mimeType.concat(vf.string(";charset=").concat(charset)));
@@ -161,15 +160,15 @@ public class Webclient {
     
         final var charset = (IString) postBody.asWithKeywordParameters().getParameter("charset");
         final var kind = (IConstructor) postBody.get("kind");
-        final var cs = charset != null ? charset.getValue() : "utf-8";
+        final var cs = charset != null ? charset.getValue() : StandardCharsets.UTF_8.name();
 
         switch (kind.getName()) {
             case "json":
-                return BodyPublishers.ofInputStream(() -> body.sendJsonBody(postBody, cs));
+                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendJsonBody(postBody, cs), cs));
             case "html":
-                return BodyPublishers.ofInputStream(() -> body.sendHTMLBody(postBody, cs));
+                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendHTMLBody(postBody, cs), cs));
             case "xml":
-                return BodyPublishers.ofInputStream(() -> body.sendXMLBody(postBody, cs));
+                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendXMLBody(postBody, cs), cs));
             case "file":
                 return BodyPublishers.ofInputStream(() -> body.sendFileBody(postBody));
             case "text":
@@ -324,78 +323,9 @@ public class Webclient {
     }
 
     private IConstructor toStatusConstructor(int stCode) {
-        var statusType = store.lookupAbstractDataType("Status");
-
-        var status = Status.lookup(stCode);
-        switch (status) {
-            case OK:
-                return vf.constructor(store.lookupConstructor(statusType, "ok", tf.tupleEmpty()));
-            case NOT_FOUND: 
-                return vf.constructor(store.lookupConstructor(statusType, "notFound", tf.tupleEmpty()));
-            case ACCEPTED:
-                return vf.constructor(store.lookupConstructor(statusType, "accepted", tf.tupleEmpty()));
-            case BAD_REQUEST:
-                return vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.tupleEmpty()));
-            case CONFLICT:
-                return vf.constructor(store.lookupConstructor(statusType, "conflict", tf.tupleEmpty()));
-            case CREATED:
-                return vf.constructor(store.lookupConstructor(statusType, "create", tf.tupleEmpty()));
-            case EXPECTATION_FAILED:
-                return vf.constructor(store.lookupConstructor(statusType, "expectationFailed", tf.tupleEmpty()));
-            case FORBIDDEN:
-                return vf.constructor(store.lookupConstructor(statusType, "forbidden", tf.tupleEmpty()));
-            case FOUND:
-                return vf.constructor(store.lookupConstructor(statusType, "found", tf.tupleEmpty()));
-            case GONE:
-                return vf.constructor(store.lookupConstructor(statusType, "gone", tf.tupleEmpty()));
-            case INTERNAL_ERROR:
-                return vf.constructor(store.lookupConstructor(statusType, "internalError", tf.tupleEmpty()));
-            case LENGTH_REQUIRED:
-                return vf.constructor(store.lookupConstructor(statusType, "lengthRequired", tf.tupleEmpty()));
-            case METHOD_NOT_ALLOWED:
-                return vf.constructor(store.lookupConstructor(statusType, "methodNotAllowed", tf.tupleEmpty()));
-            case MULTI_STATUS:
-                return vf.constructor(store.lookupConstructor(statusType, "multiStatus", tf.tupleEmpty()));
-            case NOT_ACCEPTABLE:
-                return vf.constructor(store.lookupConstructor(statusType, "notAcceptible", tf.tupleEmpty()));
-            case NOT_IMPLEMENTED:
-                return vf.constructor(store.lookupConstructor(statusType, "notImplemented", tf.tupleEmpty()));
-            case NOT_MODIFIED:
-                return vf.constructor(store.lookupConstructor(statusType, "notModified", tf.tupleEmpty()));
-            case NO_CONTENT:
-                return vf.constructor(store.lookupConstructor(statusType, "noContent", tf.tupleEmpty()));
-            case PARTIAL_CONTENT:
-                return vf.constructor(store.lookupConstructor(statusType, "partialContent", tf.tupleEmpty()));
-            case PAYLOAD_TOO_LARGE:
-                return vf.constructor(store.lookupConstructor(statusType, "payloadTooLarge", tf.tupleEmpty()));
-            case PRECONDITION_FAILED:
-                return vf.constructor(store.lookupConstructor(statusType, "preconditionFailed", tf.tupleEmpty()));
-            case RANGE_NOT_SATISFIABLE:
-                return vf.constructor(store.lookupConstructor(statusType, "rangeNotSatisfieable", tf.tupleEmpty()));
-            case REDIRECT:
-                return vf.constructor(store.lookupConstructor(statusType, "redirect", tf.tupleEmpty()));
-            case REDIRECT_SEE_OTHER:
-                return vf.constructor(store.lookupConstructor(statusType, "redirectSeeOther", tf.tupleEmpty()));
-            case REQUEST_TIMEOUT:
-                return vf.constructor(store.lookupConstructor(statusType, "requestTimeout", tf.tupleEmpty()));
-            case SERVICE_UNAVAILABLE:
-                return vf.constructor(store.lookupConstructor(statusType, "serviceUnavailable", tf.tupleEmpty()));
-            case SWITCH_PROTOCOL:
-                return vf.constructor(store.lookupConstructor(statusType, "switchProtocol", tf.tupleEmpty()));
-            case TEMPORARY_REDIRECT:
-                return vf.constructor(store.lookupConstructor(statusType, "temporaryRedirect", tf.tupleEmpty()));
-            case TOO_MANY_REQUESTS:
-                return vf.constructor(store.lookupConstructor(statusType, "tooManyRequests", tf.tupleEmpty()));
-            case UNAUTHORIZED:
-                return vf.constructor(store.lookupConstructor(statusType, "unauthorized", tf.tupleEmpty()));
-            case UNSUPPORTED_HTTP_VERSION:
-                return vf.constructor(store.lookupConstructor(statusType, "unsupportedHTTPVersion", tf.tupleEmpty()));
-            case UNSUPPORTED_MEDIA_TYPE:
-                return vf.constructor(store.lookupConstructor(statusType, "unsupportedMediaType", tf.tupleEmpty()));
-            default:
-                // if we don't understand the error code; let's call it an internal error
-                return vf.constructor(store.lookupConstructor(statusType, "internalError", tf.tupleEmpty()));
-        }
+        Type statusType = store.lookupAbstractDataType("Status");
+        String cons = HttpStatus.of(stCode).constructor();
+        return vf.constructor(tf.constructor(store, statusType, cons, tf.tupleEmpty()));
     }
 
     private class MonitoredInputStream extends FilterInputStream {

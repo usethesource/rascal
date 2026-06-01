@@ -60,16 +60,15 @@ public class IO {
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
-    private final PrintWriter err;
 
-    public IO(IValueFactory factory, TypeStore store, PrintWriter out, PrintWriter err) {
+    public IO(IValueFactory factory) {
         this.factory = factory;
-        this.store = store;
-        this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
-        this.textConstructor = store.lookupConstructor(HTMLElement, "text").iterator().next();
-        this.dataConstructor = store.lookupConstructor(HTMLElement, "data").iterator().next();
-        this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
-        this.err = err;
+        this.store = new TypeStore();
+        TypeFactory tf = TypeFactory.getInstance();
+        this.HTMLElement = tf.abstractDataType(store, "HTMLElement");
+        this.textConstructor = tf.constructor(store, HTMLElement, "text", tf.stringType(), "contents");
+        this.dataConstructor = tf.constructor(store, HTMLElement, "data", tf.stringType(), "dataContent");
+        this.htmlConstructor = tf.constructor(store,HTMLElement, "html", tf.listType(HTMLElement), "elems");
     }
     
     public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, ISourceLocation src) {

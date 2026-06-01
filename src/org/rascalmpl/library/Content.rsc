@@ -107,8 +107,7 @@ The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
 }                                            
-data Response(map[str, str] headers = ())
-  = response(Status status, Body body);
+data Response(map[str, str] headers = ()) = response(Status status, Body body);
 
 @deprecated{Use the data constructor without the mimetype and express the mimetype on the body and the headers as a keyword field.}
 Response response(Status status, str mimeType, map[str, str] headers, Body body)

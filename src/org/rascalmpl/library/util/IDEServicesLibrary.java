@@ -28,13 +28,16 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class IDEServicesLibrary {
     private final REPLContentServerManager contentManager = new REPLContentServerManager();
     private final IDEServices services;
+    private final IRascalValueFactory vf;
 
-    public IDEServicesLibrary(IDEServices services) {
+    public IDEServicesLibrary(IDEServices services, IRascalValueFactory vf) {
         this.services = services;
+        this.vf = vf;
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
@@ -60,14 +63,16 @@ public class IDEServicesLibrary {
 	public void showInteractiveContent(IConstructor provider, IString title, IInteger viewColumn) {
         try {
             String id;
-            Function<IValue, IValue> target;
+            IFunction target;
 
             if (provider.has("id")) {
                 id = ((IString) provider.get("id")).getValue();
-                target = (r) -> ((IFunction) provider.get("callback")).call(r);
+                target = (IFunction) provider.get("callback");
             } else {
                 id = "*static content*";
-                target = (r) -> provider.get("response");
+                TypeFactory tf = TypeFactory.getInstance();
+                
+                target = vf.function((args, kwargs) -> provider.get("response"));
             }
 
             // this installs the provider such that subsequent requests are handled.

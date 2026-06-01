@@ -366,7 +366,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 		if (!suspended) {
 			throw new IllegalStateException("Evaluator must be suspended to evaluate expressions");
 		}
-		RascalValuePrinter printer = new RascalValuePrinter() {
+		RascalValuePrinter printer = new RascalValuePrinter(evaluator.getFunctionValueFactory(), evaluator.getMonitor()) {
 			@Override
 			protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
 				return v -> {
