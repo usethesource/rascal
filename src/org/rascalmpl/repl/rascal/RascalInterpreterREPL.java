@@ -110,7 +110,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     public RascalInterpreterREPL(int ideServicesPort) {
         this.ideServicesPort = ideServicesPort;
 
-        this.printer = new RascalValuePrinter() {
+        this.printer = new RascalValuePrinter(eval.getFunctionValueFactory(), eval.getMonitor()) {
             @Override
             protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
                 return v -> {
