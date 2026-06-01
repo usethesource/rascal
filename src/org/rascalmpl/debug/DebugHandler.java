@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
@@ -366,7 +367,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 		if (!suspended) {
 			throw new IllegalStateException("Evaluator must be suspended to evaluate expressions");
 		}
-		RascalValuePrinter printer = new RascalValuePrinter(evaluator.getFunctionValueFactory(), evaluator.getMonitor()) {
+		RascalValuePrinter printer = new RascalValuePrinter() {
 			@Override
 			protected Function<IValue, IValue> liftProviderFunction(IFunction func) {
 				return v -> {
@@ -374,6 +375,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 						return func.call(v);
 					}
 				};
+			}
+
+			@Override
+			protected IRascalMonitor getMonitor() {
+				return evaluator.getMonitor();
+			}
+
+			@Override
+			protected IRascalValueFactory getRascalValueFactory() {
+				return evaluator.getFunctionValueFactory();
 			}
 		};
 

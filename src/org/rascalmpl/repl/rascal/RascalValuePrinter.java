@@ -82,8 +82,18 @@ public abstract class RascalValuePrinter {
      */
     protected abstract Function<IValue, IValue> liftProviderFunction(IFunction func);
 
-    public RascalValuePrinter(IRascalValueFactory vf, IRascalMonitor monitor) {
-        this.contentManager = new REPLContentServerManager(vf, monitor);
+    /**
+     * Need for monitor during content serving (progress and warnings)
+     */
+    protected abstract IRascalMonitor getMonitor();
+
+    /**
+     * Needed for building Response values while content serving
+     */
+    protected abstract IRascalValueFactory getRascalValueFactory();
+
+    public RascalValuePrinter() {
+        this.contentManager = new REPLContentServerManager(getRascalValueFactory(), getMonitor());
     }
     @FunctionalInterface
     public static interface ThrowingWriter {
