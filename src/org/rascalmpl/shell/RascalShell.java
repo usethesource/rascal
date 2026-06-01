@@ -59,7 +59,7 @@ public class RascalShell  {
             runner = new ModuleRunner(term.reader(), out, err, monitor);
         } 
         else {
-            runner = new REPLRunner(term, ideServicesPort, vf, monitor);
+            runner = new REPLRunner(term, ideServicesPort);
         }
         
         runner.run(Arrays.copyOfRange(args, i, args.length));

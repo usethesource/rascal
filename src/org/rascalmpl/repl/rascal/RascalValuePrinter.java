@@ -72,7 +72,7 @@ public abstract class RascalValuePrinter {
     private final static int LINE_LIMIT = 200;
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 
-    private final REPLContentServerManager contentManager;
+    private REPLContentServerManager contentManager;
     
     private static final StandardTextWriter ansiIndentedPrinter = new ReplTextWriter(true);
     private static final StandardTextWriter plainIndentedPrinter = new StandardTextWriter(true);
@@ -93,7 +93,7 @@ public abstract class RascalValuePrinter {
     protected abstract IRascalValueFactory getRascalValueFactory();
 
     public RascalValuePrinter() {
-        this.contentManager = new REPLContentServerManager(getRascalValueFactory(), getMonitor());
+        
     }
     @FunctionalInterface
     public static interface ThrowingWriter {
@@ -221,6 +221,10 @@ public abstract class RascalValuePrinter {
 
         try {
             // this installs the provider such that subsequent requests are handled.
+            if (contentManager == null) {
+                contentManager = new REPLContentServerManager(getRascalValueFactory(), getMonitor());
+            }
+            
             REPLContentServer server = contentManager.addServer(id, target);
 
             // now we need some HTML to show

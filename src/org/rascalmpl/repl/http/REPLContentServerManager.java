@@ -18,6 +18,7 @@ import java.util.function.Function;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.util.WebHandler;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -105,6 +106,7 @@ public class REPLContentServerManager {
             } catch (Throwable e) {
                 // assuming this is a BindException wrapped in some RuntimeException
                 // we try the next port number
+                monitor.warning(e.getMessage(), URIUtil.rootLocation("dunno"));
                 continue;
             }
         }

@@ -17,6 +17,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
@@ -89,8 +90,7 @@ public class WebHandler implements HttpHandler {
     private Function<IValue,IValue> callback;
     private int port;
     private long lastServedAt = System.currentTimeMillis();
-
-    
+    private final IRascalMonitor monitor;
 
     /**
      * This is only for testing purposes. It creates a echoing servert that does not require a interpreter lock
@@ -106,13 +106,14 @@ public class WebHandler implements HttpHandler {
 
     public WebHandler(Function<IValue, IValue> server, int port, IRascalValueFactory vf, IRascalMonitor monitor) {
         this.callback = server;
+        this.monitor = monitor;
         this.port = port;
         this.vf = vf;
         this.body = new WebBody(tf, vf, monitor);
 
         this.statusValues = new HashMap<>();
         for (HttpStatus code : HttpStatus.allCodes()) {
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, code.toConstructor()).iterator().next()), code);
+            statusValues.put(vf.constructor(tf.constructor(store, statusType, code.toConstructor())), code);
         }
 
         this.statusNotFound = vf.constructor(tf.constructor(store, statusType, "notFound"));
@@ -202,22 +203,24 @@ public class WebHandler implements HttpHandler {
         var path = exchange.getRequestPath();
         var url = vf.sourceLocation("http", "localhost" + port, path);
 
-        try {
-            IConstructor request = makeRequest(url, path, method, headers, parms, exchange);
-            translateResponse(method, exchange, callback.apply(request));
-        }
-        catch (Throwable e) {
-            if (e instanceof Throw) {
-                handleRascalThrow(HttpStatus.INTERNAL_ERROR, (Throw) e, exchange);
+        exchange.dispatch(() -> {
+            try {
+                IConstructor request = makeRequest(url, path, method, headers, parms, exchange);
+                translateResponse(method, exchange, callback.apply(request));
             }
-            else {
-                handleGeneralThrowable(HttpStatus.INTERNAL_ERROR, e, exchange);
+            catch (Throwable e) {
+                if (e instanceof Throw) {
+                    handleRascalThrow(HttpStatus.INTERNAL_ERROR, (Throw) e, exchange);
+                }
+                else {
+                    handleGeneralThrowable(HttpStatus.INTERNAL_ERROR, e, exchange);
+                }
             }
-        }
+        });
     };
 
     
-    private void handleGeneralThrowable(HttpStatus status, Throwable actualException, HttpServerExchange exchange) throws UnsupportedEncodingException {
+    private void handleGeneralThrowable(HttpStatus status, Throwable actualException, HttpServerExchange exchange)  {
         exchange.setStatusCode(HttpStatus.INTERNAL_ERROR.toCode());
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/plain");
 
@@ -225,15 +228,21 @@ public class WebHandler implements HttpHandler {
             out.println(status + ": " + actualException.getMessage());
             actualException.printStackTrace(out);
         }
+        catch (IOException ex) {
+            monitor.warning("handler could not report an error to the user: " + ex.getMessage(), URIUtil.rootLocation("contentServer"));
+        }
     }
 
-    private void handleRascalThrow(HttpStatus status, Throw e, HttpServerExchange exchange) throws IOException {
+    private void handleRascalThrow(HttpStatus status, Throw e, HttpServerExchange exchange) {
         exchange.setStatusCode(HttpStatus.INTERNAL_ERROR.toCode());
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/plain");
 
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(exchange.getOutputStream(), "utf-8"))) {
             out.println(status + ": " + e.getMessage());
             e.getTrace().prettyPrintedString(out, new StandardTextWriter(true));
+        }
+        catch (IOException ex) {
+            monitor.warning("handler could not report an error to the user: " + ex.getMessage(), URIUtil.rootLocation("contentServer"));
         }
     }
 
