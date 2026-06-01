@@ -68,7 +68,7 @@ public class WebBody {
         this.tf = tf;
         this.vf = vf;
         this.monitor = monitor;
-        this.html = new org.rascalmpl.library.lang.html.IO(vf);
+        this.html = new org.rascalmpl.library.lang.html.IO(vf, monitor);
         this.xml = new org.rascalmpl.library.lang.xml.IO(vf);
     }
 
@@ -214,7 +214,7 @@ public class WebBody {
             .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
             ;
         
-        return (w) -> {
+        return (w) -> { 
             JsonWriter jsonW = new JsonWriter(w);
             valueWriter.write(jsonW, input.get("source"));
         };
@@ -303,7 +303,8 @@ public class WebBody {
 
     /** 
      * This turns Writers into InputStreams, taking care of proper exception
-     * handling, encodings, liveness and cancellation.
+     * handling, encodings, liveness and cancellation. This is used only
+     * by the Webclient, because the Webserver can use an Outputstream directly.
      */
     public InputStream writeToInputStream(WriterFunction write, String charset) {
         try {

@@ -13,7 +13,6 @@ package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import org.jsoup.nodes.Range;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -60,9 +60,11 @@ public class IO {
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
+    private final IRascalMonitor monitor;
 
-    public IO(IValueFactory factory) {
+    public IO(IValueFactory factory, IRascalMonitor monitor) {
         this.factory = factory;
+        this.monitor = monitor;
         this.store = new TypeStore();
         TypeFactory tf = TypeFactory.getInstance();
         this.HTMLElement = tf.abstractDataType(store, "HTMLElement");
@@ -156,7 +158,7 @@ public class IO {
             : tf.constructorFromTuple(store, HTMLElement, elem.tagName(), tf.tupleType(tf.listType(HTMLElement)));
 
         if (alternatives.size() == 0) {
-            err.println("No HTML constructor declared for "  + elem.tagName());
+            monitor.warning("No HTML constructor declared for "  + elem.tagName(), file);
         }
 
         Map<String,IValue> kws = new HashMap<>();

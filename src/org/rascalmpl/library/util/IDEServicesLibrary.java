@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -28,16 +28,14 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class IDEServicesLibrary {
-    private final REPLContentServerManager contentManager = new REPLContentServerManager();
+    private final REPLContentServerManager contentManager;
     private final IDEServices services;
-    private final IRascalValueFactory vf;
 
     public IDEServicesLibrary(IDEServices services, IRascalValueFactory vf) {
         this.services = services;
-        this.vf = vf;
+        this.contentManager = new REPLContentServerManager(vf, services); 
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
@@ -63,23 +61,21 @@ public class IDEServicesLibrary {
 	public void showInteractiveContent(IConstructor provider, IString title, IInteger viewColumn) {
         try {
             String id;
-            IFunction target;
+            Function<IValue, IValue> target;
 
             if (provider.has("id")) {
                 id = ((IString) provider.get("id")).getValue();
-                target = (IFunction) provider.get("callback");
+                target = req -> ((IFunction) provider.get("callback")).call(req);
             } else {
                 id = "*static content*";
-                TypeFactory tf = TypeFactory.getInstance();
-                
-                target = vf.function((args, kwargs) -> provider.get("response"));
+                target = req -> provider.get("response");
             }
 
             // this installs the provider such that subsequent requests are handled.
             REPLContentServer contentServer = contentManager.addServer(id, target);
 
             browse(
-                URIUtil.correctLocation("http", "localhost:" + contentServer.getListeningPort(), "/"),
+                URIUtil.correctLocation("http", "localhost:" + contentServer.getPort(), "/"),
                 title.length() == 0? IRascalValueFactory.getInstance().string(id) : title,
                 viewColumn);
         }

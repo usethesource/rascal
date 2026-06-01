@@ -82,7 +82,7 @@ public abstract class RascalValuePrinter {
      */
     protected abstract Function<IValue, IValue> liftProviderFunction(IFunction func);
 
-    RascalValuePrinter(IRascalValueFactory vf, IRascalMonitor monitor) {
+    public RascalValuePrinter(IRascalValueFactory vf, IRascalMonitor monitor) {
         this.contentManager = new REPLContentServerManager(vf, monitor);
     }
     @FunctionalInterface
