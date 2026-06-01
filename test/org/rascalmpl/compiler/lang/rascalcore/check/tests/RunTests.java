@@ -28,8 +28,6 @@ package org.rascalmpl.compiler.lang.rascalcore.check.tests;
 
 import org.junit.runner.RunWith;
 import org.rascalmpl.test.infrastructure.RascalJUnitParallelRecursiveTestRunner;
-import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
-import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 import org.rascalmpl.test.infrastructure.RecursiveRascalParallelTest;
  
 @RunWith(RascalJUnitParallelRecursiveTestRunner.class)
