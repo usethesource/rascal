@@ -149,15 +149,18 @@ public class WebHandler implements HttpHandler {
                     var receiveJsonBody = receiver.call(vf.constructor(jsonCons), nodeT);
                     assert receiveJsonBody.getType().isSubtypeOf(tf.nodeType());
                     var postJsonBody = vf.constructor(sendCons, vf.constructor(jsonCons), receiveJsonBody);
+                    postJsonBody = postJsonBody.asWithKeywordParameters().setParameter("mimeType", vf.string("application/json"));
+                    postJsonBody = postJsonBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
                     return vf.constructor(responseCons, statusOK, postJsonBody);
                 case "/post/html":
                 case "/put/html":
                     var htmlBody = (IConstructor) request.get("content");
                     var htmlReceiver = (IFunction) htmlBody.get("receiver");
                     var receiveHTMLBody = htmlReceiver.call(vf.constructor(htmlCons), reifiedHTMLElement);
-                    monitor.warning("received: " + receiveHTMLBody, URIUtil.rootLocation("debug"));
                     assert receiveHTMLBody.getType() == htmlElementType;
                     var postHTMLBody = vf.constructor(sendCons, vf.constructor(htmlCons), receiveHTMLBody);
+                    postHTMLBody = postHTMLBody.asWithKeywordParameters().setParameter("mimeType", vf.string("text/html"));
+                    postHTMLBody = postHTMLBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
                     return vf.constructor(responseCons, statusOK, postHTMLBody);
                 case "/post/xml":
                 case "/put/xml":
@@ -170,6 +173,8 @@ public class WebHandler implements HttpHandler {
                     var receiveTextBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(textCons), strT);
                     assert receiveTextBody.getType() == tf.stringType();
                     var postTextBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveTextBody);
+                    postTextBody = postTextBody.asWithKeywordParameters().setParameter("mimeType", vf.string("text/plain"));
+                    postTextBody = postTextBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
                     return vf.constructor(responseCons, statusOK, postTextBody);
                 case "/head":
                     var headBody = vf.constructor(sendCons, vf.constructor(textCons), vf.string(headers.toString()));

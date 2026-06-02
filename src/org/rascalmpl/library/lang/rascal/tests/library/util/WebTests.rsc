@@ -48,6 +48,26 @@ test bool testPutJSON()
             == example;
     });
 
+test bool testPostXML()
+    = testRoundtrip(bool (loc host) {
+        node example = "main"(name="Yogi Bear");
+        result = fetch(post("/post/xml", send(xml(), example), host=host))
+                .body
+                .receiver(xml(), #node) ;
+        iprintln(result);
+        return result == example;
+    });
+
+test bool testPutXML()
+    = testRoundtrip(bool (loc host) {
+        node example = "main"(name="Yogi Bear");
+        return fetch(put("/put/xml", send(xml(), example), host=host))
+                .body
+                .receiver(xml(), #node) 
+            == example;
+    });
+
+
 test bool testPostHTML()
     = testRoundtrip(bool (loc host) {
         HTMLElement example = html([
@@ -57,10 +77,10 @@ test bool testPostHTML()
                     li([text("two")])
                 ])])
         ]);
-        
+
         result = fetch(post("/post/html", send(html(), example), host=host))
                 .body
                 .receiver(html(), #HTMLElement) ;
-        iprintln(result);
+        
         return example == result;
     });
