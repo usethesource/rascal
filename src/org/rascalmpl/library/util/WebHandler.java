@@ -93,9 +93,9 @@ public class WebHandler implements HttpHandler {
     /**
      * This is only for testing purposes. It creates a echoing servert that does not require a interpreter lock
      */
-    public WebHandler(int port, IRascalValueFactory vf, IRascalMonitor monitor) {
+    public WebHandler(int port, IRascalValueFactory vf, IConstructor htmlStore, IRascalMonitor monitor) {
         this((Function<IValue, IValue>) null, port, vf, monitor);
-        this.callback = testEchoFunction();
+        this.callback = testEchoFunction(htmlStore);
     }
 
     public WebHandler(IFunction server, int port, IRascalValueFactory vf, IRascalMonitor monitor) {
@@ -125,11 +125,13 @@ public class WebHandler implements HttpHandler {
         this.callback = handler;
     }
 
-    public Function<IValue,IValue> testEchoFunction() {
+    public Function<IValue,IValue> testEchoFunction(IConstructor reifiedHTMLElement) {
         TypeReifier tr = new TypeReifier(vf);
         IValue nodeT = tr.typeToValue(tf.nodeType(), new TypeStore(), vf.map());
         IValue strT = tr.typeToValue(tf.stringType(), new TypeStore(), vf.map());
-        IValue htmlT = tr.typeToValue(htmlElementType, new TypeStore(), vf.map());
+        TypeStore htmlStore = new TypeStore(store);
+        // need the defitions of the reified type for HTMLElement
+        Type htmlElementType = tr.valueToType(reifiedHTMLElement, htmlStore);
         
         return (r) -> {
             IConstructor request = (IConstructor) r;
@@ -145,12 +147,15 @@ public class WebHandler implements HttpHandler {
                     var body = (IConstructor) request.get("content");
                     var receiver = (IFunction) body.get("receiver");
                     var receiveJsonBody = receiver.call(vf.constructor(jsonCons), nodeT);
-                    assert receiveJsonBody.getType() == tf.nodeType();
+                    assert receiveJsonBody.getType().isSubtypeOf(tf.nodeType());
                     var postJsonBody = vf.constructor(sendCons, vf.constructor(jsonCons), receiveJsonBody);
                     return vf.constructor(responseCons, statusOK, postJsonBody);
                 case "/post/html":
                 case "/put/html":
-                    var receiveHTMLBody = ((IFunction) ((IConstructor) request.get(1)).get(0)).call(vf.constructor(htmlCons), htmlT);
+                    var htmlBody = (IConstructor) request.get("content");
+                    var htmlReceiver = (IFunction) htmlBody.get("receiver");
+                    var receiveHTMLBody = htmlReceiver.call(vf.constructor(htmlCons), reifiedHTMLElement);
+                    monitor.warning("received: " + receiveHTMLBody, URIUtil.rootLocation("debug"));
                     assert receiveHTMLBody.getType() == htmlElementType;
                     var postHTMLBody = vf.constructor(sendCons, vf.constructor(htmlCons), receiveHTMLBody);
                     return vf.constructor(responseCons, statusOK, postHTMLBody);
@@ -207,15 +212,22 @@ public class WebHandler implements HttpHandler {
                 translateResponse(method, exchange, callback.apply(request));
             }
             catch (Throwable e) {
-                if (e instanceof Throw) {
-                    handleRascalThrow(HttpStatus.INTERNAL_ERROR, (Throw) e, exchange);
+                if (!exchange.isResponseStarted()) {
+                    // this happened while calling the Rascal callback, so we have information to show the user
+                    if (e instanceof Throw) {
+                        handleRascalThrow(HttpStatus.INTERNAL_ERROR, (Throw) e, exchange);
+                    }
+                    else {
+                        handleGeneralThrowable(HttpStatus.INTERNAL_ERROR, e, exchange);
+                    }
                 }
                 else {
-                    handleGeneralThrowable(HttpStatus.INTERNAL_ERROR, e, exchange);
+                    // this happened on the HTTP level and its to late to change the status code or the contents of the Response
+                    monitor.warning("Internal error while sending the response data: " + e.getMessage(), URIUtil.correctLocation("http", exchange.getHostAndPort(), ""));
                 }
             }
 
-            exchange.endExchange();
+            // exchange.endExchange();
         });
     };
 
@@ -291,7 +303,7 @@ public class WebHandler implements HttpHandler {
         }
     }
 
-    private void translateResponse(HttpString method, HttpServerExchange exchange, IValue response) throws IOException {
+    private void translateResponse(HttpString method, HttpServerExchange exchange, IValue response) {
         IConstructor cons = (IConstructor) response;
         IConstructor b = (IConstructor) cons.get("body");
         IValue value = b.get("source");
@@ -347,6 +359,9 @@ public class WebHandler implements HttpHandler {
                 default:
                     body.sendTextBody(out, b, charset.getValue());
             }
+        }
+        catch (IOException e) {
+            monitor.warning("Internal error while sending the response data: " + e.getMessage(), URIUtil.correctLocation("http", exchange.getHostAndPort(), ""));
         }
 
         return;

@@ -3,6 +3,7 @@ module lang::rascal::tests::library::util::WebTests
 import util::Webserver;
 import util::Webclient;
 import lang::html::AST;
+import IO;
 
 int port = 10003;
 
@@ -49,9 +50,17 @@ test bool testPutJSON()
 
 test bool testPostHTML()
     = testRoundtrip(bool (loc host) {
-        HTMLElement example = ul([li([text("one")]), li([text("two")])]);
-        return fetch(post("/post/html", send(json(), example), host=host))
+        HTMLElement example = html([
+            head([]),
+                body([ul([
+                    li([text("one")]),
+                    li([text("two")])
+                ])])
+        ]);
+        
+        result = fetch(post("/post/html", send(html(), example), host=host))
                 .body
-                .receiver(html(), #HTMLElement) 
-            == example;
+                .receiver(html(), #HTMLElement) ;
+        iprintln(result);
+        return example == result;
     });

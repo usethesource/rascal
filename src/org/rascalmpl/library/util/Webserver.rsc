@@ -9,6 +9,8 @@
 module util::Webserver
 
 extend Content;
+import lang::html::AST;
+
     
 @javaClass{org.rascalmpl.library.util.Webserver}
 @synopsis{Starts a HTTP1.1 webserver from a handler function}
@@ -62,7 +64,7 @@ This works exactly as startTestWebServerRascal:
 * only default mimetypes and charsets are used.
 }
 @javaClass{org.rascalmpl.library.util.Webserver}
-java void startEchoServerJava(int port=10001);
+java void startEchoServerJava(int port=10001, type[HTMLElement] htmlElements = #HTMLElement);
 
 @synopsis{Test server for Webserver and Webclient}
 void startEchoServerRascal(int port=10002) {

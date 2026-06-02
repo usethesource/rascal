@@ -17,7 +17,10 @@ import org.rascalmpl.values.functions.IFunction;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeStore;
 
 public class Webserver {
     private final Map<IInteger, Undertow> servers;
@@ -68,8 +71,8 @@ public class Webserver {
     /**
      * This exercises the entire server infrastructure without locking the interpreter
      */
-    public void startEchoServerJava(IInteger port) {
-        HttpHandler handler = new WebHandler(port.intValue(), vf, monitor);
+    public void startEchoServerJava(IInteger port, IValue htmlStore) {
+        HttpHandler handler = new WebHandler(port.intValue(), vf, (IConstructor) htmlStore, monitor);
 
         Undertow server = Undertow.builder()
             .addHttpListener(port.intValue(), "127.0.0.1")

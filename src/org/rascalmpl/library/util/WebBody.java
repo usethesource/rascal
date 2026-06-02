@@ -59,7 +59,7 @@ public class WebBody {
     private final IRascalValueFactory vf;
     private final TypeFactory tf;
     private final IRascalMonitor monitor;
-    private final org.rascalmpl.library.lang.html.IO html;
+    private org.rascalmpl.library.lang.html.IO html;
     private final org.rascalmpl.library.lang.xml.IO xml;
 
     public WebBody(TypeFactory tf, IRascalValueFactory vf, IRascalMonitor monitor) {
@@ -67,7 +67,7 @@ public class WebBody {
         this.tf = tf;
         this.vf = vf;
         this.monitor = monitor;
-        this.html = new org.rascalmpl.library.lang.html.IO(vf, monitor);
+        this.html = null; // initialize later from reified type
         this.xml = new org.rascalmpl.library.lang.xml.IO(vf);
     }
 
@@ -99,7 +99,7 @@ public class WebBody {
                 case "json":
                     return receiveJsonBody(input, url, kind, expect, store, contentType, charset);
                 case "html":
-                    return receiveHTMLBody(input, url, kind, expect, contentType, charset);
+                    return receiveHTMLBody(input, url, kind, expect, store, contentType, charset);
                 case "xml":
                     return receiveXMLBody(input, url, kind, expect, contentType, charset);
                 case "file":
@@ -158,7 +158,12 @@ public class WebBody {
         }
     }
 
-    private IValue receiveHTMLBody(InputStream reader, ISourceLocation url, IConstructor kind, Type expect, String contentType, String charset) {
+    private IValue receiveHTMLBody(InputStream reader, ISourceLocation url, IConstructor kind, Type expect, TypeStore store, String contentType, String charset) {
+        // store contains the defintions of HTMLElement via the reified type in the receiver bodykind
+        if (html == null) {
+            html = new org.rascalmpl.library.lang.html.IO(vf, monitor, store /* now we have a full definition of HTMLElement to work with */);
+        }
+
         if (!contentType.equals("text/html")) {
             monitor.warning("Expected content-type 'text/html', got: " + contentType, url);
         }
@@ -223,12 +228,12 @@ public class WebBody {
         return (w) -> {            
             html.writeHTML(w, (IConstructor) input.get("source"), 
                 vf.string(charset), 
-               (IConstructor) null, 
+                html.baseMode(), 
                 vf.bool(false), 
                 vf.bool(false),
                 vf.integer(4),
                 vf.integer(10),
-                (IConstructor) null,
+                html.htmlSyntax(),
                 vf.bool(true),
                 vf.bool(false));
         };

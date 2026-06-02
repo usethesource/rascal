@@ -60,19 +60,57 @@ public class IO {
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
-    private final IRascalMonitor monitor;
+    private final Type HTMLEscapeModeType;
+    private final Type extendedModeCons;
+    private final Type baseModeCons;
+    private final Type xhtmlModeCons;
+    private final Type HTMLSyntaxType;
+    private final Type htmlSyntaxCons;
+    private final Type xmlSyntaxCons;
 
-    public IO(IValueFactory factory, IRascalMonitor monitor) {
+
+    private final IRascalMonitor monitor;
+    
+    public IO(IValueFactory factory, IRascalMonitor monitor, TypeStore store) {
         this.factory = factory;
         this.monitor = monitor;
-        this.store = new TypeStore();
+        this.store = new TypeStore(store);
+
         TypeFactory tf = TypeFactory.getInstance();
         this.HTMLElement = tf.abstractDataType(store, "HTMLElement");
         this.textConstructor = tf.constructor(store, HTMLElement, "text", tf.stringType(), "contents");
         this.dataConstructor = tf.constructor(store, HTMLElement, "data", tf.stringType(), "dataContent");
-        this.htmlConstructor = tf.constructor(store,HTMLElement, "html", tf.listType(HTMLElement), "elems");
+        this.htmlConstructor = tf.constructor(store, HTMLElement, "html", tf.listType(HTMLElement), "elems");
+        this.HTMLEscapeModeType = tf.abstractDataType(store, "HTMLEscapeMode");
+        this.extendedModeCons = tf.constructor(store, HTMLEscapeModeType, "extendedMode");
+        this.baseModeCons = tf.constructor(store, HTMLEscapeModeType, "baseMode");
+        this.xhtmlModeCons = tf.constructor(store, HTMLEscapeModeType, "xhtmlMode");
+        this.HTMLSyntaxType = tf.abstractDataType(store, "HTMLSyntax");
+        this.htmlSyntaxCons = tf.constructor(store, HTMLSyntaxType, "htmlSyntax");
+        this.xmlSyntaxCons = tf.constructor(store, HTMLSyntaxType, "xmlSyntax");
     }
     
+    public IConstructor htmlSyntax() {
+        return factory.constructor(htmlSyntaxCons);
+    }
+
+    public IConstructor xmlSyntax() {
+        return factory.constructor(xmlSyntaxCons);
+    }
+
+    public IConstructor baseMode() {
+        return factory.constructor(baseModeCons);
+    }
+
+    public IConstructor extendedMode() {
+        return factory.constructor(extendedModeCons);
+    }
+
+    public IConstructor xhtmlMode() {
+        return factory.constructor(xhtmlModeCons);
+    }
+
+
     public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, ISourceLocation src) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty HTML document");

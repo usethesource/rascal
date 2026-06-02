@@ -45,23 +45,14 @@ public class Webclient {
     private final TypeFactory tf = TypeFactory.getInstance();
     private final TypeStore store = new TypeStore();
     private final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-    private final Type requestType = tf.abstractDataType(store, "Request");
     private final Type responseType = tf.abstractDataType(store, "Response");
     private final Type bodyKindType = tf.abstractDataType(store, "BodyKind");
     private final Type statusType = tf.abstractDataType(store, "Status");
     private final Type bodyType = tf.abstractDataType(store, "Body");
     private final Type responseCons = tf.constructor(store, responseType, "response", statusType, "status", bodyType, "body");
-    private final Type sendCons = tf.constructor(store, bodyType, "send", bodyKindType, "kind", tf.valueType(), "source");
     private final Type parT = tf.parameterType("T");
     private final Type typeT = rtf.reifiedType(parT);
-    private final Type receiveCons = tf.constructor(store, bodyType, "receive", tf.functionType(parT, tf.tupleType(bodyKindType, "kind", typeT, "expect"), tf.tupleEmpty()), "receiver");
-
-    private final Type textCons = tf.constructor(store, bodyKindType, "text");
-    private final Type jsonCons = tf.constructor(store, bodyKindType, "json");
-    private final Type xmlCons =  tf.constructor(store, bodyKindType, "xml");
-    private final Type htmlCons = tf.constructor(store, bodyKindType, "html");
-    private final Type htmlElementType =  tf.abstractDataType(store, "HTMLElement");
-    
+    private final Type receiveCons = tf.constructor(store, bodyType, "receive", tf.functionType(parT, tf.tupleType(bodyKindType, "kind", typeT, "expect"), tf.tupleEmpty()), "receiver");    
     
     private final IRascalValueFactory vf;
     private final IRascalMonitor monitor;
