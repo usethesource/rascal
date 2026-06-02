@@ -37,3 +37,21 @@ test bool testPostJSON()
                 .receiver(json(), #node) 
             == example;
     });
+
+test bool testPutJSON()
+    = testRoundtrip(bool (loc host) {
+        node example = "main"(name="Yogi Bear");
+        return fetch(put("/put/json", send(json(), example), host=host))
+                .body
+                .receiver(json(), #node) 
+            == example;
+    });
+
+test bool testPostHTML()
+    = testRoundtrip(bool (loc host) {
+        HTMLElement example = ul([li([text("one")]), li([text("two")])]);
+        return fetch(post("/post/html", send(json(), example), host=host))
+                .body
+                .receiver(html(), #HTMLElement) 
+            == example;
+    });

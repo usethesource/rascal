@@ -22,10 +22,13 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -39,20 +42,43 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class Webclient {
+    private final TypeFactory tf = TypeFactory.getInstance();
+    private final TypeStore store = new TypeStore();
+    private final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+    private final Type requestType = tf.abstractDataType(store, "Request");
+    private final Type responseType = tf.abstractDataType(store, "Response");
+    private final Type bodyKindType = tf.abstractDataType(store, "BodyKind");
+    private final Type statusType = tf.abstractDataType(store, "Status");
+    private final Type bodyType = tf.abstractDataType(store, "Body");
+    private final Type responseCons = tf.constructor(store, responseType, "response", statusType, "status", bodyType, "body");
+    private final Type sendCons = tf.constructor(store, bodyType, "send", bodyKindType, "kind", tf.valueType(), "source");
+    private final Type parT = tf.parameterType("T");
+    private final Type typeT = rtf.reifiedType(parT);
+    private final Type receiveCons = tf.constructor(store, bodyType, "receive", tf.functionType(parT, tf.tupleType(bodyKindType, "kind", typeT, "expect"), tf.tupleEmpty()), "receiver");
+
+    private final Type textCons = tf.constructor(store, bodyKindType, "text");
+    private final Type jsonCons = tf.constructor(store, bodyKindType, "json");
+    private final Type xmlCons =  tf.constructor(store, bodyKindType, "xml");
+    private final Type htmlCons = tf.constructor(store, bodyKindType, "html");
+    private final Type htmlElementType =  tf.abstractDataType(store, "HTMLElement");
+    
+    
     private final IRascalValueFactory vf;
     private final IRascalMonitor monitor;
-    private final TypeStore store;
-    private final TypeFactory tf;
     private final HttpClient.Builder client;
     private final WebBody body;
+    private final HashMap<HttpStatus, IConstructor> statusValues;
     
-    public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, TypeStore store, TypeFactory tf, PrintWriter out, PrintWriter err) {
+    public Webclient(IRascalValueFactory vf, IRascalMonitor monitor, PrintWriter out, PrintWriter err) {
         this.vf = vf;
         this.monitor = monitor;
-        this.store = store;
-        this.tf = tf;
         this.client = HttpClient.newBuilder();
         this.body = new WebBody(tf, vf, monitor);
+
+        this.statusValues = new HashMap<>();
+        for (HttpStatus code : HttpStatus.allCodes()) {
+            statusValues.put(code, vf.constructor(tf.constructor(store, statusType, code.toConstructor())));
+        }
     }
 
     private String[] makeHeaders(IMap headers) {
@@ -289,13 +315,13 @@ public class Webclient {
         String charset = getCharset(response.headers());
         var status = toStatusConstructor(response.statusCode());
 
-        Type respCons = store.lookupConstructors("response").iterator().next();
+
         IFunction bodyReceiver = body.createBodyReceiver(input, url, mimeType, charset);
-        Type bodyConstructor = store.lookupConstructors("receive").iterator().next();
-        IConstructor body = vf.constructor(bodyConstructor, bodyReceiver);
+        IConstructor body = vf.constructor(receiveCons, bodyReceiver);
         body = body.asWithKeywordParameters().setParameter("mimetype", vf.string(mimeType));
+        body = body.asWithKeywordParameters().setParameter("charset", vf.string(charset));
         
-        return vf.constructor(respCons, status, body)
+        return vf.constructor(responseCons, status, body)
             .asWithKeywordParameters()
             .setParameter("headers", headers);
     }
@@ -323,11 +349,8 @@ public class Webclient {
     }
 
     private IConstructor toStatusConstructor(int stCode) {
-        Type statusType = store.lookupAbstractDataType("Status");
-        String cons = HttpStatus.of(stCode).constructor();
-        return vf.constructor(tf.constructor(store, statusType, cons, tf.tupleEmpty()));
+        return statusValues.get(HttpStatus.of(stCode));
     }
-
     private class MonitoredInputStream extends FilterInputStream {
         private final IRascalMonitor monitor;
         private final String jobName;

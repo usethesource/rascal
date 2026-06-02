@@ -64,7 +64,7 @@ public class WebHandler implements HttpHandler {
     private final Type sendCons = tf.constructor(store, bodyType, "send", bodyKindType, "kind", tf.valueType(), "source");
     private final Type parT = tf.parameterType("T");
     private final Type typeT = rtf.reifiedType(parT);
-    private final Type receiveCons = tf.constructor(store, bodyType, "receiver", tf.functionType(parT, tf.tupleType(bodyKindType, typeT), tf.tupleEmpty()));
+    private final Type receiveCons = tf.constructor(store, bodyType, "receive", tf.functionType(parT, tf.tupleType(bodyKindType, "kind", typeT, "expect"), tf.tupleEmpty()), "receiver");
 
     private final Type textCons = tf.constructor(store, bodyKindType, "text");
     private final Type jsonCons = tf.constructor(store, bodyKindType, "json");
