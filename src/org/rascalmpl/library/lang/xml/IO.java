@@ -193,6 +193,11 @@ public class IO {
         else if (node instanceof Comment) {
             return vf.node("comment", vf.string(((Comment) node).getData()));
         }
+        else if (node instanceof Document) {
+            // we don't need any artificial document wrapper
+            Document doc = (Document) node;
+            return toINode(doc.child(0), file, fullyQualify, includeEndTags, ignoreComments, ignoreComments);
+        }
         else if (node instanceof Element) {            
             Element elem = (Element) node;
 

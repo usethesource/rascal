@@ -173,8 +173,8 @@ public class WebBody {
     }
 
     private IValue receiveXMLBody(InputStream reader, ISourceLocation url, IConstructor kind, Type expect, String contentType, String charset) {
-        if (!contentType.equals("text/html")) {
-            monitor.warning("Expected content-type 'text/html', got: " + contentType, url);
+        if (!contentType.equals("application/xml")) {
+            monitor.warning("Expected content-type 'application/xml', got: " + contentType, url);
         }
 
         // TODO: expose options to API level
