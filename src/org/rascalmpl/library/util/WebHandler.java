@@ -1,11 +1,9 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.HashMap;
@@ -216,6 +214,8 @@ public class WebHandler implements HttpHandler {
                     handleGeneralThrowable(HttpStatus.INTERNAL_ERROR, e, exchange);
                 }
             }
+
+            exchange.endExchange();
         });
     };
 
@@ -247,13 +247,13 @@ public class WebHandler implements HttpHandler {
     }
 
     private String getMimeType(HeaderMap headers) {
-        String contenType = headers.get(Headers.CONTENT_TYPE).getFirst();
+        String contenType = headers.getFirst(Headers.CONTENT_TYPE);
         String[] parts = contenType.toString().split(";");
         return parts[0].trim();
     }
 
     private String getCharset(HeaderMap headers) {
-        String contentType = headers.get(Headers.CONTENT_TYPE).getFirst();
+        String contentType = headers.getFirst(Headers.CONTENT_TYPE);
         String result = StandardCharsets.UTF_8.name();
 
         String[] parts = contentType.split(";");
@@ -274,8 +274,6 @@ public class WebHandler implements HttpHandler {
         Map<String,IValue> kws = new HashMap<>();
         kws.put("parameters", makeMap(parms));
         kws.put("headers", makeMap(headers));
-        var mimeType = getMimeType(headers);
-        var charset = getCharset(headers);
                 
         switch (method.toString()) {
             case "HEAD":
@@ -285,9 +283,9 @@ public class WebHandler implements HttpHandler {
             case "GET":
                 return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
             case "PUT":  
-                return vf.constructor(put, new IValue[]{vf.string(path), vf.constructor(receiveCons, body.createBodyReceiver(exchange.getInputStream(), host, mimeType, charset))}, kws);
+                return vf.constructor(put, new IValue[]{vf.string(path), vf.constructor(receiveCons, body.createBodyReceiver(exchange.getInputStream(), host,  getMimeType(headers), getCharset(headers)))}, kws);
             case "POST":
-                return vf.constructor(post, new IValue[]{vf.string(path), vf.constructor(receiveCons, body.createBodyReceiver(exchange.getInputStream(), host, mimeType, charset))}, kws);
+                return vf.constructor(post, new IValue[]{vf.string(path), vf.constructor(receiveCons, body.createBodyReceiver(exchange.getInputStream(), host,  getMimeType(headers), getCharset(headers)))}, kws);
             default:
                 throw new IOException("Unhandled request method: " + method);
         }
@@ -334,22 +332,20 @@ public class WebHandler implements HttpHandler {
         try (OutputStream out = exchange.getOutputStream()) {
             switch (kind.getName()) {
                 case "file":
-                    try (InputStream in = body.sendFileBody(kind)) {
-                        in.transferTo(out);
-                    }
+                    body.sendFileBody(out, b, charset.getValue());
                     break;
                 case "json":
-                    body.writeToOutputStream(out, body.sendJsonBody(b, charset.getValue()), charset.getValue());
+                    body.sendJsonBody(out, b, charset.getValue());
                     break;
                 case "xml": 
-                    body.writeToOutputStream(out, body.sendXMLBody(b, charset.getValue()), charset.getValue());
+                    body.sendXMLBody(out, b, charset.getValue());
                     break;
                 case "html": 
-                    body.writeToOutputStream(out, body.sendHTMLBody(b, charset.getValue()), charset.getValue());
+                    body.sendHTMLBody(out, b, charset.getValue());
                     break;
                 case "text":
                 default:
-                    body.writeTextBody(b, charset.getValue());
+                    body.sendTextBody(out, b, charset.getValue());
             }
         }
 

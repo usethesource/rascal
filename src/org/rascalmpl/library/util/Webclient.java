@@ -164,13 +164,13 @@ public class Webclient {
 
         switch (kind.getName()) {
             case "json":
-                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendJsonBody(postBody, cs), cs));
+                return BodyPublishers.ofInputStream(() -> body.sendJsonBody(postBody, cs));
             case "html":
-                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendHTMLBody(postBody, cs), cs));
+                return BodyPublishers.ofInputStream(() -> body.sendHTMLBody(postBody, cs));
             case "xml":
-                return BodyPublishers.ofInputStream(() -> body.writeToInputStream(body.sendXMLBody(postBody, cs), cs));
+                return BodyPublishers.ofInputStream(() -> body.sendXMLBody(postBody, cs));
             case "file":
-                return BodyPublishers.ofInputStream(() -> body.sendFileBody(postBody));
+                return BodyPublishers.ofInputStream(() -> body.sendFileBody(postBody, cs));
             case "text":
                 return BodyPublishers.ofInputStream(() -> body.sendTextBody(postBody, cs));
             default:

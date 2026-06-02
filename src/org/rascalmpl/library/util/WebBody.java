@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.io.InputStreamReader;
 
-import org.apache.commons.io.input.ReaderInputStream;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -194,7 +193,7 @@ public class WebBody {
         void accept(Writer writer) throws IOException;
     }
 
-    public WriterFunction sendJsonBody(IConstructor input, String charset) {    
+    private WriterFunction writeJsonBody(IConstructor input, String charset) {    
         IConstructor options = input.asWithKeywordParameters().getParameter("options");
         Map<String, IValue> kws = options != null 
             ? options.asWithKeywordParameters().getParameters() 
@@ -220,7 +219,7 @@ public class WebBody {
         };
     }
 
-    public WriterFunction sendHTMLBody(IConstructor input, String charset) {    
+    private WriterFunction writeHTMLBody(IConstructor input, String charset) {    
         return (w) -> {            
             html.writeHTML(w, (IConstructor) input.get("source"), 
                 vf.string(charset), 
@@ -235,7 +234,7 @@ public class WebBody {
         };
     }
 
-    public WriterFunction sendXMLBody(IConstructor input, String charset) {    
+    private WriterFunction writeXMLBody(IConstructor input, String charset) {    
         return (w) -> {            
             xml.writeXML(w, input.get("source"), 
                 vf.string(charset), 
@@ -247,7 +246,14 @@ public class WebBody {
         };
     }
 
-    public InputStream sendFileBody(IConstructor input) {
+    public void sendFileBody(OutputStream out, IConstructor input, String charset) throws IOException {
+        try (InputStream in = sendFileBody(input, charset)) {
+            in.transferTo(out);
+        }
+    }
+
+    public InputStream sendFileBody(IConstructor input, String charset) {
+        // TODO: interesting what to do with charset
         final var loc = (ISourceLocation) input.get("source");
 
         try {
@@ -259,22 +265,38 @@ public class WebBody {
     }
 
     public InputStream sendTextBody(IConstructor input, String charset) {
-        final var value = input.get("source");
-
-        // Note this intentionally mimicks the semantics of IO::writeFile
-        if (value.getType().isString()) {
-            var text = (IString) value;
-            return new ReaderInputStream(text.asReader(), charset);
-        }
-        else if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-            return writeToInputStream((w) -> TreeAdapter.yield((ITree) value, w), charset);  
-        } 
-        else {
-            return writeToInputStream((w) -> new StandardTextWriter().write(value, w), charset);
-        }			
+        return writeToInputStream(writeTextBody(input, charset), charset);
     }
 
-    public WriterFunction writeTextBody(IConstructor input, String charset) {
+    public InputStream sendJsonBody(IConstructor input, String charset) {
+        return writeToInputStream(writeJsonBody(input, charset), charset);
+    }
+
+    public InputStream sendXMLBody(IConstructor input, String charset) {
+        return writeToInputStream(writeXMLBody(input, charset), charset);
+    }
+
+    public InputStream sendHTMLBody(IConstructor input, String charset) {
+        return writeToInputStream(writeHTMLBody(input, charset), charset);
+    }
+
+    public void sendTextBody(OutputStream out, IConstructor input, String charset) throws IOException {
+        writeToOutputStream(out, writeTextBody(input, charset), charset);
+    }
+
+    public void sendJsonBody(OutputStream out, IConstructor input, String charset) throws IOException {
+        writeToOutputStream(out, writeJsonBody(input, charset), charset);
+    }
+
+    public void sendXMLBody(OutputStream out, IConstructor input, String charset) throws IOException {
+        writeToOutputStream(out, writeXMLBody(input, charset), charset);
+    }
+
+    public void sendHTMLBody(OutputStream out, IConstructor input, String charset) throws IOException {
+        writeToOutputStream(out, writeHTMLBody(input, charset), charset);
+    }
+
+    private WriterFunction writeTextBody(IConstructor input, String charset) {
         final var value = input.get("source");
 
         // Note this intentionally mimicks the semantics of IO::writeFile
@@ -295,7 +317,7 @@ public class WebBody {
         }			
     }
 
-    public void writeToOutputStream(OutputStream out, WriterFunction write, String charset) throws UnsupportedEncodingException, IOException {
+    private void writeToOutputStream(OutputStream out, WriterFunction write, String charset) throws UnsupportedEncodingException, IOException {
         try (Writer w = new OutputStreamWriter(out, charset)) {
             write.accept(w);
         }
@@ -306,7 +328,7 @@ public class WebBody {
      * handling, encodings, liveness and cancellation. This is used only
      * by the Webclient, because the Webserver can use an Outputstream directly.
      */
-    public InputStream writeToInputStream(WriterFunction write, String charset) {
+    private InputStream writeToInputStream(WriterFunction write, String charset) {
         try {
             final PipedInputStream result = new PipedInputStream(8192);
             final PipedOutputStream out = new PipedOutputStream(result);
