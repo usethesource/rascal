@@ -18,14 +18,14 @@ jobs:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: ubicloud-standard-4
     steps: 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # - uses: s4u/maven-settings-action@v3.1.0
       #   if: ${{ env.IS_OWN_PR != '' }}
       #   with:
       #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
       #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
@@ -34,7 +34,7 @@ jobs:
       - name: Run Tests
         run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
           fail_ci_if_error: false
@@ -44,7 +44,7 @@ jobs:
       - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
-        uses: scacap/action-surefire-report@v1
+        uses: ScalableCapital/action-surefire-report@v2
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
@@ -71,9 +71,9 @@ jobs:
       #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
       #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
       
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
@@ -102,7 +102,7 @@ jobs:
 
       - name: Making sure test have succeeded in the parallel jobs
         if: startsWith(github.ref, 'refs/tags/')
-        uses: yogeshlonkar/wait-for-jobs@v0
+        uses: yogeshlonkar/wait-for-jobs@v1
         with:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
           jobs: |
@@ -123,7 +123,7 @@ jobs:
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
 
       - name: Prepare Draft Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
@@ -158,14 +158,14 @@ jobs:
     env:
       MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # - uses: s4u/maven-settings-action@v3.1.0
       #   if: ${{ env.IS_OWN_PR != '' }}
       #   with:
       #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
       #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
@@ -176,7 +176,7 @@ jobs:
         # single quotes to help windows deal with argument splitting
         run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=2' test
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
           token: e8b4481a-d178-4148-a4ff-502906390512
@@ -184,7 +184,7 @@ jobs:
       - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
-        uses: scacap/action-surefire-report@v1
+        uses: ScalableCapital/action-surefire-report@v2
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
@@ -195,14 +195,14 @@ jobs:
     env:
       MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # - uses: s4u/maven-settings-action@v3.1.0
       #   if: ${{ env.IS_OWN_PR != '' }}
       #   with:
       #     servers: '[{"id": "usethesource-gh", "username":"github", "password": "${{ secrets.MAVEN_MIRROR_PASSWORD }}"}]'
       #     mirrors: '[{"id": "usethesource-gh", "name": "uts mirror", "mirrorOf": "usethesource", "url": "${{ secrets.MAVEN_MIRROR_URL }}"}]'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
@@ -215,7 +215,7 @@ jobs:
       - name: Run Tests
         run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=10 test
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
           fail_ci_if_error: false
@@ -225,7 +225,7 @@ jobs:
       - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
-        uses: scacap/action-surefire-report@v1
+        uses: ScalableCapital/action-surefire-report@v2
         with:
           check_name: "Compiler Test Report"
 
