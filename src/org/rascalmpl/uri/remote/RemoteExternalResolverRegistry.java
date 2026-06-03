@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +61,8 @@ import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.IExternalResolverRegistry;
 import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.CapabilitiesResponse;
+import org.rascalmpl.uri.remote.jsonrpc.Capability;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
@@ -90,6 +93,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class RemoteExternalResolverRegistry implements IExternalResolverRegistry, IRemoteResolverRegistryClient {
     private final AtomicReference<IRemoteResolverRegistryServer> remote = new AtomicReference<>(null);
+    private final AtomicReference<CompletableFuture<CapabilitiesResponse>> currentCapabilities = new AtomicReference<>(null);
     private static final ExecutorService exec = NamedThreadPool.cachedDaemon("rascal-remote-resolver-registry");
 
     private final Map<WatchSubscriptionKey, Watchers> watchers = new ConcurrentHashMap<>();
@@ -308,9 +312,92 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         clientLauncher.startListening();
         var remote = clientLauncher.getRemoteProxy();
 
+        currentCapabilities.set(remote.capabilities());
+
         inputStream.connect(remote);
         outputStream.connect(remote);
         return Pair.of(socket, remote);
+    }
+
+    @Override
+    public boolean supportsGetCharset(ISourceLocation loc) {
+        return supportsCapability(CapabilitiesResponse::getGetCharset, loc.getScheme());
+    }
+
+    @Override
+    public boolean supportsLogical(ISourceLocation loc) {
+        return supportsCapability(CapabilitiesResponse::getLogical, loc.getScheme());
+    }
+
+    @Override
+    public boolean supportsWatch(ISourceLocation loc) {
+        return supportsCapability(CapabilitiesResponse::getWatch, loc.getScheme());
+    }
+
+    @Override
+    public boolean supportsOutput(String scheme) {
+        return supportsCapability(CapabilitiesResponse::getOutput, scheme);
+    }
+
+    public boolean hasWatchCapability() {
+        return !getCapability(CapabilitiesResponse::getWatch).isUnsupported();
+    }
+
+
+    private boolean supportsCapability(Function<CapabilitiesResponse, Capability> field, String scheme) {
+        var cap = getCapability(field);
+        if (cap.isUnsupported()) {
+            return false;
+        }
+        if (cap.isFullSupport()) {
+            return true;
+        }
+        return cap.getOnlyForSchemes().contains(getFirstSchemePart(scheme));
+    }
+
+    private static String getFirstSchemePart(String scheme) {
+        var end = scheme.indexOf('+');
+        if (end > 0) {
+            return scheme.substring(0, end);
+        }
+        return scheme;
+    }
+
+
+    private Capability getCapability(Function<CapabilitiesResponse, Capability> field) {
+        var caps = currentCapabilities.get();
+        if (caps == null) {
+            var stop = System.currentTimeMillis() + Duration.ofMinutes(1).toMillis();
+            while (System.currentTimeMillis() <= stop) {
+                caps = currentCapabilities.get();
+                if (caps != null) {
+                    break;
+                }
+                try {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            if (caps == null) {
+                return Capability.unsupported();
+            }
+        }
+        try {
+            return caps.thenApply(field)
+                .thenApply(c -> c == null ? Capability.unsupported() : c)
+                .get(1, TimeUnit.MINUTES);
+        } catch (TimeoutException e) {
+            return Capability.unsupported();
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Capability.unsupported();
+        }
+        catch (ExecutionException e) {
+            return Capability.unsupported();
+        }
     }
 
     private static <T, U> U call(ThrowingFunction<T, CompletableFuture<U>, IOException> function, T argument) throws IOException {

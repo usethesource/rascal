@@ -142,7 +142,9 @@ public class URIResolverRegistry {
 				registry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
 			}
 			this.externalRegistry = registry;
-			watchers.setExternalRegistry(registry);
+			if (registry.hasWatchCapability()) {
+				watchers.setExternalRegistry(registry, registry::supportsWatch);
+			}
 		}
 	}
 
@@ -402,7 +404,7 @@ public class URIResolverRegistry {
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
 		
-		if (externalRegistry != null) {
+		if (externalRegistry != null && externalRegistry.supportsLogical(loc)) {
 			try {
 				var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
 				return externalResult == null ? loc : externalResult;
@@ -499,7 +501,9 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return externalRegistry;
+			if (externalRegistry.supportsOutput(scheme)) {
+				return externalRegistry;
+			}
 		}
 		return result;
 	}
@@ -990,7 +994,7 @@ public class URIResolverRegistry {
 		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
-		if (resolver == null) {
+		if (resolver == null || (resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri))) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
