@@ -246,10 +246,12 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<CapabilitiesResponse> capabilities() {
-        return CompletableFuture.completedFuture(
+    public CompletableFuture<CapabilitiesResponse> serverCapabilities() {
+        return async(() -> 
             new CapabilitiesResponse(
-                Capability.full(), Capability.full(), Capability.full(), Capability.full()
+                Capability.full(), Capability.full(), 
+                Capability.full(), Capability.full(),
+                Capability.full()
             )
         );
     }

@@ -33,46 +33,73 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CapabilitiesResponse {
     /**
-     * Are the `/watch/` apis supported
+     * Are the `/input/` APIs supported, null is a shorthand a capability of level for{@link CapabilityLevel#UNSUPPORTED}.
      */
-    private final @Nullable Capability watch;
+    private final @Nullable Capability input;
     /**
-     * Are the `/output/` apis supported
+     * Are the `/output/` APIs supported, null is a shorthand a capability of level for{@link CapabilityLevel#UNSUPPORTED}.
      */
     private final @Nullable Capability output;
     /**
-     * Are the `/logical/` apis supported
+     * Are the `/watch/` APIs supported, null is a shorthand a capability of level for{@link CapabilityLevel#UNSUPPORTED}
+     */
+    private final @Nullable Capability watch;
+    /**
+     * Are the `/logical/` APIs supported, null is a shorthand a capability of level for{@link CapabilityLevel#UNSUPPORTED}
      */
     private final @Nullable Capability logical;
     /**
-     * Is the `/getCharset` api supported
+     * Is the `/getCharset` API supported, null is a shorthand a capability of level for{@link CapabilityLevel#UNSUPPORTED}
      */
     private final @Nullable Capability getCharset;
 
-    public CapabilitiesResponse(@Nullable Capability watch, @Nullable Capability output, @Nullable Capability logical,
+    public CapabilitiesResponse(@Nullable Capability input, @Nullable Capability watch, @Nullable Capability output, @Nullable Capability logical,
         @Nullable Capability getCharset) {
+        this.input = input;
         this.watch = watch;
         this.output = output;
         this.logical = logical;
         this.getCharset = getCharset;
     }
-    public @Nullable Capability getGetCharset() {
-        return getCharset;
+
+    private static Capability replaceNull(@Nullable Capability cap) {
+        return cap == null ? Capability.unsupported() : cap;
     }
 
-    public @Nullable Capability getLogical() {
-        return logical;
+
+    public Capability getGetCharset() {
+        return replaceNull(getCharset);
     }
-    public @Nullable Capability getWatch() {
-        return watch;
+
+    public Capability getLogical() {
+        return replaceNull(logical);
+    }
+    public Capability getWatch() {
+        return replaceNull(watch);
+    }
+
+    public Capability getInput() {
+        return replaceNull(input);
     }
 
     public Capability getOutput() {
-        return output;
+        return replaceNull(output);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(watch, output, logical, getCharset);
+        return Objects.hash(input, output, watch, logical, getCharset);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CapabilitiesResponse)) {
+            return false;
+        }
+        CapabilitiesResponse other = (CapabilitiesResponse) obj;
+        return Objects.equals(input, other.input) && Objects.equals(output, other.output)
+            && Objects.equals(watch, other.watch) && Objects.equals(logical, other.logical)
+            && Objects.equals(getCharset, other.getCharset);
+    }
+
 }
