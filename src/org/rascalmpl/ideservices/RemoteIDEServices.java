@@ -54,12 +54,19 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * This class enables interaction with an implementation of `IDEServices` that (potentially) runs in another thread or process
  */
 public class RemoteIDEServices extends BasicIDEServices {
     private final IRemoteIDEServices server;
+    /**
+     * This TypeStore contains definitions of the `Messages` ADT (for {@link #registerDiagnostics}) and `FileSystemChanges` ADT (for {@link #applyFileSystemEdits}).
+     * (Note: the list in {@link #unregisterDiagnostics} has element type `loc`).
+     */
+    public static final TypeStore ts;
 
     public RemoteIDEServices(int ideServicesPort, PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot) {
         super(stderr, monitor, terminal, projectRoot);
@@ -73,7 +80,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setLocalService(this)
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
-                .configureGson(GsonUtils.complexAsJsonObject())
+                .configureGson(GsonUtils.complexAsBase64String(ts))
                 .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2))))
                 .create();
 
@@ -82,6 +89,18 @@ public class RemoteIDEServices extends BasicIDEServices {
         } catch (Throwable e) {
             throw new RuntimeException("Error setting up Remote IDE Services connection", e);
         }
+    }
+
+    static {
+        ts = new TypeStore(Messages.ts);
+        var tf = TypeFactory.getInstance();
+
+        // The following should be kept in sync with the Rascal definition in `analysis::diff::edits::FileSystemChanges`
+        var fileSystemChangeType = tf.abstractDataType(ts, "FileSystemChange");
+        tf.constructor(ts, fileSystemChangeType, "removed", tf.sourceLocationType(), "file");
+        tf.constructor(ts, fileSystemChangeType, "created", tf.sourceLocationType(), "file");
+        tf.constructor(ts, fileSystemChangeType, "renamed", tf.sourceLocationType(), "from", tf.sourceLocationType(), "to");
+        tf.constructor(ts, fileSystemChangeType, "modified", tf.sourceLocationType(), "file");
     }
 
     @Override
