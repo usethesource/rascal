@@ -140,7 +140,7 @@ data BodyKind
   = text()
   | json(JSONOptions jOptions=jsonOptions(nulls=defaultJSONNULLValues))
   | html(HTMLOptions hOptions=htmlOptions())
-  | xml()
+  | xml(XMLOptions xOptions=xmlOptions())
   | file(loc storage=|unknown:///|)
   ;
 
