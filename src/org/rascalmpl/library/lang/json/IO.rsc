@@ -119,7 +119,8 @@ data JSONOptions
       bool trackOrigins=false,
       bool dropOrigins=true,
       int indent=0,
-      bool unpackedLocations=false
+      bool unpackedLocations=false,
+      int precision=20
   );
 
 private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
