@@ -7,6 +7,7 @@
  */
 package org.rascalmpl.library.util;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -15,12 +16,12 @@ import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.undertow.Undertow;
+import io.undertow.Undertow.ListenerInfo;
 import io.undertow.server.HttpHandler;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeStore;
 
 public class Webserver {
     private final Map<IInteger, Undertow> servers;
@@ -37,7 +38,7 @@ public class Webserver {
      * Serves on localhost:<port> and allows the user to stop the running server
      * later with `shutdown`
      */
-    public void serve(IInteger pPort, final IFunction callback, IBool asDeamon) {
+    public IInteger serve(IInteger pPort, final IFunction callback, IBool asDeamon) {
         final int port = pPort.intValue();
         HttpHandler handler = new WebHandler(callback, port, vf, monitor);
 
@@ -48,6 +49,13 @@ public class Webserver {
 
         servers.put(pPort, server);
         server.start();
+
+        for (ListenerInfo listener : server.getListenerInfo()) {
+            InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+            return vf.integer(address.getPort());
+        }
+
+        return pPort;
     }
     
     public void shutdown(IInteger port) {
@@ -71,7 +79,7 @@ public class Webserver {
     /**
      * This exercises the entire server infrastructure without locking the interpreter
      */
-    public void startEchoServerJava(IInteger port, IValue htmlStore) {
+    public IInteger startEchoServerJava(IInteger port, IValue htmlStore) {
         HttpHandler handler = new WebHandler(port.intValue(), vf, (IConstructor) htmlStore, monitor);
 
         Undertow server = Undertow.builder()
@@ -81,5 +89,12 @@ public class Webserver {
 
         servers.put(port, server);
         server.start();
+        
+        for (ListenerInfo listener : server.getListenerInfo()) {
+            InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+            return vf.integer(address.getPort());
+        }
+
+        return port;
     }
 }

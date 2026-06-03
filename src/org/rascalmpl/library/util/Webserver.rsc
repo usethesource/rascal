@@ -20,7 +20,8 @@ import lang::html::AST;
 * `asDeamon` directs what happens when  the main JVM thread terminates. If set to `true` the server will also stop.
 
 The server is run asynchronously and the call to serve returns as soon as the server has commenced listening.
-Yhe exactly used port number is returned,
+
+If `port=0` the system will find a free port and return it.
 }
 @benefits{
 * Supports all of HTTP1.1 including any kind of header
@@ -34,8 +35,8 @@ java int serve(int port, Response (Request) callback, bool asDaemon = true);
 
 @synopsis{Start a server with the port number encoded in the server `loc`}
 @deprecated{Use ((serve)) with  the `port` argument, because the hostname was never configurable in the first place.}
-void serve(loc server, Response (Request) callback, bool asDaemon = true) {
-    serve(server.port, callback, asDaemon=asDaemon);
+int serve(loc server, Response (Request) callback, bool asDaemon = true) {
+    return serve(server.port, callback, asDaemon=asDaemon);
 }
 
 @javaClass{org.rascalmpl.library.util.Webserver}
@@ -55,6 +56,8 @@ This works exactly as startTestWebServerRascal:
 * `/post/html` and `/put/html` accept proper HTML uploads, parses it to HTMLElements, checks the type and returns is as proper HTML again.
 * `/post/xml` and `/put/xml` accept proper XML uploads, parses it to `node`, checks the type and returns is as proper XML again.
 * `/head` returns the headers of the request as text.
+
+If `port=0` the system will find a free port and return it.
 }
 @benefits{
 * can be used to test the ((util::Webclient)) without deadlock
@@ -64,10 +67,10 @@ This works exactly as startTestWebServerRascal:
 * only default mimetypes and charsets are used.
 }
 @javaClass{org.rascalmpl.library.util.Webserver}
-java void startEchoServerJava(int port=10001, type[HTMLElement] htmlElements = #HTMLElement);
+java int startEchoServerJava(int port=0, type[HTMLElement] htmlElements = #HTMLElement);
 
 @synopsis{Test server for Webserver and Webclient}
-void startEchoServerRascal(int port=10002) {
+int startEchoServerRascal(int port=0) {
   
   Response testServer(get("/get")) 
     = response("ok");   
@@ -102,5 +105,5 @@ void startEchoServerRascal(int port=10002) {
   default Response testServer(Request q) 
     = response(notFound(), send(text(), "<q.path> not found"));
 
-  serve(port, testServer);
+  return serve(port, testServer);
 }
