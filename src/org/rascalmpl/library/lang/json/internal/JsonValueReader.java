@@ -22,8 +22,6 @@
  */
 package org.rascalmpl.library.lang.json.internal;
 
-import static org.junit.Assert.fail;
-
 import java.io.EOFException;
 import java.io.FilterReader;
 import java.io.IOException;
@@ -67,7 +65,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;

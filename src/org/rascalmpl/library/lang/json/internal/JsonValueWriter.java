@@ -53,7 +53,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
@@ -70,11 +69,19 @@ public class JsonValueWriter {
     private boolean explicitConstructorNames = false;
     private boolean explicitDataTypes;
     private int indent = 4;
-
+    private int precision = 10;    
+    
     /** helper class for number serialization without quotes */
     private static class RascalNumber extends Number {
         private static final long serialVersionUID = -2204435793489295963L;
-        public INumber wrapped;
+        private INumber wrapped;
+        private int precision;
+
+        public RascalNumber set(INumber wrapped, int precision) {
+            this.wrapped = wrapped;
+            this.precision = precision;
+            return this;
+        }
 
         @Override
         public int intValue() {
@@ -88,13 +95,12 @@ public class JsonValueWriter {
 
         @Override
         public float floatValue() {
-            // TODO parameterize precision
-            return wrapped.toReal(20).floatValue();
+            return wrapped.toReal(precision).floatValue();
         }
 
         @Override
         public double doubleValue() {
-            return wrapped.toReal(20).doubleValue();
+            return wrapped.toReal(precision).doubleValue();
         }
 
         @Override
@@ -104,7 +110,6 @@ public class JsonValueWriter {
     }
 
     private RascalNumber wrapper = new RascalNumber();
-    
 
     public JsonValueWriter() {
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -129,6 +134,7 @@ public class JsonValueWriter {
         IBool edt = (IBool) kws.getParameter("explicitDataTypes");
         IBool upl = (IBool) kws.getParameter("unpackLocations");
         IBool dor = (IBool) kws.getParameter("dropOrigins");
+        IInteger prec = (IInteger) kws.getParameter("precision");
         IInteger ind = (IInteger) kws.getParameter("indent");
 
         return this
@@ -138,13 +144,14 @@ public class JsonValueWriter {
             .setUnpackedLocations(upl != null ? ((IBool) upl).getValue() : false)
             .setDropOrigins(dor != null ? ((IBool) dor).getValue() : true)
             .setFormatters(formatters)
+            .setPrecision(prec != null ? ((IInteger) prec).intValue() : 20)
             .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
             .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
             .setIndent(ind != null ? ((IInteger) ind).intValue() : 4)
             ;
     }
 
-    private JsonValueWriter setIndent(int i) {
+    public JsonValueWriter setIndent(int i) {
        this.indent = i;
        return this;
     }
@@ -186,6 +193,11 @@ public class JsonValueWriter {
         return this;
     }
 
+    public JsonValueWriter setPrecision(int setting) {
+        this.precision = setting;
+        return this;
+    }
+
     public JsonValueWriter setFormatters(@Nullable IFunction formatters) {
         if (formatters != null && formatters.getType().getFieldType(0).isTop()) {
             // ignore default function
@@ -220,8 +232,7 @@ public class JsonValueWriter {
 
             @Override
             public Void visitReal(IReal o) throws IOException {
-                wrapper.wrapped = o;
-                out.value(wrapper);
+                out.value(wrapper.set(o, precision));
                 return null;
             }
 
@@ -421,8 +432,7 @@ public class JsonValueWriter {
 
             @Override
             public Void visitInteger(IInteger o) throws IOException {
-                wrapper.wrapped = o;
-                out.value(wrapper);
+                out.value(wrapper.set(o, precision));
                 return null;
             }
 
