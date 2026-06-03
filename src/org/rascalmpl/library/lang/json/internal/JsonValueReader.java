@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -1011,7 +1012,11 @@ public class JsonValueReader {
         return this;
     }
 
-    public JsonValueReader setOptions(IConstructor options) {
+    public JsonValueReader setOptions(@Nullable IConstructor options) {
+        if (options == null) {
+            return this;
+        }
+
         var kws = options.asWithKeywordParameters();
         IString dtf = (IString) kws.getParameter("dateTimeFormat");
         IBool lenient = (IBool) kws.getParameter("lenient");

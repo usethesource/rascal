@@ -110,7 +110,11 @@ public class JsonValueWriter {
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     }
 
-    public JsonValueWriter setOptions(IConstructor options) {
+    public JsonValueWriter setOptions(@Nullable IConstructor options) {
+        if (options == null) {
+            return this;
+        }
+
         var kws = options.asWithKeywordParameters();
         IInteger indent = ((IInteger) kws.getParameter("indent"));
         if (indent == null) {

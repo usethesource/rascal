@@ -43,9 +43,11 @@ import com.google.gson.stream.JsonWriter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -150,12 +152,8 @@ public class WebBody {
 
         try {  
             JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
-            JsonValueReader parser = new JsonValueReader(vf, store, monitor, url);
+            JsonValueReader parser = new JsonValueReader(vf, store, monitor, url).setOptions(options);
 
-            if (options != null) {
-                parser = parser.setOptions(options);
-            }
-            
             return parser.read(jsonReader, expect);
         }
         catch (IOException e) {
@@ -173,8 +171,17 @@ public class WebBody {
             monitor.warning("Expected content-type 'text/html', got: " + contentType, url);
         }
 
-        // TODO: expose options to API level
-        return html.readHTMLStream(reader, url, vf.bool(false), vf.bool(false));  
+        var optCons = kind.asWithKeywordParameters().getParameter("hOptions");
+        IBool trackOrigins = vf.bool(false);
+        IBool includeEndTags = vf.bool(true);
+
+        if (optCons != null) {
+            var options = optCons.asWithKeywordParameters();
+            trackOrigins = options.hasParameter("trackOrigins") ? options.getParameter("trackOrigins") : vf.bool(false);
+            includeEndTags = options.hasParameter("includeEndTags") ? options.getParameter("includeEndTags") : vf.bool(true);
+        }
+
+        return html.readHTMLStream(reader, url, trackOrigins, includeEndTags);  
     }
 
     private IValue receiveXMLBody(InputStream reader, ISourceLocation url, IConstructor kind, Type expect, String contentType, String charset) {
@@ -205,42 +212,39 @@ public class WebBody {
 
     private WriterFunction writeJsonBody(IConstructor input, String charset) {    
         IConstructor options = input.asWithKeywordParameters().getParameter("options");
-        Map<String, IValue> kws = options != null 
-            ? options.asWithKeywordParameters().getParameters() 
-            : Collections.emptyMap(); 
-        IString dtf = (IString) kws.get("dateTimeFormat");
-        IBool dai = (IBool) kws.get("dateTimeAsInt");
-        IBool ras = (IBool) kws.get("rationalsAsString");
-        IFunction formatters = (IFunction) kws.get("formatter");
-        IBool ecn = (IBool) kws.get("explicitConstructorNames");
-        IBool edt = (IBool) kws.get("explicitDataTypes");
-        JsonValueWriter valueWriter = new JsonValueWriter()
-            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setFormatters(formatters)
-            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
-            .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
-            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
-            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
-            ;
-        
+        JsonValueWriter valueWriter = new JsonValueWriter().setOptions(options);
+
         return (w) -> { 
             JsonWriter jsonW = new JsonWriter(w);
             valueWriter.write(jsonW, input.get("source"));
         };
     }
 
-    private WriterFunction writeHTMLBody(IConstructor input, String charset) {    
+    private WriterFunction writeHTMLBody(IConstructor input, String charset) {   
+        IConstructor kind = (IConstructor) input.get("kind");
+        IConstructor options = kind.asWithKeywordParameters().getParameter("hOptions");
+        Map<String, IValue> kws = options != null ? options.asWithKeywordParameters().getParameters() : Collections.emptyMap();
+
+        IConstructor escapeMode = (IConstructor) kws.getOrDefault("escapeMode", html.baseMode());
+        IBool outline = (IBool) kws.getOrDefault("outline", vf.bool(false));
+        IBool prettyPrint = (IBool) kws.getOrDefault("prettyPrint", vf.bool(false));
+        IInteger indentAmount = (IInteger) kws.getOrDefault("indentAmount", vf.integer(4));
+        IInteger maxPaddingWidth = (IInteger) kws.getOrDefault("maxPaddingWidth", vf.integer(10));
+        IConstructor syntax = (IConstructor) kws.getOrDefault("syntax", html.htmlSyntax());
+        IBool dropOrigins = (IBool) kws.getOrDefault("dropOrigins", vf.bool(true));
+        IBool normalise = (IBool) kws.getOrDefault("normalise", vf.bool(false));
+
         return (w) -> {            
             html.writeHTML(w, (IConstructor) input.get("source"), 
                 vf.string(charset), 
-                html.baseMode(), 
-                vf.bool(false), 
-                vf.bool(false),
-                vf.integer(4),
-                vf.integer(10),
-                html.htmlSyntax(),
-                vf.bool(true),
-                vf.bool(false));
+                escapeMode, 
+                outline, 
+                prettyPrint,
+                indentAmount,
+                maxPaddingWidth,
+                syntax,
+                dropOrigins,
+                normalise);
         };
     }
 
