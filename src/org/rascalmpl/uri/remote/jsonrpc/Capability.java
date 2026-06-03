@@ -34,15 +34,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 /**
- * A server can report is capability, either as being not supported, partially supported (for a specific set of schemes) or fully supported.
+ * A server can report its capability, either as being not supported, partially supported (for a specific set of schemes) or fully supported.
  */
 public class Capability {
     private final @NonNull CapabilityLevel level;
-    private final @NonNull Set<String> onlyForSchemes;
+    private final @Nullable Set<String> onlyForSchemes;
 
-    public Capability(@NonNull CapabilityLevel level, @Nullable String[] onlyForSchemes) {
+    public Capability(@NonNull CapabilityLevel level, @Nullable Set<String> onlyForSchemes) {
         this.level = level;
-        this.onlyForSchemes = onlyForSchemes == null ? Collections.emptySet() : Set.of(onlyForSchemes);
+        this.onlyForSchemes = onlyForSchemes == null ? Collections.emptySet() : Set.copyOf(onlyForSchemes);
         if (level == CapabilityLevel.PARTIAL && this.onlyForSchemes.isEmpty()) {
             throw new IllegalArgumentException("Partial support should always include a list of the schemes that have support");
         }
@@ -55,7 +55,7 @@ public class Capability {
         return new Capability(CapabilityLevel.FULL, null);
     }
 
-    public static Capability partial(String[] onlyForSchemes) {
+    public static Capability partial(Set<String> onlyForSchemes) {
         return new Capability(CapabilityLevel.PARTIAL, onlyForSchemes);
     }
 
@@ -64,15 +64,15 @@ public class Capability {
     }
 
     public Set<String> getOnlyForSchemes() {
-        return onlyForSchemes;
+        return onlyForSchemes == null ? Collections.emptySet() : Set.copyOf(onlyForSchemes);
     }
 
-    public boolean isFullSupport() {
+    public boolean isFullySupported() {
         return level == CapabilityLevel.FULL;
 
     }
 
-    public boolean isPartial() {
+    public boolean isPartiallySupported() {
         return level == CapabilityLevel.PARTIAL;
     }
 

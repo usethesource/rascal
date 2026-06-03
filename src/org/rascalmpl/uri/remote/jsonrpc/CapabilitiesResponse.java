@@ -62,6 +62,7 @@ public class CapabilitiesResponse {
         this.getCharset = getCharset;
     }
 
+    /** as GSON will set null fields, but we don't want this in our code, we replace them by unsupported in the getter */
     private static Capability replaceNull(@Nullable Capability cap) {
         return cap == null ? Capability.unsupported() : cap;
     }

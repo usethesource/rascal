@@ -122,8 +122,11 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             var newClient = startClient();
             if (!remote.compareAndSet(null, newClient.getRight())) {
                 newClient.getLeft().close();
+                return;
             }
+            currentCapabilities.set(newClient.getRight().serverCapabilities());
             firstConnectionEstablished = true;
+
         } catch (RuntimeException | IOException e) {
             CompletableFuture.delayedExecutor(nextTimeout.toMillis(), TimeUnit.MILLISECONDS, exec).execute(() -> {
                 var newTimeout = nextTimeout.plusMillis(10);
@@ -313,7 +316,6 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         clientLauncher.startListening();
         var remote = clientLauncher.getRemoteProxy();
 
-        currentCapabilities.set(remote.serverCapabilities());
 
         inputStream.connect(remote);
         outputStream.connect(remote);
@@ -359,7 +361,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         if (cap.isUnsupported()) {
             return false;
         }
-        if (cap.isFullSupport()) {
+        if (cap.isFullySupported()) {
             return true;
         }
         // we only care for the first part of the `possible+chained+scheme`
