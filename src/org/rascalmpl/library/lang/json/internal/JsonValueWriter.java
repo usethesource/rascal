@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.maybe.UtilMaybe;
 
@@ -52,6 +53,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 /**
@@ -67,6 +69,7 @@ public class JsonValueWriter {
     private IFunction formatters;
     private boolean explicitConstructorNames = false;
     private boolean explicitDataTypes;
+    private int indent = 4;
 
     /** helper class for number serialization without quotes */
     private static class RascalNumber extends Number {
@@ -101,9 +104,45 @@ public class JsonValueWriter {
     }
 
     private RascalNumber wrapper = new RascalNumber();
+    
 
     public JsonValueWriter() {
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+
+    public JsonValueWriter setOptions(IConstructor options) {
+        var kws = options.asWithKeywordParameters();
+        IInteger indent = ((IInteger) kws.getParameter("indent"));
+        if (indent == null) {
+            indent = IRascalValueFactory.getInstance().integer(0);
+        }
+
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool dai = (IBool) kws.getParameter("dateTimeAsInt");
+        IBool ras = (IBool) kws.getParameter("rationalsAsString");
+        IFunction formatters = (IFunction) kws.getParameter("formatter");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool upl = (IBool) kws.getParameter("unpackLocations");
+        IBool dor = (IBool) kws.getParameter("dropOrigins");
+        IInteger ind = (IInteger) kws.getParameter("indent");
+
+        return this
+            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd'T'HH:mm:ss'Z'")
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+            .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+            .setUnpackedLocations(upl != null ? ((IBool) upl).getValue() : false)
+            .setDropOrigins(dor != null ? ((IBool) dor).getValue() : true)
+            .setFormatters(formatters)
+            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+            .setIndent(ind != null ? ((IInteger) ind).intValue() : 4)
+            ;
+    }
+
+    private JsonValueWriter setIndent(int i) {
+       this.indent = i;
+       return this;
     }
 
     /**
@@ -164,6 +203,9 @@ public class JsonValueWriter {
     }
 
     public void write(JsonWriter out, IValue value) throws IOException {
+        if (indent > 0) {
+            out.setIndent("        ".substring(0, indent % 9));
+        }
         value.accept(new IValueVisitor<Void, IOException>() {
 
             @Override

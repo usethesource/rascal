@@ -146,11 +146,16 @@ public class WebBody {
             monitor.warning("Expected content-type 'application/json', got: " + contentType, url);
         }
 
-        try {
-            // this reader must not be closed! The framework will do this. Otherwise the socket will
-            // be closed prematurely (HttpClient)
+        IConstructor options = kind.asWithKeywordParameters().getParameter("jOptions");
+
+        try {  
             JsonReader jsonReader = new JsonReader(new InputStreamReader(input, charset));
             JsonValueReader parser = new JsonValueReader(vf, store, monitor, url);
+
+            if (options != null) {
+                parser = parser.setOptions(options);
+            }
+            
             return parser.read(jsonReader, expect);
         }
         catch (IOException e) {

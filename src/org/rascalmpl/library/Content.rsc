@@ -138,15 +138,15 @@ such as (composite) strings and JSON code is _streamed_ onto the HTTP socket.
 }
 data BodyKind
   = text()
-  | json(JSONOptions options=jsonOptions(nulls=defaultJSONNULLValues))
-  | html()
+  | json(JSONOptions jOptions=jsonOptions(nulls=defaultJSONNULLValues))
+  | html(HTMLOptions hOptions=htmlOptions())
   | xml()
   | file(loc storage=|unknown:///|)
   ;
 
 @synopsis{Convenience function for construction a JSON response value}
 Response jsonResponse(Status status, map[str,str] headers, value val, JSONOptions options = jsonOptions())
-  = response(status,send(json(options=options), val, mimeType="application/json"), headers=headers);
+  = response(status,send(json(jOptions=options), val, mimeType="application/json"), headers=headers);
 
 @synopsis{Convenience function for construction a text response value}
 Response response(Status status, str mimeType, map[str,str] headers, str content)

@@ -22,6 +22,8 @@
  */
 package org.rascalmpl.library.lang.json.internal;
 
+import static org.junit.Assert.fail;
+
 import java.io.EOFException;
 import java.io.FilterReader;
 import java.io.IOException;
@@ -40,25 +42,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.types.ReifiedType;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.maybe.UtilMaybe;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
@@ -1001,6 +1009,41 @@ public class JsonValueReader {
     public JsonValueReader setExplicitConstructorNames(boolean value) {
         this.explicitConstructorNames = value;
         return this;
+    }
+
+    public JsonValueReader setOptions(IConstructor options) {
+        var kws = options.asWithKeywordParameters();
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool lenient = (IBool) kws.getParameter("lenient");
+        IFunction parsers = (IFunction) kws.getParameter("parser");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool tor = (IBool) kws.getParameter("trackOrigins");
+        IMap nulls = (IMap) kws.getParameter("nulls");
+
+        if (nulls == null) {
+            throw RuntimeExceptionFactory.io("JSON option `nulls` must have been set.");
+        }
+       
+        if (parsers != null && parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+            // ignore the default parser
+            parsers = null;
+        }
+       
+        return this
+            .setCalendarFormat(dtf != null ? dtf.getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+            .setLenient(lenient != null ? lenient.getValue() : false)
+            .setParsers(parsers) 
+            .setNulls(unreify(nulls)) // nulls must be explicit in the options constructor
+            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+            .setTrackOrigins(tor != null ? ((IBool) tor).getValue() : false);
+    }
+
+    private Map<Type, IValue> unreify(IMap nulls) {
+        var tr = new TypeReifier(vf);
+        return nulls.stream().map(t -> (ITuple) t)
+            .collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
     }
 
     public JsonValueReader setExplicitDataTypes(boolean value) {
