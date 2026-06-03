@@ -142,8 +142,8 @@ public class URIResolverRegistry {
 				registry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
 			}
 			this.externalRegistry = registry;
-			if (registry.hasWatchCapability()) {
-				watchers.setExternalRegistry(registry, registry::supportsWatch);
+			if (registry.anyWatchSupported()) {
+				watchers.setExternalRegistry(registry, l -> this.externalRegistry.supportsWatch(l.getScheme()));
 			}
 		}
 	}
@@ -404,10 +404,13 @@ public class URIResolverRegistry {
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
 		
-		if (externalRegistry != null && externalRegistry.supportsLogical(loc)) {
+		if (externalRegistry != null && original != null) {
 			try {
-				var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
-				return externalResult == null ? loc : externalResult;
+				var externalResolve = loc == null ? original : loc;
+				if (externalRegistry.supportsLogical(externalResolve.getScheme())) {
+					var externalResult = resolveAndFixOffsets(externalResolve, externalRegistry, Collections.emptyList());
+					return externalResult == null ? loc : externalResult;
+				}
 			} catch (IOException e) {
 				// Ignore remote IO errors
 			}
@@ -470,7 +473,9 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return externalRegistry;
+			if (externalRegistry.supportsInput(scheme)) {
+				return externalRegistry;
+			}
 		}
 		return result;
 	}
@@ -994,7 +999,7 @@ public class URIResolverRegistry {
 		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
-		if (resolver == null || (resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri))) {
+		if (resolver == null || (resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 

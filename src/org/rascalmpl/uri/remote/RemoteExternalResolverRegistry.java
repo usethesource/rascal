@@ -137,6 +137,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     private void scheduleReconnect(IRemoteResolverRegistryServer oldServer) {
         if (remote.compareAndSet(oldServer, null)) {
+            currentCapabilities.set(null);
             CompletableFuture.runAsync(() -> connect(Duration.ofMillis(10)), exec);
         }
     }
@@ -312,7 +313,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         clientLauncher.startListening();
         var remote = clientLauncher.getRemoteProxy();
 
-        currentCapabilities.set(remote.capabilities());
+        currentCapabilities.set(remote.serverCapabilities());
 
         inputStream.connect(remote);
         outputStream.connect(remote);
@@ -320,18 +321,18 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
     }
 
     @Override
-    public boolean supportsGetCharset(ISourceLocation loc) {
-        return supportsCapability(CapabilitiesResponse::getGetCharset, loc.getScheme());
+    public boolean supportsGetCharset(String scheme) {
+        return supportsCapability(CapabilitiesResponse::getGetCharset, scheme);
     }
 
     @Override
-    public boolean supportsLogical(ISourceLocation loc) {
-        return supportsCapability(CapabilitiesResponse::getLogical, loc.getScheme());
+    public boolean supportsLogical(String scheme) {
+        return supportsCapability(CapabilitiesResponse::getLogical, scheme);
     }
 
     @Override
-    public boolean supportsWatch(ISourceLocation loc) {
-        return supportsCapability(CapabilitiesResponse::getWatch, loc.getScheme());
+    public boolean supportsWatch(String scheme) {
+        return supportsCapability(CapabilitiesResponse::getWatch, scheme);
     }
 
     @Override
@@ -339,7 +340,16 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         return supportsCapability(CapabilitiesResponse::getOutput, scheme);
     }
 
-    public boolean hasWatchCapability() {
+    @Override
+    public boolean supportsInput(String scheme) {
+        return supportsCapability(CapabilitiesResponse::getInput, scheme);
+    }
+
+    /**
+     * Check if the remote server supports a watch, even if it's partial
+     * @return
+     */
+    public boolean anyWatchSupported() {
         return !getCapability(CapabilitiesResponse::getWatch).isUnsupported();
     }
 
@@ -352,6 +362,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
         if (cap.isFullSupport()) {
             return true;
         }
+        // we only care for the first part of the `possible+chained+scheme`
+        // the nested schemes are for the downstream consumer.
         return cap.getOnlyForSchemes().contains(getFirstSchemePart(scheme));
     }
 
@@ -385,10 +397,9 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
             }
         }
         try {
-            return caps.thenApply(field)
-                .thenApply(c -> c == null ? Capability.unsupported() : c)
-                .get(1, TimeUnit.MINUTES);
-        } catch (TimeoutException e) {
+            return caps.thenApply(field).get(1, TimeUnit.MINUTES);
+        } 
+        catch (TimeoutException e) {
             return Capability.unsupported();
         }
         catch (InterruptedException e) {

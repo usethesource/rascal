@@ -26,8 +26,6 @@
  */
 package org.rascalmpl.uri;
 
-import io.usethesource.vallang.ISourceLocation;
-
 public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
     @Override
     default String scheme() {
@@ -44,8 +42,9 @@ public interface IExternalResolverRegistry extends ISourceLocationInputOutput, I
         return false;
     }
 
-    boolean supportsLogical(ISourceLocation loc);
-    boolean supportsWatch(ISourceLocation loc);
-    boolean supportsGetCharset(ISourceLocation loc);
+    boolean supportsGetCharset(String scheme);
+    boolean supportsInput(String scheme);
+    boolean supportsWatch(String scheme);
     boolean supportsOutput(String scheme);
+    boolean supportsLogical(String scheme);
 }

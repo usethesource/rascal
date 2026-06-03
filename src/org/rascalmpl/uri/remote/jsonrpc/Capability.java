@@ -31,15 +31,16 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 /**
- * A capability means that this feature is at least partially supported (namely only for specific schemes) and if full supported, no scheme limits are set
+ * A server can report is capability, either as being not supported, partially supported (for a specific set of schemes) or fully supported.
  */
 public class Capability {
-    private final CapabilityLevel level;
-    private final Set<String> onlyForSchemes;
+    private final @NonNull CapabilityLevel level;
+    private final @NonNull Set<String> onlyForSchemes;
 
-    public Capability(CapabilityLevel level, @Nullable String[] onlyForSchemes) {
+    public Capability(@NonNull CapabilityLevel level, @Nullable String[] onlyForSchemes) {
         this.level = level;
         this.onlyForSchemes = onlyForSchemes == null ? Collections.emptySet() : Set.of(onlyForSchemes);
         if (level == CapabilityLevel.PARTIAL && this.onlyForSchemes.isEmpty()) {

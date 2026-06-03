@@ -59,8 +59,8 @@ public interface IRemoteResolverRegistryServer {
      * The server can mark certain APIs as not, partially, or fully supported.
      * The client will call this function as soon as the connection is estabilished.
      */
-    @JsonRequest("capabilities")
-    CompletableFuture<CapabilitiesResponse> capabilities();
+    @JsonRequest()
+    CompletableFuture<CapabilitiesResponse> serverCapabilities();
 
     @JsonRequest("input/readFile")
     CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req);
@@ -98,7 +98,7 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/isReadable")
     CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req);
 
-    @JsonRequest("getCharset")
+    @JsonRequest()
     CompletableFuture<StringResponse> getCharset(ISourceLocationRequest req);
     
     @JsonRequest("output/setLastModified")
