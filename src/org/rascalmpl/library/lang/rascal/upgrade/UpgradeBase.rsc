@@ -49,7 +49,7 @@ void updatePathConfig(PathConfig pcfg) {
 }
 
 list[FileSystemChange] editsPathConfig(PathConfig pcfg) 
-  = [editsFolder(root) | root <- pcfg.srcs];
+  = [*editsFolder(root) | root <- pcfg.srcs];
 
 void updateFolder(loc root) {
   set[loc] ms = find(root, "rsc");
@@ -79,8 +79,8 @@ list[FileSystemChange] editsFolder(loc root) {
         list[TextEdit] edits  = treeDiff(oldTree, newTree);
         return changed(m, edits);
       }
-      catch ParseError(l): {
-        warning("parse error in <l>, skipped", l);
+      catch ParseError(loc l): {
+        warning("parse error at <l>, skipped <m>!", l);
         return changed(m, []);
       }
   }, label="Upgrading annotations in <root>");
