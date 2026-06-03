@@ -17,6 +17,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -189,15 +191,24 @@ public class WebBody {
             monitor.warning("Expected content-type 'application/xml', got: " + contentType, url);
         }
 
-        // TODO: expose options to API level
+        IConstructor options = kind.asWithKeywordParameters().getParameter("hOptions");
+        Map<String, IValue> kws = options != null ? options.asWithKeywordParameters().getParameters() : Collections.emptyMap();
+
+        IBool fullyQualify = (IBool) kws.getOrDefault("fullyQualify", vf.bool(false));
+        IBool trackOrigins = (IBool) kws.getOrDefault("trackOrigins", vf.bool(true));
+        IBool ignoreComments = (IBool) kws.getOrDefault("ignoreComments", vf.bool(true));
+        IBool ignoreWhitespace = (IBool) kws.getOrDefault("ignoreWhitespace", vf.bool(true));
+        IBool inferCharset = (IBool) kws.getOrDefault("inferCharset", vf.bool(true));
+        IBool includeEndTags = (IBool) kws.getOrDefault("includeEndTags", vf.bool(true));
+
         return xml.readXMLInputStream(reader, url, 
-            vf.bool(false), 
-            vf.bool(false), 
-            vf.bool(false),
-            vf.bool(false), 
-            vf.bool(true), 
-            vf.string(charset), 
-            vf.bool(false)
+            fullyQualify, 
+            trackOrigins, 
+            includeEndTags,
+            ignoreComments, 
+            ignoreWhitespace, 
+            vf.string(charset),
+            inferCharset
         );
     }
 
@@ -249,14 +260,24 @@ public class WebBody {
     }
 
     private WriterFunction writeXMLBody(IConstructor input, String charset) {    
+        IConstructor kind = (IConstructor) input.get("kind");
+        IConstructor options = kind.asWithKeywordParameters().getParameter("xOptions");
+        Map<String, IValue> kws = options != null ? options.asWithKeywordParameters().getParameters() : Collections.emptyMap();
+
+        IBool outline = (IBool) kws.getOrDefault("outline", vf.bool(false));
+        IBool prettyPrint = (IBool) kws.getOrDefault("prettyPrint", vf.bool(false));
+        IInteger indentAmount = (IInteger) kws.getOrDefault("indentAmount", vf.integer(4));
+        IInteger maxPaddingWidth = (IInteger) kws.getOrDefault("maxPaddingWidth", vf.integer(10));
+        IBool dropOrigins = (IBool) kws.getOrDefault("dropOrigins", vf.bool(true));
+
         return (w) -> {            
             xml.writeXML(w, input.get("source"), 
                 vf.string(charset), 
-                vf.bool(false), 
-                vf.bool(false),
-                vf.integer(4),
-                vf.integer(10),
-                vf.bool(true));
+                outline, 
+                prettyPrint,
+                indentAmount,
+                maxPaddingWidth,
+                dropOrigins);
         };
     }
 

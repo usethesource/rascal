@@ -9,8 +9,28 @@ module lang::xml::IO
 
 import util::Maybe;
 
+data XMLOptions = xmlOptions(
+  bool fullyQualify = false, 
+  bool trackOrigins = false, 
+  bool includeEndTags = false, 
+  bool ignoreComments = true, 
+  bool ignoreWhitespace = true, 
+  str charset = "UTF-8", 
+  bool inferCharset = !(charset?),
+  bool outline = false, 
+  bool prettyPrint = true, 
+  int indentAmount = 4, 
+  int maxPaddingWidth = 30, 
+  bool dropOrigins = true
+);
+
 @javaClass{org.rascalmpl.library.lang.xml.IO}
+@synopsis{Read and parse an XML document to produce Rascal value. Typically a `node`}
 java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
+
+@synopsis{Like ((readXML)) but with options grouped}
+value readXML(loc file, XMLOptions options = xmlOptions())
+  = readXML(file, fullyQualify=options.fullyQualify, trackOrigins=options.trackOrigins, includeEndTags=options.includeEndTags, ignoreComments=options.ignoreComments, charset=options.charset, inferCharset=!(options.charset?));
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Stream all the tags in a file, one-by-one, without ever having the entire XML file in memory.}
@@ -53,8 +73,16 @@ higher throughput than ((readXML)).
 }
 java Maybe[value]() streamXML(loc file, str elementName, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
 
+@synopsis{Like ((streamXML)) but with grouped options}
+Maybe[value]() streamXML(loc file, str elementName, XMLOptions options=xmlOptions())
+  = streamXML(file, elementName, fullyQualify=options.fullyQualify, trackOrigins=options.trackOrigins, includeEndTags=options.includeEndTags, ignoreComments=options.ignoreComments, charset=options.charset, inferCharset=!(options.charset?));
+
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
+
+@synopsis{Read and parse an XML document from a string to produce Rascal value. Typically a `node`}
+value readXML(str contents, loc src = |unknown:///|, XMLOptions options=xmlOptions())
+  = readXML(contents, src = src, fullyQualify=options.fullyQualify, trackOrigins=options.trackOrigins, includeEndTags=options.includeEndTags, ignoreComments=options.ignoreComments);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Pretty-print any value as an XML string}
@@ -64,6 +92,10 @@ yield a syntactically correct XML string.
 }
 java str writeXMLString(value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, bool dropOrigins=true);
 
+@synopsis{Like ((writeXMLString)) but with grouped options}
+str writeXMLString(value val, XMLOptions options=xmlOptions())
+  = writeXMLString(val, charset=options.charset, outline=options.outline, prettyPrint=options.prettyPrint, indentAmount=options.indentAmount, maxPaddingWidth=options.maxPaddingWidth, dropOrigins=options.dropOrigins);
+
 @synopsis{Pretty-print any value to an XML file}
 @description{
 This function uses [JSoup's](http://www.jsoup.org) DOM functionality to 
@@ -71,6 +103,10 @@ yield a syntactically correct (X)HTML file.
 }
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 java void writeXMLFile(loc file, value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, bool dropOrigins=true);
+
+@synopsis{Like ((writeXMLString)) but with grouped options}
+void writeXMLFile(loc file, value val, XMLOptions options=xmlOptions())
+  = writeXMLFile(file, val, charset=options.charset, outline=options.outline, prettyPrint=options.prettyPrint, indentAmount=options.indentAmount, maxPaddingWidth=options.maxPaddingWidth, dropOrigins=options.dropOrigins);
 
 test bool nestedElementTest() {
   example = "\<aap\>\<noot\>mies\</noot\>\</aap\>";

@@ -70,7 +70,6 @@ public class WebHandler implements HttpHandler {
     private final Type jsonCons = tf.constructor(store, bodyKindType, "json");
     private final Type xmlCons =  tf.constructor(store, bodyKindType, "xml");
     private final Type htmlCons = tf.constructor(store, bodyKindType, "html");
-    private final Type htmlElementType =  tf.abstractDataType(store, "HTMLElement");
     
     private final  Type post = tf.constructor(store, requestType, "post", tf.stringType(), "path", bodyType, "content");
     private final  Type get = tf.constructor(store, requestType, "get", tf.stringType(), "path");
@@ -78,7 +77,8 @@ public class WebHandler implements HttpHandler {
     private final  Type delete = tf.constructor(store, requestType, "delete", tf.stringType(), "path");
     private final  Type put = tf.constructor(store, requestType, "put", tf.stringType(), "path", bodyType, "content");
     
-	
+	private final String defaultCharset = StandardCharsets.UTF_8.name();
+    
     private final IConstructor statusOK;
     private final IConstructor statusNotFound;
 
@@ -150,7 +150,7 @@ public class WebHandler implements HttpHandler {
                     assert receiveJsonBody.getType().isSubtypeOf(tf.nodeType());
                     var postJsonBody = vf.constructor(sendCons, vf.constructor(jsonCons), receiveJsonBody);
                     postJsonBody = postJsonBody.asWithKeywordParameters().setParameter("mimeType", vf.string("application/json"));
-                    postJsonBody = postJsonBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
+                    postJsonBody = postJsonBody.asWithKeywordParameters().setParameter("charset", vf.string(defaultCharset));
                     return vf.constructor(responseCons, statusOK, postJsonBody);
                 case "/post/html":
                 case "/put/html":
@@ -160,7 +160,7 @@ public class WebHandler implements HttpHandler {
                     assert receiveHTMLBody.getType() == htmlElementType;
                     var postHTMLBody = vf.constructor(sendCons, vf.constructor(htmlCons), receiveHTMLBody);
                     postHTMLBody = postHTMLBody.asWithKeywordParameters().setParameter("mimeType", vf.string("text/html"));
-                    postHTMLBody = postHTMLBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
+                    postHTMLBody = postHTMLBody.asWithKeywordParameters().setParameter("charset", vf.string(defaultCharset));
                     return vf.constructor(responseCons, statusOK, postHTMLBody);
                 case "/post/xml":
                 case "/put/xml":
@@ -174,7 +174,7 @@ public class WebHandler implements HttpHandler {
                     assert receiveTextBody.getType() == tf.stringType();
                     var postTextBody = vf.constructor(sendCons, vf.constructor(xmlCons), receiveTextBody);
                     postTextBody = postTextBody.asWithKeywordParameters().setParameter("mimeType", vf.string("text/plain"));
-                    postTextBody = postTextBody.asWithKeywordParameters().setParameter("charset", vf.string("UTF-8"));
+                    postTextBody = postTextBody.asWithKeywordParameters().setParameter("charset", vf.string(defaultCharset));
                     return vf.constructor(responseCons, statusOK, postTextBody);
                 case "/head":
                     var headBody = vf.constructor(sendCons, vf.constructor(textCons), vf.string(headers.toString()));
@@ -241,7 +241,7 @@ public class WebHandler implements HttpHandler {
         exchange.setStatusCode(HttpStatus.INTERNAL_ERROR.toCode());
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/plain");
 
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(exchange.getOutputStream(), "utf-8"))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(exchange.getOutputStream(), defaultCharset))) {
             out.println(status + ": " + actualException.getMessage());
             actualException.printStackTrace(out);
         }
@@ -254,7 +254,7 @@ public class WebHandler implements HttpHandler {
         exchange.setStatusCode(HttpStatus.INTERNAL_ERROR.toCode());
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/plain");
 
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(exchange.getOutputStream(), "utf-8"))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(exchange.getOutputStream(), defaultCharset))) {
             out.println(status + ": " + e.getMessage());
             e.getTrace().prettyPrintedString(out, new StandardTextWriter(true));
         }
@@ -271,7 +271,7 @@ public class WebHandler implements HttpHandler {
 
     private String getCharset(HeaderMap headers) {
         String contentType = headers.getFirst(Headers.CONTENT_TYPE);
-        String result = StandardCharsets.UTF_8.name();
+        String result = defaultCharset;
 
         String[] parts = contentType.split(";");
         if (parts.length > 1) {
@@ -324,7 +324,7 @@ public class WebHandler implements HttpHandler {
         HttpStatus status = translateStatus((IConstructor) cons.get("status"));
         IString charset = b.asWithKeywordParameters().getParameter("charset");
         if (charset == null) {
-            charset = vf.string(StandardCharsets.UTF_8.name());
+            charset = vf.string(defaultCharset);
         }
         String contentType = mimeType.getValue() + ";charset=" + charset.getValue();
 
