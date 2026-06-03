@@ -126,14 +126,14 @@ public class IO {
         return toConstructorTree(doc, trackOrigins.getValue() ? src : null, includeEndTags.getValue());        
     }
 
-    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins, IBool includeEndTags) {
+    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, IString charset, IBool inferCharset) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
             Parser htmlParser = Parser.htmlParser()
                 .settings(new ParseSettings(false, false))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
-            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
+            Document doc = Jsoup.parse(reader, inferCharset.getValue() ? null : charset.getValue(), base.getURI().toString(), htmlParser);
             
             return toConstructorTree(doc, trackOrigins.getValue() ? file : null, includeEndTags.getValue());
         } catch (MalformedURLException e) {
@@ -143,14 +143,14 @@ public class IO {
         }
     }
 
-    public IValue readHTMLStream(InputStream reader, ISourceLocation base, IBool trackOrigins, IBool includeEndTags) {
+    public IValue readHTMLStream(InputStream reader, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, IString charset, IBool inferCharset) {
         try {
             Parser htmlParser = Parser.htmlParser()
                 .settings(new ParseSettings(false, false))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
                 
-            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
+            Document doc = Jsoup.parse(reader, inferCharset.getValue() ? null : charset.getValue(), base.getURI().toString(), htmlParser);
             
             return toConstructorTree(doc, trackOrigins.getValue() ? base : null, includeEndTags.getValue());
         } catch (MalformedURLException e) {

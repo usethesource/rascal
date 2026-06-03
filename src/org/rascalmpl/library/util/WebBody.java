@@ -180,7 +180,7 @@ public class WebBody {
             includeEndTags = options.hasParameter("includeEndTags") ? options.getParameter("includeEndTags") : vf.bool(true);
         }
 
-        return html.readHTMLStream(reader, url, trackOrigins, includeEndTags);  
+        return html.readHTMLStream(reader, url, trackOrigins, includeEndTags, vf.string(charset), vf.bool(false));  
     }
 
     private IValue receiveXMLBody(InputStream reader, ISourceLocation url, IConstructor kind, Type expect, String contentType, String charset) {

@@ -36,7 +36,9 @@ data HTMLOptions
       bool dropOrigins=true, 
       bool normalise=true,
       bool trackOrigins=false, 
-      bool includeEndTags=true
+      bool includeEndTags=true,
+      str charset = "UTF-8",
+      bool inferCharset = true
   );
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
@@ -45,11 +47,11 @@ data HTMLOptions
 This function uses [JSoup's](http://www.jsoup.org) HTML parser which is robust
 against errors in the HTML, and complete in the sense that it supports all of HTML.
 }
-java HTMLElement readHTMLFile(loc file, loc base=file, bool trackOrigins=false, bool includeEndTags=true);
+java HTMLElement readHTMLFile(loc file, loc base=file, bool trackOrigins=false, bool includeEndTags=true, str charset="UTF-8", bool inferCharset=!(charset?));
 
 @synopsis{Just like ((readHTMLFile)) but with grouped `options`.}
 HTMLElement readHTMLFile(loc file, loc base=file, HTMLOptions options = htmlOptions())
-  = readHTMLFile(file, base=base, trackOrigins=options.trackOrigins, includeEndTags=options.includeEndTags);
+  = readHTMLFile(file, base=base, trackOrigins=options.trackOrigins, includeEndTags=options.includeEndTags, charset=options.charset, inferCharset=!(options.charset?));
 
 @synopsis{Parse a HTML string and return an HTMLElement AST}
 @description{
@@ -88,6 +90,6 @@ yield a syntactically correct (X)HTML file.
 java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true, bool normalise=true);
 
 @synopsis{Like ((writeHTMLFile)) but with grouped options}
-void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLOptions options= htmlOptions()) 
-  = writeHTMLFile(file, dom, charset=charset, escapeMode=options.escapeMode, outline=options.outline, prettyPrint=options.prettyPrint, indentAmount=options.indentAmount, maxPaddingWidth=options.maxPaddingWidth, \syntax=options.\syntax, dropOrigins=options.dropOrigins, normalise=options.normalise);
+void writeHTMLFile(loc file, HTMLElement dom, HTMLOptions options= htmlOptions()) 
+  = writeHTMLFile(file, dom, charset=options.charset, escapeMode=options.escapeMode, outline=options.outline, prettyPrint=options.prettyPrint, indentAmount=options.indentAmount, maxPaddingWidth=options.maxPaddingWidth, \syntax=options.\syntax, dropOrigins=options.dropOrigins, normalise=options.normalise);
 
