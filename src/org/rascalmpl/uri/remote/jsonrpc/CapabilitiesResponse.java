@@ -24,28 +24,55 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.remote.jsonrpc;
 
-import io.usethesource.vallang.ISourceLocation;
+import java.util.Objects;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+
+public class CapabilitiesResponse {
+    /**
+     * Are the `/watch/` apis supported
+     */
+    private final @Nullable Capability watch;
+    /**
+     * Are the `/output/` apis supported
+     */
+    private final @Nullable Capability output;
+    /**
+     * Are the `/logical/` apis supported
+     */
+    private final @Nullable Capability logical;
+    /**
+     * Is the `/getCharset` api supported
+     */
+    private final @Nullable Capability getCharset;
+
+    public CapabilitiesResponse(@Nullable Capability watch, @Nullable Capability output, @Nullable Capability logical,
+        @Nullable Capability getCharset) {
+        this.watch = watch;
+        this.output = output;
+        this.logical = logical;
+        this.getCharset = getCharset;
+    }
+    public @Nullable Capability getGetCharset() {
+        return getCharset;
+    }
+
+    public @Nullable Capability getLogical() {
+        return logical;
+    }
+    public @Nullable Capability getWatch() {
+        return watch;
+    }
+
+    public Capability getOutput() {
+        return output;
     }
 
     @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
+    public int hashCode() {
+        return Objects.hash(watch, output, logical, getCharset);
     }
-
-    @Override
-    default boolean supportsHost() {
-        return false;
-    }
-
-    boolean supportsLogical(ISourceLocation loc);
-    boolean supportsWatch(ISourceLocation loc);
-    boolean supportsGetCharset(ISourceLocation loc);
-    boolean supportsOutput(String scheme);
 }

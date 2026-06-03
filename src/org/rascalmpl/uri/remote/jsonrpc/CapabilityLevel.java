@@ -23,29 +23,37 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ */package org.rascalmpl.uri.remote.jsonrpc;
+
+/**
+ * The level of support for a specific feature
  */
-package org.rascalmpl.uri;
+public enum CapabilityLevel {
+    UNSUPPORTED(0),
+    /**
+     * Only a subset of the schemes are supported, but they have full support
+     */
+    PARTIAL(1),
+    /**
+     * All schemes have this support
+     */
+    FULL(2);
 
-import io.usethesource.vallang.ISourceLocation;
+    private final int value;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+    private CapabilityLevel(int value) {
+        this.value = value;
     }
 
-    @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
+    public int getValue() {
+        return value;
     }
 
-    @Override
-    default boolean supportsHost() {
-        return false;
+    public static CapabilityLevel forValue(int val) {
+        var result = CapabilityLevel.values();
+        if (val < 0 || val >= result.length) {
+            throw new IllegalArgumentException("Invalid value for CapabilityLevel: " + val);
+        }
+        return result[val];
     }
-
-    boolean supportsLogical(ISourceLocation loc);
-    boolean supportsWatch(ISourceLocation loc);
-    boolean supportsGetCharset(ISourceLocation loc);
-    boolean supportsOutput(String scheme);
 }
