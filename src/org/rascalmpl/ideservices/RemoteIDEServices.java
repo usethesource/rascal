@@ -26,20 +26,29 @@
  */
 package org.rascalmpl.ideservices;
 
-import engineering.swat.watch.DaemonThreadPool;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
-import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
+import org.rascalmpl.ideservices.jsonrpc.ApplyDocumentsEditsRequest;
+import org.rascalmpl.ideservices.jsonrpc.BrowseRequest;
+import org.rascalmpl.ideservices.jsonrpc.EditRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDebugServerPortRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDiagnosticsRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterLocationsRequest;
+import org.rascalmpl.ideservices.jsonrpc.StartDebuggingSessionRequest;
+import org.rascalmpl.ideservices.jsonrpc.UnregisterDiagnosticsRequest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -77,18 +86,18 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void edit(ISourceLocation loc, int viewColumn) {
-        server.edit(loc, viewColumn);
+        server.edit(new EditRequest(loc, viewColumn));
     }
 
     @Override
     public void browse(URI uri, IString title, IInteger viewColumn) {
-        server.browse(uri, title, viewColumn);
+        server.browse(new BrowseRequest(uri, title, viewColumn));
     }
 
     @Override
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         try {
-            return server.resolveProjectLocation(input).get(1, TimeUnit.MINUTES);
+            return server.resolveProjectLocation(new ISourceLocationRequest(input)).get(1, TimeUnit.MINUTES).getLocation();
         } catch (TimeoutException e) {
             warning("Error resolving project location", URIUtil.unknownLocation());
         } catch (Throwable e) {}
@@ -97,33 +106,33 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void startDebuggingSession(int serverPort) {
-        server.startDebuggingSession(serverPort);
+        server.startDebuggingSession(new StartDebuggingSessionRequest(serverPort));
     }
 
     @Override
     public void registerDebugServerPort(int processID, int serverPort) {
-        server.registerDebugServerPort(processID, serverPort);
+        server.registerDebugServerPort(new RegisterDebugServerPortRequest(processID, serverPort));
     }
 
     @Override
     public void applyFileSystemEdits(IList edits) {
-        server.applyDocumentsEdits(new DocumentEditsParameter(edits));
+        server.applyDocumentsEdits(new ApplyDocumentsEditsRequest(edits));
     }
 
     @Override
     public void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
-        server.registerDiagnostics(new RegisterDiagnosticsParameters(messages));
+        server.registerDiagnostics(new RegisterDiagnosticsRequest(messages));
     }
     
     @Override
     public void unregisterDiagnostics(IList resources) {
-        server.unregisterDiagnostics(resources.stream().map(ISourceLocation.class::cast).toArray(ISourceLocation[]::new));
+        server.unregisterDiagnostics(new UnregisterDiagnosticsRequest(resources));
     }
 
     @Override
     public void registerLocations(IString scheme, IString auth, IMap map) {
         // The mappings should be registered both in the REPL itself as well as in the IDE
         super.registerLocations(scheme, auth, map);
-        server.registerLocations(scheme, auth, IRemoteIDEServices.mapLocLocToLocArray(map));
+        server.registerLocations(new RegisterLocationsRequest(scheme, auth, map));
     }
 }
