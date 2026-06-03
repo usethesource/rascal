@@ -473,7 +473,7 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			if (externalRegistry.supportsInput(scheme)) {
+			if (externalRegistry != null && externalRegistry.supportsInput(scheme)) {
 				return externalRegistry;
 			}
 		}
@@ -506,7 +506,7 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			if (externalRegistry.supportsOutput(scheme)) {
+			if (externalRegistry != null && externalRegistry.supportsOutput(scheme)) {
 				return externalRegistry;
 			}
 		}
@@ -999,7 +999,7 @@ public class URIResolverRegistry {
 		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
-		if (resolver == null || (resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
+		if (resolver == null || (externalRegistry != null && resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
