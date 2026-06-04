@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
+import org.rascalmpl.uri.remote.jsonrpc.CapabilitiesResponse;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryListingResponse;
@@ -53,6 +54,14 @@ import org.rascalmpl.uri.remote.jsonrpc.WriteFileRequest;
  */
 @JsonSegment("rascal/vfs")
 public interface IRemoteResolverRegistryServer {
+
+    /**
+     * The server can mark certain APIs as not, partially, or fully supported.
+     * The client will call this function as soon as the connection is estabilished.
+     */
+    @JsonRequest()
+    CompletableFuture<CapabilitiesResponse> serverCapabilities();
+
     @JsonRequest("input/readFile")
     CompletableFuture<LocationContentResponse> readFile(ISourceLocationRequest req);
 
@@ -89,7 +98,7 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("input/isReadable")
     CompletableFuture<BooleanResponse> isReadable(ISourceLocationRequest req);
 
-    @JsonRequest("getCharset")
+    @JsonRequest()
     CompletableFuture<StringResponse> getCharset(ISourceLocationRequest req);
     
     @JsonRequest("output/setLastModified")
