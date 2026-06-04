@@ -33,7 +33,7 @@ list[Message] report(loc root) {
    
 list[Message] reportFor(loc l) {
   try {
-    return report(parse(#start[Module], l)); 
+    return report(parseModuleWithSpaces(l)); 
   } catch ParseError(loc r) :
     return [warning("parse error in Rascal file",r)];
 }
@@ -58,7 +58,7 @@ void updateFolder(loc root) {
     for (loc m <- ms) {
       try {
         step(m.file, 1);
-        writeFile(m, "<update(parse(#start[Module], m))>");
+        writeFile(m, "<update(parseModuleWithSpaces(m))>");
       }
       catch ParseError(l): {
         println("parse error in <l>, skipped");
@@ -74,14 +74,14 @@ list[FileSystemChange] editsFolder(loc root) {
 
   return loopJob(ms, FileSystemChange (loc m) {
       try {
-        start[Module] oldTree = parse(#start[Module], m);
-        start[Module] newTree = update(oldTree);
-        list[TextEdit] edits  = treeDiff(oldTree, newTree);
-        return changed(m, edits);
+          start[Module] oldTree = parseModuleWithSpaces(m);
+          start[Module] newTree = update(oldTree);
+          list[TextEdit] edits  = treeDiff(oldTree, newTree);
+          return changed(m, edits);
       }
       catch ParseError(loc l): {
-        warning("parse error at <l>, skipped <m>!", l);
-        return changed(m, []);
+          warning("parse error at <l>, skipped <m>!", l);
+          return changed(m, []);
       }
   }, label="Upgrading annotations in <root>");
 }
