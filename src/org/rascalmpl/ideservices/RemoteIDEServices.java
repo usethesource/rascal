@@ -63,8 +63,10 @@ import io.usethesource.vallang.type.TypeStore;
 public class RemoteIDEServices extends BasicIDEServices {
     private final IRemoteIDEServices server;
     /**
-     * This TypeStore contains definitions of the `Messages` ADT (for {@link #registerDiagnostics}) and `FileSystemChanges` ADT (for {@link #applyFileSystemEdits}).
-     * (Note: the list in {@link #unregisterDiagnostics} has element type `loc`).
+     * This TypeStore contains definitions of the ADTs `Messages` (for {@link #registerDiagnostics}) and `FileSystemChanges` (for {@link #applyFileSystemEdits}).
+     * These definitions must be kept in sync with the Rascal definitions in `Messages` and `analysis::diff::edits::FileSystemChanges`.
+     * 
+     * (Note: the IList in {@link #unregisterDiagnostics} has element type `loc`).
      */
     public static final TypeStore ts;
 
@@ -95,7 +97,6 @@ public class RemoteIDEServices extends BasicIDEServices {
         ts = new TypeStore(Messages.ts);
         var tf = TypeFactory.getInstance();
 
-        // The following should be kept in sync with the Rascal definition in `analysis::diff::edits::FileSystemChanges`
         var fileSystemChangeType = tf.abstractDataType(ts, "FileSystemChange");
         tf.constructor(ts, fileSystemChangeType, "removed", tf.sourceLocationType(), "file");
         tf.constructor(ts, fileSystemChangeType, "created", tf.sourceLocationType(), "file");
