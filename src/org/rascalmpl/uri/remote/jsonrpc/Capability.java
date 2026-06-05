@@ -33,6 +33,8 @@ import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
+import io.usethesource.vallang.ISourceLocation;
+
 /**
  * A server can report its capability, either as being not supported, partially supported (for a specific set of schemes) or fully supported.
  */
@@ -65,6 +67,28 @@ public class Capability {
 
     public Set<String> getOnlyForSchemes() {
         return onlyForSchemes == null ? Collections.emptySet() : Set.copyOf(onlyForSchemes);
+    }
+
+    public boolean isSupported(ISourceLocation loc) {
+        return isSupported(loc.getScheme());
+    }
+
+    public boolean isSupported(String scheme) {
+        if (isFullySupported()) {
+            return true;
+        }
+        if (isUnsupported()) {
+            return false;
+        }
+
+        int splitPoint = scheme.indexOf('+');
+        if (splitPoint > 0) {
+            // we only care for the first part of the `possible+chained+scheme`
+            // the nested schemes are for the downstream consumer.
+            scheme = scheme.substring(0, splitPoint);
+        }
+        return onlyForSchemes != null && onlyForSchemes.contains(scheme);
+
     }
 
     public boolean isFullySupported() {

@@ -232,7 +232,7 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
     }
 
     @Override
-    public CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest req) {
+    public CompletableFuture<SourceLocationResponse> resolve(ISourceLocationRequest req) {
         return async(() -> {
             ISourceLocation loc = req.getLocation();
             ISourceLocation resolved = reg.logicalToPhysical(loc);

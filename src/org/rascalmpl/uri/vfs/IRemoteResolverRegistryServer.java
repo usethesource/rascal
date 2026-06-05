@@ -128,6 +128,6 @@ public interface IRemoteResolverRegistryServer {
     @JsonRequest("watcher/unwatch")
     CompletableFuture<Void> unwatch(WatchRequest req);
 
-    @JsonRequest("logical/resolveLocation")
-    CompletableFuture<SourceLocationResponse> resolveLocation(ISourceLocationRequest loc);
+    @JsonRequest("logical/resolve")
+    CompletableFuture<SourceLocationResponse> resolve(ISourceLocationRequest loc);
 }
