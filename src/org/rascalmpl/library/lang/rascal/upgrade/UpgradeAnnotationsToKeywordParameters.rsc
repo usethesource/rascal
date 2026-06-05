@@ -12,7 +12,7 @@ list[Message] report(Tree m)
   + [info("found annotation catch", e.src) | /(Catch) `catch NoSuchAnnotation(<Pattern e>) : <Statement body>` := m]
   ;
 
-Tree update(Tree m) =
+&T <: Tree update(&T <: Tree m) =
   top-down visit(m) {
     case (Declaration) `<Tags tags> <Visibility _> anno <Type t> <Name adt>@<Name name>;` 
       => (Declaration) `<Tags tags> 
