@@ -40,6 +40,8 @@ import org.rascalmpl.uri.ISourceLocationWatcher;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.remote.jsonrpc.BooleanResponse;
+import org.rascalmpl.uri.remote.jsonrpc.CapabilitiesResponse;
+import org.rascalmpl.uri.remote.jsonrpc.Capability;
 import org.rascalmpl.uri.remote.jsonrpc.CopyRequest;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryEntry;
 import org.rascalmpl.uri.remote.jsonrpc.DirectoryListingResponse;
@@ -241,5 +243,16 @@ public class RascalFileSystemServices implements IRemoteResolverRegistryServer {
 
             return new SourceLocationResponse(resolved);
         });
+    }
+
+    @Override
+    public CompletableFuture<CapabilitiesResponse> serverCapabilities() {
+        return async(() -> 
+            new CapabilitiesResponse(
+                Capability.full(), Capability.full(), 
+                Capability.full(), Capability.full(),
+                Capability.full()
+            )
+        );
     }
 }

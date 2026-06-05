@@ -142,7 +142,9 @@ public class URIResolverRegistry {
 				registry = new RemoteExternalResolverRegistry(remoteResolverRegistryPort);
 			}
 			this.externalRegistry = registry;
-			watchers.setExternalRegistry(registry);
+			if (registry.anyWatchSupported()) {
+				watchers.setExternalRegistry(registry, l -> this.externalRegistry.supportsWatch(l.getScheme()));
+			}
 		}
 	}
 
@@ -402,10 +404,13 @@ public class URIResolverRegistry {
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
 		
-		if (externalRegistry != null) {
+		if (externalRegistry != null && original != null) {
 			try {
-				var externalResult = resolveAndFixOffsets(loc == null ? original : loc, externalRegistry, Collections.emptyList());
-				return externalResult == null ? loc : externalResult;
+				var externalResolve = loc == null ? original : loc;
+				if (externalRegistry.supportsLogical(externalResolve.getScheme())) {
+					var externalResult = resolveAndFixOffsets(externalResolve, externalRegistry, Collections.emptyList());
+					return externalResult == null ? loc : externalResult;
+				}
 			} catch (IOException e) {
 				// Ignore remote IO errors
 			}
@@ -468,7 +473,9 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return externalRegistry;
+			if (externalRegistry != null && externalRegistry.supportsInput(scheme)) {
+				return externalRegistry;
+			}
 		}
 		return result;
 	}
@@ -499,7 +506,9 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			return externalRegistry;
+			if (externalRegistry != null && externalRegistry.supportsOutput(scheme)) {
+				return externalRegistry;
+			}
 		}
 		return result;
 	}
@@ -990,7 +999,7 @@ public class URIResolverRegistry {
 		uri = safeResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
-		if (resolver == null) {
+		if (resolver == null || (externalRegistry != null && resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
