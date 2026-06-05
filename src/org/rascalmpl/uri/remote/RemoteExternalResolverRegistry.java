@@ -357,26 +357,8 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
 
     private boolean supportsCapability(Function<CapabilitiesResponse, Capability> field, String scheme) {
-        var cap = getCapability(field);
-        if (cap.isUnsupported()) {
-            return false;
-        }
-        if (cap.isFullySupported()) {
-            return true;
-        }
-        // we only care for the first part of the `possible+chained+scheme`
-        // the nested schemes are for the downstream consumer.
-        return cap.getOnlyForSchemes().contains(getFirstSchemePart(scheme));
+        return getCapability(field).isSupported(scheme);
     }
-
-    private static String getFirstSchemePart(String scheme) {
-        var end = scheme.indexOf('+');
-        if (end > 0) {
-            return scheme.substring(0, end);
-        }
-        return scheme;
-    }
-
 
     private Capability getCapability(Function<CapabilitiesResponse, Capability> field) {
         var caps = currentCapabilities.get();
@@ -566,7 +548,7 @@ public class RemoteExternalResolverRegistry implements IExternalResolverRegistry
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        return call(getRemote()::resolveLocation, new ISourceLocationRequest(input)).getLocation();
+        return call(getRemote()::resolve, new ISourceLocationRequest(input)).getLocation();
     }
 
     @Override
