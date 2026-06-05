@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2026, NWO-I CWI and Swat.engineering
+ * Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri;
+package org.rascalmpl.ideservices.jsonrpc;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+import java.util.Objects;
+
+import io.usethesource.vallang.ISourceLocation;
+
+public class EditRequest {
+    private final ISourceLocation loc;
+    private final int viewColumn;
+
+    public EditRequest(ISourceLocation loc, int viewColumn) {
+        this.loc = loc;
+        this.viewColumn = viewColumn;
+    }
+
+    public ISourceLocation getLocation() {
+        return loc;
+    }
+
+    public int getViewColumn() {
+        return viewColumn;
     }
 
     @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
-    }
-
-    @Override
-    default boolean supportsHost() {
+    public boolean equals(Object obj) {
+        if (obj instanceof EditRequest) {
+            var other = (EditRequest) obj;
+            return Objects.equals(loc, other.loc)
+                && viewColumn == other.viewColumn;
+        }
         return false;
     }
 
-    boolean supportsGetCharset(String scheme);
-    boolean supportsInput(String scheme);
-    boolean supportsWatch(String scheme);
-    boolean supportsOutput(String scheme);
-    boolean supportsLogical(String scheme);
+    @Override
+    public int hashCode() {
+        return Objects.hash(loc, viewColumn);
+    }
 }
