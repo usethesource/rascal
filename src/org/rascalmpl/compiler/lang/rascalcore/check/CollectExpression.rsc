@@ -213,8 +213,6 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 
 // ---- closure
 
-str generateClosureName() = "$CLOSURE_<nextClosure()>";
-
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
     // TODO: experimental check
     //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
@@ -252,7 +250,6 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
 
         alwaysSucceeds = all(pat <- formals, pat is typedVariable && /(Statement) `fail <Target _>;` := stats);
         if(!alwaysSucceeds) dt.canFail = true;
-
         c.defineInScope(parentScope, clos_name, functionId(), current, dt);
 
         if(!returnsViaAll && "<returnType>" != "void"){

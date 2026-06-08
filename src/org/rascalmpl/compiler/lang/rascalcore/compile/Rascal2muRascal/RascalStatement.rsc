@@ -110,7 +110,7 @@ MuExp translate((Statement) `<Label label> <Visit visitItself>`, BTSCOPES btscop
 MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditions> ) <Statement body>`, BTSCOPES btscopes) {
     whileName = getLabel(label, "WHILE");
     whileBT = "<whileName>_BT";
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     enterLoop(whileName,fuid);
     
     loopBody = muBlock([]);
@@ -169,7 +169,7 @@ MuExp translateLoopBody(Statement body, BTSCOPES btscopes){
 MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     whileName = nextLabel();
     whileBT = "<whileName>_BT";
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     enterLoop(whileName,fuid);
     
     conds = [ condition ];
@@ -197,7 +197,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
 MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, BTSCOPES btscopes) {
     doName = getLabel(label, "DO");
     //doBT = "<doName>_BT";
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     enterLoop(doName,fuid);
     
     conds = [condition];
@@ -229,7 +229,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
 
 MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {
     doName = nextLabel();
-    str fuid = topFunctionScope();  
+    loc fuid = topFunctionScope();  
     enterLoop(doName,fuid);
    
     conds = [ condition ];
@@ -251,7 +251,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Sta
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`, BTSCOPES btscopes) {
     //println("translate: <s> at <getLoc(s)>");
     forName = getLabel(label, "FOR");
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     enterLoop(forName,fuid);
     
     conds = normalizeAnd([c | Expression c <- generators]);
@@ -279,7 +279,7 @@ bool containsAppend(Statement body) = /(Statement) `append <DataTarget _> <State
 
 MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     forName = nextLabel();
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     enterLoop(forName,fuid);
     
     conds = normalizeAnd([c | Expression c <- generators]);
@@ -425,7 +425,7 @@ MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> )
  * 
  */
 MuExp translateSwitch((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, BTSCOPES btscopes) {
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     switchName = getLabel(label, "SWITCH");
     switchVal = muTmpIValue(nextTmp("switchVal"), fuid, getType(expression));
     the_cases = [ c | Case c <- cases ];
@@ -470,7 +470,7 @@ bool isSpoiler(Pattern pattern, int fp){
  	   ;
 }
 
-map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, str fuid, PatternWithAction pwa, map[int, list[MuExp]] table, int key, str caseLabel, MuExp succeedCase, BTSCOPES btscopes){
+map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, loc fuid, PatternWithAction pwa, map[int, list[MuExp]] table, int key, str caseLabel, MuExp succeedCase, BTSCOPES btscopes){
     stringVisitUpdate = inStringVisit() && pwa.pattern is literal && pwa.pattern.literal is string ? [ muStringSetMatchedInVisit(size("<pwa.pattern.literal>") - 2)] : [];
  
     patType =  getType(pwa.pattern);
@@ -530,7 +530,7 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
 	 return table;
 }
 
-tuple[list[MuCase], MuExp] translateSwitchCases(str switchName, MuExp switchVal, str fuid, bool useConcreteFingerprint, list[Case] cases, MuExp succeedCase, BTSCOPES btscopes) {
+tuple[list[MuCase], MuExp] translateSwitchCases(str switchName, MuExp switchVal, loc fuid, bool useConcreteFingerprint, list[Case] cases, MuExp succeedCase, BTSCOPES btscopes) {
   map[int,list[MuExp]] table = ();      // label + generated code per case
   MuExp default_code = muBlock([]); //muSucceedSwitchCase(switchName); // default code for default case
   for(c <- cases){
@@ -620,7 +620,7 @@ MuExp translate(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound 
     translateSolve(s, btscopes);
 
 MuExp translateSolve((Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`, BTSCOPES btscopes) {
-   str fuid = topFunctionScope();
+   loc fuid = topFunctionScope();
    iterations = muTmpInt(nextTmp("iterations"), fuid);          // count number of iterations
    change = muTmpBool(nextTmp("change"), fuid);		            // keep track of any changed value
  
@@ -667,7 +667,7 @@ MuExp translateTry(Statement body, list[Catch] handlers, Statement finallyBody, 
         lubOfPatterns = ( lubOfPatterns | alub(it, getType(p.src)) | Pattern p <- patterns );
     }
     // Introduce temporary variables that are bound within a catch block to a thrown exception and to its contained value
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     tmp = nextTmp("thrown");
     thrown = muTmpIValue(tmp, fuid, avalue()/*lubOfPatterns*/);   // TODO: resolve this
     thrown_as_exception = muTmpException("<tmp>_as_exception", fuid);
@@ -800,7 +800,7 @@ MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver> ? <Expression d
     
 
 MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operator, AType rhs_type, MuExp rhs) {
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     elems = [ e | Assignable e <- elements];   // hack since elements[i] yields a value result;
     nelems = size(elems); // size_assignables
     
@@ -813,7 +813,7 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
 }
 
 MuExp assignTo(Assignable a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, str operator, AType rhs_type, MuExp rhs) { 
-    str fuid = topFunctionScope();
+    loc fuid = topFunctionScope();
     elems = [ e | Assignable e <- arguments];  // hack since elements[i] yields a value result;
     nelems = size(elems);
     tmp = muTmpIValue(nextTmp(), fuid, rhs_type);
@@ -929,7 +929,7 @@ MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes
 	}
 	//resultType = getType(expression);
 	//if(hasFinally()) { // TODO adapt
-	//    str fuid = topFunctionScope();
+	//    loc fuid = topFunctionScope();
 	//	str varname = asTmp(nextLabel());
 	//	result = muTmpIValue(nextLabel("result"), fuid, resultType);
 	//	return muValueBlock(resultType, [ muConInit(result, translate(statement, btscopes)), muReturn1(resultType, result) ]);

@@ -25,6 +25,12 @@ alias FUNID = loc; // function identification
 
 bool isFunctionId(loc l) = l.scheme == "rascal+function";
 
+str getFunctionName(FUNID fuid){
+    assert isFunctionId(fuid);
+    k = findLast(fuid.path, "/");
+    return fuid.path[k+1..];
+}
+
 alias CONSID = loc; // constructor identification
 
 bool isConstructorId(loc l) = l.scheme == "rascal+constructor";
@@ -32,3 +38,7 @@ bool isConstructorId(loc l) = l.scheme == "rascal+constructor";
 alias FLDID = loc; // field identification
 
 bool isFieldId(loc l) = l.scheme == "rascal+field";
+
+
+alias ADTID = loc; // ADT
+bool isADTId(loc l) = l.scheme == "rascal+adt";

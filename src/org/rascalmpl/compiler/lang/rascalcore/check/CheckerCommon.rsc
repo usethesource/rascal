@@ -492,9 +492,9 @@ rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to]
     return paths;
 }
 
-int closureCounter = 0;
+private int closureCounter = 0;
 
-int nextClosure(){
+private int nextClosure(){
     counter = closureCounter;
     closureCounter += 1;
     return counter;
@@ -503,3 +503,5 @@ int nextClosure(){
 void resetClosureCounter(){
     closureCounter = 0;
 }
+
+str generateClosureName() = "$CLOSURE_<nextClosure()>";
