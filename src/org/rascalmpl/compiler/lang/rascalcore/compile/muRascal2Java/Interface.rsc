@@ -44,24 +44,25 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie _jg){
+str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
            'public interface <asBaseInterfaceName(moduleName)>  {
-           '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels, pcfg)>
+           '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels, pcfg, jg)>
            '}";
 }
 
-lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
+lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie jg){
     lrel[str, AType] result = [];
     rel[str, int, AType] signatures = {};
-    mscope = tmodels[moduleName].moduleLocs[moduleName];
+    // mscope = tmodels[moduleName].moduleLocs[moduleName];
+    mscope = moduleName2moduleId(moduleName);
    
     
-    for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
+    for(f <- functions, isGlobalScope(f.scopeIn), jg.isContainedIn(f.funId, mscope),
                                             !( //"test" in f.modifiers 
                                                 isSyntheticFunctionName(f.name) 
                                              || isMainName(f.name)
@@ -72,7 +73,8 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     //iprintln(signatures);
     
     for(ext <- extends, ext in tmodels){
-        escope = tmodels[ext].moduleLocs[ext];
+        // escope = tmodels[ext].moduleLocs[ext];   
+        escope = moduleName2moduleId(ext);  
         for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
             def.idRole == functionId() ,//|| def.idRole == constructorId(),
             getRascalModuleName(def.scope, pcfg) == ext,//def.scope == escope, //isContainedIn(def.defined, escope),
@@ -100,8 +102,8 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     return sort(result);
 }
 
-str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg){
-    interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels, pcfg);
+str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, PathConfig pcfg, JGenie jg){
+    interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels, pcfg, jg);
     methods = [generateInterfaceMethod(name, tp) | <name, tp> <- interface_signature];
     return intercalate("\n", methods);
 }

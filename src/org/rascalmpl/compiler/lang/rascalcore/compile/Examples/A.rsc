@@ -25,5 +25,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
+              
+
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isEmpty(set[&T] st);
+
+
+// list[&T] sort(list[&T] lst) =
+// 	sort(lst, bool (&T a, &T b) { return a < b; } );
+	
+// @javaClass{org.rascalmpl.library.Prelude}
+// java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+                         
  
-extend   lang::rascalcore::compile::Examples::B;                
