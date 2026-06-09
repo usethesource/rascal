@@ -30,6 +30,7 @@ import String;
 import List;
 import util::Reflective;
 import lang::rascalcore::CompilerPathConfig;
+import lang::rascalcore::check::LogicalLocations;
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
 public /*const*/ str compiled_rascal_package_as_path = "org/rascalmpl"; //"rascal";
@@ -196,8 +197,17 @@ str asJavaName(str fname, bool completeId = true){
     return res == "_" ? "$_" : res; //single _ not allowed since Java9
 }
 
+str asJavaName(FUNID fuid, bool completeId = true){
+    return asJavaName(split("/", fuid.path)[-1]);
+}
+
 str module2class(str qname){
     return asBaseClassName(qname); //replaceAll(qname, "::", ".");
+}
+
+str module2field(MODID mid){
+    qname = replaceAll(mid.path, "/", "::");
+    return "M_" + replaceAll(normalizeQNameAndEscapeKeywords(qname), ".", "_");
 }
 
 str module2field(str qname){

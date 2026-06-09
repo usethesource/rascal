@@ -88,15 +88,14 @@ data JGenie
 JGenie makeJGenie(MuModule m, 
                   map[str,TModel] tmodels, 
                   map[str,loc] moduleLocs, 
-                  map[str, MuFunction] muFunctions){
+                  map[FUNID, MuFunction] muFunctions){
 
     // // temporary glue code
     // map[str,TModel] tmodels = (moduleId2moduleName(mid) : tmodels[mid] | mid <- tmodels0);
     // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : moduleLocs[mid] | mid <- moduleLocs0);
     // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : muFunctions0[mid] | mid <- muFunctions0);
 
-    map[str,loc] allModuleLocs = moduleLocs;
-    map[loc,str] allLocs2Module = invertUnique((mname : moduleLocs[mname].top | mname <- moduleLocs));
+    map[MODID,str] allLocs2Module = invertUnique((mname : moduleName2moduleId(mname) | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
     MODID moduleId = moduleName2moduleId(moduleName);
@@ -123,13 +122,13 @@ JGenie makeJGenie(MuModule m,
     
     TModel currentTModel = tmodels[moduleName];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
-    loc currentModuleScope = moduleLocs[moduleName];
+    MODID currentModuleScope = moduleName2moduleId(moduleName);
     str functionName = "$UNKNOWN";
-    MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
+    MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
-    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs | fun <- range(muFunctions), fun.scopeIn != "");
-    map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
+    map[FUNID,set[MuExp]] fun2externals = (fun.funId : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));
+    // map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
@@ -173,7 +172,7 @@ JGenie makeJGenie(MuModule m,
         
     void _setFunction(MuFunction fun){
         function = fun;
-        functionName = fun.uniqueName;
+        functionName = fun.funId.path;
     }
     
     MuFunction _getFunction()
@@ -266,8 +265,8 @@ JGenie makeJGenie(MuModule m,
                         return baseName;
                     } else if(_isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
-                            fun = muFunctionsByLoc[def.defined];
-                            return isEmpty(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
+                            fun = muFunctions[def.defined];
+                            return isGlobalScope(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
                         }
                         return baseName;
                     } else {
@@ -317,7 +316,7 @@ JGenie makeJGenie(MuModule m,
         scopeIn = definedInInnerScope(srcs);
         jname = asJavaName(name);
         
-        if(scopeIn != ""){
+        if(!isGlobalScope(scopeIn)){
             return "<scopeIn>_<jname>";
         }
         
@@ -332,17 +331,17 @@ JGenie makeJGenie(MuModule m,
        return jname;
     }
     
-    str definedInInnerScope(list[loc] srcs){
-        scopeIn = "";
+    loc definedInInnerScope(list[loc] srcs){
+        scopeIn = |global-scope:///|;
         for(d <- srcs){
             if(_isContainedIn(d, currentModuleScope)){
-                if(muFunctionsByLoc[d]?){
-                    fun = muFunctionsByLoc[d];
-                    if(fun.scopeIn == "") return "";
+                if(muFunctions[d]?){
+                    fun = muFunctions[d];
+                    if(isGlobalScope(fun.scopeIn)) return fun.scopeIn;
                     scopeIn = fun.scopeIn;
                 }
             } else {
-                return "";
+                return |global-scope:///|;
             }
         }
         return scopeIn;
@@ -360,7 +359,7 @@ JGenie makeJGenie(MuModule m,
     
     list[MuExp] _getExternalRefs(loc src){
         if(fun2externals[src]?){
-            fun = muFunctionsByLoc[src];
+            fun = muFunctions[src];
             evars = _isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
             return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
@@ -379,11 +378,11 @@ JGenie makeJGenie(MuModule m,
         if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
         Scopes scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
-        outer = scopes[fun.src];
-        while (muFunctionsByLoc[outer]?){
-            fun1 = muFunctionsByLoc[outer];
+        outer = scopes[fun.funId];
+        while (muFunctions[outer]?){
+            fun1 = muFunctions[outer];
             kwFormals += fun1.ftype.kwFormals;
-            outer = scopes[fun1.src];
+            outer = scopes[fun1.funId];
         }
         return kwFormals;
     }
@@ -393,11 +392,11 @@ JGenie makeJGenie(MuModule m,
         scopes = currentTModel.scopes;
         defaults = fun.kwpDefaults;
         funKwps =  fun.kwpDefaults<0>;
-        outer = scopes[fun.src];
-        while (muFunctionsByLoc[outer]?){
-            fun1 = muFunctionsByLoc[outer];
+        outer = scopes[fun.funId];
+        while (muFunctions[outer]?){
+            fun1 = muFunctions[outer];
             defaults = [<name, atype, defaultExp> | <str name, AType atype, MuExp defaultExp> <- fun1.kwpDefaults, name notin funKwps] + defaults; // remove outer definitions
-            outer = scopes[fun1.src];
+            outer = scopes[fun1.funId];
         }
         return defaults;
     }
@@ -407,12 +406,12 @@ JGenie makeJGenie(MuModule m,
         scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         redeclared = [];
-        outer = scopes[fun.src];
-        while (muFunctionsByLoc[outer]?){
-            fun1 = muFunctionsByLoc[outer];
+        outer = scopes[fun.funId];
+        while (muFunctions[outer]?){
+            fun1 = muFunctions[outer];
             outerKwps = fun1.kwpDefaults<0>;
             redeclared += funKwps & outerKwps;
-            outer = scopes[fun1.src];
+            outer = scopes[fun1.funId];
         }
         return redeclared;
     }
@@ -422,12 +421,12 @@ JGenie makeJGenie(MuModule m,
         scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         declared = funKwps;
-        outer = scopes[fun.src];
-        while (muFunctionsByLoc[outer]?){
-            fun1 = muFunctionsByLoc[outer];
+        outer = scopes[fun.funId];
+        while (muFunctions[outer]?){
+            fun1 = muFunctions[outer];
             outerKwps = fun1.kwpDefaults<0>;
             declared += outerKwps;
-            outer = scopes[fun1.src];
+            outer = scopes[fun1.funId];
         }
         return declared;
     }
@@ -711,7 +710,7 @@ JGenie makeJGenie(MuModule m,
         return (varIn(var1, function.externalRefs) || varIn(var1, localRefs));
     }
     
-    bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
+    bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.funId;
     bool _varHasGlobalScope(MuExp var) = var.pos < 0;
     
     str _newTmp(str prefix){

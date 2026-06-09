@@ -52,7 +52,7 @@ alias Name_Arity = tuple[str name, int arity];
 
 // Get all functions and constructors from a given tmodel
 
-rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes, PathConfig pcfg, JGenie jg){
+rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[MODID] module_and_extend_scopes, PathConfig pcfg, JGenie jg){
      if(!tmodel.moduleLocs[tmodel.modelName]?){
         iprintln(tmodel);
         throw "getFunctionsAndConstructors";
@@ -80,7 +80,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] modu
      return overloads_used_in_module + overloads_created_in_module;
 }
 
-str varName(muVar(str name, str _fuid, int pos, AType _, IdRole idRole)){ // duplicate, see CodeGen
+str varName(muVar(str name, loc _fuid, int pos, AType _, IdRole idRole)){ // duplicate, see CodeGen
 
     result = asJavaName(name);
     if(name[0] == "$") return result;
@@ -148,11 +148,12 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
-    module_scope = module2loc[moduleName];
+str generateResolvers(str moduleName, map[FUNID, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, PathConfig pcfg, JGenie jg){
+    //module_scope = module2loc[moduleName];
+    module_scope = moduleName2moduleId(moduleName);
 
     loc2module = invertUnique(module2loc);
-    module_scopes = domain(loc2module);
+    module_scopes = range(module2loc);
     extend_scopes = { module2loc[ext] | ext <- extends, ext in module2loc};
     import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
@@ -207,7 +208,7 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
    return sort({ *getExternalRefs(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs });
 }
 
-tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_scopes, set[loc] extend_scopes, JGenie jg){
+tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[MODID] import_scopes, set[MODID] extend_scopes, JGenie jg){
     for(s <- import_scopes + extend_scopes){
         if(all(fd <- fun_defs, jg.isContainedIn(fd.defined, s))){
             return <true, s>;
@@ -377,23 +378,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     map[int, lrel[str,str]] overload_table = ();
     lrel[str,str] defaults_and_constructors = [];
 
-    physical2logical = invertUnique(tm.logical2physical);
-
     // Handle a function or constructor defintion
 
     void handleDef(Define def){
         inner_scope = "";
-        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>";
-        if(physical2logical[def.defined]?){
-          ph = physical2logical[def.defined];
-          path = ph.path;
-          if(path[0] == "/"){
-            path = path[1..];
-          }
-
-          name = replaceAll(path, "/", "_");
-          uniqueName = "<inner_scope><asJavaName(name, completeId=false)>";
-        }
+        uniqueName = def.idRole == functionId() ? asJavaName(def.defined)
+                                                : "<inner_scope><asJavaName(def.id, completeId=false)>";
         def_type = def.defInfo.atype;
 
         conds = [];

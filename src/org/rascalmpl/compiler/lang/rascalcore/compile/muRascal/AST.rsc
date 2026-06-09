@@ -37,6 +37,7 @@ import IO;
 import lang::rascalcore::check::ATypeBase;
 
 extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::LogicalLocations;
 //extend lang::rascalcore::compile::muRascal::Primitives;
 
 /*
@@ -70,12 +71,12 @@ MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name
          
 public data MuFunction =					
                 muFunction(str name,                        // Function name as in source text
-                           str uniqueName,                  // Function name made unique with position information in file
+                           FUNID funId,                     // Logical location of function
                            AType ftype,                     // Function type
                            list[MuExp] formals,             // List of muVar's representing the positional formals described by the function type
                            list[MuExp] extendedFormalVars,  // List of muVar's representing all nested formals (as occur in patterns)
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
-                           str scopeIn,                     // Name of current scope (concatenion of surrounding unique function names)
+                           loc scopeIn,                     // Name of current scope (concatenion of surrounding unique function names)
                            bool isVarArgs,                  // Has it variable arguments?
                            bool isPublic,                   // Is it public?
                            bool isMemo,                     // Is it a memo function?
@@ -112,18 +113,18 @@ data NativeKind
     | nativeITree()
     ;
     
-MuExp muTmpInt(str name, str fuid)                  = muTmpNative(name, fuid, nativeInt());
-MuExp muTmpBool(str name, str fuid)                 = muTmpNative(name, fuid, nativeBool());
-MuExp muTmpListWriter(str name, str fuid)           = muTmpNative(name, fuid, nativeListWriter());
-MuExp muTmpSetWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeSetWriter());
-MuExp muTmpMapWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeMapWriter());
-MuExp muTmpMatcher(str name, str fuid)              = muTmpNative(name, fuid, nativeMatcher());
-MuExp muTmpStrWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeStrWriter());
-MuExp muTmpDescendantIterator(str name, str fuid)   = muTmpNative(name, fuid, nativeDescendantIterator());
-MuExp muTmpTemplate(str name, str fuid)             = muTmpNative(name, fuid, nativeTemplate());
-MuExp muTmpException(str name, str fuid)            = muTmpNative(name, fuid, nativeException());
-MuExp muTmpGuardedIValue(str name, str fuid)        = muTmpNative(name, fuid, nativeGuardedIValue());
-MuExp muTmpITree(str name, str fuid)                = muTmpNative(name, fuid, nativeITree());
+MuExp muTmpInt(str name, loc fuid)                  = muTmpNative(name, fuid, nativeInt());
+MuExp muTmpBool(str name, loc fuid)                 = muTmpNative(name, fuid, nativeBool());
+MuExp muTmpListWriter(str name, loc fuid)           = muTmpNative(name, fuid, nativeListWriter());
+MuExp muTmpSetWriter(str name, loc fuid)            = muTmpNative(name, fuid, nativeSetWriter());
+MuExp muTmpMapWriter(str name, loc fuid)            = muTmpNative(name, fuid, nativeMapWriter());
+MuExp muTmpMatcher(str name, loc fuid)              = muTmpNative(name, fuid, nativeMatcher());
+MuExp muTmpStrWriter(str name, loc fuid)            = muTmpNative(name, fuid, nativeStrWriter());
+MuExp muTmpDescendantIterator(str name, loc fuid)   = muTmpNative(name, fuid, nativeDescendantIterator());
+MuExp muTmpTemplate(str name, loc fuid)             = muTmpNative(name, fuid, nativeTemplate());
+MuExp muTmpException(str name, loc fuid)            = muTmpNative(name, fuid, nativeException());
+MuExp muTmpGuardedIValue(str name, loc fuid)        = muTmpNative(name, fuid, nativeGuardedIValue());
+MuExp muTmpITree(str name, loc fuid)                = muTmpNative(name, fuid, nativeITree());
 
     
 // All executable Rascal code is translated to the following muExps.
@@ -145,11 +146,11 @@ public data MuExp =
           | muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
           
           	// Variables and temporaries
-          | muVar(str name, str fuid, int pos, AType atype, IdRole idRole) // Variable: retrieve its value
-          | muTmpIValue(str name, str fuid, AType atype)	    // Temporary variable introduced by compiler
-          | muTmpNative(str name, str fuid, NativeKind nkind)   // Temporary variable introduced by compiler
+          | muVar(str name, loc fuid, int pos, AType atype, IdRole idRole) // Variable: retrieve its value
+          | muTmpIValue(str name, loc fuid, AType atype)	    // Temporary variable introduced by compiler
+          | muTmpNative(str name, loc fuid, NativeKind nkind)   // Temporary variable introduced by compiler
              
-          | muVarKwp(str name, str fuid, AType atype)           // Keyword parameter
+          | muVarKwp(str name, loc fuid, AType atype)           // Keyword parameter
           
           // Call and return    		
           
@@ -159,7 +160,7 @@ public data MuExp =
           | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive, defined in Primitives
            
           | muCallJava(str name, str class, AType funType,
-          			   list[MuExp] args, str enclosingFun)		// Call a Java method in given class
+          			   list[MuExp] args, FUNID enclosingFun)		// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
           | muReturn1(AType result, MuExp exp)			        // Return from a function with value with given type
@@ -346,7 +347,7 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Checks ================================================================
 
-MuExp muVar(str name, str fuid, int pos, AType atype, IdRole idRole){
+MuExp muVar(str name, loc fuid, int pos, AType atype, IdRole idRole){
     assert !isEmpty(name);
     if(atype.alabel?){
     u_atype = unsetRec(atype, "alabel");
@@ -366,7 +367,7 @@ MuExp muTmpNative(str name, str _fuid, NativeKind _nkind) {
     fail;
 }
              
-MuExp muVarKwp(str name, str _fuid, AType _atype) {
+MuExp muVarKwp(str name, loc _fuid, AType _atype) {
     assert !isEmpty(name);
     fail;
 }
@@ -378,7 +379,7 @@ bool isSameVar(MuExp x, MuExp y)
     = x is muVar && y is muVar && x.name == y.name && x.fuid == y.fuid && x.pos == y.pos;
 
 bool isVarDeclaredInFun(MuExp var, MuFunction fun)
-    = endsWith(var.fuid, fun.uniqueName);
+    = endsWith(var.fuid.path, fun.funId.path);
      
 bool isSyntheticFunctionName(str name)
     = contains(name, "$");
@@ -389,8 +390,11 @@ bool isClosureName(str name)
 bool isMainName("main") = true;
 default bool isMainName(str _) = false;
 
-bool isOuterScopeName(str scope)
-    = isEmpty(scope);
+bool isGlobalScope(loc l)
+    = l.scheme == "global-scope";
+
+bool isOuterScopeName(loc scope)
+    = isGlobalScope(scope);
    
 bool isModuleScope(loc scope, loc moduleScope)
     = scope == moduleScope;
@@ -399,15 +403,7 @@ str getFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)) return fun.name;
     if(isClosureName(fun.name)) return fun.name; // "<fun.scopeIn>_<fun.uniqueName>";
     //return "<fun.scopeIn>_<fun.uniqueName>";
-    return fun.uniqueName;
-}
-
-str getUniqueFunctionName(MuFunction fun){
-    return fun.uniqueName;
-    //if(isModuleScope(fun.scopeIn, scope)){
-    //    return fun.uniqueName;
-    //}
-    //return "<fun.scopeIn>_<fun.uniqueName>";
+    return fun.funId.path;
 }
 
 bool isVarOrTmp(MuExp exp)
@@ -465,14 +461,14 @@ default bool producesNativeGuardedIValue(MuExp exp)
 // Get the result type of a MuExp
 
 AType getType(muCon(value v)) = symbol2atype(typeOf(v));
-AType getType(muVar(str name, str fuid, int pos, AType atype, IdRole idRole)) = atype;
-AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
-AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
+AType getType(muVar(str name, loc fuid, int pos, AType atype, IdRole idRole)) = atype;
+AType getType(muTmpIValue(str name, loc fuid, AType atype)) = atype;
+AType getType(muVarKwp(str name, loc fuid, AType atype)) = atype;
 AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
     = getResult(atype);                                                               
 AType getType(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
     = result;
-AType getType(muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun)) =  getResult(funType); 
+AType getType(muCallJava(str name, str class, AType funType, list[MuExp] args, loc enclosingFun)) =  getResult(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
 
 AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
@@ -1632,14 +1628,14 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
             }
             case me: muExists(_, _): {
                 nauxVars += 1;
-                aux = muTmpIValue("$aux<nauxVars>", "xxx", abool());
+                aux = muTmpIValue("$aux<nauxVars>", |global-state:///|, abool());
                 auxVars += muVarInit(aux, muCon(false));
                 pre += muAssign(aux, me);
                 newArgs += aux;
             }
             case me: muAll(_, _): {
                 nauxVars += 1;
-                aux = muTmpIValue("$aux<nauxVars>", "xxx", abool());
+                aux = muTmpIValue("$aux<nauxVars>", |global-state:///|, abool());
                 auxVars += muVarInit(aux, muCon(false));
                 pre += muAssign(aux, me);
                 newArgs += aux;
@@ -1658,7 +1654,7 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
             }
             case me: muWhileDo(str _, MuExp _, MuExp _): {
                 nauxVars += 1;
-                aux = muTmpIValue("$aux<nauxVars>", "xxx", alist(avalue()));
+                aux = muTmpIValue("$aux<nauxVars>", |global-state:///|, alist(avalue()));
                 auxVars += muVarInit(aux, muCon([]));
                 pre += muAssign(aux, me);
                 newArgs += aux;
