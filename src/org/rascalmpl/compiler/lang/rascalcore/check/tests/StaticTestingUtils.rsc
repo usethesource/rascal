@@ -248,9 +248,7 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] defuses, Mod
 				throw "Missing use <u> for <v>";
 			}
 			potentialDefs = foundUseDefs[occ[u]];
-			// We us containement here, give how the type chcker works at the moment.
-			// An equality test would be better.
-			if(isEmpty(potentialDefs) || !any(d <- potentialDefs, isContainedIn(occ[def], d, tm.logical2physical))){
+			if(isEmpty(potentialDefs) || !any(d <- potentialDefs, occ[def] == (tm.logical2physical[d] ? d))){
 				throw "Missing def for use <u> of <v>";
 			}
 		 }
