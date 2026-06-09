@@ -127,7 +127,7 @@ JGenie makeJGenie(MuModule m,
     MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
-    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));
+    map[FUNID,set[MuExp]] fun2externals = (fun.funId : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));
     // map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
