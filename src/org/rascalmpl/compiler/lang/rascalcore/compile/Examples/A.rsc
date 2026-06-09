@@ -25,11 +25,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
-              
+
+data Symbol 
+    = \sort(str name) 
+    | \adt(str name, list[Symbol] parameters)
+    ;
+bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
 
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java bool isEmpty(set[&T] st);
+// import List;
+
+// @javaClass{org.rascalmpl.library.Prelude}
+// public java map[&K, set[&V]] index(lrel[&K, &V] R);
+
 
 
 // list[&T] sort(list[&T] lst) =

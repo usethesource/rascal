@@ -512,7 +512,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
 }
 
 JCode call(MuFunction fun, list[str] actuals, JGenie _jg){
-    return "<asJaveName(fun.funId)>(<intercalate(", ", actuals)>)";
+    return "<asJavaName(fun.funId)>(<intercalate(", ", actuals)>)";
 }
 
 JCode trans(muComment(str text), JGenie jg)
