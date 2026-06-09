@@ -10,6 +10,7 @@ import Exception;
 import util::Reflective;
 import Set;
 import util::Monitor;
+import analysis::diff::edits::HiFiTreeDiff;
 
 list[Message] reportForProject(loc projectRoot)
   = reportForPathConfig(getProjectPathConfig(projectRoot));
@@ -32,7 +33,7 @@ list[Message] report(loc root) {
    
 list[Message] reportFor(loc l) {
   try {
-    return report(parse(#start[Module], l)); 
+    return report(parseModuleWithSpaces(l)); 
   } catch ParseError(loc r) :
     return [warning("parse error in Rascal file",r)];
 }
@@ -47,6 +48,9 @@ void updatePathConfig(PathConfig pcfg) {
   }
 }
 
+list[FileSystemChange] editsPathConfig(PathConfig pcfg) 
+  = [*editsFolder(root) | root <- pcfg.srcs];
+
 void updateFolder(loc root) {
   set[loc] ms = find(root, "rsc");
 
@@ -54,7 +58,7 @@ void updateFolder(loc root) {
     for (loc m <- ms) {
       try {
         step(m.file, 1);
-        writeFile(m, "<update(parse(#start[Module], m))>");
+        writeFile(m, "<update(parseModuleWithSpaces(m))>");
       }
       catch ParseError(l): {
         println("parse error in <l>, skipped");
@@ -65,9 +69,26 @@ void updateFolder(loc root) {
   }, totalWork=size(ms));
 }
 
+list[FileSystemChange] editsFolder(loc root) {
+  set[loc] ms = find(root, "rsc");
+
+  return loopJob(ms, FileSystemChange (loc m) {
+      try {
+          start[Module] oldTree = parseModuleWithSpaces(m);
+          start[Module] newTree = update(oldTree);
+          list[TextEdit] edits  = treeDiff(oldTree, newTree);
+          return changed(m, edits);
+      }
+      catch ParseError(loc l): {
+          warning("parse error at <l>, skipped <m>!", l);
+          return changed(m, []);
+      }
+  }, label="Upgrading annotations in <root>");
+}
+
 @synopsis{Definition to override in an extending module for reporting on a specific upgrade refactoring.}
 default list[Message] report(Tree _) = [];
 
 @synopsis{Definition to override in an extending module for implementing a specific upgrade refactoring.}
-default Tree update(Tree m) = m;
+default &T <: Tree update(&T <: Tree m) = m;
 

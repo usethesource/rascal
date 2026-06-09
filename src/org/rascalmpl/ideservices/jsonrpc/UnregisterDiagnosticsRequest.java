@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2026, NWO-I CWI and Swat.engineering
+ * Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri;
+package org.rascalmpl.ideservices.jsonrpc;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+import java.util.Arrays;
+
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+
+public class UnregisterDiagnosticsRequest {
+    private final ISourceLocation[] locs;
+
+    public UnregisterDiagnosticsRequest(IList locs) {
+        this.locs = locs.stream().map(ISourceLocation.class::cast).toArray(ISourceLocation[]::new);
+    }
+
+    public ISourceLocation[] getLocations() {
+        return locs;
     }
 
     @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
+    public boolean equals(Object obj) {
+        return obj instanceof UnregisterDiagnosticsRequest && Arrays.deepEquals(locs, ((UnregisterDiagnosticsRequest) obj).locs);
     }
-
+    
     @Override
-    default boolean supportsHost() {
-        return false;
+    public int hashCode() {
+        return Arrays.deepHashCode(locs);
     }
-
-    boolean supportsGetCharset(String scheme);
-    boolean supportsInput(String scheme);
-    boolean supportsWatch(String scheme);
-    boolean supportsOutput(String scheme);
-    boolean supportsLogical(String scheme);
 }
