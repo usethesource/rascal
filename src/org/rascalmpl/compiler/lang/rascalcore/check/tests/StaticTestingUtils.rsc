@@ -202,7 +202,7 @@ bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting(
 }
 
 bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] defuses, ModuleStatus ms){
-	<found, pt, ms> = getModuleParseTree(moduleName2moduleId(moduleName), ms);
+	<found, pt, ms> = getModuleParseTree(moduleName, ms);
 	map[str,list[loc]] names = ();
 	map[loc, str] loc2name = ();
 	top-down-break visit(pt){

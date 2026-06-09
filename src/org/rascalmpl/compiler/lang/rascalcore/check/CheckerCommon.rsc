@@ -271,6 +271,9 @@ int parseTreeCacheSize = 20;
 
 Module dummyModule = [Module] "module DummyModule";
 
+tuple[bool, Module, ModuleStatus] getModuleParseTree(str moduleName, ModuleStatus ms)
+    = getModuleParseTree(moduleName2moduleId(moduleName), ms);
+
 tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getModuleParseTree: <moduleId>";
     pcfg = ms.pathConfig;
