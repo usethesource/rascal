@@ -77,6 +77,12 @@ test bool kwfield1() =
                 }",
                 ("n": <0, {1, 2}>)); 
 
+test bool \syntax() =
+    useDefOK("module Syntax
+                syntax C = \"c\";
+                syntax D = C;",
+                ("C": <0, {1}>));
+
 test bool syntaxField1() =
     useDefOK("module SyntaxField
                 syntax C = \"c\";
