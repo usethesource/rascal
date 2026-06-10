@@ -241,7 +241,7 @@ JGenie makeJGenie(MuModule m,
         //        return res;
         //    }
         //}
-        //println("getTypeAccessor(<t>) =\> \"\"");
+        if(b)println("getTypeAccessor(<t>) =\> \"\"");
         return ""; //throw "No accessor found for <t>";
     }
     

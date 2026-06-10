@@ -720,7 +720,7 @@ JCode trans(var:muVar(str name, loc fuid, int pos, AType atype, IdRole idRole), 
     //println("muVar: fuid=<fuid>, functionName: <jg.getFunctionName()>, moduleName: <jg.getModuleName()>");
     return jg.isRef(var) ? "<varName(var, jg)>.getValue()" 
                          : ( pos >= 0 ? varName(var, jg)
-                                      : "<fuid == jg.getFunction().funId ? |global-scope:///| : (fuid == jg.getModuleLoc()) ? "" : "<module2field(fuid)>."><varName(var, jg)>"
+                                      : "<fuid == jg.getFunction().funId ? "" : (fuid == jg.getModuleLoc()) ? "" : "<module2field(fuid)>."><varName(var, jg)>"
                          );
 }
 
