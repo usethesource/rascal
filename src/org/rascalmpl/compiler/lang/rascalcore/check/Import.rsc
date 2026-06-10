@@ -389,7 +389,7 @@ tuple[map[MODID,TModel], ModuleStatus] prepareForCompilation(set[MODID] componen
             if(hasProperty(imp, ms, parse_error()) || hasNotProperty(imp, ms, checked())){
                 dependencies_ok = false;
                 cause = hasProperty(imp, ms, rsc_not_found()) ? "module not found" : "due to syntax error";
-                ms.messages[m] = (ms.messages[imp] ? {}) + error("<imp in m_imports[imp] ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", m);
+                ms.messages[m] = (ms.messages[imp] ? {}) + error("<imp in m_imports ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", m);
             }
         }
         if(!dependencies_ok){
