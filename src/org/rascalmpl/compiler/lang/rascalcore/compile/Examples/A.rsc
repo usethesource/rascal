@@ -26,4 +26,6 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module  lang::rascalcore::compile::Examples::A
  
-extend   lang::rascalcore::compile::Examples::B;                
+data X1 = z();
+// anno int X1@xz;
+// int doY(X1 x) = x@xz;        

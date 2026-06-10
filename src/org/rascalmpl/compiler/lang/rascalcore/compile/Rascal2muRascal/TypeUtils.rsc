@@ -485,7 +485,7 @@ AType getType(loc l) {
 }
 
 AType getType(Tree e) {
-    return getType(e@\loc);
+    return getType(e.src);
 }
 
 // Get the type of an expression as string
@@ -493,7 +493,7 @@ AType getType(Tree e) {
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) {
-    tp = getType(e@\loc);
+    tp = getType(e.src);
 	if(aparameter(str _, AType bound) := tp) {
 		return "<getName(bound)>";
 	}
@@ -607,9 +607,6 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
 
     // Common kw field of concrete type?
     if(asubtype(adtType1, treeType)){
-        //if(fieldName == "src"){         // TODO: remove when @\loc is gone
-        //    return <"ParseTree", adtType1, true>;
-        //}
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
                 return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;

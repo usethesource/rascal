@@ -20,7 +20,6 @@ module List
 import Exception;
 import Map;
 
-
 @synopsis{Concatenate a list of lists.}
 @examples{
 ```rascal-shell
@@ -261,7 +260,6 @@ intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 str intercalate(str sep, list[value] l) = 
   "<for(int i <- index(l)){><i == 0 ? "" : sep><l[i]><}>";
 
-
 @synopsis{Intersperses a list of values with a separator.}
 @examples{
 ```rascal-shell
@@ -272,9 +270,8 @@ intersperse(1, []);
 intersperse([], [1]);
 ```
 }
-list[&T] intersperse(&T sep, list[&T] xs) = 
-  (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
-
+list[&T] intersperse(&T sep, list[&T] xs) =
+  [x, sep | &T x <- xs][..-1];
 
 @synopsis{Test whether a list is empty.}
 @description{
@@ -655,6 +652,29 @@ tuple[list[&T],list[&T]] split(list[&T] l) {
 	return <take(half,l), drop(half,l)>;
 }
 
+@synopsis{Groups sublists for consecutive elements which are `similar`}
+@description{
+This function does not change the order of the elements. Only elements
+which are similar end-up in a sub-list with more than one element. The
+elements which are not similar to their siblings, end up in singleton
+lists.
+}
+@examples{
+```rascal-shell
+import List;
+bool bothEvenOrBothOdd(int a, int b) = (a % 2 == 0 && b % 2 == 0) || (a % 2 == 1 && b % 2 == 1);
+group([1,7,3,6,2,9], bothEvenOrBothOdd);
+```
+}
+public list[list[&T]] group(list[&T] input, bool (&T a, &T b) similar) {
+  lres = while ([hd, *tl] := input) {
+      sim = [hd, *takeWhile(tl, bool (&T a) { return similar(a, hd); })];
+	    append sim;
+	    input = drop(size(sim), input);
+  }
+
+  return lres; 
+}
 
 @synopsis{Sum the elements of a list.}
 @examples{
@@ -896,11 +916,11 @@ unzip2([<3,"thirty">, <1,"ten">, <4,"forty">]);
 unzip3([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
 ```
 }
-tuple[list[&T],list[&U]] unzip2(list[tuple[&T,&U]] lst) =
+tuple[list[&T],list[&U]] unzip2(lrel[&T,&U] lst) =
 	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
 
 // Make a triple of lists from a list of triples.
-tuple[list[&T],list[&U],list[&V]] unzip3(list[tuple[&T,&U,&V]] lst) =
+tuple[list[&T],list[&U],list[&V]] unzip3(lrel[&T,&U,&V] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 
@@ -918,9 +938,9 @@ upTill(10);
 java list[int] upTill(int n);
 
 
-@synopsis{Make a list of pairs from two (three) lists of the same length.}
+@synopsis{Make a list of pairs from two lists of the same length.}
 @description{
-Also see ((List-unzip3)).
+Also see ((List-unzip2)).
 }
 @examples{
 ```rascal-shell
@@ -929,15 +949,61 @@ zip2([3, 1, 4], ["thirty", "ten", "forty"]);
 zip3([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 ```
 }
-list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
+lrel[&T first, &U second] zip2(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
 		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");
-	return [<elementAt(a,i), elementAt(b,i)> | i <- index(a)];
+	return [<a[i], b[i]> | i <- index(a)];
 }
 
-list[tuple[&T first, &U second, &V third]] zip3(list[&T] a, list[&U] b, list[&V] c) {
+@synopsis{Make a list of pairs from two lists of possibly unequal length.}
+lrel[&T first, &U second] zip2(list[&T] a, &T defA, list[&U] b, &U defB) {
+  tmpA = a + [defA | _ <- [0..max([0, size(b) - size(a)])]];
+  tmpB = b + [defB | _ <- [0..max([0, size(a) - size(b)])]];
+
+  assert size(tmpA) == size(tmpB);
+
+	return [<tmpA[i], tmpB[i]> | i <- index(tmpA)];
+}
+
+@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element of a list.}
+lrel[int index, &T elem] zipi(list[&T] a)  {
+  int i = 0;
+  return for (&T e <- a) {
+    append <i, e>;
+    i += 1;
+  }
+}
+
+@synopsis{Make a list of pairs: `<i, e>`, where `i` is the index of the `e` element a set.}
+@description{
+Useful for a countable iteration over a set. 
+Does not make an intermediate copy of the set, but iterates over the elements.
+}
+lrel[int index, &T elem] zipi(set[&T] a) {
+  int i = 0;
+  return for (&T e <- a) {
+    append <i, e>;
+    i += 1;
+  }
+}
+
+@synopsis{Make a list of pairs from three lists of the same length.}
+lrel[&T first, &U second, &V third] zip3(list[&T] a, list[&U] b, list[&V] c) {
 	if(size(a) != size(b) || size(a) != size(c))
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
-	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
+	return [<a[i], b[i], c[i]> | i <- index(a)];
+}
+
+@synopsis{Make a list of pairs from three lists of possibly unequal length.}
+lrel[&T first, &U second, &T third] zip3(list[&T] a, &T defA, list[&U] b, &U defB, list[&V] c, &V defC) {
+  longest = max([size(a), size(b), size(c)]);
+
+  tmpA = a + [defA | _ <- [0..longest - size(a)]];
+  tmpB = b + [defB | _ <- [0..longest - size(b)]];
+  tmpC = c + [defC | _ <- [0..longest - size(c)]];
+
+  assert size(tmpA) == size(tmpB) && size(tmpB) == size(tmpC);
+
+	return [<tmpA[i], tmpB[i], tmpC[i]> | i <- index(tmpA)];
 }
 
