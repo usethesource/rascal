@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2026, NWO-I CWI and Swat.engineering
+ * Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri;
+package org.rascalmpl.ideservices.jsonrpc;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+import java.util.Objects;
+
+public class RegisterDebugServerPortRequest {
+    private final int processID;
+    private final int serverPort;
+    
+    public RegisterDebugServerPortRequest(int processID, int serverPort) {
+        this.processID = processID;
+        this.serverPort = serverPort;
+    }
+
+    public int getProcessID() {
+        return processID;
+    }
+
+    public int getServerPort() {
+        return serverPort;
     }
 
     @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
-    }
-
-    @Override
-    default boolean supportsHost() {
+    public boolean equals(Object obj) {
+        if (obj instanceof RegisterDebugServerPortRequest) {
+            var other = (RegisterDebugServerPortRequest) obj;
+            return processID == other.processID && serverPort == other.serverPort;
+        }
         return false;
     }
-
-    boolean supportsGetCharset(String scheme);
-    boolean supportsInput(String scheme);
-    boolean supportsWatch(String scheme);
-    boolean supportsOutput(String scheme);
-    boolean supportsLogical(String scheme);
+    @Override
+    public int hashCode() {
+        return Objects.hash(processID, serverPort);
+    }
 }

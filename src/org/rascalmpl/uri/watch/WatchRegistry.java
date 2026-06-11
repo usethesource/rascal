@@ -74,6 +74,7 @@ public class WatchRegistry {
     public final ReferenceQueue<? super Consumer<ISourceLocationChanged>> clearedReferences = new ReferenceQueue<>();
     private final UnaryOperator<ISourceLocation> resolver;
     private volatile @Nullable ISourceLocationWatcher externalRegistry;
+    private volatile @Nullable Predicate<ISourceLocation> externalRegistryWatchSupport;
 
     public WatchRegistry(URIResolverRegistry reg, UnaryOperator<ISourceLocation> resolver) {
         this.reg = reg;
@@ -85,12 +86,13 @@ public class WatchRegistry {
     public void registerNative(String scheme, ISourceLocationWatcher watcher) {
         watchers.put(scheme, watcher);
     }
-    public void setExternalRegistry(ISourceLocationWatcher externalRegistry) {
+    public void setExternalRegistry(ISourceLocationWatcher externalRegistry, Predicate<ISourceLocation> externalRegistryWatchSupport) {
         this.externalRegistry = externalRegistry;
+        this.externalRegistryWatchSupport = externalRegistryWatchSupport;
     }
 
     public boolean hasExternalRegistry() {
-        return externalRegistry != null;
+        return externalRegistry != null && externalRegistryWatchSupport != null;
     }
 
     private ISourceLocation safeResolve(ISourceLocation loc) {
@@ -122,7 +124,7 @@ public class WatchRegistry {
         else if (hasResolvers.test(resolvedLoc)) {
             startSimulatedWatch(loc, recursive, callback, resolvedLoc);
         }
-        else if (hasExternalRegistry()) {
+        else if (hasExternalRegistry() && externalRegistryWatchSupport.test(resolvedLoc)) {
             externalRegistry.watch(resolvedLoc, callback, recursive);
         }
     }

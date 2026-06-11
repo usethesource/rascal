@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2026, NWO-I CWI and Swat.engineering
+ * Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.uri;
+package org.rascalmpl.ideservices.jsonrpc;
 
-public interface IExternalResolverRegistry extends ISourceLocationInputOutput, ILogicalSourceLocationResolver, ISourceLocationWatcher {
-    @Override
-    default String scheme() {
-        throw new UnsupportedOperationException("'scheme' is not supported for external resolvers");
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+
+public class RegisterDiagnosticsRequest {
+    private final IConstructor[] messages;
+
+    public RegisterDiagnosticsRequest(IList messages) {
+        this.messages = messages.stream().toArray(IConstructor[]::new);
+    }
+
+    public IList getMessages() {
+        return Stream.of(messages).collect(ValueFactoryFactory.getValueFactory().listWriter());
     }
 
     @Override
-    default String authority() {
-        throw new UnsupportedOperationException("`authority` is not supported for external resolvers");
+    public boolean equals(Object obj) {
+        return obj instanceof RegisterDiagnosticsRequest && Arrays.deepEquals(messages, ((RegisterDiagnosticsRequest) obj).messages);
     }
 
     @Override
-    default boolean supportsHost() {
-        return false;
+    public int hashCode() {
+        return Arrays.deepHashCode(messages);
     }
-
-    boolean supportsGetCharset(String scheme);
-    boolean supportsInput(String scheme);
-    boolean supportsWatch(String scheme);
-    boolean supportsOutput(String scheme);
-    boolean supportsLogical(String scheme);
 }
