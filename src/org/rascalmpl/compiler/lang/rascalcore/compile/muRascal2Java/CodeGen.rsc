@@ -73,21 +73,23 @@ int naux = 0;
 // Generate code and test class for a single Rascal module
 
 tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus ms){
-    map[str,TModel] tmodels = (moduleId2moduleName(mid) : ms.tmodels[mid] | mid <- ms.tmodels);
-    map[str,loc] moduleLocs = (moduleId2moduleName(mid) : ms.moduleLocs[mid] | mid <- ms.moduleLocs);
+    map[MODID,TModel] tmodels = ms.tmodels;
+    map[MODID,loc]moduleLocs = ms.moduleLocs;
+    // map[str,TModel] tmodels = (moduleId2moduleName(mid) : ms.tmodels[mid] | mid <- ms.tmodels);
+    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : ms.moduleLocs[mid] | mid <- ms.moduleLocs);
     PathConfig pcfg = ms.pathConfig;
     naux = 0;
     moduleName = m.name;
     MODID moduleId = moduleName2moduleId(moduleName);
     locsModule = invertUnique(moduleLocs);
-    module_scope = moduleLocs[moduleName];
+    module_scope = moduleLocs[moduleId];
     <found, tm, ms> = getTModelForModule(moduleId, ms);
 
     //strPaths = { <getRascalModuleName(mloc1, pcfg), p, getRascalModuleName(mloc2, pcfg)> | <mloc1, p, mloc2> <- tm.paths };
-    paths = {<moduleId2moduleName(from), pr, moduleId2moduleName(to)> | <from, pr, to> <- tm.paths};
-    extends = { mname | <moduleName, extendPath(), mname> <- paths };
-    imports = { mname | <moduleName, importPath(), mname> <- paths };
-    imports += { mname | imp <- imports, <imp, extendPath(), mname> <- paths};
+    //paths = {<moduleId2moduleName(from), pr, moduleId2moduleName(to)> | <from, pr, to> <- tm.paths};
+    extends = { mid | <moduleId, extendPath(), mid> <- tm.paths };
+    imports = { mid | <moduleId, importPath(), mid> <- tm.paths };
+    imports += { mid | imp <- imports, <imp, extendPath(), mid> <- tm.paths};
    
     // loc2muFunction = (f.funId : f | f <- m.functions);
     
@@ -106,7 +108,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     muFunctions = (f.funId : f | f <- m.functions);
  
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
-    resolvers = generateResolvers(moduleName, muFunctions, imports, extends, tmodels, moduleLocs, pcfg, jg);
+    resolvers = generateResolvers(moduleId, muFunctions, imports, extends, tmodels, moduleLocs, pcfg, jg);
     
     map[loc,AType] facts = tm.facts;
     cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), jg.isContainedIn(def.scope, module_scope) }

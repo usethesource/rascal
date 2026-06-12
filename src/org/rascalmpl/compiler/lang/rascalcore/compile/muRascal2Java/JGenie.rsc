@@ -86,8 +86,8 @@ data JGenie
     ;
     
 JGenie makeJGenie(MuModule m, 
-                  map[str,TModel] tmodels, 
-                  map[str,loc] moduleLocs, 
+                  map[MODID,TModel] tmodels, 
+                  map[MODID,loc] moduleLocs, 
                   map[FUNID, MuFunction] muFunctions){
 
     // // temporary glue code
@@ -95,7 +95,8 @@ JGenie makeJGenie(MuModule m,
     // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : moduleLocs[mid] | mid <- moduleLocs0);
     // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : muFunctions0[mid] | mid <- muFunctions0);
 
-    map[MODID,str] allLocs2Module = invertUnique((mname : moduleName2moduleId(mname) | mname <- moduleLocs));
+    map[MODID,str] allLocs2Module = (mid : moduleId2moduleName(mid) | mid <- moduleLocs);
+    // map[MODID,str] allLocs2Module = invertUnique((mname : moduleName2moduleId(mname) | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
     MODID moduleId = moduleName2moduleId(moduleName);
@@ -120,9 +121,9 @@ JGenie makeJGenie(MuModule m,
         checkAllTypesAvailable(tmodels[mname]);
     }
     
-    TModel currentTModel = tmodels[moduleName];
+    TModel currentTModel = tmodels[moduleId];
     checkAllTypesAvailable(currentTModel);  // TODO: remove
-    MODID currentModuleScope = moduleName2moduleId(moduleName);
+    MODID currentModuleScope = moduleId; //moduleName2moduleId(moduleName);
     str functionName = "$UNKNOWN";
     MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
