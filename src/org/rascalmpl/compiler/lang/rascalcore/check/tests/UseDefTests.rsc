@@ -110,7 +110,7 @@ test bool overloadedSyntaxField(){
 }
 
 test bool issue2165() =
-     useDefOK("module Issue2165
+    useDefOK("module Issue2165
                 int f(int i) {
                     int x = 2;
                     return i * x;
