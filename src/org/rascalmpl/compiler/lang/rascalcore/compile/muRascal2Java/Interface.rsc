@@ -59,10 +59,10 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     lrel[str, AType] result = [];
     rel[str, int, AType] signatures = {};
     // mscope = tmodels[moduleName].moduleLocs[moduleName];
-    mscope = moduleName2moduleId(moduleName);
+    MODID moduleId = moduleName2moduleId(moduleName);
    
     
-    for(f <- functions, isGlobalScope(f.scopeIn), jg.isContainedIn(f.funId, mscope),
+    for(f <- functions, isGlobalScope(f.scopeIn), jg.isContainedIn(f.funId, moduleId),
                                             !( //"test" in f.modifiers 
                                                 isSyntheticFunctionName(f.name) 
                                              || isMainName(f.name)
@@ -70,14 +70,15 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
        ){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
     }
-    //iprintln(signatures);
+    // iprintln(signatures);
     
     for(ext <- extends, ext in tmodels){
         // escope = tmodels[ext].moduleLocs[ext];   
         //escope = moduleName2moduleId(ext);  
         for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
             def.idRole == functionId() ,//|| def.idRole == constructorId(),
-            getRascalModuleName(def.scope, pcfg) == ext,//def.scope == escope, //isContainedIn(def.defined, escope),
+            def.scope == ext,
+            // getRascalModuleName(def.scope, pcfg) == ext,//def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
             !isNonTerminalAType(tp), !isLexicalAType(tp),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){

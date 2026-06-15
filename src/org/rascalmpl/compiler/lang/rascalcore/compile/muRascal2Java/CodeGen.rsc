@@ -64,7 +64,6 @@ bool debug = false;
 // ---- globals ---------------------------------------------------------------
 
 map[FUNID, MuFunction] muFunctions = ();
-// map[loc, MuFunction] loc2muFunction = ();
 
 int naux = 0;
 
@@ -75,8 +74,6 @@ int naux = 0;
 tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus ms){
     map[MODID,TModel] tmodels = ms.tmodels;
     map[MODID,loc]moduleLocs = ms.moduleLocs;
-    // map[str,TModel] tmodels = (moduleId2moduleName(mid) : ms.tmodels[mid] | mid <- ms.tmodels);
-    // map[str,loc] moduleLocs = (moduleId2moduleName(mid) : ms.moduleLocs[mid] | mid <- ms.moduleLocs);
     PathConfig pcfg = ms.pathConfig;
     naux = 0;
     moduleName = m.name;
@@ -85,13 +82,9 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     module_scope = moduleLocs[moduleId];
     <found, tm, ms> = getTModelForModule(moduleId, ms);
 
-    //strPaths = { <getRascalModuleName(mloc1, pcfg), p, getRascalModuleName(mloc2, pcfg)> | <mloc1, p, mloc2> <- tm.paths };
-    //paths = {<moduleId2moduleName(from), pr, moduleId2moduleName(to)> | <from, pr, to> <- tm.paths};
     extends = { mid | <moduleId, extendPath(), mid> <- tm.paths };
     imports = { mid | <moduleId, importPath(), mid> <- tm.paths };
     imports += { mid | imp <- imports, <imp, extendPath(), mid> <- tm.paths};
-   
-    // loc2muFunction = (f.funId : f | f <- m.functions);
     
     // Iteratively propagate external dependencies of functions
     list[MuFunction] functions = m.functions;
@@ -893,10 +886,10 @@ JCode trans(muAssign(v:muVar(str name, loc fuid, int pos, AType atype, IdRole id
     }
 }
     
-JCode trans(muAssign(v:muTmpIValue(str name, loc fuid, AType atype), MuExp exp), JGenie jg)
-    = jg.isRef(v) ? "<name>.setValue(<trans(exp, jg)>);\n"
+JCode trans(muAssign(v:muTmpIValue(str name, loc fuid, AType atype), MuExp exp), JGenie jg){
+    return jg.isRef(v) ? "<name>.setValue(<trans(exp, jg)>);\n"
                   : "<name> = <transWithCast(atype, exp, jg)>;\n";
-
+}
 JCode trans(muAssign(v:muTmpNative(str name, loc fuid, NativeKind nkind), MuExp exp), JGenie jg)
     = jg.isRef(v) ? "<name>.setValue(<trans2Native(exp, nkind, jg)>);\n"
                   : "<name> = <trans2Native(exp, nkind, jg)>;\n";
@@ -974,7 +967,10 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 }
 
 JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
-    //println("muOCall((<fun>, <ftype>, ..., <src>");
+    
+    if(fun is muFun && contains(fun.uid.path, "head")){
+        println("muOCall((<fun>, <ftype>, ..., <src>");
+    }
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
@@ -1006,7 +1002,12 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
             externals = [ varName(var, jg) | var <- sort(externalRefs) ];
             arg_list = "(<intercalate(", ", actuals + kwactuals + externals)>)"; 
             
-            fun_name = isGlobalScope(fn.scopeIn) ? "$me.<asJavaName(getFunctionName(fn))>" : (isClosureName(fn.name) ? fn.name : "<fn.scopeIn>_<fn.name>");           
+            fun_name = isGlobalScope(fn.scopeIn) 
+                            ? "$me.<asJavaName(getFunctionName(fn))>" 
+                            : (isClosureName(fn.name) 
+                                    ? fn.name 
+                                    : getFunctionName(fn.funId)         
+                              );           
 
             result = "<asJavaName(fun_name)><arg_list>";
             
