@@ -506,7 +506,11 @@ public class URIResolverRegistry {
 					return result;
 				}
 			}
-			if (externalRegistry != null && externalRegistry.supportsOutput(scheme)) {
+			// only return an external registry if the input is also going to an external resolver
+			// as input resolvers are quite common, but output less, and we don't want all of them
+			// to always go via the external registries (just to receive an exception)
+			var inputResolver = getInputResolver(scheme);
+			if (externalRegistry != null && externalRegistry.supportsOutput(scheme) && inputResolver == externalRegistry) {
 				return externalRegistry;
 			}
 		}
