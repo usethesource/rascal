@@ -508,8 +508,4 @@ public class URIUtil {
 
 		return URIUtil.changePath(location, path);
     }
-	
-    public static URI invalidURI() {
-        return rootScheme("invalid");
-    }
 }
