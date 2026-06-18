@@ -1,0 +1,54 @@
+package rascal;
+import io.usethesource.vallang.*;
+import org.rascalmpl.runtime.function.*;
+
+@SuppressWarnings("unused")
+public interface $String_$I  {
+    IValue arbString(IValue $0);
+    IValue capitalize(IValue $0);
+    IValue center(IValue $0, IValue $1);
+    IValue center(IValue $0, IValue $1, IValue $2);
+    IValue charAt(IValue $0, IValue $1);
+    IValue chars(IValue $0);
+    IValue contains(IValue $0, IValue $1);
+    IValue deescape(IValue $0);
+    IValue endsWith(IValue $0, IValue $1);
+    IValue escape(IValue $0, IValue $1);
+    IValue findAll(IValue $0, IValue $1);
+    IValue findFirst(IValue $0, IValue $1);
+    IValue findLast(IValue $0, IValue $1);
+    IValue format(IValue $0, IValue $1, IValue $2, IValue $3);
+    IValue fromBase32(IValue $0, java.util.Map<java.lang.String,IValue> $kwpActuals);
+    IValue fromBase64(IValue $0, java.util.Map<java.lang.String,IValue> $kwpActuals);
+    IValue isEmpty(IValue $0);
+    IValue isValidCharacter(IValue $0);
+    IValue left(IValue $0, IValue $1);
+    IValue left(IValue $0, IValue $1, IValue $2);
+    IValue replaceAll(IValue $0, IValue $1, IValue $2);
+    IValue replaceFirst(IValue $0, IValue $1, IValue $2);
+    IValue replaceLast(IValue $0, IValue $1, IValue $2);
+    IValue reverse(IValue $0);
+    IValue rexpMatch(IValue $0, IValue $1);
+    IValue right(IValue $0, IValue $1);
+    IValue right(IValue $0, IValue $1, IValue $2);
+    IValue size(IValue $0);
+    IValue split(IValue $0, IValue $1);
+    IValue squeeze(IValue $0, IValue $1);
+    IValue startsWith(IValue $0, IValue $1);
+    IValue stringChar(IValue $0);
+    IValue stringChars(IValue $0);
+    IValue substitute(IValue $0, IValue $1);
+    IValue substring(IValue $0, IValue $1);
+    IValue substring(IValue $0, IValue $1, IValue $2);
+    IValue toBase32(IValue $0, java.util.Map<java.lang.String,IValue> $kwpActuals);
+    IValue toBase64(IValue $0, java.util.Map<java.lang.String,IValue> $kwpActuals);
+    IValue toInt(IValue $0);
+    IValue toInt(IValue $0, IValue $1);
+    IValue toLocation(IValue $0);
+    IValue toLowerCase(IValue $0);
+    IValue toReal(IValue $0);
+    IValue toUpperCase(IValue $0);
+    IValue trim(IValue $0);
+    IValue uncapitalize(IValue $0);
+    IValue wrap(IValue $0, IValue $1);
+}

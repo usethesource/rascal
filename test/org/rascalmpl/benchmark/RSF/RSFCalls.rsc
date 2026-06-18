@@ -45,7 +45,7 @@ public int measure(list[str] names){
 	if({loc x} := findResources("RSF")){
 		p = x;
 	}
-	//p = |file:///Users/paulklint/git/rascal//test/org/rascalmpl/benchmark/RSF/|;
+	//p = |file:///Users/paulklint/git/rascal/test/org/rascalmpl/benchmark/RSF/|;
 	begin = cpuTime();
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p + name);
