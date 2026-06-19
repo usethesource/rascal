@@ -83,15 +83,16 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
                 if(!isEmpty(commonKeywordParameterList)){
                     declaredFieldNames = {};
                     for(KeywordFormal kwf <- commonKeywordParameterList){
-                        fieldName = prettyPrintName(kwf.name);
-                        if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
-                        declaredFieldNames += fieldName;
-                        kwfType = kwf.\type;
-                        dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
-                        dt.md5 = normalizedMD5Hash(currentModuleName, adtName, kwf);
-                        c.define(kwf.name, keywordFieldId(), kwf.name, dt);  
+                        declaredFieldNames = defineField(c, kwf, keywordFieldId(), declaredFieldNames,
+                            moreHashContribs = [currentModuleName, adtName]);
                     }
-                    for(kwa <- commonKeywordParameterList) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
+
+                    for(KeywordFormal kwf <- commonKeywordParameterList){
+                        c.enterScope(kwf);
+                            collect(kwf.\type, kwf.expression, c);
+                            c.fact(kwf, kwf.\type);
+                        c.leaveScope(kwf);
+                    }
                 }
             endDefineOrReuseTypeParameters(c);
        
@@ -144,27 +145,14 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
            
         // Define all fields in the outer scope of the data declaration in order to be easily found there.
         
-        for(int i <- index(formals)){
-            ta = formals[i];
-            if(ta is named){
-                fieldName = prettyPrintName(ta.name);
-                if(fieldName in declaredFieldNames) c.report(error(ta, "Double declaration of field `%v`", fieldName));
-                declaredFieldNames += fieldName;
-                fieldType = ta.\type;
-                dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = normalizedMD5Hash(currentModuleName, adtName, name, current);
-                c.define(ta.name, fieldId(), ta.name, dt);
-            }
+        for(TypeArg ta <- formals, ta is named){
+            declaredFieldNames = defineField(c, ta, fieldId(), declaredFieldNames,
+                moreHashContribs = [currentModuleName, adtName, name, current]);
         }
         
         for(KeywordFormal kwf <- kwFormals){
-            fieldName = prettyPrintName(kwf.name);
-            if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
-            declaredFieldNames += fieldName;
-            kwfType = kwf.\type;
-            dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
-            dt.md5 = normalizedMD5Hash(currentModuleName, adtName, dataCounter, name, consArity, kwfType, fieldName);
-            c.define(kwf.name, keywordFieldId(), kwf.name, dt);  
+            declaredFieldNames = defineField(c, kwf, keywordFieldId(), declaredFieldNames,
+                moreHashContribs = [currentModuleName, adtName, dataCounter, name, consArity]);
         }
     
         scope = c.getScope();
@@ -187,4 +175,20 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     } else {
         throw "collect Variant: currentAdt not found";
     }
-} 
+}
+
+private set[str] defineField(Collector c, Tree fieldDef, IdRole fieldIdRole, set[str] declaredFieldIds, list[value] moreHashContribs = []) {
+    assert fieldIdRole in {fieldId(), keywordFieldId()};
+
+    str fieldOrgId = "<fieldDef.name>";
+    str fieldId = prettyPrintName(fieldOrgId);
+    if (fieldId in declaredFieldIds) c.report(error(fieldDef, "Double declaration of field `%v`", fieldId));
+    declaredFieldIds += fieldId;
+
+    Type fieldType = fieldDef.\type;
+    DefInfo fieldDefInfo = defType([fieldType], makeFieldType(fieldId, fieldType));
+    fieldDefInfo.md5 = normalizedMD5Hash([fieldId, fieldType, *moreHashContribs]);
+
+    c.define(fieldDef.name, fieldIdRole, fieldDef, fieldDefInfo);
+    return declaredFieldIds;
+}
