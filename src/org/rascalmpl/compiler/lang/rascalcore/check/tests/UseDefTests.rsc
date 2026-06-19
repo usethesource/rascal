@@ -108,3 +108,18 @@ test bool overloadedSyntaxField(){
             && useDefOK(mtext, ("c": <1, {3}>)) // check uses of first declaration of c
             ;
 }
+
+test bool issue2193() = 
+    useDefOK("module Issue2193
+                data D(int foo = 1) = d(int bar = 2);
+                void main() {
+                    D x = d();
+                    x.foo = 16;
+                    y = x.foo;
+                }", 
+                (
+                    "D": <0, {1}>,
+                    "foo": <0, {1, 2}>,
+                    "d": <0, {1}>,
+                    "x": <0, {1, 2}>
+                ));
