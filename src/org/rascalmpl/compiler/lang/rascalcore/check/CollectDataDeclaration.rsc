@@ -54,6 +54,7 @@ int dataCounter = 0;
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Collector c){
     userType = current.user;
+    currentModuleName = str s := c.top(key_current_module) ? s : "";
     adtName = prettyPrintName(userType.name);
     
     tagsMap = getTags(tags);
@@ -80,7 +81,17 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
             beginDefineOrReuseTypeParameters(c, closed=true);
                 collect(typeParameters, c);
                 if(!isEmpty(commonKeywordParameterList)){
-                    collect(commonKeywordParameterList, c);
+                    declaredFieldNames = {};
+                    for(KeywordFormal kwf <- commonKeywordParameterList){
+                        fieldName = prettyPrintName(kwf.name);
+                        if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
+                        declaredFieldNames += fieldName;
+                        kwfType = kwf.\type;
+                        dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
+                        dt.md5 = normalizedMD5Hash(currentModuleName, adtName, kwf);
+                        c.define(kwf.name, keywordFieldId(), kwf.name, dt);  
+                    }
+                    for(kwa <- commonKeywordParameterList) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
                 }
             endDefineOrReuseTypeParameters(c);
        
