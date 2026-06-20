@@ -7,6 +7,16 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
+@synopsis{Diagnose ambiguities in Rascal parse forests.}
+@description{
+When a Rascal grammar is ambiguous, the general parser produces `amb` nodes that contain all
+valid parse trees for a given input fragment. This module provides functions to inspect such
+nodes and generate human-readable messages that suggest possible fixes — priority rules,
+associativity declarations, follow restrictions, and the `!` operator.
+
+The entry point is `diagnose`: pass it either a `Tree` value that may contain `amb` nodes,
+or the textual serialisation of such a tree (useful when working with stored parse results).
+}
 module analysis::grammars::Ambiguity
 
 import ParseTree;
@@ -17,14 +27,29 @@ import Set;
 import Grammar;
 import lang::rascal::format::Grammar;
 
+@synopsis{Find and diagnose all ambiguity clusters in a parse tree.}
+@description{
+Traverses `t` collecting every `amb` node and returns diagnostic `Message` values that
+describe the likely cause of each ambiguity and suggest grammar fixes.
+}
 public list[Message] diagnose(Tree t) {
   return [*findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
 }
 
+@synopsis{Find and diagnose all ambiguity clusters in a serialised parse tree.}
+@description{
+Parses the textual representation `amb` as a `Tree` value and delegates to `diagnose(Tree)`.
+Useful when working with stored parse results, e.g. files written by `writeTextValueFile`.
+}
 public list[Message] diagnose(str amb) {
   return diagnose(readTextValueString(#Tree, amb));
 }
 
+@synopsis{Return diagnostic messages for a single ambiguity cluster.}
+@description{
+Produces one or more `Message` values describing the cluster and calling `findCauses(Tree, Tree)`
+for every pair of alternatives in the cluster.
+}
 public list[Message] findCauses(Tree a) {
   return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a.src)]
        + [*findCauses(x, y) | [*_,Tree x,*_,Tree y, *_] := toList(a.alternatives), true /* workaround alert*/];

@@ -43,28 +43,45 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
         // TODO: this overloading collection should happen in ExtractInfo
-        res = [];
-        int i = 0;
-        while (i < size(dinfo)) {
-            int j = i + 1;
-            list[str] overloads = [];
-
-            if (dinfo[i] has name) {
-                overloads = [(isDemo && dinfo[i].fullFunction?) ? dinfo[i].fullFunction : dinfo[i].signature];
-                
-                // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
-                // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
-                // Also this looses any additional documentation tags for anything but the first overloaded declaration
-                
-                while (j < size(dinfo) && dinfo[i].name == dinfo[j].name && dinfo[j].synopsis=="" && getName(dinfo[i]) == getName(dinfo[j]) /* same kinds */) {
-                    // this loops eats the other declarations with the same name (if consecutive!)
-                    overloads += [((isDemo && dinfo[j].fullFunction?) ? dinfo[j].fullFunction : dinfo[j].signature)];
-                    j += 1;
-                }
+        //
+        // A declaration is a *secondary* overload (merged into the primary's signature list) when:
+        //   (a) another declaration with the same (kind, name) has already appeared, AND
+        //   (b) it carries no @synopsis of its own.
+        // A declaration with a @synopsis always gets its own entry (primary), even if another
+        // primary with the same name exists.
+        //
+        // Pre-pass: collect secondary signatures per (kind, name) so that non-consecutive
+        // overloads separated by helper functions are not missed (fixes the consecutive-only bug).
+        map[tuple[str,str], list[str]] secondarySigs = ();
+        set[tuple[str,str]] seenInPrepass = {};
+        for (DeclarationInfo d <- dinfo, d has name) {
+            tuple[str,str] key = <getName(d), d.name>;
+            if (key in seenInPrepass && d.synopsis == "") {
+                str sig = (isDemo && d.fullFunction?) ? d.fullFunction : d.signature;
+                secondarySigs[key] = (secondarySigs[key] ? []) + [sig];
             }
+            seenInPrepass += {key};
+        }
 
-            res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : [], isDemo);
-            i = j;
+        // Emit pass: primaries are emitted with their collected secondary signatures appended;
+        // secondaries are skipped.
+        // Note: documentation tags on secondary overloads are still not surfaced — fixing that
+        // requires merging them in ExtractInfo before this stage.
+        set[tuple[str,str]] emitted = {};
+        res = [];
+        for (DeclarationInfo d <- dinfo) {
+            if (d has name) {
+                tuple[str,str] key = <getName(d), d.name>;
+                bool isSecondary = key in emitted && d.synopsis == "";
+                if (!isSecondary) {
+                    str sig = (isDemo && d.fullFunction?) ? d.fullFunction : d.signature;
+                    list[str] overloads = [sig] + (secondarySigs[key] ? []);
+                    res += declInfo2Doc(parent, d, overloads, pcfg, exec, ind, d is moduleInfo ? dtls : [], isDemo);
+                    emitted += {key};
+                }
+            } else {
+                res += declInfo2Doc(parent, d, [], pcfg, exec, ind, d is moduleInfo ? dtls : [], isDemo);
+            }
         }
 
         if (tests != []) {

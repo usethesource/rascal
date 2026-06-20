@@ -26,8 +26,10 @@ list[Output] prepareModuleForInclusion(str moduleName, bool includeHeaders, bool
 
       if (!includeHeaders) {
         moduleTree = visit(moduleTree) {
-          // TODO: this filters tags of everything, not just the top.
-            case Tags _ => (Tags) ``
+          case (Header) `<Tags _> module <QualifiedName name> <ModuleParameters params> <Import* imports>` =>
+               (Header) `module <QualifiedName name> <ModuleParameters params> <Import* imports>`
+          case (Header) `<Tags _> module <QualifiedName name> <Import* imports>` =>
+               (Header) `module <QualifiedName name> <Import* imports>`
         }
       }
       

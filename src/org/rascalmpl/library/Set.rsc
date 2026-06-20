@@ -60,7 +60,7 @@ Create a map from animals to number of legs.
 ```rascal-shell,continue
 legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millipede": 1000, "crab": 8, "cat": 4);
 ```
-Define function `nLegs` that returns the number of legs fro each animal (or `0` when the animal is unknown):
+Define function `nLegs` that returns the number of legs for each animal (or `0` when the animal is unknown):
 ```rascal-shell,continue
 int nLegs(str animal){
     return legs[animal] ? 0;
@@ -71,7 +71,6 @@ Now group a set of animals:
 ```rascal-shell,continue
 group({"bird", "dog", "human", "spider", "millipede", "zebra", "crab", "cat"}, similar);
 ```
-WARNING: check compiler.
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
   sinput = sort(input, bool (&T a, &T b) { return similar(a,b) ? false : a < b ; } );
