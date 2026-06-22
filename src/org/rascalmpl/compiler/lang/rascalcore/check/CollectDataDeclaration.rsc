@@ -178,17 +178,21 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
 }
 
 private set[str] defineField(Collector c, Tree fieldDef, IdRole fieldIdRole, set[str] declaredFieldIds, list[value] moreHashContribs = []) {
-    assert fieldIdRole in {fieldId(), keywordFieldId()};
+    if ((TypeArg) `<Type fieldType> <Name name>` := fieldDef ||
+        (KeywordFormal) `<Type fieldType> <Name name> = <Expression _>` := fieldDef) {
 
-    str fieldOrgId = "<fieldDef.name>";
-    str fieldId = prettyPrintName(fieldOrgId);
-    if (fieldId in declaredFieldIds) c.report(error(fieldDef, "Double declaration of field `%v`", fieldId));
-    declaredFieldIds += fieldId;
+        str fieldOrgId = "<name>";
+        str fieldId = prettyPrintName(fieldOrgId);
+        if (fieldId in declaredFieldIds) c.report(error(fieldDef, "Double declaration of field `%v`", fieldId));
+        declaredFieldIds += fieldId;
 
-    Type fieldType = fieldDef.\type;
-    DefInfo fieldDefInfo = defType([fieldType], makeFieldType(fieldId, fieldType));
-    fieldDefInfo.md5 = normalizedMD5Hash([fieldId, fieldType, *moreHashContribs]);
+        DefInfo fieldDefInfo = defType([fieldType], makeFieldType(fieldId, fieldType));
+        fieldDefInfo.md5 = normalizedMD5Hash([fieldId, fieldType, *moreHashContribs]);
 
-    c.define(fieldDef.name, fieldIdRole, fieldDef, fieldDefInfo);
+        c.define(name, fieldIdRole, fieldDef, fieldDefInfo);
+    } else {
+        throw "Cannot define field: `<fieldDef>`";
+    }
+
     return declaredFieldIds;
 }
