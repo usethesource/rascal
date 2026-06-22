@@ -123,3 +123,29 @@ test bool issue2193() =
                     "d": <0, {1}>,
                     "x": <0, {1, 2}>
                 ));
+
+test bool issue2193Regression1(){
+    mtext = "module Issue2193Regression1
+                data D = d(int i);
+                data E(D d = d(5));";
+    return useDefOK(mtext, ("d": <0, {2}>)) // check uses of first declaration of d
+        && useDefOK(mtext, ("d": <1, {}>))  // check uses of second declaration of d
+        && useDefOK(mtext, (
+            "D": <0, {1}>,
+            "i": <0, {}>,
+            "E": <0, {}>
+        ));
+}
+
+test bool issue2193Regression2(){
+    mtext = "module Issue2193Regression1
+                data E(D d = d(5));
+                data D = d(int i);";
+    return useDefOK(mtext, ("d": <0, {}>))  // check uses of first declaration of d
+        && useDefOK(mtext, ("d": <2, {1}>)) // check uses of second declaration of d
+        && useDefOK(mtext, (
+            "E": <0, {}>,
+            "D": <1, {0}>,
+            "i": <0, {}>
+        ));
+}

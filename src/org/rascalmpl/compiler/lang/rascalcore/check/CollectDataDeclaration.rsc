@@ -76,30 +76,36 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     c.define(userType.name, dataId(), current, dt);
        
     adtParentScope = c.getScope();
-    c.enterScope(current);
-        c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
-            beginDefineOrReuseTypeParameters(c, closed=true);
-                collect(typeParameters, c);
-                if(!isEmpty(commonKeywordParameterList)){
+
+    c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
+        NestedScopes nestedScopes = newNestedScopes(c);
+        beginDefineOrReuseTypeParameters(c, closed=true);
+            collect(typeParameters, c);
+            if(!isEmpty(commonKeywordParameterList)){
+                nestedScopes.enter(current.commonKeywordParameters);
                     declaredFieldNames = {};
                     for(KeywordFormal kwf <- commonKeywordParameterList){
-                        declaredFieldNames = defineField(c, kwf, keywordFieldId(), declaredFieldNames,
-                            moreHashContribs = [currentModuleName, adtName]);
-                    }
-
-                    for(KeywordFormal kwf <- commonKeywordParameterList){
-                        c.enterScope(kwf);
-                            collect(kwf.\type, kwf.expression, c);
+                        // Collect default expression (of current common keyword
+                        // field) in outer scope
+                        collect(kwf.\type, kwf.expression, c);
+                        // Define current common keyword field, and collect
+                        // next common keyword fields (in subsequent iterations,
+                        // if any), in inner scope(s)
+                        nestedScopes.enter(kwf);
+                            declaredFieldNames = defineField(
+                                c, kwf, keywordFieldId(), declaredFieldNames,
+                                moreHashContribs = [currentModuleName, adtName]);
                             c.fact(kwf, kwf.\type);
-                        c.leaveScope(kwf);
                     }
-                }
-            endDefineOrReuseTypeParameters(c);
-       
-            // visit all the variants in the parent scope of the data declaration
+            }
+        endDefineOrReuseTypeParameters(c);
+        // Note: Don't leave scopes of common keyword fields yet, so they are
+        // accessible in the variants.
+
+        nestedScopes.enter(current);
             collect(variants, c);
-        c.pop(currentAdt);
-    c.leaveScope(current);
+        nestedScopes.leaveAll();
+    c.pop(currentAdt);
 }
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
@@ -175,6 +181,29 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     } else {
         throw "collect Variant: currentAdt not found";
     }
+}
+
+private alias NestedScopes = tuple[void(Tree) enter, void() leaveAll];
+
+private NestedScopes newNestedScopes(Collector c) {
+    str state = "ENTERING";
+    list[Tree] nestedScopes = [];
+
+    void enter(Tree t) {
+        assert state == "ENTERING";
+        c.enterScope(t);
+        nestedScopes += t;
+    }
+
+    void leaveAll() {
+        assert state == "ENTERING";
+        state = "LEAVING";
+        for (Tree t <- reverse(nestedScopes)) {
+            c.leaveScope(t);
+        };
+    }
+
+    return <enter, leaveAll>;
 }
 
 private set[str] defineField(Collector c, Tree fieldDef, IdRole fieldIdRole, set[str] declaredFieldIds, list[value] moreHashContribs = []) {
