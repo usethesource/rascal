@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Collections;
+import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
@@ -49,7 +50,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
 		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
@@ -82,12 +83,12 @@ public class ParserGenerator {
 		}
 	}
 	
-	private void debugOutput(Object thing, String file) {
+	private void debugOutput(String kind, Object thing, String file) {
 		if (debug) {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
-			    System.err.println("Writing parser to " + file);
+			    System.err.println("Writing " + kind + " to " + file);
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
 				s.flush();
@@ -153,16 +154,20 @@ public class ParserGenerator {
 		}
 
 		synchronized (evaluator) {
-			return ((IString) evaluator.call((IRascalMonitor) null, "getParserMethodName", symbol)).getValue();
+			// TODO we assume here this is a context-free non-terminal for now. 
+			// Later with the syntax role modifiers we can implement parsing for lexical regulars too
+			Map<String,IValue> kwArgs = Map.of("withLayout", vf.bool(true));
+			return ((IString) evaluator.call("getParserMethodName", "lang::rascal::grammar::ParserGenerator", kwArgs, symbol)).getValue();
 		}
 	}
 	
 	/**
 	 * Converts the parse tree of a symbol to a UPTR symbol
 	 */
-	public IConstructor symbolTreeToSymbol(IConstructor symbol) {
+	public IConstructor symbolTreeToSymbol(IConstructor symbol, boolean withLayout) {
 		synchronized (evaluator) {
-	  		return (IConstructor) evaluator.call((IRascalMonitor) null,"sym2symbol", symbol);
+			Map<String,IValue> kws = Map.of("withLayout", vf.bool(withLayout));
+	  		return (IConstructor) evaluator.call("sym2symbol", "lang::rascal::grammar::definition::Symbols", kws, symbol);
 		}
 	}
 	
@@ -183,7 +188,7 @@ public class ParserGenerator {
 				profiler.start();
 			}
 			IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
-			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
+			debugOutput("grammar", grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
 		} 
 		catch (ClassCastException e) {
@@ -219,7 +224,7 @@ public class ParserGenerator {
 			synchronized (evaluator) {
 				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 			}
-			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+			debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
@@ -248,7 +253,7 @@ public class ParserGenerator {
 		synchronized (evaluator) {
 			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		}
-		debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+		debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 		
 		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
 	} catch (ClassCastException e) {

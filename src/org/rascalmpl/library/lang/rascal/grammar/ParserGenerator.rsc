@@ -12,34 +12,41 @@
 module lang::rascal::grammar::ParserGenerator
 
 import Grammar;
-import lang::rascal::grammar::definition::Parameters;
-import lang::rascal::grammar::definition::Regular;
-import lang::rascal::grammar::definition::Productions;
-import lang::rascal::grammar::definition::Modules;
-import lang::rascal::grammar::definition::Priorities;
-import lang::rascal::grammar::definition::Literals;
-import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::definition::Keywords;
-import lang::rascal::grammar::Lookahead;
-
-import util::Monitor;
-import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::ConcreteSyntax;
-import ParseTree;
-import String;
+import IO;
 import List;
 import Node;
+import ParseTree;
 import Set;
+import String;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::ConcreteSyntax;
+import lang::rascal::grammar::Lookahead;
+import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Priorities;
+import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Symbols;
+import util::Monitor;
   
 // TODO: replace this complex data structure with several simple ones
 alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
 data Symbol(int id = 0, str prefix = "");
 
-public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
-str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
-str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
-default str getParserMethodName(Symbol s) = value2id(s);
+str getParserMethodName(Sym sym, bool withLayout=false)                   
+    = getParserMethodName(sym2symbol(sym, withLayout=withLayout)) when bprintln("<sym> becomes <sym2symbol(sym, withLayout=withLayout)>");
+
+str getParserMethodName(label(_,Symbol s), bool withLayout=false)         
+    = getParserMethodName(s, withLayout=withLayout);
+
+str getParserMethodName(conditional(Symbol s, _), bool withLayout=false)  
+    = getParserMethodName(s, withLayout=withLayout);
+
+default str getParserMethodName(Symbol s, bool withLayout=false)          
+    = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
     return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
@@ -239,7 +246,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '
            '  // Parse methods    
-           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { println(nont); >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
     }, totalWork=9);      
@@ -363,6 +370,17 @@ bool isNonterminal(Symbol s) {
     case Symbol::\parameterized-lex(_,_) : return true;
     case Symbol::\start(_) : return true;
     case Symbol::\layouts(_) : return true;
+
+    // regulars too from now on:
+    case Symbol::\iter(_) : return true;
+    case Symbol::\iter-star(_) : return true;
+    case Symbol::\iter-seps(_,_) : return true;
+    case Symbol::\iter-star-seps(_,_) : return true;
+    case Symbol::seq(_) : return true; 
+    case Symbol::opt(_) : return true;
+    case Symbol::alt(_) : return true;
+    case Symbol::empty() : return true;
+
     default: return false;
   }
 }
@@ -606,8 +624,14 @@ default str v2i(value v) {
         case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
-        case layouts(str x) : return "layouts_<escId(x)>";
+        case layouts(str x) : return "layouts_<x>";
         case conditional(Symbol s,_) : return v2i(s);
+        case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
+        case \iter-star-seps(Symbol s, [_]) : return "_iter_star_seps_<v2i(s)>";
+        case \iter-seps(Symbol s, [_,Symbol sep,_]) : return "_iter_seps_<v2i(s)>";
+        case \iter-star-seps(Symbol s, [_, Symbol sep, _]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>_";
+        case \seq([Symbol first, layouts(_), *Symbol next]) : return "seq_<uu([first, *[elem | elem <- next[0,2..]]])>";
+        case \seq(list[Symbol] args) : return "seq_<uu([elem | elem <- args[1,3..]])>";
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";

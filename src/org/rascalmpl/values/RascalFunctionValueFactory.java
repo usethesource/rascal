@@ -402,13 +402,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         return result;
     }
 
-    public IConstructor sym2symbol(ITree parsedSym) {
+    public IConstructor sym2symbol(ITree parsedSym, boolean withLayout) {
         if ("nonterminal".equals(TreeAdapter.getConstructorName(parsedSym))) {
             String nonterminalName = TreeAdapter.yield(parsedSym);
             return constructor(Symbol_Sort, string(nonterminalName));
         }
         
-        return getParserGenerator().symbolTreeToSymbol(parsedSym);
+        return getParserGenerator().symbolTreeToSymbol(parsedSym, withLayout);
     }
       
     private static IConstructor checkPreconditions(IValue start, Type reified) {
