@@ -49,7 +49,7 @@ public class ParserGenerator {
 	private final Evaluator evaluator;
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
-	private static final String packageName = "org.rascalmpl.java.parser.object";
+	private static final String packageName = "org.rascalmpl.test.parser";
 	private static final boolean debug = true;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
@@ -227,7 +227,7 @@ public class ParserGenerator {
 			synchronized (evaluator) {
 				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 			}
-			debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+			debugOutput("java code", classString.getValue(), "./test/org/rascalmpl/test/parser/" + normName + ".java");
 			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {

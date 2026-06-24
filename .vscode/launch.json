@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "$GENERATED_PARSER$244372483",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.$GENERATED_PARSER$244372483",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "$GENERATED_PARSER$279786030",
             "request": "launch",
             "mainClass": "org.rascalmpl.test.parser.$GENERATED_PARSER$279786030",

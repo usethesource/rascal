@@ -115,6 +115,8 @@ public str newGenerate(str package, str name, Grammar gr) {
            '
            'import java.io.IOException;
            'import java.io.StringReader;
+           'import java.io.PrintWriter;
+           'import java.util.function.Supplier;
            '
            'import io.usethesource.vallang.type.TypeFactory;
            'import io.usethesource.vallang.IConstructor;
@@ -123,6 +125,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import io.usethesource.vallang.IValueFactory;
            'import io.usethesource.vallang.exceptions.FactTypeUseException;
            'import io.usethesource.vallang.io.StandardTextReader;
+           'import io.usethesource.vallang.io.StandardTextWriter;
            'import org.rascalmpl.parser.gtd.stack.*;
            'import org.rascalmpl.parser.gtd.stack.filter.*;
            'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
@@ -133,8 +136,11 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.ValueFactoryFactory;
+           'import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+           'import org.rascalmpl.parser.uptr.UPTRNodeFactory;
            'import org.rascalmpl.values.RascalValueFactory;
            'import org.rascalmpl.values.parsetrees.ITree;
+           'import org.rascalmpl.values.parsetrees.TreeAdapter;
            '
            '@SuppressWarnings(\"all\")
            'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
@@ -270,6 +276,25 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  // Parse methods    
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { uniqueItem = uniqueItem + 1; >
            '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)], uniqueItem)><}>
+           '
+           '  // Debugging utilities
+           '  private ITree test(Supplier\<AbstractStackNode[]\> method, String example) throws Throwable {
+           '    return parse(method.get()[0], null, example.toCharArray(), new DefaultNodeFlattener\<IConstructor, ITree, ISourceLocation\>(), new UPTRNodeFactory(true));
+           '  }
+           '
+           '  public static void main(String[] args) throws Throwable {
+           '      var p = new <name>();
+           '
+           '      String input = \"???\";
+           '      Supplier\<AbstractStackNode[]\> nont = p::<if (Symbol nont <- gr.rules.sort) {><getParserMethodName(nont)><}>;
+           '
+           '      var output = p.test(nont, input);
+           '
+           '      System.err.println(\"parse tree:\");
+           '      new StandardTextWriter(true).write(output, new PrintWriter(System.err));
+           '      System.err.println(\"\\nyield:\");
+           '      System.err.println(TreeAdapter.yield(output));
+           '  }
            '}";
     }, totalWork=9);      
 }  
@@ -417,7 +442,7 @@ public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(d
 // TODO: here we have to work if we also want regular lexical non-terminals at the top
   =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
          '    return new AbstractStackNode[] { 
-         '        <sym2newitem(g, def[id=id], 0).new>
+         '        <sym2newitem(g, def, 0).new>
          '    };
          '}";
 
@@ -655,8 +680,8 @@ default str v2i(value v) {
     switch (v) {
         case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
-        case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
-        case layouts(str x) : return  "$anylayout$";
+        case label(str _x, Symbol u) : return escId(x) + "_" + v2i(u);
+        case layouts(str _) : return  "$anylayout$";
         case conditional(Symbol s,_) : return v2i(s);
         case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
         case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";
