@@ -46,7 +46,7 @@ str getParserMethodName(conditional(Symbol s, _), bool withLayout=false)
     = getParserMethodName(s, withLayout=withLayout);
 
 default str getParserMethodName(Symbol s, bool withLayout=false)          
-    = value2id(s);
+    = "parse_<value2id(s)>";
 
 public str newGenerate(str package, str name, Grammar gr) {	
     return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
@@ -225,6 +225,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    static{
            '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_dontNest, _resultStoreIdMappings);
            '      init(builder);
+          '       EXPECTS = builder.buildExpectArray();
            '    }
            '
            '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
@@ -240,9 +241,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '        _init_<id>(builder);
            '      <}>
            '    }
-           '   
-           '    
-          
+           '
            '  }<}>
            '
            '  private int nextFreeStackNodeId = <newItem()>;
@@ -390,12 +389,20 @@ bool isNonterminal(Symbol s) {
   }
 }
 
-public str generateParseMethod(Grammar g, Items _, Production p) {
-  return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
-         '  <if (regular(_) !:= p) {>return <sym2name(p.def)>.EXPECTS;<}>
-         '  <if (regular(_) := p) {>return new AbstractStackNode\<IConstructor\>[] { <sym2newitem(g, p.def, 0)>; } <}>
+public default str generateParseMethod(Grammar g, Items _, Production p) 
+    =    "public AbstractStackNode\<IConstructor\>[] parse_<sym2name(p.def)>() {
+         '    return <sym2name(p.def)>.EXPECTS;
          '}";
-}
+
+
+public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)})) 
+  =      "public AbstractStackNode\<IConstructor\>[] parse_<sym2name(def)>() {
+         '    return new AbstractStackNode[] { 
+         '        <sym2newitem(g, def, 0).new>
+         '    };
+         '}";
+
+
 
 str generateClassConditional(set[Symbol] classes) {
   if (eoi() in classes) {

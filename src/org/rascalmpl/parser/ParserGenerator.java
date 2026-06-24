@@ -50,7 +50,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
 		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
@@ -88,7 +88,7 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
-			    evaluator.getErrorPrinter().println("Writing " + kind + " to " + file);
+			    evaluator.getErrorPrinter().println("\nWriting " + kind + " to " + file);
 
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
@@ -145,13 +145,13 @@ public class ParserGenerator {
 
 		switch (symbol.getName()) {
 			case "start":
-				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+				return "parse_start__" + getParserMethodName(SymbolAdapter.getStart(symbol)).substring("parse_".length());
 			case "layouts":
-				return "layouts_" + SymbolAdapter.getName(symbol);
+				return "parse_layouts_" + SymbolAdapter.getName(symbol);
 			case "sort":
 			case "lex":
 			case "keywords":
-				return SymbolAdapter.getName(symbol);
+				return "parse_" + SymbolAdapter.getName(symbol);
 		}
 
 		synchronized (evaluator) {

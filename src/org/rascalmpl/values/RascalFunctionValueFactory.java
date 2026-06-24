@@ -256,13 +256,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
 		switch (symbol.getName()) {
 			case "start":
-				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+				return "parse_start__" + getParserMethodName(SymbolAdapter.getStart(symbol)).substring("parse_".length());
 			case "layouts":
 				return "layouts_" + SymbolAdapter.getName(symbol);
 			case "sort":
 			case "lex":
 			case "keywords":
-				return SymbolAdapter.getName(symbol);
+				return "parse_" + SymbolAdapter.getName(symbol);
 		}
 
         return null;
