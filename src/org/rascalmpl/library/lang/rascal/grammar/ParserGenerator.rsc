@@ -237,7 +237,7 @@ public str newGenerate(str package, str name, Grammar gr) {
 		       }
 	         }>
            '	
-           '  protected static class <value2id(s)> {
+           '  protected static class <getParserMethodName(s)> {
            '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
            '
            '    static{
@@ -409,7 +409,7 @@ bool isNonterminal(Symbol s) {
 
 public default str generateParseMethod(Grammar g, Items _, Production p, int _) 
     =    "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(p.def)>() {
-         '    return <sym2name(p.def)>.EXPECTS;
+         '    return <getParserMethodName(p.def)>.EXPECTS;
          '}";
 
 
@@ -570,7 +570,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
-        case Symbol::\start(_) : 
+        case Symbol::\start(_) :
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, <getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
