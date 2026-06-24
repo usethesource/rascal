@@ -145,13 +145,15 @@ public class ParserGenerator {
 
 		switch (symbol.getName()) {
 			case "start":
-				return "parse_start__" + getParserMethodName(SymbolAdapter.getStart(symbol)).substring("parse_".length());
+				return "$start_" + getParserMethodName(SymbolAdapter.getStart(symbol));
 			case "layouts":
-				return "parse_layouts_" + SymbolAdapter.getName(symbol);
+				return "$l_" + SymbolAdapter.getName(symbol);
 			case "sort":
+				return "$s_" + SymbolAdapter.getName(symbol);
 			case "lex":
+				return "$l_" + SymbolAdapter.getName(symbol);
 			case "keywords":
-				return "parse_" + SymbolAdapter.getName(symbol);
+				return "$k_" + SymbolAdapter.getName(symbol);
 		}
 
 		synchronized (evaluator) {

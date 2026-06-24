@@ -39,19 +39,37 @@ data Symbol(int id = 0, str prefix = "");
 str getParserMethodName(Sym sym, bool withLayout=false)                   
     = getParserMethodName(sym2symbol(sym, withLayout=withLayout));
 
+str getParserMethodName(\start(sort(str name)), bool withLayout=false)         
+    = "$start_$s_<name>";
+
+str getParserMethodName(layouts(str name), bool withLayout=false)         
+    = "$l_<name>";
+
+str getParserMethodName(sort(str name), bool withLayout=false)         
+    = "$s_<name>";
+
+str getParserMethodName(lex(str name), bool withLayout=false)         
+    = "$l_<name>";
+
+str getParserMethodName(keywords(str name), bool withLayout=false)         
+    = "$k_<name>";
+
 str getParserMethodName(label(_,Symbol s), bool withLayout=false)         
     = getParserMethodName(s, withLayout=withLayout);
 
 str getParserMethodName(conditional(Symbol s, _), bool withLayout=false)  
     = getParserMethodName(s, withLayout=withLayout);
 
+str getParserMethodName(Symbol s, bool withLayout=false)          
+    = "regular_<value2id(s)>" when s is iter || s is \iter-seps || s is \iter-star || s is \iter-star-seps || s is opt || s is seq || s is empty;
+
 default str getParserMethodName(Symbol s, bool withLayout=false)          
-    = "parse_<value2id(s)>";
+    = "<value2id(s)>";
 
 public str newGenerate(str package, str name, Grammar gr) {	
     return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
-    int newItem() { uniqueItem += 1; return uniqueItem; };
+    int newItem() { uniqueItem += 2; return uniqueItem; }; // we use only the odd numbers to reserve the even numbers for top-level regular prods
   
     worked("expanding parameterized symbols", 1);
     gr = expandParameterizedSymbols(gr);
@@ -250,8 +268,8 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '
            '  // Parse methods    
-           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) {>
-           '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)])><}>
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { uniqueItem = uniqueItem + 1; >
+           '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)], uniqueItem)><}>
            '}";
     }, totalWork=9);      
 }  
@@ -389,16 +407,17 @@ bool isNonterminal(Symbol s) {
   }
 }
 
-public default str generateParseMethod(Grammar g, Items _, Production p) 
-    =    "public AbstractStackNode\<IConstructor\>[] parse_<sym2name(p.def)>() {
+public default str generateParseMethod(Grammar g, Items _, Production p, int _) 
+    =    "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(p.def)>() {
          '    return <sym2name(p.def)>.EXPECTS;
          '}";
 
 
-public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)})) 
-  =      "public AbstractStackNode\<IConstructor\>[] parse_<sym2name(def)>() {
+public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)}), int id) 
+// TODO: here we have to work if we also want regular lexical non-terminals at the top
+  =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
          '    return new AbstractStackNode[] { 
-         '        <sym2newitem(g, def, 0).new>
+         '        <sym2newitem(g, def[id=id], 0).new>
          '    };
          '}";
 
@@ -536,23 +555,23 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     
     switch (sym) {
         case Symbol::\sort(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\empty() : 
             return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
         case Symbol::\lex(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\keywords(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\layouts(_) :
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameterized-sort(_,_): 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameterized-lex(_,_): 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
         case Symbol::\start(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, <getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
@@ -637,7 +656,7 @@ default str v2i(value v) {
         case \start(Symbol s) : return "start__<v2i(s)>";
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
-        case layouts(str x) : return "layouts_<x>";
+        case layouts(str x) : return  "$anylayout$";
         case conditional(Symbol s,_) : return v2i(s);
         case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
         case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";

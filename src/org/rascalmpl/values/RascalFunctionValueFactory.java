@@ -242,6 +242,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         String name = getParserMethodName(startSort);
         if (name == null) {
+            // this method duplication is to avoid loading a parser generator we might not need
             name = generator.getParserMethodName(startSort);
         }
 
@@ -254,15 +255,17 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 		// where many calls into the evaluator/parser are fired in rapid
 		// succession.
 
-		switch (symbol.getName()) {
+        switch (symbol.getName()) {
 			case "start":
-				return "parse_start__" + getParserMethodName(SymbolAdapter.getStart(symbol)).substring("parse_".length());
+				return "$start_" + getParserMethodName(SymbolAdapter.getStart(symbol));
 			case "layouts":
-				return "layouts_" + SymbolAdapter.getName(symbol);
+				return "$l_" + SymbolAdapter.getName(symbol);
 			case "sort":
+				return "$s_" + SymbolAdapter.getName(symbol);
 			case "lex":
+				return "$l_" + SymbolAdapter.getName(symbol);
 			case "keywords":
-				return "parse_" + SymbolAdapter.getName(symbol);
+				return "$k_" + SymbolAdapter.getName(symbol);
 		}
 
         return null;
