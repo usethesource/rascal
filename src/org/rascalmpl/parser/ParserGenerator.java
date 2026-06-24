@@ -50,7 +50,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
 		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
@@ -88,7 +88,8 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
-			    System.err.println("Writing " + kind + " to " + file);
+			    evaluator.getErrorPrinter().println("Writing " + kind + " to " + file);
+
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
 				s.flush();

@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "$GENERATED_PARSER$279786030",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.$GENERATED_PARSER$279786030",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "TopLevelStarListEmpty",
             "request": "launch",
             "mainClass": "org.rascalmpl.test.parser.TopLevelStarListEmpty",

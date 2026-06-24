@@ -37,7 +37,7 @@ alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 data Symbol(int id = 0, str prefix = "");
 
 str getParserMethodName(Sym sym, bool withLayout=false)                   
-    = getParserMethodName(sym2symbol(sym, withLayout=withLayout)) when bprintln("<sym> becomes <sym2symbol(sym, withLayout=withLayout)>");
+    = getParserMethodName(sym2symbol(sym, withLayout=withLayout));
 
 str getParserMethodName(label(_,Symbol s), bool withLayout=false)         
     = getParserMethodName(s, withLayout=withLayout);
@@ -221,11 +221,12 @@ public str newGenerate(str package, str name, Grammar gr) {
            '	
            '  protected static class <value2id(s)> {
            '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
+           '
            '    static{
            '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_dontNest, _resultStoreIdMappings);
            '      init(builder);
-           '      EXPECTS = builder.buildExpectArray();
            '    }
+           '
            '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
@@ -233,11 +234,15 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
+           '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
            '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
+           '   
+           '    
+          
            '  }<}>
            '
            '  private int nextFreeStackNodeId = <newItem()>;
@@ -246,8 +251,8 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '
            '  // Parse methods    
-           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { println(nont); >
-           '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) {>
+           '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)])><}>
            '}";
     }, totalWork=9);      
 }  
@@ -385,9 +390,10 @@ bool isNonterminal(Symbol s) {
   }
 }
 
-public str generateParseMethod(Items _, Production p) {
+public str generateParseMethod(Grammar g, Items _, Production p) {
   return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
-         '  return <sym2name(p.def)>.EXPECTS;
+         '  <if (regular(_) !:= p) {>return <sym2name(p.def)>.EXPECTS;<}>
+         '  <if (regular(_) := p) {>return new AbstractStackNode\<IConstructor\>[] { <sym2newitem(g, p.def, 0)>; } <}>
          '}";
 }
 
@@ -627,8 +633,8 @@ default str v2i(value v) {
         case layouts(str x) : return "layouts_<x>";
         case conditional(Symbol s,_) : return v2i(s);
         case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
-        case \iter-star-seps(Symbol s, [_]) : return "_iter_star_seps_<v2i(s)>";
-        case \iter-seps(Symbol s, [_,Symbol sep,_]) : return "_iter_seps_<v2i(s)>";
+        case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";
+        case \iter-seps(Symbol s, [_,Symbol sep,_]) : return "_iter_seps_<v2i(s)>_<v2i(sep)>";
         case \iter-star-seps(Symbol s, [_, Symbol sep, _]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>_";
         case \seq([Symbol first, layouts(_), *Symbol next]) : return "seq_<uu([first, *[elem | elem <- next[0,2..]]])>";
         case \seq(list[Symbol] args) : return "seq_<uu([elem | elem <- args[1,3..]])>";
