@@ -133,6 +133,7 @@ public class ModuleEnvironment extends Environment {
 		importedModules.replaceAll((k, v) -> Optional.empty());
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 
 	/**
@@ -382,12 +383,14 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 
 	void removeModule(String name) {
 		importedModules.computeIfPresent(name, (k, v) -> Optional.empty());
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public void addExtend(String name) {
@@ -397,6 +400,7 @@ public class ModuleEnvironment extends Environment {
 		extended.add(name);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public List<AbstractFunction> getTests() {
@@ -453,6 +457,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 	
 	public void unExtend(String moduleName) {
@@ -884,24 +889,44 @@ public class ModuleEnvironment extends Environment {
 		return result.get();
 	}
 
+	private List<ModuleEnvironment> cachedImportedModulesResolved = null;
+
 	private Iterable<ModuleEnvironment> importedModulesResolved = 
-		() -> new Iterator<ModuleEnvironment>() {
-			Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-			@Override
-			public ModuleEnvironment next() {
-				var entry = iterator.next();
+		() -> getCachedImportedModulesResolved().iterator();
+		// () -> new Iterator<ModuleEnvironment>() {
+		// 	Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
+		// 	@Override
+		// 	public boolean hasNext() {
+		// 		return iterator.hasNext();
+		// 	}
+		// 	@Override
+		// 	public ModuleEnvironment next() {
+		// 		var entry = iterator.next();
+		// 		var result = entry.getValue();
+		// 		if (result.isEmpty()) {
+		// 			result = Optional.ofNullable(heap.getModule(entry.getKey()));
+		// 			entry.setValue(result);
+		// 		}
+		// 		return result.orElse(null);
+		// 	}
+		// };
+
+	private List<ModuleEnvironment> getCachedImportedModulesResolved() {
+		if (cachedImportedModulesResolved == null) {
+			cachedImportedModulesResolved = new ArrayList<>();
+			for (Entry<String, Optional<ModuleEnvironment>> entry : importedModules.entrySet()) {
 				var result = entry.getValue();
 				if (result.isEmpty()) {
 					result = Optional.ofNullable(heap.getModule(entry.getKey()));
 					entry.setValue(result);
 				}
-				return result.orElse(null);
+				if (result.isPresent()) {
+					cachedImportedModulesResolved.add(result.get());
+				}
 			}
-		};
+		}
+		return cachedImportedModulesResolved;
+	}
 	
 	@Override
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
