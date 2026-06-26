@@ -75,8 +75,6 @@ default bool asubtype(AType l, AType r){
             return asubtype(l, aliased);
         case \start(AType t):
             return asubtype(l, t);
-        case aprod(p):
-            return asubtype(l, p.def);
         case \iter(AType t):
             return asubtype(l, t);
         case \iter-star(AType t):
@@ -194,22 +192,6 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
              return asubtype(a, b) && comparableList(ap, bp);
         case \start(AType t):
             return asubtype(ac, t);
-        case avalue():
-            return true;
-    }
-    fail;
-}
-
-bool asubtype(ap: aprod(AProduction p), AType b){
-    switch(b){
-        case aprod(AProduction q):
-            return asubtype(p.def, q.def);
-        case \start(AType t):
-            return asubtype(ap, t);
-        case conditional(AType t, _):
-            return asubtype(ap, t);
-        case AType t:
-            return asubtype(p.def, t);
         case avalue():
             return true;
     }
