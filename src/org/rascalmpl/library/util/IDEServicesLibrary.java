@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -30,11 +30,12 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
 public class IDEServicesLibrary {
-    private final REPLContentServerManager contentManager = new REPLContentServerManager();
+    private final REPLContentServerManager contentManager;
     private final IDEServices services;
 
-    public IDEServicesLibrary(IDEServices services) {
+    public IDEServicesLibrary(IDEServices services, IRascalValueFactory vf) {
         this.services = services;
+        this.contentManager = new REPLContentServerManager(vf, services); 
     }
 
     public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
@@ -64,17 +65,17 @@ public class IDEServicesLibrary {
 
             if (provider.has("id")) {
                 id = ((IString) provider.get("id")).getValue();
-                target = (r) -> ((IFunction) provider.get("callback")).call(r);
+                target = req -> ((IFunction) provider.get("callback")).call(req);
             } else {
                 id = "*static content*";
-                target = (r) -> provider.get("response");
+                target = req -> provider.get("response");
             }
 
             // this installs the provider such that subsequent requests are handled.
             REPLContentServer contentServer = contentManager.addServer(id, target);
 
             browse(
-                URIUtil.correctLocation("http", "localhost:" + contentServer.getListeningPort(), "/"),
+                URIUtil.correctLocation("http", "localhost:" + contentServer.getPort(), "/"),
                 title.length() == 0? IRascalValueFactory.getInstance().string(id) : title,
                 viewColumn);
         }

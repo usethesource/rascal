@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.jline.reader.EndOfFileException;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -18,7 +19,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
-import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.INotebookOutput;
@@ -84,7 +85,7 @@ public class TermREPL {
         if (term == null) {
             throw RuntimeExceptionFactory.io("No terminal found in IDE service, we cannot allocate a REPL");
         }
-        lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace);
+        lang = new TheREPL(vf, eval.getEvaluator().getMonitor(), title, welcome, prompt, quit, history, handler, completor, stacktrace);
 
         BaseREPL baseRepl;
         try {
@@ -116,7 +117,7 @@ public class TermREPL {
     }
 
     public static class TheREPL implements ILanguageProtocol {
-        private final REPLContentServerManager contentManager = new REPLContentServerManager();
+        private final REPLContentServerManager contentManager;
         private final TypeFactory tf = TypeFactory.getInstance();
         private PrintWriter stdout;
         private PrintWriter stderr;
@@ -129,9 +130,10 @@ public class TermREPL {
         @SuppressWarnings("unused")
         private final AbstractFunction stacktrace; // TODO: this is a requirement to make proper domain-level stack-traces, but we have to use it still
 
-        public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
+        public TheREPL(IRascalValueFactory vf, IRascalMonitor monitor, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace) {
             this.vf = vf;
+            this.contentManager = new REPLContentServerManager(vf, monitor);
             // TODO: these casts mean that TheRepl only works with functions produced by the
             // interpreter for now. The reason is that the REPL needs access to environment configuration
             // parameters of these functions such as stdout, stdin, etc.
@@ -200,7 +202,7 @@ public class TermREPL {
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
             REPLContentServer server = contentManager.addServer(id, callback);
             
-            return produceHTMLResponse(id, URIUtil.assumeCorrect("http", "localhost:" + server.getListeningPort(), ""));
+            return produceHTMLResponse(id, URIUtil.assumeCorrect("http", "localhost:" + server.getPort(), ""));
         }
 
         abstract class NotebookWebContentOutput implements INotebookOutput, IWebContentOutput {}

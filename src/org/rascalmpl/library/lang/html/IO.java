@@ -13,7 +13,6 @@ package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import org.jsoup.nodes.Range;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -60,18 +60,57 @@ public class IO {
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
-    private final PrintWriter err;
+    private final Type HTMLEscapeModeType;
+    private final Type extendedModeCons;
+    private final Type baseModeCons;
+    private final Type xhtmlModeCons;
+    private final Type HTMLSyntaxType;
+    private final Type htmlSyntaxCons;
+    private final Type xmlSyntaxCons;
 
-    public IO(IValueFactory factory, TypeStore store, PrintWriter out, PrintWriter err) {
+
+    private final IRascalMonitor monitor;
+    
+    public IO(IValueFactory factory, IRascalMonitor monitor, TypeStore store) {
         this.factory = factory;
-        this.store = store;
-        this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
-        this.textConstructor = store.lookupConstructor(HTMLElement, "text").iterator().next();
-        this.dataConstructor = store.lookupConstructor(HTMLElement, "data").iterator().next();
-        this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
-        this.err = err;
+        this.monitor = monitor;
+        this.store = new TypeStore(store);
+
+        TypeFactory tf = TypeFactory.getInstance();
+        this.HTMLElement = tf.abstractDataType(store, "HTMLElement");
+        this.textConstructor = tf.constructor(store, HTMLElement, "text", tf.stringType(), "contents");
+        this.dataConstructor = tf.constructor(store, HTMLElement, "data", tf.stringType(), "dataContent");
+        this.htmlConstructor = tf.constructor(store, HTMLElement, "html", tf.listType(HTMLElement), "elems");
+        this.HTMLEscapeModeType = tf.abstractDataType(store, "HTMLEscapeMode");
+        this.extendedModeCons = tf.constructor(store, HTMLEscapeModeType, "extendedMode");
+        this.baseModeCons = tf.constructor(store, HTMLEscapeModeType, "baseMode");
+        this.xhtmlModeCons = tf.constructor(store, HTMLEscapeModeType, "xhtmlMode");
+        this.HTMLSyntaxType = tf.abstractDataType(store, "HTMLSyntax");
+        this.htmlSyntaxCons = tf.constructor(store, HTMLSyntaxType, "htmlSyntax");
+        this.xmlSyntaxCons = tf.constructor(store, HTMLSyntaxType, "xmlSyntax");
     }
     
+    public IConstructor htmlSyntax() {
+        return factory.constructor(htmlSyntaxCons);
+    }
+
+    public IConstructor xmlSyntax() {
+        return factory.constructor(xmlSyntaxCons);
+    }
+
+    public IConstructor baseMode() {
+        return factory.constructor(baseModeCons);
+    }
+
+    public IConstructor extendedMode() {
+        return factory.constructor(extendedModeCons);
+    }
+
+    public IConstructor xhtmlMode() {
+        return factory.constructor(xhtmlModeCons);
+    }
+
+
     public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, ISourceLocation src) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty HTML document");
@@ -87,14 +126,14 @@ public class IO {
         return toConstructorTree(doc, trackOrigins.getValue() ? src : null, includeEndTags.getValue());        
     }
 
-    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins, IBool includeEndTags) {
+    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, IString charset, IBool inferCharset) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
             Parser htmlParser = Parser.htmlParser()
                 .settings(new ParseSettings(false, false))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
-            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
+            Document doc = Jsoup.parse(reader, inferCharset.getValue() ? null : charset.getValue(), base.getURI().toString(), htmlParser);
             
             return toConstructorTree(doc, trackOrigins.getValue() ? file : null, includeEndTags.getValue());
         } catch (MalformedURLException e) {
@@ -104,7 +143,24 @@ public class IO {
         }
     }
 
-    private IValue toConstructorTree(Document doc, ISourceLocation file, boolean includeEndTags) {
+    public IValue readHTMLStream(InputStream reader, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, IString charset, IBool inferCharset) {
+        try {
+            Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+                
+            Document doc = Jsoup.parse(reader, inferCharset.getValue() ? null : charset.getValue(), base.getURI().toString(), htmlParser);
+            
+            return toConstructorTree(doc, trackOrigins.getValue() ? base : null, includeEndTags.getValue());
+        } catch (MalformedURLException e) {
+            throw RuntimeExceptionFactory.malformedURI(base.getURI().toASCIIString());
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public IValue toConstructorTree(Document doc, ISourceLocation file, boolean includeEndTags) {
         IConstructor result = factory.constructor(htmlConstructor, 
                     factory.list(
                         toConstructorTree(doc.head(), file, includeEndTags), 
@@ -140,7 +196,7 @@ public class IO {
             : tf.constructorFromTuple(store, HTMLElement, elem.tagName(), tf.tupleType(tf.listType(HTMLElement)));
 
         if (alternatives.size() == 0) {
-            err.println("No HTML constructor declared for "  + elem.tagName());
+            monitor.warning("No HTML constructor declared for "  + elem.tagName(), file);
         }
 
         Map<String,IValue> kws = new HashMap<>();
@@ -233,6 +289,16 @@ public class IO {
     public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
+            writeHTML(out, cons, charset, escapeMode, outline, prettyPrint, indentAmount, maxPaddingWidth, syntax, dropOrigins, normalise);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e);
+        }
+    }
+
+    public void writeHTML(Writer out, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
+        
+        try {
             Document doc = createHTMLDocument(cons, dropOrigins.getValue(), normalise.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml());
@@ -246,12 +312,12 @@ public class IO {
         int maxPaddingWidth, String syntax) {
         return new OutputSettings()
             .charset(charset)
-            .escapeMode(EscapeMode.valueOf(escapeMode.replaceAll("Mode", "")))
+            .escapeMode(escapeMode == null ? EscapeMode.base: EscapeMode.valueOf(escapeMode.replaceAll("Mode", "")))
             .outline(outline)
             .prettyPrint(prettyPrint)
             .indentAmount(indentAmount)
             .maxPaddingWidth(maxPaddingWidth)
-            .syntax(Syntax.valueOf(syntax.replaceAll("Syntax", "")));
+            .syntax(syntax == null ? Syntax.html : Syntax.valueOf(syntax.replaceAll("Syntax", "")));
     }
 
     /**

@@ -58,7 +58,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class URIResolverRegistry {
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
+	public static final int FILE_BUFFER_SIZE = 8 * 1024;
 	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String, ISourceLocationInput> inputResolvers = new ConcurrentHashMap<>();

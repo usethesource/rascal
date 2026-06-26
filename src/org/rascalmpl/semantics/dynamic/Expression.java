@@ -528,7 +528,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				            throw new UnexpectedType(kwFormals.getFieldType(name), val.getStaticType(), this);
 				          }
 				        }
-				        else {
+				        else if (!kwFormals.isBottom()) {
 				          eval.getMonitor().warning("calling function with extra unknown keyword argument: " +  name, getLocation());
 				        }
 				      }

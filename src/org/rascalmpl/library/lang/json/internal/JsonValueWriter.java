@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.maybe.UtilMaybe;
 
@@ -67,12 +68,20 @@ public class JsonValueWriter {
     private IFunction formatters;
     private boolean explicitConstructorNames = false;
     private boolean explicitDataTypes;
-    private boolean fileLocationsAsPathOnly = true;
-
+    private int indent = 4;
+    private int precision = 10;    
+    
     /** helper class for number serialization without quotes */
     private static class RascalNumber extends Number {
         private static final long serialVersionUID = -2204435793489295963L;
-        public INumber wrapped;
+        private INumber wrapped;
+        private int precision;
+
+        public RascalNumber set(INumber wrapped, int precision) {
+            this.wrapped = wrapped;
+            this.precision = precision;
+            return this;
+        }
 
         @Override
         public int intValue() {
@@ -86,13 +95,12 @@ public class JsonValueWriter {
 
         @Override
         public float floatValue() {
-            // TODO parameterize precision
-            return wrapped.toReal(20).floatValue();
+            return wrapped.toReal(precision).floatValue();
         }
 
         @Override
         public double doubleValue() {
-            return wrapped.toReal(20).doubleValue();
+            return wrapped.toReal(precision).doubleValue();
         }
 
         @Override
@@ -105,6 +113,47 @@ public class JsonValueWriter {
 
     public JsonValueWriter() {
         setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+
+    public JsonValueWriter setOptions(@Nullable IConstructor options) {
+        if (options == null) {
+            return this;
+        }
+
+        var kws = options.asWithKeywordParameters();
+        IInteger indent = ((IInteger) kws.getParameter("indent"));
+        if (indent == null) {
+            indent = IRascalValueFactory.getInstance().integer(0);
+        }
+
+        IString dtf = (IString) kws.getParameter("dateTimeFormat");
+        IBool dai = (IBool) kws.getParameter("dateTimeAsInt");
+        IBool ras = (IBool) kws.getParameter("rationalsAsString");
+        IFunction formatters = (IFunction) kws.getParameter("formatter");
+        IBool ecn = (IBool) kws.getParameter("explicitConstructorNames");
+        IBool edt = (IBool) kws.getParameter("explicitDataTypes");
+        IBool upl = (IBool) kws.getParameter("unpackLocations");
+        IBool dor = (IBool) kws.getParameter("dropOrigins");
+        IInteger prec = (IInteger) kws.getParameter("precision");
+        IInteger ind = (IInteger) kws.getParameter("indent");
+
+        return this
+            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd'T'HH:mm:ss'Z'")
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+            .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
+            .setUnpackedLocations(upl != null ? ((IBool) upl).getValue() : false)
+            .setDropOrigins(dor != null ? ((IBool) dor).getValue() : true)
+            .setFormatters(formatters)
+            .setPrecision(prec != null ? ((IInteger) prec).intValue() : 20)
+            .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+            .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+            .setIndent(ind != null ? ((IInteger) ind).intValue() : 4)
+            ;
+    }
+
+    public JsonValueWriter setIndent(int i) {
+       this.indent = i;
+       return this;
     }
 
     /**
@@ -144,6 +193,11 @@ public class JsonValueWriter {
         return this;
     }
 
+    public JsonValueWriter setPrecision(int setting) {
+        this.precision = setting;
+        return this;
+    }
+
     public JsonValueWriter setFormatters(@Nullable IFunction formatters) {
         if (formatters != null && formatters.getType().getFieldType(0).isTop()) {
             // ignore default function
@@ -164,12 +218,10 @@ public class JsonValueWriter {
         return this;
     }
 
-    public JsonValueWriter setFileLocationsAsPathOnly(boolean setting) {
-        this.fileLocationsAsPathOnly = setting;
-        return this;
-    }
-
     public void write(JsonWriter out, IValue value) throws IOException {
+        if (indent > 0) {
+            out.setIndent("        ".substring(0, indent % 9));
+        }
         value.accept(new IValueVisitor<Void, IOException>() {
 
             @Override
@@ -180,8 +232,7 @@ public class JsonValueWriter {
 
             @Override
             public Void visitReal(IReal o) throws IOException {
-                wrapper.wrapped = o;
-                out.value(wrapper);
+                out.value(wrapper.set(o, precision));
                 return null;
             }
 
@@ -268,7 +319,7 @@ public class JsonValueWriter {
                 }
                 else {
                     if (!o.hasOffsetLength()) {
-                        if (fileLocationsAsPathOnly && "file".equals(o.getScheme())) {
+                        if ("file".equals(o.getScheme())) {
                             out.value(o.getPath());
                         }
                         else {
@@ -381,8 +432,7 @@ public class JsonValueWriter {
 
             @Override
             public Void visitInteger(IInteger o) throws IOException {
-                wrapper.wrapped = o;
-                out.value(wrapper);
+                out.value(wrapper.set(o, precision));
                 return null;
             }
 

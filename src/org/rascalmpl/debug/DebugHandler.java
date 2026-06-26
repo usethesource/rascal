@@ -18,7 +18,6 @@ package org.rascalmpl.debug;
 
 import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 import java.util.function.IntSupplier;
@@ -35,6 +34,7 @@ import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.rascal.RascalValuePrinter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
@@ -376,6 +376,16 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 					}
 				};
 			}
+
+			@Override
+			protected IRascalMonitor getMonitor() {
+				return evaluator.getMonitor();
+			}
+
+			@Override
+			protected IRascalValueFactory getRascalValueFactory() {
+				return evaluator.getFunctionValueFactory();
+			}
 		};
 
 		synchronized (evaluator) { // The evaluator is synchronized here, under the assumption that the evaluator is currently suspended by this thread
@@ -479,6 +489,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	    case SET:
 		  switch (message.getDetail()) {
 			case CONDITIONAL:
+				@SuppressWarnings("unchecked") 
 				Pair<ISourceLocation, String> payload = (Pair<ISourceLocation, String>) message.getPayload();		
 	      		addBreakpoint(payload.getFirst(), payload.getSecond());
 				break;

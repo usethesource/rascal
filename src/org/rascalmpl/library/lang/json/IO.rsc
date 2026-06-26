@@ -83,6 +83,46 @@ data RuntimeException(str reason="", str path="")
   | NoOffsetParseError(loc location, int line, int column)
   ;
 
+@synopsis{For every type, which kind of representation is chosen in case a JSON `null` is parsed`}
+@description{
+The parser will use an appropriate concrete type to select which value to use. In case of an expected
+`int` for example, `-1`, `-1.0` and `"null"()` might fit, but the parser will choose `1`.
+}
+ public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
+  #Maybe[value]     : nothing(), 
+  #node             : "null"(), 
+  #int              : -1, 
+  #num              : -1.0,
+  #real             : -1.0, 
+  #rat              : -1r1, 
+  #value            : "null"(), 
+  #str              : "", 
+  #list[value]      : [], 
+  #set[value]       : {}, 
+  #map[value,value] : (),
+  #loc              : |unknown:///|,
+  #bool             : false
+);
+
+@synopsis{Options for reading and writing the JSON format.}
+data JSONOptions
+  = jsonOptions(
+      str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", 
+      JSONFormatter[value] formatter = str (value _) { fail; },
+      JSONParser[value] parser = (type[value] _, str _) { throw ""; },
+      map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues,
+      bool explicitConstructorNames=false, 
+      bool explicitDataTypes=false, 
+      bool dateTimeAsInt=true, 
+      bool rationalsAsString=false,
+      bool lenient=false,
+      bool trackOrigins=false,
+      bool dropOrigins=true,
+      int indent=0,
+      bool unpackedLocations=false,
+      int precision=20
+  );
+
 private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
@@ -102,7 +142,11 @@ In general the translation behaves as follows:
 * if the parser finds a `null` JSON value, it will lookup in the `nulls` map based on the currently expected type which value to return, or throw an exception otherwise.
 First the expected type is used as a literal lookup, and then each value is tested if the current type is a subtype of it. 
 }
-java &T readJSON(
+java &T readJSON(type[&T] expected, loc src, JSONOptions options=jsonOptions(nulls=defaultJSONNULLValues));
+
+@synopsis{((readJSON)) function with explicit configuration parameters}
+@deprecated{Use the readJSON with the `options` parameter}
+&T readJSON(
   type[&T] expected, 
   loc src, 
   str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
@@ -112,28 +156,24 @@ java &T readJSON(
   map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues,
   bool explicitConstructorNames = false,
   bool explicitDataTypes = false
-);
-
-public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
-  #Maybe[value]     : nothing(), 
-  #node             : "null"(), 
-  #int              : -1, 
-  #num              : -1.0,
-  #real             : -1.0, 
-  #rat              : -1r1, 
-  #value            : "null"(), 
-  #str              : "", 
-  #list[value]      : [], 
-  #set[value]       : {}, 
-  #map[value,value] : (),
-  #loc              : |unknown:///|,
-  #bool             : false
-);
+) = readJSON(expected, src, options=jsonOptions(
+  dateTimeFormat=dateTimeFormat,
+  lenient=lenient,
+  trackOrigins=trackOrigins,
+  parser=parser,
+  nulls=nulls,
+  explicitConstructorNames=explicitConstructorNames,
+  explicitDataTypes=explicitDataTypes
+));
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string.
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(
+java &T parseJSON(type[&T] expected, str src, JSONOptions options=jsonOptions(nulls=defaultJSONNULLValues));
+
+@synopsis{parse JSON from a string}
+@deprecated{Use the parseJSON with the `options` parameter}
+&T parseJSON(
   type[&T] expected, 
   str src, 
   str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
@@ -143,7 +183,15 @@ java &T parseJSON(
   map[type[value] forType, value nullValue] nulls = defaultJSONNULLValues,
   bool explicitConstructorNames = false,
   bool explicitDataTypes = false
-);
+) = parseJSON(expected, src, options=jsonOptions(
+  dateTimeFormat=dateTimeFormat,
+  lenient=lenient,
+  trackOrigins=trackOrigins,
+  parser=parser,
+  nulls=nulls,
+  explicitConstructorNames=explicitConstructorNames,
+  explicitDataTypes=explicitDataTypes
+));
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{Serializes a value as a JSON string and stream it}
@@ -166,7 +214,11 @@ if set to false a `loc` will be printed as a string.
 As such when an `int` is printed that does not fit into a JVM `long`, there will be truncation to the lower 64 bits.
 For `real` numbers that are larger than JVM's double you get "negative infinity" or "positive infinity" as a result.
 }
-java void writeJSON(loc target, value val, 
+java void writeJSON(loc target, value val, JSONOptions options=jsonOptions());
+
+@synopsis{Write JSON to a loc}
+@deprecated{Use ((writeJSON)) with a `options` parameter.}
+void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
   str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
   bool dateTimeAsInt=false,
@@ -175,8 +227,20 @@ java void writeJSON(loc target, value val,
   bool dropOrigins=true, 
   JSONFormatter[value] formatter = str (value _) { fail; }, 
   bool explicitConstructorNames=false, 
-  bool explicitDataTypes=false,
-  bool fileLocationsAsPathOnly=true
+  bool explicitDataTypes=false
+) =
+writeJSON(target, val,
+options=jsonOptions(
+  unpackedLocations=unpackedLocations,
+  dateTimeFormat=dateTimeFormat,
+  dateTimeAsInt=dateTimeAsInt,
+  rationalsAsString=rationalsAsString,
+  indent=indent,
+  dropOrigins=dropOrigins,
+  formatter=formatter,
+  explicitConstructorNames=explicitConstructorNames,
+  explicitDataTypes=explicitDataTypes
+)
 );
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
@@ -185,7 +249,23 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false, bool fileLocationsAsPathOnly=true);
+java str asJSON(value val, JSONOptions options=jsonOptions());
+
+@synopsis{writeJSON to a str}
+@deprecated{Use asJSON with the `options` parameter}
+str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, bool rationalsAsString=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false)
+  = asJSON(val, options=jsonOptions(
+  unpackedLocations=unpackedLocations,
+  dateTimeFormat=dateTimeFormat,
+  dateTimeAsInt=dateTimeAsInt,
+  rationalsAsString=rationalsAsString,
+  indent=indent,
+  dropOrigins=dropOrigins,
+  formatter=formatter,
+  explicitConstructorNames=explicitConstructorNames,
+  explicitDataTypes=explicitDataTypes
+)
+);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{

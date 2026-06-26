@@ -205,16 +205,16 @@ public class RascalYAML {
 			IValue value = yaml.get(0);
 			if (value.getType() == tf.integerType()) {
 				// TODO: detect Long, BigInt etc.
-				return new Integer(((IInteger)value).intValue());
+				return Integer.valueOf(((IInteger)value).intValue());
 			}
 			if (value.getType() == tf.realType()) {
-				return new Double(((IReal)value).doubleValue());
+				return Double.valueOf(((IReal)value).doubleValue());
 			}
 			if (value.getType() == tf.stringType()) {
 				return new String((((IString)value).getValue()));
 			}
 			if (value.getType() == tf.boolType()) {
-				return new Boolean((((IBool)value).getValue()));
+				return Boolean.valueOf((((IBool)value).getValue()));
 			}
 			if (value.getType() == tf.dateTimeType()) {
 				return new Date(((IDateTime)value).getInstant());

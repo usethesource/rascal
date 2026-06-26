@@ -190,7 +190,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 Map<Type, Type> dynamicRenamings = new HashMap<>();
                 bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, staticFunctionType.getFieldTypes(), renamings, dynamicRenamings, env); 
 
-               
                 IValue returnValue = func.apply(argValues, keyArgValues);
 
                 Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
@@ -209,6 +208,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
                 else {
+                    // this can happen only if the function is injected from the Java side
+                    // so it is not a static error! we let the function fail so it can not produce illegal output
+                    if (!returnValue.getType().isSubtypeOf(resultType)) {
+                        throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
+                    }
                     return ResultFactory.makeResult(resultType, returnValue, ctx);
                 }
             }
