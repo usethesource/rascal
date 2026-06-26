@@ -809,6 +809,12 @@ data CytoLayoutName
 
 data Position = pos(int x, int y);
 
+@synopsis{This property is added for cose and fcose, for every node differently.}
+data NodeConfig(int nodeRepulsion = 2048);
+
+@synopsis{These are added for cose and fcose, for every edge differently.}
+data EdgeConfig(int edgeElasticity= 100, int nestingFactor= 5);
+        
 data CoseNodeConstraint[&T]
     = coseNodeConstraint(&T nodeId, Position position);
 
@@ -864,9 +870,6 @@ data CytoLayout(CytoLayoutName name = dagre(), CytoAnimate animate=\false(), rea
         int padding= 30,
         bool randomize= false,
         int componentSpacing= 100,
-        int nodeRepulsion= 400000,
-        int edgeElasticity= 100,
-        int nestingFactor= 5,
         int gravity= 80,
         int numIter= 5000,
         int initialTemp= 200,
