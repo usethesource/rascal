@@ -706,7 +706,8 @@ private static boolean isDeprecated(Module preModule){
     Map<String, ITree> antiquotes = new HashMap<>();
      
     try {
-      IConstructor reifiedSym = vf.reifiedType(vf.sym2symbol(symTree), vf.map());
+      // TODO: add support for lexical regulars
+      IConstructor reifiedSym = vf.reifiedType(vf.sym2symbol(symTree, true), vf.map());
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
       char[] input = replaceAntiQuotesByHoles(vf, lit, antiquotes, corrections);
