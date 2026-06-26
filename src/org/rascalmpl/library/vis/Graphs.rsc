@@ -141,7 +141,8 @@ data CytoGraphConfig = cytoGraphConfig(
         toEditorClick(), 
         hoverListeners(),
         tooltipListeners(),
-        *[relayoutOnDrop(\layout=\layout.name) | \layout.name is cose || \layout.name is fcose]
+        *dynamicCoseProperties(\layout.name),
+        *relayoutOnDrop(\layout.name)
     ]
 );
 
@@ -886,12 +887,6 @@ data CytoLayout(CytoLayoutName name = dagre(), CytoAnimate animate=\false(), rea
         int sampleSize =  25,
         int nodeSeparation= 75,
         real piTol= 0.0000001,
-
-        // these three node/edge-specific paramters are stored in the extra nodeConfig and edgeConfig data fields
-        str nodeRepulsion   = "(n) =\> if (data(\'nodeConfig\').nodeRepulsion)) return data(\'nodeConfig).nodeRepulsion; else return 4500;",
-        str idealEdgeLength = "(e) =\> if (data(\'edgeConfig\').dealEdgeLength)) return data(\'edgeConfig\').idealEdgeLength); else return 50;",
-        str edgeElasticity  = "(e) =\> if (data(\'edgeConfig\').edgeElasticity\')) return data(\'edgeConfig\').edgeElasticity); else return 0.45;",
-
         real nestingFactor = 0.1,
         int numIter =  2500,
         bool tile = true,  
@@ -962,11 +957,33 @@ CytoLayout defaultCoseLayout()
     ;
 
 CytoLayout defaultFcoseLayout()
-    = coseLayout(
+    = fcoseLayout(
         name=fcose(),
-        animate=\true()
-        
-
+        animate=\true(),
+        quality = \default(),
+        randomize =  false, 
+        fit = true, 
+        padding=  30,
+        nodeDimensionsIncludeLabels = true,
+        uniformNodeDimensions= false,
+        packComponents= true,
+        samplingType= true,
+        sampleSize =  25,
+        nodeSeparation= 75,
+        piTol= 0.0000001,
+        nestingFactor = 0.1,
+        numIter =  2500,
+        tile = true,  
+        tilingPaddingVertical = 10,
+        tilingPaddingHorizontal = 10,
+        gravity = 0.25,
+        gravityRangeCompound = 1.5,
+        gravityCompound = 1.0,
+        gravityRange = 3.8, 
+        initialEnergyOnIncremental = 0.3,
+        fixedNodeConstraint = [],
+        alignmentConstraint = coseAligmentConstraint([],[]),
+        relativePlacementConstraint = []
     )
     ;
 
@@ -1097,17 +1114,31 @@ HTMLElement tooltipCSS()
         '}"
     )]);
 
-HTMLElement relayoutOnDrop(CytoLayoutName \layout=cose())
-    = script([\data(
+default list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = [];
+
+list[HTMLElement] dynamicCoseProperties(fcose()) 
+    = [script([\data(
+        "windows.cy.then(cy =\> {
+        '    cy.options.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
+        '    cy.options.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength) ?? 50;
+        '    cy.options.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity) ?? 0.45;        
+        '});"
+    )])];
+
+default list[HTMLElement] relayoutOnDrop(CytoLayoutName _) = [];
+
+list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
+    = [script([\data(
         "window.cy.then(cy =\> { 
         '   cy.on(\'free\', \'node\', (evt) =\> {
         '      cy.layout({
         '           options: cy.options.layout,
         '           name: \'<getName(\layout)>\'
-        '       }).run();
+        '      }).run();
         '   })
         '});"
-    )]);
+    )])]
+    when \layout in {cose(), fcose()};
     
 HTMLElement hoverListeners()
     = script([\data(
@@ -1148,14 +1179,13 @@ HTMLElement toEditorClick()
     = script([\data(
         "window.cy.then(cy =\> {
         '   cy.on(\'tap\', \'node\', function (evt) {
-        '   const n = evt.target;
-        '   if (n.data(\'editor\') !== undefined) {
-        '       fetch(\'/editor?\' + new URLSearchParams({
-        '            src: n.data(\'editor\')
-        '       })) ;
-        '   }
-        '});
-        'return cy;
+        '       const n = evt.target;
+        '       if (n.data(\'editor\') !== undefined) {
+        '           fetch(\'/editor?\' + new URLSearchParams({
+        '                src: n.data(\'editor\')
+        '           })) ;
+        '       }
+        '   });
         '});"
     )]);
 
