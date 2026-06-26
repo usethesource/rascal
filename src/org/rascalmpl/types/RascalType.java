@@ -1,5 +1,8 @@
 package org.rascalmpl.types;
 
+import java.util.Map;
+
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;
 
