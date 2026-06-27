@@ -948,9 +948,6 @@ CytoLayout defaultCoseLayout()
         padding= 30,
         randomize= false,
         componentSpacing= 100,
-        nodeRepulsion= 400000,
-        edgeElasticity= 100,
-        nestingFactor= 5,
         gravity= 80,
         numIter= 500,
         initialTemp= 200,
@@ -1119,12 +1116,14 @@ HTMLElement tooltipCSS()
 
 default list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = [];
 
+        
 list[HTMLElement] dynamicCoseProperties(fcose()) 
     = [script([\data(
-        "windows.cy.then(cy =\> {
-        '    cy.options.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
-        '    cy.options.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength) ?? 50;
-        '    cy.options.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity) ?? 0.45;        
+        "window.cy.then(cy =\> {
+        '    cy.options().layout.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
+        '    cy.options().layout.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength ?? 50;
+        '    cy.options().layout.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity ?? 0.45;        
+        '    return cy;
         '});"
     )])];
 
@@ -1139,6 +1138,7 @@ list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
         '           name: \'<getName(\layout)>\'
         '      }).run();
         '   })
+        '   return cy;
         '});"
     )])]
     when \layout in {cose(), fcose()};
@@ -1189,6 +1189,7 @@ HTMLElement toEditorClick()
         '           })) ;
         '       }
         '   });
+        '   return cy;
         '});"
     )]);
 
