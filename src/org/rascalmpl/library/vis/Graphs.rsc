@@ -136,7 +136,7 @@ data CytoGraphConfig = cytoGraphConfig(
     CytoStyle nodeStyle      = defaultNodeStyle(), 
     CytoStyle edgeStyle      = defaultEdgeStyle(), 
     list[CytoStyleOf] styles = [],
-    list[HTMLElement] header = [tooltipCSS()],
+    list[HTMLElement] header = [tooltipCSS(), *fcoseHeaders(\layout.name)],
     list[HTMLElement] footer = [
         toEditorClick(), 
         hoverListeners(),
@@ -819,13 +819,13 @@ data CoseNodeConstraint[&T]
     = coseNodeConstraint(&T nodeId, Position position);
 
 data CoseAligmentConstraint[&T]
-    = coseAligmentConstraint(list[list[&T]] horizontal, list[list[&T]] vertical);
+    = coseAligmentConstraint(set[set[&T]] horizontal, set[set[&T]] vertical);
 
 data CoseRelativeConstraint[&T]
     = vertical(&T top, &T bottom, int gap)
     | horizontal(&T left, &T right, int gap)
     ;
-
+    
 @synopsis{An alias for dagre layout for documentation purposes.}
 @description{
 Dagre is a hierarchical graph layout.
@@ -901,7 +901,7 @@ data CytoLayout(CytoLayoutName name = dagre(), CytoAnimate animate=\false(), rea
         real gravityRange = 3.8, 
         real initialEnergyOnIncremental = 0.3,
         list[CoseNodeConstraint[value]] fixedNodeConstraint = [],
-        CoseAligmentConstraint[value] alignmentConstraint = coseAligmentConstraint([],[]),
+        CoseAligmentConstraint[value] alignmentConstraint = coseAligmentConstraint({},{}),
         list[CoseRelativeConstraint[value]] relativePlacementConstraint = []
     )
     | dagreLayout(
@@ -956,6 +956,16 @@ CytoLayout defaultCoseLayout()
     )
     ;
 
+@synopsis{Configured a pre-existing fcose layout based on which a node classifier and which classes are vertical and which are horizontal}
+CytoLayout alignedFcoseLayout(CytoLayout fcose, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
+    classed = {*({*nodeClassifier(id)} * {id}) | id <- nodes};
+
+    return fcose
+        [alignmentConstraint = coseAligmentConstraint(
+            { classed[hcl] | hcl <- horizontalClasses },
+            { classed[hcl] | hcl <- verticalClasses })];
+}
+
 CytoLayout defaultFcoseLayout()
     = fcoseLayout(
         name=fcose(),
@@ -982,10 +992,9 @@ CytoLayout defaultFcoseLayout()
         gravityRange = 3.8, 
         initialEnergyOnIncremental = 0.3,
         fixedNodeConstraint = [],
-        alignmentConstraint = coseAligmentConstraint([],[]),
-        relativePlacementConstraint = []
-    )
-    ;
+        relativePlacementConstraint = [],
+        alignmentConstraint = coseAligmentConstraint({},{})
+    );
 
 CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
     = circleLayout(
@@ -1071,9 +1080,6 @@ private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] fo
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
             script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@3.0.0/cytoscape-dagre.min.js"),
-            script([], src="https://unpkg.com/layout-base/layout-base.js"),
-            script([], src="https://unpkg.com/cose-base/cose-base.js"),
-            script([], src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
@@ -1090,6 +1096,7 @@ private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] fo
                     "window.cy = fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
                     '   cs.layout.edgeWeight = edge =\> edge.data(\'weight\') || 1;
+                    '
                     '   return cytoscape(cs);
                     '});")
             ], \type="text/javascript"),
@@ -1116,13 +1123,22 @@ HTMLElement tooltipCSS()
 
 default list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = [];
 
+list[HTMLElement] fcoseHeaders(fcose()) 
+    = [
+        script([], src="https://unpkg.com/layout-base/layout-base.js"),
+        script([], src="https://unpkg.com/cose-base/cose-base.js"),
+        script([], src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js")
+    ];
+
+default list[HTMLElement] fcoseHeaders() = [];
         
 list[HTMLElement] dynamicCoseProperties(fcose()) 
-    = [script([\data(
+    = [
+        script([\data(
         "window.cy.then(cy =\> {
-        '    cy.options().layout.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
-        '    cy.options().layout.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength ?? 50;
-        '    cy.options().layout.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity ?? 0.45;        
+        '    cy.layout.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
+        '    cy.layout.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength ?? 50;
+        '    cy.layout.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity ?? 0.45;        
         '    return cy;
         '});"
     )])];
@@ -1130,17 +1146,19 @@ list[HTMLElement] dynamicCoseProperties(fcose())
 default list[HTMLElement] relayoutOnDrop(CytoLayoutName _) = [];
 
 list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
-    = [script([\data(
-        "window.cy.then(cy =\> { 
-        '   cy.on(\'free\', \'node\', (evt) =\> {
-        '      cy.layout({
-        '           options: cy.options.layout,
-        '           name: \'<getName(\layout)>\'
-        '      }).run();
-        '   })
-        '   return cy;
-        '});"
-    )])]
+    = [
+        script([\data(
+            "window.cy.then(cy =\> { 
+            '   cy.on(\'free\', \'node\', (evt) =\> {
+            '      cy.layout({
+            '           options: cy.options.layout,
+            '           name: \'<getName(\layout)>\'
+            '      }).run();
+            '   })
+            '   return cy;
+            '});"
+        )])
+    ]
     when \layout in {cose(), fcose()};
     
 HTMLElement hoverListeners()
