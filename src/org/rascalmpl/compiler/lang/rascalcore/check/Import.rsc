@@ -425,14 +425,6 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
     set[MODID] filteredModuleScopes = {};
     loc2moduleName = invertUnique(ms.moduleLocs);
 
-    bool isContainedInComponentScopes(loc inner, map[loc,loc] m){
-        return any(cs <- component_scopes, isContainedIn(inner, cs, m));
-    };
-
-    bool isContainedInFilteredModuleScopes(loc inner, map[loc,loc] m){
-        return any(cs <- filteredModuleScopes, isContainedIn(inner, cs, m));
-    };
-
     for(currentModule <- component){
         start_save = cpuTime();
         tm = transient_tms[currentModule];
@@ -453,9 +445,28 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.modelName = moduleId2moduleName(currentModule);
         m1.moduleLocs = (m1.modelName  : currentModule);
 
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key, tm.logical2physical));
+        list[loc] sortedComponentScopes = sort([tm.logical2physical[s] ? s | s <- component_scopes]);
+        list[loc] sortedFilteredModuleScopes = sort([tm.logical2physical[s] ? s | s <- filteredModuleScopes]);
+        
+        int sortedIndexOf(list[&T] sortedList, &T elem) {
+            int lo = 0;
+            int hi = size(sortedList) - 1;
+            while (lo <= hi) {
+                int middle = lo + floor((hi - lo) / 2);
+                if (sortedList[middle] < elem) {
+                    lo = middle + 1;
+                } else if (sortedList[middle] > elem) {
+                    hi = middle - 1;
+                } else {
+                    return middle;
+                }
+            }
+            return -1;
+        }
 
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key, tm.logical2physical), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, sortedIndexOf(sortedFilteredModuleScopes, tm.logical2physical[key] ? key) != -1);
+
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, sortedIndexOf(sortedComponentScopes, tm.logical2physical[key] ? key) != -1, sortedIndexOf(sortedFilteredModuleScopes, tm.logical2physical[key] ? key) != -1);
         m1.facts += m1.specializedFacts;
 
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, tm.logical2physical)];
@@ -492,11 +503,12 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         // Filter model for current module and replace functions in defType by their defined type
 
         defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined, tm.logical2physical)
+                    defined = tm.logical2physical[defined] ? defined;
+                    if( ( idRole in variableRoles ? (  sortedIndexOf(sortedComponentScopes, defined) != -1
                                                     )
                                                   : (  idRole in keepInTModelRoles
-                                                    && ( isContainedInComponentScopes(defined, tm.logical2physical)
-                                                       || isContainedInFilteredModuleScopes(defined, tm.logical2physical)
+                                                    && (  sortedIndexOf(sortedComponentScopes, defined) != -1
+                                                       || sortedIndexOf(sortedFilteredModuleScopes, defined) != -1
                                                        )
                                                     )
                         )
