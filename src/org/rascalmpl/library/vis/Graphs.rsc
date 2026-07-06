@@ -1097,6 +1097,7 @@ private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] fo
                     "window.cy = fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
                     '   cs.layout.edgeWeight = edge =\> edge.data(\'weight\') || 1;
+                    '   window.cs = cs;
                     '
                     '   return cytoscape(cs);
                     '});")
@@ -1151,10 +1152,7 @@ list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
         script([\data(
             "window.cy.then(cy =\> { 
             '   cy.on(\'free\', \'node\', (evt) =\> {
-            '      cy.layout({
-            '           options: cy.options.layout,
-            '           name: \'<getName(\layout)>\'
-            '      }).run();
+            '       cy.layout(window.cs.layout).run();
             '   })
             '   return cy;
             '});"
