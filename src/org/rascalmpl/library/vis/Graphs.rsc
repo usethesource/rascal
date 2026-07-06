@@ -962,21 +962,23 @@ CytoLayout defaultCoseLayout()
 import vis::Graphs;
 gr = {<1,4>,<2,5>,<3,6>};
 // we classify 
-list[str] classify(int i) = i % 2 == 0 ? ["even"] : ["odd"];
+list[str] myClassifier(int i) = i % 2 == 0 ? ["even"] : ["odd"];
 // now we map the classes to horizontal or vertical constraints:
-myLayout = alignedFcoseLayout(defaultCoseLayout(), classify, gr<0> + gr<1>, {"even"}, {"odd"});
+myLayout = alignedFcoseLayout(defaultFcoseLayout(), myClassifier, gr<0> + gr<1>, {"even"}, {"odd"});
 // and we show the graph:
-graph(gr, cfg=cytoGraphConfig(nodeClassifier=classify, \layout=myLayout));
+graph(gr, cfg=cytoGraphConfig(nodeClassifier=myClassifier, \layout=myLayout));
 ```
 }
-CytoLayout alignedFcoseLayout(CytoLayout fcose, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
+CytoLayout alignedFcoseLayout(CytoLayout fcoseLayout, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
     classed = {*({*nodeClassifier(id)} * {id}) | id <- nodes};
-    iprintln(classed);
+    // iprintln(classed);
 
-    return fcose
-        [alignmentConstraint = coseAligmentConstraint(
-            { { "<cl>" | value cl <- classed[hcl] } | str hcl <- horizontalClasses },
-            { { "<cl>" | value cl <- classed[hcl] } | str hcl <- verticalClasses })];
+    fcoseLayout.alignmentConstraint = coseAligmentConstraint(
+        { { "<cl>" | value cl <- classed[hcl] } | str hcl <- horizontalClasses },
+        { { "<cl>" | value cl <- classed[hcl] } | str hcl <- verticalClasses }
+    );
+
+    return fcoseLayout;
 }
 
 CytoLayout defaultFcoseLayout()
