@@ -223,8 +223,8 @@ default EdgeConfig defaultEdgeConfigurator(&T _from, &T _to) = edgeConfig();
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph([<x,x+1> | x <- [1..100]] + [<100,1>])
-graph([<x,x+1> | x <- [1..100]] + [<100,1>], cfg=cytoGraphConfig(\layout=\defaultCircleLayout()))
+graph([<x,x+1> | x <- [1..10]] + [<10,1>])
+graph([<x,x+1> | x <- [1..10]] + [<10,1>], cfg=cytoGraphConfig(\layout=\defaultCircleLayout()))
 ```
 
 Providing locations as node identities automatically transforms them to node links:
@@ -245,7 +245,7 @@ Content graph(lrel[&T x, &T y] v, CytoGraphConfig cfg = cytoGraphConfig())
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph([<x,2*x+1,x+1> | x <- [1..100]] + [<100,101,1>])
+graph([<x,2*x+1,x+1> | x <- [1..10]] + [<10,11,1>])
 ```
 }
 Content graph(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -255,7 +255,7 @@ Content graph(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph({<x,x+1> | x <- [1..100]} + {<100,1>})
+graph({<x,x+1> | x <- [1..10]} + {<10,1>})
 ``` 
 }
 Content graph(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -265,7 +265,7 @@ Content graph(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
+graph({<x,2*x+1,x+1> | x <- [1..10]} + {<10,11,1>})
 ```
 }
 Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -275,7 +275,7 @@ Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
 @description{
 This data-structure is serialized to JSON and communicated directly to initialize cytoscape.js.
 The serialization is done by the generic ((lang::json::IO)) library under the hood of a ((util::Webserver)).
-}@synopsis{Produces an overall cytoscape.js wrapper which is sent as JSON to the client side.}
+}
 Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
     = cytoscape(
         elements=\data,        
@@ -957,6 +957,18 @@ CytoLayout defaultCoseLayout()
     ;
 
 @synopsis{Configured a pre-existing fcose layout based on which a node classifier and which classes are vertical and which are horizontal}
+@examples{
+```rascal-shell
+import vis::Graphs;
+gr = {<1,4>,<2,5>,<3,6>};
+// we classify 
+list[str] classify(int i) = i % 2 == 0 ? ["even"] : ["odd"];
+// now we map the classes to horizontal or vertical constraints:
+myLayout = alignedFcoseLayout(defaultCoseLayout(), classify, gr<0> + gr<1>, {"even"}, {"odd"});
+// and we show the graph:
+graph(gr, cfg=cytoGraphConfig(nodeClassifier=classify, \layout=myLayout));
+```
+}
 CytoLayout alignedFcoseLayout(CytoLayout fcose, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
     classed = {*({*nodeClassifier(id)} * {id}) | id <- nodes};
     iprintln(classed);
@@ -1123,8 +1135,6 @@ HTMLElement tooltipCSS()
         '}"
     )]);
 
-default list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = [];
-
 list[HTMLElement] fcoseHeaders(fcose()) 
     = [
         script([], src="https://unpkg.com/layout-base/layout-base.js"),
@@ -1132,7 +1142,7 @@ list[HTMLElement] fcoseHeaders(fcose())
         script([], src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js")
     ];
 
-default list[HTMLElement] fcoseHeaders() = [];
+default list[HTMLElement] fcoseHeaders(CytoLayoutName _) = [];
         
 list[HTMLElement] dynamicCoseProperties(fcose()) 
     = [
@@ -1145,7 +1155,7 @@ list[HTMLElement] dynamicCoseProperties(fcose())
         '});"
     )])];
 
-default list[HTMLElement] relayoutOnDrop(CytoLayoutName _) = [];
+list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = []; 
 
 list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
     = [
@@ -1159,7 +1169,9 @@ list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
         )])
     ]
     when \layout in {cose(), fcose()};
-    
+
+default list[HTMLElement] relayoutOnDrop(CytoLayoutName _) = [];
+
 HTMLElement hoverListeners()
     = script([\data(
         "window.cy.then(cy =\> {
