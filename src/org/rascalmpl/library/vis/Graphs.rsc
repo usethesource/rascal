@@ -818,9 +818,9 @@ data EdgeConfig(int edgeElasticity= 100, int nestingFactor= 5);
 data CoseNodeConstraint[&T]
     = coseNodeConstraint(&T nodeId, Position position);
 
-data CoseAligmentConstraint[&T]
-    = coseAligmentConstraint(set[set[&T]] horizontal, set[set[&T]] vertical);
-
+data CoseAligmentConstraint
+    = coseAligmentConstraint(set[set[str]] horizontal, set[set[str]] vertical);
+    
 data CoseRelativeConstraint[&T]
     = vertical(&T top, &T bottom, int gap)
     | horizontal(&T left, &T right, int gap)
@@ -962,8 +962,8 @@ CytoLayout alignedFcoseLayout(CytoLayout fcose, NodeClassifier[&T] nodeClassifie
 
     return fcose
         [alignmentConstraint = coseAligmentConstraint(
-            { classed[hcl] | hcl <- horizontalClasses },
-            { classed[hcl] | hcl <- verticalClasses })];
+            { { "<cl>" | str cl <- classed[hcl] } | str hcl <- horizontalClasses },
+            { { "<cl>" | str cl <- classed[hcl] } | str hcl <- verticalClasses })];
 }
 
 CytoLayout defaultFcoseLayout()
