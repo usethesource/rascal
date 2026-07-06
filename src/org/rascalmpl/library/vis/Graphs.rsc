@@ -901,7 +901,7 @@ data CytoLayout(CytoLayoutName name = dagre(), CytoAnimate animate=\false(), rea
         real gravityRange = 3.8, 
         real initialEnergyOnIncremental = 0.3,
         list[CoseNodeConstraint[value]] fixedNodeConstraint = [],
-        CoseAligmentConstraint[value] alignmentConstraint = coseAligmentConstraint({},{}),
+        CoseAligmentConstraint alignmentConstraint = coseAligmentConstraint({},{}),
         list[CoseRelativeConstraint[value]] relativePlacementConstraint = []
     )
     | dagreLayout(
@@ -959,11 +959,12 @@ CytoLayout defaultCoseLayout()
 @synopsis{Configured a pre-existing fcose layout based on which a node classifier and which classes are vertical and which are horizontal}
 CytoLayout alignedFcoseLayout(CytoLayout fcose, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
     classed = {*({*nodeClassifier(id)} * {id}) | id <- nodes};
+    iprintln(classed);
 
     return fcose
         [alignmentConstraint = coseAligmentConstraint(
-            { { "<cl>" | str cl <- classed[hcl] } | str hcl <- horizontalClasses },
-            { { "<cl>" | str cl <- classed[hcl] } | str hcl <- verticalClasses })];
+            { { "<cl>" | value cl <- classed[hcl] } | str hcl <- horizontalClasses },
+            { { "<cl>" | value cl <- classed[hcl] } | str hcl <- verticalClasses })];
 }
 
 CytoLayout defaultFcoseLayout()
