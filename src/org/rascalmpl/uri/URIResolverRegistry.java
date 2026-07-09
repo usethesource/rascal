@@ -78,7 +78,6 @@ public class URIResolverRegistry {
 		loadServices();
 	}
 
-
 	/**
 	 * Use with care! This (expensive) reinitialization method clears all caches of all resolvers by
 	 * reloading them from scratch.
