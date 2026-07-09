@@ -462,9 +462,6 @@ public class URIResolverRegistry {
 	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
 
 	private ISourceLocationInput getInputResolver(String scheme) {
-		if (scheme.equals(URIUtil.unknownLocation().getScheme())) {
-			return null;
-		}
 		ISourceLocationInput result = inputResolvers.get(scheme);
 		if (result == null) {
 			Matcher m = splitScheme.matcher(scheme);
@@ -483,9 +480,6 @@ public class URIResolverRegistry {
 	}
 
 	private IClassloaderLocationResolver getClassloaderResolver(String scheme) {
-		if (scheme.equals(URIUtil.unknownLocation().getScheme())) {
-			return null;
-		}
 		IClassloaderLocationResolver result = classloaderResolvers.get(scheme);
 		if (result == null) {
 			Matcher m = splitScheme.matcher(scheme);
@@ -501,9 +495,6 @@ public class URIResolverRegistry {
 	}
 
 	private ISourceLocationOutput getOutputResolver(String scheme) {
-		if (scheme.equals(URIUtil.unknownLocation().getScheme())) {
-			return null;
-		}
 		ISourceLocationOutput result = outputResolvers.get(scheme);
 		if (result == null) {
 			Matcher m = splitScheme.matcher(scheme);
