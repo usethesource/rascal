@@ -24,7 +24,7 @@ import io.usethesource.vallang.ISourceLocation;
  *    standard library in the libs path of a PathConfig. 
  */
 public class StandardLibraryURIResolver implements ILogicalSourceLocationResolver {
-    private static final ISourceLocation currentRascalJar = 
+    private static final ISourceLocation currentRascalLibrary =
         URIUtil.getChildLocation(
             JarURIResolver.jarify(
                 resolveCurrentRascalJar()
@@ -44,7 +44,7 @@ public class StandardLibraryURIResolver implements ILogicalSourceLocationResolve
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        return URIUtil.getChildLocation(currentRascalJar, input.getPath()); 
+        return URIUtil.getChildLocation(currentRascalLibrary, input.getPath());
     }
 
     @Override
@@ -55,14 +55,6 @@ public class StandardLibraryURIResolver implements ILogicalSourceLocationResolve
     @Override
     public String authority() {
         return "";
-    }
-
-    /*
-     * Not for general use, but necessary information about the bill of
-     * materials for bootstrapping (running Rascal to implement Rascal).
-     */
-    public static ISourceLocation getDebugBootstrapLocation() {
-        return currentRascalJar;
     }
 
 }
