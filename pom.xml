@@ -201,7 +201,6 @@
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
-                            <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
                     </execution> 
                 </executions>
