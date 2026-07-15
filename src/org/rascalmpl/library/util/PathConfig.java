@@ -496,20 +496,22 @@ public class PathConfig {
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
     private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        var insideRascalJar = JarURIResolver.jarify(resolveCurrentRascalRuntime());
+        var currentRascalRuntime = resolveCurrentRascalRuntime();
+        var insideRascalJar = JarURIResolver.jarify(currentRascalRuntime);
+        var rascalLibrary = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/library");
         var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
         var typepal = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/typepal");
 
         if (mode == RascalConfigMode.INTERPRETER) {
-            // we're building a repl for the rascal-lsp project
+            // we're building a REPL for the rascal-lsp project
             // so this is a rascal-lsp developer working on code in rascal-lsp
             // most stuff flows from the
-            srcs.append(URIUtil.rootLocation("std"));
+            srcs.append(rascalLibrary);
             srcs.append(rascalCompiler);
             srcs.append(typepal);
         }
         else {
-            libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntime()));
+            libs.append(insideRascalJar);
             // while it's tempting to see if the rascal project is there, and we might be able to get the rascal compiler tpls from the target folder.
             // as long as we're hard wiring the rascal compler to follow the runtime
             // we have to let the type-checker for rascal-lsp re-type-check rascal compiler
@@ -517,7 +519,7 @@ public class PathConfig {
             srcs.append(rascalCompiler);
             srcs.append(typepal);
         }
-        libs.append(resolveCurrentRascalRuntime()); // add our own jar to the lib path to make sure rascal classes are found
+        libs.append(currentRascalRuntime); // add our own jar to the lib path to make sure rascal classes are found
 
         translateSources(manifestRoot, srcs, messages);
 
