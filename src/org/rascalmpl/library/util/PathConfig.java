@@ -22,7 +22,6 @@ import org.jline.utils.OSUtils;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
@@ -441,20 +440,18 @@ public class PathConfig {
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
     private static void buildRascalSelfApplicationConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, List<Artifact> mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+        // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
+        // but otherwise, you always get the boostrap Rascal in your REPL
+        var stdSrc = URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library");
+        srcs.append(stdSrc);
+
         if (mode == RascalConfigMode.INTERPRETER) {
-            // if you want to test rascal changes, use RascalShell class and run it as a java process
-            srcs.append(URIUtil.rootLocation("std"));
-            
-            messages.append(Messages.info("Bootstrap |std:///| = " + StandardLibraryURIResolver.getDebugBootstrapLocation(), workspaceRascal));
-            // add our own jar to the lib path to make sure rascal classes are found 
+            messages.append(Messages.info("Bootstrap stdlib = " + stdSrc, workspaceRascal));
+
+            // add our own jar/target folder to the lib path to make sure rascal classes are found
             var runtime = resolveCurrentRascalRuntime();
             libs.append(runtime);
             messages.append(Messages.info("Bootstrap runtime   = " + runtime, workspaceRascal));
-        }
-        else {
-            // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
-            // but otherwise, you alway get the `std:///` in your repl
-            srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
         }
 
         // compiler & tutor only paths
@@ -487,7 +484,7 @@ public class PathConfig {
         }
 
         // the interpreter should pick up the typepal sources
-        // and so should the typechecker, otherwise it might get type-checked against the wrong `std:///` jar (namely from it's pom.xml)
+        // and so should the typechecker, otherwise it might get type-checked against the wrong standard library (namely from it's pom.xml)
         if (typepal !=  null) {
             srcs.append(typepal);
         } else {
