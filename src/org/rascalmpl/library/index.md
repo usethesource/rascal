@@ -21,11 +21,11 @@ println("Hello Rascal!");
 
 The ((Library:module:IO)) module is otherwise most commonly used, because it contains ((println)).
 
-The standard library has its own location scheme `std:///` which can be used to explore
+The standard library has its own location scheme `project://rascal/src/org/rascalmpl/library/` which can be used to explore
 its folder structure on the REPL. Note that source locations have auto-complete for the path component.
 
 ```rascal-shell
-|std:///|.ls
+|project://rascal/src/org/rascalmpl/library/|.ls
 ```
 
 These are the entry points to the entire library:
