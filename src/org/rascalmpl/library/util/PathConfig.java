@@ -372,6 +372,10 @@ public class PathConfig {
         return resolveProjectOnClasspath("rascal");
     }
 
+    public static ISourceLocation resolveCurrentStandardLibrary() throws IOException {
+        return URIUtil.getChildLocation(JarURIResolver.jarify(resolveCurrentRascalRuntime()), "org/rascalmpl/library");
+    }
+
     public static ISourceLocation inferProjectRoot(Class<?> clazz) throws IOException {
         var url = clazz.getProtectionDomain().getCodeSource().getLocation();
         
