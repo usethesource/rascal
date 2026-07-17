@@ -60,11 +60,11 @@ public class CheckStdLibTest {
         typepal = MavenRepositoryURIResolver.mavenize(typepal);
         typepal = JarURIResolver.jarify(typepal);
         
-        URIResolverRegistry.getInstance().copy(typepal, URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntimeJar(), "org/rascalmpl/typepal"), true, true);
+        URIResolverRegistry.getInstance().copy(typepal, URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntime(), "org/rascalmpl/typepal"), true, true);
     }
 
     private void cleanSimulatedTypePal() throws IOException {
-        URIResolverRegistry.getInstance().remove(URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntimeJar(), "org/rascalmpl/typepal"), true);
+        URIResolverRegistry.getInstance().remove(URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntime(), "org/rascalmpl/typepal"), true);
     }
 
     private ISourceLocation rascalProjectRoot(ISourceLocation stdLibRoot) {

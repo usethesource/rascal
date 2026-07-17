@@ -369,7 +369,7 @@ public class PathConfig {
         throw new FileNotFoundException(projectName + " jar could not be located in the current runtime classpath");
     }
 
-    public static ISourceLocation resolveCurrentRascalRuntimeJar() throws IOException {
+    public static ISourceLocation resolveCurrentRascalRuntime() throws IOException {
         return resolveProjectOnClasspath("rascal");
     }
 
@@ -447,7 +447,7 @@ public class PathConfig {
             
             messages.append(Messages.info("Bootstrap |std:///| = " + StandardLibraryURIResolver.getDebugBootstrapLocation(), workspaceRascal));
             // add our own jar to the lib path to make sure rascal classes are found 
-            var runtime = resolveCurrentRascalRuntimeJar();
+            var runtime = resolveCurrentRascalRuntime();
             libs.append(runtime);
             messages.append(Messages.info("Bootstrap runtime   = " + runtime, workspaceRascal));
         }
@@ -499,7 +499,7 @@ public class PathConfig {
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
     private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        var insideRascalJar = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+        var insideRascalJar = JarURIResolver.jarify(resolveCurrentRascalRuntime());
         var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
         var typepal = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/typepal");
 
@@ -512,7 +512,7 @@ public class PathConfig {
             srcs.append(typepal);
         }
         else {
-            libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()));
+            libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntime()));
             // while it's tempting to see if the rascal project is there, and we might be able to get the rascal compiler tpls from the target folder.
             // as long as we're hard wiring the rascal compler to follow the runtime
             // we have to let the type-checker for rascal-lsp re-type-check rascal compiler
@@ -520,7 +520,7 @@ public class PathConfig {
             srcs.append(rascalCompiler);
             srcs.append(typepal);
         }
-        libs.append(resolveCurrentRascalRuntimeJar()); // add our own jar to the lib path to make sure rascal classes are found
+        libs.append(resolveCurrentRascalRuntime()); // add our own jar to the lib path to make sure rascal classes are found
 
         translateSources(manifestRoot, srcs, messages);
 
@@ -551,13 +551,13 @@ public class PathConfig {
         if (isRoot) {
             if (mode == RascalConfigMode.INTERPRETER) {
                 srcs.append(URIUtil.rootLocation("std")); // you'll always get rascal from standard in case of interpreter mode
-                libs.append(resolveCurrentRascalRuntimeJar()); // add our own jar to the lib path to make sure rascal classes are found
+                libs.append(resolveCurrentRascalRuntime()); // add our own jar to the lib path to make sure rascal classes are found
             }
             else {
                 assert mode == RascalConfigMode.COMPILER: "should be compiler";
                 // untill we go pom.xml first, you'll always get the rascal jar from our runtime
                 // not the one you requested in the pom.xml
-                libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar())); 
+                libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntime()));
             }
         }
 
