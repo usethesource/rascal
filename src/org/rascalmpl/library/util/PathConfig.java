@@ -546,20 +546,39 @@ public class PathConfig {
         }
     }
 
+    public static boolean isRascalArtifact(Artifact art) {
+        var coord = art.getCoordinate();
+        return coord.getArtifactId().equals("rascal")
+            && coord.getGroupId().equals("org.rascalmpl");
+    }
+
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
         if (isRoot) {
             if (mode == RascalConfigMode.INTERPRETER) {
-                srcs.append(URIUtil.rootLocation("std")); // you'll always get rascal from standard in case of interpreter mode
+                srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(resolveCurrentRascalRuntime()), "org/rascalmpl/library"));
                 libs.append(resolveCurrentRascalRuntime()); // add our own jar to the lib path to make sure rascal classes are found
             }
             else {
                 assert mode == RascalConfigMode.COMPILER: "should be compiler";
-                // untill we go pom.xml first, you'll always get the rascal jar from our runtime
-                // not the one you requested in the pom.xml
-                libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntime()));
+
+                var rascalFromPom = mavenClasspath.stream()
+                    .filter(PathConfig::isRascalArtifact)
+                    .findFirst()
+                    .map(Artifact::getResolved)
+                    .map(Path::toUri)
+                    .map(vf::sourceLocation);
+
+                if (rascalFromPom.isPresent()) {
+                    // Explicit Rascal dependency in the pom.xml
+                    libs.append(rascalFromPom.get()); 
+                } else {
+                    // Fall back to current runtime Rascal and warn the user
+                    var runtimeRascal = JarURIResolver.jarify(resolveCurrentRascalRuntime());
+                    messages.append(Messages.warning(String.format("No Rascal dependency found in pom.xml. Using %s instead.", runtimeRascal), manifestRoot));
+                    libs.append(runtimeRascal);
+                }
             }
         }
-
 
         // This processes Rascal libraries we can find in maven dependencies,
         // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
