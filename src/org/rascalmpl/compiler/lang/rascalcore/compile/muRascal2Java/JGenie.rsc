@@ -375,7 +375,7 @@ JGenie makeJGenie(MuModule m,
         if(fun2externals[src]?){
             fun = muFunctions[src];
             evars = _isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
+            return sort([var | var <- evars, var.pos? ? var.pos >= 0 : true, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
         return [];
     }
@@ -717,7 +717,7 @@ JGenie makeJGenie(MuModule m,
    
    bool varIn(MuExp var, set[MuExp] refs)
         = !isEmpty(refs) 
-           && any(er <- refs, er.name == var.name, er.pos == var.pos, er.fuid == var.fuid, var.pos != -1);
+           && any(er <- refs, er.name == var.name, er.fuid == var.fuid, var.pos?, er.pos == var.pos, var.pos != -1);
     
     bool _isRef(MuExp var) { 
         var1 = unsetRec(var, "alabel"); 

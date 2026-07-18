@@ -95,8 +95,10 @@ str varName(muVar(str name, loc _fuid, int pos, AType _, IdRole idRole)){ // dup
     if(name[0] == "$") return result;
     if(pos >= 0 || isWildCard(name)) result += "_<abs(pos)>";
     return result;
-    // TODO the above code replaces this (for the benefit of the compiler):
-    // return (name[0] != "$") ? "<asJavaName(name)><(pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "">" : asJavaName(name);
+}
+
+str varName(muVarKwp(str name, loc _, AType _)){            // duplicate, see CodeGen
+    return asJavaName(name);
 }
 
 /*****************************************************************************/
@@ -181,9 +183,6 @@ str generateResolvers(MODID moduleId, map[FUNID, MuFunction] fid2muFunction, set
 
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
-        if(fname == "head"){
-            println("generateResolvers:head");
-        }
         // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
 
@@ -218,7 +217,7 @@ str generateResolvers(MODID moduleId, map[FUNID, MuFunction] fid2muFunction, set
 list[MuExp] getExternalRefs(Define fun_def, map[loc, MuFunction] fid2muFunction){
     if(fid2muFunction[fun_def.defined]?){
         fun = fid2muFunction[fun_def.defined];
-        return sort({ ev | ev <- fun.externalRefs, ev.pos >= 0, ev notin fun.formals });
+        return sort({ ev | ev <- fun.externalRefs, ev.pos? ? ev.pos >= 0 : true, ev notin fun.formals });
     } else {
         return [];
     }
@@ -241,9 +240,6 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[MODID] import_s
 
 str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map[FUNID, MuFunction] fid2muFunction, MODID module_scope, set[MODID] import_scopes, set[MODID] extend_scopes, Paths paths, TModel tm, map[loc, MODID] loc2module, PathConfig pcfg, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
-    if(functionName =="head"){
-        println("generateResolver: head");
-    }
     moduleName = moduleId2moduleName(moduleId);
     module_scopes = range(loc2module);
     logical2physical = tm.logical2physical;
@@ -301,16 +297,17 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     resolver_name = "<inner_scope><asJavaName(functionName)>";
 
     fun_kwFormals = acons_kwfields;
-    for(def <- relevant_fun_defs, def notin cons_defs, defType(AType tp) := def.defInfo){
+    for(def <- relevant_fun_defs, isModuleId(def.scope), def notin cons_defs, defType(AType tp) := def.defInfo){
         if(fid2muFunction[def.defined]?){
             fun = fid2muFunction[def.defined];
-            fun_kwFormals += jg.collectKwpFormals(fun);
+            fun_kwFormals += tp.kwFormals; //jg.collectKwpFormals(fun);
         } else {
             fun_kwFormals += tp.kwFormals;
         }
     }
-
-    resolver_fun_type = resolver_fun_type[kwFormals=fun_kwFormals];
+    if(!isEmpty(fun_kwFormals)){
+        resolver_fun_type = resolver_fun_type[kwFormals=fun_kwFormals];
+    }
 
     resolver_formals_types = [ avalue() | _ <- resolver_fun_type.formals ];
     resolver_arity_formal_types = size(resolver_formals_types);
@@ -441,7 +438,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
             activeKwpFormals += tp.kwFormals;
           }
         }
-        if(hasKeywordParameters(def_type) || (def.scope notin module_scopes && !isEmpty(activeKwpFormals))){
+        if(hasKeywordParameters(def_type) /*|| (def.scope notin module_scopes && !isEmpty(activeKwpFormals))*/){
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
 
