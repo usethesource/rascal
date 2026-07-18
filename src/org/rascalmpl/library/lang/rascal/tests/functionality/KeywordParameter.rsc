@@ -85,27 +85,27 @@ module lang::rascal::tests::functionality::KeywordParameter
 // test bool keywordParam91() {
 //     return f10(0,delta=1).delta == 1;
 // }
-  
-test bool keywordParam92(){
-	bool f11(bool c = false){
-		bool g11(){
-			return c;
-		}
-		return g11();
-	}
-	return f11() == false;
-}
-
-// test bool keywordParam93(){
-// 	bool f12(bool c = false){
-// 		void g12(){
-// 			c = true;
+                   
+// test bool keywordParam92(){
+// 	bool f11(bool c = false){
+// 		bool g11(){
+// 			return c;
 // 		}
-// 		g12();
-// 		return c;
+// 		return g11();
 // 	}
-// 	return f12() == true;
+// 	return f11() == false;
 // }
+
+test bool keywordParam93(){
+	bool f12(bool c = false){
+		void g12(){
+			c = true;
+		}
+		g12();
+		return c;
+	}
+	return f12() == true;
+}
 
 // test bool keywordParam101(){
 //     int f13(int c = 10){

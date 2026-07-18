@@ -972,9 +972,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 
 JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
     
-    if(fun is muFun && contains(fun.uid.path, "head")){
-        println("muOCall((<fun>, <ftype>, ..., <src>");
-    }
+    println("muOCall((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
@@ -996,14 +994,15 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
     if(muFun(loc uid, _) := fun){
         <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
         externalRefs = jg.getExternalRefs(uid);
-        externals = [ varName(var, jg) | var <- sort(externalRefs), !isVarDeclaredInFun(var, jg.getFunction())/*, var notin fun.formals*/];
+        
+        externals = [ var is muVarKwp ? "new ValueRef\<<atype2javatype(var.atype)>\>(<trans(var, jg)>)" : varName(var, jg) | var <- sort(externalRefs)/*, !isVarDeclaredInFun(var, jg.getFunction())*/];
     
         if(jg.isContainedIn(uid, jg.getModuleLoc())){
             fn = muFunctions[uid];
             kwactuals1 = jg.collectKwpFormals(fn);
             if(!isEmpty(ftype.kwFormals) && isEmpty(kwactuals) && !isEmpty(kwactuals1)) kwactuals = ["$kwpActuals"];
-            externalRefs -= fn.formals;
-            externals = [ varName(var, jg) | var <- sort(externalRefs) ];
+            // externalRefs -= fn.formals;
+            // externals = [ varName(var, jg) | var <- sort(externalRefs) ];
             arg_list = "(<intercalate(", ", actuals + kwactuals + externals)>)"; 
             
             fun_name = isGlobalScope(fn.scopeIn) 

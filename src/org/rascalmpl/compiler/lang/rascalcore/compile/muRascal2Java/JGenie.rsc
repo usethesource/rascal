@@ -375,7 +375,8 @@ JGenie makeJGenie(MuModule m,
         if(fun2externals[src]?){
             fun = muFunctions[src];
             evars = _isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return sort([var | var <- evars, var.pos? ? var.pos >= 0 : true, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
+            res = sort([var | var <- evars, var.pos? ? var.pos >= 0 : true, var notin fun.formals /*, !isVarDeclaredInFun(var, fun)*/ ]);
+            return res;
         }
         return [];
     }
