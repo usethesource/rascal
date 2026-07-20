@@ -369,7 +369,7 @@ public class PathConfig {
     }
 
     public static ISourceLocation resolveCurrentRascalRuntime() throws IOException {
-        return resolveProjectOnClasspath("rascal");
+        return MavenRepositoryURIResolver.mavenize(resolveProjectOnClasspath("rascal"));
     }
 
     public static ISourceLocation resolveCurrentStandardLibrary() throws IOException {
@@ -570,11 +570,12 @@ public class PathConfig {
                     .findFirst()
                     .map(Artifact::getResolved)
                     .map(Path::toUri)
-                    .map(vf::sourceLocation);
+                    .map(vf::sourceLocation)
+                    .map(MavenRepositoryURIResolver::mavenize);
 
                 if (rascalFromPom.isPresent()) {
                     // Explicit Rascal dependency in the pom.xml
-                    libs.append(rascalFromPom.get()); 
+                    libs.append(rascalFromPom.get());
                 } else {
                     // Fall back to current runtime Rascal and warn the user
                     var runtimeRascal = JarURIResolver.jarify(resolveCurrentRascalRuntime());
