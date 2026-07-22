@@ -202,6 +202,13 @@ test bool typedVariableBecomesWrongType() = cannotMatch("str N : 3 := 3;");
 test bool redeclaredTypedVariableBecomesShadowsAnother() = redeclaredVariable("int N = 5; int N : 3 := 3 && N == 3;");  
   	
 test bool doubleTypedVariableBecomes() = redeclaredVariable("[int N : 3, int N : 4] := [3,4] && N == 3;");  
+
+test bool variableBecomesUsesSyntaxSubjectType() = checkModuleOK("
+   module VariableBecomesUsesSyntaxSubjectType
+      syntax B = \"b\";
+      B a(int _) = (B)`b`;
+      map[int, B] b = (n : f | n \<- [0], f:_ := a(n));
+   ");
   	
 test bool matchListExternalVar1() = checkOK("list[int] S; [1, *S, 2] !:= [1,2,3] && S != [3];");
 
