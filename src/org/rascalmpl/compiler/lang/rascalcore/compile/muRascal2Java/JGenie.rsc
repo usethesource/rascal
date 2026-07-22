@@ -120,7 +120,7 @@ JGenie makeJGenie(MuModule m,
     checkAllTypesAvailable(currentTModel);  // TODO: remove
     MODID currentModuleScope = moduleId; //moduleName2moduleId(moduleName);
     str functionName = "$UNKNOWN";
-    MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
+    MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
     map[FUNID,set[MuExp]] fun2externals = (fun.funId : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));

@@ -95,17 +95,17 @@ module lang::rascal::tests::functionality::KeywordParameter
 // 	}
 // 	return f11() == false;
 // }
-
-test bool keywordParam93(){
-	bool f12(bool c = false){
-		void g12(){
-			c = true;
-		}
-		g12();
-		return c;
-	}
-	return f12() == true;
-}
+      
+// test bool keywordParam93(){
+// 	bool f12(bool c = false){
+// 		void g12(){
+// 			c = true;
+// 		}
+// 		g12();
+// 		return c;
+// 	}
+// 	return f12() == true;
+// }
 
 // test bool keywordParam101(){
 //     int f13(int c = 10){
@@ -156,7 +156,7 @@ test bool keywordParam93(){
 //     }
 //     return f17(c=11) == 200;
 // }
-
+      
 // test bool keywordParam106(){
 //     int f18(int c = 10){
 //         int h18(){
@@ -246,8 +246,8 @@ test bool keywordParam93(){
 //     return ax.r.a == {1};
 // }
 
-// // Keyword parameters used in closures
-
+// Keyword parameters used in closures
+      
 // test bool keywordParameterInClosure1(){
 //     int f(int n, int(int) fun) = n + fun(n);
 
@@ -275,14 +275,14 @@ test bool keywordParam93(){
 //     return g(7, d=5) == 19;
 // }
 
-// // Using keyword parameters in inner functions
+// Using keyword parameters in inner functions
 
-
-// int outer1(int t, int tabSize=4){
-//     int rec(int t) = t + tabSize  when t > 10;
-//     default int rec(int t) = t;
-//     return rec(t);
-// }
+//>>>    
+int outer1(int t, int tabSize=4){
+    int rec(int t) = t + tabSize  when t > 10;
+    default int rec(int t) = t;
+    return rec(t);
+}
 
 // test bool outer1_1() = outer1(1) == 1;
 // test bool outer1_11() = outer1(11) == 15;

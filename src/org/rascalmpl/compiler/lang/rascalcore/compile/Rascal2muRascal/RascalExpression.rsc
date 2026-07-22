@@ -717,7 +717,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   false,
   								   getExternalRefs(funBody, fuid, formalVars),  // << TODO
   								   getLocalRefs(funBody),
-  								   {},
+  								   //{},
   								   e.src,
   								   [],
   								   (),

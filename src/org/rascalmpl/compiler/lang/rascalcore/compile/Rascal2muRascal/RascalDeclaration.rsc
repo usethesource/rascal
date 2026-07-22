@@ -317,7 +317,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       								 isMemo,
       								 externals,
       								 localRefs,
-      								 getKeywordParameterRefs(tbody, funId),
+      								//  getKeywordParameterRefs(tbody, funId),
       								 fd.src, 
       								 tmods, 
       								 ttags,
@@ -371,7 +371,7 @@ private default bool hasParameterName(Pattern p, int i) = false;
  */
 private set[MuExp] getVarsUsedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /v:muVar(str _name, loc _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
 
 /*

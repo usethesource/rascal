@@ -80,9 +80,9 @@ public data MuFunction =
                            bool isVarArgs,                  // Has it variable arguments?
                            bool isPublic,                   // Is it public?
                            bool isMemo,                     // Is it a memo function?
-                           set[MuExp] externalRefs,         // References to variables in outer scope
+                           set[MuExp] externalRefs,         // References to variables in outer scope (including keywoed parameters)
                            set[MuExp] localRefs,            // references to local variables from visits
-                           set[MuExp] keywordParameterRefs, // References to keyword parameters
+                        //    set[MuExp] keywordParameterRefs, // References to keyword parameters
                            loc src,                         // Source code of this function
                            list[str] modifiers,
                            map[str,str] tags,
