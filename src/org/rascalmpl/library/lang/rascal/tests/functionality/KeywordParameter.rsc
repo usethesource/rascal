@@ -277,12 +277,11 @@ module lang::rascal::tests::functionality::KeywordParameter
 
 // Using keyword parameters in inner functions
 
-//>>>    
-int outer1(int t, int tabSize=4){
-    int rec(int t) = t + tabSize  when t > 10;
-    default int rec(int t) = t;
-    return rec(t);
-}
+// int outer1(int t, int tabSize=4){
+//     int rec(int t) = t + tabSize  when t > 10;
+//     default int rec(int t) = t;
+//     return rec(t);
+// }
 
 // test bool outer1_1() = outer1(1) == 1;
 // test bool outer1_11() = outer1(11) == 15;
@@ -298,18 +297,18 @@ int outer1(int t, int tabSize=4){
 // test bool outer2_11() = outer2(11) == 20;
 // test bool outer2_11_kw() = outer2(11, tabSize=40) == 56;
 
-// int outer3(int t, int tabSize=4){
-//     int rec(int t){
-//         int rec_inner(int t) = t + tabSize  when t > 10;
-//         default int rec_inner(int t) = t;
-//         return rec_inner(t);
-//     }
-//     return rec(t);
-// }
+int outer3(int t, int tabSize=4){
+    int rec(int t){
+        int rec_inner(int t) = t + tabSize  when t > 10;
+        default int rec_inner(int t) = t;
+        return rec_inner(t);
+    }
+    return rec(t);
+}
 
-// test bool outer3_1() = outer3(1) == 1;
-// test bool outer3_11() = outer3(11) == 15;
-// test bool outer3_11_kw() = outer3(11, tabSize=40) == 51;
+test bool outer3_1() = outer3(1) == 1;
+test bool outer3_11() = outer3(11) == 15;
+test bool outer3_11_kw() = outer3(11, tabSize=40) == 51;
 
 
 // int outer4(int t, int tabSize=4){

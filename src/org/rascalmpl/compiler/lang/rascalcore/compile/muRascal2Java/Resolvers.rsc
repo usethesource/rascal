@@ -335,7 +335,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     body += "<for(int i <- index(resolver_formals_types)){>Type $P<i>Type = $P<i>.getType();\n<}>";
 
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    activeKwpFormals1 = { *jg.collectKwpFormals(fun)
+    activeKwpFormals1 = { *fun.ftype.kwFormals  //*jg.collectKwpFormals(fun)
                         | def <- local_fun_defs,
                           //def.defined in local_fun_defs, //.defined,
                           //def notin cons_defs,
