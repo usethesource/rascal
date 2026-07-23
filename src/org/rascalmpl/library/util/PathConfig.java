@@ -558,30 +558,29 @@ public class PathConfig {
 
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
         if (isRoot) {
-            if (mode == RascalConfigMode.INTERPRETER) {
-                srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(resolveCurrentRascalRuntime()), "org/rascalmpl/library"));
-                libs.append(resolveCurrentRascalRuntime()); // add our own jar to the lib path to make sure rascal classes are found
+            ISourceLocation rascal;
+            var rascalFromPom = mavenClasspath.stream()
+                .filter(PathConfig::isRascalArtifact)
+                .findFirst()
+                .map(Artifact::getResolved)
+                .map(Path::toUri)
+                .map(vf::sourceLocation)
+                .map(MavenRepositoryURIResolver::mavenize)
+                .map(JarURIResolver::jarify);
+
+            if (rascalFromPom.isPresent()) {
+                // Explicit Rascal dependency in the pom.xml
+                rascal = rascalFromPom.get();
+            } else {
+                // Fall back to current runtime Rascal and warn the user
+                rascal = JarURIResolver.jarify(resolveCurrentRascalRuntime());
+                messages.append(Messages.warning(String.format("No Rascal dependency found in pom.xml. Using %s instead.", rascal), manifestRoot));
             }
-            else {
-                assert mode == RascalConfigMode.COMPILER: "should be compiler";
 
-                var rascalFromPom = mavenClasspath.stream()
-                    .filter(PathConfig::isRascalArtifact)
-                    .findFirst()
-                    .map(Artifact::getResolved)
-                    .map(Path::toUri)
-                    .map(vf::sourceLocation)
-                    .map(MavenRepositoryURIResolver::mavenize);
-
-                if (rascalFromPom.isPresent()) {
-                    // Explicit Rascal dependency in the pom.xml
-                    libs.append(rascalFromPom.get());
-                } else {
-                    // Fall back to current runtime Rascal and warn the user
-                    var runtimeRascal = JarURIResolver.jarify(resolveCurrentRascalRuntime());
-                    messages.append(Messages.warning(String.format("No Rascal dependency found in pom.xml. Using %s instead.", runtimeRascal), manifestRoot));
-                    libs.append(runtimeRascal);
-                }
+            libs.append(rascal);
+            if (mode == RascalConfigMode.INTERPRETER) {
+                // The compiler does not need sources, but the interpreter does.
+                srcs.append(URIUtil.getChildLocation(rascal, "org/rascalmpl/library"));
             }
         }
 
