@@ -1,6 +1,6 @@
 package org.rascalmpl.interpreter.load;
 
-import java.util.List;
+import java.util.Queue;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -18,9 +18,9 @@ public class SourceLocationListContributor implements IRascalSearchPathContribut
   }
   
   @Override
-  public void contributePaths(List<ISourceLocation> path) {
+  public void contributePaths(Queue<ISourceLocation> path) {
     for (IValue elem : locs) {
-      path.add(((ISourceLocation) elem));
+      path.add((ISourceLocation) elem);
     }
   }
 
