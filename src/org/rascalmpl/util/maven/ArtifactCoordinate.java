@@ -40,7 +40,7 @@ public class ArtifactCoordinate {
     private final String version;
     private final String classifier;
 
-    ArtifactCoordinate(String groupId, String artifactId, String version, @Nullable String classifier) {
+    public ArtifactCoordinate(String groupId, String artifactId, String version, @Nullable String classifier) {
         Objects.requireNonNull(groupId);
         Objects.requireNonNull(artifactId);
         Objects.requireNonNull(version);

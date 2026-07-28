@@ -19,6 +19,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.util.maven.ArtifactCoordinate;
 import org.rascalmpl.util.maven.MavenSettings;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -29,57 +30,57 @@ import io.usethesource.vallang.ISourceLocation;
 /**
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * For a discussion om REMOTE repositories see below.
- * 
+ *
  * We use `mvn://<groupid>--<name>--<version>/<path-inside-jar>` as the scheme;
- * 
+ *
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file. This is analogous to other schemes for projects
  * and deployed projects such as project://, target://, plugin://, bundle:// and bundleresource://:
  * the authority identifies the container, and the path identifies what is inside.
- * 
+ *
  * Here `version` is an arbitrary string with lots of numbers, dots, dashed and underscores.
  * Typically we'd expect the semantic versioning scheme here with some release tag, but
  * real maven projects frequently do not adhere to that standard. Hence we have to be "free"
  * here and allow lots of funny version strings. This is also why we use -- to separate
  * the version from the artifactId.
- * 
- * Locations with the `mvn` scheme are typically produced by configuration code that uses 
+ *
+ * Locations with the `mvn` scheme are typically produced by configuration code that uses
  * a Maven pom.xml to resolve dependencies. Once the group id, name and version are known, any
  * `mvn:///` location is easily constructed and used. It can be seen as a transparent
  * short-hand for an absolute `file:///` location that points into the (deeply nested)
  * .m2 local repository. The prime benefits are:
  *    1. much shorter location than `file:///`
  *    2. full referential transparency, more so than `lib:///`
- *    3. unique identification, modulo the (configured) location of the local repository. 
- * 
+ *    3. unique identification, modulo the (configured) location of the local repository.
+ *
  * This resolver does NOT find the "latest" version or any version of a package without an explicit
  * version reference in the authority pattern, by design. Any automated resolution here would
- * make the dependency management downstream less transparant and possibly error-prone. 
- * The `mvn://` locations are intended to be the _result_ of dependency resolution, not 
+ * make the dependency management downstream less transparant and possibly error-prone.
+ * The `mvn://` locations are intended to be the _result_ of dependency resolution, not
  * to implement dependency resolution.
- * 
+ *
  * This resolver also does not implement any download or installation procedure, by design.
  * It does not access any REMOTE repositories although it easily could be implemented.
  * This scheme should simply reflect what _has been downloaded and installed_ into the LOCAL maven
  * repository. This is for the sake of transparancy and predictability, but also for _legal_ reasons:
- * Any automated implicit downloading by the `mvn://` scheme could easily result in late/lazy downloading 
- * and linking by end-users who have not been able to diligently vet the legal implications of the 
+ * Any automated implicit downloading by the `mvn://` scheme could easily result in late/lazy downloading
+ * and linking by end-users who have not been able to diligently vet the legal implications of the
  * reuse of another library. Therefore this scheme DOES NOT DOWNLOAD stuff, ever.
- * 
+ *
  * PLEASE DO NOT EVER ADD AUTOMATIC DOWNLOADING OR ACCESS TO REMOTE REPOSITORIES TO THIS SCHEME,
  * however easy or practical this may seem.
- * Download, installation, linking, bundling, making fat jars, etc. must all be scrutinized by the due 
+ * Download, installation, linking, bundling, making fat jars, etc. must all be scrutinized by the due
  * diligence legal processes for open-source dependencies. Those who take responsibility
- * for dependencies on open-source packages, with for example GPL licenses, must have the 
+ * for dependencies on open-source packages, with for example GPL licenses, must have the
  * opportunity to scrutinize every instance of incorporating such as dependency. Therefore
  * it must not be automated here. Note that these are not necessarily people from the usethesource or
- * Rascal-contributing organizations; but our industrial, educational and academic users 
+ * Rascal-contributing organizations; but our industrial, educational and academic users
  * (Rascal language engineers) that we protect here.
- * 
+ *
  * This resolver is to replace for the large part the use of the deprecate `lib` scheme
- * from {@see RascalLibraryURIResolver} which left too much implicit and automated too 
- * much to obtain any transparancy in dependency resolution. 
- * 
+ * from {@see RascalLibraryURIResolver} which left too much implicit and automated too
+ * much to obtain any transparancy in dependency resolution.
+ *
  */
 public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
     private static final String GROUP_ARTIFACT_VERSION_SEPARATOR = "--";
@@ -111,7 +112,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         }
     }
 
-    public MavenRepositoryURIResolver(URIResolverRegistry reg) throws IOException, URISyntaxException {
+    public MavenRepositoryURIResolver(URIResolverRegistry reg) throws URISyntaxException {
         this.reg = reg;
         this.rootIsCaseSensitive = !isCaseInsensitive(reg, root);
     }
@@ -119,13 +120,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
         return URIUtil.createFileLocation(MavenSettings.mavenRepository());
     }
- 
-    /** 
-     * @param input   mvn://groupid--artifactId--version/path
-     * @return        a file:/// reference to the jar file that is designated by the authority.
-     * @throws IOException when the authority does not designate a jar file
-     */
-    private ISourceLocation resolveJar(ISourceLocation input) throws IOException {
+
+    public static ArtifactCoordinate getCoordinates(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
 
         if (authority.isEmpty()) {
@@ -134,30 +130,39 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
         var parts = authority.split(GROUP_ARTIFACT_VERSION_SEPARATOR);
 
-        if (parts.length == 3) {
-            String group = parts[0];
-            String name = parts[1];
-            String version = parts[2];
-            
-            String jarPath 
-                = group.replace(".", URI_PATH_SEPARATOR)
-                + URI_PATH_SEPARATOR
-                + name
-                + URI_PATH_SEPARATOR
-                + version
-                + URI_PATH_SEPARATOR
-                + name
-                + "-"
-                + version
-                + ".jar"
-                ;
-
-            // find the right jar file in the .m2 folder
-            return calculateChildPath(jarPath);
-        }
-        else {
+        if (parts.length != 3) {
             throw new IOException("Pattern mvn://groupId--artifactId--version did not match on " + input);
         }
+
+        return new ArtifactCoordinate(parts[0], parts[1], parts[2], null);
+    }
+
+    /**
+     * @param input   mvn://groupid--artifactId--version/path
+     * @return        a file:/// reference to the jar file that is designated by the authority.
+     * @throws IOException when the authority does not designate a jar file
+     */
+    public ISourceLocation resolveJar(ISourceLocation input) throws IOException {
+        var coordinates = getCoordinates(input);
+        var group = coordinates.getGroupId();
+        var name = coordinates.getArtifactId();
+        var version = coordinates.getVersion();
+
+        String jarPath
+            = group.replaceAll("\\.", "/")
+            + "/"
+            + name
+            + "/"
+            + version
+            + "/"
+            + name
+            + "-"
+            + version
+            + ".jar"
+            ;
+
+        // find the right jar file in the .m2 folder
+        return calculateChildPath(jarPath);
     }
 
     private final Cache<String, ISourceLocation> caseCorrectedPaths = Caffeine.newBuilder()
