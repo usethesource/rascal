@@ -150,7 +150,7 @@ private MuExp translateAddFunction(Expression e){
 
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
-  fun = muFunction(add_name, add_fuid, funType, lactuals, [], [], scopeId, false, false, false, getExternalRefs(body, add_fuid, []), {}, {}, e.src, [], (), body);
+  fun = muFunction(add_name, add_fuid, funType, lactuals, [], [], scopeId, false, false, false, getExternalRefs(body, add_fuid, []), {}, e.src, [], (), body);
   loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e.src);
   addFunctionToModule(fun);
   addDefineAndType(<currentFunctionDeclaration(), add_name, add_name, functionId(), /*1000+e@\loc.offset,*/ e.src, defType(funType)>, funType); // TODO: replace arbitrary number

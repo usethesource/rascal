@@ -25,25 +25,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4  
-   
-int(int) f(int a = 0) = int(int x) { return x + a; };
-                      
-  
+ 
+int outer1(int t, int tabSize=4){
+    int rec(int t) = t + tabSize  when t > 10;
+    default int rec(int t) = t;
+    return rec(t);
+}
 
-      
-// // test bool keywordParameterInClosure1(){
-//     int f(int n, int(int) fun) = n + fun(n);
-
-//     int g(int d = 3){
-//         return f(7, int(int x) { return x + d; });
-//     }
-    // return g(d = 5) == 19;
-// }
-
-// void repo(
-//   int repo_base, 
-//   int kw_base = repo_base + 1
-//   ) {
-//     bool doAnno(int n)                = n > kw_base;
-                             
-// } 
+int outer2(int t, int tabSize=4){
+    int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
+    default int rec(int t) = t;
+    return rec(t);
+}

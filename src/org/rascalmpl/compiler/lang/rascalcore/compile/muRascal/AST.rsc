@@ -80,7 +80,7 @@ public data MuFunction =
                            bool isVarArgs,                  // Has it variable arguments?
                            bool isPublic,                   // Is it public?
                            bool isMemo,                     // Is it a memo function?
-                           set[MuExp] externalRefs,         // References to variables in outer scope (including keywoed parameters)
+                           set[MuExp] externalRefs,         // References to variables in outer scope (including keyword parameters)
                            set[MuExp] localRefs,            // references to local variables from visits
                         //    set[MuExp] keywordParameterRefs, // References to keyword parameters
                            loc src,                         // Source code of this function
@@ -378,8 +378,12 @@ MuExp muVarKwp(str name, loc _fuid, AType _atype) {
 bool isSameVar(MuExp x, MuExp y)
     = x is muVar && y is muVar && x.name == y.name && x.fuid == y.fuid && x.pos == y.pos;
 
-bool isVarDeclaredInFun(MuExp var, MuFunction fun)
-    = endsWith(var.fuid.path, fun.funId.path);
+bool isVarDeclaredInFun(MuExp var, MuFunction fun){
+
+    res = endsWith(var.fuid.path, fun.funId.path);
+    println("isVarDeclaredInFun <var>, <fun.funId> =\> <res>");
+    return res;
+}
      
 bool isSyntheticFunctionName(str name)
     = contains(name, "$");

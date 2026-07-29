@@ -239,8 +239,9 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[MODID] import_s
 // Generate a resolver for a specific function
 
 str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map[FUNID, MuFunction] fid2muFunction, MODID module_scope, set[MODID] import_scopes, set[MODID] extend_scopes, Paths paths, TModel tm, map[loc, MODID] loc2module, PathConfig pcfg, JGenie jg){
-    //println("generate resolver for <moduleName>, <functionName>");
+   
     moduleName = moduleId2moduleName(moduleId);
+    println("generate resolver for <moduleName>, <functionName>");
     module_scopes = range(loc2module);
     logical2physical = tm.logical2physical;
 
@@ -288,10 +289,12 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     inner_scope = "";
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        for(def <- relevant_fun_defs, getRascalModuleName(def.defined, pcfg) == moduleName/*jg.isContainedIn(def.defined, module_scope)*/){
+        for(def <- relevant_fun_defs, getModuleName(def.defined) == moduleName/*jg.isContainedIn(def.defined, module_scope)*/){
             fun = fid2muFunction[def.defined];
-            inner_scope = "<fun.scopeIn>_";
-            break;
+            if(isFunctionId(fun.scopeIn)){
+                inner_scope = "<getFunctionName(fun.scopeIn)>_";
+                break;
+            }
         }
     }
     resolver_name = "<inner_scope><asJavaName(functionName)>";

@@ -158,7 +158,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
                 
                 defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar, kw.definingModule);
                 body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-                addFunctionToModule(muFunction(getterName, getterId, getterType, [consVar], [], [], |global-scope:///|, false, true, false, {}, {}, {}, getModuleScope(), [], (), body)); 
+                addFunctionToModule(muFunction(getterName, getterId, getterType, [consVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body)); 
             } else {
                 println("In generated_getters: <getterName>");
                 
@@ -195,7 +195,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
                        ]
                        + failCode
                       );
-        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
     
         /*
@@ -222,7 +222,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar, kw.definingModule);
         body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
   
     
@@ -305,7 +305,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       extendedFormalVars = getExtendedFunctionFormals(funId, funId);
       localRefs = getLocalRefs(tbody);
        
-      addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
+      addFunctionToModule(muFunction(fname, 
                                      funId, 
       								 ftype,
       								 formalVars,

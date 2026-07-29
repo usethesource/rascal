@@ -324,7 +324,7 @@ JGenie makeJGenie(MuModule m,
                     return "<module2field(scope)>.<jname>";
                 }
             } else if(isFunctionId(scope)){
-                return jname;
+                return "<getFunctionName(scope)>_<jname>";
             }
         }
        

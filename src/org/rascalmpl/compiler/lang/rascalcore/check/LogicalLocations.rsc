@@ -28,7 +28,20 @@ bool isFunctionId(loc l) = l.scheme == "rascal+function";
 str getFunctionName(FUNID fuid){
     assert isFunctionId(fuid);
     k = findLast(fuid.path, "/");
-    return fuid.path[k+1..];
+    name = fuid.path[k+1..];
+    j = findLast(name, "$");
+    if(j >= 0){
+        name = name[..j];
+    }
+    return name;
+}
+
+str getModuleName(FUNID fuid){
+    assert isFunctionId(fuid);
+    k = findLast(fuid.path, "/");
+    res = replaceAll(fuid.path[1..k], "/", "::");
+    println("getModuleName <fuid> =\> <res>");
+    return res;
 }
 
 alias CONSID = loc; // constructor identification

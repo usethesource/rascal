@@ -87,6 +87,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     imports += { mid | imp <- imports, <imp, extendPath(), mid> <- tm.paths};
     
     // Iteratively propagate external dependencies of functions
+    muFunctions = (f.funId : f | f <- m.functions);
     list[MuFunction] functions = m.functions;
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
@@ -101,7 +102,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     }
     m.functions = functions;
     
-    muFunctions = (f.funId : f | f <- m.functions);
+    muFunctions = (f.funId : f | f <- functions);
  
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     resolvers = generateResolvers(moduleId, muFunctions, imports, extends, tmodels, moduleLocs, pcfg, jg);
@@ -304,6 +305,9 @@ set[MuExp] filteredExternalRefs(MuFunction fun)
     = { ev | ev <- fun.externalRefs, !isVarDeclaredInFun(ev, fun) } - toSet(fun.extendedFormalVars);
     
 MuFunction addTransitiveRefs(MuFunction fun){
+    if(fun.name == "rec"){
+        println("rec");
+    }
     usedFunDefs = {};
     visit (fun.body){
       case muFun(FUNID uid, AType _atype): usedFunDefs += uid;
@@ -315,7 +319,9 @@ MuFunction addTransitiveRefs(MuFunction fun){
     
     deltaExternalRefs = externalRefs - fun.externalRefs ;
     deltaLocalRefs =  { e | e <- externalRefs, e.fuid == fun.funId } - fun.localRefs;
-   
+    println("<fun.funId>:
+        usedFuns: <for(u <- usedFuns){><u.name> <}>
+        externalRefs: <externalRefs>");
     if(!(isEmpty(deltaExternalRefs))){
         fun.externalRefs += deltaExternalRefs;
         //fun.externalRefs = filteredExternalRefs(fun);
@@ -987,7 +993,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
     
     println("muOCall((<fun>, <ftype>, ..., <src>");
-    argTypes = getFunctionOrConstructorArgumentTypes(ftype);
+    argTypes =    getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
     if(muOFun(list[FUNID] funIds, AType _) := fun){   
@@ -1023,7 +1029,10 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
                             ? "$me.<asJavaName(getFunctionName(fn))>" 
                             : (isClosureName(fn.name) 
                                     ? fn.name 
-                                    : getFunctionName(fn.funId)         
+                                    : (isFunctionId(fn.scopeIn)
+                                       ? "<getFunctionName(fn.scopeIn)>_<getFunctionName(fn.funId)>"
+                                       : getFunctionName(fn.funId)      
+                                      )   
                               );           
 
             result = "<asJavaName(fun_name)><arg_list>";
