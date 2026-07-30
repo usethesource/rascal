@@ -131,7 +131,7 @@ public class PathConfig {
         this.srcs = srcs;
         this.ignores = ignores;
         this.bin = bin;
-        this.libs = ignores;
+        this.libs = libs;
         this.resources = resources;
         this.messages = messages;
     }
