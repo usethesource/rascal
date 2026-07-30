@@ -212,9 +212,6 @@ JGenie makeJGenie(MuModule m,
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
             // TODO: the following conditions were originally combined with an ||, but the compiler does not like that
             if(isConstructorAType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel){
-                //if(tlabel == "conditional"){
-                //    println("conditional");
-                //}
                 found_defs += def;
             } else if(aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtypeList(ps1, ps2)){
                 found_defs += def;

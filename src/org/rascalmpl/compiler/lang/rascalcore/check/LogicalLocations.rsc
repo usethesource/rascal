@@ -39,9 +39,7 @@ str getFunctionName(FUNID fuid){
 str getModuleName(FUNID fuid){
     assert isFunctionId(fuid);
     k = findLast(fuid.path, "/");
-    res = replaceAll(fuid.path[1..k], "/", "::");
-    println("getModuleName <fuid> =\> <res>");
-    return res;
+    return replaceAll(fuid.path[1..k], "/", "::");
 }
 
 alias CONSID = loc; // constructor identification

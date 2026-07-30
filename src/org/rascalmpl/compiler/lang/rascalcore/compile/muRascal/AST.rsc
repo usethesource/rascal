@@ -381,7 +381,7 @@ bool isSameVar(MuExp x, MuExp y)
 bool isVarDeclaredInFun(MuExp var, MuFunction fun){
 
     res = endsWith(var.fuid.path, fun.funId.path);
-    println("isVarDeclaredInFun <var>, <fun.funId> =\> <res>");
+    // println("isVarDeclaredInFun <var>, <fun.funId> =\> <res>");
     return res;
 }
      

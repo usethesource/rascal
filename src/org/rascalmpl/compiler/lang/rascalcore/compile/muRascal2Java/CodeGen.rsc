@@ -92,9 +92,9 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
     }
-    for(f <- functions){
-        println("<f.name>: <f.externalRefs>, <f.localRefs>");
-    }
+    // for(f <- functions){
+    //     println("<f.name>: <f.externalRefs>, <f.localRefs>");
+    // }
     for(int i <- index(functions)){
         f = functions[i];
         f.externalRefs = { er | er <- f.externalRefs, er.fuid != f.funId };
@@ -305,9 +305,6 @@ set[MuExp] filteredExternalRefs(MuFunction fun)
     = { ev | ev <- fun.externalRefs, !isVarDeclaredInFun(ev, fun) } - toSet(fun.extendedFormalVars);
     
 MuFunction addTransitiveRefs(MuFunction fun){
-    if(fun.name == "rec"){
-        println("rec");
-    }
     usedFunDefs = {};
     visit (fun.body){
       case muFun(FUNID uid, AType _atype): usedFunDefs += uid;
@@ -319,9 +316,9 @@ MuFunction addTransitiveRefs(MuFunction fun){
     
     deltaExternalRefs = externalRefs - fun.externalRefs ;
     deltaLocalRefs =  { e | e <- externalRefs, e.fuid == fun.funId } - fun.localRefs;
-    println("<fun.funId>:
-        usedFuns: <for(u <- usedFuns){><u.name> <}>
-        externalRefs: <externalRefs>");
+    // println("<fun.funId>:
+    //     usedFuns: <for(u <- usedFuns){><u.name> <}>
+    //     externalRefs: <externalRefs>");
     if(!(isEmpty(deltaExternalRefs))){
         fun.externalRefs += deltaExternalRefs;
         //fun.externalRefs = filteredExternalRefs(fun);
@@ -991,8 +988,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 }
 
 JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
-    
-    println("muOCall((<fun>, <ftype>, ..., <src>");
+    // println("muOCall((<fun>, <ftype>, ..., <src>");
     argTypes =    getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
@@ -1002,7 +998,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
         externals = [];
         if(isInnerFunction){
             externalRefs = { *jg.getExternalRefs(funId) | funId <- funIds };
-            externals = [ var is muVarKwp ? "new ValueRef\<<atype2javatype(var.atype)>\>(<getVarKwp(var, jg)>)" : varName(var, jg) | var <- sort(externalRefs)];
+            externals = [ var is muVarKwp ? getVarKwp(var, jg) : varName(var, jg) | var <- sort(externalRefs)];
             kwParams = jg.collectKwpFormals(jg.getFunction());
             if(hasKeywordParameters(ftype) &&!isEmpty(kwParams) && isEmpty(kwactuals)){
                 externals = "$kwpActuals" + externals;
@@ -1374,7 +1370,6 @@ JCode trans(muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] kwpDefaults
 // ---- muVarKwp --------------------------------------------------------------
 
 JCode trans(var:muVarKwp(str name, loc fuid, AType atype),  JGenie jg){
-    xxx =  jg.getFunction().funId;
     if(jg.getFunction().funId == fuid){
         return getVarKwp(var, jg);
     } else {
@@ -1382,8 +1377,14 @@ JCode trans(var:muVarKwp(str name, loc fuid, AType atype),  JGenie jg){
     }
 }
 
-JCode getVarKwp(var:muVarKwp(str name, loc fuid, AType atype),  JGenie jg)
-    = "((<atype2javatype(atype)>) ($kwpActuals.containsKey(\"<unescape(name)>\") ? $kwpActuals.get(\"<unescape(name)>\") : $kwpDefaults.get(\"<unescape(name)>\")))";
+JCode getVarKwp(var:muVarKwp(str name, loc fuid, AType atype),  JGenie jg){
+    fun = jg.getFunction();
+    if(var in fun.externalRefs){
+        return varName(var);
+    } else {
+        return "((<atype2javatype(atype)>) ($kwpActuals.containsKey(\"<unescape(name)>\") ? $kwpActuals.get(\"<unescape(name)>\") : $kwpDefaults.get(\"<unescape(name)>\")))";
+    }
+}
 
 JCode trans(muIsVarKwpDefined(muVarKwp(str name, loc fuid, AType atype)),  JGenie jg)
     = "$kwpActuals.containsKey(\"<unescape(name)>\")";

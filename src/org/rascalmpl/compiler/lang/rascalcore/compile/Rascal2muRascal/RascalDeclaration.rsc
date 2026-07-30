@@ -384,14 +384,14 @@ public set[MuExp] getLocalRefs(MuExp exp)
  * Get all variables that have been introduced outside the given function scope
  */
 public set[MuExp] getExternalRefs(MuExp exp, loc fuid, list[MuExp] formals){
-    println("getExternalRefs: <exp>,
-                              <fuid>,
-                              <formals>");
+    // println("getExternalRefs: <exp>,
+    //                           <fuid>,
+    //                           <formals>");
    formalNames = {f.name | f <- formals};
    res =  { v1 | /v:muVar(str name2, loc fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    res += { v1 | /v:muVarKwp(str name2, loc fuid2, AType t) := exp, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 
- println("getExternalRefs, <fuid>, <formals>: <res>");
+// println("getExternalRefs, <fuid>, <formals>: <res>");
    return res;
 }
 /*

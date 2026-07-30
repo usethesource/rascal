@@ -58,9 +58,6 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[MODID] mo
         throw "getFunctionsAndConstructors";
      }
      mname = tmodel.modelName;
-    if(mname == "ParseTree"){
-        println("getFunctionsAndConstructors: ParseTree");
-    }
 
      overloads0 = {*{ ov 
                     | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,
@@ -160,21 +157,13 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 // Generate all resolvers for a given module
 
 str generateResolvers(MODID moduleId, map[FUNID, MuFunction] fid2muFunction, set[MODID] imports, set[MODID] extends, map[MODID,TModel] tmodels, map[MODID,loc] module2loc, PathConfig pcfg, JGenie jg){
-    //module_scope = module2loc[moduleName];
-    // module_scope = moduleName2moduleId(moduleName);
     moduleName = moduleId2moduleName(moduleId);
-    if(moduleName == "ParseTree"){
-        println("generateResolvers: ParseTree");
-    }
     module_scope = moduleId;
 
     loc2module = invertUnique(module2loc);
     module_scopes = imports + extends + moduleId;
     extend_scopes = extends;
     import_scopes = imports;
-    // module_scopes = range(module2loc);
-    // extend_scopes = { module2loc[ext] | ext <- extends, ext in module2loc};
-    // import_scopes = { module2loc[imp] | imp <- imports, imp in module2loc };
 
     module_and_extend_scopes = module_scope + extend_scopes;
 
@@ -241,7 +230,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[MODID] import_s
 str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map[FUNID, MuFunction] fid2muFunction, MODID module_scope, set[MODID] import_scopes, set[MODID] extend_scopes, Paths paths, TModel tm, map[loc, MODID] loc2module, PathConfig pcfg, JGenie jg){
    
     moduleName = moduleId2moduleName(moduleId);
-    println("generate resolver for <moduleName>, <functionName>");
+
     module_scopes = range(loc2module);
     logical2physical = tm.logical2physical;
 

@@ -25,15 +25,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4  
- 
+
 int outer1(int t, int tabSize=4){
     int rec(int t) = t + tabSize  when t > 10;
     default int rec(int t) = t;
     return rec(t);
 }
 
-int outer2(int t, int tabSize=4){
-    int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
-    default int rec(int t) = t;
-    return rec(t);
-}
+// int outer2(int t, int tabSize=4){
+//     int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
+//     default int rec(int t) = t;
+//     return rec(t);
+// }
