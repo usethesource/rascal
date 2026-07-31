@@ -439,34 +439,27 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         extendedModuleScopes += {*tm.paths[ems,importPath()] | MODID ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {m | MODID m <- (currentModule + imports), hasProperty(m, ms, checked())} + extendedModuleScopes;
 
+        map[str,loc] componentScopesByUri = (s.uri: s | loc s <- component_scopes, loc s := tm.logical2physical[s] ? s);
+        map[str,loc] filteredModuleScopesByUri = (s.uri: s | loc s <- filteredModuleScopes, loc s := tm.logical2physical[s] ? s);
+
+        bool isContainedInComponentScopes(loc key) {
+            key = tm.logical2physical[key] ? key;
+            return key.uri in componentScopesByUri ? isContainedIn(key, componentScopesByUri[key.uri]) : false;
+        }
+        bool isContainedInFilteredModuleScopes(loc key) {
+            key = tm.logical2physical[key] ? key;
+            return key.uri in filteredModuleScopesByUri ? isContainedIn(key, filteredModuleScopesByUri[key.uri]) : false;
+        }
+
         TModel m1 = tmodel();
         m1.version = getCurrentTplVersion();
         m1.rascalTplVersion = compilerConfig.rascalTplVersion;
         m1.modelName = moduleId2moduleName(currentModule);
         m1.moduleLocs = (m1.modelName  : currentModule);
 
-        list[loc] sortedComponentScopes = sort([tm.logical2physical[s] ? s | s <- component_scopes]);
-        list[loc] sortedFilteredModuleScopes = sort([tm.logical2physical[s] ? s | s <- filteredModuleScopes]);
-        
-        int sortedIndexOf(list[&T] sortedList, &T elem) {
-            int lo = 0;
-            int hi = size(sortedList) - 1;
-            while (lo <= hi) {
-                int middle = lo + floor((hi - lo) / 2);
-                if (sortedList[middle] < elem) {
-                    lo = middle + 1;
-                } else if (sortedList[middle] > elem) {
-                    hi = middle - 1;
-                } else {
-                    return middle;
-                }
-            }
-            return -1;
-        }
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key));
 
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, sortedIndexOf(sortedFilteredModuleScopes, tm.logical2physical[key] ? key) != -1);
-
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, sortedIndexOf(sortedComponentScopes, tm.logical2physical[key] ? key) != -1, sortedIndexOf(sortedFilteredModuleScopes, tm.logical2physical[key] ? key) != -1);
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), isContainedInFilteredModuleScopes(key));
         m1.facts += m1.specializedFacts;
 
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, tm.logical2physical)];
@@ -503,12 +496,11 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         // Filter model for current module and replace functions in defType by their defined type
 
         defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                    defined = tm.logical2physical[defined] ? defined;
-                    if( ( idRole in variableRoles ? (  sortedIndexOf(sortedComponentScopes, defined) != -1
+                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined)
                                                     )
                                                   : (  idRole in keepInTModelRoles
-                                                    && (  sortedIndexOf(sortedComponentScopes, defined) != -1
-                                                       || sortedIndexOf(sortedFilteredModuleScopes, defined) != -1
+                                                    && ( isContainedInComponentScopes(defined)
+                                                       || isContainedInFilteredModuleScopes(defined)
                                                        )
                                                     )
                         )
