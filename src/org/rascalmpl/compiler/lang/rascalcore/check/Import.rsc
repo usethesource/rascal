@@ -421,16 +421,20 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
     if(isEmpty(component)) return ms;
 
     //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
-    component_scopes = component; //{ getModuleScope(mid, moduleScopes, pcfg) | MODID mid <- component };
+    set[MODID] componentScopes = component; //{ getModuleScope(mid, moduleScopes, pcfg) | MODID mid <- component };
+    map[str, MODID] componentScopesByUri = ();
     set[MODID] filteredModuleScopes = {};
+    map[str, MODID] filteredModuleScopesByUri = ();
     loc2moduleName = invertUnique(ms.moduleLocs);
 
     bool isContainedInComponentScopes(loc inner, map[loc,loc] m){
-        return any(cs <- component_scopes, isContainedIn(inner, cs, m));
+        inner = m[inner] ? inner;
+        return inner.uri in componentScopesByUri ? isContainedIn(inner, componentScopesByUri[inner.uri]) : false;
     };
 
     bool isContainedInFilteredModuleScopes(loc inner, map[loc,loc] m){
-        return any(cs <- filteredModuleScopes, isContainedIn(inner, cs, m));
+        inner = m[inner] ? inner;
+        return inner.uri in filteredModuleScopesByUri ? isContainedIn(inner, filteredModuleScopesByUri[inner.uri]) : false;
     };
 
     for(currentModule <- component){
@@ -443,9 +447,12 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
 
         bom = makeBom(currentModule, ms);
 
+        componentScopesByUri = (s.uri: s | loc s <- componentScopes, loc s := tm.logical2physical[s] ? s);
+
         extendedModuleScopes = {m | MODID m <- extends, hasProperty(m, ms, checked())};
         extendedModuleScopes += {*tm.paths[ems,importPath()] | MODID ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {m | MODID m <- (currentModule + imports), hasProperty(m, ms, checked())} + extendedModuleScopes;
+        filteredModuleScopesByUri = (m.uri: m | loc m <- filteredModuleScopes, loc m := tm.logical2physical[m] ? m);
 
         TModel m1 = tmodel();
         m1.version = getCurrentTplVersion();
@@ -455,7 +462,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
 
         m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key, tm.logical2physical));
 
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key, tm.logical2physical), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key, tm.logical2physical), isContainedInFilteredModuleScopes(key, tm.logical2physical));
         m1.facts += m1.specializedFacts;
 
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, tm.logical2physical)];
