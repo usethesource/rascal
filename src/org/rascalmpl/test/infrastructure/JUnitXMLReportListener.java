@@ -107,7 +107,7 @@ public class JUnitXMLReportListener implements ITestResultListener {
         if (exception != null) {
             errors += 1;
         }
-        else {
+        else if (!successful) {
             failures += 1;
         }
         reports.add(new Report(false, successful, test, loc, message, exception));
