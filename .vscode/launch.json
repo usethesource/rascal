@@ -37,7 +37,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g",
+            "vmArgs": "-Xss80m -Xmx2g -Dorg.rascalmpl.profiling.flameGraph.script=C:/Users/sung-/Desktop/FlameGraph-1.0/flamegraph.pl",
             "console": "integratedTerminal"
         },
         {
