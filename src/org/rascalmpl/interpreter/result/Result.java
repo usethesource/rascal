@@ -27,6 +27,7 @@ import java.util.Map;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -86,7 +87,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
-		if (value != null && !value.getType().isSubtypeOf(type)) {
+		if (!IEvaluator.UNSAFE_MODE && value != null && !value.getType().isSubtypeOf(type)) {
 			throw new UnexpectedType(type, value.getType(), ctx.getCurrentAST());
 		}
 	
