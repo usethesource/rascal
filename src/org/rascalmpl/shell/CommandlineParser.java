@@ -88,7 +88,6 @@ public class CommandlineParser {
         for (int i = 0; i < commandline.length; i++) {
             if (List.of("-help", "--help", "/?", "?", "\\?", "-?", "--?").contains(commandline[i].trim())) {
                 printMainHelpMessage(kwTypes);
-                out.flush();
                 System.exit(0);
             }
             else if (commandline[i].startsWith("-")) {
@@ -277,6 +276,8 @@ public class CommandlineParser {
             String explanation = parameterTypeExplanation(key, fields.get(key));
             out.println("    -" + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
         }
+
+        out.flush();
     }
 
     private String parameterTypeExplanation(String key, Type type) {

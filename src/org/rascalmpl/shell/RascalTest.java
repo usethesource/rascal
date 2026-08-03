@@ -46,7 +46,11 @@ public class RascalTest extends AbstractCommandlineTool {
                 var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
                 var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
                 
-                var modules = listParameter(parsedArgs, "modules");
+                IList modules = listParameter(parsedArgs, "modules");
+
+                if (modules.length() == 0) {
+                    eval.warning("The module list for testing is empty.", projectRoot);
+                }
 
                 var modNames = new LinkedList<String>();
                 for (IValue m : modules) {
@@ -91,11 +95,16 @@ public class RascalTest extends AbstractCommandlineTool {
                 e.printStackTrace();
                 System.exit(1);
             }
+            finally {
+                err.flush();
+                out.flush();
+            }
         }
         catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
+        
     }
 
     private static Type parameterTypes() {
