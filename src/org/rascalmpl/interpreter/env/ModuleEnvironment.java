@@ -90,6 +90,7 @@ public class ModuleEnvironment extends Environment {
 	private Map<String, AbstractFunction> resourceImporters;
 	private Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
 	private Map<String, List<AbstractFunction>> cachedPublicFunctions;
+	private List<ModuleEnvironment> cachedImportedModulesResolved;
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -133,6 +134,7 @@ public class ModuleEnvironment extends Environment {
 		importedModules.replaceAll((k, v) -> Optional.empty());
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 
 	/**
@@ -382,12 +384,14 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 
 	void removeModule(String name) {
 		importedModules.computeIfPresent(name, (k, v) -> Optional.empty());
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public void addExtend(String name) {
@@ -397,6 +401,7 @@ public class ModuleEnvironment extends Environment {
 		extended.add(name);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public List<AbstractFunction> getTests() {
@@ -453,6 +458,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 	
 	public void unExtend(String moduleName) {
@@ -885,6 +891,17 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	private Iterable<ModuleEnvironment> importedModulesResolved = 
+		() -> getCachedImportedModulesResolved().iterator();
+
+	private List<ModuleEnvironment> getCachedImportedModulesResolved() {
+		if (cachedImportedModulesResolved == null) {
+			cachedImportedModulesResolved = new ArrayList<>();
+			cachedImportedModulesResolvedContent.forEach(cachedImportedModulesResolved::add);
+		}
+		return cachedImportedModulesResolved;
+	}
+
+	private Iterable<ModuleEnvironment> cachedImportedModulesResolvedContent = 
 		() -> new Iterator<ModuleEnvironment>() {
 			Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
 			@Override
