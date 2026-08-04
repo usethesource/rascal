@@ -585,7 +585,7 @@ public class PathConfig {
         }
 
         // This processes Rascal libraries we can find in maven dependencies,
-        // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
+        // and we add them to the libs unless a project is open with the same name, then we defer to its srcs
         // to make it easier to edit projects in the IDE
         for (var art : mavenClasspath) {
             addArtifactToPathConfig(art, manifestRoot, mode, srcs, libs, messages);
