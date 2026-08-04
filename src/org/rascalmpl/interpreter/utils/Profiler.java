@@ -226,10 +226,10 @@ public class Profiler extends Thread {
 	}
 	
 	public void report() {
+		flameGraph.write();
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
-		flameGraph.write();
 	}
 	
 	private void report(String title, Map<ISourceLocation, Count> data) {
