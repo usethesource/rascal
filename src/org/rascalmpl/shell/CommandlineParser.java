@@ -95,6 +95,7 @@ public class CommandlineParser {
                 Type expected = expectedTypes.get(label);
 
                 if (expected == null) {
+                    printMainHelpMessage(kwTypes);
                     throw new CommandlineError("unknown argument: " + label, kwTypes, name);
                 }
 

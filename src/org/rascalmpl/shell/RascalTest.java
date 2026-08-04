@@ -1,11 +1,14 @@
 package org.rascalmpl.shell;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.LinkedList;
-import java.util.Map;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
@@ -14,10 +17,11 @@ import org.rascalmpl.test.infrastructure.JUnitXMLReportListener;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -38,73 +42,106 @@ public class RascalTest extends AbstractCommandlineTool {
             var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
             var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
         
-            try {
-                var parser = new CommandlineParser(out);
-                var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
-                var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
-                PathConfig pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
-                var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
-                var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
-                
-                IList modules = listParameter(parsedArgs, "modules");
+            var parser = new CommandlineParser(out);
+            var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
+            var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
+            PathConfig pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
+            var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
+            boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting"));
+            boolean isParallel = isTrueParameter(parsedArgs, "parallel");
+            int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
+            IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
 
-                if (modules.length() == 0) {
-                    eval.warning("The module list for testing is empty.", projectRoot);
-                }
+            IList modules = allRascalSourceFiles(pcfg.getSrcs(), pcfg.getIgnores());
 
-                var modNames = new LinkedList<String>();
-                for (IValue m : modules) {
-                    var l = (ISourceLocation) m;
-                    for (var src: pcfg.getSrcs()) {
-                        var rel = URIUtil.relativize((ISourceLocation) src, l);
-                        if (rel.getScheme().equals("relative")) {
-                            rel = URIUtil.changeExtension(rel, "");
-                            var mod = rel.getPath().substring(1).replaceAll("/", "::");
-                            modNames.add(mod);
-                        }
-                    }
-                }
+            IList modNames = sourceFilesToModuleNames(modules, pcfg);
 
-                eval.doImport(monitor, modNames.stream().toArray(String[]::new));
-
-                boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting"));
-
-                if (reporting) {
-                    eval.setTestResultListener(new JUnitXMLReportListener(URIUtil.getChildLocation(projectRoot, "target"), eval.getHeap().moduleFiles()));
-                }
-
-                if (!eval.runTests(eval.getMonitor())) {
-                    System.exit(1);
-                }
-                else {
-                    System.exit(0);
-                }
+            if (isParallel && parAmount > 1) {
+                System.exit(runParallelTests(modNames, preChecks, monitor, projectRoot, pcfg, term, err, out, reporting, parAmount));
             }
-            catch (Throw e) {
-                try {
-                    err.println(e.getException());
-                    e.getTrace().prettyPrintedString(err, new StandardTextWriter());
-                }
-                catch (IOException ioe) {
-                    err.println(ioe.getMessage());
-                }
-
-                System.exit(1);
-            }
-            catch (Throwable e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-            finally {
-                err.flush();
-                out.flush();
+            else {
+                System.exit(runTestsForModules(modNames, monitor, projectRoot, pcfg, term, err, out, reporting));
             }
         }
-        catch (IOException e) {
+        catch (IOException | URISyntaxException e) {
             System.err.println(e.getMessage());
             System.exit(1);
+        } 
+    }
+
+    private static int runParallelTests(IList modNames, IList preChecks, IRascalMonitor monitor, ISourceLocation projectRoot,
+        PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting, int parAmount) throws URISyntaxException {
+        // first we run the pre-checks
+        IList preCheckModNames = sourceFilesToModuleNames(preChecks, pcfg);
+        if (preCheckModNames.size() > 0) {
+            runTestsForModules(preCheckModNames, monitor, projectRoot, pcfg, term, err, out, reporting);
         }
-        
+
+        // then we split up the module names over a number of runners 
+        modNames = modNames.subtract(preCheckModNames);
+        List<IList> chunks = splitTodoList(parAmount, modNames);
+
+        // a cachedThreadPool lazily spins-up threads, but eagerly cleans them up
+		// this might help with left-over threads to get more memory and finish sooner.
+		final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("rascal-test", parAmount);
+		
+		// the for loop eagerly spawns `parAmount` workers, one for each chunk
+		List<Future<Integer>> workers = new ArrayList<>(parAmount);
+		for (int i = 0; i < parAmount; i++) {
+			final int index = i;
+			final var chunk = chunks.get(index);;
+			
+			workers.add(exec.submit(() -> {
+				out.println("Starting worker " + index + " on " + chunk.size() + " modules.");
+				return runTestsForModules(chunk, monitor, projectRoot, pcfg, term, err, out, reporting);
+			}));
+		}
+		
+		// wait for all the workers and reduce their integer return values to a sum
+		return workers.stream()
+			.map(handleExceptions(f -> f.get()))
+			.reduce(0, Integer::sum);
+    }
+
+    /**
+     * Thread-safe execution of tests in given modules in a specific project
+     * @return exit code where 0 means all test succeeded and not 0 means at least one test failed or error'ed
+     */
+    private static int runTestsForModules(IList modNames, IRascalMonitor monitor, ISourceLocation projectRoot, PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting) {
+        try {
+            // using our own evaluator makes this thread safe.
+            var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
+            if (modNames.size() == 0) {
+                eval.warning("The module list for testing is empty.", projectRoot);
+            }
+            eval.doImport(monitor, modNames.stream().map(IString.class::cast).map(s -> s.getValue()).toArray(String[]::new));
+
+            if (reporting) {
+                eval.setTestResultListener(new JUnitXMLReportListener(URIUtil.getChildLocation(projectRoot, "target"), eval.getHeap().moduleFiles()));
+            }
+
+            if (!eval.runTests(eval.getMonitor())) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+        catch (Throw e) {
+            try {
+                err.println(e.getException());
+                e.getTrace().prettyPrintedString(err, new StandardTextWriter());
+            }
+            catch (IOException ioe) {
+                err.println(ioe.getMessage());
+            }
+
+            return 1;
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+            return 1;
+        }
     }
 
     private static Type parameterTypes() {
@@ -113,12 +150,10 @@ public class RascalTest extends AbstractCommandlineTool {
 		
 		return tf.tupleType(
 			PathConfig.PathConfigType, "pcfg",
-			ll, "modules",
-            tf.boolType(), "reporting"
+            tf.boolType(), "reporting",
+            tf.boolType(), "parallel",
+            tf.integerType(), "parallelMax",
+			ll, "parallelPreChecks"
 		);
-	}
-
-    private static IList listParameter(Map<String, IValue> args, String arg) {
-		return args.get(arg) == null ? vf.list() : (IList) args.get(arg);
 	}
 }
