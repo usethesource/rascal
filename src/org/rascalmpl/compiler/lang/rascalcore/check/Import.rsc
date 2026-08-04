@@ -447,12 +447,20 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
 
         bom = makeBom(currentModule, ms);
 
-        componentScopesByUri = (s.uri: s | loc s <- componentScopes, loc s := tm.logical2physical[s] ? s);
+        // Lookup fields only once to save interpreter time (significant)
+        paths = tm.paths;
+        facts = tm.facts;
+        specializedFacts = tm.specializedFacts;
+        useDef = tm.useDef;
+        logical2physical = tm.logical2physical;
+        definitions = tm.definitions;
+
+        componentScopesByUri = (s.uri: s | loc s <- componentScopes, loc s := logical2physical[s] ? s);
 
         extendedModuleScopes = {m | MODID m <- extends, hasProperty(m, ms, checked())};
-        extendedModuleScopes += {*tm.paths[ems,importPath()] | MODID ems <- extendedModuleScopes}; // add imports of extended modules
+        extendedModuleScopes += {*paths[ems,importPath()] | MODID ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {m | MODID m <- (currentModule + imports), hasProperty(m, ms, checked())} + extendedModuleScopes;
-        filteredModuleScopesByUri = (m.uri: m | loc m <- filteredModuleScopes, loc m := tm.logical2physical[m] ? m);
+        filteredModuleScopesByUri = (m.uri: m | loc m <- filteredModuleScopes, loc m := logical2physical[m] ? m);
 
         TModel m1 = tmodel();
         m1.version = getCurrentTplVersion();
@@ -460,15 +468,15 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.modelName = moduleId2moduleName(currentModule);
         m1.moduleLocs = (m1.modelName  : currentModule);
 
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInFilteredModuleScopes(key, tm.logical2physical));
+        m1.facts = (key : facts[key] | key <- facts, isContainedInFilteredModuleScopes(key, logical2physical));
 
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key, tm.logical2physical), isContainedInFilteredModuleScopes(key, tm.logical2physical));
+        m1.specializedFacts = (key : specializedFacts[key] | key <- specializedFacts, isContainedInComponentScopes(key, logical2physical), isContainedInFilteredModuleScopes(key, logical2physical));
         m1.facts += m1.specializedFacts;
 
-        m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, tm.logical2physical)];
+        m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, logical2physical)];
         ms.messages[currentModule] = toSet(m1.messages);
 
-        filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
+        // filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         m1.scopes = tm.scopes;
         // m1.scopes
         //         = ( inner : tm.scopes[inner]
@@ -487,23 +495,23 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.store[key_common_keyword_fields]
                 = tm.store[key_common_keyword_fields] ? [];
 
-        m1.paths = { tup | tuple[MODID from, PathRole pathRole, MODID to] tup <- tm.paths, tup.from == currentModule || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
+        m1.paths = { tup | tuple[MODID from, PathRole pathRole, MODID to] tup <- paths, tup.from == currentModule || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
 
         keepRoles = variableRoles + keepInTModelRoles;
         m1.useDef = { <u, d>
-                    | <u, d> <- tm.useDef,
-                          isContainedIn(u, currentModule, tm.logical2physical)
-                       || (tm.definitions[d]? && tm.definitions[d].idRole in keepRoles)
+                    | <u, d> <- useDef,
+                          isContainedIn(u, currentModule, logical2physical)
+                       || (definitions[d]? && definitions[d].idRole in keepRoles)
                     };
 
         // Filter model for current module and replace functions in defType by their defined type
 
         defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined, tm.logical2physical)
+                    if( ( idRole in variableRoles ? (  isContainedInComponentScopes(defined, logical2physical)
                                                     )
                                                   : (  idRole in keepInTModelRoles
-                                                    && ( isContainedInComponentScopes(defined, tm.logical2physical)
-                                                       || isContainedInFilteredModuleScopes(defined, tm.logical2physical)
+                                                    && ( isContainedInComponentScopes(defined, logical2physical)
+                                                       || isContainedInFilteredModuleScopes(defined, logical2physical)
                                                        )
                                                     )
                         )
@@ -516,11 +524,12 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
 
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
         // Remove default expressions and fragments
+        // (Relatively expensive: can take >50% of the execution time of this function)
         m1 = visit(m1) {
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
-        m1.logical2physical = tm.logical2physical;
+        m1.logical2physical = logical2physical;
         ms = deleteProperty(currentModule, ms, tpl_saved());
         ms = addTModel(currentModule, m1, ms);
     // println("TModel for <currentModule>:"); iprintln(m1);
