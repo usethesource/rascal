@@ -929,11 +929,11 @@ public class PathConfig {
         }
     }
 
-    private static ISourceLocation getRascalMfLocation(ISourceLocation project) {
+    public static ISourceLocation getRascalMfLocation(ISourceLocation project) {
         return URIUtil.getChildLocation(project, RascalManifest.META_INF_RASCAL_MF);
     }
     
-    private static ISourceLocation getPomXmlLocation(ISourceLocation project) {
+    public static ISourceLocation getPomXmlLocation(ISourceLocation project) {
         try {
             ISourceLocation pomxml = URIUtil.getChildLocation(project, "pom.xml");
             return URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
