@@ -395,8 +395,8 @@ public class PathConfig {
     public static ISourceLocation inferProjectRoot(ISourceLocation member) {
         ISourceLocation current = member;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        while (current != null && reg.exists(current) && reg.isDirectory(current)) {
-            if (reg.exists(URIUtil.getChildLocation(current, "META-INF/RASCAL.MF"))) {
+        while (current != null && reg.exists(current)) {
+            if (reg.isDirectory(current) && reg.exists(URIUtil.getChildLocation(current, "META-INF/RASCAL.MF"))) {
                 return current;
             }
 
