@@ -62,7 +62,6 @@ public class RascalCompile extends AbstractCommandlineTool {
 			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
 			IList modules = listParameter(parsedArgs, "modules");
 			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
-			preChecks = allRascalSourceFiles(preChecks, vf.list());
 			removeParallelismArguments(parsedArgs);
 
 			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
