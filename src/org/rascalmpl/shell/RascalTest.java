@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -46,12 +47,14 @@ public class RascalTest extends AbstractCommandlineTool {
             var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
             var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
             PathConfig pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
+
             var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
             boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting"));
             boolean isParallel = isTrueParameter(parsedArgs, "parallel");
             int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
             IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
-
+            // expand directories in preChecks
+            preChecks = allRascalSourceFiles(preChecks, vf.list());
             IList modules = allRascalSourceFiles(pcfg.getSrcs(), pcfg.getIgnores());
 
             IList modNames = sourceFilesToModuleNames(modules, pcfg);
@@ -74,7 +77,9 @@ public class RascalTest extends AbstractCommandlineTool {
         // first we run the pre-checks
         IList preCheckModNames = sourceFilesToModuleNames(preChecks, pcfg);
         if (preCheckModNames.size() > 0) {
-            runTestsForModules(preCheckModNames, monitor, projectRoot, pcfg, term, err, out, reporting);
+            if (runTestsForModules(preCheckModNames, monitor, projectRoot, pcfg, term, err, out, reporting) != 0) {
+                return 1;
+            }
         }
 
         // then we split up the module names over a number of runners 
@@ -120,12 +125,12 @@ public class RascalTest extends AbstractCommandlineTool {
                 eval.setTestResultListener(new JUnitXMLReportListener(URIUtil.getChildLocation(projectRoot, "target"), eval.getHeap().moduleFiles()));
             }
 
-            if (!eval.runTests(eval.getMonitor())) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
+            // run only the selected modules and not imported ones to avoid race conditions on the output xml files
+            return modNames.stream()
+                .map(IString.class::cast)
+                .map(modName -> eval.runTests(monitor, Optional.of(modName.getValue())))
+                .anyMatch(x -> !x)
+                ? 1 : 0;
         }
         catch (Throw e) {
             try {
