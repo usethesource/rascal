@@ -55,15 +55,10 @@ data JGenie
         str () getFunctionName,
         bool (MuExp) isDefinedInCurrentFunction,
         AType (loc src) getType,
-        // str(loc def) getImportedModuleName,
         str (AType t) getATypeAccessor,
         str (list[loc] srcs) getAccessor,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalRefs,
-        list[Keyword] (MuFunction fun) collectKwpFormals,
-        lrel[str name, AType atype, MuExp defaultExp] (MuFunction fun) collectKwpDefaults,
-        list[str] (MuFunction fun) collectRedeclaredKwps,
-        list[str] (MuFunction fun) collectDeclaredKwps,
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(AType atype) accessType,
@@ -80,8 +75,8 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
-        // bool (tuple[str name, AType funType, loc scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions,
-        bool (loc,loc) isContainedIn
+        bool (loc,loc) isContainedIn,
+        str(FUNID funId, str name) getFunctionNameInContext
       )
     ;
     
@@ -183,7 +178,7 @@ JGenie makeJGenie(MuModule m,
     AType _getType(loc src)
         = currentTModel.facts[src];
         
-    str _getImportedModuleName(loc def){
+    str getImportedModuleName(loc def){
         return module2field(allLocs2Module[findImportForDef(def)]);
     }
     
@@ -262,12 +257,13 @@ JGenie makeJGenie(MuModule m,
                     } else if(_isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
                             fun = muFunctions[def.defined];
-                            return isGlobalScope(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
+                            return _getFunctionNameInContext(fun.scopeIn, fun.name);
+                            // return isGlobalScope(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
                         }
                         return baseName;
                     } else {
                         res = def.scope in extendScopesCurrentModule ? "$me.<baseName>"
-                                                        : "<_getImportedModuleName(def.defined)>.<baseName>";
+                                                        : "<getImportedModuleName(def.defined)>.<baseName>";
                         return res;
                     }
                  }
@@ -285,7 +281,7 @@ JGenie makeJGenie(MuModule m,
                             return baseName;
                         } else {
                             return def.scope in extendScopesCurrentModule ? "$me.<baseName>"
-                                                             : "<_getImportedModuleName(def.defined)>.<baseName>";
+                                                             : "<getImportedModuleName(def.defined)>.<baseName>";
                         }
                      }
                  }
@@ -321,7 +317,7 @@ JGenie makeJGenie(MuModule m,
                     return "<module2field(scope)>.<jname>";
                 }
             } else if(isFunctionId(scope)){
-                return "<getFunctionName(scope)>_<jname>";
+                return _getFunctionNameInContext(scope, jname);
             }
         }
        
@@ -340,6 +336,20 @@ JGenie makeJGenie(MuModule m,
         }
         
        return jname;
+    }
+
+    str _getFunctionNameInContext(FUNID context, str jname){
+        assert isFunctionId(context);
+        current = context;
+        prefix = getFunctionName(current);
+        while(muFunctions[current]?){
+            fun = muFunctions[current];
+            current = fun.scopeIn;
+            if(isFunctionId(current)){
+                prefix = "<getFunctionName(current)>_<prefix>";
+            }
+        }
+        return "<prefix>_<jname>";
     }
     
     loc definedInInnerScope(list[loc] srcs){
@@ -384,63 +394,6 @@ JGenie makeJGenie(MuModule m,
             return true;
         }
         return false;
-    }
-    
-    list[Keyword] _collectKwpFormals(MuFunction fun){
-        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        Scopes scopes = currentTModel.scopes;
-        kwFormals = fun.ftype.kwFormals;
-        outer = scopes[fun.funId];
-        while (muFunctions[outer]?){
-            fun1 = muFunctions[outer];
-            kwFormals += fun1.ftype.kwFormals;
-            outer = scopes[fun1.funId];
-        }
-        return kwFormals;
-    }
-    
-    lrel[str name, AType atype, MuExp defaultExp] _collectKwpDefaults(MuFunction fun){
-        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
-        defaults = fun.kwpDefaults;
-        funKwps =  fun.kwpDefaults<0>;
-        outer = scopes[fun.funId];
-        while (muFunctions[outer]?){
-            fun1 = muFunctions[outer];
-            defaults = [<name, atype, defaultExp> | <str name, AType atype, MuExp defaultExp> <- fun1.kwpDefaults, name notin funKwps] + defaults; // remove outer definitions
-            outer = scopes[fun1.funId];
-        }
-        return defaults;
-    }
-    
-    list[str] _collectRedeclaredKwps(MuFunction fun){
-        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
-        funKwps = fun.kwpDefaults<0>;
-        redeclared = [];
-        outer = scopes[fun.funId];
-        while (muFunctions[outer]?){
-            fun1 = muFunctions[outer];
-            outerKwps = fun1.kwpDefaults<0>;
-            redeclared += funKwps & outerKwps;
-            outer = scopes[fun1.funId];
-        }
-        return redeclared;
-    }
-    
-     list[str] _collectDeclaredKwps(MuFunction fun){
-        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
-        scopes = currentTModel.scopes;
-        funKwps = fun.kwpDefaults<0>;
-        declared = funKwps;
-        outer = scopes[fun.funId];
-        while (muFunctions[outer]?){
-            fun1 = muFunctions[outer];
-            outerKwps = fun1.kwpDefaults<0>;
-            declared += outerKwps;
-            outer = scopes[fun1.funId];
-        }
-        return declared;
     }
        
     bool _hasCommonKeywordFields(AType ctype){
@@ -738,11 +691,6 @@ JGenie makeJGenie(MuModule m,
         return toList(importedLibraries);
     }
     
-    // bool _usesLocalFunctions(tuple[str name, AType funType, loc scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
-    //     return    any(of <- overloads.ofunctions, _isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
-    //            || any(oc <- overloads.oconstructors, _isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
-    // }
-    
     thisJGenie = 
            jgenie(
                 _getModuleName,
@@ -752,15 +700,11 @@ JGenie makeJGenie(MuModule m,
                 _getFunctionName,
                 _isDefinedInCurrentFunction,
                 _getType,
-                // _getImportedModuleName,
+
                 _getATypeAccessor,
                 _getAccessor,
                 _getDefine,
                 _getExternalRefs,
-                _collectKwpFormals,
-                _collectKwpDefaults,
-                _collectRedeclaredKwps,
-                _collectDeclaredKwps,
                 _hasCommonKeywordFields,
                 _shareType,
                 _accessType,
@@ -777,8 +721,8 @@ JGenie makeJGenie(MuModule m,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,
-                // _usesLocalFunctions,
-                _isContainedIn
+                _isContainedIn,
+                _getFunctionNameInContext
             );
     
      //thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions

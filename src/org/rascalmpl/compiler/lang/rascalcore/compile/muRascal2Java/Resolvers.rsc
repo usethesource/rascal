@@ -282,7 +282,13 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
             fun = fid2muFunction[def.defined];
             if(isFunctionId(fun.scopeIn)){
                 inner_scope = "<getFunctionName(fun.scopeIn)>_";
-                break;
+                while(isFunctionId(fun.scopeIn)){
+                    fun = fid2muFunction[fun.scopeIn];
+                    if(isFunctionId(fun.scopeIn)){
+                        inner_scope = "<getFunctionName(fun.scopeIn)>_<inner_scope>";
+                    }
+                }
+                if(!isEmpty(inner_scope)) break;
             }
         }
     }
@@ -292,7 +298,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     for(def <- relevant_fun_defs, isModuleId(def.scope), def notin cons_defs, defType(AType tp) := def.defInfo){
         if(fid2muFunction[def.defined]?){
             fun = fid2muFunction[def.defined];
-            fun_kwFormals += tp.kwFormals; //jg.collectKwpFormals(fun);
+            fun_kwFormals += tp.kwFormals;
         } else {
             fun_kwFormals += tp.kwFormals;
         }
@@ -327,7 +333,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     body += "<for(int i <- index(resolver_formals_types)){>Type $P<i>Type = $P<i>.getType();\n<}>";
 
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    activeKwpFormals1 = { *fun.ftype.kwFormals  //*jg.collectKwpFormals(fun)
+    activeKwpFormals1 = { *fun.ftype.kwFormals
                         | def <- local_fun_defs,
                           //def.defined in local_fun_defs, //.defined,
                           //def notin cons_defs,
@@ -425,7 +431,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
        if(def in relevant_fun_defs /*local_fun_defs*/){
           if(fid2muFunction[def.defined]?){
             fun = fid2muFunction[def.defined];
-            activeKwpFormals += jg.collectKwpFormals(fun);
+            activeKwpFormals += fun.ftype.kwFormals;
           } else if(defType(AType tp) := def.defInfo){
             activeKwpFormals += tp.kwFormals;
           }
