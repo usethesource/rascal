@@ -327,6 +327,9 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
             msgs += error(tas, "Non-well-formed tuple type, field #%v should not be `void`", i);
         }
     }
+    if(!isEmpty(msgs)){
+         return <msgs, avoid()>;
+    }
     if (size(fieldTypes) == size(distinctLabels)){
         return <msgs, makeTupleType(fieldTypes)>;
     } else if(size(distinctLabels) == 0) {
@@ -336,7 +339,7 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
     } else if (size(distinctLabels) > 0) {
         return <msgs+[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "alabel") | tp <- fieldTypes])>;
     }
-    return <[], avoid()>;
+    return <msgs, avoid()>;
 }
 
 void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
@@ -389,8 +392,17 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 
 // ---- function type ---------------------------------------------------------
 
-tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){
-    return <[], afunc(returnType, argTypes, [])>;
+tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* tas, AType returnType, list[AType] argTypes){
+    // there can exist no functions that take a void parameter, 
+    // hence types with those void parameters represent an _empty set_ of values, 
+    // hence such function types are equivalent to `void`
+    msgs = [];
+    for(int i <- index(argTypes)){
+        if(isVoidAType(argTypes[i])){
+            msgs += error(tas, "Non-well-formed function type, argument #%v should not be `void`", i);
+        }
+    }
+    return isEmpty(msgs) ? <[], afunc(returnType, argTypes, [])> : <msgs, avoid()>;
 }
 
 @doc{Convert Rascal function types into their abstract representation.}
