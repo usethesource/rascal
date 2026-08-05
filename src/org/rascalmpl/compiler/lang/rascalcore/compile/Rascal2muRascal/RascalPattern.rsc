@@ -869,7 +869,7 @@ MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args
         //println("hole: <t>");
         varloc = getConcreteHoleVarLoc(t);
         varname = getConcreteHoleName(t);
-        <fuid, pos> = isWildCard(varname) ? <"", 0> : getVariableScope(varname, varloc);
+        <fuid, pos> = isWildCard(varname) ? <|global-scope:///|, 0> : getVariableScope(varname, varloc);
         holeType = getConcreteHoleSymbol(t);
         
         
