@@ -250,7 +250,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
 
-      if(ttags["ignore"]? || ttags["ignoreCompiler"]?){
+      if(hasIgnoreCompilerTag(ttags)){
         return;
       }
       inScope = topFunctionScope();
@@ -547,13 +547,6 @@ public map[str,str] translateTags(Tags tags){
    }
    return m;
 }
-
-// public bool hasIgnoreCompilerTag(map[str,str] tagsMap)
-//     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
-
-//private bool hasIgnoreCompilerTagTest(map[str, str] tags) = !isEmpty(domain(tags) & {"hasIgnoreCompilerTag", "IgnoreCompiler"});
-
-// public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */
