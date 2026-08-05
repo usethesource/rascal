@@ -57,11 +57,12 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
     }
 	
-	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException {
 			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
 			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
 			IList modules = listParameter(parsedArgs, "modules");
 			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
+			preChecks = allRascalSourceFiles(preChecks, vf.list());
 			removeParallelismArguments(parsedArgs);
 
 			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
