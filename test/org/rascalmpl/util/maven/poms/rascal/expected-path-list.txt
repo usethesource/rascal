@@ -92,7 +92,7 @@ org/jline/jline-terminal/3.27.0/jline-terminal-3.27.0.jar
 org/jsoup/jsoup/1.15.4/jsoup-1.15.4.jar
 org/nanohttpd/nanohttpd/2.3.1/nanohttpd-2.3.1.jar
 org/ow2/asm/asm/9.7/asm-9.7.jar
-org/rascalmpl/typepal/0.15.1/typepal-0.15.1.jar
+org/rascalmpl/typepal/0.17.0-RC3/typepal-0.17.0-RC3.jar
 org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar
 org/slf4j/slf4j-nop/1.7.36/slf4j-nop-1.7.36.jar
 org/sonatype/plexus/plexus-build-api/0.0.7/plexus-build-api-0.0.7.jar
