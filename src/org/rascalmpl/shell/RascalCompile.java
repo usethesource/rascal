@@ -4,6 +4,7 @@ import engineering.swat.watch.DaemonThreadPool;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -57,11 +59,12 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
     }
 	
-	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException {
+	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException, URISyntaxException {
 			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
 			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
 			IList modules = listParameter(parsedArgs, "modules");
 			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
+			preChecks = allRascalSourceFiles(preChecks, vf.list());
 			removeParallelismArguments(parsedArgs);
 
 			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
@@ -72,7 +75,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 			}
 	}
 
-	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws URISyntaxException, IOException {
 		IList modules = (IList) parsedArgs.get("modules");
 
 		if (modules.isEmpty()) {
@@ -80,7 +83,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
 
 		// first run the pre-checks
-		parsedArgs.put("modules", preChecks);
+		parsedArgs.put("modules", sourceFilesToModuleNames(preChecks, new PathConfig((IConstructor) parsedArgs.get("pcfg"))));
 		out.println("Prechecking " + preChecks.size() + " modules ");
 		if (main(mainModule, imports, parsedArgs, term, monitor, err, out) != 0) {
 			System.exit(1);
