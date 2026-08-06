@@ -220,8 +220,8 @@ public abstract class AbstractCommandlineTool {
     }
 
     protected static List<IList> splitTodoList(int procs, IList modules) {
-		List<IString> todoList = modules.stream().map(IString.class::cast).collect(Collectors.toList());
-		todoList.sort((a,b) -> a.getValue().compareTo(b.getValue())); // improves cohesion of a chunk
+		List<ISourceLocation> todoList = modules.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
+		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
 		int chunkSize = todoList.size() / procs;
 		int remainder = todoList.size() % procs;
 		List<IList> result = new ArrayList<>((todoList.size() / chunkSize) + 1);
