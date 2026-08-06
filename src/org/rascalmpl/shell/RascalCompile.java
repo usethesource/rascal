@@ -83,7 +83,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
 
 		// first run the pre-checks
-		parsedArgs.put("modules", sourceFilesToModuleNames(preChecks, new PathConfig((IConstructor) parsedArgs.get("pcfg"))));
+		parsedArgs.put("modules", preChecks);
 		out.println("Prechecking " + preChecks.size() + " modules ");
 		if (main(mainModule, imports, parsedArgs, term, monitor, err, out) != 0) {
 			System.exit(1);
