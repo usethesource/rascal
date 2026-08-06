@@ -57,13 +57,11 @@ public class RascalTest extends AbstractCommandlineTool {
             preChecks = allRascalSourceFiles(preChecks, vf.list());
             IList modules = allRascalSourceFiles(pcfg.getSrcs(), pcfg.getIgnores());
 
-            IList modNames = sourceFilesToModuleNames(modules, pcfg);
-
             if (isParallel && parAmount > 1) {
-                System.exit(runParallelTests(modNames, preChecks, monitor, projectRoot, pcfg, term, err, out, reporting, parAmount));
+                System.exit(runParallelTests(modules, preChecks, monitor, projectRoot, pcfg, term, err, out, reporting, parAmount));
             }
             else {
-                System.exit(runTestsForModules(modNames, monitor, projectRoot, pcfg, term, err, out, reporting));
+                System.exit(runTestsForModules(modules, monitor, projectRoot, pcfg, term, err, out, reporting));
             }
         }
         catch (IOException | URISyntaxException e) {
@@ -72,19 +70,18 @@ public class RascalTest extends AbstractCommandlineTool {
         } 
     }
 
-    private static int runParallelTests(IList modNames, IList preChecks, IRascalMonitor monitor, ISourceLocation projectRoot,
+    private static int runParallelTests(IList modules, IList preChecks, IRascalMonitor monitor, ISourceLocation projectRoot,
         PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting, int parAmount) throws URISyntaxException {
         // first we run the pre-checks
-        IList preCheckModNames = sourceFilesToModuleNames(preChecks, pcfg);
-        if (preCheckModNames.size() > 0) {
-            if (runTestsForModules(preCheckModNames, monitor, projectRoot, pcfg, term, err, out, reporting) != 0) {
+        if (preChecks.size() > 0) {
+            if (runTestsForModules(preChecks, monitor, projectRoot, pcfg, term, err, out, reporting) != 0) {
                 return 1;
             }
         }
 
         // then we split up the module names over a number of runners 
-        modNames = modNames.subtract(preCheckModNames);
-        List<IList> chunks = splitTodoList(parAmount, modNames);
+        modules = modules.subtract(preChecks);
+        List<IList> chunks = splitTodoList(parAmount, modules);
 
         // a cachedThreadPool lazily spins-up threads, but eagerly cleans them up
 		// this might help with left-over threads to get more memory and finish sooner.
@@ -112,8 +109,10 @@ public class RascalTest extends AbstractCommandlineTool {
      * Thread-safe execution of tests in given modules in a specific project
      * @return exit code where 0 means all test succeeded and not 0 means at least one test failed or error'ed
      */
-    private static int runTestsForModules(IList modNames, IRascalMonitor monitor, ISourceLocation projectRoot, PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting) {
+    private static int runTestsForModules(IList modules, IRascalMonitor monitor, ISourceLocation projectRoot, PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting) {
         try {
+            var modNames = sourceFilesToModuleNames(modules, pcfg);
+
             // using our own evaluator makes this thread safe.
             var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
             if (modNames.size() == 0) {

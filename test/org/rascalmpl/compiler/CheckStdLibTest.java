@@ -54,7 +54,7 @@ public class CheckStdLibTest {
 
     private void simulateShadedTypePal() throws IOException {
         // the main runner assumes it's running inside of a shaded jar
-        // so intead we're going to copy the contents of typepal to 
+        // so instead we're going to copy the contents of typepal to 
         // the target folder of where this test is running
         var typepal = PathConfig.resolveProjectOnClasspath("typepal");
         typepal = MavenRepositoryURIResolver.mavenize(typepal);
