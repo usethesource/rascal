@@ -352,7 +352,7 @@ test bool nestedFunctionCallUsesOuterKeywordParameter(){
 }
 
 
-// data WorkspaceInfo(rel[int a, int b] defines = {}) = workspaceInfo();
+data WorkspaceInfo(rel[int a, int b] defines = {}) = workspaceInfo();
 
 @synopsis{a test for issue #2049}
 test bool staticTypesOfCommonKeywordDefaults() {
