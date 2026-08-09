@@ -28,6 +28,7 @@ package org.rascalmpl.runtime;
 
 import java.util.ArrayList;
 
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
@@ -52,7 +53,7 @@ public class Template {
 			b.append(org.rascalmpl.values.parsetrees.TreeAdapter.yield((IConstructor) v));
 		}
 		else if (v.getType().isSubtypeOf(RascalValueFactory.Type)) {
-			b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) v).get("symbol"), false));
+			b.append(((ReifiedType) v.getType()).getTypeParameters().getFieldType(0).toString());
 		}
 		else if (v.getType().isString()) {
 			b.append(((IString) v).getValue());

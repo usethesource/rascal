@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC7-SNAPSHOT</version>
+    <version>0.43.0-RC10-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.43.0-RC2-SNAPSHOT</tag>
+        <tag>v0.43.0-RC9</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -597,38 +597,6 @@
         </dependency>
     </dependencies>
     <profiles>
-        <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
-        <profile>
-            <id>unshaded</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <version>3.6.0</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>true</skip>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>license-maven-plugin</artifactId>
-                        <configuration>
-                            <skipDownloadLicenses>true</skipDownloadLicenses>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-            </profile>
-        -->
         <profile>
             <id>compiler-tests</id>
             <build>
@@ -647,6 +615,7 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <enableAssertions>false</enableAssertions>
                             <argLine>
                                 -Xmx${rascal.test.memory}G
                                 -Dfile.encoding=UTF-8
