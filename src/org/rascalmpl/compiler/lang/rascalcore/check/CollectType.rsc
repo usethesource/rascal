@@ -327,9 +327,9 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
             msgs += error(tas, "Non-well-formed tuple type, field #%v should not be `void`", i);
         }
     }
-    if(!isEmpty(msgs)){
-         return <msgs, avoid()>;
-    }
+    // if(!isEmpty(msgs)){
+        //  return <msgs, avoid()>;
+    // }
     if (size(fieldTypes) == size(distinctLabels)){
         return <msgs, makeTupleType(fieldTypes)>;
     } else if(size(distinctLabels) == 0) {
