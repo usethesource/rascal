@@ -28,8 +28,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Runs all the tests in the modules given bij de -modules parameter (and their imported/extend modules)
- * Given a -project parameter, the path configuration will be constructed automatically
+ * Runs all the tests in the srcs folders
+ * Given a -project parameter, the PathConfig will be constructed automatically
  */
 public class RascalTest extends AbstractCommandlineTool {
     private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
