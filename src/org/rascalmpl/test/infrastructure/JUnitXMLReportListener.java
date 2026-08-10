@@ -98,7 +98,7 @@ public class JUnitXMLReportListener implements ITestResultListener {
     }
 
     private ISourceLocation targetXML(String context) {
-        return URIUtil.getChildLocation(folder, context.replaceAll("::", ".").concat(".xml"));
+        return URIUtil.getChildLocation(folder, "TEST-" + context.replaceAll("::", ".").concat(".xml"));
     }
 
     @Override
