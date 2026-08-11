@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.time.Instant;
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import org.rascalmpl.exceptions.Throw;
@@ -17,7 +19,6 @@ import org.rascalmpl.uri.URIUtil;
 
 import com.google.gson.FormattingStyle;
 import com.google.gson.stream.JsonWriter;
-
 import io.usethesource.vallang.ISourceLocation;
 
 /*
@@ -33,33 +34,40 @@ public class CTRFTestReportListener implements ITestResultListener {
     private int failures = 0;
     private int ignored = 0;
     private long timestamp = 0L;
+    private long last = 0L;
+    private final DateTimeFormatter dtFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private List<Report> reports = new LinkedList<>();
 
     public CTRFTestReportListener(ISourceLocation outputFolder) {
-        this.folder = URIUtil.getChildLocation(outputFolder, "surefire-reports");
+        this.folder = URIUtil.getChildLocation(outputFolder, "rascal-test-reports");
     }
-
     private class Report {
-        public boolean ignored;
-        public boolean successful;
-        public String test;
-        public ISourceLocation loc;
+        public final boolean ignored;
+        public final boolean successful;
+        public final String test;
+        public final ISourceLocation loc;
         public String message;
-        public Throwable exception;
+        public final Throwable exception;
+        public final long begin;
+        public final long end;
 
-        public Report(boolean ignored, boolean successful, String test, ISourceLocation loc, String message, Throwable exception) {
+        public Report(boolean ignored, boolean successful, String test, ISourceLocation loc, String message, Throwable exception, long begin, long end) {
             this.ignored = ignored;
             this.successful = successful;
             this.test = test;
             this.loc = loc;
             this.message = message;
             this.exception = exception;
+            this.begin = begin;
+            this.end =end;
         }
 
         public void write(JsonWriter out) throws IOException {
             out.beginObject();
             out.name("name");
             out.value(test);
+            out.name("duration");
+            out.value(end - begin);
             out.name("suite");
             out.beginArray();
             out.value(loc.getPath());
@@ -103,6 +111,7 @@ public class CTRFTestReportListener implements ITestResultListener {
         failures = 0;
         ignored = 0;
         timestamp = System.currentTimeMillis();
+        last = timestamp;
         reports = new LinkedList<>();
         current = module;  
     }
@@ -113,6 +122,8 @@ public class CTRFTestReportListener implements ITestResultListener {
 
     @Override
     public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable exception) {
+        var stamp = System.currentTimeMillis();
+
         tests++;
         if (exception != null) {
             errors += 1;
@@ -120,14 +131,17 @@ public class CTRFTestReportListener implements ITestResultListener {
         else if (!successful) {
             failures += 1;
         }
-        reports.add(new Report(false, successful, test, loc, message, exception));
+        reports.add(new Report(false, successful, test, loc, message, exception, last, stamp));
+        last = System.currentTimeMillis();
     }
 
     @Override
     public void ignored(String test, ISourceLocation loc) {
+        var stamp = System.currentTimeMillis();
         tests++;
         ignored++;
-        reports.add(new Report(true, false, test, loc, "", null));
+        reports.add(new Report(true, false, test, loc, "", null, last, stamp));
+        last = System.currentTimeMillis();
     }
 
     @Override
@@ -142,7 +156,10 @@ public class CTRFTestReportListener implements ITestResultListener {
             out.name("specVersion");
             out.value("1.0.0");
             out.name("timestamp");
-            out.value(DateFormat.getInstance().format(Date.from(Instant.ofEpochMilli(timestamp))));
+
+            Instant instant = Instant.ofEpochMilli(timestamp);
+            OffsetDateTime utcDateTime = instant.atOffset(ZoneOffset.UTC);
+            out.value(dtFormatter.format(utcDateTime));
             
             out.name("results");
             out.beginObject();

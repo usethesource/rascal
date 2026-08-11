@@ -15,7 +15,6 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.test.infrastructure.CTRFTestReportListener;
-import org.rascalmpl.test.infrastructure.JUnitXMLReportListener;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
