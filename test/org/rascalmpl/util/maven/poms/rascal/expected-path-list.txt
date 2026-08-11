@@ -89,7 +89,7 @@ org/jline/jline-reader/3.27.0/jline-reader-3.27.0.jar
 org/jline/jline-style/3.27.0/jline-style-3.27.0.jar
 org/jline/jline-terminal-jni/3.27.0/jline-terminal-jni-3.27.0.jar
 org/jline/jline-terminal/3.27.0/jline-terminal-3.27.0.jar
-org/jsoup/jsoup/1.15.4/jsoup-1.15.4.jar
+org/jsoup/jsoup/1.23.1/jsoup-1.23.1.jar
 org/nanohttpd/nanohttpd/2.3.1/nanohttpd-2.3.1.jar
 org/ow2/asm/asm/9.7/asm-9.7.jar
 org/rascalmpl/typepal/0.15.1/typepal-0.15.1.jar
