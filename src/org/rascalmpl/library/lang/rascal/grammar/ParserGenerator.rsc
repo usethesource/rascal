@@ -442,7 +442,7 @@ public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(d
 // TODO: here we have to work if we also want regular lexical non-terminals at the top
   =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
          '    return new AbstractStackNode[] { 
-         '        <sym2newitem(g, def, 0).new>
+         '        <sym2newitem(g, def, id).new>
          '    };
          '}";
 
