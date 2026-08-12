@@ -246,7 +246,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             name = generator.getParserMethodName(startSort);
         }
 
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
     
     protected static String getParserMethodName(IConstructor symbol) {
@@ -292,7 +292,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
         
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), ctx, this, caller, parser, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
 
     @Override
@@ -326,6 +326,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return function(
                 functionType, 
                 new ParametrizedParseFunction(() -> getParserGenerator(), 
+                ctx,
                 this, 
                 caller, 
                 parser, 
@@ -363,7 +364,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 name = generator.getParserMethodName(startSort);
             }
 
-            return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+            return function(functionType, new ParseFunction(ctx.getValueFactory(), ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
         }
         catch (URISyntaxException e) {
             throw new IOException(e);
@@ -392,7 +393,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), ctx, this, caller, parser, vf.bool(false), vf.integer(INodeFlattener.UNLIMITED_AMB_DEPTH), vf.bool(false), vf.integer(0), vf.integer(0), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
     public IString createHole(ITree part, IInteger index) {
@@ -446,9 +447,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
         protected final String methodName;
         protected final ISourceLocation caller;
+        protected final IEvaluatorContext ctx;
         
-        public ParseFunction(IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+        public ParseFunction(IValueFactory vf, IEvaluatorContext ctx, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
             IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+            this.ctx = ctx;
             this.vf = vf;
             this.caller = caller;
             this.parser = parser;
@@ -517,7 +520,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc);
+                throw RuntimeExceptionFactory.parseError(errorLoc, caller, ctx.getStackTrace());
             }
             catch (Ambiguous e) {
                 ITree tree = e.getTree();
@@ -535,7 +538,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc);
+                throw RuntimeExceptionFactory.parseError(errorLoc, caller, ctx.getStackTrace());
             }
             catch (Ambiguous e) {
                 return e.getTree();
@@ -552,7 +555,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc);
+                throw RuntimeExceptionFactory.parseError(errorLoc, caller, ctx.getStackTrace());
             }
             catch (IOException e) {
                 throw RuntimeExceptionFactory.io(e);
@@ -586,7 +589,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc);
+                throw RuntimeExceptionFactory.parseError(errorLoc, caller, ctx.getStackTrace());
             }
             catch (IOException e) {
                 throw RuntimeExceptionFactory.io("IO error: " + e);
@@ -632,8 +635,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     static private class ParametrizedParseFunction extends ParseFunction {
         private Supplier<ParserGenerator> generator;
 
-        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-            super(vf, caller, parser, null, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters);
+        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IEvaluatorContext ctx, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+            super(vf, ctx, caller, parser, null, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters);
             this.generator = generator;
         }
         
