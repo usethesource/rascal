@@ -294,8 +294,10 @@ JGenie makeJGenie(MuModule m,
         name = unknown;                                      // Find of definition
         set[Define] fun_defs = {};
         for(MODID mid <- tmodels){
-            if(tmodels[mid].definitions[srcs[0]]?){
-                fun_defs += tmodels[mid].definitions[srcs[0]];
+            for(loc src <- srcs){
+                if(tmodels[mid].definitions[src]?){
+                    fun_defs += tmodels[mid].definitions[src];
+                }
             }
         }
 
