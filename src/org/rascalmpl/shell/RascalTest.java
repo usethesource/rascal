@@ -14,7 +14,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
-import org.rascalmpl.test.infrastructure.JUnitXMLReportListener;
+import org.rascalmpl.test.infrastructure.CTRFTestReportListener;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -28,8 +28,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
- * Runs all the tests in the modules given bij de -modules parameter (and their imported/extend modules)
- * Given a -project parameter, the path configuration will be constructed automatically
+ * Runs all the tests in the srcs folders
+ * Given a -project parameter, the PathConfig will be constructed automatically
  */
 public class RascalTest extends AbstractCommandlineTool {
     private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
@@ -121,7 +121,7 @@ public class RascalTest extends AbstractCommandlineTool {
             eval.doImport(monitor, modNames.stream().map(IString.class::cast).map(s -> s.getValue()).toArray(String[]::new));
 
             if (reporting) {
-                eval.setTestResultListener(new JUnitXMLReportListener(URIUtil.getChildLocation(projectRoot, "target"), eval.getHeap().moduleFiles()));
+                eval.setTestResultListener(new CTRFTestReportListener(URIUtil.getChildLocation(projectRoot, "target")));
             }
 
             // run only the selected modules and not imported ones to avoid race conditions on the output xml files
