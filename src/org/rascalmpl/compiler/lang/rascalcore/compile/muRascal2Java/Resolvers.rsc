@@ -335,8 +335,6 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     activeKwpFormals1 = { *fun.ftype.kwFormals
                         | def <- local_fun_defs,
-                          //def.defined in local_fun_defs, //.defined,
-                          //def notin cons_defs,
                           fid2muFunction[def.defined]?,
                           fun := fid2muFunction[def.defined]};
 

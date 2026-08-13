@@ -85,7 +85,7 @@ data F10 = f10(int i, int delta = 100);
 test bool keywordParam91() {
     return f10(0,delta=1).delta == 1;
 }
-                   
+
 test bool keywordParam92(){
 	bool f11(bool c = false){
 		bool g11(){
@@ -95,7 +95,7 @@ test bool keywordParam92(){
 	}
 	return f11() == false;
 }
-      
+
 test bool keywordParam93(){
 	bool f12(bool c = false){
 		void g12(){
@@ -156,7 +156,7 @@ test bool keywordParam105(){
     }
     return f17(c=11) == 200;
 }
-      
+
 test bool keywordParam106(){
     int f18(int c = 10){
         int h18(){
@@ -247,7 +247,7 @@ test bool fieldsNamesOfKeywordParametersIssue1851() {
 }
 
 // Keyword parameters used in closures
-    
+
 test bool keywordParameterInClosure1(){
     int f(int n, int(int) fun) = n + fun(n);
 
@@ -277,12 +277,13 @@ test bool keywordParameterInClosure3(){
 
 // Using keyword parameters in inner functions
 
+
 int outer1(int t, int tabSize=4){
     int rec(int t) = t + tabSize  when t > 10;
     default int rec(int t) = t;
     return rec(t);
 }
- 
+
 test bool outer1_1() = outer1(1) == 1;
 test bool outer1_11() = outer1(11) == 15;
 test bool outer1_11_kw() = outer1(11, tabSize=40) == 51;
@@ -334,9 +335,9 @@ int outer5(int t, int tabSize=4){
     return rec(t);
 }
 
-// test bool outer5_1() = outer5(1) == 1;
-// test bool outer5_11() = outer5(11) == 65;
-// test bool outer5_11_kw() = outer5(11, tabSize=40) == 101;
+test bool outer5_1() = outer5(1) == 1;
+test bool outer5_11() = outer5(11) == 65;
+test bool outer5_11_kw() = outer5(11, tabSize=40) == 101;
 
 test bool nestedFunctionCallUsesOuterKeywordParameter(){
   bool z(bool x, bool b = x
@@ -359,4 +360,3 @@ test bool staticTypesOfCommonKeywordDefaults() {
     ws = workspaceInfo();
     return ws.defines<b,a> == {};
 }
- 

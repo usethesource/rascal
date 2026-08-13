@@ -72,8 +72,6 @@ public void translateToplevel((Toplevel) `<Declaration decl>`) {
 // -- variable declaration ------------------------------------------
 
 void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	// str module_name = asUnqualifiedName(getRascalModuleName());
-    // enterFunctionScope("<module_name>_init");
     MODID mid = moduleName2moduleId(getRascalModuleName());
     enterFunctionScope(mid + "/init");
    	for(var <- variables){
@@ -146,7 +144,6 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
             kwfield2cons += <kwFieldName, kwType, consType>;
-            //str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
             getterId = |rascal+kwfield:///| + getterName;
          
@@ -172,7 +169,6 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     
     for(str kwFieldName <- domain(kwfield2cons)){
         conses = kwfield2cons[kwFieldName];
-        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
         getterId = |rascal+kwfield:///| + getterName;
             
@@ -198,7 +194,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
     
-        /*
+    /*
      * Create getters for common keyword fields of this data type
      */
     seen = {};
@@ -210,7 +206,6 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         if(kwFieldName in generated_common_getters) continue;
         generated_common_getters += kwFieldName;
         
-        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
         getterId = |rascal+kwfield:///| + getterName;
         if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
@@ -279,9 +274,6 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
                 body_code = [ translate(stat, my_btscopes) | stat <- fd.body.statements ];
                 if(isVoidAType(ftype.ret)) body_code += muReturn0();
                 mubody = muBlock(body_code);
-                //if(!exitViaReturn(mubody)){
-                //    muBody = muReturn1(ftype.ret, mubody);
-                //}
        } else if(fd is \expression || fd is \conditional){
             mubody = translateReturn(ftype.ret, fd.expression);
        }
@@ -317,7 +309,6 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       								 isMemo,
       								 externals,
       								 localRefs,
-      								//  getKeywordParameterRefs(tbody, funId),
       								 fd.src, 
       								 tmods, 
       								 ttags,
@@ -384,23 +375,16 @@ public set[MuExp] getLocalRefs(MuExp exp)
  * Get all variables that have been introduced outside the given function scope
  */
 public set[MuExp] getExternalRefs(MuExp exp, loc fuid, list[MuExp] formals){
-    // println("getExternalRefs: <exp>,
-    //                           <fuid>,
-    //                           <formals>");
    formalNames = {f.name | f <- formals};
    res =  { v1 | /v:muVar(str name2, loc fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    res += { v1 | /v:muVarKwp(str name2, loc fuid2, AType t) := exp, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
-
-// println("getExternalRefs, <fuid>, <formals>: <res>");
    return res;
 }
 /*
  * Get all keyword variables that have introduced outside the given function scope
  */
 public set[MuExp] getKeywordParameterRefs(MuExp exp, loc fuid){
-    //println("getKeywordParameterRefs(<exp>, <fuid>)");
     res = { unsetRec(v, "alabel") | /v:muVarKwp(str _, loc fuid2, AType _) := exp, fuid2 != fuid };
-    //println("getKeywordParameterRefs =\> <res>");
     return res;
 }
     

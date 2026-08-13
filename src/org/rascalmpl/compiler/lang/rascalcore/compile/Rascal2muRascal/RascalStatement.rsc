@@ -116,7 +116,6 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     loopBody = muBlock([]);
     conds = normalizeAnd([c | Expression c <- conditions]);
     btscopes = getBTScopesAnd(conds, whileBT, btscopes);
-    //conds = normalizeAnd(conds);
     if(all(Expression c <- conditions, backtrackFree(c)) && isFailFree(body)){
         enterLabelled(label, whileName);
         loopBody = translateLoopBody(body, btscopes);
@@ -196,21 +195,14 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
 
 MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, BTSCOPES btscopes) {
     doName = getLabel(label, "DO");
-    //doBT = "<doName>_BT";
     loc fuid = topFunctionScope();
     enterLoop(doName,fuid);
     
     conds = [condition];
-    //btscopes = getBTScopesAnd(conds, doBT, btscopes);
            
     loopBody = muDoWhile(doName, 
                          translateLoopBody(body, btscopes), 
                          translate(condition));     
-    
-    //loopBody = muWhileDo(doName, 
-    //                     muCon(true), 
-    //                     muBlock([ translateLoopBody(body, btscopes), translateAndConds(btscopes, conds, muContinue(doName), muBreak(doName), normalize=toStat) ]));
-    //loopBody = muExists(doBT, loopBody);
     code = muBlock([]);
     if(containsAppend(body)){
         writer = muTmpListWriter("listwriter_<doName>", fuid);        
@@ -249,7 +241,6 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Sta
 // -- for statement --------------------------------------------------
 
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`, BTSCOPES btscopes) {
-    //println("translate: <s> at <getLoc(s)>");
     forName = getLabel(label, "FOR");
     loc fuid = topFunctionScope();
     enterLoop(forName,fuid);

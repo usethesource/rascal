@@ -717,7 +717,6 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   false,
   								   getExternalRefs(funBody, fuid, formalVars),  // << TODO
   								   getLocalRefs(funBody),
-  								   //{},
   								   e.src,
   								   [],
   								   (),
@@ -868,10 +867,6 @@ MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{E
 private MuExp translateReducer(Expression e){
     redName = nextTmp("REDUCER");
     loc fuid = topFunctionScope();
-
-    //btfree = all(Expression c <- e.generators, backtrackFree(c));
-    //enterBacktrackingScope(redName);
-
     conds = normalizeAnd([g | g <- e.generators]);
     btscopes = getBTScopesAnd(conds, redName, ());
 
@@ -1082,13 +1077,11 @@ private list[MuExp] translateComprehensionContribution(str kind, AType resultTyp
 }
 
 private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`) {
-    //println("translateComprehension (list): <generators>");
     loc fuid = topFunctionScope();
     writer = muTmpListWriter(nextTmp("listwriter"), fuid);
     resultType = getType(c);
     conds = normalizeAnd([ g | Expression g <- generators ]);
     btscopes = getBTScopesAnd(conds, nextTmp("LCOMP"), ());
-    //iprintln(btscopes);
     return
         muValueBlock(resultType,
                      [ muConInit(writer, muPrim("open_list_writer", avalue(), [], [], c.src)),
@@ -1098,13 +1091,11 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
 }
 
 private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`) {
-    //println("translateComprehension (set): <generators>");
     loc fuid = topFunctionScope();
     writer = muTmpSetWriter(nextTmp("setwriter"), fuid);
     resultType = getType(c);
     conds = normalizeAnd([ g | Expression g <- generators ]);
     btscopes = getBTScopesAnd(conds, nextTmp("SCOMP"), ());
-    //iprintln(btscopes);
     return
         muValueBlock(resultType,
                      [ muConInit(writer, muPrim("open_set_writer", avalue(), [], [], c.src)),
@@ -1114,7 +1105,6 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
 }
 
 private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`) {
-    //println("translateComprehension (map): <generators>");
     loc fuid = topFunctionScope();
     writer = muTmpMapWriter(nextTmp("mapwriter"), fuid);
     resultType = getType(c);

@@ -86,7 +86,6 @@ JGenie makeJGenie(MuModule m,
                   map[FUNID, MuFunction] muFunctions){
 
     map[MODID,str] allLocs2Module = (mid : moduleId2moduleName(mid) | mid <- moduleLocs);
-    // map[MODID,str] allLocs2Module = invertUnique((mname : moduleName2moduleId(mname) | mname <- moduleLocs));
     MuModule currentModule = m;
     str moduleName = m.name;
     MODID moduleId = moduleName2moduleId(moduleName);
@@ -118,9 +117,7 @@ JGenie makeJGenie(MuModule m,
     MuFunction function = muFunction("", |unknown:///|, avalue(), [], [], [], |global-scopeInfo:///|, false, true, false, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
-    map[FUNID,set[MuExp]] fun2externals = (fun.funId : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));
-    // map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
-    
+    map[FUNID,set[MuExp]] fun2externals = (fun.funId : fun.externalRefs | fun <- range(muFunctions), !isGlobalScope(fun.scopeIn));   
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
     extendScopesCurrentModule = { mscope.top | <currentModuleScope, extendPath(), mscope> <- allPaths };
@@ -159,10 +156,6 @@ JGenie makeJGenie(MuModule m,
      }   
     loc _getModuleLoc()
         = currentModuleScope;
-        
-    //private bool isIgnored(MuFunction muFun){
-    //    return !isEmpty(domain(muFun.tags) & {"ignore", "Ignore", "ignoreInterpreter", "IgnoreInterpreter"});
-    //}
         
     void _setFunction(MuFunction fun){
         function = fun;
@@ -258,7 +251,6 @@ JGenie makeJGenie(MuModule m,
                         if(def.scope != currentModuleScope){    // inner function
                             fun = muFunctions[def.defined];
                             return _getFunctionNameInContext(fun.scopeIn, fun.name);
-                            // return isGlobalScope(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
                         }
                         return baseName;
                     } else {

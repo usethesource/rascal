@@ -92,9 +92,6 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, ModuleStatus m
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
     }
-    // for(f <- functions){
-    //     println("<f.name>: <f.externalRefs>, <f.localRefs>");
-    // }
     for(int i <- index(functions)){
         f = functions[i];
         f.externalRefs = { er | er <- f.externalRefs, er.fuid != f.funId };
@@ -316,12 +313,8 @@ MuFunction addTransitiveRefs(MuFunction fun){
     
     deltaExternalRefs = externalRefs - fun.externalRefs ;
     deltaLocalRefs =  { e | e <- externalRefs, e.fuid == fun.funId } - fun.localRefs;
-    // println("<fun.funId>:
-    //     usedFuns: <for(u <- usedFuns){><u.name> <}>
-    //     externalRefs: <externalRefs>");
     if(!(isEmpty(deltaExternalRefs))){
         fun.externalRefs += deltaExternalRefs;
-        //fun.externalRefs = filteredExternalRefs(fun);
         muFunctions[fun.funId] = fun;
     }
     if(!(isEmpty(deltaLocalRefs))){
@@ -479,7 +472,6 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
     ftype = fun.ftype;
     jg.setFunction(fun);
     
-    // shortName = asJavaName(isClosureName(fun.name) ? fun.name : getUniqueFunctionName(fun));
     shortName = asJavaName(fun.funId);
     
     visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be public
@@ -595,7 +587,6 @@ JCode trans(muOFun(list[FUNID] funIds, AType ftype), JGenie jg){
     uniq = abs(uuidi());
     
     formals = ["$<uniq>_<i>" | i <- [0..nformals]];
-    //formals = intercalate(", ", posFormals);
     actualsWithCast = ["(<atype2javatype(getFormals(ftype)[i])>)<formals[i]>" | int i <- index(formals)];
     
     fun_kwFormals = [];
@@ -845,7 +836,6 @@ JCode trans(muConInit(var:muTmpNative(str name, loc fuid, NativeKind nkind), MuE
 str transWithCast(AType atype, con:muCon(c), JGenie jg) = trans(con, jg);
 
 str transWithCast(AType atype1, v:muVar(str name, loc fuid, int pos, AType atype2, IdRole idRole), JGenie jg){
-    //v = unsetRec(v, "alabel");
     return jg.isRef(v) ? trans(v, jg) : /*(equivalent(atype1, atype2) ? trans(v,jg) :*/ "((<atype2javatype(atype1)>)<trans(v,jg)>)";
 }
 
@@ -1321,10 +1311,7 @@ JCode trans(muFilterReturn(), JGenie jg)    // Return for filter statement
 
 JCode trans(muKwpActuals(lrel[str name, MuExp exp] kwpActuals), JGenie jg){
      return "Util.kwpMap(<intercalate(", ",  [ *["\"<key>\"", trans(exp, jg)] | <str key,  MuExp exp> <- kwpActuals])>)";
-    // anyKwp = anyKwpFormalsInScope(jg);
-    // if(isEmpty(kwpActuals)) return anyKwp ? "$kwpActuals" : "Collections.emptyMap()";
-    // return "Util.kwpMap<anyKwp ? "Extend" : "">(<anyKwp ? "$kwpActuals," : ""><intercalate(", ",  [ *["\"<key>\"", trans(exp, jg)] | <str key,  MuExp exp> <- kwpActuals])>)";
-}
+   }
 
 // ---- muKwpMap --------------------------------------------------------------
 
@@ -1334,11 +1321,6 @@ JCode trans(muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] kwpDefaults
            '    <kwpActuals>.isEmpty() ? $kwpDefaults
            '                           : Util.kwpMap(<for(<str key, AType atype, MuExp exp> <- kwpDefaults, muCon(_) !:= exp){>\"<key>\", <kwpActuals>.containsKey(\"<unescape(key)>\") ? ((<atype2javatype(atype)>) <kwpActuals>.get(\"<unescape(key)>\")) : <transWithCast(atype,exp,jg)>)<}>)";
 
-//     anyKwp = anyKwpFormalsInScope(jg);
-//     kwpActuals = "$kwpActuals"; 
-//     return "
-//            '    <kwpActuals>.isEmpty() ? $kwpDefaults
-//            '                           : Util.kwpMap<anyKwp ? "Extend" : "">(<anyKwp ? "$kwpActuals, " : ""><for(<str key, AType atype, MuExp exp> <- kwpDefaults, muCon(_) !:= exp){>\"<key>\", <kwpActuals>.containsKey(\"<unescape(key)>\") ? ((<atype2javatype(atype)>) <kwpActuals>.get(\"<unescape(key)>\")) : <transWithCast(atype,exp,jg)>)<}>)";
 }
 
 // ---- muVarKwp --------------------------------------------------------------
