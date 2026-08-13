@@ -14,17 +14,14 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.env;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

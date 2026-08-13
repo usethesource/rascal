@@ -30,8 +30,6 @@ import java.util.ArrayList;
 
 import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;

@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC10-SNAPSHOT</version>
+    <version>0.43.0-RC13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.43.0-RC9</tag>
+        <tag>v0.43.0-RC11</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -542,7 +542,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.22.2</version>
+            <version>1.23.1</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
