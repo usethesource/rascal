@@ -170,7 +170,7 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
                             REPO + "typepal/src",
                             LSP_REPO + "src/main/rascal/library",
                             LSP_REPO + "src/main/rascal/lsp",
-                            LSP_REPO + "src/test/rascal",
+                            //LSP_REPO + "src/test/rascal",
                             REPO + "php-analysis/src/main/rascal"
                         ],
                         [ ], 
