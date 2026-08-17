@@ -72,7 +72,7 @@ public class TutorCommandExecutor {
                         eval.addRascalSearchPath((ISourceLocation) path);
                     }
         
-                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getClasspath(), ShellEvaluatorFactory.class.getClassLoader());
+                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
                     eval.addClassLoader(cl);
                 }
                 else {
