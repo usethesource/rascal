@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalFrame;
@@ -76,6 +78,67 @@ class Count {
 		}
 		return true;
 	}
+}
+
+class Cpuinfo {
+	private final List<Sample> samples = new ArrayList<>();
+	private long startMicroTime = -1;
+	private long endMicroTime = -1;
+	private long previousMicroTime = -1;
+
+	void start() {
+		assert startMicroTime == -1 && endMicroTime == -1;
+		startMicroTime = microTime();
+		previousMicroTime = startMicroTime;
+	}
+
+	void end() {
+		assert startMicroTime > -1 && endMicroTime == -1;
+		endMicroTime = microTime();
+	}
+
+	public void sample(Evaluator eval) {
+		assert startMicroTime > -1 && endMicroTime == -1;
+		var currentMicroTime = microTime();
+		var previousMicroTime = this.previousMicroTime;
+		this.previousMicroTime = currentMicroTime;
+
+		var delta = currentMicroTime - previousMicroTime;
+		var frames = eval.getCallStack().stream();
+		samples.add(new Sample(delta, frames));
+	}
+
+	public void write() {
+		assert startMicroTime > -1 && endMicroTime > -1;
+		
+		var nodes = new LinkedHashMap<>();
+	}
+
+	private static long microTime() {
+		return System.nanoTime() * 1000;
+	}
+
+	private class Sample {
+		private final long delta;
+		private final Stream<IRascalFrame> frames;
+		
+		private Sample(Evaluator eval) {
+			this(System.nanoTime(), eval.getCallStack().stream());
+		}
+
+		private Sample(long delta, Stream<IRascalFrame> frames) {
+			this.delta = delta;
+			this.frames = frames;
+		}
+	}
+
+	private class Node {
+		private final int id;
+		private final CallFrame frame;
+		private final List<Node> children = new ArrayList<>();
+	}
+
+	private class CallFrame {}
 }
 
 class FlameGraph {
