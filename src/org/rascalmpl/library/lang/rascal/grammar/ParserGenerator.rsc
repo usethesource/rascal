@@ -252,12 +252,17 @@ public str newGenerate(str package, str name, Grammar gr) {
           '       EXPECTS = builder.buildExpectArray();
            '    }
            '
-           '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    <for(Production alt <- alts.prods, alt is prod) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
+           '	}<}>
+           '    <for(Production alt <- alts.prods, alt is regular) { id = value2id(alt); >
+           '    // this is only for top-level regular symbols
+           '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
+           '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <sym2newitem(gr, alt.def, 0).new> });
            '	}<}>
            '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
@@ -438,13 +443,13 @@ public default str generateParseMethod(Grammar g, Items _, Production p, int _)
          '}";
 
 
-public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)}), int id) 
-// TODO: here we have to work if we also want regular lexical non-terminals at the top
-  =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
-         '    return new AbstractStackNode[] { 
-         '        <sym2newitem(g, def, id).new>
-         '    };
-         '}";
+// public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)}), int id) 
+// // TODO: here we have to work if we also want regular lexical/regular non-terminals at the top
+//   =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
+//          '    return new AbstractStackNode[] { 
+//          '        <sym2newitem(g, def, 0).new>
+//          '    };
+//          '}";
 
 
 
@@ -533,7 +538,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       sym = sym1;
       
     itemId = sym.id;
-    assert itemId != 0;
+    // assert itemId != 0;
     
     list[str] enters = [];
     list[str] exits = [];
