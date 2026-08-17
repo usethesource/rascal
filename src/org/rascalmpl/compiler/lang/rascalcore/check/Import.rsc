@@ -429,12 +429,12 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
 
     bool isContainedInComponentScopes(loc inner, map[loc,loc] m){
         inner = m[inner] ? inner;
-        return inner.uri in componentScopesByUri ? isContainedIn(inner, componentScopesByUri[inner.uri]) : false;
+        return inner.uri in componentScopesByUri && isContainedIn(inner, componentScopesByUri[inner.uri]);
     };
 
     bool isContainedInFilteredModuleScopes(loc inner, map[loc,loc] m){
         inner = m[inner] ? inner;
-        return inner.uri in filteredModuleScopesByUri ? isContainedIn(inner, filteredModuleScopesByUri[inner.uri]) : false;
+        return inner.uri in filteredModuleScopesByUri && isContainedIn(inner, filteredModuleScopesByUri[inner.uri]);
     };
 
     for(currentModule <- component){
