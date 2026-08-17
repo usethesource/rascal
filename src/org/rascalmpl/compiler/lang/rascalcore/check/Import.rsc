@@ -505,6 +505,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
                     }
                 };
 
+        m1.uses = [u | Use u <- tm.uses, u.occ in m1.useDef<0>];
         m1.defines = toSet(defs);
 
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
