@@ -968,6 +968,14 @@ public class PathConfig {
         }
     }
 
+    public List<ISourceLocation> getClasspath() {
+        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
+        var libs = isRascal ? getLibs() : getLibsAndTarget();
+        return libs.stream()
+            .map(ISourceLocation.class::cast)
+            .collect(Collectors.toList());
+    }
+
     private static boolean messageStartsWith(IValue message, String prefix) {
         if (!(message instanceof IConstructor)) {
             return false;

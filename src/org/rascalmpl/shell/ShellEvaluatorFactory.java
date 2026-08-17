@@ -64,14 +64,11 @@ public class ShellEvaluatorFactory {
             evaluator.addRascalSearchPath((ISourceLocation) srcPath);
         }
 
-        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
-        
         for (var lib : pcfg.getLibs()) {
             evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
 
-        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
-        evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
+        evaluator.addClassLoader(new SourceLocationClassLoader(pcfg.getClasspath(), ClassLoader.getSystemClassLoader()));
 
         return evaluator;
     }
