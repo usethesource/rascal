@@ -57,7 +57,7 @@ public Grammar makeRegularStubs(Grammar g) {
 }
 
 public set[Production] makeRegularStubs(set[Production] prods) {
-  return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
+  return {regular(reg), *{regular(toCompanionList(reg)) | isList(reg)} | /Production p:prod(_,_,_) <- prods, Symbol sym <- p.symbols, Symbol reg <- getRegular(sym) };
 }
 
 private set[Symbol] getRegular(Symbol s) = { t | /Symbol t := s, isRegular(t) }; 
@@ -71,3 +71,14 @@ public bool isRegular(\iter-star-seps(Symbol _, list[Symbol] _)) = true;
 public bool isRegular(alt(set[Symbol] _)) = true;
 public bool isRegular(seq(list[Symbol] _)) = true;
 public bool isRegular(empty()) = true;
+
+bool isList(iter(_)) = true;
+bool isList(\iter-star(_)) = true;
+bool isList(\iter-seps(_,_)) = true;
+bool isList(\iter-star-seps(_,_)) = true;
+default bool isList(Symbol _) = false;
+
+Symbol toCompanionList(iter(Symbol s)) = \iter-star(s);
+Symbol toCompanionList(\iter-star(Symbol s)) = \iter(s);
+Symbol toCompanionList(\iter-seps(Symbol s, list[Symbol] seps)) = \iter-star-seps(s, seps);
+Symbol toCompanionList(\iter-star-seps(Symbol s, list[Symbol] seps)) = \iter-seps(s, seps);
