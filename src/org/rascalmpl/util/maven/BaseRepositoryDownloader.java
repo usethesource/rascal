@@ -48,12 +48,12 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * keep track of when the last download has taken place. If this is less than 12
  * hours ago, the cached version is used. Otherwise the file is downloaded again.
  */
-abstract public class BaseRepositoryDownloader implements RepositoryDownloader {
+public abstract class BaseRepositoryDownloader implements RepositoryDownloader {
     private static final String PROP_LAST_UPDATED = "lastUpdated";
     private static final long MAX_INFO_AGE = 1000 * 60 * 60 * 12; // 12 hours
     private final Repo repo;
 
-    public BaseRepositoryDownloader(Repo repo) {
+    protected BaseRepositoryDownloader(Repo repo) {
         this.repo = repo;
     }
 
@@ -86,9 +86,9 @@ abstract public class BaseRepositoryDownloader implements RepositoryDownloader {
         String infoFilename = fileName.substring(0, dotIndex) + "-info.properties";
         Path infoPath = target.resolveSibling(infoFilename);
         if (Files.exists(infoPath)) {
-            Properties info = new Properties();
-            try {
-                info.load(Files.newBufferedReader(infoPath));
+            try (var infoFile = Files.newBufferedReader(infoPath)) {
+                Properties info = new Properties();
+                info.load(infoFile);
                 long lastUpdated = Long.parseLong(info.getProperty(PROP_LAST_UPDATED, "0"));
                 if (System.currentTimeMillis() - lastUpdated < MAX_INFO_AGE) {
                     // If the info file is recent enough, read metadata from local repo
@@ -108,10 +108,10 @@ abstract public class BaseRepositoryDownloader implements RepositoryDownloader {
             }
 
             // Update the info file with the current timestamp
-            Properties info = new Properties();
-            info.setProperty(PROP_LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
-            try {
-                info.store(Files.newBufferedWriter(infoPath), "Metadata info for " + fileName);
+            try (var infoFile = Files.newBufferedWriter(infoPath)) {
+                Properties info = new Properties();
+                info.setProperty(PROP_LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
+                info.store(infoFile, "Metadata info for " + fileName);
             }
             catch (IOException e) {
                 // Too bad, we cannot store the info file so caching will be disabled.
