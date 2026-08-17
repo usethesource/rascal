@@ -78,7 +78,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     gr = makeRegularStubs(gr);
     
     worked("generating syntax for holes", 1);
-    gr = addHoles(gr);
+    // gr = addHoles(gr);
  
     worked("generating literals", 1);
     gr = literals(gr);
@@ -102,12 +102,6 @@ public str newGenerate(str package, str name, Grammar gr) {
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
-   
-    //println("computing lookahead sets", 1);
-    //gr = computeLookaheads(gr, extraLookaheads);
-    
-    //println("optimizing lookahead automaton", 1);
-    //gr = compileLookaheads(gr);
    
     worked("source code template", 1);
     
@@ -259,10 +253,10 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
-           '    <for(Production alt <- alts.prods, alt is regular) { id = value2id(alt); >
+           '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt); println(alt.def);>
            '    // this is only for top-level regular symbols
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
-           '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <sym2newitem(gr, alt.def, 0).new> });
+           '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <newItems[topRegular(alt.def)][item(alt, 0)].new> });
            '	}<}>
            '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
@@ -342,6 +336,7 @@ Symbol getType(label(str _, Symbol s)) = getType(s);
 Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
 default Symbol getType(Symbol s) = unsetRec(s);
 
+data Symbol = topRegular(Symbol symbol);
 
 @synopsis{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
@@ -365,6 +360,10 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
       us = unsetRec(s);
       p = unsetRec(p);
 
+      // first register the toplevel regulars
+      items[topRegular(us)]?fresh += (item(p,0): sym2newitem(g, s, 0));
+
+      // this is for nested regulars
       switch(s) {
         case \iter(Symbol elem) : 
           items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));

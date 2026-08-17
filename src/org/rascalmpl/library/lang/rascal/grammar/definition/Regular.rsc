@@ -18,7 +18,7 @@ public Grammar expandRegularSymbols(Grammar G) {
     if (choice(def, {regular(def)}) := G.rules[def]) { 
       Production init = choice(def,{});
       
-      for (p <- expand(def)) {
+      for (Production p <- expand(def)) {
         G.rules[p.def] = choice(p.def, {p, G.rules[p.def]?\init});
       }
     }
@@ -72,13 +72,13 @@ public bool isRegular(alt(set[Symbol] _)) = true;
 public bool isRegular(seq(list[Symbol] _)) = true;
 public bool isRegular(empty()) = true;
 
-bool isList(iter(_)) = true;
-bool isList(\iter-star(_)) = true;
-bool isList(\iter-seps(_,_)) = true;
+bool isList(iter(_))              = true;
+bool isList(\iter-star(_))        = true;
+bool isList(\iter-seps(_,_))      = true;
 bool isList(\iter-star-seps(_,_)) = true;
-default bool isList(Symbol _) = false;
+default bool isList(Symbol _)     = false;
 
-Symbol toCompanionList(iter(Symbol s)) = \iter-star(s);
-Symbol toCompanionList(\iter-star(Symbol s)) = \iter(s);
-Symbol toCompanionList(\iter-seps(Symbol s, list[Symbol] seps)) = \iter-star-seps(s, seps);
+Symbol toCompanionList(iter(Symbol s))                               = \iter-star(s);
+Symbol toCompanionList(\iter-star(Symbol s))                         = \iter(s);
+Symbol toCompanionList(\iter-seps(Symbol s, list[Symbol] seps))      = \iter-star-seps(s, seps);
 Symbol toCompanionList(\iter-star-seps(Symbol s, list[Symbol] seps)) = \iter-seps(s, seps);
