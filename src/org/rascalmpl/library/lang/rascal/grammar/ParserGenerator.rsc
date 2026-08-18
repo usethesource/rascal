@@ -276,24 +276,6 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { uniqueItem = uniqueItem + 1; >
            '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)], uniqueItem)><}>
            '
-           '  // Debugging utilities
-           '  private ITree test(Supplier\<AbstractStackNode[]\> method, String example) throws Throwable {
-           '    return parse(method.get()[0], null, example.toCharArray(), new DefaultNodeFlattener\<IConstructor, ITree, ISourceLocation\>(), new UPTRNodeFactory(true));
-           '  }
-           '
-           '  public static void main(String[] args) throws Throwable {
-           '      var p = new <name>();
-           '
-           '      String input = \"???\";
-           '      Supplier\<AbstractStackNode[]\> nont = p::<if (Symbol nont <- gr.rules.sort) {><getParserMethodName(nont)><}>;
-           '
-           '      var output = p.test(nont, input);
-           '
-           '      System.err.println(\"parse tree:\");
-           '      new StandardTextWriter(true).write(output, new PrintWriter(System.err));
-           '      System.err.println(\"\\nyield:\");
-           '      System.err.println(TreeAdapter.yield(output));
-           '  }
            '}";
     }, totalWork=9);      
 }  
