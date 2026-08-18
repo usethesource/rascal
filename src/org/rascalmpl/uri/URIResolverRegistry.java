@@ -456,7 +456,7 @@ public class URIResolverRegistry {
 	public void unregisterLogical(String scheme, String auth) {
 		Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme.toLowerCase());
 		if (map != null) {
-			map.remove(auth);
+			map.remove(auth.toLowerCase());
 		}
 	}
 
