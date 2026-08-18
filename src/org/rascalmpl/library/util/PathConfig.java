@@ -524,9 +524,8 @@ public class PathConfig {
 
         translateSources(manifestRoot, srcs, messages);
 
-        for (var art: mavenClasspath) {
-            var artId = art.getCoordinate().getArtifactId();
-            if (!artId.equals("rascal") && !artId.equals("typepal")) {
+        for (var art : mavenClasspath) {
+            if (!isRascal(art) && !isTypePal(art)) {
                 addArtifactToPathConfig(art, manifestRoot, mode, srcs, libs, messages);
             }
         }
@@ -628,10 +627,10 @@ public class PathConfig {
                 libs.append(dep);
                 return;
             }
-            if (libProjectName.equals("rascal")) {
+            if (isRascal(libProjectName)) {
                 return; 
             }
-            if (libProjectName.equals("rascal-lsp")) {
+            if (isRascalLsp(libProjectName)) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep, art);
                 // we'll be adding the rascal-lsp by hand later
                 // so we ignore the rascal-lsp dependency
@@ -752,11 +751,11 @@ public class PathConfig {
         try {
             var mavenClasspath = getPomXmlCompilerClasspath(manifestRoot, messages);
 
-            if (projectName.equals("rascal")) {
+            if (isRascal(projectName)) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
                 buildRascalSelfApplicationConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
-            else if (projectName.equals("rascal-lsp")) {
+            else if (isRascalLsp(projectName)) {
                 buildRascalLSPConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
             else {
@@ -991,21 +990,24 @@ public class PathConfig {
         return isRascalMplGroup(coord) && isRascal(coord.getArtifactId());
     }
 
-    private static boolean isRascal(String projectName) {
+    public static boolean isRascal(String projectName) {
         return "rascal".equalsIgnoreCase(projectName);
     }
 
-    private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
-        return "org.rascalmpl".equals(artifact.getGroupId())
-            && "typepal".equals(artifact.getArtifactId());
+    public static boolean isRascalLsp(String projectName) {
+        return "rascal-lsp".equalsIgnoreCase(projectName);
+    }
+
+    private static boolean isTypePal(Artifact artifact) {
+        var coord = artifact.getCoordinate();
+        return isRascalMplGroup(coord)
+            && "typepal".equals(coord.getArtifactId());
     }
 
     private static ISourceLocation getPomXmlTypePalDependency(List<Artifact> pomDependencies) {
-        
         for (Artifact artifact : pomDependencies) {
-            var coordinate = artifact.getCoordinate();
-
-            if (isTypePalArtifact(coordinate)) {
+            if (isTypePal(artifact)) {
+                var coordinate = artifact.getCoordinate();
                 return MavenRepositoryURIResolver.make(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion(), "");
             }
         }

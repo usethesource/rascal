@@ -17,6 +17,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
@@ -50,7 +51,7 @@ public class RascalManifest {
             while (resources.hasMoreElements()) {
                 Manifest manifest = new Manifest(resources.nextElement().openStream());
                 String bundleName = manifest.getMainAttributes().getValue("Name");
-                if (bundleName != null && bundleName.equals("rascal")) {
+                if (bundleName != null && PathConfig.isRascal(bundleName)) {
                     String result = manifest.getMainAttributes().getValue("Specification-Version");
                     if (result != null) {
                         return result;
@@ -71,7 +72,7 @@ public class RascalManifest {
         Manifest mf = new Manifest(javaManifest(project));
 
         String bundleName = mf.getMainAttributes().getValue("Name");
-        if (bundleName != null && bundleName.equals("rascal")) {
+        if (bundleName != null && PathConfig.isRascal(bundleName)) {
             String result = mf.getMainAttributes().getValue("Specification-Version");
             if (result != null) {
                 return result;

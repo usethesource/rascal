@@ -120,7 +120,7 @@ public class ShellEvaluatorFactory {
 
     public static List<ISourceLocation> getClasspath(PathConfig pcfg) {
         var projectRoot = pcfg.getProjectRoot();
-        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
+        var isRascal = projectRoot != null && PathConfig.isRascal(new RascalManifest().getProjectName(projectRoot));
         var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
         return libs.stream()
             .map(ISourceLocation.class::cast)
