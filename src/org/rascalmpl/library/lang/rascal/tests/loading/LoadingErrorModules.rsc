@@ -91,22 +91,49 @@ test bool moduleWithStaticError() {
 
 test bool importNonExistingModule() {
     exec = createRascalRuntime(pcfg=init());
+    
+    // clean slate
+    remove(moduleFile("ZZ"));
 
-    writeFile(moduleFile("A"), "module A import Z; str func() = aap;");
-
+    writeFile(moduleFile("A"), 
+        "module A 
+        'import ZZ; 
+        'str func() = foo();
+        '");
+ 
     try {
         exec.eval(#void, "import A;");
         return false;
     }
-    catch ModuleLoadMessages([error(_,_)]): {
+    catch ModuleLoadMessages([error(_m, _l)]): {
         // that's ok
         ;
     }
 
-    writeFile(moduleFile("Z"), "module Z public str aap = \"aap\";");
+    writeFile(moduleFile("ZZ"), 
+        "module ZZ 
+        'str foo() = \"bar\";
+        '");
 
-    return exec.eval(#void, "import A;") == ok()
-        && result("aap") == exec.eval(#str, "func()");
+    try {
+        res = exec.eval(#void, "import A;");
+        println("res: <res>");
+        res = exec.eval(#str, "func()");
+        println("res2: <res>");
+        return res == ok() && result("bar") == res;
+    }
+    catch ModuleLoadMessages(msgs): {
+        iprintln("unexpected messages: <msgs>");
+        return false;
+    }
+    catch StaticError(str message, loc location): {
+        println("unexpected static error: <message> @ <location>");
+        return false;
+    }
+    catch value v: {
+        println("some exception <v>");
+        return false;
+    }
 }
 
 
