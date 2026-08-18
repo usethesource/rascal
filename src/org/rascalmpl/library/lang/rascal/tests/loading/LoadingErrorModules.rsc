@@ -92,8 +92,10 @@ test bool moduleWithStaticError() {
 test bool importNonExistingModule() {
     exec = createRascalRuntime(pcfg=init());
 
+    writeFile(moduleFile("A"), "module A import Z; str func() = aap;");
+
     try {
-        exec.eval(#void, "import Z;");
+        exec.eval(#void, "import A;");
         return false;
     }
     catch ModuleLoadMessages([error(_,_)]): {
@@ -103,8 +105,8 @@ test bool importNonExistingModule() {
 
     writeFile(moduleFile("Z"), "module Z public str aap = \"aap\";");
 
-    return exec.eval(#void, "import Z;") == ok()
-        && result("aap") == exec.eval(#str, "aap");
+    return exec.eval(#void, "import A;") == ok()
+        && result("aap") == exec.eval(#str, "func()");
 }
 
 
