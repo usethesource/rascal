@@ -29,11 +29,14 @@ str createValidScheme(str s) {
 @expected{MalFormedURI}
 test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
-test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
-test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
+str lowerCaseHost(/^<user:[^@]+>@<host:.*>$/) = "<user>@<toLowerCase(host)>";
+default str lowerCaseHost(str auth) = toLowerCase(auth);
 
-test bool canChangeAuthority1(loc l, str s) = (l[authority = s]).authority ==  s;
-test bool canChangeAuthority2(loc l, str s) { l.authority = s; return l.authority ==  s; }
+test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  toLowerCase(createValidScheme(s));
+test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  toLowerCase(createValidScheme(s)); }
+
+test bool canChangeAuthority1(loc l, str s) = (l[authority = s]).authority == lowerCaseHost(s);
+test bool canChangeAuthority2(loc l, str s) { l.authority = s; return l.authority ==  lowerCaseHost(s); }
 
 str fixPath(str s) = visit (s)  { case /\/\/+/ => "/" };
 
@@ -53,8 +56,8 @@ str createValidHost(str s) {
 	return ("a.a" | it + stringChar(validHostChars[c % size(validHostChars)]) | c <- chars(s)) + "a.com";
 }
 
-test bool canChangeHost1(loc l, str s) = (l[scheme="http"][authority="a"][host = createValidHost(s)]).host ==  createValidHost(s);
-test bool canChangeHost2(loc l, str s) { l.scheme="http"; l.authority = "a"; l.host = createValidHost(s); return l.host ==  createValidHost(s); }
+test bool canChangeHost1(loc l, str s) = (l[scheme="http"][authority="a"][host = createValidHost(s)]).host ==  toLowerCase(createValidHost(s));
+test bool canChangeHost2(loc l, str s) { l.scheme="http"; l.authority = "a"; l.host = createValidHost(s); return l.host == toLowerCase(createValidHost(s)); }
 
 test bool canChangeUser1(loc l, str s) = contains(s, "@") || (l[scheme="http"][authority="a@a.com"][user = s]).user ==  s;
 test bool canChangeUser2(loc l, str s) { if (contains(s, "@")) return true; l.scheme="http"; l.authority = "a@a.com"; l.user = s; if ( l.user ==  s) { return true; } else {println("<l.user> != <s>"); return false; } }
