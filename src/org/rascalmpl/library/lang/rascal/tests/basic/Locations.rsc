@@ -29,7 +29,7 @@ str createValidScheme(str s) {
 @expected{MalFormedURI}
 test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
-str lowerCaseHost(/^<user:[^@]+>@<host:.*>$/) = "<user>@<toLowerCase(host)>";
+str lowerCaseHost(/(?s)^<user:[^@]+>@<host:.*>$/) = "<user>@<toLowerCase(host)>";
 default str lowerCaseHost(str auth) = toLowerCase(auth);
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  toLowerCase(createValidScheme(s));
