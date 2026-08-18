@@ -72,14 +72,14 @@ public void translateToplevel((Toplevel) `<Declaration decl>`) {
 // -- variable declaration ------------------------------------------
 
 void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	str module_name = asUnqualifiedName(getRascalModuleName());
-    enterFunctionScope("<module_name>_init");
+    MODID mid = moduleName2moduleId(getRascalModuleName());
+    enterFunctionScope(mid + "/init");
    	for(var <- variables){
    	    unescapedVarName = unescapeName("<var.name>");
    		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, getRascalModuleNameUnderscores(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, mid, -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -144,18 +144,18 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
             kwfield2cons += <kwFieldName, kwType, consType>;
-            //str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
+            getterId = |rascal+kwfield:///| + getterName;
          
             if(getterName notin generated_getters){
                 generated_getters += getterName;
                 
                 getterType = afunc(kwType, [consType], []);
-                consVar = muVar(consName, getterName, 0, consType, constructorId());
+                consVar = muVar(consName, getterId, 0, consType, constructorId());
                 
                 defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar, kw.definingModule);
                 body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-                addFunctionToModule(muFunction(getterName, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body)); 
+                addFunctionToModule(muFunction(getterName, getterId, getterType, [consVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body)); 
             } else {
                 println("In generated_getters: <getterName>");
                 
@@ -169,12 +169,12 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     
     for(str kwFieldName <- domain(kwfield2cons)){
         conses = kwfield2cons[kwFieldName];
-        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
+        getterId = |rascal+kwfield:///| + getterName;
             
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
-        adtVar = muVar(adtName, getterName, 0, adtType, dataId());
+        adtVar = muVar(adtName, getterId, 0, adtType, dataId());
         failCode = muFailReturn(returnType);
         for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp.src, module_scope, l2p)){
             kwType = kw.fieldType;
@@ -191,10 +191,10 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
                        ]
                        + failCode
                       );
-        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
     
-        /*
+    /*
      * Create getters for common keyword fields of this data type
      */
     seen = {};
@@ -206,18 +206,18 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         if(kwFieldName in generated_common_getters) continue;
         generated_common_getters += kwFieldName;
         
-        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
+        getterId = |rascal+kwfield:///| + getterName;
         if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
                 continue;
         }
        
         getterType = afunc(kwType, [adtType], []);
-        adtVar = muVar(getterName, getterName, 0, adtType, variableId());
+        adtVar = muVar(getterName, getterId, 0, adtType, variableId());
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar, kw.definingModule);
         body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterId, getterType, [adtVar], [], [], |global-scope:///|, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
   
     
@@ -241,43 +241,26 @@ private set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
 
 public void translateFunctionDeclaration(FunctionDeclaration fd){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd.src>)");
-  inScope = topFunctionScope();
-  funsrc = fd.src;
-  useTypeParams = getTypeVarsinFunction(fd);
-  enterFunctionDeclaration(funsrc, !isEmpty(useTypeParams));
-
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-    //   if(ignoreTest(ttags)){
-    //       // The type checker does not generate type information for ignored functions
-    //        addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
-    //                                      prettyPrintName(fd.signature.name), 
-    //                                      afunc(abool(),[],[]),
-    //                                      [],
-    //                                      [],
-    //                                      [],
-    //                                      inScope, 
-    //                                      false, 
-    //                                      true,
-    //                                      false,
-    //                                      {},
-    //                                      {},
-    //                                      {},
-    //                                      fd.src, 
-    //                                      tmods, 
-    //                                      ttags,
-    //                                      muReturn1(abool(), muCon(false))));
-    //       	return;
-    //   }
+
+      if(hasIgnoreCompilerTag(ttags)){
+        return;
+      }
+      inScope = topFunctionScope();
+      funsrc = fd.src;
+      funId = getLogicalLoc(funsrc);
+      useTypeParams = getTypeVarsinFunction(fd);
+      enterFunctionDeclaration(funId, !isEmpty(useTypeParams));
+    
       fname = prettyPrintName(fd.signature.name);
-      ftype = getFunctionType(funsrc);
+      ftype = getFunctionType(funId);
       resultType = ftype.ret;
       bool isVarArgs = ftype.varArgs;
       nformals = size(ftype.formals);
-      fuid = convert2fuid(funsrc);
     
-      enterFunctionScope(fuid);
+      enterFunctionScope(funId);
       
       //// Keyword parameters
       lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters);
@@ -285,15 +268,12 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       my_btscopes = getBTScopesParams([ft | ft <- fd.signature.parameters.formals.formals], fname);
       mubody = muBlock([]);
       if(ttags["javaClass"]?){
-         params = [ muVar(ftype.formals[i].alabel, fuid, i, ftype.formals[i], formalId()) | i <- [ 0 .. nformals] ];
-         mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, fuid));
+         params = [ muVar(ftype.formals[i].alabel, funId, i, ftype.formals[i], formalId()) | i <- [ 0 .. nformals] ];
+         mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, funId));
       } else if(fd is \default){ // function declaration with statements
                 body_code = [ translate(stat, my_btscopes) | stat <- fd.body.statements ];
                 if(isVoidAType(ftype.ret)) body_code += muReturn0();
                 mubody = muBlock(body_code);
-                //if(!exitViaReturn(mubody)){
-                //    muBody = muReturn1(ftype.ret, mubody);
-                //}
        } else if(fd is \expression || fd is \conditional){
             mubody = translateReturn(ftype.ret, fd.expression);
        }
@@ -313,12 +293,12 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       }
       
       leaveSignatureSection();
-      externals = getExternalRefs(tbody, fuid, formalVars);
-      extendedFormalVars = getExtendedFunctionFormals(fd.src, fuid);
+      externals = getExternalRefs(tbody, funId, formalVars);
+      extendedFormalVars = getExtendedFunctionFormals(funId, funId);
       localRefs = getLocalRefs(tbody);
        
-      addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
-                                     fuid, 
+      addFunctionToModule(muFunction(fname, 
+                                     funId, 
       								 ftype,
       								 formalVars,
       								 extendedFormalVars,
@@ -329,7 +309,6 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       								 isMemo,
       								 externals,
       								 localRefs,
-      								 getKeywordParameterRefs(tbody, fuid),
       								 fd.src, 
       								 tmods, 
       								 ttags,
@@ -383,7 +362,7 @@ private default bool hasParameterName(Pattern p, int i) = false;
  */
 private set[MuExp] getVarsUsedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /v:muVar(str _name, loc _scope, int pos, AType t, IdRole idRole) := exp, pos >= 0, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
 
 /*
@@ -395,19 +374,17 @@ public set[MuExp] getLocalRefs(MuExp exp)
 /*
  * Get all variables that have been introduced outside the given function scope
  */
-public set[MuExp] getExternalRefs(MuExp exp, str fuid, list[MuExp] formals){
+public set[MuExp] getExternalRefs(MuExp exp, loc fuid, list[MuExp] formals){
    formalNames = {f.name | f <- formals};
-   res = { v1 | /v:muVar(str name2, str fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
-   //println("getExternalRefs, <fuid>, <formals>: <res>");
+   res =  { v1 | /v:muVar(str name2, loc fuid2, int pos, AType t, IdRole idRole) := exp, pos >= 0, name2 notin formalNames, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+   res += { v1 | /v:muVarKwp(str name2, loc fuid2, AType t) := exp, fuid2 != fuid, fuid2 != |rascal:///|, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    return res;
 }
 /*
  * Get all keyword variables that have introduced outside the given function scope
  */
-public set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid){
-    //println("getKeywordParameterRefs(<exp>, <fuid>)");
-    res = { unsetRec(v, "alabel") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
-    //println("getKeywordParameterRefs =\> <res>");
+public set[MuExp] getKeywordParameterRefs(MuExp exp, loc fuid){
+    res = { unsetRec(v, "alabel") | /v:muVarKwp(str _, loc fuid2, AType _) := exp, fuid2 != fuid };
     return res;
 }
     
@@ -451,7 +428,7 @@ private MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars
       parameters = { unset(par, "alabel") | /par:aparameter(name, bound) := ftype };
      
       if(!isEmpty(parameters) && /muReturn1(_,_) := res){
-        str fuid = topFunctionScope();
+        loc fuid = topFunctionScope();
         result = muTmpIValue(nextTmp("result"), fuid, ftype.ret);
         res = visit(res){
             case muReturn1(_, e) => muBlock([ muConInit(result, e),
@@ -468,7 +445,7 @@ private MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars
          
 private MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo){
     if(isMemo){
-        str fuid = topFunctionScope();
+        loc fuid = topFunctionScope();
         result = muTmpIValue(nextTmp("result"), fuid, avalue());
         return muCheckMemo(ftype, formalVars, body);
     } else {
@@ -480,7 +457,7 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
      
      list[Pattern] formalsList = [f | f <- formals];
-     str fuid = topFunctionScope();
+     loc fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
      parameters = { unset(par, "alabel") | /par:aparameter(name, bound) := ftype };
      
@@ -554,13 +531,6 @@ public map[str,str] translateTags(Tags tags){
    }
    return m;
 }
-
-// public bool hasIgnoreCompilerTag(map[str,str] tagsMap)
-//     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
-
-//private bool hasIgnoreCompilerTagTest(map[str, str] tags) = !isEmpty(domain(tags) & {"hasIgnoreCompilerTag", "IgnoreCompiler"});
-
-// public bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "hasIgnoreCompilerTag", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */
