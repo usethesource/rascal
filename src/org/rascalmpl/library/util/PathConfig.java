@@ -719,9 +719,9 @@ public class PathConfig {
      * or problems view in an IDE, an error LOG for a CI and stderr or stdout for console applications.
      * 
      * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
-     * @param RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
+     * @param mode RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
      * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
-     * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
+     * @throws nothing, because all errors are collected in a messages field of the PathConfig.
      */
     public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
         manifestRoot = safeResolve(manifestRoot);
