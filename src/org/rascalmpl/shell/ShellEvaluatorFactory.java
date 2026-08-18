@@ -2,7 +2,9 @@ package org.rascalmpl.shell;
 
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
@@ -68,7 +70,7 @@ public class ShellEvaluatorFactory {
             evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
 
-        evaluator.addClassLoader(new SourceLocationClassLoader(pcfg.getClasspath(), ClassLoader.getSystemClassLoader()));
+        evaluator.addClassLoader(new SourceLocationClassLoader(getClasspath(pcfg), ClassLoader.getSystemClassLoader()));
 
         return evaluator;
     }
@@ -114,6 +116,15 @@ public class ShellEvaluatorFactory {
         var reg = URIResolverRegistry.getInstance();
         reg.registerLogical(new IDEProjectURIResolver(resolver));
         reg.registerLogical(new IDETargetURIResolver(resolver));
+    }
+
+    public static List<ISourceLocation> getClasspath(PathConfig pcfg) {
+        var projectRoot = pcfg.getProjectRoot();
+        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
+        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
+        return libs.stream()
+            .map(ISourceLocation.class::cast)
+            .collect(Collectors.toList());
     }
 
 }
