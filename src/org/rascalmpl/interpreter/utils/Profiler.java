@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -82,64 +83,115 @@ class Count {
 
 class Cpuinfo {
 	private final List<Sample> samples = new ArrayList<>();
-	private long startMicroTime = -1;
-	private long endMicroTime = -1;
-	private long previousMicroTime = -1;
+	private long startTime = -1;
+	private long endTime = -1;
+	private long previousTime = -1;
 
-	void start() {
-		assert startMicroTime == -1 && endMicroTime == -1;
-		startMicroTime = microTime();
-		previousMicroTime = startMicroTime;
+	public void start() {
+		assert startTime == -1 && endTime == -1;
+		startTime = time();
+		previousTime = startTime;
 	}
 
-	void end() {
-		assert startMicroTime > -1 && endMicroTime == -1;
-		endMicroTime = microTime();
+	public void end() {
+		assert startTime > -1 && endTime == -1;
+		endTime = time();
 	}
 
 	public void sample(Evaluator eval) {
-		assert startMicroTime > -1 && endMicroTime == -1;
-		var currentMicroTime = microTime();
-		var previousMicroTime = this.previousMicroTime;
-		this.previousMicroTime = currentMicroTime;
+		assert startTime > -1 && endTime == -1;
+		var currentTime = time();
+		var previousTime = this.previousTime;
+		this.previousTime = currentTime;
 
-		var delta = currentMicroTime - previousMicroTime;
-		var frames = eval.getCallStack().stream();
+		var delta = currentTime - previousTime;
+		var frames = eval.getCallStack(); // Fresh value
 		samples.add(new Sample(delta, frames));
 	}
 
 	public void write() {
-		assert startMicroTime > -1 && endMicroTime > -1;
+		assert startTime > -1 && endTime > -1;
 		
-		var nodes = new LinkedHashMap<>();
-	}
+		var nodeIds = new ArrayList<Integer>();
+		var timeDeltas = new ArrayList<Long>();
 
-	private static long microTime() {
-		return System.nanoTime() * 1000;
-	}
+		var root = new Node(null);
+		for (var s : samples) {
+			var curr = root;
+			for (var f : s.frames) {
+				curr = curr.getChild(f.toString());
+			}
 
-	private class Sample {
-		private final long delta;
-		private final Stream<IRascalFrame> frames;
-		
-		private Sample(Evaluator eval) {
-			this(System.nanoTime(), eval.getCallStack().stream());
+			nodeIds.add(curr.id);
+			timeDeltas.add(s.delta);
 		}
 
-		private Sample(long delta, Stream<IRascalFrame> frames) {
+		// Write
+		var path = Path.of("foobar.cpuinfo");
+		try {
+			Files.writeString(path, "");
+			Files.writeString(path, "{", StandardOpenOption.APPEND);
+			Files.writeString(path, "  \"startTime\": " + startTime + ",", StandardOpenOption.APPEND);
+			Files.writeString(path, "  \"endTime\": " + endTime + ",", StandardOpenOption.APPEND);
+			Files.writeString(path, "  \"samples\": " + nodeIds + ",", StandardOpenOption.APPEND);
+			Files.writeString(path, "  \"timeDeltas\": " + timeDeltas, StandardOpenOption.APPEND);
+			Files.writeString(path, "}", StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static long time() {
+		return System.nanoTime() * 1000; // Microseconds
+	}
+
+	private static class Sample {
+		private final long delta;
+		private final Stack<IRascalFrame> frames;
+
+		private Sample(long delta, Stack<IRascalFrame> frames) {
 			this.delta = delta;
 			this.frames = frames;
 		}
 	}
 
-	private class Node {
+	private static class Node {
+		private static int nextId = 0;
+
 		private final int id;
 		private final CallFrame frame;
-		private final List<Node> children = new ArrayList<>();
+		private final Map<String, Node> children;
+
+		public Node(String key) {
+			this.id = nextId++;
+			this.frame = null;
+			this.children = new HashMap<>();
+		}
+
+		public Node getChild(String key) {
+			return children.computeIfAbsent(key, Node::new);
+		}
 	}
 
-	private class CallFrame {}
+	private static class CallFrame {
+		public CallFrame(IRascalFrame sample) {
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class FlameGraph {
 	private final Map<String, Count> counts = new HashMap<>();
@@ -207,6 +259,7 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
 	private final FlameGraph flameGraph = new FlameGraph();
+	private final Cpuinfo cpuinfo = new Cpuinfo();
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
@@ -219,12 +272,14 @@ public class Profiler extends Thread {
 	
 	@Override
 	public void run(){
+		cpuinfo.start();
 		while(running) {
 			AbstractAST current = eval.getCurrentAST();
 			Environment env = eval.getCurrentEnvt();
 			String name = env.getName();
 
 			flameGraph.sample(eval);
+			cpuinfo.sample(eval);
 			
 			if (current != null) {
 				ISourceLocation stat = current.getLocation();
@@ -257,6 +312,7 @@ public class Profiler extends Thread {
 				e.printStackTrace();
 			}
 		}
+		cpuinfo.end();
 	}
 	
 	public void pleaseStop(){
@@ -289,6 +345,7 @@ public class Profiler extends Thread {
 	}
 	
 	public void report() {
+		cpuinfo.write();
 		flameGraph.write();
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
