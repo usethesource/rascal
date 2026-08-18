@@ -27,8 +27,6 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>rascal_eclipse.rascal_nature</nature>
-		<nature>rascal_eclipse.tutor_nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>

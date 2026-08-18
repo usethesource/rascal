@@ -84,6 +84,7 @@ public class GsonUtils {
      */
     static {
         writer.setRationalsAsString(true);
+        writer.setFileLocationsAsPathOnly(false);
         typeMappings = List.of(
             new TypeMapping(IBool.class, tf.boolType()),
             new TypeMapping(ICollection.class), // IList, IMap, ISet

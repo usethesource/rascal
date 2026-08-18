@@ -669,6 +669,13 @@ import String;
 substitute("abc", (|stdin:///|(1,1): "d"))
 ```
 }
+@deprecated{
+Use ((analysis::diff::edits::ExecuteTextEdits::executeTextEdits)) instead:
+* The ((((analysis::diff::edits::TextEdits)) API offers more different UI interactions
+for the patching. For example, integration into editors and their undo/redo stacks.
+* Also that API has a clearer contract on non-overlapping edits, to avoid ambiguous editing, which is missing here.
+* Finally, that implementation scales to hundreds and thousands of edits in a single file, without showing quadratic behavior.
+}
 str substitute(str src, map[loc,str] s) { 
     int shift = 0;
     str subst1(str src, loc x, str y) {
@@ -690,6 +697,10 @@ of `indentation`.
 * This operation executes in constant time, independent of the size of the content
 or the indentation.
 * Indent is the identity function if `indentation == ""`
+* Directly nested indents are flattened to a single indent for space and serialization efficiency.
+* The effiency of serializing a (nested) indented string to screen or file location is _linear_ in the size of the resulting content.
+This is because serializing lazy string concats (with `+` and string templates) is also linear in time. `indent` is a special
+kind of lazy concatenation.
 }
 @pitfalls{
 * This function works fine if `indentation` is not spaces or tabs; but it does not make much sense. 

@@ -66,7 +66,7 @@ import org.apache.maven.settings.Server;
         }
     }
 
-    private static RepositoryDownloaderFactory downloaderFactory;
+    private final RepositoryDownloaderFactory downloaderFactory;
 
     private final List<RepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
@@ -166,11 +166,11 @@ import org.apache.maven.settings.Server;
         try {
             VersionRange versionRange = VersionRange.createFromVersionSpec(versionSpec);
             return metadata.getVersioning().getVersions().stream()
-                .map(version -> new DefaultArtifactVersion(version))
-                .filter(version -> versionRange.containsVersion(version))
-                .max((v1, v2) -> v1.compareTo(v2))
+                .map(DefaultArtifactVersion::new)
+                .filter(versionRange::containsVersion)
+                .max(Comparable::compareTo)
                 .orElseThrow(() -> new UnresolvableModelException("No version found in range", groupId, artifactId, versionSpec))
-                .toString();            
+                .toString();
         } catch (InvalidVersionSpecificationException e) {
             throw new UnresolvableModelException("Invalid version range specification", groupId, artifactId, versionSpec, e);
         }
@@ -211,7 +211,7 @@ import org.apache.maven.settings.Server;
             this.availableRepostories.removeIf(r -> r.getRepo().getId().equals(repository.getId()));
         }
         Mirror mirror = mirrors.get(repository.getId());
-        Repo repo = mirror == null ?  new Repo(repository) : new MirrorRepo(mirror,repository);
+        Repo repo = mirror == null ? new Repo(repository) : new MirrorRepo(mirror,repository);
         this.availableRepostories.add(downloaderFactory.createDownloader(repo, servers.get(repo.getId())));
     }
 

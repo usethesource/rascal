@@ -44,8 +44,12 @@ java HTMLElement readHTMLString(str content, loc base=|http://localhost|, bool t
 @description{
 This function uses [JSoup's](http://www.jsoup.org) DOM functionality to 
 yield a syntactically correct (X)HTML string.
+
+* `normalise`: when true arbitrary HTML elements will be nested in a <body> and a <html> wrapper
+* `dropOrigins`: any additional `src` origin attributes will not be serialized into the HTML document
+* the other options are JSoup options.
 }
-java str writeHTMLString(HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true);
+java str writeHTMLString(HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true, bool normalise=true);
 
 @synopsis{Pretty-print the HTMLElement AST to a string}
 @description{
@@ -53,7 +57,7 @@ This function uses [JSoup's](http://www.jsoup.org) DOM functionality to
 yield a syntactically correct (X)HTML file.
 }
 @javaClass{org.rascalmpl.library.lang.html.IO}
-java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true);
+java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true, bool normalise=true);
 
 @synopsis{Convenience function to visualize an HTMLElement tree in the browser}
 Content serve(HTMLElement elem) = html(writeHTMLString(elem));

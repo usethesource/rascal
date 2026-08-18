@@ -30,6 +30,7 @@ import String;
 import List;
 import util::Reflective;
 import lang::rascalcore::CompilerPathConfig;
+import lang::rascalcore::check::LogicalLocations;
 
 public /*const*/ str compiled_rascal_package = "org.rascalmpl"; //"rascal";
 public /*const*/ str compiled_rascal_package_as_path = "org/rascalmpl"; //"rascal";
@@ -85,6 +86,12 @@ str getCompiledPackage() = "rascal";
 str getCompiledPackage(str _qname, PathConfig _pcfg)
     = getCompiledPackage();
 
+str asClassRef(MODID mid, PathConfig pcfg){
+    qname = replaceAll(mid.path[1..], "/", "::");
+    res= "<getCompiledPackage(qname, pcfg)>.<prefixLast("$", qname)>";
+    return res;
+}
+
 str asClassRef(str qname, PathConfig pcfg){
     //return prefixLast("$", qname);
     return "<getCompiledPackage(qname, pcfg)>.<prefixLast("$", qname)>";;
@@ -127,6 +134,11 @@ str makeDirName(str qualifiedModuleName){
 str makeDirName(list[str] parts){
     parts =  normalize(parts);
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
+}
+
+str asBaseClassName(MODID mid){
+    qname = replaceAll(mid.path[1..], "/", "::");
+    return asBaseClassName(qname);
 }
 
 str asBaseClassName(str qname){
@@ -196,14 +208,32 @@ str asJavaName(str fname, bool completeId = true){
     return res == "_" ? "$_" : res; //single _ not allowed since Java9
 }
 
+str asJavaName(FUNID fuid, bool completeId = true){
+    return asJavaName(split("/", fuid.path)[-1]);
+}
+
+str module2class(MODID mid){
+     qname = replaceAll(mid.path[1..], "/", "::");
+    return asBaseClassName(qname);
+}
+
 str module2class(str qname){
     return asBaseClassName(qname); //replaceAll(qname, "::", ".");
+}
+
+str module2field(MODID mid){
+    qname = replaceAll(mid.path[1..], "/", "::");
+    return "M_" + replaceAll(normalizeQNameAndEscapeKeywords(qname), ".", "_");
 }
 
 str module2field(str qname){
     return "M_" + replaceAll(normalizeQNameAndEscapeKeywords(qname), ".", "_");
 }
 
+str module2interface(MODID mid, PathConfig pcfg){
+    qname = replaceAll(mid.path[1..], "/", "::");
+    return module2interface(qname, pcfg);
+}
 str module2interface(str qname, PathConfig pcfg){
     className = normalizeQNameAndEscapeKeywords(qname);
     n = findLast(className, ".");
