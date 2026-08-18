@@ -105,9 +105,9 @@ test bool importNonExistingModule() {
         exec.eval(#void, "import A;");
         return false;
     }
-    catch ModuleLoadMessages([error(_m, _l)]): {
+    catch ModuleLoadMessages([error(m, l)]): {
         // that's ok
-        ;
+        println("expected message: <m> @<l>");
     }
 
     writeFile(moduleFile("ZZ"), 
@@ -116,22 +116,18 @@ test bool importNonExistingModule() {
         '");
 
     try {
-        res = exec.eval(#void, "import A;");
-        println("res: <res>");
-        res = exec.eval(#str, "func()");
-        println("res2: <res>");
-        return res == ok() && result("bar") == res;
+        res0 = exec.eval(#void, "import ZZ;");
+        res1 = exec.eval(#void, "import A;");
+        res2 = exec.eval(#str, "func()");
+        return res0 == ok() && res1 == ok() && result("bar") == res2;
     }
     catch ModuleLoadMessages(msgs): {
-        iprintln("unexpected messages: <msgs>");
+        println("unexpected messages:");
+        iprintln(msgs);
         return false;
     }
     catch StaticError(str message, loc location): {
         println("unexpected static error: <message> @ <location>");
-        return false;
-    }
-    catch value v: {
-        println("some exception <v>");
         return false;
     }
 }
