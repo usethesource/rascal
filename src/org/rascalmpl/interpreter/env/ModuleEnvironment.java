@@ -530,7 +530,7 @@ public class ModuleEnvironment extends Environment {
 			super.storeVariable(name, value);
 		}
 		else {
-			for (ModuleEnvironment module : importedModulesResolved) {
+			for (ModuleEnvironment module : getImportedModulesResolved()) {
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -551,7 +551,7 @@ public class ModuleEnvironment extends Environment {
 			return var;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			
 			if (mod != null) { 
 			  var = mod.getLocalPublicVariable(name);
@@ -578,7 +578,7 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			Result<IValue> r = null;
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
@@ -600,7 +600,7 @@ public class ModuleEnvironment extends Environment {
 		var result = new ArrayList<AbstractFunction>();
 		super.getAllFunctions(name, result);
 			
-		for (ModuleEnvironment mod : importedModulesResolved)  {	
+		for (ModuleEnvironment mod : getImportedModulesResolved())  {	
 			if (mod != null) {
 				mod.getLocalPublicFunctions(name, result);
 			}
@@ -791,7 +791,7 @@ public class ModuleEnvironment extends Environment {
 			result.add(new GenericKeywordParameters(this, list, getStore().getKeywordParameters(adt)));
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			
 			list = mod.generalKeywordParameters.get(adt);
 			if (list != null) {
@@ -892,35 +892,20 @@ public class ModuleEnvironment extends Environment {
 		return result.get();
 	}
 
-	private Iterable<ModuleEnvironment> importedModulesResolved = 
-		() -> getImportedModulesResolved().iterator();
-
 	private List<ModuleEnvironment> getImportedModulesResolved() {
 		if (cachedImportedModulesResolved == null) {
 			cachedImportedModulesResolved = new ArrayList<>();
-			importedModulesResolver.forEach(cachedImportedModulesResolved::add);
-		}
-		return cachedImportedModulesResolved;
-	}
-
-	private Iterable<ModuleEnvironment> importedModulesResolver = 
-		() -> new Iterator<ModuleEnvironment>() {
-			Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-			@Override
-			public ModuleEnvironment next() {
-				var entry = iterator.next();
+			for (var entry : importedModules.entrySet()) {
 				var result = entry.getValue();
 				if (result.isEmpty()) {
 					result = Optional.ofNullable(heap.getModule(entry.getKey()));
 					entry.setValue(result);
 				}
-				return result.orElse(null);
+				cachedImportedModulesResolved.add(result.orElse(null));
 			}
-		};
+		}
+		return cachedImportedModulesResolved;
+	}
 	
 	@Override
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
@@ -959,7 +944,7 @@ public class ModuleEnvironment extends Environment {
 		Type type = concreteSyntaxTypes.get(name);
 		
 		if (type == null) {
-			for (ModuleEnvironment mod : importedModulesResolved) {
+			for (ModuleEnvironment mod : getImportedModulesResolved()) {
 				
 				if (mod == null) {
 				  continue;
@@ -1119,7 +1104,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
@@ -1141,7 +1126,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
