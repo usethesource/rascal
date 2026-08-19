@@ -13,21 +13,15 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import io.usethesource.vallang.IList;
@@ -78,64 +72,6 @@ class Count {
 	}
 }
 
-class FlameGraph {
-	private final Map<String, Count> counts = new HashMap<>();
-
-	void sample(Evaluator eval) {
-		var frames = eval.getCallStack().stream();
-		var folded = frames.map(FlameGraph::getFrameTitle).collect(Collectors.joining(";"));
-		var count = counts.computeIfAbsent(folded, k -> new Count());
-		count.increment();
-	}
-
-	private static String getFrameTitle(IRascalFrame frame) {
-		var title = frame.getName();
-		var callerLocation = frame.getCallerLocation();
-		if (callerLocation != null) {
-			title += " at " + callerLocation;
-		}
-		return title;
-	}
-
-	void write() {
-		var name = "flameGraph";
-		var out = Path.of(name + ".out");
-		var err = Path.of(name + ".err");
-		var svg = Path.of(name + ".svg");
-
-		try {
-			Files.writeString(out, "");
-			for (var e : counts.entrySet()) {
-				 // Newlines must be `\n` for `flamegraph.pl` to work
-				var csq = String.format("%s %d\n", e.getKey(), e.getValue().getTicks());
-				Files.writeString(out, csq, StandardOpenOption.APPEND);
-			}
-
-			var scriptKey = "org.rascalmpl.profiling.flameGraph.script";
-			var scriptValue = System.getProperty(scriptKey);
-			if (scriptValue != null) {
-				var script = Path.of(scriptValue);
-				if (Files.exists(script)) {
-
-					ProcessBuilder processBuilder = new ProcessBuilder("perl", script.toString(), out.toString());
-					processBuilder.redirectOutput(svg.toFile());
-					processBuilder.redirectError(err.toFile());
-
-					Process process = processBuilder.start();
-					try {
-						process.waitFor();
-					} catch (InterruptedException e) {
-						// Ignore; doesn't matter
-					}
-				}
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-}
-
 public class Profiler extends Thread {
 	private Evaluator eval;
 	private volatile boolean running;
@@ -143,7 +79,6 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation,Count> ast;
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
-	private final FlameGraph flameGraph = new FlameGraph();
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
@@ -160,8 +95,6 @@ public class Profiler extends Thread {
 			AbstractAST current = eval.getCurrentAST();
 			Environment env = eval.getCurrentEnvt();
 			String name = env.getName();
-
-			flameGraph.sample(eval);
 			
 			if (current != null) {
 				ISourceLocation stat = current.getLocation();
@@ -226,7 +159,6 @@ public class Profiler extends Thread {
 	}
 	
 	public void report() {
-		flameGraph.write();
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
