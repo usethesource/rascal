@@ -985,9 +985,14 @@ public class PathConfig {
         return "org.rascalmpl".equals(coord.getGroupId());
     }
 
-    private static boolean isRascal(Artifact art) {
+    public static boolean isRascal(Artifact art) {
         var coord = art.getCoordinate();
         return isRascalMplGroup(coord) && isRascal(coord.getArtifactId());
+    }
+
+    public static boolean isRascalLsp(Artifact art) {
+        var coord = art.getCoordinate();
+        return isRascalMplGroup(coord) && isRascalLsp(coord.getArtifactId());
     }
 
     public static boolean isRascal(String projectName) {
