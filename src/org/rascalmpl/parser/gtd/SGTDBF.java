@@ -689,7 +689,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
 		P production = node.getParentProduction();
-		String name = edgesMap.getValue(0).get(0).getName();
+		var first = edgesMap.getValue(0);
+		if (first == null) {
+			return;
+		}
+		String name = first.get(0).getName();
 		
 		// Check for nesting restrictions.
 		boolean hasNestingRestrictions = hasNestingRestrictions(name);
