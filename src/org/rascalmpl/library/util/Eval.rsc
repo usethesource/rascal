@@ -31,6 +31,10 @@ data Result[&T]
 @description{
 `eval` will throw the first static error that is blocking the execution of a command.
 }
+@pitfalls{
+* ModuleLoadMessages are only reported the first time they are discovered. This is unlike the real REPL which
+keeps reporting them until they are solved.
+}
 data RuntimeException 
   = StaticError(str message, loc location)
   | ModuleLoadMessages(list[Message] messages)

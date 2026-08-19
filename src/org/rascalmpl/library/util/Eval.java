@@ -58,7 +58,7 @@ public class Eval {
 	public final Type TypeTyp = RascalTypeFactory.getInstance().reifiedType(param);
 	public final Type Result_void = tf.constructor(store, Result, "ok");
 	public final Type Result_value = tf.constructor(store, Result, "result", param, "val");
-	public final Type Exception = tf.abstractDataType(store, "Exception");
+	public final Type Exception = tf.abstractDataType(store, "RuntimeException");
 	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "message", tf.sourceLocationType(), "location");
 	public final Type Exception_LoadMessages = tf.constructor(store, Exception, "ModuleLoadMessages", tf.listType(Messages.Message), "messages");
 	private final Type resetType = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
@@ -203,6 +203,8 @@ public class Eval {
 			finally {
 				// very necessary to clean up the timer thread
 				timer.cancel();
+				// necessary to make sure only new messages are reported.
+				exec.clearLoadMessages();
 			}
 		});
 	}
@@ -217,6 +219,10 @@ public class Eval {
 		
 		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
 			eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, input, stdout, stderr, services);
+		}
+
+		public void clearLoadMessages() {
+			eval.__getHeap().clearModuleLoadMessage();
 		}
 
 		public IValue staticTypeOf(String line) {

@@ -7,9 +7,12 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -17,6 +20,9 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.util.maven.MavenSettings;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -77,11 +83,37 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
     private static final String GROUP_ARTIFACT_VERSION_SEPARATOR = "--";
+    private static final String URI_PATH_SEPARATOR = "/";
     private final ISourceLocation root = inferMavenRepositoryLocation();
+    private final boolean rootIsCaseSensitive;
     private final URIResolverRegistry reg;
     
+    private static final boolean isCaseInsensitive(URIResolverRegistry reg, ISourceLocation path) {
+        // there is no API to detect case insensitive file systems
+        // so we have to detect it
+        var filename = UUID.randomUUID().toString().toLowerCase() + ".case-probe";
+        var testFile = URIUtil.getChildLocation(path, filename);
+        try {
+            try (var file = reg.getOutputStream(testFile, false)) {
+                file.write(0x42);
+            }
+            catch (IOException ex) {
+                return false;
+            }
+            return reg.exists(URIUtil.getChildLocation(path, filename.toUpperCase()));
+        } finally {
+            try {
+                reg.remove(testFile, false);
+            }
+            catch (IOException e) { 
+                // ignore exception on remove
+            }
+        }
+    }
+
     public MavenRepositoryURIResolver(URIResolverRegistry reg) throws IOException, URISyntaxException {
         this.reg = reg;
+        this.rootIsCaseSensitive = !isCaseInsensitive(reg, root);
     }
 
     private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
@@ -108,12 +140,12 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             String version = parts[2];
             
             String jarPath 
-                = group.replaceAll("\\.", "/")
-                + "/"
+                = group.replace(".", URI_PATH_SEPARATOR)
+                + URI_PATH_SEPARATOR
                 + name
-                + "/"
+                + URI_PATH_SEPARATOR
                 + version
-                + "/"
+                + URI_PATH_SEPARATOR
                 + name
                 + "-"
                 + version
@@ -121,11 +153,68 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 ;
 
             // find the right jar file in the .m2 folder
-            return URIUtil.getChildLocation(root, jarPath);  
+            return calculateChildPath(jarPath);
         }
         else {
             throw new IOException("Pattern mvn://groupId--artifactId--version did not match on " + input);
         }
+    }
+
+    private final Cache<String, ISourceLocation> caseCorrectedPaths = Caffeine.newBuilder()
+        .expireAfterAccess(Duration.ofHours(1))
+        .build();
+
+    private ISourceLocation calculateChildPath(String jarPath) {
+        var result = URIUtil.getChildLocation(root, jarPath);
+        if (rootIsCaseSensitive && !reg.exists(result)) {
+            // since we use the authority of an URI, and it's normalized to lower case
+            // we can calculate the wrong-cased files path, so lets try and recover
+            ISourceLocation corrected;
+            while ((corrected = caseCorrectedPaths.get(jarPath, this::findDifferentCasedMatch)) != null)  {
+                if (reg.exists(corrected)) {
+                    return corrected;
+                }
+                // the file system changed, the file doesn't exist anymore
+                // so let's clear the entry and retry
+                caseCorrectedPaths.invalidate(jarPath);
+            }
+        }
+        return result;
+    }
+
+    private @Nullable ISourceLocation findDifferentCasedMatch(String jarPath) {
+        try {
+            return pathMatcher(root, jarPath);
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * recursively probe file system to find candidate matches for the full file name in a different casing
+     */
+    private @Nullable ISourceLocation pathMatcher(ISourceLocation root, String subPart) throws IOException {
+        var pathSeparator = subPart.indexOf(URI_PATH_SEPARATOR);
+        var atFileLevel = pathSeparator <= 0;
+        var segment = atFileLevel ? subPart : subPart.substring(0, pathSeparator);
+        for (var candidate : reg.listEntries(root)) {
+            if (candidate.equalsIgnoreCase(segment)) {
+                var result = URIUtil.getChildLocation(root, candidate);
+                if (!atFileLevel) {
+                    try {
+                        result = pathMatcher(result, subPart.substring(pathSeparator + URI_PATH_SEPARATOR.length()));
+                    }
+                    catch (IOException e) {
+                        result = null;
+                    }
+                }
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     private ISourceLocation resolveInsideJar(ISourceLocation input) throws IOException {
@@ -238,7 +327,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 var groupId = URIUtil.relativize(root, URIUtil.getParentLocation(grandParent))
                     .getPath()
                     .substring(1)
-                    .replace("/", ".");
+                    .replace(URI_PATH_SEPARATOR, ".");
 
                 if ((artifact + "-" + version + ".jar").equals(URIUtil.getLocationName(fl))) {
                     return make(groupId, artifact, version, "").getAuthority();
@@ -291,7 +380,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 relative = URIUtil.getParentLocation(relative);
                 String artifactId = URIUtil.getLocationName(relative);
                 relative = URIUtil.getParentLocation(relative);
-                String groupId = relative.getPath().substring(1).replace("/", ".");
+                String groupId = relative.getPath().substring(1).replace(URI_PATH_SEPARATOR, ".");
             
                 return make(groupId, artifactId, version, "");
             }

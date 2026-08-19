@@ -24,7 +24,7 @@ import io.usethesource.vallang.ISourceLocation;
 /*
  * This generates reports in the language independent CTRF format.
  * See https://ctrf.io/ . This is like surefire reports in XML, but
- * better parametrized and more generic to cover an PL.
+ * better parametrized and more generic to cover any PL.
  */
 public class CTRFTestReportListener implements ITestResultListener {
     private final ISourceLocation folder;
