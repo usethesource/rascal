@@ -21,13 +21,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalFrame;
@@ -119,30 +121,61 @@ class Cpuinfo {
 		for (var s : samples) {
 			var curr = root;
 			for (var f : s.frames) {
-				curr = curr.getChild(f.toString());
+				curr = curr.getChild(new CallFrame(f));
 			}
 
 			nodeIds.add(curr.id);
 			timeDeltas.add(s.delta);
 		}
 
+		// Build
+		var b = new StringBuilder();
+		appendln(b, "{");
+		appendln(b, "  \"nodes\": [");
+		appendln(b, root.getDescendants().stream().map(Cpuinfo::toJson).collect(Collectors.joining(", ")));
+		appendln(b, "  ],");
+		appendln(b, "  \"startTime\": " + startTime + ",");
+		appendln(b, "  \"endTime\": " + endTime + ",");
+		appendln(b, "  \"samples\": " + nodeIds + ",");
+		appendln(b, "  \"timeDeltas\": " + timeDeltas);
+		appendln(b, "}");
+
 		// Write
-		var path = Path.of("foobar.cpuinfo");
+		var s = b.toString();
 		try {
-			Files.writeString(path, "");
-			Files.writeString(path, "{", StandardOpenOption.APPEND);
-			Files.writeString(path, "  \"startTime\": " + startTime + ",", StandardOpenOption.APPEND);
-			Files.writeString(path, "  \"endTime\": " + endTime + ",", StandardOpenOption.APPEND);
-			Files.writeString(path, "  \"samples\": " + nodeIds + ",", StandardOpenOption.APPEND);
-			Files.writeString(path, "  \"timeDeltas\": " + timeDeltas, StandardOpenOption.APPEND);
-			Files.writeString(path, "}", StandardOpenOption.APPEND);
+			Files.writeString(Path.of("foobar.json"), s);
+			Files.writeString(Path.of("foobar-" + System.currentTimeMillis() + ".cpuprofile"), s);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private static long time() {
-		return System.nanoTime() * 1000; // Microseconds
+		return System.nanoTime() / 1000; // Microseconds
+	}
+
+	private static String toJson(Node node) {
+		var b = new StringBuilder();
+		appendln(b, "{");
+		appendln(b, "  \"id\": " + node.id + ",");
+		appendln(b, "  \"callFrame\": {");
+		
+		appendln(b, "    \"functionName\": \"" + node.frame.functionName + "\",");
+		appendln(b, "    \"scriptId\": \"" + node.frame.scriptId + "\",");
+		appendln(b, "    \"url\": \"" + node.frame.url + "\",");
+		appendln(b, "    \"lineNumber\": " + node.frame.lineNumber + ",");
+		appendln(b, "    \"columnNumber\": " + node.frame.columnNumber + "");
+		
+		appendln(b, "  },");
+		appendln(b, "  \"children\": [" + node.children.values().stream().map(n -> String.valueOf(n.id)).collect(Collectors.joining(", ")) + "]");
+		appendln(b, "}");
+		return b.toString();
+	}
+
+	private static void appendln(StringBuilder b, String s) {
+		b.append(s);
+		b.append(System.lineSeparator());
+		// b.append("\n");
 	}
 
 	private static class Sample {
@@ -160,21 +193,101 @@ class Cpuinfo {
 
 		private final int id;
 		private final CallFrame frame;
-		private final Map<String, Node> children;
+		private final Map<CallFrame, Node> children;
 
-		public Node(String key) {
+		public Node(CallFrame frame) {
 			this.id = nextId++;
-			this.frame = null;
-			this.children = new HashMap<>();
+			this.frame = frame;
+			this.children = new LinkedHashMap<>();
 		}
 
-		public Node getChild(String key) {
-			return children.computeIfAbsent(key, Node::new);
+		public Node getChild(CallFrame frame) {
+			return children.computeIfAbsent(frame, Node::new);
+		}
+
+		public List<Node> getDescendants() {
+			var descendants = new ArrayList<Node>();
+			for (var c : children.values()) {
+				descendants.add(c);
+				descendants.addAll(c.getDescendants());
+			}
+			return descendants;
 		}
 	}
 
 	private static class CallFrame {
-		public CallFrame(IRascalFrame sample) {
+		private final String functionName;
+		private final String scriptId;
+		private final String url;
+		private final int lineNumber;
+		private final int columnNumber;
+
+		public CallFrame(IRascalFrame frame) {
+			var name = frame.getName();
+			var location = frame.getCallerLocation();
+
+			if (name != null) {
+				this.functionName = name;
+			} else {
+				this.functionName = "(root)";
+			}
+
+			this.scriptId = "";
+			if (location != null) {
+				this.url = location.getPath();
+				this.lineNumber = location.getBeginLine();
+				this.columnNumber = location.getBeginColumn();
+			} else {
+				this.url = "";
+				this.lineNumber = -1;
+				this.columnNumber = -1;
+			}
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((functionName == null) ? 0 : functionName.hashCode());
+			result = prime * result + ((scriptId == null) ? 0 : scriptId.hashCode());
+			result = prime * result + ((url == null) ? 0 : url.hashCode());
+			result = prime * result + lineNumber;
+			result = prime * result + columnNumber;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CallFrame other = (CallFrame) obj;
+			if (functionName == null) {
+				if (other.functionName != null)
+					return false;
+			}
+			else if (!functionName.equals(other.functionName))
+				return false;
+			if (scriptId == null) {
+				if (other.scriptId != null)
+					return false;
+			}
+			else if (!scriptId.equals(other.scriptId))
+				return false;
+			if (url == null) {
+				if (other.url != null)
+					return false;
+			}
+			else if (!url.equals(other.url))
+				return false;
+			if (lineNumber != other.lineNumber)
+				return false;
+			if (columnNumber != other.columnNumber)
+				return false;
+			return true;
 		}
 	}
 }
