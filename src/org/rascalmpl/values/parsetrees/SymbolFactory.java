@@ -197,6 +197,10 @@ public class SymbolFactory {
 		if (symbol.isPrecede() || symbol.isNotPrecede() || symbol.isFollow() || symbol.isNotFollow() || symbol.isColumn() || symbol.isStartOfLine() || symbol.isEndOfLine() || symbol.isExcept()) {
 		  return symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 		}
+
+		if (symbol.isEmpty()) {
+			return factory.constructor(RascalValueFactory.Symbol_Empty);
+		}
 		
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
