@@ -16,6 +16,7 @@ package org.rascalmpl.values.parsetrees;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
@@ -171,13 +172,10 @@ public class SymbolFactory {
 			return factory.constructor(RascalValueFactory.Symbol_Seq, syms);
 		}
 		if(symbol.isAlternative()){
-			List<Sym> symbols = symbol.getAlternatives();
-			IValue[] symValues = new IValue[symbols.size()];
-			for(int i = symbols.size() - 1; i >= 0; --i){
-				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
-			}
-			IValue syms = factory.set(symValues);
-			return factory.constructor(RascalValueFactory.Symbol_Alt, syms);
+			return factory.constructor(RascalValueFactory.Symbol_Alt, 
+				Stream.concat(Stream.of(symbol.getFirst()), symbol.getAlternatives().stream())
+					.map(s -> symbolAST2SymbolConstructor(s, lex, layout))
+					.collect(factory.setWriter()));
 		}
 		if (symbol.isParametrized()) {
 			List<Sym> symbols = symbol.getParameters();
