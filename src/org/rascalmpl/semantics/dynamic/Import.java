@@ -346,6 +346,7 @@ public abstract class Import {
 
       if (uri == null) {
           heap.setModuleURI(jobName, URIUtil.correctLocation("not-found", name, "").getURI());
+          heap.popModuleLoading();
           throw new ModuleImport(name, "can not find in search path", x);
       }
       else {

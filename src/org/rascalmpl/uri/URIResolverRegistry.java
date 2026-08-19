@@ -441,22 +441,22 @@ public class URIResolverRegistry {
 
 	public void registerLogical(ILogicalSourceLocationResolver resolver) {
 		Map<String, ILogicalSourceLocationResolver> map =
-			logicalResolvers.computeIfAbsent(resolver.scheme(), k -> new ConcurrentHashMap<>());
-		map.put(resolver.authority(), resolver);
+			logicalResolvers.computeIfAbsent(resolver.scheme().toLowerCase(), k -> new ConcurrentHashMap<>());
+		map.put(resolver.authority().toLowerCase(), resolver);
 	}
 
 	private void registerClassloader(IClassloaderLocationResolver resolver) {
-		classloaderResolvers.put(resolver.scheme(), resolver);
+		classloaderResolvers.put(resolver.scheme().toLowerCase(), resolver);
 	}
 
 	private void registerWatcher(ISourceLocationWatcher resolver) {
-		watchers.registerNative(resolver.scheme(), resolver);
+		watchers.registerNative(resolver.scheme().toLowerCase(), resolver);
 	}
 
 	public void unregisterLogical(String scheme, String auth) {
-		Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme);
+		Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme.toLowerCase());
 		if (map != null) {
-			map.remove(auth);
+			map.remove(auth.toLowerCase());
 		}
 	}
 
