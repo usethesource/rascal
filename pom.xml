@@ -58,12 +58,9 @@
                 </excludes>
             </resource>
             <resource>
-                <directory>.</directory>
+                <directory>META-INF</directory>
+                <targetPath>${project.build.outputDirectory}/META-INF</targetPath>  <!-- this way of framing it works around issue in m2e -->
                 <filtering>false</filtering>
-                <includes>
-                    <include>META-INF/RASCAL.MF</include>
-                    <include>rascal-DEPENDENCIES.txt</include>
-                </includes>
             </resource>
             <resource>
                 <directory>${project.build.directory}/generated-resources</directory>
@@ -288,7 +285,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <output>rascal-DEPENDENCIES.txt</output>
+                            <output>${project.build.outputDirectory}/rascal-DEPENDENCIES.txt</output>
                         </configuration>
                     </execution>
                 </executions>
