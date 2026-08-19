@@ -73,7 +73,7 @@ public class RascalQualifiedNames {
 
                 String rascalGrammar = "";
                 URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                try (Reader grammarReader = reg.getCharacterReader(ValueFactoryFactory.getValueFactory().sourceLocation("std", "", "/lang/rascal/syntax/Rascal.rsc"))) {
+                try (Reader grammarReader = reg.getCharacterReader(ValueFactoryFactory.getValueFactory().sourceLocation(RascalQualifiedNames.class.getClassLoader().getResource("org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc").toURI()))) {
                     StringBuilder res = new StringBuilder();
                     char[] chunk = new char[8 * 1024];
                     int read;
