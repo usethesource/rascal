@@ -90,7 +90,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$TRAVERSE = new Traverse($RVF);
 		mstore = new ModuleStore();
 		$TS = new TypeStore();
-		rascalSearchPath = new RascalSearchPath();
+		rascalSearchPath = null ; // JV: unused new RascalSearchPath();
 		
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	    String projectName = new RascalManifest().getProjectName(projectRoot);
@@ -120,10 +120,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 				}
 				//System.err.println("");
 			}
-		} catch (IOException e) {
-			return;
-		} catch (URISyntaxException e) {
-			return;
 		}
 	}
 	
@@ -204,9 +200,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	 public static ISourceLocation inferProjectRoot(Class<?> clazz) {
 	        try {
 	            String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
-	            if (file.endsWith(".jar")) {
-	                throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
-	            }
+
+				// This has to run from a jar file too!
+	            // if (file.endsWith(".jar")) {
+	            //     throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
+	            // }
 
 	            File current = new File(file);
 	            

@@ -1,0 +1,51 @@
+package rascal;
+import io.usethesource.vallang.*;
+import org.rascalmpl.runtime.function.*;
+
+@SuppressWarnings("unused")
+public interface $Type_$I  {
+    IValue addLabels(IValue $0, IValue $1);
+    IValue addParamLabels(IValue $0, IValue $1);
+    IValue allLabeled(IValue $0);
+    IValue choice(IValue $0, IValue $1);
+    IValue comparable(IValue $0, IValue $1);
+    IValue eq(IValue $0, IValue $1);
+    IValue equivalent(IValue $0, IValue $1);
+    IValue getLabels(IValue $0);
+    IValue getParamLabels(IValue $0);
+    IValue glb(IValue $0, IValue $1);
+    IValue isADTType(IValue $0);
+    IValue isAliasType(IValue $0);
+    IValue isBagType(IValue $0);
+    IValue isBoolType(IValue $0);
+    IValue isConstructorType(IValue $0);
+    IValue isDateTimeType(IValue $0);
+    IValue isFunctionType(IValue $0);
+    IValue isIntType(IValue $0);
+    IValue isListRelType(IValue $0);
+    IValue isListType(IValue $0);
+    IValue isLocType(IValue $0);
+    IValue isMapType(IValue $0);
+    IValue isNodeType(IValue $0);
+    IValue isNumType(IValue $0);
+    IValue isRatType(IValue $0);
+    IValue isRealType(IValue $0);
+    IValue isReifiedType(IValue $0);
+    IValue isRelType(IValue $0);
+    IValue isSetType(IValue $0);
+    IValue isStrType(IValue $0);
+    IValue isTupleType(IValue $0);
+    IValue isTypeVar(IValue $0);
+    IValue isValueType(IValue $0);
+    IValue isVoidType(IValue $0);
+    IValue keepParams(IValue $0, IValue $1);
+    IValue lub(IValue $0, IValue $1);
+    IValue make(IValue $0, IValue $1, IValue $2);
+    IValue make(IValue $0, IValue $1, IValue $2, IValue $3);
+    IValue noneLabeled(IValue $0);
+    IValue stripLabels(IValue $0);
+    IValue subtype(IValue $0, IValue $1);
+    IValue typeCast(IValue $0, IValue $1);
+    IValue typeOf(IValue $0);
+    IValue var_func(IValue $0, IValue $1, IValue $2);
+}
