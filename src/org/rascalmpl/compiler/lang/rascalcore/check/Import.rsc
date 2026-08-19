@@ -420,8 +420,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
     component = { m | m <- component, hasNotProperty(m, ms, ModuleProperty::ignored()) };
     if(isEmpty(component)) return ms;
 
-    //println("doSaveModule: <component>, <m_imports>, <m_extends>, <moduleScopes>");
-    set[MODID] componentScopes = component; //{ getModuleScope(mid, moduleScopes, pcfg) | MODID mid <- component };
+    set[MODID] componentScopes = component;
     map[str, MODID] componentScopesByUri = ();
     set[MODID] filteredModuleScopes = {};
     map[str, MODID] filteredModuleScopesByUri = ();
@@ -476,14 +475,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, logical2physical)];
         ms.messages[currentModule] = toSet(m1.messages);
 
-        // filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         m1.scopes = tm.scopes;
-        // m1.scopes
-        //         = ( inner : tm.scopes[inner]
-        //           | loc inner <- tm.scopes,
-        //             inner.path in filteredModuleScopePaths,
-        //             (tm.scopes[inner] == |global-scope:///| || isContainedInComponentScopes(inner, tm.logical2physical))
-        //           );
 
         m1.store
                 = (key_bom : bom);
@@ -495,7 +487,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.store[key_common_keyword_fields]
                 = tm.store[key_common_keyword_fields] ? [];
 
-        m1.paths = { tup | tuple[MODID from, PathRole pathRole, MODID to] tup <- paths, tup.from == currentModule || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
+        m1.paths = { tup | tuple[MODID from, PathRole pathRole, MODID to] tup <- paths, tup.from == currentModule || tup.from in filteredModuleScopes };
 
         keepRoles = variableRoles + keepInTModelRoles;
         m1.useDef = { <u, d>
@@ -532,7 +524,6 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.logical2physical = logical2physical;
         ms = deleteProperty(currentModule, ms, tpl_saved());
         ms = addTModel(currentModule, m1, ms);
-    // println("TModel for <currentModule>:"); iprintln(m1);
     }
     return ms;
 }
