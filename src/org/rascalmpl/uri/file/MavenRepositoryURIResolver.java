@@ -169,9 +169,14 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         if (rootIsCaseSensitive && !reg.exists(result)) {
             // since we use the authority of an URI, and it's normalized to lower case
             // we can calculate the wrong-cased files path, so lets try and recover
-            var corrected = caseCorrectedPaths.get(jarPath, this::findDifferentCasedMatch);
-            if (corrected != null) {
-                return corrected;
+            ISourceLocation corrected;
+            while ((corrected = caseCorrectedPaths.get(jarPath, this::findDifferentCasedMatch)) != null)  {
+                if (reg.exists(corrected)) {
+                    return corrected;
+                }
+                // the file system changed, the file doesn't exist anymore
+                // so let's clear the entry and retry
+                caseCorrectedPaths.invalidate(jarPath);
             }
         }
         return result;
