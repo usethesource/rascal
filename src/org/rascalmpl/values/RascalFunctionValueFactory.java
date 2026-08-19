@@ -64,6 +64,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -246,7 +247,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             name = generator.getParserMethodName(startSort);
         }
 
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(this, ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
     }
     
     protected static String getParserMethodName(IConstructor symbol) {
@@ -364,7 +365,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 name = generator.getParserMethodName(startSort);
             }
 
-            return function(functionType, new ParseFunction(ctx.getValueFactory(), ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
+            return function(functionType, new ParseFunction(this, ctx, caller, parser, name, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters));
         }
         catch (URISyntaxException e) {
             throw new IOException(e);
@@ -436,7 +437,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
      */
     static private class ParseFunction implements BiFunction<IValue[], Map<String, IValue>, IValue> {
         protected final ISet filters;
-        protected final IValueFactory vf;
+        protected final IRascalValueFactory vf;
         protected final boolean allowAmbiguity;
         protected final int maxAmbDepth;
         protected final boolean allowRecovery;
@@ -449,7 +450,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final ISourceLocation caller;
         protected final IEvaluatorContext ctx;
         
-        public ParseFunction(IValueFactory vf, IEvaluatorContext ctx, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
+        public ParseFunction(IRascalValueFactory vf, IEvaluatorContext ctx, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery,
             IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             this.ctx = ctx;
             this.vf = vf;
@@ -609,6 +610,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
             URI uri = location.getURI();
+
+            if (methodName.equals("regular_empty")) {
+                // this is a corner case the parser can't handle
+                return vf.appl(vf.constructor(RascalValueFactory.Production_Regular, vf.constructor(RascalFunctionValueFactory.Symbol_Empty)));
+            }
+
             if (allowRecovery) {
                 recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance), maxRecoveryAttempts, maxRecoveryTokens);
             }
@@ -635,7 +642,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     static private class ParametrizedParseFunction extends ParseFunction {
         private Supplier<ParserGenerator> generator;
 
-        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IEvaluatorContext ctx, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IEvaluatorContext ctx, IRascalValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IInteger maxAmbDepth, IBool allowRecovery, IInteger maxRecoveryAttempts, IInteger maxRecoveryTokens, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             super(vf, ctx, caller, parser, null, allowAmbiguity, maxAmbDepth, allowRecovery, maxRecoveryAttempts, maxRecoveryTokens, hasSideEffects, firstAmbiguity, filters);
             this.generator = generator;
         }

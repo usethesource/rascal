@@ -63,7 +63,6 @@ test bool optPresent()
 
 // empty
 
-@ignore{parser does not handle the top-level empty non-terminal well yet}
 test bool empty()
     = (()) _ := parse(#(), "");
 

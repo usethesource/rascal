@@ -679,6 +679,7 @@ default str v2i(value v) {
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
+        case \empty() : return "empty";
         // TODO: with top-level regulars this might not be enough, need recursion?
         case \parameterized-sort(str s, list[Symbol] args) : return "<s>_<uu(args)>";
         case \parameterized-lex(str s, list[Symbol] args) : return "<s>_<uu(args)>";
