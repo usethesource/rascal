@@ -871,7 +871,7 @@ public class PathConfig {
             // we need this to get access to the parent folder, in case of `home:///` or `cwd:///`, etc.
             manifestRoot = reg.logicalToPhysical(manifestRoot);
             
-            if (!projectLoc.equals(manifestRoot) && !projectName.equals(URIUtil.getLocationName(manifestRoot))) {
+            if (!projectLoc.equals(manifestRoot) && !projectName.equalsIgnoreCase(URIUtil.getLocationName(manifestRoot))) {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
             }
 

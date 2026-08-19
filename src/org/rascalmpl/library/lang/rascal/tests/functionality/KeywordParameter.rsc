@@ -339,6 +339,19 @@ test bool outer5_1() = outer5(1) == 1;
 test bool outer5_11() = outer5(11) == 65;
 test bool outer5_11_kw() = outer5(11, tabSize=40) == 101;
 
+test bool nestedFunctionCallUsesOuterKeywordParameter(){
+  bool z(bool x, bool b = x
+  ) {
+    default bool f(int _) = false;
+    bool f(1)             = b;  // use of keyword parameter
+
+    bool intermediate(int n) = f(n);
+  
+    return intermediate(1);
+  }
+  return z(true);
+}
+
 
 data WorkspaceInfo(rel[int a, int b] defines = {}) = workspaceInfo();
 

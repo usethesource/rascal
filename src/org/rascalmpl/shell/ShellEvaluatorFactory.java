@@ -3,7 +3,9 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
@@ -68,14 +70,11 @@ public class ShellEvaluatorFactory {
             evaluator.addRascalSearchPath((ISourceLocation) srcPath);
         }
 
-        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
-        
         for (var lib : pcfg.getLibs()) {
             evaluator.addRascalSearchPath((ISourceLocation) lib);
         }
 
-        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
-        evaluator.addClassLoader(new SourceLocationClassLoader(libs, ClassLoader.getSystemClassLoader()));
+        evaluator.addClassLoader(new SourceLocationClassLoader(getClasspath(pcfg), ClassLoader.getSystemClassLoader()));
 
         return evaluator;
     }
@@ -121,6 +120,15 @@ public class ShellEvaluatorFactory {
         var reg = URIResolverRegistry.getInstance();
         reg.registerLogical(new IDEProjectURIResolver(resolver));
         reg.registerLogical(new IDETargetURIResolver(resolver));
+    }
+
+    public static List<ISourceLocation> getClasspath(PathConfig pcfg) {
+        var projectRoot = pcfg.getProjectRoot();
+        var isRascal = projectRoot != null && new RascalManifest().getProjectName(projectRoot).equals("rascal");
+        var libs = isRascal ? pcfg.getLibs() : pcfg.getLibsAndTarget();
+        return libs.stream()
+            .map(ISourceLocation.class::cast)
+            .collect(Collectors.toList());
     }
 
 }

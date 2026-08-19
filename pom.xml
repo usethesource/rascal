@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC10-PREVIEW2-SNAPSHOT</version>
+    <version>0.43.0-RC13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.43.0-RC10-PREVIEW1</tag>
+        <tag>v0.43.0-RC11</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -454,7 +454,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.17.0-RC3</version>
+            <version>0.17.0</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
@@ -468,7 +468,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.1-RC1</version>
+            <version>1.1.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -538,7 +538,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.22.2</version>
+            <version>1.23.1</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
