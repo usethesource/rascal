@@ -87,9 +87,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	protected Result(Type expect, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
-		var actual = value.getType();
-		if (value != null && expect != actual && !actual.isSubtypeOf(expect)) {
-			throw new UnexpectedType(expect, actual, ctx.getCurrentAST());
+		if (value != null) {
+			var actual = value.getType();
+			if (expect != actual && !actual.isSubtypeOf(expect)) {
+				throw new UnexpectedType(expect, actual, ctx.getCurrentAST());
+			}
 		}
 	
 	    this.type = expect;
