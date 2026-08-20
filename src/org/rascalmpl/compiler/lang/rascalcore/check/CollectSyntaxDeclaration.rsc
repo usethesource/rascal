@@ -82,7 +82,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         syndefCounter += 1;
 
         // Define the syntax symbol itself and all labelled alternatives as constructors
-        c.define(nonterminalType.adtName, idRole, current, dt);
+        c.define(defsym2IdTree(defined), idRole, current, dt);
 
         adtParentScope = c.getScope();
         c.enterScope(current);
@@ -181,7 +181,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<uname>";
 
          // Define the constructor
-        c.defineInScope(adtParentScope, "<name>", constructorId(), name, defType([current],
+        c.defineInScope(adtParentScope, name, constructorId(), name, defType([current],
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
