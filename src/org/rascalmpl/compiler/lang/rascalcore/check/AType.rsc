@@ -318,6 +318,7 @@ bool asubtype(i:\iter-star-seps(AType s, list[AType] seps), AType b){
     fail;
 }
 
+bool asubtype(\aempty(),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\opt(AType _),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\alt(set[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\seq(list[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
@@ -497,6 +498,7 @@ bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star-seps(AType s,_)) = isLayoutAType(s);
 
+bool isLayoutAType(\aempty()) = true;
 bool isLayoutAType(\opt(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\alt(set[AType] alts)) = any(a <- alts, isLayoutAType(a));
 bool isLayoutAType(\seq(list[AType] symbols)) = all(s <- symbols, isLayoutAType(s));
@@ -698,9 +700,9 @@ AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tre
 AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 
 AType alub(l:aadt("Tree", _, _), AType r) = l
-    when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
+    when r is \achar-class || r is aempty || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
 AType alub(AType l, r:aadt("Tree", _, _)) = r
-    when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
+    when l is \achar-class || r is aempty || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
 
 AType alub(\start(AType l) , AType r) = alub(l, r);
 AType alub(AType l, \start(AType r)) = alub(l, r);
