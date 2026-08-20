@@ -603,20 +603,6 @@ public class PathConfig {
                 libs.append(URIUtil.getChildLocation(manifestRoot, "target/classes"));
             }
         }
-
-        // We add rascal-lsp to the PathConfig if it is present on the classpath
-        // This version of rascal-lsp is added last, so an explicit rascal-lsp dependency takes precedence
-        try {
-            var lsp = PathConfig.resolveProjectOnClasspath("rascal-lsp");
-            if (mode == RascalConfigMode.INTERPRETER) {
-                srcs.append(URIUtil.getChildLocation(JarURIResolver.jarify(lsp), "library"));
-            }
-            // the interpreter must load the Java parts for calling util::IDEServices and registerLanguage
-            addLibraryToLibPath(URIResolverRegistry.getInstance(), libs, mode, lsp);
-        }
-        catch (IOException e) {
-            // This is expected when rascal-lsp is not on the classpath
-        }
     }
 
     private static void addArtifactToPathConfig(Artifact art, ISourceLocation manifestRoot, RascalConfigMode mode, IListWriter srcs,
@@ -655,9 +641,6 @@ public class PathConfig {
             }
             if (libProjectName.equals("rascal-lsp")) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep, art);
-                // we'll be adding the rascal-lsp by hand later
-                // so we ignore the rascal-lsp dependency
-                return;
             }
             ISourceLocation projectLoc = URIUtil.correctLocation("project", libProjectName, "");
 
