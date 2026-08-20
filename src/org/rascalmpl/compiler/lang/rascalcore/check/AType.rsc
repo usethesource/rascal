@@ -498,7 +498,6 @@ bool isLayoutAType(\iter-star(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\iter-seps(AType s,_)) = isLayoutAType(s);
 bool isLayoutAType(\iter-star-seps(AType s,_)) = isLayoutAType(s);
 
-bool isLayoutAType(\aempty()) = true;
 bool isLayoutAType(\opt(AType s)) = isLayoutAType(s);
 bool isLayoutAType(\alt(set[AType] alts)) = any(a <- alts, isLayoutAType(a));
 bool isLayoutAType(\seq(list[AType] symbols)) = all(s <- symbols, isLayoutAType(s));
