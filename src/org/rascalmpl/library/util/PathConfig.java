@@ -760,6 +760,9 @@ public class PathConfig {
                 buildRascalLSPConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
             else {
+                if (mavenClasspath.stream().filter(PathConfig::isRascal).findFirst().isEmpty()) {
+                    messages.append(Messages.error("Dependency on 'org.rascalmpl:rascal' is required", getPomXmlLocation(manifestRoot)));
+                }
                 buildNormalProjectConfig(manifestRoot, mode, mavenClasspath, isRoot, srcsWriter, libsWriter, messages);
             }
         }
@@ -977,6 +980,19 @@ public class PathConfig {
             return false;
         }
         return ((IString) msg).getValue().startsWith(prefix);
+    }
+
+    private static boolean isRascalMplGroup(ArtifactCoordinate coord) {
+        return "org.rascalmpl".equals(coord.getGroupId());
+    }
+
+    private static boolean isRascal(Artifact art) {
+        var coord = art.getCoordinate();
+        return isRascalMplGroup(coord) && isRascal(coord.getArtifactId());
+    }
+
+    private static boolean isRascal(String projectName) {
+        return "rascal".equalsIgnoreCase(projectName);
     }
 
     private static boolean isTypePalArtifact(ArtifactCoordinate artifact) {
