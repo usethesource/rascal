@@ -31,8 +31,8 @@
         <maven-version>3.9.16</maven-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
-        <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.31.0</rascal-maven.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <rascal-maven.version>0.30.7</rascal-maven.version>
         <jline.version>3.29.0</jline.version> <!-- do not upgrade unless https://github.com/jline/jline3/issues/1445 is solved-->
     </properties>
 
@@ -547,9 +547,9 @@
             <version>2.0.6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.nanohttpd</groupId>
-            <artifactId>nanohttpd</artifactId>
-            <version>2.3.1</version>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>2.4.1.Final</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>

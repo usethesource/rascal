@@ -34,9 +34,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.function.Function;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.repl.http.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
+import org.rascalmpl.repl.http.REPLContentServerManager.REPLContentServer;
 import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IErrorCommandOutput;
@@ -48,6 +49,7 @@ import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
 import org.rascalmpl.repl.streams.ReplTextWriter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.util.functional.ThrowingTriConsumer;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -71,7 +73,8 @@ public abstract class RascalValuePrinter {
     private final static int LINE_LIMIT = 200;
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 
-    private final REPLContentServerManager contentManager = new REPLContentServerManager();
+    private REPLContentServerManager contentManager;
+    
     private static final StandardTextWriter ansiIndentedPrinter = new ReplTextWriter(true);
     private static final StandardTextWriter plainIndentedPrinter = new StandardTextWriter(true);
 
@@ -79,6 +82,21 @@ public abstract class RascalValuePrinter {
      * Make a generic closure out of a rascal IFunction (might need to wrap the call with a lock on the evaluator)
      */
     protected abstract Function<IValue, IValue> liftProviderFunction(IFunction func);
+
+    /**
+     * Need for monitor during content serving (progress and warnings)
+     */
+    protected abstract IRascalMonitor getMonitor();
+
+    /**
+     * Needed for building Response values while content serving
+     */
+    protected abstract IRascalValueFactory getRascalValueFactory();
+
+    @FunctionalInterface
+    public static interface ThrowingWriter {
+        void write(PrintWriter writer, StandardTextWriter prettyPrinter, boolean unicodeSupported) throws IOException;
+    }
 
     public IErrorCommandOutput outputError(ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> writer) {
         return new IErrorCommandOutput() {
@@ -201,6 +219,10 @@ public abstract class RascalValuePrinter {
 
         try {
             // this installs the provider such that subsequent requests are handled.
+            if (contentManager == null) {
+                contentManager = new REPLContentServerManager(getRascalValueFactory(), getMonitor());
+            }
+            
             REPLContentServer server = contentManager.addServer(id, target);
 
             // now we need some HTML to show
@@ -210,7 +232,7 @@ public abstract class RascalValuePrinter {
             IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
             IString title = kp.hasParameter("title") ? ((IString) kp.getParameter("title")) : vf.string(id);
             IInteger viewColumn = kp.hasParameter("viewColumn") ? ((IInteger) kp.getParameter("viewColumn")) : vf.integer(1);
-            URI serverUri = new URI("http", null, "localhost", server.getListeningPort(), "/", null, null);
+            URI serverUri = new URI("http", null, "localhost", server.getPort(), "/", null, null);
 
             return new HostedWebContentOutput(id, serverUri, title, viewColumn);
 

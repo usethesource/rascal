@@ -450,6 +450,7 @@ public class RuntimeExceptionFactory {
     }
 
 	private static String mapIOException(IOException ex) {
+		
 		var msg = ex.getMessage();
 		if (ex instanceof FileSystemException) {
 			// nio exceptions lack proper messages, they are encoded in the class name
@@ -466,12 +467,19 @@ public class RuntimeExceptionFactory {
 				return "Not a directory: " + msg;
 			}
 		}
+		
 		if (ex instanceof FileNotFoundException) {
 			// not all paths throw a proper message, they often only have the path name
 			return "No such file: " + msg;
 		}
+
+		if (msg == null || msg.length() == 0) {
+			// the class name has the information about what is going on
+			msg = ex.getClass().getSimpleName();
+		}
+
 		// otherwise fallback to the message
-		return msg;
+		return msg + (ex.getCause() != null ? (", due to: " + ex.getCause().getMessage()) : "");
 	}
 
 	public static Throw io(IOException ex) {

@@ -489,7 +489,11 @@ public class JavaBridge {
 			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (InvocationTargetException e) {
-			throw new JavaMethodLink(className, e.getMessage(), e);
+			String cause = e.getTargetException().getMessage();
+			if (cause == null || cause.length() == 0 || "null".equals(cause)) {
+				cause = e.getTargetException().getClass().getSimpleName();
+			}
+			throw new JavaMethodLink(className, cause, e);
 		} 
 		catch (SecurityException e) {
 			throw new JavaMethodLink(className, e.getMessage(), e);
