@@ -74,13 +74,13 @@ public str newGenerate(str package, str name, Grammar gr) {
   
     worked("expanding parameterized symbols", 1);
     gr = expandParameterizedSymbols(gr);
-    
-    worked("generating stubs for regular", 1);
-    gr = makeRegularStubs(gr);
-    
+     
     worked("generating syntax for holes", 1);
     gr = addHoles(gr);
  
+    worked("generating stubs for regular", 1);
+    gr = makeRegularStubs(gr);
+  
     worked("generating literals", 1);
     gr = literals(gr);
     
@@ -250,15 +250,15 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    <for(Production alt <- alts.prods, alt is prod) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
-           '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
+           '      <for (Item i <- sort(lhses, bool (Item l, Item r) { return l.index < r.index;})) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
-           '	}<}>
+           '	  }<}>
            '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    // this is only for top-level regular symbols
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <newItems[topRegular(alt.def)][item(alt, 0)].new> });
-           '	}<}>
+           '	  }<}>
            '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
            '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
@@ -665,6 +665,8 @@ str uu(value s) = escape(toBase64("<unsetRec(s)>"),("=":"00","+":"11","/":"22"))
 
 default str v2i(value v) {
     switch (v) {
+        case prod(label(str x, Symbol s), _, _) : return "prod_<v2i(s)>_<v2i(x)>";
+        case prod(Symbol s, list[Symbol] parts, _) : return "prod_<v2i(s)>_<for (Symbol part <- parts) {><v2i(part)>_<}>";
         case \start(Symbol s) : return "start__<v2i(s)>";
         case \item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case \label(str _x, Symbol u) : return v2i(u);
