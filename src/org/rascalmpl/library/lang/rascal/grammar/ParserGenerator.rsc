@@ -40,16 +40,16 @@ str getParserMethodName(Sym sym, bool withLayout=false)
     = getParserMethodName(sym2symbol(sym, withLayout=withLayout));
 
 str getParserMethodName(\start(sort(str name)), bool withLayout=false)         
-    = "$start_$s_<name>";
+    = "$start_<name>";
 
 str getParserMethodName(layouts(str name), bool withLayout=false)         
     = "$l_<name>";
 
 str getParserMethodName(sort(str name), bool withLayout=false)         
-    = "$s_<name>";
+    = "<name>";
 
 str getParserMethodName(lex(str name), bool withLayout=false)         
-    = "$l_<name>";
+    = "<name>"; // has to be the same as "sort" to allow for temporary ambiguity
 
 str getParserMethodName(keywords(str name), bool withLayout=false)         
     = "$k_<name>";
@@ -79,7 +79,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     gr = makeRegularStubs(gr);
     
     worked("generating syntax for holes", 1);
-    // gr = addHoles(gr);
+    gr = addHoles(gr);
  
     worked("generating literals", 1);
     gr = literals(gr);

@@ -1052,7 +1052,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 */
 	@SuppressWarnings("unchecked")
 	private void queueMatchableNode(AbstractStackNode<P> node, int length, AbstractNode result){
-		assert result != null;
+		// assert result != null;
+		if (result == null) {
+			return;
+		}
 		
 		int queueDepth = todoLists.length;
 		if(length >= queueDepth){

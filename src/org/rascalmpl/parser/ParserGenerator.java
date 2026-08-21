@@ -149,9 +149,9 @@ public class ParserGenerator {
 			case "layouts":
 				return "$l_" + SymbolAdapter.getName(symbol);
 			case "sort":
-				return "$s_" + SymbolAdapter.getName(symbol);
+				return SymbolAdapter.getName(symbol);
 			case "lex":
-				return "$l_" + SymbolAdapter.getName(symbol);
+				return SymbolAdapter.getName(symbol);
 			case "keywords":
 				return "$k_" + SymbolAdapter.getName(symbol);
 		}

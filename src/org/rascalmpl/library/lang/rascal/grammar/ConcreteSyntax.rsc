@@ -92,7 +92,7 @@ private Symbol getTargetSymbol(Symbol sym) {
 //    return 
 //       \lit() := x 
 //       &&
-//       \parameterized-lex([\parameter()]) !:= x
+//       \parameterized-lex([\parameter(_,_)]) !:= x
 //       ;
 //}
 
@@ -100,14 +100,14 @@ private Symbol getTargetSymbol(Symbol sym) {
 private bool quotable(Symbol x) { 
     switch(x){ 
         case \lit(_): return false;
-        case \empty(): return false;
-        case \cilit(_): return false;
-        case \char-class(_): return false;
-        case \layouts(_): return false;
+        case \empty(): return false; // TODO: this corner case should be allowed
+        case \cilit(_): return false; // TODO: why not? 
+        case \char-class(_): return false; // TODO: this should definitely be allowed
+        case \layouts(_): return false; // TODO: why not?
         case \keywords(_): return false;
         case \start(_): return false;
-        case \parameterized-sort(_,[\parameter(_,_),*_]): return false;
-        case \parameterized-lex(_,[\parameter(_,_),*_]): return false;
+        case \parameterized-sort(_,[\parameter(_,_),*_]): return false; // TODO this is hard but should be allowed
+        case \parameterized-lex(_,[\parameter(_,_),*_]): return false;  // TODO this is hard but should be allowed
         default: return true;
      };
 }
