@@ -119,6 +119,15 @@ void(Solver) makeVarInitRequirement(Variable var)
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
 
+            // if (isInstantiated(varTypeU) && !isInstantiated(initialTypeU)) {
+            //     println("NOT READY -- <var.name>: <varType> -- <var.initial>: <initialType>");
+            //     facts = s.getFacts();
+            //     for (f <- facts, f.offset?, f.offset >= 130) {
+            //         println("  - <f>: <facts[f]>");
+            //     }
+            //     throw TypeUnavailable();
+            // }
+
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){

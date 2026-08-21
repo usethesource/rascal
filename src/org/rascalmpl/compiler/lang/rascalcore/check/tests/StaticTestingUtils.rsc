@@ -175,6 +175,7 @@ bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = f
 	 if(matchAll) {
 		return all(e <- expected, e in matched);
 	 }
+	 iprintln(msgs);
      throw abbrev("<msgs>");
 }
 
@@ -325,7 +326,8 @@ list[str] unexpectedTypeMsgs = [
 		"Expected a binary relation, found _",
 		"Constructor _ is overloaded",
 		"Expression _ is overloaded",
-		"Base expression _ of field selection should have a unique type"
+		"Base expression _ of field selection should have a unique type",
+		"Invalid initialization of ; type of one or more subparts could not be inferred"
 ];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())

@@ -441,9 +441,89 @@ test bool Escapes2() = checkModuleOK("
 	
 // ---- type parameters -------------------------------------------------------
 
-test bool ADTWithTypeParameter() = checkModuleOK("
-    module ADTWithTypeParameter
-        data D[&T] = d1(&T n);
+/*
+
+Agenda overleg met Paul:
+
+ 1. Context waarin field access plaatsvindt, maakt uit voor toestaan/verbieden ongeinstantieerde typeparameters
+
+ 2. Uiteindelijk wordt typeparameter geinstantieerd, maar deze instantiatie wordt niet gepropageerd
+    (Maakt evaluatie req uitstellen momenteel ineffectief)
+
+ 3. Mogelijke oplossingsrichtingen:
+      - Spreadsheet-achtige herberekening van alle types bij elke wijziging
+      - Extra parameter tijdens collect om context te representeren
+      - Zorg ervoor dat type tijdig geinstantieerd wordt, indien mogelijk
+
+*/
+
+test bool Box() = checkModuleOK("
+    module Box
+        data Box[&T] = box(&T v);
+        &T unbox(Box[&T] b) = b.v;
+    ");
+
+test bool NumBox() = checkModuleOK("
+    module NumBox
+        data NumBox[&T \<: num] = box(&T v);
+
+        &T \<: num unboxAndSum(NumBox[&T \<: num] box1, NumBox[&T \<: num] box2) {
+            &T v1 = box1.v;
+            &T v2 = box2.v;
+            return v1 + v2;
+        }
+    ");
+
+test bool ADTWithTypeParameter1() = checkModuleOK("
+    module ADTWithTypeParameter1
+        data D[&T] = d(&T n);
+        int n = d(5).n;
+    ");
+
+test bool ADTWithTypeParameter2() = checkModuleOK("
+    module Bar
+        data D[&T] = d(&T n);
+        int f() {
+            n1 = d(5).n;
+            n2 = n1;
+            n3 = n2;
+            return n3 + 5;
+        }
+    ");
+
+test bool ADTWithTypeParameter2ButDifferentModuleName() = checkModuleOK("
+    module Foo
+        data D[&T] = d(&T n);
+        int f() {
+            n1 = d(5).n;
+            n2 = n1;
+            n3 = n2;
+            return n3 + 5;
+        }
+    ");
+
+/*
+ * `d(5).n` kan van een ongeinstantieerd type zijn. Of dit toegestaan is, hangt
+ * in het algemeen af van de context (onduidelijk op basis van alleen de field
+ * access).
+ *
+ * Maw, je probeert het type te berekenen van een field access. Er komt een
+ * ongeinstantieerd type uit. Is dat ok? Onmogelijk om te zeggen op basis van
+ * alleen de access. In het geval van `Box` en `NumBox` is het ok (i.e., het
+ * type blijft altijd ongeinstantieerd). In het geval van `Foo` is het niet ok
+ * (i.e., het type wordt later geinstantieerd, en die instantiatie zou door
+ * moeten stromen naar afhankelijke locaties).
+ *
+ * De vraag is nu: kun je ervoor zorgen, op een of andere manier, dat `calc(useViaType, ...) pas wordt geevalueerd na `calc(n, ...)`? 
+ * Bijvoorbeeld: type van de constructor pas kunnen berekenen als het type van de typeparameter bekend is?
+ */
+
+test bool ADTWithTypeParameter3() = checkModuleOK("
+    module ADTWithTypeParameter3
+        data D1[&T] = d1(D2[&T] inner);
+        data D2[&T] = d2(&T n);
+        D1[int] outer = d1(d2(5));
+        int n = outer.inner.n;
     ");
 
 test bool UndefinedParameter() = unexpectedTypeInModule("
@@ -484,7 +564,7 @@ test bool ADTWithTypeParameterAndKW2() = checkModuleOK("
         void f() { D[int] x = d1(10); int m = x.kw; }
     ");
 
-test bool ADTWithTypeParameterAndKW3() = checkModuleOK("
+test bool ADTWithTypeParameterAndKW3() = unexpectedTypeInModule("
     module ADTWithTypeParameterAndKW3
         data D[&T] = d1(&T n, &T kw = n);
         void f() { D[int] x = d1(10); str m = x.kw; }
