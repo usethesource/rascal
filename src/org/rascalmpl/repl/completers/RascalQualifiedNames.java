@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -73,7 +74,7 @@ public class RascalQualifiedNames {
 
                 String rascalGrammar = "";
                 URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                try (Reader grammarReader = reg.getCharacterReader(ValueFactoryFactory.getValueFactory().sourceLocation(RascalQualifiedNames.class.getClassLoader().getResource("org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc").toURI()))) {
+                try (Reader grammarReader = reg.getCharacterReader(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(RascalQualifiedNames.class.getResource("/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc"))))) {
                     StringBuilder res = new StringBuilder();
                     char[] chunk = new char[8 * 1024];
                     int read;
