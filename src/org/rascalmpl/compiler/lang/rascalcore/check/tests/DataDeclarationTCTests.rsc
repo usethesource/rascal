@@ -441,6 +441,22 @@ test bool Escapes2() = checkModuleOK("
 	
 // ---- type parameters -------------------------------------------------------
 
+/*
+
+Agenda overleg met Paul:
+
+ 1. Context waarin field access plaatsvindt, maakt uit voor toestaan/verbieden ongeinstantieerde typeparameters
+
+ 2. Uiteindelijk wordt typeparameter geinstantieerd, maar deze instantiatie wordt niet gepropageerd
+    (Maakt evaluatie req uitstellen momenteel ineffectief)
+
+ 3. Mogelijke oplossingsrichtingen:
+      - Spreadsheet-achtige herberekening van alle types bij elke wijziging
+      - Extra parameter tijdens collect om context te representeren
+      - Zorg ervoor dat type tijdig geinstantieerd wordt, indien mogelijk
+
+*/
+
 test bool Box() = checkModuleOK("
     module Box
         data Box[&T] = box(&T v);

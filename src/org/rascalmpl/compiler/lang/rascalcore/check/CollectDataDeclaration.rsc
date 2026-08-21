@@ -140,7 +140,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 if(fieldName in declaredFieldNames) c.report(error(ta, "Double declaration of field `%v`", fieldName));
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
-                dt = defType([fieldType], makeFieldType(fieldName, fieldType));
+                dt = defType([fieldType], makeFieldType(fieldName, fieldType)); //-----
                 dt.md5 = normalizedMD5Hash(currentModuleName, adtName, name, current);
                 c.define(ta.name, fieldId(), ta.name, dt);
             }
@@ -169,7 +169,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);
                  // The standard rules would declare arguments and kwFormals as variableId();
-                for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); }
+                for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); } // -----
                 for(kwa <- kwFormals) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
             endUseTypeParameters(c);
         c.leaveScope(current);
