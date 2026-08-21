@@ -675,7 +675,7 @@ default str v2i(value v) {
         case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";
         case \iter-seps(Symbol s, list[Symbol] seps) : return "_iter_seps_<v2i(s)>_<for (value elem <- seps) {><v2i(elem)>_<}>"[..-1];
         case \iter-star-seps(Symbol s, list[Symbol] seps) : return "_iter_star_seps_<v2i(s)>_<for (value elem <- seps) {><v2i(elem)>_<}>"[..-1];
-        case \seq(list[Symbol] lst) : return "seq<for (value elem <- lst) {><v2i(elem)>_<}>"[..-1];
+        case \seq(list[Symbol] lst) : return "seq_<for (value elem <- lst) {><v2i(elem)>_<}>"[..-1];
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";

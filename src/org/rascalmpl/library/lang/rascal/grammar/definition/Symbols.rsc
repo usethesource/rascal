@@ -78,7 +78,7 @@ public Symbol sym2symbol(Sym sym, bool withLayout=false) {
         : Symbol::\iter-seps(sym2symbol(s, withLayout=withLayout), [sym2symbol(sep, withLayout=withLayout)]);
     case sequence(Sym first, Sym+ sequence): 
       return withLayout
-        ? seq([sym2symbol(first, withLayout=withLayout)] + [sym2symbol(elem, withLayout=withLayout), defLayout | elem <- sequence][..-1])
+        ? seq([sym2symbol(first, withLayout=withLayout), defLayout] + [sym2symbol(elem, withLayout=withLayout), defLayout | elem <- sequence][..-1])
         : seq([sym2symbol(first, withLayout=withLayout)] + [sym2symbol(elem, withLayout=withLayout) | elem <- sequence]);
     case startOfLine(Sym s): 
       return conditional(sym2symbol(s, withLayout=withLayout), {\begin-of-line()});
