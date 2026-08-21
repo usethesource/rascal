@@ -79,7 +79,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     gr = makeRegularStubs(gr);
     
     worked("generating syntax for holes", 1);
-    gr = addHoles(gr);
+    // gr = addHoles(gr);
  
     worked("generating literals", 1);
     gr = literals(gr);
@@ -254,7 +254,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
-           '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt); println(alt.def);>
            '    // this is only for top-level regular symbols
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <newItems[topRegular(alt.def)][item(alt, 0)].new> });
