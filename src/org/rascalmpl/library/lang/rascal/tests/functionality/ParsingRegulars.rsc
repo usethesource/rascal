@@ -19,6 +19,10 @@ syntax ASeqB = (A B);
 
 import ParseTree;
 
+// null hypothesis, normal non-terminals still work
+test bool normal()
+    = A _ := parse(#A, "a");
+
 // star list
 
 test bool starListEmpty() 
@@ -51,7 +55,7 @@ test bool plusListCompanionSingle()
     = A+ _ := parse(#(A*), "a");
 
 test bool plusListCompanionMany() 
-    = A+ _ := parse(#(A*), "a");
+    = A+ _ := parse(#(A*), "aa");
 
 // opt
 
