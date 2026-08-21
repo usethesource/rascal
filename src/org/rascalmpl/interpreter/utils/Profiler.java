@@ -159,13 +159,10 @@ class Cpuinfo {
 		appendln(b, "{");
 		appendln(b, "  \"id\": " + node.id + ",");
 		appendln(b, "  \"callFrame\": {");
-		
 		appendln(b, "    \"functionName\": \"" + node.frame.functionName + "\",");
-		appendln(b, "    \"scriptId\": \"" + node.frame.scriptId + "\",");
 		appendln(b, "    \"url\": \"" + node.frame.url + "\",");
 		appendln(b, "    \"lineNumber\": " + node.frame.lineNumber + ",");
 		appendln(b, "    \"columnNumber\": " + node.frame.columnNumber + "");
-		
 		appendln(b, "  },");
 		appendln(b, "  \"children\": [" + node.children.values().stream().map(n -> String.valueOf(n.id)).collect(Collectors.joining(", ")) + "]");
 		appendln(b, "}");
@@ -175,7 +172,6 @@ class Cpuinfo {
 	private static void appendln(StringBuilder b, String s) {
 		b.append(s);
 		b.append(System.lineSeparator());
-		// b.append("\n");
 	}
 
 	private static class Sample {
@@ -217,7 +213,6 @@ class Cpuinfo {
 
 	private static class CallFrame {
 		private final String functionName;
-		private final String scriptId;
 		private final String url;
 		private final int lineNumber;
 		private final int columnNumber;
@@ -232,10 +227,10 @@ class Cpuinfo {
 				this.functionName = "(root)";
 			}
 
-			this.scriptId = "";
 			if (location != null) {
-				this.url = location.getPath();
-				this.lineNumber = location.getBeginLine();
+				// this.url = "file".equals(location.getScheme()) ? location.getPath() : location.toString();
+				this.url = location.toString();
+				this.lineNumber = location.getBeginLine() - 1;
 				this.columnNumber = location.getBeginColumn();
 			} else {
 				this.url = "";
@@ -249,7 +244,6 @@ class Cpuinfo {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((functionName == null) ? 0 : functionName.hashCode());
-			result = prime * result + ((scriptId == null) ? 0 : scriptId.hashCode());
 			result = prime * result + ((url == null) ? 0 : url.hashCode());
 			result = prime * result + lineNumber;
 			result = prime * result + columnNumber;
@@ -270,12 +264,6 @@ class Cpuinfo {
 					return false;
 			}
 			else if (!functionName.equals(other.functionName))
-				return false;
-			if (scriptId == null) {
-				if (other.scriptId != null)
-					return false;
-			}
-			else if (!scriptId.equals(other.scriptId))
 				return false;
 			if (url == null) {
 				if (other.url != null)
