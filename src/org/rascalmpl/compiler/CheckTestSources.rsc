@@ -66,7 +66,7 @@ void checkTestSources(list[str] cmdLineArgs) {
    if("all" in cmdLineArgs){
       modulesToCheck = getRascalModules(REPO + "rascal/src/org/rascalmpl/library", pcfg);         
    } else {         
-      testFolders = [ //|std:///lang/rascal/tests|,
+      testFolders = [ //|project://rascal/src/org/rascalmpl/library/lang/rascal/tests|,
                        //REPO + "/rascal-core/lang/rascalcore/check::tests",
                        REPO + "/typepal/src/"
                     ];

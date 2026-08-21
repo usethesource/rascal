@@ -22,7 +22,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Modules;
 
 public data ParseBenchmarkConfig = parseBenchmarkConfig(
-    loc syntaxFile = |std:///lang/rascal/syntax/Rascal.rsc|,
+    loc syntaxFile = |project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|,
     str topSort = "Module",
     str extension = ".rsc",
     loc files = |unknown:///|,
@@ -133,4 +133,4 @@ int main(list[str] args) {
     return 0;
 }
 
-public int benchmarkRascal() = main(["files=|std:///|"]);
+public int benchmarkRascal() = main(["files=|project://rascal/src/org/rascalmpl/library/|"]);

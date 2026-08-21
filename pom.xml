@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC13-SNAPSHOT</version>
+    <version>0.43.1-RC13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -201,7 +201,6 @@
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
-                            <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
                     </execution> 
                 </executions>
