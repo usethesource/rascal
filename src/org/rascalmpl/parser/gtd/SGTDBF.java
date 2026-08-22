@@ -645,7 +645,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
 		P production = node.getParentProduction();
-		String name = edgesMap.getValue(0).get(0).getName();
+		var first = edgesMap.getValue(0);
+		if (first == null) {
+			// outermost node
+			return;
+		}
+		String name = first.get(0).getName();
 		
 		// Check for nesting restrictions.
 		boolean hasNestingRestrictions = hasNestingRestrictions(name);
@@ -684,7 +689,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
 		P production = node.getParentProduction();
-		String name = edgesMap.getValue(0).get(0).getName();
+		var first = edgesMap.getValue(0);
+		if (first == null) {
+			return;
+		}
+		String name = first.get(0).getName();
 		
 		// Check for nesting restrictions.
 		boolean hasNestingRestrictions = hasNestingRestrictions(name);
@@ -1043,7 +1052,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 */
 	@SuppressWarnings("unchecked")
 	private void queueMatchableNode(AbstractStackNode<P> node, int length, AbstractNode result){
-		assert result != null;
+		// assert result != null;
+		if (result == null) {
+			return;
+		}
 		
 		int queueDepth = todoLists.length;
 		if(length >= queueDepth){
@@ -1378,11 +1390,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	}
 	
 	/**
-	 * Initiates parsing.
+	 * Initiates parsing. This is the main workhorse.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input,
-			IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
+	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
 		if (debugListener == null) {
 			debugListener = new NopDebugListener<>();
 		}
@@ -1420,7 +1431,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 			expand();
 
-			AbstractContainerNode<P> result = null;
+			AbstractNode result = null;
 			if(findFirstStacksToReduce()) {
 				boolean shiftedLevel = (location != 0);
 				while (true) {
@@ -1467,6 +1478,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 						}
 					}
 				}
+			} else if(input.length == 0 && startNode instanceof EpsilonStackNode) {
+				result = EpsilonStackNode.EPSILON_RESULT;
 			}
 
 			visualize("Done", ParseStateVisualizer.PARSER_ID);
@@ -1540,12 +1553,26 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	/**
 	 * Parses with post parse filtering.
 	 */
-	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
-		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
-		IDebugListener<P> debugListener) {
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
+		if (nonterminal.startsWith("regular_")) {
+			// regular non-terminals need less wrapping
+			// TODO: find a less crude way to detect this case
+			return parseDirectly(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, recoverer, debugListener);
+		}
+
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor, maxAmbDepth);
+	}
+
+	/**
+	 * This is used for outermost regular symbols which already construct their own outermost node.
+	 */
+	protected T parseDirectly(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
+		// here we assume the top node has only one single start node
+		var startNode = (AbstractStackNode<P>) getExpects(nonterminal)[0];
+		AbstractNode result = (AbstractNode) parse(startNode, inputURI, input, recoverer, debugListener);
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
 	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor,
@@ -1575,11 +1602,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	/**
 	 * Parses without post parse filtering.
 	 */
-	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer,
-		IDebugListener<P> debugListener) {
-		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
-			inputURI, input, recoverer, debugListener);
+	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
+		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer, debugListener);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
 	}
 	
@@ -1590,29 +1614,29 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer) {
 		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, recoverer, null);
 	}
 
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugListener) {
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IDebugListener<P> debugListener) {
 		return parse(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, null, debugListener);
 	}
 	
-	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory) {
+	public T parse(String nonterminal, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
 		return parse(nonterminal, inputURI, charsToInts(input), maxAmbDepth, converter, nodeConstructorFactory, null, null);
 	}
 
-	// Only used in tests
-	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, 
-		INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+	// Only used in tests 
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
 		return parse(startNode, inputURI, input, INodeFlattener.UNLIMITED_AMB_DEPTH, converter, nodeConstructorFactory);
 	}
 
-	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter,
-		INodeConstructorFactory<T, S> nodeConstructorFactory) {
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debug) {  
+		AbstractNode result = parse(startNode, inputURI, charsToInts(input), recoverer, debugListener);
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
+	}
+
+	protected T parse(AbstractStackNode<P> startNode, URI inputURI, char[] input, int maxAmbDepth, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>(), maxAmbDepth);
