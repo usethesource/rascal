@@ -1,4 +1,4 @@
-@synopsis{Defines the syntax of filesystem and network drive paths on DOS and Windows Systems.}
+@synopsis{Defines the syntax of filesystem and network drive paths on unix Systems.}
 @description{
 This syntax definition of POSIX paths and file names, including some of the conventions 
 with ~ for the home folder and . and .. for relative directories.
