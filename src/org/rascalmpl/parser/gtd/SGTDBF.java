@@ -1431,7 +1431,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 			expand();
 
-			AbstractContainerNode<P> result = null;
+			AbstractNode result = null;
 			if(findFirstStacksToReduce()) {
 				boolean shiftedLevel = (location != 0);
 				while (true) {
@@ -1478,6 +1478,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 						}
 					}
 				}
+			} else if(input.length == 0 && startNode instanceof EpsilonStackNode) {
+				result = EpsilonStackNode.EPSILON_RESULT;
 			}
 
 			visualize("Done", ParseStateVisualizer.PARSER_ID);
