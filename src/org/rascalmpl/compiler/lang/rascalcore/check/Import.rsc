@@ -450,7 +450,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         paths = tm.paths;
         facts = tm.facts;
         specializedFacts = tm.specializedFacts;
-        useDef = tm.useDef;
+        useDef = getUseDef(tm);
         logical2physical = tm.logical2physical;
         definitions = tm.definitions;
 
