@@ -318,6 +318,7 @@ bool asubtype(i:\iter-star-seps(AType s, list[AType] seps), AType b){
     fail;
 }
 
+bool asubtype(\aempty(),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\opt(AType _),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\alt(set[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
 bool asubtype(\seq(list[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
@@ -697,10 +698,13 @@ AType alub(\iter-seps(AType l,_), \iter-star-seps(AType r,_)) = aadt("Tree", [],
 AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax()) when l != r;
 
+private bool isSyntaxConstructor(AType l)
+    = l is \achar-class || l is aempty || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
+
 AType alub(l:aadt("Tree", _, _), AType r) = l
-    when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
+    when isSyntaxConstructor(r);
 AType alub(AType l, r:aadt("Tree", _, _)) = r
-    when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
+    when isSyntaxConstructor(r);
 
 AType alub(\start(AType l) , AType r) = alub(l, r);
 AType alub(AType l, \start(AType r)) = alub(l, r);
