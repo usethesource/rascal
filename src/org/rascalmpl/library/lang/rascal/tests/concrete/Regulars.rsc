@@ -24,31 +24,31 @@ lexical Name = [a-z]+;
 import ParseTree;
 
 // null hypothesis, normal non-terminals still work
-// test bool normalSort()
-//     = A _ := (A) `a`;
+test bool normalSort()
+    = A _ := (A) `a`;
 
-// test bool normalLex()
-//     = Name _ := (Name) `daffyduck`;
+test bool normalLex()
+    = Name _ := (Name) `daffyduck`;
 
-// // star list
+// star list
 
-// test bool starListEmpty() 
-//     = A* _ := (A*) ``;
+test bool starListEmpty() 
+    = A* _ := (A*) ``;
 
-// test bool starListSingle() 
-//     = A* _ := (A*) `a`;
+test bool starListSingle() 
+    = A* _ := (A*) `a`;
 
-// test bool starListMany() 
-//     = A* _ := (A*) `aa`;
+test bool starListMany() 
+    = A* _ := (A*) `aa`;
 
-// test bool starListCompanionSingle() 
-//     = A+ _ := (A+) `a`;
+test bool starListCompanionSingle() 
+    = A+ _ := (A+) `a`;
 
-// test bool starListCompanionMany() 
-//     = A+ _ := (A+) `aa`;
+test bool starListCompanionMany() 
+    = A+ _ := (A+) `aa`;
 
-// test bool starListWithElementHole()
-//     = (A*) `a<A _>a` := (A*) `aaa`;
+test bool starListWithElementHole()
+    = (A*) `a<A _>a` := (A*) `aaa`;
 
 test bool starListWithSubListHoleEmpty()
     = (A*) `a<A* _>a` := (A*) `aa`;
@@ -57,53 +57,53 @@ test bool starListWithSubListHoleEmpty()
 // test bool starListWithSubListHoleNonEmpty()
 //     = (A*) `a<A+ _>a` := (A*) `aaa`;
 
-// // plus list 
+// plus list 
 
-// test bool plusListSingle() 
-//     = A+ _ := (A+) `a`;
+test bool plusListSingle() 
+    = A+ _ := (A+) `a`;
 
-// test bool plusListMany() 
-//     = A+ _ := (A+) `aa`;
+test bool plusListMany() 
+    = A+ _ := (A+) `aa`;
 
-// test bool plusListCompanionEmpty() 
-//     = A* _ := (A*) ``;
+test bool plusListCompanionEmpty() 
+    = A* _ := (A*) ``;
 
-// test bool plusListCompanionSingle() 
-//     = A+ _ := (A*) `a`;
+test bool plusListCompanionSingle() 
+    = A+ _ := (A*) `a`;
 
-// test bool plusListCompanionMany() 
-//     = A+ _ := (A*) `aa`;
+test bool plusListCompanionMany() 
+    = A+ _ := (A*) `aa`;
 
-// // opt
+// opt
 
-// test bool optAbsent()
-//     = (A?) _ := (A?) ``;
+test bool optAbsent()
+    = (A?) _ := (A?) ``;
 
-// test bool optPresent()
-//     = (A?) _ := (A?) `a`;
+test bool optPresent()
+    = (A?) _ := (A?) `a`;
 
-// test bool optHole()
-//     = (A?) `<A _>` := (A?) `a`;
+test bool optHole()
+    = (A?) `<A _>` := (A?) `a`;
 
-// // empty
+// empty
 
 // test bool empty()
 //     = (()) _ := (()) ``;
 
-// // alt
-// test bool altA() 
-//     = (A|B) _ := ((A|B)) `a`;
+// alt
+test bool altA() 
+    = (A|B) _ := ((A|B)) `a`;
 
-// test bool altB() 
-//     = (A|B) _ := ((A|B)) `b`;
+test bool altB() 
+    = (A|B) _ := ((A|B)) `b`;
 
-// test bool altHoleA()
-//     = ((A|B)) `<A _>` := ((A|B)) `a`;
+test bool altHoleA()
+    = ((A|B)) `<A _>` := ((A|B)) `a`;
 
-// test bool altHoleB()
-//     = ((A|B)) `<B _>` := ((A|B)) `b`;
+test bool altHoleB()
+    = ((A|B)) `<B _>` := ((A|B)) `b`;
 
-// // seq
+// seq
 
 // test bool seqAB() 
 //     = (A B) _ := ((A B)) `ab`;

@@ -70,17 +70,17 @@ default str getParserMethodName(Symbol s, bool withLayout=false)
 public str newGenerate(str package, str name, Grammar gr) {	
     return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
-    int newItem() { uniqueItem += 2; return uniqueItem; }; // we use only the odd numbers to reserve the even numbers for top-level regular prods
+    int newItem() { uniqueItem += 1; return uniqueItem; }; // we use only the odd numbers to reserve the even numbers for top-level regular prods
   
     worked("expanding parameterized symbols", 1);
     gr = expandParameterizedSymbols(gr);
      
-    worked("generating syntax for holes", 1);
-    gr = addHoles(gr);
- 
     worked("generating stubs for regular", 1);
     gr = makeRegularStubs(gr);
   
+    worked("generating syntax for holes", 1);
+    gr = addHoles(gr);
+ 
     worked("generating literals", 1);
     gr = literals(gr);
     
@@ -665,8 +665,9 @@ str uu(value s) = escape(toBase64("<unsetRec(s)>"),("=":"00","+":"11","/":"22"))
 
 default str v2i(value v) {
     switch (v) {
-        case prod(label(str x, Symbol s), _, _) : return "prod_<v2i(s)>_<v2i(x)>";
-        case prod(Symbol s, list[Symbol] parts, _) : return "prod_<v2i(s)>_<for (Symbol part <- parts) {><v2i(part)>_<}>";
+        // uncomment this for readable production names while debugging. does not work well with generated $MetaHole rules
+        // case prod(label(str x, Symbol s), _, _) : return "prod_<v2i(s)>_<v2i(x)>";
+        // case prod(Symbol s, list[Symbol] parts, _) : return "prod_<v2i(s)>_<for (Symbol part <- parts) {><v2i(part)>_<}>";
         case \start(Symbol s) : return "start__<v2i(s)>";
         case \item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case \label(str _x, Symbol u) : return v2i(u);
@@ -681,7 +682,7 @@ default str v2i(value v) {
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
-        case \empty() : return "empty";
+        case \empty() : return "empty_empty"; // avoid clash with non-terminals named empty
         // TODO: with top-level regulars this might not be enough, need recursion?
         case \parameterized-sort(str s, list[Symbol] args) : return "<s>_<uu(args)>";
         case \parameterized-lex(str s, list[Symbol] args) : return "<s>_<uu(args)>";
