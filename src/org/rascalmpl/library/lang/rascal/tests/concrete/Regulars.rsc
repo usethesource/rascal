@@ -53,9 +53,8 @@ test bool starListWithElementHole()
 test bool starListWithSubListHoleEmpty()
     = (A*) `a<A* _>a` := (A*) `aa`;
 
-// @ignore{buggy}
-// test bool starListWithSubListHoleNonEmpty()
-//     = (A*) `a<A+ _>a` := (A*) `aaa`;
+test bool starListWithSubListHoleNonEmpty()
+    = (A*) `a<A+ _>a` := (A*) `aaa`;
 
 // plus list 
 
