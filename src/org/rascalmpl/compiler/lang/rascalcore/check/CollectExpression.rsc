@@ -1052,7 +1052,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId()});
+    c.useViaTypeNoAutoFact(expression, field, {fieldId(), keywordFieldId()});
     c.calculate("field access", current, [expression, field],
         AType(Solver s){
             expType = s.getType(expression);
