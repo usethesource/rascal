@@ -67,8 +67,8 @@ test bool optPresent()
 
 // empty
 
-// test bool empty()
-//     = (()) _ := parse(#(), "");
+test bool empty()
+    = (()) _ := parse(#(), "");
 
 // alt
 test bool altA() 
