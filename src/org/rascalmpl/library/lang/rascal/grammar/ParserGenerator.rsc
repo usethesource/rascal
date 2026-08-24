@@ -254,14 +254,9 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	  }<}>
-           '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt);>
-           '    // this is only for top-level regular symbols
-           '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
-           '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <newItems[topRegular(alt.def)][item(alt, 0)].new> });
-           '	  }<}>
            '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
-           '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '      <for(Production alt <- alts.prods, alt is prod) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
@@ -273,8 +268,8 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    return nextFreeStackNodeId++;
            '  }
            '
-           '  // Parse methods    
-           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { uniqueItem = uniqueItem + 1; >
+           '  // Parse methods (also for top-level regulars)
+           '  <for (Symbol nont <- (gr.rules.sort)) { uniqueItem = uniqueItem + 1; >
            '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)], uniqueItem)><}>
            '
            '}";
@@ -406,32 +401,31 @@ bool isNonterminal(Symbol s) {
     case Symbol::\layouts(_) : return true;
 
     // regulars too from now on:
-    case Symbol::\iter(_) : return true;
-    case Symbol::\iter-star(_) : return true;
-    case Symbol::\iter-seps(_,_) : return true;
-    case Symbol::\iter-star-seps(_,_) : return true;
-    case Symbol::seq(_) : return true; 
-    case Symbol::opt(_) : return true;
-    case Symbol::alt(_) : return true;
-    case Symbol::empty() : return true;
+    // case Symbol::\iter(_) : return true;
+    // case Symbol::\iter-star(_) : return true;
+    // case Symbol::\iter-seps(_,_) : return true;
+    // case Symbol::\iter-star-seps(_,_) : return true;
+    // case Symbol::seq(_) : return true; 
+    // case Symbol::opt(_) : return true;
+    // case Symbol::alt(_) : return true;
+    // case Symbol::empty() : return true;
 
     default: return false;
   }
 }
 
-public default str generateParseMethod(Grammar g, Items _, Production p, int _) 
+default str generateParseMethod(Grammar g, Items _, Production p, int _) 
     =    "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(p.def)>() {
          '    return <getParserMethodName(p.def)>.EXPECTS;
          '}";
 
 
-// public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)}), int id) 
-// // TODO: here we have to work if we also want regular lexical/regular non-terminals at the top
-//   =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
-//          '    return new AbstractStackNode[] { 
-//          '        <sym2newitem(g, def, 0).new>
-//          '    };
-//          '}";
+str generateParseMethod(Grammar g, Items newItems, choice(Symbol def, {Production p:regular(Symbol def)}), int id) 
+    =    "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
+         '    return new AbstractStackNode[] { 
+         '        <newItems[topRegular(unsetRec(def))][item(unsetRec(p), 0)].new>
+         '    };
+         '}";
 
 
 

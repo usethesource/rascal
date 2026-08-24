@@ -79,6 +79,6 @@ test bool altB()
 
 // seq
 
-// test bool seqAB() 
-//     = (A B) _ := parse(#(A B), "ab");
+test bool seqAB() 
+    = (A B) _ := parse(#(A B), "ab");
 
