@@ -333,7 +333,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	}
 
 	private boolean isNullable(AbstractStackNode<IConstructor> stackNode) {
-		if (stackNode instanceof NonTerminalStackNode && stackNode.getName().startsWith("layouts_")) {
+		if (stackNode instanceof NonTerminalStackNode && stackNode.getName().startsWith("$l_")) {
 			return true;
 		}
 
