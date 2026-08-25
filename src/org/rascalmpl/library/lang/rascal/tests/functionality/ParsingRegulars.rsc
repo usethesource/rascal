@@ -65,7 +65,7 @@ test bool optAbsent()
 test bool optPresent()
     = (A?) _ := parse(#(A?), "a");
 
-// empty
+// empty 
 
 test bool empty()
     = (()) _ := parse(#(), "");
