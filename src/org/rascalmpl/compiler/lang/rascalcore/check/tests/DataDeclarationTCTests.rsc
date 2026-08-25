@@ -566,3 +566,18 @@ test bool fieldSelectionFromDestructuringAssignment(){ // ht @toinehartman
                     return tm.kwArg; // Potential error: Unresolved type for useViaType `kwArg` in |file:.....|
                  }");
 }
+
+test bool issue2867() = checkModuleOK("
+    module FalsePositive /**/
+        data D[&T] = d(&T n);
+        int f() {
+            n1 = d(5).n;
+            n2 = n1;
+            n3 = n2;
+            return n3 + 5;
+        }
+    ");
+
+// Identical to test `issue2867`, but on a single line to make sure it fails on
+// both Windows and Linux (force `\n` instead `\r\n`)
+test bool issue2867Oneline() = checkModuleOK("module FalsePositive /**/\ndata D[&T] = d(&T n);\nint f() {\nn1 = d(5).n;\nn2 = n1;\nn3 = n2;\nreturn n3 + 5;}");
