@@ -85,7 +85,7 @@ public class URIUtil {
 			var scheme = url.getProtocol();
 			var path = decodeURLPart(url.getPath());
 
-			// Fix URLs like `jar:file:/C:/`, where the protocol ia `jar`, but we want scheme `jar+file`
+			// Fix URLs like `jar:file:/C:/`, where the protocol is `jar`, but we want scheme `jar+file`
 			if (url.getAuthority() == null || url.getAuthority().isEmpty()) {
 				var schemePart = scheme;
 				int schemeEnd;
