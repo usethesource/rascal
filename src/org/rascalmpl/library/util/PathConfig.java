@@ -572,7 +572,6 @@ public class PathConfig {
             } else {
                 // Fall back to current runtime Rascal and warn the user
                 rascal = JarURIResolver.jarify(resolveCurrentRascalRuntime());
-                messages.append(Messages.warning(String.format("No Rascal dependency found in pom.xml. Using %s instead.", rascal.getURI()), getPomXmlLocation(manifestRoot)));
             }
 
             libs.append(rascal);
