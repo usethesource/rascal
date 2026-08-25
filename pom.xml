@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC14-PREVIEW-REGULAR-PARSERS</version>
+    <version>0.43.0-RC14-PREVIEW-REGULAR-PARSERS-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.43.0-RC14-PREVIEW-REGULAR-PARSERS</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
