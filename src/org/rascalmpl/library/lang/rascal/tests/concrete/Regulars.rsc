@@ -86,8 +86,8 @@ test bool optHole()
 
 // empty
 
-// test bool empty()
-//     = (()) _ := (()) ``;
+test bool empty()
+    = (()) _ := (()) ``;
 
 // alt
 test bool altA() 
