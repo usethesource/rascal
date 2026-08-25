@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Map;
 
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -1554,7 +1555,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Parses with post parse filtering.
 	 */
 	private T parse(String nonterminal, URI inputURI, int[] input, int maxAmbDepth, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
-		if (nonterminal.startsWith("regular_")) {
+		if (nonterminal.startsWith(Parser.REGULAR_PREFIX)) {
 			// regular non-terminals need less wrapping
 			// TODO: find a less crude way to detect this case
 			return parseDirectly(nonterminal, inputURI, input, maxAmbDepth, converter, nodeConstructorFactory, recoverer, debugListener);

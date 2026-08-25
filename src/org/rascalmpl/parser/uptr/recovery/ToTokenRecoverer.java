@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.BitSet;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -333,7 +334,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	}
 
 	private boolean isNullable(AbstractStackNode<IConstructor> stackNode) {
-		if (stackNode instanceof NonTerminalStackNode && stackNode.getName().startsWith("$l_")) {
+		if (stackNode instanceof NonTerminalStackNode && stackNode.getName().startsWith(Parser.LAYOUT_PREFIX)) {
 			return true;
 		}
 

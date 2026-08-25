@@ -403,18 +403,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         ITree sym = TreeAdapter.getArg(hole, "symbol");
         IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
 
-        // TODO: finish the trick to parse sequence variables
-        // if (SymbolAdapter.isSeq(symbol)) {
-        //     // we introduce a variable for each part of the sequence because
-        //     // we can not add an alternative rule for regular symbols
-        //     return ctx.getValueFactory().string(SymbolAdapter.getSymbols(symbol).stream()
-        //         .map(IConstructor.class::cast)
-        //         .map(s -> "\u0000" + s.toString() + ":" + index + "\u0000")
-        //         .collect(Collectors.joining()));
-        // }
-        // else {
-            return ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
-        // }
+        return ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
     }
 
     public IConstructor sym2symbol(ITree parsedSym, boolean withLayout) {
