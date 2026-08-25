@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC13-PREVIEW-REGULAR-PARSERS</version>
+    <version>0.43.0-RC14-PREVIEW-REGULAR-PARSERS-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
