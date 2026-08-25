@@ -444,8 +444,6 @@ public class PathConfig {
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
     private static void buildRascalSelfApplicationConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, List<Artifact> mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
-        // but otherwise, you always get the boostrap Rascal in your REPL
         var stdSrc = URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library");
         srcs.append(stdSrc);
 
