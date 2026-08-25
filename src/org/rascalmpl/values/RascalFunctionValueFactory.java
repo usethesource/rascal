@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.NullRascalMonitor;
@@ -402,9 +403,18 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         ITree sym = TreeAdapter.getArg(hole, "symbol");
         IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
 
-        IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
-
-        return result;
+        // TODO: finish the trick to parse sequence variables
+        // if (SymbolAdapter.isSeq(symbol)) {
+        //     // we introduce a variable for each part of the sequence because
+        //     // we can not add an alternative rule for regular symbols
+        //     return ctx.getValueFactory().string(SymbolAdapter.getSymbols(symbol).stream()
+        //         .map(IConstructor.class::cast)
+        //         .map(s -> "\u0000" + s.toString() + ":" + index + "\u0000")
+        //         .collect(Collectors.joining()));
+        // }
+        // else {
+            return ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
+        // }
     }
 
     public IConstructor sym2symbol(ITree parsedSym, boolean withLayout) {
