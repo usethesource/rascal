@@ -40,7 +40,7 @@ public class ShellEvaluatorFactory {
         try {
             evaluator.addRascalSearchPath(PathConfig.resolveCurrentStandardLibrary());
         } catch (IOException e) {
-            monitor.warning("No Rascal runtime found", URIUtil.unknownLocation());
+            monitor.warning("No Rascal runtime found: + " + e.getMessage(), URIUtil.unknownLocation());
         }
 
         return evaluator;
