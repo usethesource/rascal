@@ -128,6 +128,10 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     public ISourceLocation resolveJar(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
 
+        if (!"mvn".equals(input.getScheme())) {
+            throw new IOException("Cannot resolve non-Maven location");
+        }
+
         if (authority.isEmpty()) {
             throw new IOException("missing mvn://groupid--artifactId--version/ as the authority in " + input);
         }
