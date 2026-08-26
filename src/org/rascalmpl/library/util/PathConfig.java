@@ -463,6 +463,9 @@ public class PathConfig {
             // `workspaceRascal` is the directory of the Rascal project that is open in de IDE
             // The Rascal class files are located in the `target/classes` subdirectory
             libs.append(URIUtil.getChildLocation(workspaceRascal, "target/classes"));
+            for (var art : mavenClassPath) {
+                addArtifactToPathConfig(art, workspaceRascal, mode, srcs, libs, messages);
+            }
         }
 
         // compiler & tutor only paths
