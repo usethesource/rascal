@@ -568,7 +568,7 @@ test bool fieldSelectionFromDestructuringAssignment(){ // ht @toinehartman
 }
 
 test bool issue2867() = checkModuleOK("
-    module FalsePositive /**/
+    module FalsePositive  /**/
         data D[&T] = d(&T n);
         int f() {
             n1 = d(5).n;
@@ -580,4 +580,4 @@ test bool issue2867() = checkModuleOK("
 
 // Identical to test `issue2867`, but on a single line to make sure it fails on
 // both Windows and Linux (force `\n` instead `\r\n`)
-test bool issue2867Oneline() = checkModuleOK("module FalsePositive /**/\ndata D[&T] = d(&T n);\nint f() {\nn1 = d(5).n;\nn2 = n1;\nn3 = n2;\nreturn n3 + 5;}");
+test bool issue2867Oneline() = checkModuleOK("module FalsePositive  /**/\ndata D[&T] = d(&T n);\nint f() {\nn1 = d(5).n;\nn2 = n1;\nn3 = n2;\nreturn n3 + 5;}");
