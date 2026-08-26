@@ -441,9 +441,63 @@ test bool Escapes2() = checkModuleOK("
 	
 // ---- type parameters -------------------------------------------------------
 
-test bool ADTWithTypeParameter() = checkModuleOK("
-    module ADTWithTypeParameter
-        data D[&T] = d1(&T n);
+
+test bool ADTOnly() = checkModuleOK("
+    module ADTOnly
+        data D[&T] = d(&T n);
+    ");
+
+test bool Box() = checkModuleOK("
+    module Box
+        data Box[&T] = box(&T v);
+        &T unbox(Box[&T] b) = b.v;
+    ");
+
+test bool NumBox() = checkModuleOK("
+    module NumBox
+        data NumBox[&T \<: num] = box(&T v);
+
+        &T \<: num unboxAndSum(NumBox[&T \<: num] box1, NumBox[&T \<: num] box2) {
+            &T v1 = box1.v;
+            &T v2 = box2.v;
+            return v1 + v2;
+        }
+    ");
+
+test bool ADTWithTypeParameter1() = checkModuleOK("
+    module ADTWithTypeParameter1
+        data D[&T] = d(&T n);
+        int n = d(5).n;
+    ");
+
+test bool ADTWithTypeParameter2() = checkModuleOK("
+    module ADTWithTypeParameter2
+        data D[&T] = d(&T n);
+        int f() {
+            n1 = d(5).n;
+            n2 = n1;
+            n3 = n2;
+            return n3 + 5;
+        }
+    ");
+
+test bool ADTWithTypeParameter2ButDifferentModuleName() = checkModuleOK("
+    module ADTWithTypeParameter2ButDifferentModuleName
+        data D[&T] = d(&T n);
+        int f() {
+            n1 = d(5).n;
+            n2 = n1;
+            n3 = n2;
+            return n3 + 5;
+        }
+    ");
+
+test bool ADTWithTypeParameter3() = checkModuleOK("
+    module ADTWithTypeParameter3
+        data D1[&T] = d1(D2[&T] inner);
+        data D2[&T] = d2(&T n);
+        D1[int] outer = d1(d2(5));
+        int n = outer.inner.n;
     ");
 
 test bool UndefinedParameter() = unexpectedTypeInModule("
@@ -484,7 +538,7 @@ test bool ADTWithTypeParameterAndKW2() = checkModuleOK("
         void f() { D[int] x = d1(10); int m = x.kw; }
     ");
 
-test bool ADTWithTypeParameterAndKW3() = checkModuleOK("
+test bool ADTWithTypeParameterAndKW3() = unexpectedTypeInModule("
     module ADTWithTypeParameterAndKW3
         data D[&T] = d1(&T n, &T kw = n);
         void f() { D[int] x = d1(10); str m = x.kw; }
