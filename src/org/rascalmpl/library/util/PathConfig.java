@@ -93,8 +93,19 @@ public class PathConfig {
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
     public static enum RascalConfigMode {
+        /**
+         * Interpreter mode, within the current running process.
+         * For example, this applies to running RascalShell from the command-line.
+         */
         INTERPRETER,
+        /**
+         * Compiler mode.
+         */
         COMPILER,
+        /**
+         * Interpreter mode, intended for an external process.
+         * For example, this applies to creating a path config for a REPL process.
+         */
         INTERPRETER_EXTERNAL;
 
         boolean isInterpreterMode() {
