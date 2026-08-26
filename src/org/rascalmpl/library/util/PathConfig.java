@@ -576,7 +576,7 @@ public class PathConfig {
 
             libs.append(rascal);
             if (mode == RascalConfigMode.INTERPRETER) {
-                // The compiler does not need sources, but the interpreter does.
+                // The compiler does not need sources of the Rascal standard library, but the interpreter does.
                 srcs.append(URIUtil.getChildLocation(rascal, "org/rascalmpl/library"));
             }
         }
