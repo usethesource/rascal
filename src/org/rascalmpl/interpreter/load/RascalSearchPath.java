@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -108,9 +107,9 @@ public class RascalSearchPath {
 	}
 	
 	public Collection<ISourceLocation> collect() {
-		Queue<ISourceLocation> paths = new LinkedList<ISourceLocation>();
+		var paths = new LinkedList<ISourceLocation>();
 		for (IRascalSearchPathContributor c : contributors) {
-			c.contributePaths(paths);
+			paths.addAll(c.contributePaths());
 		}
 
 		return paths;

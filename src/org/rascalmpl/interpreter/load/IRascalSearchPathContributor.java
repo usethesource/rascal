@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.util.Queue;
+import java.util.Collection;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalSearchPathContributor {
-	void contributePaths(Queue<ISourceLocation> path);
+	Collection<ISourceLocation> contributePaths();
 	String getName();
 }
