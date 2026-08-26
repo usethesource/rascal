@@ -1057,6 +1057,8 @@ void collect(current: (Expression) `<Expression expression> . <Name field>`, Col
         AType(Solver s){
             expType = s.getType(expression);
             fieldType = s.getType(field);
+            // expType = getInstantiated(expression, s);
+            // fieldType = getInstantiated(field, s);
 
             if(isVoidAType(expType)) s.report(error(expression, "Base expression of field selection should not have type `void`"));
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){

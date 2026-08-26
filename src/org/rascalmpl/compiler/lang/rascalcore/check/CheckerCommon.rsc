@@ -505,3 +505,16 @@ void resetClosureCounter(){
 }
 
 str generateClosureName() = "$CLOSURE_<nextClosure()>";
+
+AType getInstantiated(Tree tree, Solver s) {
+    AType t = s.getType(tree);
+    if (isInstantiated(t)) {
+        return t;
+    } else {
+        throw TypeUnavailable();
+    }
+}
+
+bool isInstantiated(AType t) {
+    return /aparameter(_, _) !:= t;
+}
