@@ -325,7 +325,9 @@ list[str] unexpectedTypeMsgs = [
 		"Expected a binary relation, found _",
 		"Constructor _ is overloaded",
 		"Expression _ is overloaded",
-		"Base expression _ of field selection should have a unique type"
+		"Base expression _ of field selection should have a unique type",
+		"Invalid initialization of ; type of one or more subparts could not be inferred",
+		"Argument _ should have type _, found _"
 ];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())

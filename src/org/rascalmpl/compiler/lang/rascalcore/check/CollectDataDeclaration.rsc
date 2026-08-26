@@ -169,8 +169,18 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);
                  // The standard rules would declare arguments and kwFormals as variableId();
-                for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); }
-                for(kwa <- kwFormals) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
+                for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) {
+                    // c.calculate("positional field", arg, [arg.\type, arg.name], AType(Solver s){
+                    //     return s.getType(arg.\type);
+                    // });
+                    c.fact(arg, arg.\type);
+                } c.leaveScope(arg); }
+                for(kwa <- kwFormals) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); 
+                    // c.calculate("keyword field, kwa, [kwa.\type, kwa.name], AType(Solver s){
+                    //     return s.getType(kwa.\type);
+                    // });
+                    c.fact(kwa, kwa.\type);
+                c.leaveScope(kwa); }
             endUseTypeParameters(c);
         c.leaveScope(current);
     } else {
