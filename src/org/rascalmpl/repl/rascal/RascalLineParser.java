@@ -266,9 +266,13 @@ public class RascalLineParser implements Parser {
             }
         } 
         catch (ImplementationError e) {
-            throw e;
+            // for diagnostic purposes we don't want to hide this with an EOF error,
+            // and we don't want to hide the original stack trace.
+            // This will break the jline protocol which is waiting for EOFError instead.
+            throw new ImplementationError(e.getMessage(), e);
         }
         catch (Throwable e) {
+            // everything else is (probably) a user error, which will be presented by jline with the appropriate message
             throw new EOFError(1, 0, "Unexpected failure during parsing of the command: " + e.getMessage());
         }
     }
