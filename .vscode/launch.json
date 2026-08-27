@@ -6,6 +6,41 @@
     "configurations": [
         {
             "type": "java",
+            "name": "$GENERATED_PARSER$244372483",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.$GENERATED_PARSER$244372483",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "$GENERATED_PARSER$279786030",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.$GENERATED_PARSER$279786030",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "TopLevelStarListEmpty",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.TopLevelStarListEmpty",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "TopLevelStarList",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.TopLevelStarList",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "NonTerminalStarListEmpty",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.NonTerminalStarListEmpty",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "RascalCheck",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalCheck",

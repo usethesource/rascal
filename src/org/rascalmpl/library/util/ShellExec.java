@@ -64,7 +64,7 @@ public class ShellExec {
 				if (!"file".equals(p.getScheme())) {
 					throw RuntimeExceptionFactory.illegalArgument(o,
 						"only file:/// URI are supported or logical schemes that derived from file");
-				}
+			}
 
 				return vf.string(new File(p.getURI()).getAbsolutePath());
 			}

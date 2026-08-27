@@ -35,10 +35,11 @@ import io.usethesource.vallang.io.StandardTextWriter;
  * of exception values, not different kind of Java classes.
  */
 public final class Throw extends ControlException {
+	public static final String RASCAL_FILL_IN_LATER = "rascalfillinlater";
 	private static final long serialVersionUID = -7290501865940548332L;
 	private final IValue exception;
-	private volatile ISourceLocation loc;
-	private volatile StackTrace trace;
+	private ISourceLocation loc;
+	private StackTrace trace;
 	
 	/**
 	 * Make a new Rascal exception.
@@ -50,7 +51,7 @@ public final class Throw extends ControlException {
 	public Throw(IValue value, ISourceLocation loc, StackTrace trace) {
 		super(toString(value, 4096));
 		this.exception = value;
-		this.loc = loc;
+		this.loc = loc != null ? loc : URIUtil.rootLocation(RASCAL_FILL_IN_LATER);
 		if(trace == null) {
 			trace = StackTrace.EMPTY_STACK_TRACE;
 		}
@@ -58,18 +59,15 @@ public final class Throw extends ControlException {
 	}
 	
 	/**
-     * Make a new Rascal exception.
+     * Make a new Rascal exception, where location and trace
+	 * are to be filled in later by the runtime, automatically.
      * 
      * @param value The Rascal exception value
-     * @param loc A source location, or null if unavailable
-     * @param trace A stack trace, or null
      */
     public Throw(IValue value) {
         super(toString(value, 4096));
         this.exception = value;
-        // TODO: convert top stack frame location to rascal loc 
-        this.loc = URIUtil.rootLocation("TODO");
-        // TODO: convert JVM trace to Rascal trace..
+        this.loc = URIUtil.rootLocation(RASCAL_FILL_IN_LATER);
         this.trace = StackTrace.EMPTY_STACK_TRACE;
     }
 	
@@ -106,7 +104,7 @@ public final class Throw extends ControlException {
 	 * @param trace The new trace, or null for an empty trace
 	 */
 	public void setTrace(StackTrace trace) {
-		if(trace == null) {
+		if (trace == null) {
 			trace = StackTrace.EMPTY_STACK_TRACE;
 		}
 		this.trace = trace;
@@ -130,6 +128,7 @@ public final class Throw extends ControlException {
 	 * @param loc The source location, or null
 	 */
 	public void setLocation(ISourceLocation loc) {
+		assert loc != null;
 		this.loc = loc;
 	}
 
