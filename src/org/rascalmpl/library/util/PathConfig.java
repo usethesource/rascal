@@ -578,7 +578,7 @@ public class PathConfig {
     }
 
     private static ISourceLocation getRelevantRascal(List<Artifact> mavenClasspath, RascalConfigMode mode) throws IOException {
-        if (mode == RascalConfigMode.INTERPRETER_EXTERNAL) {
+        if (mode == RascalConfigMode.INTERPRETER_EXTERNAL || mode == RascalConfigMode.COMPILER) {
             var rascalFromPom = mavenClasspath.stream()
                 .filter(PathConfig::isRascalArtifact)
                 .findFirst()
