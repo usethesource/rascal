@@ -522,7 +522,7 @@ public class PathConfig {
      */
     private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
         var rascalRuntime = getRelevantRascal(mavenClasspath, mode);
-        var insideRascalJar = JarURIResolver.jarify(rascalRuntime);
+        var insideRascalJar = JarURIResolver.jarify(MavenRepositoryURIResolver.mavenize(rascalRuntime));
         var rascalLibrary = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/library");
         var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
         var typepal = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/typepal");
@@ -584,24 +584,26 @@ public class PathConfig {
                 .findFirst()
                 .map(Artifact::getResolved)
                 .map(Path::toUri)
-                .map(vf::sourceLocation)
-                .map(MavenRepositoryURIResolver::mavenize)
-                .map(JarURIResolver::jarify);
+                .map(vf::sourceLocation);
             if (rascalFromPom.isPresent()) {
                 return rascalFromPom.get();
             }
         }
-        return JarURIResolver.jarify(resolveCurrentRascalRuntime());
+        return resolveCurrentRascalRuntime();
     }
 
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
         if (isRoot) {
-            ISourceLocation rascal = getRelevantRascal(mavenClasspath, mode);
+            var rascal = getRelevantRascal(mavenClasspath, mode);
+            var insideRascal = JarURIResolver.jarify(MavenRepositoryURIResolver.mavenize(rascal));
 
             libs.append(rascal);
             if (mode.isInterpreterMode()) {
                 // The compiler does not need sources of the Rascal standard library, but the interpreter does.
-                srcs.append(URIUtil.getChildLocation(rascal, "org/rascalmpl/library"));
+                srcs.append(URIUtil.getChildLocation(insideRascal, "org/rascalmpl/library"));
+                libs.append(rascal);
+            } else {
+                libs.append(insideRascal);
             }
         }
 
