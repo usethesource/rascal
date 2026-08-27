@@ -237,17 +237,19 @@ list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingO
 
     return list[TextEdit] (loc input) {
         &G tree = p(input, input);
+        str formatted = format(style(tree), opts=opts[ci=asIs()]);
+        
         try {
-            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), input), ci=opts.caseInsensitivity);
+            return layoutDiff(tree, p(formatted, input), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
             writeFile(|tmp:///<input.file>|, format(style(tree)));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<input.file>|(place.offset, place.length));
+            jobWarning("Ignoring formatter output, which contained a new parse error.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
             writeFile(|tmp:///<input.file>|, format(style(tree)));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<input.file>|(place.offset, place.length));
+            jobWarning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<input.file>|(place.offset, place.length));
             return [];
         }  
     };
@@ -278,17 +280,19 @@ list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, Form
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (&G <: Tree tree) {
+        str formatted = format(style(tree), opts=opts[ci=asIs()]);
+
         try {
-            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), tree.src.top), ci=opts.caseInsensitivity);
+            return layoutDiff(tree, p(formatted, tree.src.top), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, formatted);
+            jobWarning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, formatted);
+            jobWarning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.top.file>|(place.offset, place.length));
             return [];
         }  
     };
@@ -328,19 +332,20 @@ list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, Formatt
     Tree (type[Tree], value, loc) p = parsers(grammar);
 
     return list[TextEdit] (Tree tree) {
+        str formatted = format(style(tree), opts=opts[trimFinalNewlines=true][insertFinalNewline=false]);
+        str indented = subIndent(tree.src, "<formatted>", "<tree>");
+            
         try {
-            str formatted = format(style(tree));
-            str indented = subIndent(tree.src, "<formatted>", "<tree>");
             return layoutDiff(tree, p(type(delabel(tree.prod.def), ()), indented, tree.src), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(tree.src.offset + place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, indented);
+            jobWarning("Ignoring formatter output, which contained a new parse error.", |tmp:///<tree.src.top.file>|(tree.src.offset + place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(|tmp:///<tree.src.top.file>|, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.file>|(tree.src.offset + place.offset, place.length));
+            writeFile(|tmp:///<tree.src.top.file>|, indented);
+            jobWarning("Ignoring formatter output, which contained a new ambiguity.", |tmp:///<tree.src.file>|(tree.src.offset + place.offset, place.length));
             return [];
         }  
     };
@@ -378,24 +383,24 @@ list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, Formattin
         loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
 
         &G tree = p(input, stub);
+        str formatted = format(style(tree), opts=opts[ci=asIs()]);
+
         try {
-            return layoutDiff(tree, p(format(style(tree), opts=opts[ci=asIs()]), stub), ci=opts.caseInsensitivity);
+            return layoutDiff(tree, p(formatted, stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
-            println("Ignoring formatter output, which contained a new parse error. <stub(place.offset, place.length)>");
+            writeFile(stub, formatted);
+            jobWarning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
+            writeFile(stub, formatted);
+            jobWarning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
         catch AssertionFailed(str msg): {
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
-            println("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>, <stub>");
+            writeFile(stub, formatted);
+            jobWarning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
             return [];
         }  
     };
@@ -438,24 +443,25 @@ list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style s
         loc stub = |tmp:///| + "formatted<md5Hash(input)>.txt";
 
         &G tree = p(nonterminal, input, stub);
-        try {
-            str formatted = format(style(tree));
-            str indented = subIndent(tree.src, "<formatted>", input);
+        str formatted = format(style(tree), opts=opts[trimFinalNewlines=true][insertFinalNewline=false]);
+        str indented = subIndent(tree.src, "<formatted>", input);
+        
+        try {        
             return layoutDiff(tree, p(nonterminal, indented, stub), ci=opts.caseInsensitivity);
         }
         catch ParseError(loc place): { 
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
+            writeFile(stub, indented);
+            jobWarning("Ignoring formatter output, which contained a new parse error.", stub(place.offset, place.length));
             return [];
         }
         catch Ambiguity(loc place, str _, str _): { 
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
+            writeFile(stub, indented);
+            jobWarning("Ignoring formatter output, which contained a new ambiguity.", stub(place.offset, place.length));
             return [];
         } 
         catch AssertionFailed(str msg): {
-            writeFile(stub, format(style(tree), opts=opts[ci=asIs()]));
-            warning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
+            writeFile(stub, indented);
+            jobWarning("Ignoring formatter output, which changed the syntax or semantics of the file: <msg>", stub);
             return [];
         }  
     };
