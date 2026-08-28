@@ -15,9 +15,10 @@ package org.rascalmpl.parser;
 
 
 public class Parser{
-	public static final String START_COMMAND = "start__Command";
-	public static final String START_COMMANDS = "start__Commands";
-	public static final String START_MODULE = "start__Module";
-	
+	public static final String START_COMMAND = "$start_Command";
+	public static final String START_COMMANDS = "$start_Commands";
+	public static final String START_MODULE = "$start_Module";
+	public static final String REGULAR_PREFIX = "regular_";
+	public static final String LAYOUT_PREFIX = "$l_";
 	
 }
