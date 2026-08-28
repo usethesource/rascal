@@ -232,7 +232,7 @@ input to the formatted output.
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](loc) fileEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (loc input) {
@@ -276,7 +276,7 @@ input to the formatted output.
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](&G <: Tree) treeEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (&G <: Tree tree) {
@@ -328,7 +328,7 @@ rather works on any sub-tree:
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](Tree) subTreeEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree (type[Tree], value, loc) p = parsers(grammar);
 
     return list[TextEdit] (Tree tree) {
@@ -376,7 +376,7 @@ input to the formatted output.
 * can be slow for very very large input
 }
 
-list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](str) stringEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(str, loc) p = parser(grammar);
     
     return list[TextEdit] (str input) {
@@ -436,7 +436,7 @@ rather works on any sub-tree:
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](type[Tree], str) subStringEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
 
     return list[TextEdit] (type[Tree] nonterminal, str input) {
@@ -505,7 +505,7 @@ void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, Formattin
     &G reparsed = parse(grammar, pretty, input);
 
     if (dumpEdits) {
-        iprintln(fileEdits(grammar, style, opts=opts)(input));
+        iprintln(fileEditFormatter(grammar, style, opts=opts)(input));
     }
 
     if (HTML) {
@@ -531,7 +531,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
     loc shadowRoot = root.parent + "formatted-<root.file>";
     loc appendLoc = root + "format.log";
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
-    list[TextEdit](str) diffs = dumpEdits ? stringEdits(grammar, style, opts=opts) : list[void](str _) { return [];};
+    list[TextEdit](str) diffs = dumpEdits ? stringEditFormatter(grammar, style, opts=opts) : list[void](str _) { return [];};
     &G(value, loc) p = parser(grammar);
     list[loc] files = sort(find(root, extension));
 
@@ -605,6 +605,7 @@ void debugStringFormat(type[&G <: Tree] grammar, Style style, str input, Formatt
     }
 }
 
+@synopsis{Prints the indented intermediate Box format for an input file, using the given grammar and Box style.}
 void debugFileToBox(type[&G <: Tree] grammar, Style style, loc input, bool flatten = true) {
     &G tree = parse(grammar, input);
     Box box =  flatten 
@@ -614,6 +615,7 @@ void debugFileToBox(type[&G <: Tree] grammar, Style style, loc input, bool flatt
     iprintln(box, lineLimit=-1);
 }
 
+@synopsis{Prints the indented intermediate Box format for an input string, using the given grammar and Box style.}
 void debugStringToBox(type[&G <: Tree] grammar, Style style, str input, bool flatten = true) {
     &G tree = parse(grammar, input, |unknown:///|);
     Box box =  flatten 
