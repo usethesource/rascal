@@ -484,7 +484,7 @@ test bool ADTWithTypeParameterAndKW2() = checkModuleOK("
         void f() { D[int] x = d1(10); int m = x.kw; }
     ");
 
-test bool ADTWithTypeParameterAndKW3() = checkModuleOK("
+test bool ADTWithTypeParameterAndKW3() = unexpectedTypeInModule("
     module ADTWithTypeParameterAndKW3
         data D[&T] = d1(&T n, &T kw = n);
         void f() { D[int] x = d1(10); str m = x.kw; }
