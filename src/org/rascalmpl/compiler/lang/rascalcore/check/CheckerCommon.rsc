@@ -505,15 +505,3 @@ void resetClosureCounter(){
 }
 
 str generateClosureName() = "$CLOSURE_<nextClosure()>";
-
-AType getTypeOrLookup(Tree tree, loc scope, set[IdRole] idRoles, Solver s) {
-    try {
-        return s.getType(tree);
-    } catch TypeUnavailable():;
-
-    try {
-        return s.getTypeInScope(tree, scope, idRoles);
-    } catch NoBinding: {
-        throw TypeUnavailable();
-    }
-}

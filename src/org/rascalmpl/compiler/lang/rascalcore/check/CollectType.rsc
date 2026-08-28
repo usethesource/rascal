@@ -452,14 +452,11 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
 
 @doc{Convert Rascal user types into their abstract representation.}
 void collect(current:(UserType) `<QualifiedName n>`, Collector c){
-    set[IdRole] idRoles = {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()};
-    loc scope = c.getScope();
-
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
-        c.use(n, idRoles);
+        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
     } else {
-        c.useQualified([qualifier, base], n, idRoles, dataOrSyntaxRoles + {moduleId()});
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
 
     try {
@@ -470,7 +467,7 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
-            <msgs, result> = handleUserType(n, getTypeOrLookup(n, scope, idRoles, s));
+            <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
             return result;
         });
