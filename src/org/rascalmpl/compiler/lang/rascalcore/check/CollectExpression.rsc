@@ -495,7 +495,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
     res = [result];
     c.enterLubScope(current);
     beginPatternScope("reducer", c);
-        c.define("it", variableId(), init, defType(current));
+        c.define("it", variableId(), init, defType(init));
         c.require("reducer", current, gens,
             void (Solver s) {
                 checkNonVoid(init, s, "Initialization expression of reducer");
