@@ -119,8 +119,8 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
     if(isLayoutAType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
 }
 
-AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
-    args = [s.getType(sym) | sym <- symbols, !(sym is empty)];
+AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, loc scope, Solver s) {
+    args = [getTypeOrLookup(sym, scope, syntaxRoles, s) | sym <- symbols, !(sym is empty)];
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args/*, src=src*/) : prod(adtType, args, attributes=m2a/*, src=src*/);
@@ -157,6 +157,7 @@ private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when 
 private default AType removeChainRule(AType t) = t;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
+    loc scope = c.getScope();
     symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, loc adtParentScope> := c.top(currentAdt)){
@@ -168,7 +169,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                 try {
                     return s.getType(current);
                  } catch _: {
-                    res = aprod(computeProd(current, uname, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
+                    res = aprod(computeProd(current, uname, s.getType(adt), modifiers, symbols, scope, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
                     return res;
                  }
             });
@@ -213,12 +214,13 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 }
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
+    loc scope = c.getScope();
     symbols = [sym | sym <- syms, !(sym is empty)];
 
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
             AType(Solver s){
-                res = aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, s));
+                res = aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, scope, s));
                 return res;
             });
         beginUseTypeParameters(c,closed=true);
