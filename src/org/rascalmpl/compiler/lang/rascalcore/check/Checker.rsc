@@ -299,6 +299,14 @@ ModuleStatus rascalTModelForLocs(
                 // }
                 
                 <tm, ms> = rascalTModelComponent(component, ms);
+
+                // Convert `tm.facts` and `tm.defines` to a more efficient
+                // representation for later use
+                map[loc, AType] facts = tm.facts;
+                rel[str, AType] factsByPath = {<l.path, facts[l]> | loc l <- facts};
+                Defines defines = tm.defines;
+                rel[str, Define] definesByPath = {<d.defined.path, d> | Define d <- defines};
+
                 // moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
                 map[MODID,set[MODID]] m_imports = ();
@@ -318,28 +326,28 @@ ModuleStatus rascalTModelForLocs(
                         <success, pt, ms> = getModuleParseTree(m, ms);
                         if(success){
                             if(compilerConfig.infoModuleChecked){
-                                imsgs += [info("Checked <moduleId2moduleName(m)>", pt.header.name@\loc)];
+                                imsgs += [info("Checked <moduleId2moduleName(m)>", pt.header.name.src)];
                             }
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");
                                 inameId = moduleName2moduleId(iname);
                                 if(hasProperty(inameId, ms, tpl_version_error(), rsc_not_found())){
-                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod@\loc);
+                                     imsgs += error("Rascal TPL version error for `<iname>`, no source found", imod.src);
                                 }
                                 if(inameId notin usedModules){
-                                   if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){
+                                   if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, factsByPath)){
                                      continue check_imports;
                                    }
-                                   if(ms.moduleLocs[inameId]? && ms.moduleLocs[m]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[inameId].path, tm)){
+                                   if(ms.moduleLocs[inameId]? && ms.moduleLocs[m]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[inameId].path, factsByPath)){
                                     continue check_imports;
                                    }
-                                   if(ms.moduleLocs[inameId]? && ms.moduleLocs[m]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[inameId].path, tm)){
+                                   if(ms.moduleLocs[inameId]? && ms.moduleLocs[m]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[inameId].path, factsByPath, definesByPath)){
                                     continue check_imports;
                                    }
                                    if((inameId in component || hasProperty(inameId, ms, checked())) && hasNotProperty(inameId, ms, rsc_not_found())){
                                     if(imod is \default){
-                                         imsgs += warning("Unused import of `<iname>`", imod@\loc);
+                                         imsgs += warning("Unused import of `<iname>`", imod.src);
                                        } //else { //TODO: maybe add option to turn off info messages?
                                          //imsgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
                                        //}
@@ -401,20 +409,20 @@ ModuleStatus rascalTModelForLocs(
     return clearTModelCache(ms);
 }
 
-bool implicitlyUsesParseTree(str modulePath, TModel tm){
-    return any(loc l <- tm.facts, l.path == modulePath, areified(_) <- tm.facts[l]);
+bool implicitlyUsesParseTree(str modulePath, rel[str, AType] factsByPath){
+    return any(areified(_) <- factsByPath[modulePath]);
 }
 
-bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, TModel tm){
-    return    any(loc l <- tm.facts, l.path == importPath, aadt(_,_,sr) := tm.facts[l], sr in {layoutSyntax(), lexicalSyntax()})
-           && any(loc l <- tm.facts, l.path == modulePath, aadt(_,_,contextFreeSyntax()) := tm.facts[l]);
+bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, rel[str, AType] factsByPath){
+    return    any(aadt(_,_,sr) <- factsByPath[importPath], sr in {layoutSyntax(), lexicalSyntax()})
+           && any(aadt(_,_,contextFreeSyntax()) <- factsByPath[modulePath]);
 }
 
-bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
-    usedADTs = { unset(tm.facts[l], "alabel") | loc l <- tm.facts, l.path == modulePath, aadt(_,_,_) := tm.facts[l] };
-    definedADTs = { unset(the_adt, "alabel") | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
+bool usesOrExtendsADT(str modulePath, str importPath, rel[str, AType] factsByPath, rel[str, Define] definesByPath){
+    usedADTs = { unset(the_adt, "alabel") |  the_adt:aadt(_,_,_) <- factsByPath[modulePath] };
+    definedADTs = { unset(the_adt, "alabel") | Define d <- definesByPath[modulePath], defType(the_adt:aadt(_,_,_)) := d.defInfo };
     usedOrDefinedADTs = usedADTs + definedADTs;
-    res = any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], unset(the_adt, "alabel") in usedOrDefinedADTs);
+    res = any(the_adt:aadt(_,_,_) <- factsByPath[importPath], unset(the_adt, "alabel") in usedOrDefinedADTs);
     return res;
 }
 
@@ -469,7 +477,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
             tagsMap = getTags(pt.header.tags);
 
             if(hasIgnoreCompilerTag(tagsMap)) {
-                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name@\loc) };
+                    ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name.src) };
                     ms = addProperty(mid, ms, ModuleProperty::ignored());
             }
             idTrees[mid] = pt;

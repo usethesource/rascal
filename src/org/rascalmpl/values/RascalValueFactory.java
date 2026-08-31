@@ -262,7 +262,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
     
 	public static final String Location = "src";
 	public static final String ParseError = "parseError";
-	public static final String LegacyLocation = "loc";
 	
 	static {
 		uptr.declareKeywordParameter(Tree, Location, tf.sourceLocationType());
@@ -299,10 +298,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static TypeStore getStore() {
 		return uptr;
 	}
-
-	public static boolean isLegacySourceLocationAnnotation(Type receiver, String label) {
-        return receiver.isSubtypeOf(Tree) && label.equals(LegacyLocation); 
-    }
 	
 	/**
    * Allocates new {@link TypeStore} environments that are used within {@link IValueReader}.

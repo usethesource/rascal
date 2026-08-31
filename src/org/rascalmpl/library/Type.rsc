@@ -30,7 +30,7 @@ The ((subtype)) relation of Rascal has all the mathematical properties of a _fin
 This is a core design principle of Rascal with the following benefits:
 * Type inference has a guaranteed least or greatest solution, always. This means that constraints are always solvable in an unambiguous manner.
 * A _principal type_ can always be computed, which is a most precise and unique solution of a type inference problem. Without the lattice, solution candidates could become incomparable and thus ambiguous. Without
-this principal type property, type inference is predictable for programmers.
+this principal type property, type inference is unpredictable for programmers.
 * Solving type inference constraints can be implemented efficiently. The algorithm, based on ((lub)) and ((glb)), makes progress _deterministically_ and does not require backtracking
 to find better solutions. Since the lattice is not very deep, fixed-point solutions are always found quickly.
 
@@ -204,7 +204,7 @@ The following graph depicts Rascal's type lattice for a number of example types,
 import Type;
 data Exp = \int(int i);
 allTypes = {#int, #bool, #real, #rat, #str, #num, #node, #void, #value, #loc, #datetime, #set[int], #set[value], #rel[int, int], #rel[value,value], #lrel[int, int], #lrel
-[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #int(num), #int(value), #value(value), #type[int], #type[value]};
+[value,value], #list[int], #list[value], #map[str, int], #map[str, value], #Exp, #int(int), #value(value), #type[int], #type[value]};
 import analysis::graphs::Graph;
 typeLattice = { <"<t1>", "<t2>"> | <t1, t2:!t1> <- allTypes  * allTypes, subtype(t1, t2)};
 import vis::Graphs;

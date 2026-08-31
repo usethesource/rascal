@@ -47,6 +47,32 @@ test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1
 
 test bool shadowingDeclaration3() = checkOK("int N = 3; int N := 3;");
 
+// Module name in module declaration
+test bool moduleNameAndPlaceOK1(){
+	loc mloc = writeModule("module MMM");
+	return checkModuleOK(mloc);
+}
+
+test bool moduleNameAndPlaceOK2(){
+	loc mloc = writeModule("module testing::MMM");
+	return checkModuleOK(mloc);
+}
+
+test bool moduleNameNotOK1(){
+	loc mloc = writeModule("module MMM", altName="M");
+	return unexpectedDeclarationInModule(mloc);
+}
+
+test bool moduleNameNotOK2(){
+	loc mloc = writeModule("module MMM", altPath="a/b/c");
+	return unexpectedDeclarationInModule(mloc);
+}
+
+test bool moduleNameNotOK3(){
+	loc mloc = writeModule("module MMM", altName="M", altPath="a/b/c");
+	return unexpectedDeclarationInModule(mloc);
+}
+
 // Variable declaration in imported module
 
 test bool PrivateVarDeclarationNotVisible(){ 

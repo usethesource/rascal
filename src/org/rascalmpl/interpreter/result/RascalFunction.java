@@ -348,7 +348,6 @@ public class RascalFunction extends NamedFunction {
                             // formals are now bound by side effect of the pattern matcher
                             try {
                                 bindKeywordArgs(keyArgValues);
-
                                 result = runBody();
                                 storeMemoizedResult(actuals, keyArgValues, result);
                                 return result;

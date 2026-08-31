@@ -32,7 +32,7 @@ test bool composition4(map[&K,&V] M) = (k:k | &K k <- M) o M == M;
 // comprehension
 test bool comprehension1() = (k:k*k | k <- emptyList(#num)) == ();
 test bool comprehension2() = (k:k*k | k <- [1..5]) == (1:1,2:4,3:9,4:16);
-test bool comprehension3(set[&K] xs) = size((k:k | &K k <- delAnnotationsRec(xs))) == size(delAnnotationsRec(xs));
+test bool comprehension3(set[&K] xs) = size((k:k | &K k <- unsetRec(xs))) == size(unsetRec(xs));
 
 // difference
 test bool difference1(map[&K,&V] M) = M - () == M;

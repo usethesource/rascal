@@ -16,7 +16,7 @@ void editModule(loc example) = editModule(parse(#start[Module], example).top);
 
 void editModule(start[Module] m) {
     n = rewriteDocTags(m);
-    writeFile(m@\loc.top, "<n>");
+    writeFile(m.src.top, "<n>");
     return;
 }
 

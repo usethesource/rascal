@@ -44,7 +44,6 @@ public interface ISourceLocationWatcher {
 	 */
 	boolean supportsRecursiveWatch();
 
-
 	public interface ISourceLocationChanged {
 		ISourceLocation getLocation();
 		ISourceLocationChangeType getChangeType();
@@ -63,9 +62,9 @@ public interface ISourceLocationWatcher {
 	}
 
 	public enum ISourceLocationChangeType {
-		CREATED(),
-		DELETED(),
-		MODIFIED()
+		CREATED,
+		DELETED,
+		MODIFIED;
 	}
 
 	static ISourceLocationChanged created(ISourceLocation loc) {

@@ -375,8 +375,30 @@ public class SymbolAdapter {
 			return symbol.getName();
 		}
 		
-		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
+		if (isSet(symbol) || isList(symbol) || isBag(symbol)) {
 			return symbol.getName() + "[" + toString((IConstructor) symbol.get("symbol"), withLayout) + "]";
+		}
+
+		if (isSet(symbol) || isList(symbol)) {
+			var param = (IConstructor) symbol.get("symbol");
+
+			if (isTuple(param)) {
+				StringBuilder b = new StringBuilder();
+				b.append(isSet(symbol) ? "rel" : "lrel");
+
+				IList symbols = (IList) param.get("symbols");
+				b.append('[');
+				b.append(toString(symbols, ',', withLayout));
+				b.append(']');
+				return b.toString();
+			}
+			else {
+				return symbol.getName() + "[" + toString(param, withLayout) + "]";
+			}
+		}
+
+		if (isReifiedType(symbol)) {
+			return "type[" + toString((IConstructor) symbol.get("symbol"), withLayout) + "]";
 		}
 		
 		if (isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {

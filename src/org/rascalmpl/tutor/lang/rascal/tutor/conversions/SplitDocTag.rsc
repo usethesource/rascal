@@ -25,8 +25,8 @@ void editModule(loc example) = editModule(parse(#start[Module], example).top);
 list[TextEdit] editsForModule(loc example) = rewriteDocTags(example);
 
 void editModule(Module m) {
-    edits = rewriteDocTags(m@\loc.top);
-    executeDocumentEdits([changed(m@\loc.top, edits)]);
+    edits = rewriteDocTags(m.src.top);
+    executeDocumentEdits([changed(m.src.top, edits)]);
     return;
 }
 

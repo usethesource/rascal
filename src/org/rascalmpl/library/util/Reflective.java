@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -30,6 +31,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
@@ -243,6 +245,8 @@ public class Reflective {
 			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e);
+		} catch (ParseError e) {
+			throw RuntimeExceptionFactory.parseError(e.getLocation());
 		}
 	}
 

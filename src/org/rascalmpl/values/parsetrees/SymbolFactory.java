@@ -15,7 +15,9 @@ package org.rascalmpl.values.parsetrees;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
@@ -159,26 +161,27 @@ public class SymbolFactory {
 		}
 		
 		if(symbol.isSequence()){
-			List<Sym> symbols = symbol.getSequence();
 			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
-			IValue[] symValues = new IValue[noExpand ? symbols.size() : symbols.size() * 2 - 1];
-			for(int i = symbols.size() - 1; i >= 0; i -= noExpand ? 1 : 2) {
-				symValues[noExpand ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
-				if (!noExpand && i > 0) {
-					symValues[i - 1] = layoutSymbol;
-				}
+			
+			if (noExpand) {
+				return factory.constructor(RascalValueFactory.Symbol_Seq, Stream.concat(Stream.of(symbol.getFirst()), symbol.getSequence().stream())
+					.map(e -> symbolAST2SymbolConstructor(e, lex, layout))
+					.collect(factory.listWriter()));
 			}
-			IValue syms = factory.list(symValues);
-			return factory.constructor(RascalValueFactory.Symbol_Seq, syms);
+			else {
+				return factory.constructor(RascalValueFactory.Symbol_Seq, Stream.concat(Stream.of(symbol.getFirst()), symbol.getSequence().stream())
+					.map(e -> symbolAST2SymbolConstructor(e, lex, layout))
+					.flatMap(e -> Stream.of(layoutSymbol, e))
+					.skip(1) // skip the first separator
+					.collect(factory.listWriter()));
+			}
 		}
+
 		if(symbol.isAlternative()){
-			List<Sym> symbols = symbol.getAlternatives();
-			IValue[] symValues = new IValue[symbols.size()];
-			for(int i = symbols.size() - 1; i >= 0; --i){
-				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
-			}
-			IValue syms = factory.set(symValues);
-			return factory.constructor(RascalValueFactory.Symbol_Alt, syms);
+			return factory.constructor(RascalValueFactory.Symbol_Alt, 
+				Stream.concat(Stream.of(symbol.getFirst()), symbol.getAlternatives().stream())
+					.map(s -> symbolAST2SymbolConstructor(s, lex, layout))
+					.collect(factory.setWriter()));
 		}
 		if (symbol.isParametrized()) {
 			List<Sym> symbols = symbol.getParameters();
@@ -197,6 +200,10 @@ public class SymbolFactory {
 		
 		if (symbol.isPrecede() || symbol.isNotPrecede() || symbol.isFollow() || symbol.isNotFollow() || symbol.isColumn() || symbol.isStartOfLine() || symbol.isEndOfLine() || symbol.isExcept()) {
 		  return symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
+		}
+
+		if (symbol.isEmpty()) {
+			return factory.constructor(RascalValueFactory.Symbol_Empty);
 		}
 		
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
