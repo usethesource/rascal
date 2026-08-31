@@ -52,7 +52,7 @@ public class Factorial{
 		long end1 = System.currentTimeMillis();
 
 		// Warmup
-		String nAsString = new Integer(n).toString();
+		String nAsString = Integer.valueOf(n).toString();
 		for(int i = 0; i < 20000; i++){
 			 BigFac(new BigInteger(nAsString));
 		}

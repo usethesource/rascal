@@ -70,6 +70,7 @@ import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
@@ -119,6 +120,16 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                         return func.call(v);
                     }
                 };
+            }
+
+            @Override
+            protected IRascalMonitor getMonitor() {
+                return eval.getMonitor();
+            }
+
+            @Override
+            protected IRascalValueFactory getRascalValueFactory() {
+                return eval.getFunctionValueFactory();
             }
         };
     }

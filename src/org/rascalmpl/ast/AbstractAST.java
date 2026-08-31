@@ -162,7 +162,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	
 	/**
 	 * Computes internal type representations for type literals and patterns. 
-	 * @param instantiateTypeParameters TODO
+	 * @param instantiateTypeParameters
 	 */
 	public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 		throw new NotYetImplemented(this);
@@ -174,7 +174,7 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 
 	/**
 	 * Recursively build a matching data-structure, use getMatcher if you are just a client of IMatchingResult.
-	 * @param bindTypeParameters TODO
+	 * @param bindTypeParameters
 	 */
 	public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 		throw new UnsupportedPattern(toString(), this);

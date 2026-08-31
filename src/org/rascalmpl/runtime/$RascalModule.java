@@ -246,7 +246,6 @@ public abstract class $RascalModule {
                     args[i] = $MONITOR;
                 }
                 else if (formals[i].isAssignableFrom(ClassLoader.class)) {
-					// TODO: the classloaders have to become configurable later
                     args[i] = getClass().getClassLoader();
                 }
                 else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
