@@ -12,16 +12,16 @@ and different return types `void` for IO side-effects, `list[TextEdit]` for IDE 
 
 | generator | generated formatter | comment | 
 | --------- |  ------------------ | ------- | 
-| ((fileFormatter)) | `void (loc)` | replaces the current file |
-| ((stringFormatter)) | `str (str) ` |     |
-| ((subStringFormatter)) | str (type[Tree], str) | can be used on any non-terminal in the grammar |
-| ((fileEdits)) | `list[TextEdit] (loc)` | use ((executeTextEdits)) or ((executeFileSystemChanges)) or ((applyFileSystemEdits)) later |
-| ((treeEdits)) | `list[TextEdit] (Tree)` |  |
-| ((subTreeEdits)) | `list[TextEdit](Tree)` | this uses a subparser based on the top-level type of the input tree` |
-| ((stringEdits)) | `list[TextEdit](str)` | |
-| ((subStringEdits)) | `list[TextEdit](type[Tree], str)` | |
+| ((fileFormatter))          | `void (loc)` | replaces the current file |
+| ((stringFormatter))        | `str (str) ` |     |
+| ((subStringFormatter))     | `str (type[Tree], str)` | can be used on any non-terminal in the grammar |
+| ((fileEditFormatter))      | `list[TextEdit](loc)` | use ((executeTextEdits)) or ((executeFileSystemChanges)) or ((applyFileSystemEdits)) later |
+| ((treeEditFormatter))      | `list[TextEdit](Tree)` |  |
+| ((subTreeEditFormatter))   | `list[TextEdit](Tree)` | this uses a subparser based on the top-level type of the input tree` |
+| ((stringEditFormatter))    | `list[TextEdit](str)` | |
+| ((subStringEditFormatter)) | `list[TextEdit](type[Tree], str)` | |
 
-If the pipeline you require is not in the above set, then it is advised to copy on of the above and adapt. 
+If the pipeline you require is not in the above set, then it is advised to copy one of the above and adapt. 
 
 All of the above generators capture the current state of the grammar and the current state of the style function. So if you
 change the grammar or the ((Tree2Box-toBox)) style, then you have to "regenerate" and call these functions again.
@@ -38,11 +38,11 @@ that while you are debugging you are always looking at the current version of yo
 As ((FormattingOptions)) you can configure different parts of the pipeline in one go using the `formattingOptions()` constructor and these optional parameters:
 * `maxWidth` - indicates a hard limit for wrapping and switching to vertical mode
 * `breakAfter` - indicates hard limit under which wrapping and switching to vertical mode must be avoided
-* `tabSize` - indicates the default indentation size
+* `tabSize` - indicates the default indentation size (counting spaces)
 * `caseInsensitivity` - ((HiFiLayoutDiff-CaseInsensitivity)) to influence how the state of each individual case-insensitive keyword us either propagated or normalized while formatting.
 * `needsConfirmation` - triggers UI behavior with confirmation dialogs and possible previews
-* `insertSpaces``, when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
-* `trimTrailingWhitespace` when `true` the formatter can not leave spaces or tabs after the last non-whitespace character,
+* `insertSpaces` - when set to true it prefers spaces over tabs, when set to false we use tabs for indentation (see `tabSize`)
+* `trimTrailingWhitespace` - when `true` the formatter can not leave spaces or tabs after the last non-whitespace character on a line,
 when false it does not matter. 
 * `insertFinalNewline`,  insert a newline character at the end of the file if one does not exist. 
 * `trimFinalNewlines`, trim all newlines after the final newline at the end of the file.
@@ -125,12 +125,12 @@ The formatter function this generates will produce formatted string directly and
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)) and ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
 void(loc) fileFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
-    list[TextEdit](loc) toEdits = fileEdits(grammar, style, opts=opts);
+    list[TextEdit](loc) toEdits = fileEditFormatter(grammar, style, opts=opts);
 
     return void (loc input) {  
         executeFileSystemChanges([changed(input, toEdits(input), needsConfirmation=opts.needsConfirmation)]);
@@ -162,12 +162,12 @@ The formatter function this generates will produce formatted string directly.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
 str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
-    list[TextEdit](str) toEdits = stringEdits(grammar, style, opts=opts);
+    list[TextEdit](str) toEdits = stringEditFormatter(grammar, style, opts=opts);
 
     return str (str input) {
         return executeTextEdits(input, toEdits(input));
@@ -204,7 +204,7 @@ rather works on any sub-sentence:
 * can be slow for very very large input
 }
 str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
-    list[TextEdit](type[Tree], str) toEdits = subStringEdits(grammar, style, opts=opts);
+    list[TextEdit](type[Tree], str) toEdits = subStringEditFormatter(grammar, style, opts=opts);
 
     return str (type[Tree] nonterminal, str input) {
         return executeTextEdits(input, toEdits(nonterminal, input));
@@ -228,11 +228,11 @@ input to the formatted output.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)) and ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](loc) fileEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](loc) fileEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (loc input) {
@@ -272,11 +272,11 @@ input to the formatted output.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](&G <: Tree) treeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](&G <: Tree) treeEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(value, loc) p = parser(grammar);
 
     return list[TextEdit] (&G <: Tree tree) {
@@ -328,7 +328,7 @@ rather works on any sub-tree:
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](Tree) subTreeEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](Tree) subTreeEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree (type[Tree], value, loc) p = parsers(grammar);
 
     return list[TextEdit] (Tree tree) {
@@ -376,7 +376,7 @@ input to the formatted output.
 * can be slow for very very large input
 }
 
-list[TextEdit](str) stringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](str) stringEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     &G(str, loc) p = parser(grammar);
     
     return list[TextEdit] (str input) {
@@ -436,7 +436,7 @@ rather works on any sub-tree:
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
-list[TextEdit](type[Tree], str) subStringEdits(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
+list[TextEdit](type[Tree], str) subStringEditFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
     Tree(type[Tree], str, loc) p = parsers(grammar);
 
     return list[TextEdit] (type[Tree] nonterminal, str input) {
@@ -505,7 +505,7 @@ void debugFileFormat(type[&G <: Tree] grammar, Style style, loc input, Formattin
     &G reparsed = parse(grammar, pretty, input);
 
     if (dumpEdits) {
-        iprintln(fileEdits(grammar, style, opts=opts)(input));
+        iprintln(fileEditFormatter(grammar, style, opts=opts)(input));
     }
 
     if (HTML) {
@@ -531,7 +531,7 @@ void debugFilesFormat(type[&G <: Tree] grammar, Style style, loc root, str exten
     loc shadowRoot = root.parent + "formatted-<root.file>";
     loc appendLoc = root + "format.log";
     str(str) formatter = stringFormatter(grammar, style, opts=opts);
-    list[TextEdit](str) diffs = dumpEdits ? stringEdits(grammar, style, opts=opts) : list[void](str _) { return [];};
+    list[TextEdit](str) diffs = dumpEdits ? stringEditFormatter(grammar, style, opts=opts) : list[void](str _) { return [];};
     &G(value, loc) p = parser(grammar);
     list[loc] files = sort(find(root, extension));
 
@@ -605,6 +605,7 @@ void debugStringFormat(type[&G <: Tree] grammar, Style style, str input, Formatt
     }
 }
 
+@synopsis{Prints the indented intermediate Box format for an input file, using the given grammar and Box style.}
 void debugFileToBox(type[&G <: Tree] grammar, Style style, loc input, bool flatten = true) {
     &G tree = parse(grammar, input);
     Box box =  flatten 
@@ -614,6 +615,7 @@ void debugFileToBox(type[&G <: Tree] grammar, Style style, loc input, bool flatt
     iprintln(box, lineLimit=-1);
 }
 
+@synopsis{Prints the indented intermediate Box format for an input string, using the given grammar and Box style.}
 void debugStringToBox(type[&G <: Tree] grammar, Style style, str input, bool flatten = true) {
     &G tree = parse(grammar, input, |unknown:///|);
     Box box =  flatten 
