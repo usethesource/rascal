@@ -11,34 +11,60 @@ module lang::pico::format::Formatting
 
 extend lang::box::util::Tree2Box;
 
+import IO;
 import ParseTree;
 import lang::pico::\syntax::Main;
 import util::Formatters;
 import analysis::diff::edits::TextEdits;
 
 @synopsis{In-place formatting of an entire Pico file}
-void (loc) formatPicoFile = fileFormatter(#start[Program], toBox);
+public void (loc) formatPicoFile = fileFormatter(#start[Program], toBox);
 
 @synopsis{Format a string that contains an entire Pico program}
-str (str file) formatPicoString = stringFormatter(#start[Program], toBox);
+public str (str file) formatPicoString = stringFormatter(#start[Program], toBox);
     
 @synopsis{Pico Format function for reuse in file, str or IDE-based formatting contexts}
-list[TextEdit] (start[Program] file) formatPicoTree = treeEditFormatter(#start[Program], toBox);
+public list[TextEdit] (start[Program] file) formatPicoTree = treeEditFormatter(#start[Program], toBox);
     
 @synopsis{Format while}
-Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
+Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`)
     = V(
-        H(L("while"), HV(toBox(e, opts=opts)), L("do")),
-        I(toClusterBox(block, opts=opts)),
+        H(L("while"), HV(toBox(e)), L("do")),
+        I(toBox(block)),
         L("od")
     ); 
 
 @synopsis{Format if-then-else }
-Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`, FO opts = fo())
+Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`)
     = V(
-        H(L("if"), HV(toBox(e, opts=opts)), L("then")),
-            I(toClusterBox(thenPart, opts=opts)),
+        H(L("if"), HV(toBox(e)), L("then")),
+            I(toBox(thenPart)),
         L("else"),
-            I(toClusterBox(elsePart, opts=opts)),
+            I(toBox(elsePart)),
         L("fi")
     ); 
+
+@synopsis{Format if-then }
+Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> fi`)
+    = V(
+        H(L("if"), HV(toBox(e)), L("then")),
+            I(toBox(thenPart)),
+        L("fi")
+    );
+
+Box toBox((Declarations) `declare <{IdType ","}* decls>;`)
+    = V(
+        L("declare"),
+        I(V(SL([toBox(d) | d <- decls], L(","), op=H0()))),
+        L(";")
+    );
+
+Box toBox((Program) `begin <Declarations decls> <{Statement  ";"}* body> end`)
+    = V(
+        L("begin"),
+        V(
+            I(toBox(decls)),
+            I(V(toBox(body)))
+        , vs=1),
+        L("end")
+    );

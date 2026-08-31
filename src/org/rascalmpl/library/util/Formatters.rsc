@@ -125,7 +125,7 @@ The formatter function this generates will produce formatted string directly and
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)) and ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
@@ -162,12 +162,12 @@ The formatter function this generates will produce formatted string directly.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
 str(str) stringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
-    list[TextEdit](str) toEdits = stringEdits(grammar, style, opts=opts);
+    list[TextEdit](str) toEdits = stringEditFormatter(grammar, style, opts=opts);
 
     return str (str input) {
         return executeTextEdits(input, toEdits(input));
@@ -204,7 +204,7 @@ rather works on any sub-sentence:
 * can be slow for very very large input
 }
 str(type[Tree], str) subStringFormatter(type[&G <: Tree] grammar, Style style, FormattingOptions opts=fo()) {
-    list[TextEdit](type[Tree], str) toEdits = subStringEditF(grammar, style, opts=opts);
+    list[TextEdit](type[Tree], str) toEdits = subStringEditFormatter(grammar, style, opts=opts);
 
     return str (type[Tree] nonterminal, str input) {
         return executeTextEdits(input, toEdits(nonterminal, input));
@@ -228,7 +228,7 @@ input to the formatted output.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)) and ((subStringEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
@@ -272,7 +272,7 @@ input to the formatted output.
 * can be used to normalize case-insensitive literals in one go
 }
 @pitfalls{
-* only applicable to entire files. For selection-based formatting see ((subTreeEdits)) and ((subStringEdits)).
+* only applicable to entire files. For selection-based formatting see ((subTreeEditFormatter)).
 * in rare case the recovered comments are positioned in awkward places.
 * can be slow for very very large input
 }
