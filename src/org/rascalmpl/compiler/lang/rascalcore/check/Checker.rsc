@@ -487,6 +487,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
         //}
     }
     if(!isEmpty(idTrees)){
+        println("Checking <modelName>...");
         if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
 
         start_check = cpuTime();
