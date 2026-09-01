@@ -50,7 +50,7 @@ when false it does not matter.
 @benefits{
 * speed: 
    1. the generators cache a generated parser for fast reuse between calls to formatting pipeline, and a fully composed ((Tree2Box-toBox)) function with a pre-computed dispatch hashtable.
-   2. ((layoutDiff)) isolates only what changes and leaves what is unchanged alone.
+   2. ((layoutDiff)) isolates only what changes and leafs what is unchanged alone.
 * safety: if the generated formatters produce illegal or ambiguous syntax, a warning is printed and no changes are produced.
 * accuracy: the generated formatters retain all comments, as long as comments are annotated with `@category("Comment")` or `@category("comment")` in the grammar.
 * practicality: the generated formatters can produce ((TextEdit))s which are consumed by IDEs such as VScode.
