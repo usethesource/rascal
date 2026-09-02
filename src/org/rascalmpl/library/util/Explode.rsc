@@ -35,6 +35,7 @@ import IO;
 import Node;
 import List;
 import Location;
+import String;
 
 @synopsis{Turn an AST into a ParseTree, while preserving the name of the type.}
 syntax[&T] explode(data[&T] ast) {
@@ -97,16 +98,20 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
       ], 
       {});
 
+   work = zip3(children, symbols, pox);
+
    children = [
-      *[
-         separatorTree(contents, offset, c.src.offset),
-         // there are 3 cases, mutually exclusive:
-         *[explode(c, contents, c.src.offset, c.src.length)[src=p] | node _ := c], // a node
-         *[emptyList(s, p)                                         | []     := c], // an empty list
-         *[explodeList(c, \syntax(s), contents, c.src.offset, c.src.length)[src=p] | [_,*_] := c]  // a non-empty list
-      | <c, s, p> <- zip3(children, symbols, pox)
+      // the head separator
+      *[separatorTree(contents, offset, pox.offset) | <_, _, loc pox> <- work[-1..]],
+      *[ 
+         // then in the middle there are 3 cases, mutually exclusive:
+         *[explode(n, contents, n.src.offset, n.src.length)[src=pox] | node n := c], // a node
+         *[emptyList(s, pox)                                         | []     := c], // an empty list
+         *[explodeList(c, \syntax(s), contents, c.src.offset, c.src.length)[src=pox] | [_,*_] := c]  // a non-empty list
+      | <value c, list[Symbol] s, loc pox> <- work
       ],
-      separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
+      // finally the final separator 
+      *[separatorTree(contents, pox.offset + pox.length, offset + length) | <_, _, loc pox> <- work[-1..]]
    ];
 
    return appl(rule, children, src=ast.src);
