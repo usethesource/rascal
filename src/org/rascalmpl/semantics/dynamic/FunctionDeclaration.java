@@ -24,12 +24,14 @@ import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Visibility;
+import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.JavaMethodNotFound;
 import org.rascalmpl.interpreter.staticErrors.MissingModifier;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.parser.ASTBuilder;
@@ -57,21 +59,27 @@ public abstract class FunctionDeclaration extends
 				throw new MissingModifier("java", this);
 			}
 
-			AbstractFunction lambda = new JavaMethod(__eval, this, varArgs,
-					__eval.getCurrentEnvt(), __eval.__getJavaBridge());
-			String name = org.rascalmpl.interpreter.utils.Names.name(this
-					.getSignature().getName());
-			boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
+			String name = org.rascalmpl.interpreter.utils.Names.name(this.getSignature().getName());
 
-			__eval.getCurrentEnvt().storeFunction(name, lambda);
-			__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
-			__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
+			try {
+				AbstractFunction lambda = new JavaMethod(__eval, this, varArgs,
+						__eval.getCurrentEnvt(), __eval.__getJavaBridge());
+				
+				boolean isPublic = this.getVisibility().isPublic() || this.getVisibility().isDefault();
 
-			if (!isPublic) {
-				__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+				__eval.getCurrentEnvt().storeFunction(name, lambda);
+				__eval.getCurrentEnvt().markFunctionNameFinal(lambda.getName());
+				__eval.getCurrentEnvt().markFunctionNameOverloadable(lambda.getName());
+
+				if (!isPublic) {
+					__eval.getCurrentEnvt().markFunctionNamePrivate(lambda.getName());
+				}
+
+				return lambda;
 			}
-
-			return lambda;
+			catch (JavaMethodLink e) {
+				throw new JavaMethodNotFound("Could not link function " + name + " to a Java method.", getLocation(), e);
+			}
 
 		}
 

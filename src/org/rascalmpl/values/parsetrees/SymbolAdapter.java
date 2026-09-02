@@ -138,12 +138,7 @@ public class SymbolAdapter {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_Start;
 	}  
-	
-//	public static boolean isStart(IConstructor tree) {
-//		tree = delabel(tree);
-//		return tree.getConstructorType() == Factory.Symbol_START;
-//	}
-	  
+		  
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
 			tree = delabel(tree);

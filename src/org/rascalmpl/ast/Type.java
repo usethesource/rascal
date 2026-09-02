@@ -61,6 +61,13 @@ public abstract class Type extends AbstractAST {
   public org.rascalmpl.ast.Sym getSymbol() {
     throw new UnsupportedOperationException(this.src.toString());
   }
+  public boolean hasModifier() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.SyntaxRoleModifier getModifier() {
+    throw new UnsupportedOperationException(this.src.toString());
+  }
   public boolean hasType() {
     return false;
   }
@@ -140,7 +147,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 541 + 491 * basic.hashCode() ; 
+      return 691 + 701 * basic.hashCode() ; 
     } 
   
     
@@ -214,7 +221,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 167 * type.hashCode() ; 
+      return 19 + 137 * type.hashCode() ; 
     } 
   
     
@@ -288,7 +295,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 109 * function.hashCode() ; 
+      return 907 + 41 * function.hashCode() ; 
     } 
   
     
@@ -305,6 +312,80 @@ public abstract class Type extends AbstractAST {
     @Override
     public Object clone()  {
       return newInstance(getClass(), src, (IConstructor) null , clone(function));
+    }
+            
+  }
+  public boolean isModifier() {
+    return false;
+  }
+
+  static public class Modifier extends Type {
+    // Production: sig("Modifier",[arg("org.rascalmpl.ast.SyntaxRoleModifier","modifier")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.SyntaxRoleModifier modifier;
+  
+    public Modifier(ISourceLocation src, IConstructor node , org.rascalmpl.ast.SyntaxRoleModifier modifier) {
+      super(src, node);
+      
+      this.modifier = modifier;
+    }
+  
+    @Override
+    public boolean isModifier() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitTypeModifier(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = modifier.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        modifier.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Modifier)) {
+        return false;
+      }        
+      Modifier tmp = (Modifier) o;
+      return true && tmp.modifier.equals(this.modifier) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 59 + 823 * modifier.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.SyntaxRoleModifier getModifier() {
+      return this.modifier;
+    }
+  
+    @Override
+    public boolean hasModifier() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifier));
     }
             
   }
@@ -362,7 +443,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 449 * selector.hashCode() ; 
+      return 139 + 293 * selector.hashCode() ; 
     } 
   
     
@@ -436,7 +517,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 467 * structured.hashCode() ; 
+      return 773 + 293 * structured.hashCode() ; 
     } 
   
     
@@ -510,7 +591,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 701 * symbol.hashCode() ; 
+      return 421 + 467 * symbol.hashCode() ; 
     } 
   
     
@@ -584,7 +665,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 137 * user.hashCode() ; 
+      return 181 + 383 * user.hashCode() ; 
     } 
   
     
@@ -658,7 +739,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 41 * typeVar.hashCode() ; 
+      return 263 + 463 * typeVar.hashCode() ; 
     } 
   
     
