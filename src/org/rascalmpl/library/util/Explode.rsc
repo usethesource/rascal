@@ -47,18 +47,24 @@ syntax[&T] explode(data[&T] ast) {
    }
 
    throw "unexpected problem while exploding <ast>";
-}r
+}
 
-// singleton str nodes are lexicals (identifiers and constants)
-Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
-   return appl(prod(lex("*identifiers*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
+@synopsis{singleton str nodes are lexicals (identifiers and constants)}
+syntax[&T] explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
+   Production cons = getConstructor(ast);
+   Symbol allChars = \char-class([range(1,1114111)]);
+   Symbol allCharsStar = \iter-star(allChars);
+
+   return appl(prod(\syntax(cons.def),[allCharsStar],{}), 
       [
-         appl(regular(\iter-star(\char-class([range(1,1114111)]))),
-            [char(ch) | ch <- chars(contents[offset..offset+length])])
+         appl(regular(allCharsStar), [char(ch) | ch <- chars(contents[offset..offset+length])])
       ]);
 }
 
-// lists get separator too. pretty sure the first and last separators will always be empty...
+@synopsis{lists get separators too}
+@pitfalls{
+* we're pretty sure the first and last separators will always be empty.
+}
 list[Tree] explodeList(list[data[&T]] lst, Symbol s, str contents, int offset, int length) {
    children = [
       *[
@@ -71,10 +77,10 @@ list[Tree] explodeList(list[data[&T]] lst, Symbol s, str contents, int offset, i
    return appl(regular(s), children);
 }
 
-// we do not further explode parse trees
+@synopsis{do not further explode parse trees}
 Tree explode(Tree t, str _, int _, int _) = t;
 
-// this is the main workhorse
+@synopsis{main workhorse for context-free nodes}
 default Tree explode(data[&T] ast, str contents, int offset, int length) {
    children = getChildren(ast);
    pox      = positions(ast.src, children);
@@ -106,8 +112,10 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
    return appl(rule, children, src=ast.src);
 }
 
+@synopsis{Generate an empty list of the right type}
 Tree emptyList(Symbol s, loc src) = appl(regular(s), [], src=src);
 
+@synopsis{Generate a layout tree with the separator content}
 Tree separatorTree(str contents, int \start, int end)
    = appl(prod(layouts("*separators*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
       [
