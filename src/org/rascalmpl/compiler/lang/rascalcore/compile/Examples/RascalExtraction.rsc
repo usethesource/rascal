@@ -37,7 +37,7 @@ import util::Reflective;
 value main() = compareAll();
 
 value compareAll() {
-	moduleLoc = |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
+	moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
 	//moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst3.rsc|;
 	m = parse(#start[Module], moduleLoc).top;
 	t = cpuTime();

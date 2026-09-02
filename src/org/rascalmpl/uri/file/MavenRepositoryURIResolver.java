@@ -111,7 +111,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         }
     }
 
-    public MavenRepositoryURIResolver(URIResolverRegistry reg) throws IOException, URISyntaxException {
+    public MavenRepositoryURIResolver(URIResolverRegistry reg) throws URISyntaxException {
         this.reg = reg;
         this.rootIsCaseSensitive = !isCaseInsensitive(reg, root);
     }
@@ -125,8 +125,12 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * @return        a file:/// reference to the jar file that is designated by the authority.
      * @throws IOException when the authority does not designate a jar file
      */
-    private ISourceLocation resolveJar(ISourceLocation input) throws IOException {
+    public ISourceLocation resolveJar(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
+
+        if (!"mvn".equals(input.getScheme())) {
+            throw new IOException("Cannot resolve non-Maven location");
+        }
 
         if (authority.isEmpty()) {
             throw new IOException("missing mvn://groupid--artifactId--version/ as the authority in " + input);

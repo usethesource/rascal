@@ -50,7 +50,7 @@ public abstract class AbstractCommandlineTool {
     public static int main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
         try {   
             var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
-            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
+            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntime());
 
             for (String folder : sourceFolders) {
                 var src = URIUtil.getChildLocation(rascalJar, folder);
@@ -100,7 +100,7 @@ public abstract class AbstractCommandlineTool {
     public static int main(String mainModule, String[] sourceFolders, Map<String, IValue> args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
         try {   
             var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
-            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
+            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntime());
 
             for (String folder : sourceFolders) {
                 var src = URIUtil.getChildLocation(rascalJar, folder);
