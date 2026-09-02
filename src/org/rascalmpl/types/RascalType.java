@@ -117,6 +117,26 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
+    public boolean isLexicalRoleModifier() {
+        return false;
+    }
+
+    public boolean isSyntaxRoleModifier() {
+        return false;
+    }
+
+    public boolean isKeywordRoleModifier() {
+        return false;
+    }
+
+    public boolean isLayoutRoleModifier() {
+        return false;
+    }
+
+    public boolean isDataRoleModifier() {
+        return false;
+    }
+
     public static boolean isNonterminal(Type type) {
         return type.isExternalType() && ((RascalType) type).isNonterminal();
     }

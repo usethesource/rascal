@@ -8,11 +8,14 @@ import static org.rascalmpl.values.parsetrees.SymbolAdapter.isParameterizedSort;
 import static org.rascalmpl.values.parsetrees.SymbolAdapter.isSort;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import io.usethesource.vallang.IConstructor;
@@ -50,6 +53,44 @@ public abstract class ModifySyntaxRole extends RascalType {
      */
     protected final Type arg;
     
+    @Override
+    public boolean isRoleModifier() {
+        return true;
+    }
+
+    @Override
+    public boolean hasField(String fieldName) {
+        return false;
+    }
+
+    @Override
+    public boolean hasField(String fieldName, TypeStore store) {
+        return false;
+    }
+
+    @Override
+    public boolean hasKeywordField(String fieldName, TypeStore store) {
+        return fieldName.equals("src");
+    }
+
+    @Override
+    public boolean hasKeywordParameter(String label) {
+        return label.equals("src");
+    }
+
+    @Override
+    public @Nullable Type getKeywordParameterType(String label) {
+        if (label.equals("src")) {
+            return tf.sourceLocationType();
+        }
+        else return null;
+    }
+
+    @Override
+    public Type getKeywordParameterTypes() {
+        return tf.tupleType(tf.sourceLocationType(), "src");
+    }
+
     public ModifySyntaxRole(Type param) {
         assert param != null : "syntax role modifier must have non-null parameter";
         this.arg = param;
@@ -105,10 +146,83 @@ public abstract class ModifySyntaxRole extends RascalType {
     protected abstract Type applyToKeyword(NonTerminalType role);
     protected abstract Type applyToData(Type role);
 
+    /** intermediate layer for simulating the Tree.appl constructor type */
+    public static abstract class NonterminalTypes extends ModifySyntaxRole {
+        public NonterminalTypes(Type arg) {
+            super(arg);
+        }
+
+        @Override
+        public boolean hasField(String fieldName) {
+            return RascalFunctionValueFactory.Tree_Appl.hasField(fieldName);
+        }
+
+        @Override
+        public boolean hasField(String fieldName, TypeStore store) {
+            return RascalFunctionValueFactory.Tree_Appl.hasField(fieldName);
+        }
+
+        @Override
+        public int getFieldIndex(String fieldName) {
+            return RascalFunctionValueFactory.Tree_Appl.getFieldIndex(fieldName);
+        }
+
+        @Override
+        public String getFieldName(int i) {
+            return RascalFunctionValueFactory.Tree_Appl.getFieldName(i);
+        }
+
+        @Override
+        public String[] getFieldNames() {
+            return RascalFunctionValueFactory.Tree_Appl.getFieldNames();
+        }
+
+        @Override
+        public Type getFieldType(String fieldName) throws FactTypeUseException {
+            return RascalFunctionValueFactory.Tree_Appl.getFieldType(fieldName);
+        }
+
+        @Override
+        public Type getFieldType(int i) {
+             return RascalFunctionValueFactory.Tree_Appl.getFieldType(i);
+        }
+
+        @Override
+        public Type getFieldTypes() {
+             return RascalFunctionValueFactory.Tree_Appl.getFieldTypes();
+        }
+
+        @Override
+        public Optional<String> getOptionalFieldName(int i) {
+             return RascalFunctionValueFactory.Tree_Appl.getOptionalFieldName(i);
+        }
+
+        @Override
+        public @Nullable Type getKeywordParameterType(String label) {
+            var result = RascalFunctionValueFactory.Tree.getKeywordParameterType(label);
+
+            if (result != null) {
+                return result;
+            }
+
+            return RascalFunctionValueFactory.Tree_Appl.getKeywordParameterType(label);
+        }
+
+        @Override
+        public Type getKeywordParameterTypes() {
+             return RascalFunctionValueFactory.Tree.getKeywordParameterTypes();
+        }
+
+    }
     /** this represents `syntax[&T]` */
-    public static class Syntax extends ModifySyntaxRole {
+    public static class Syntax extends NonterminalTypes {
         public Syntax(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isSyntaxRoleModifier() {
+            return true;
         }
 
         @Override
@@ -261,9 +375,14 @@ public abstract class ModifySyntaxRole extends RascalType {
     }
  
     /** this represents `lexical[&T]` */
-    public static class Lexical extends ModifySyntaxRole {
+    public static class Lexical extends NonterminalTypes {
         public Lexical(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isLexicalRoleModifier() {
+            return true;
         }
 
         @Override
@@ -414,9 +533,14 @@ public abstract class ModifySyntaxRole extends RascalType {
             return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
         }
     }
-    public static class Layout extends ModifySyntaxRole {
+    public static class Layout extends NonterminalTypes {
         public Layout(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isLayoutRoleModifier() {
+            return true;
         }
 
         @Override
@@ -567,9 +691,14 @@ public abstract class ModifySyntaxRole extends RascalType {
             return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
         }
     }
-    public static class Keyword extends ModifySyntaxRole {
+    public static class Keyword extends NonterminalTypes {
         public Keyword(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isKeywordRoleModifier() {
+            return true;
         }
 
         @Override
@@ -714,6 +843,21 @@ public abstract class ModifySyntaxRole extends RascalType {
     public static class Data extends ModifySyntaxRole {
         public Data(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isDataRoleModifier() {
+            return true;
+        }
+
+        @Override
+        public @Nullable Type getKeywordParameterType(String label) {
+            return "src".equals(label) ? tf.sourceLocationType() : null;
+        }
+
+        @Override
+        public Type getKeywordParameterTypes() {
+            return tf.tupleType(tf.sourceLocationType(), "src");
         }
 
         @Override
