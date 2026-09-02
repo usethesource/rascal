@@ -18,6 +18,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,6 +36,8 @@ import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.StackTraceEntry;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import io.usethesource.vallang.IList;
@@ -107,23 +112,37 @@ class Cpuinfo {
 		this.previousTime = currentTime;
 
 		var delta = currentTime - previousTime;
-		var frames = eval.getCallStack(); // Fresh value
-		samples.add(new Sample(delta, frames));
+		var trace = eval.getStackTrace();
+		samples.add(new Sample(delta, trace));
 	}
 
 	public void write() {
 		assert startTime > -1 && endTime > -1;
-		
 		var nodeIds = new ArrayList<Integer>();
 		var timeDeltas = new ArrayList<Long>();
 
 		var root = new Node(null);
 		for (var s : samples) {
 			var curr = root;
-			for (var f : s.frames) {
-				curr = curr.getChild(new CallFrame(f));
+			var entries = new ArrayList<StackTraceEntry>();
+			s.trace.forEach(e -> entries.add(0, e)); // Reverse trace
+
+			var names = new ArrayList<String>();
+			var locations = new ArrayList<ISourceLocation>();
+			locations.add(null);
+			for (var e : entries) {
+				names.add(e.getScopeName());
+				locations.add(e.getLocation());
 			}
 
+			if (names.size() == 1 && "kwp initializer".equals(names.get(0))) {
+				continue; // TODO: Shift deltas
+			}
+
+			// Update model
+			for (int i = 0; i < names.size(); i++) {
+				curr = curr.getChild(new CallFrame(names.get(i), locations.get(i)));
+			}
 			nodeIds.add(curr.id);
 			timeDeltas.add(s.delta);
 		}
@@ -143,8 +162,26 @@ class Cpuinfo {
 		// Write
 		var s = b.toString();
 		try {
-			Files.writeString(Path.of("foobar.json"), s);
-			Files.writeString(Path.of("foobar-" + System.currentTimeMillis() + ".cpuprofile"), s);
+			var dateTime = Instant.now().atZone(ZoneId.systemDefault())
+				.toString()
+				.replaceAll("[:\\-]", "")
+				.substring(0, 15);
+
+			String fileName = null;
+			if (!samples.isEmpty()) {
+				for (var e : samples.get(0).trace) {
+					if (!"$".equals(e.getScopeName())) fileName = e.getScopeName();
+				}
+			}
+			if (fileName == null) {
+				fileName = "profile-" + dateTime + ".cpuprofile";
+			} else {
+				fileName = fileName.startsWith("\\") ? fileName.substring(1) : fileName;
+				fileName = "profile-" + dateTime + "-" + fileName + ".cpuprofile";
+			}
+
+			Files.writeString(Path.of("Profile.json"), s);
+			Files.writeString(Path.of(fileName), s);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -176,16 +213,16 @@ class Cpuinfo {
 
 	private static class Sample {
 		private final long delta;
-		private final Stack<IRascalFrame> frames;
+		private final StackTrace trace;
 
-		private Sample(long delta, Stack<IRascalFrame> frames) {
+		private Sample(long delta, StackTrace trace) {
 			this.delta = delta;
-			this.frames = frames;
+			this.trace = trace;
 		}
 	}
 
 	private static class Node {
-		private static int nextId = 0;
+		private static int nextId = 0; // TODO: Make local to Cpuinfo instance
 
 		private final int id;
 		private final CallFrame frame;
@@ -217,10 +254,7 @@ class Cpuinfo {
 		private final int lineNumber;
 		private final int columnNumber;
 
-		public CallFrame(IRascalFrame frame) {
-			var name = frame.getName();
-			var location = frame.getCallerLocation();
-
+		public CallFrame(String name, ISourceLocation location) {
 			if (name != null) {
 				this.functionName = name;
 			} else {
@@ -228,8 +262,7 @@ class Cpuinfo {
 			}
 
 			if (location != null) {
-				// this.url = "file".equals(location.getScheme()) ? location.getPath() : location.toString();
-				this.url = location.toString();
+				this.url = "file".equals(location.getScheme()) ? location.getPath() : location.toString();
 				this.lineNumber = location.getBeginLine() - 1;
 				this.columnNumber = location.getBeginColumn();
 			} else {
