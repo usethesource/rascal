@@ -468,8 +468,6 @@ public class NonTerminalType extends RascalType {
 	protected Type lubWithNonTerminal(RascalType other) {
 		IConstructor otherSym = ((NonTerminalType)other).symbol;
 
-		// TODO: this code does not cater for type parameters!
-
 		// * eats +
 		if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
 			return other;
