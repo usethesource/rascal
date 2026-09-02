@@ -54,12 +54,12 @@ public class ShellEvaluatorFactory {
         return getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
     }
 
-    public static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
-        setupProjectResolver(projectRoot, monitor);
-        return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
+    public static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        setupProjectResolver(pcfg.getProjectRoot(), monitor);
+        return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, ModuleEnvironment.SHELL_MODULE);
     }
     
-    private static Evaluator getDefaultEvaluatorForPathConfig(ISourceLocation projectRoot, PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
+    private static Evaluator getDefaultEvaluatorForPathConfig(PathConfig pcfg, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, String rootEnvironment) {
         var evaluator = getBasicEvaluator(input, stdout, stderr, monitor, rootEnvironment);
         
         for (var srcPath : pcfg.getSrcs()) {
@@ -97,7 +97,7 @@ public class ShellEvaluatorFactory {
             Messages.write(pcfg.getMessages(), pcfg.getProjectRoot(), stdout);
         }
 
-        return getDefaultEvaluatorForPathConfig(projectRoot, pcfg, input, stdout, stderr, monitor, rootEnvironment);
+        return getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, monitor, rootEnvironment);
     }
 
     private static void registerProjectAndTargetResolver(ISourceLocation projectFile) {
