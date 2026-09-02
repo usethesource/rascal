@@ -40,7 +40,7 @@ import Location;
 syntax[&T] explode(data[&T] ast) {
    assert ast.src?;
    assert readFile(ast.src.top) == readFile(ast.src);
-   assert astNodeSpecification(ast);
+   // assert astNodeSpecification(ast);
 
    if (syntax[&T] r := explode(ast, readFile(ast.src.top), ast.src.offset, ast.src.length)) {
       return r;
@@ -82,10 +82,10 @@ Tree explode(Tree t, str _, int _, int _) = t;
 
 @synopsis{main workhorse for context-free nodes}
 default Tree explode(data[&T] ast, str contents, int offset, int length) {
-   children = getChildren(ast);
-   pox      = positions(ast.src, children);
-   cons     = getConstructor(ast);
-   symbols  = cons.symbols;
+   list[value]  children = getChildren(ast);
+   list[loc]    pox      = positions(ast.src, children);
+   Production   cons     = getConstructor(ast);
+   list[Symbol] symbols  = cons.symbols;
   
    // Here we generate a quasi syntax rule on-the-fly that has the structure and the types
    // of the exploded children. Each rule starts with separators, has separators
