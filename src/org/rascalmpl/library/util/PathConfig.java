@@ -332,9 +332,8 @@ public class PathConfig {
 
     /*
      * Sometimes we need access to a library that is already on the classpath, for example this could 
-     * be rascal-<version>.jar or typepal.jar or rascal-core or rascal-lsp. The IDE or current runtime 
-     * environment of Rascal has provided these dependencies while booting up the JVM using the `-cp` 
-     * parameter.
+     * be rascal-<version>.jar or typepal.jar or rascal-lsp. The IDE or current runtime environment of
+     * Rascal has provided these dependencies while booting up the JVM using the `-cp` parameter.
      * 
      * This function searches for the corresponding jar file by looking for instances of RASCAL.MF files 
      * with their Project-Name property set to the parameter `projectName`. Then it uses the actual URL
