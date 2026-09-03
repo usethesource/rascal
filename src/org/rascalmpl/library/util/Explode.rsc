@@ -54,7 +54,9 @@ Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, i
    Symbol allChars = \char-class([range(1,1114111)]);
    Symbol allCharsStar = \iter-star(allChars);
    
-   return appl(prod(label(name, \syntax(def)),[allCharsStar],{}), 
+   rule = prod(\syntax(def),[allCharsStar],{});
+   // println(rule);
+   return appl(rule, 
       [appl(regular(allCharsStar), [char(ch) | ch <- chars(contents[offset..offset+length])])]);
 }
 
@@ -107,7 +109,7 @@ Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc
    list[Symbol] symbols  = cons.symbols;
 
    rule = prod(\syntax(cons.def), [layouts("*seps*")],  {});
-   
+   // println(rule);
    return appl(rule, [
       separatorTree(contents, offset, pox[0].offset),
       explode(child, unlabel(cons.symbols[0]), contents, pos, pox[0].offset, pox[0].length)[src=pox[0]],
@@ -124,7 +126,8 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
    list[Symbol] symbols  = cons.symbols;
    
    rule = prod(\syntax(cons.def), [layouts("*seps*"),  *[\syntax(c), layouts("*seps*") | Symbol c <- symbols]],  {});
-   
+   // println(rule);
+
    work = zipi(zip3(children, symbols, pox));
    count = size(work);
    
