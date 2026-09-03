@@ -5,26 +5,29 @@ import analysis::m3::AST;
 import IO;
 import lang::json::IO;
 
-data Record(loc src=|unknown:///|) = record(str name, int age);
+data Record(loc src=|unknown:///|) = record(Name name, Age age);
+data Name = name(str x);
+data Age = age(str a);
 data Rolodex(loc src=|unknown:///|) = rolodex(list[Record] records);
 
 Rolodex exampleAsTerm = rolodex([
-    record("Aap", 1),
-    record("Noot", 2),
-    record("Mies", 3)
+    record(name("Aap"), age("1")),
+    record(name("Noot"), age("2")),
+    record(name("Mies"), age("3"))
 ]);
 
+public loc exampleFile = |memory://ExplodeTests/example.json|;
+
 Rolodex setupExample() {
-    loc file = |memory://ExplodeTests/example.json|;
-    writeJSON(file, exampleAsTerm);
-    Rolodex result = readJSON(#Rolodex, file, trackOrigins=true);
+    writeJSON(exampleFile, exampleAsTerm, indent=4);
+    Rolodex result = readJSON(#Rolodex, exampleFile, trackOrigins=true);
     assert astNodeSpecification(result);
     return result;
 }
 
-test bool smokeExplodeTest() {
+test bool explodeYieldContract() {
     Rolodex ast = setupExample();
     syntax[Rolodex] tree = explode(ast);
-    return Tree _ := tree;
+    return readFile(exampleFile) == "<tree>";
 }
 

@@ -37,96 +37,115 @@ import List;
 import Location;
 import String;
 
-@synopsis{Turn an AST into a ParseTree, while preserving the name of the type.}
+@synopsis{Turn an AST into a ParseTree, while preserving the name of the type, and the entire input string}
 syntax[&T] explode(data[&T] ast) {
-   assert ast.src?;
    assert readFile(ast.src.top) == readFile(ast.src);
-   // assert astNodeSpecification(ast);
+   Production cons = getConstructor(ast);
 
-   if (syntax[&T] r := explode(ast, readFile(ast.src.top), ast.src.offset, ast.src.length)) {
-      return r;
+   if (syntax[&T] r := explode(ast, unlabel(cons.def), readFile(ast.src.top), ast.src.top, ast.src.offset, ast.src.length)) {
+      return r[src=ast.src];
    }
 
    throw "unexpected problem while exploding <ast>";
 }
 
 @synopsis{singleton str nodes are lexicals (identifiers and constants)}
-syntax[&T] explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
-   Production cons = getConstructor(ast);
+Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, int offset, int length) {
    Symbol allChars = \char-class([range(1,1114111)]);
    Symbol allCharsStar = \iter-star(allChars);
-
-   return appl(prod(\syntax(cons.def),[allCharsStar],{}), 
-      [
-         appl(regular(allCharsStar), [char(ch) | ch <- chars(contents[offset..offset+length])])
-      ]);
+   
+   return appl(prod(label(name, \syntax(def)),[allCharsStar],{}), 
+      [appl(regular(allCharsStar), [char(ch) | ch <- chars(contents[offset..offset+length])])]);
 }
 
-@synopsis{lists get separators too}
-@pitfalls{
-* we're pretty sure the first and last separators will always be empty.
-}
-list[Tree] explodeList(list[data[&T]] lst, Symbol s, str contents, int offset, int length) {
+@synopsis{Special case for empty lists}
+Tree explode([], Symbol def, str contents, loc top, int offset, int length) 
+   = appl(regular(\syntax(def), []));
+
+@synopsis{Special case for singleton lists (can never be a list of lists)}
+Tree explode([data[&T] elem], Symbol def, str contents, loc top, int offset, int length) 
+   = appl(regular(\syntax(def)), [explode(elem, def.symbol, contents, offset, length)]);
+
+@synopsis{Abstract lists become concrete lists}
+Tree explode(list[value] children, Symbol def, str contents, loc top, int offset, int length) {
+   list[loc]    pox      = positions(top(offset, length), children);
+   Symbol elem = def.symbol;
+
+   rule = regular(\syntax(def));
+
+   work = zipi(zip2(children, pox));
+   count = size(work);
+
    children = [
-      *[
-         separatorTree(contents, offset, c.src.offset),
-         explode(c, contents, c.src.offset, c.src.length) | c <- children
-      ],
-      separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
+      *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
+      *[ 
+         explode(c, elem, contents, top, pos.offset, pos.length)[src=pos], // element
+         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, loc next> := work[i + 1]], // middle
+         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count, <_, loc lp> := work[i]]   // last
+      | <int i, <value c, loc pos>> <- work
+      ]
    ];
 
-   return appl(regular(s), children);
+   return appl(rule, children);
 }
 
 @synopsis{do not further explode parse trees}
-Tree explode(Tree t, str _, int _, int _) = t;
+Tree explode(Tree t, Symbol _, str _, int _, int _) = t;
 
-@synopsis{main workhorse for context-free nodes}
-default Tree explode(data[&T] ast, str contents, int offset, int length) {
+@synopsis{Null constructor}
+Tree explode(data[&T] ast: _(), Symbol def, str contents, loc _pos, int offset, int length) {
+   rule = prod(\syntax(def), [layouts("*seps*")],  {});
+   
+   return appl(rule, [separatorTree(contents, offset, offset + length)]);
+}
+
+@synopsis{AST nodes with a single child}
+Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc pos, int offset, int length) {
+   list[value]  children = [child];
+   list[loc]    pox      = positions(ast.src, children);
+   Production   cons     = getConstructor(ast);
+   list[Symbol] symbols  = cons.symbols;
+
+   rule = prod(\syntax(cons.def), [layouts("*seps*")],  {});
+   
+   return appl(rule, [
+      separatorTree(contents, offset, pox[0].offset),
+      explode(child, unlabel(cons.symbols[0]), contents, pos, pox[0].offset, pox[0].length)[src=pox[0]],
+      separatorTree(contents, pox[0].offset + pox[0].length, offset + length)
+   ]);
+}
+
+
+@synopsis{main workhorse for AST nodes with more than one children}
+default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offset, int length) {
    list[value]  children = getChildren(ast);
    list[loc]    pox      = positions(ast.src, children);
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
-  
-   // Here we generate a quasi syntax rule on-the-fly that has the structure and the types
-   // of the exploded children. Each rule starts with separators, has separators
-   // in between every child, and ends with separators. Each child node is modified
-   // to a syntax node. Lists become iter-star symbols.
-   rule = prod(\syntax(cons.def), [
-         layouts("*separators*"), 
-         *[\syntax(c), layouts("*separators*") | Symbol c <- symbols]
-      ], 
-      {});
-
-   work = zip3(children, symbols, pox);
-
+   
+   rule = prod(\syntax(cons.def), [layouts("*seps*"),  *[\syntax(c), layouts("*seps*") | Symbol c <- symbols]],  {});
+   
+   work = zipi(zip3(children, symbols, pox));
+   count = size(work);
+   
    children = [
-      // the head separator
-      *[separatorTree(contents, offset, pox.offset) | <_, _, loc pox> <- work[-1..]],
+      *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
       *[ 
-         // then in the middle there are 3 cases, mutually exclusive:
-         *[explode(n, contents, n.src.offset, n.src.length)[src=pox] | node n := c], // a node
-         *[emptyList(s, pox)                                         | []     := c], // an empty list
-         *[explodeList(c, \syntax(s), contents, c.src.offset, c.src.length)[src=pox] | [_,*_] := c]  // a non-empty list
-      | <value c, list[Symbol] s, loc pox> <- work
-      ],
-      // finally the final separator 
-      *[separatorTree(contents, pox.offset + pox.length, offset + length) | <_, _, loc pox> <- work[-1..]]
+         explode(c, s, contents, top, pos.offset, pos.length)[src=pos], // element
+         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]], // middle
+         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count - 1] // last
+      | <int i, <value c, Symbol s, loc pos>> <- work
+      ]
    ];
 
-   return appl(rule, children, src=ast.src);
+   return appl(rule, children);
 }
-
-@synopsis{Generate an empty list of the right type}
-Tree emptyList(Symbol s, loc src) = appl(regular(s), [], src=src);
 
 @synopsis{Generate a layout tree with the separator content}
 Tree separatorTree(str contents, int \start, int end)
-   = appl(prod(layouts("*separators*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
-      [
-         appl(regular(\iter-star(\char-class([range(1,1114111)]))),
-            [char(ch) | int ch <- chars(contents[\start..end])])
-      ]);
+   = appl(prod(layouts("*seps*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
+      [appl(regular(\iter-star(\char-class([range(1,1114111)]))),
+            [char(ch) | int ch <- chars(contents[\start..end])])]);
 
 @synopsis{Helper function to convert AST notions to their ParseTree equivalent.}
 @description{
@@ -136,7 +155,7 @@ Tree separatorTree(str contents, int \start, int end)
 }
 Symbol \syntax(label(str x, Symbol s)) = label(x, \syntax(s));
 Symbol \syntax(\str())                 = \lex("*lexical*");
-Symbol \syntax(\list(Symbol s))        = \iter-star-seps(\syntax(s),[layouts("*separators*")]);
+Symbol \syntax(\list(Symbol s))        = \iter-star-seps(\syntax(s),[layouts("*seps*")]);
 
 private Symbol unlabel(label(str _, Symbol s))                  = unlabel(s);
 private Symbol unlabel(conditional(Symbol s, set[Condition] _)) = unlabel(s);
@@ -176,7 +195,7 @@ private list[loc] infer(loc span, [*loc pre, loc before, loc l, *loc post]) = in
 private list[loc] infer(loc span, [*loc pre, loc l, loc after, *loc post])  = infer(span, [*pre, after[offset=after.offset][length = 0], after, *post]) when l == |empty:///|;
 private default list[loc] infer(loc _span, list[loc] done)                  = done;
 
-@synsopsis{An element either knows its position, or it does not.}
+@synsopsis{Take the src field or infer the position from context}
 @description{
 This function applies the `span` and any directly available `.src` fields
 to do a first estimate at solving the location of an AST element.
@@ -195,3 +214,18 @@ private loc pos(loc _span, [node a, *_, node b]) = cover([\loc(a), \loc(b)]);
 
 @synopsis{Waiting for `node.src` to be available in Rascal for good...}
 private loc \loc(node n) = l when loc l := n.src;
+
+@synopsis{Infer positions of separators}
+private list[loc] sepPos([], loc ctx) = [];
+
+private list[loc] sepPos([loc single], loc ctx) 
+   = [ctx.top[length=endFirst], single, single.top[offset=startLast][length=endLength]]
+   when int lengthFirst := single.offset - ctx.offset,
+        int startLast := single.offset+single.length,
+        int endLength := ctx.offset + ctx.length - single.offset;
+
+private list[loc] sepPos([loc first, *loc rest], loc ctx)
+   = [ctx.top[length=endFirst], first, *sepPos(rest, first.top[offset=ctxStart][length=ctxLength])] 
+   when int lengthFirst := single.offset - ctx.offset,
+        int ctxStart := single.offset+single.length,
+        int ctxLength := ctx.length-first.length;
