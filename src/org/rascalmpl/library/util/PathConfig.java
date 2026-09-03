@@ -921,7 +921,7 @@ public class PathConfig {
 
     private static void addLibraryToLibPath(URIResolverRegistry reg, IListWriter libsWriter, RascalConfigMode mode, ISourceLocation libLoc) {
         libsWriter.append(libLoc); // for classloading purposes
-        if (!libLoc.getScheme().equals("mvn") && !libLoc.getScheme().equals("file+jar") && reg.isDirectory(libLoc)) {
+        if (!libLoc.getScheme().equals("mvn") && !libLoc.getScheme().equals("jar+file") && reg.isDirectory(libLoc)) {
             // a local folder was resolved, for example in a multi-module project
             libsWriter.append(URIUtil.getChildLocation(libLoc, "target/classes"));
         }
