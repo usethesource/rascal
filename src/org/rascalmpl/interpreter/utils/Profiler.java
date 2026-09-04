@@ -20,24 +20,22 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.debug.IRascalFrame;
-import org.rascalmpl.exceptions.StackTrace;
-import org.rascalmpl.exceptions.StackTraceEntry;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import io.usethesource.vallang.IList;
@@ -88,228 +86,256 @@ class Count {
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 class Cpuinfo {
-	private final List<Sample> samples = new ArrayList<>();
-	private long startTime = -1;
-	private long endTime = -1;
-	private long previousTime = -1;
+	private final List<Tick> ticks = new ArrayList<>();
 
-	public void start() {
-		assert startTime == -1 && endTime == -1;
-		startTime = time();
-		previousTime = startTime;
+	public void tick(Evaluator evaluator) {
+		ticks.add(Tick.of(evaluator));
 	}
 
-	public void end() {
-		assert startTime > -1 && endTime == -1;
-		endTime = time();
-	}
-
-	public void sample(Evaluator eval) {
-		assert startTime > -1 && endTime == -1;
-		var currentTime = time();
-		var previousTime = this.previousTime;
-		this.previousTime = currentTime;
-
-		var delta = currentTime - previousTime;
-		var trace = eval.getStackTrace();
-		samples.add(new Sample(delta, trace));
-	}
-
-	public void write() {
-		assert startTime > -1 && endTime > -1;
-		var nodeIds = new ArrayList<Integer>();
-		var timeDeltas = new ArrayList<Long>();
-
-		var root = new Node(null);
-		for (var s : samples) {
-			var curr = root;
-			var entries = new ArrayList<StackTraceEntry>();
-			s.trace.forEach(e -> entries.add(0, e)); // Reverse trace
-
-			var names = new ArrayList<String>();
-			var locations = new ArrayList<ISourceLocation>();
-			locations.add(null);
-			for (var e : entries) {
-				names.add(e.getScopeName());
-				locations.add(e.getLocation());
-			}
-
-			if (names.size() == 1 && "kwp initializer".equals(names.get(0))) {
-				continue; // TODO: Shift deltas
-			}
-
-			// Update model
-			for (int i = 0; i < names.size(); i++) {
-				curr = curr.getChild(new CallFrame(names.get(i), locations.get(i)));
-			}
-			nodeIds.add(curr.id);
-			timeDeltas.add(s.delta);
+	public Path write() {
+		var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
+		dateTime = dateTime.replaceAll("[:\\-]", "");
+		dateTime = dateTime.substring(0, 15);
+		dateTime = "-" + dateTime;
+		
+		var hint = "";
+		if (!ticks.isEmpty() && ticks.get(0).frames.size() > 1) {
+			hint = ticks.get(0).frames.get(1).functionName; // Skip initial call frame (`$`)
+			hint = hint.replaceAll("[\\\\]", "");
+			hint = "-" + hint;
 		}
 
-		// Build
-		var b = new StringBuilder();
-		appendln(b, "{");
-		appendln(b, "  \"nodes\": [");
-		appendln(b, root.getDescendants().stream().map(Cpuinfo::toJson).collect(Collectors.joining(", ")));
-		appendln(b, "  ],");
-		appendln(b, "  \"startTime\": " + startTime + ",");
-		appendln(b, "  \"endTime\": " + endTime + ",");
-		appendln(b, "  \"samples\": " + nodeIds + ",");
-		appendln(b, "  \"timeDeltas\": " + timeDeltas);
-		appendln(b, "}");
-
-		// Write
-		var s = b.toString();
 		try {
-			var dateTime = Instant.now().atZone(ZoneId.systemDefault())
-				.toString()
-				.replaceAll("[:\\-]", "")
-				.substring(0, 15);
-
-			String fileName = null;
-			if (!samples.isEmpty()) {
-				for (var e : samples.get(0).trace) {
-					if (!"$".equals(e.getScopeName())) fileName = e.getScopeName();
-				}
-			}
-			if (fileName == null) {
-				fileName = "profile-" + dateTime + ".cpuprofile";
-			} else {
-				fileName = fileName.startsWith("\\") ? fileName.substring(1) : fileName;
-				fileName = "profile-" + dateTime + "-" + fileName + ".cpuprofile";
-			}
-
-			Files.writeString(Path.of("Profile.json"), s);
-			Files.writeString(Path.of(fileName), s);
+			var path = Path.of("profile" + dateTime + hint + ".cpuprofile");
+			var csq = Profile.of(ticks).toJson(0);
+			Files.writeString(path, csq);
+			return path;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 
-	private static long time() {
-		return System.nanoTime() / 1000; // Microseconds
-	}
+	public static class Tick {
+		public final long time; // Microseconds
+		public final List<CallFrame> frames;
 
-	private static String toJson(Node node) {
-		var b = new StringBuilder();
-		appendln(b, "{");
-		appendln(b, "  \"id\": " + node.id + ",");
-		appendln(b, "  \"callFrame\": {");
-		appendln(b, "    \"functionName\": \"" + node.frame.functionName + "\",");
-		appendln(b, "    \"url\": \"" + node.frame.url + "\",");
-		appendln(b, "    \"lineNumber\": " + node.frame.lineNumber + ",");
-		appendln(b, "    \"columnNumber\": " + node.frame.columnNumber + "");
-		appendln(b, "  },");
-		appendln(b, "  \"children\": [" + node.children.values().stream().map(n -> String.valueOf(n.id)).collect(Collectors.joining(", ")) + "]");
-		appendln(b, "}");
-		return b.toString();
-	}
+		public Tick(long time, List<CallFrame> frames) {
+			this.time = time;
+			this.frames = frames;
+		}
 
-	private static void appendln(StringBuilder b, String s) {
-		b.append(s);
-		b.append(System.lineSeparator());
-	}
+		public boolean isKwpInitializer() {
+			return !frames.isEmpty() && Objects.equals("kwp initializer", frames.get(0).functionName);
+		}
 
-	private static class Sample {
-		private final long delta;
-		private final StackTrace trace;
+		public static Tick of(Evaluator evaluator) {
+			var time = System.nanoTime() / 1000;
+			var frames = new ArrayList<CallFrame>();
 
-		private Sample(long delta, StackTrace trace) {
-			this.delta = delta;
-			this.trace = trace;
+			var callee = evaluator.getCurrentEnvt();
+			while (callee != null) {
+				var caller = callee.getCallerScope();
+				frames.add(0, CallFrame.of(caller, callee));
+				callee = caller;
+			}
+
+			return new Tick(time, frames);
+		}
+
+		public static long timeDelta(Tick early, Tick late) {
+			return (early == null || late == null) ? 0 : (late.time - early.time);
+		}
+
+		public static List<Long> timeDeltas(List<Tick> ticks) {
+			var deltas = new ArrayList<Long>();
+			for (var i = 0; i < ticks.size(); i++) {
+				var early = i == 0 ? null : ticks.get(i - 1);
+				var late = ticks.get(i);
+				deltas.add(timeDelta(early, late));
+			}
+			return deltas;
 		}
 	}
 
-	private static class Node {
-		private static int nextId = 0; // TODO: Make local to Cpuinfo instance
+	// https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
+	public static class Profile {
+		public final Set<ProfileNode> nodes;
+		public final long startTime;
+		public final long endTime;
+		public final List<Integer> samples;
+		public final List<Long> timeDeltas;
 
-		private final int id;
-		private final CallFrame frame;
-		private final Map<CallFrame, Node> children;
+		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
+			this.nodes = nodes;
+			this.startTime = startTime;
+			this.endTime = endTime;
+			this.samples = samples;
+			this.timeDeltas = timeDeltas;
+		}
 
-		public Node(CallFrame frame) {
-			this.id = nextId++;
+		public String toJson(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"nodes\": [");
+			appendln(b, tabs + 2, nodes.stream().map(n -> n.toJson(tabs + 2).stripTrailing()).collect(Collectors.joining("," + System.lineSeparator())).strip());
+			appendln(b, tabs + 1, "],");
+			appendln(b, tabs + 1, "\"startTime\": " + startTime + ",");
+			appendln(b, tabs + 1, "\"endTime\": " + endTime + ",");
+			appendln(b, tabs + 1, "\"samples\": " + samples + ",");
+			appendln(b, tabs + 1, "\"timeDeltas\": " + timeDeltas);
+			appendln(b, tabs, "}");
+			return b.toString();
+		}
+
+		public static Profile of(List<Tick> ticks) {
+			ticks.removeIf(Tick::isKwpInitializer);
+			assert !ticks.isEmpty();
+			
+			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
+			var startTime = ticks.get(0).time;
+			var endTime = ticks.get(ticks.size() - 1).time;
+			var samples = new ArrayList<Integer>();
+			var timeDeltas = Tick.timeDeltas(ticks);
+
+			var root = new ProfileNode(null); // Dummy root node
+			for (var current : ticks) {
+				var lineage = root.addLineage(current.frames.iterator());
+				nodes.addAll(lineage);
+				samples.add(lineage.get(lineage.size() - 1).id);
+			}
+
+			return new Profile(nodes, startTime, endTime, samples, timeDeltas);
+		}
+	}
+
+	// https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
+	private static class ProfileNode {
+		private static int nextId = 0;
+
+		public final int id = nextId++;
+		public final CallFrame frame;
+		public final List<Integer> children = new ArrayList<>();
+
+		private final Map<CallFrame, ProfileNode> nodes = new LinkedHashMap<>();
+
+		public ProfileNode(CallFrame frame) {
 			this.frame = frame;
-			this.children = new LinkedHashMap<>();
 		}
 
-		public Node getChild(CallFrame frame) {
-			return children.computeIfAbsent(frame, Node::new);
-		}
-
-		public List<Node> getDescendants() {
-			var descendants = new ArrayList<Node>();
-			for (var c : children.values()) {
-				descendants.add(c);
-				descendants.addAll(c.getDescendants());
+		public List<ProfileNode> addLineage(Iterator<CallFrame> frames) {
+			if (frames.hasNext()) {
+				var node = nodes.computeIfAbsent(frames.next(), ProfileNode::new);
+				var lineage = node.addLineage(frames);
+				children.add(node.id);
+				lineage.add(0, node);
+				return lineage;
+			} else {
+				return new ArrayList<>();
 			}
-			return descendants;
+		}
+
+		public String toJson(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"id\": " + id + ",");
+			appendln(b, tabs + 1, "\"callFrame\": " + frame.toJson(tabs + 1).strip() + ",");
+			appendln(b, tabs + 1, "\"children\": " + children);
+			appendln(b, tabs, "}");
+			return b.toString();
 		}
 	}
 
-	private static class CallFrame {
-		private final String functionName;
-		private final String url;
-		private final int lineNumber;
-		private final int columnNumber;
+	// https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
+	public static class CallFrame {
+		public final String functionName;
+		public final String scriptId;
+		public final String url;
+		public final int lineNumber;
+		public final int columnNumber;
 
-		public CallFrame(String name, ISourceLocation location) {
-			if (name != null) {
-				this.functionName = name;
-			} else {
-				this.functionName = "(root)";
-			}
-
-			if (location != null) {
-				this.url = "file".equals(location.getScheme()) ? location.getPath() : location.toString();
-				this.lineNumber = location.getBeginLine() - 1;
-				this.columnNumber = location.getBeginColumn();
-			} else {
-				this.url = "";
-				this.lineNumber = -1;
-				this.columnNumber = -1;
-			}
+		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
+			this.functionName = functionName;
+			this.scriptId = scriptId;
+			this.url = url;
+			this.lineNumber = lineNumber;
+			this.columnNumber = columnNumber;
 		}
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((functionName == null) ? 0 : functionName.hashCode());
-			result = prime * result + ((url == null) ? 0 : url.hashCode());
-			result = prime * result + lineNumber;
-			result = prime * result + columnNumber;
-			return result;
+			return functionName.hashCode() + scriptId.hashCode() + url.hashCode() + lineNumber + columnNumber;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			CallFrame other = (CallFrame) obj;
-			if (functionName == null) {
-				if (other.functionName != null)
-					return false;
 			}
-			else if (!functionName.equals(other.functionName))
-				return false;
-			if (url == null) {
-				if (other.url != null)
-					return false;
+			if (obj instanceof CallFrame) {
+				var frame = (CallFrame) obj;
+				return
+					Objects.equals(functionName, frame.functionName) &&
+					Objects.equals(scriptId, frame.scriptId) &&
+					Objects.equals(url, frame.url) &&
+					lineNumber == frame.lineNumber &&
+					columnNumber == frame.columnNumber;
 			}
-			else if (!url.equals(other.url))
-				return false;
-			if (lineNumber != other.lineNumber)
-				return false;
-			if (columnNumber != other.columnNumber)
-				return false;
-			return true;
+			return false;
 		}
+
+		public String toJson(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"functionName\": \"" + functionName + "\",");
+			appendln(b, tabs + 1, "\"scriptId\": \"" + scriptId + "\",");
+			appendln(b, tabs + 1, "\"url\": \"" + url + "\",");
+			appendln(b, tabs + 1, "\"lineNumber\": " + lineNumber + ",");
+			appendln(b, tabs + 1, "\"columnNumber\": " + columnNumber + "");
+			appendln(b, tabs, "}");
+			return b.toString();
+		}
+
+		public static CallFrame of(Environment caller, Environment callee) {
+			var functionName = callee.getName();
+			var scriptId = "$"; // TODO
+			var url = "";
+			var lineNumber = -1;
+			var columnNumber = -1;
+			
+			if (caller != null) {
+				var location = caller.getCreatorLocation();
+				if (location != null && location.hasLineColumn()) {
+					url = Objects.equals("file", location.getScheme()) ? location.getPath() : location.toString();
+					lineNumber = location.getBeginLine() - 1;
+					columnNumber = location.getBeginColumn();
+				}
+			}
+
+			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
+		}
+	}
+
+	private static final int TAB_SIZE = 2;
+
+	private static StringBuilder appendln(StringBuilder b, int tabs, String s) {
+		b.append(" ".repeat(tabs * TAB_SIZE));
+		b.append(s);
+		b.append(System.lineSeparator());
+		return b;
 	}
 }
 
@@ -406,14 +432,15 @@ public class Profiler extends Thread {
 	
 	@Override
 	public void run(){
-		cpuinfo.start();
+		// cpuinfo.start();
 		while(running) {
 			AbstractAST current = eval.getCurrentAST();
 			Environment env = eval.getCurrentEnvt();
 			String name = env.getName();
 
 			flameGraph.sample(eval);
-			cpuinfo.sample(eval);
+			// cpuinfo.addStackTrace(eval.getStackTrace());
+			cpuinfo.tick(eval);
 			
 			if (current != null) {
 				ISourceLocation stat = current.getLocation();
@@ -446,7 +473,7 @@ public class Profiler extends Thread {
 				e.printStackTrace();
 			}
 		}
-		cpuinfo.end();
+		// cpuinfo.end();
 	}
 	
 	public void pleaseStop(){
@@ -479,7 +506,10 @@ public class Profiler extends Thread {
 	}
 	
 	public void report() {
-		cpuinfo.write();
+		var path = cpuinfo.write();
+		if (path != null) {
+			System.out.println("Profile: " + path);
+		}
 		flameGraph.write();
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
