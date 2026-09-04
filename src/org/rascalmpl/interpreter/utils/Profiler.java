@@ -144,8 +144,8 @@ class Cpuinfo {
 
 		public static Tick of(Evaluator evaluator) {
 			var time = System.nanoTime() / 1000;
-			var frames = new ArrayList<CallFrame>();
 
+			var frames = new ArrayList<CallFrame>();
 			var callee = evaluator.getCurrentEnvt();
 			while (callee != null) {
 				var caller = callee.getCallerScope();
@@ -211,6 +211,7 @@ class Cpuinfo {
 			var samples = new ArrayList<Integer>();
 			var timeDeltas = Tick.timeDeltas(ticks);
 
+			// Convert ticks to nodes and samples
 			var root = new ProfileNode(null); // Dummy root node
 			for (var current : ticks) {
 				var lineage = root.addLineage(current.frames.iterator());
