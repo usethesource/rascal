@@ -124,7 +124,6 @@ ModuleStatus rascalTModelForLocs(
     RascalCompilerConfig compilerConfig,
     list[Message](MODID moduleId, lang::rascal::\syntax::Rascal::Module M, map[MODID,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){
-    throw "INTERRUPT";
     pcfg = compilerConfig.typepalPathConfig;
     
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
