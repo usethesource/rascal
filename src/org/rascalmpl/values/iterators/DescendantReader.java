@@ -171,10 +171,11 @@ public class DescendantReader implements Iterator<IValue> {
 		
         if (SymbolAdapter.isAnyList(sym)) {
         	spine.push(tree);
-        	
-        	int delta = SymbolAdapter.getListSkipDelta(sym);
+        
+			// TODO: not using delta to fix Exploded trees
+        	// int delta = SymbolAdapter.getListSkipDelta(sym);
         	sym = SymbolAdapter.getSymbol(sym);
-
+		
         	IList listElems = (IList) tree.get(1);
 			if (debug) {
 				for (int i = 0; i < listElems.length(); i++){
@@ -182,9 +183,11 @@ public class DescendantReader implements Iterator<IValue> {
 				}
 			}
         	
-			for (int i = listElems.length() - 1; i >= 0 ; i -= delta){
-				if (debug) System.err.println("adding: " + listElems.get(i));
-				pushConcreteSyntaxNode((ITree)listElems.get(i));
+			for (int i = listElems.length() - 1; i >= 0 ; i--) {
+				ITree elem = (ITree)listElems.get(i);
+				if (!TreeAdapter.isLayout(elem) && !TreeAdapter.isLiteral(elem) && !TreeAdapter.isCILiteral(elem)) {
+					pushConcreteSyntaxNode(elem);
+				}
 			}
 		} 
         else if (SymbolAdapter.isStartSort(sym)) {
@@ -192,16 +195,18 @@ public class DescendantReader implements Iterator<IValue> {
         }
         else {
 			if (debug) System.err.println("pushConcreteSyntaxNode: appl");
-			/*
-			 * appl(prod(...), [child0, layout0, child1, ...])
-			 */
+			
 			spine.push(tree);
 			IList applArgs = (IList) tree.get(1);
-			int delta = (SymbolAdapter.isLex(sym)) ? 1 : 2;   // distance between elements
 			
-			for(int i = applArgs.length() - 1; i >= 0 ; i -= delta){
-				//spine.push(applArgs.get(i));
-				pushConcreteSyntaxNode((ITree) applArgs.get(i));
+			for(int i = applArgs.length() - 1; i >= 0 ; i--) {
+				ITree arg = (ITree) applArgs.get(i);
+				// don't go into nodes that do not contain "useful" syntax or semantics
+				// the skipped nodes are the same nodes which are ignored by pattern matching concrete nodes
+				if (!TreeAdapter.isLayout(tree) && !TreeAdapter.isLiteral(tree) && !TreeAdapter.isCILiteral(tree)) {
+					pushConcreteSyntaxNode(arg);
+				}
+				
 			}
 		}
 	}

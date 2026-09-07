@@ -108,7 +108,7 @@ Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
 
-   rule = prod(\syntax(cons.def), [layouts("*seps*")],  {});
+   rule = prod(\syntax(cons.def), [layouts("*seps*"), \syntax(symbols[0]), layouts("*seps")],  {});
    // println(rule);
    return appl(rule, [
       separatorTree(contents, offset, pox[0].offset),

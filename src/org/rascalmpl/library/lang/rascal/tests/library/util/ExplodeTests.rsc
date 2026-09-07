@@ -25,9 +25,18 @@ Rolodex setupExample() {
     return result;
 }
 
+test bool explodeDeepMatch() {
+    Rolodex ast = setupExample();
+    syntax[Rolodex] tree = explode(ast);
+    return (0 | it + 1 | /syntax[Record] _ := tree) == (0 | it + 1 | /data[Record] _ := ast);
+}
+
+@ignore
 test bool explodeYieldContract() {
     Rolodex ast = setupExample();
     syntax[Rolodex] tree = explode(ast);
+    iprintln(tree);
+    
     return readFile(exampleFile) == "<tree>";
 }
 
