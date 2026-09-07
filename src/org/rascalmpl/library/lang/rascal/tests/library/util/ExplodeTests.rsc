@@ -31,6 +31,22 @@ test bool explodeDeepMatch() {
     return (0 | it + 1 | /syntax[Record] _ := tree) == (0 | it + 1 | /data[Record] _ := ast);
 }
 
+test bool explodeVisit() {
+    Rolodex ast = setupExample();
+    int astRecordCount = 0;
+    visit (ast) {
+        case data[Record] _ : astRecordCount += 1;
+    }
+
+    syntax[Rolodex] tree = explode(ast);
+    int treeRecordCount = 0;
+    visit (tree) {
+        case syntax[Record] _ : treeRecordCount += 1;
+    }
+
+    return astRecordCount == treeRecordCount;
+}
+
 @ignore
 test bool explodeYieldContract() {
     Rolodex ast = setupExample();
