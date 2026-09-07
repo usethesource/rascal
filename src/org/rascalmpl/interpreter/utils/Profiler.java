@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import io.usethesource.vallang.IList;
@@ -86,23 +84,14 @@ class Count {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-class Cpuinfo {
+class FlameGraph {
 	private final List<Tick> ticks = new ArrayList<>();
 
 	public void tick(Evaluator evaluator) {
-		ticks.add(Tick.of(evaluator));
+		var tick = Tick.of(evaluator);
+		if (tick != null) {
+			ticks.add(tick);
+		}
 	}
 
 	public Path write() {
@@ -111,9 +100,9 @@ class Cpuinfo {
 		dateTime = dateTime.substring(0, 15);
 		dateTime = "-" + dateTime;
 		
-		var hint = "";
-		if (!ticks.isEmpty() && ticks.get(0).frames.size() > 1) {
-			hint = ticks.get(0).frames.get(1).functionName; // Skip initial call frame (`$`)
+		var hint = ""; // Name of root function call (i.e., second call frame of the first stack trace)
+		if (!ticks.isEmpty() && ticks.get(0).stackTrace.size() > 1) {
+			hint = ticks.get(0).stackTrace.get(1).functionName; // Skip first call frame (`$`)
 			hint = hint.replaceAll("[\\\\]", "");
 			hint = "-" + hint;
 		}
@@ -130,44 +119,52 @@ class Cpuinfo {
 	}
 
 	public static class Tick {
-		public final long time; // Microseconds
-		public final List<CallFrame> frames;
+		public final long timestamp; // Microseconds
+		public final List<CallFrame> stackTrace;
 
-		public Tick(long time, List<CallFrame> frames) {
-			this.time = time;
-			this.frames = frames;
+		public Tick(long timestamp, List<CallFrame> stackTrace) {
+			assert !stackTrace.isEmpty();
+			this.timestamp = timestamp;
+			this.stackTrace = stackTrace;
 		}
 
-		public boolean isKwpInitializer() {
-			return !frames.isEmpty() && Objects.equals("kwp initializer", frames.get(0).functionName);
+		public boolean isInitializer() {
+			var functionName = stackTrace.get(0).functionName;
+			return Objects.equals("kwp initializer", functionName) ||
+				Objects.equals("keyword parameter initializer", functionName);
 		}
 
 		public static Tick of(Evaluator evaluator) {
-			var time = System.nanoTime() / 1000;
+			var timeStamp = System.nanoTime() / 1000;
+			var stackTrace = new ArrayList<CallFrame>();
 
-			var frames = new ArrayList<CallFrame>();
-			var callee = evaluator.getCurrentEnvt();
-			while (callee != null) {
-				var caller = callee.getCallerScope();
-				frames.add(0, CallFrame.of(caller, callee));
-				callee = caller;
+			// Instead of calling `evaluator.getStackTrace`,The following bit of
+			// custom code to traverse the stack of environments is useful to
+			// immediately get the right data in the right iteration order
+			// (bottom-to-top instead of top-to-bottom).
+			var e = evaluator.getCurrentEnvt();
+			while (e != null) {
+				stackTrace.add(0, CallFrame.of(e));
+				e = e.getCallerScope();
 			}
 
-			return new Tick(time, frames);
+			return stackTrace.isEmpty() ? null : new Tick(timeStamp, stackTrace);
 		}
 
+		// Utility methods
+
 		public static long timeDelta(Tick early, Tick late) {
-			return (early == null || late == null) ? 0 : (late.time - early.time);
+			return (early == null || late == null) ? 0 : (late.timestamp - early.timestamp);
 		}
 
 		public static List<Long> timeDeltas(List<Tick> ticks) {
-			var deltas = new ArrayList<Long>();
+			var timeDeltas = new ArrayList<Long>();
 			for (var i = 0; i < ticks.size(); i++) {
 				var early = i == 0 ? null : ticks.get(i - 1);
 				var late = ticks.get(i);
-				deltas.add(timeDelta(early, late));
+				timeDeltas.add(timeDelta(early, late));
 			}
-			return deltas;
+			return timeDeltas;
 		}
 	}
 
@@ -202,19 +199,19 @@ class Cpuinfo {
 		}
 
 		public static Profile of(List<Tick> ticks) {
-			ticks.removeIf(Tick::isKwpInitializer);
+			ticks.removeIf(Tick::isInitializer);
 			assert !ticks.isEmpty();
 			
 			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
-			var startTime = ticks.get(0).time;
-			var endTime = ticks.get(ticks.size() - 1).time;
+			var startTime = ticks.get(0).timestamp;
+			var endTime = ticks.get(ticks.size() - 1).timestamp;
 			var samples = new ArrayList<Integer>();
 			var timeDeltas = Tick.timeDeltas(ticks);
 
 			// Convert ticks to nodes and samples
 			var root = new ProfileNode(null); // Dummy root node
 			for (var current : ticks) {
-				var lineage = root.addLineage(current.frames.iterator());
+				var lineage = root.addLineage(current.stackTrace.iterator());
 				nodes.addAll(lineage);
 				samples.add(lineage.get(lineage.size() - 1).id);
 			}
@@ -265,8 +262,8 @@ class Cpuinfo {
 		public final String functionName;
 		public final String scriptId;
 		public final String url;
-		public final int lineNumber;
-		public final int columnNumber;
+		public final int lineNumber; // 0-based
+		public final int columnNumber; // 0-based
 
 		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
 			this.functionName = functionName;
@@ -288,8 +285,7 @@ class Cpuinfo {
 			}
 			if (obj instanceof CallFrame) {
 				var frame = (CallFrame) obj;
-				return
-					Objects.equals(functionName, frame.functionName) &&
+				return Objects.equals(functionName, frame.functionName) &&
 					Objects.equals(scriptId, frame.scriptId) &&
 					Objects.equals(url, frame.url) &&
 					lineNumber == frame.lineNumber &&
@@ -310,23 +306,34 @@ class Cpuinfo {
 			return b.toString();
 		}
 
-		public static CallFrame of(Environment caller, Environment callee) {
-			var functionName = callee.getName();
-			var scriptId = "$"; // TODO
+		public static CallFrame of(Environment e) {
+			var functionName = functionNameOf(e);
+			var scriptId = "";
 			var url = "";
 			var lineNumber = -1;
 			var columnNumber = -1;
-			
-			if (caller != null) {
-				var location = caller.getCreatorLocation();
-				if (location != null && location.hasLineColumn()) {
-					url = Objects.equals("file", location.getScheme()) ? location.getPath() : location.toString();
-					lineNumber = location.getBeginLine() - 1;
-					columnNumber = location.getBeginColumn();
-				}
+
+			var location = e.getCallerLocation();
+			if (location != null && location.hasLineColumn()) {
+				scriptId = location.toString();
+				url = Objects.equals("file", location.getScheme()) ? location.getPath() : scriptId;
+				lineNumber = location.getBeginLine() - 1;
+				columnNumber = location.getBeginColumn();
 			}
 
 			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
+		}
+
+		public static String functionNameOf(Environment e) {
+			var name = e.getName();
+			var parent = e.getParent();
+			if (Objects.equals("Anonymous Function", name)) {
+				return "Anonymous Function (" + e.getCreatorLocation() + ")"; 
+			} else if (parent == null || parent == e.getRoot()) {
+				return name;
+			} else {
+				return functionNameOf(parent);
+			}
 		}
 	}
 
@@ -340,77 +347,63 @@ class Cpuinfo {
 	}
 }
 
+// class FlameGraph {
+// 	private final Map<String, Count> counts = new HashMap<>();
 
+// 	void sample(Evaluator eval) {
+// 		var frames = eval.getCallStack().stream();
+// 		var folded = frames.map(FlameGraph::getFrameTitle).collect(Collectors.joining(";"));
+// 		var count = counts.computeIfAbsent(folded, k -> new Count());
+// 		count.increment();
+// 	}
 
+// 	private static String getFrameTitle(IRascalFrame frame) {
+// 		var title = frame.getName();
+// 		var callerLocation = frame.getCallerLocation();
+// 		if (callerLocation != null) {
+// 			title += " at " + callerLocation;
+// 		}
+// 		return title;
+// 	}
 
+// 	void write() {
+// 		var name = "flameGraph";
+// 		var out = Path.of(name + ".out");
+// 		var err = Path.of(name + ".err");
+// 		var svg = Path.of(name + ".svg");
 
+// 		try {
+// 			Files.writeString(out, "");
+// 			for (var e : counts.entrySet()) {
+// 				 // Newlines must be `\n` for `flamegraph.pl` to work
+// 				var csq = String.format("%s %d\n", e.getKey(), e.getValue().getTicks());
+// 				Files.writeString(out, csq, StandardOpenOption.APPEND);
+// 			}
 
+// 			var scriptKey = "org.rascalmpl.profiling.flameGraph.script";
+// 			var scriptValue = System.getProperty(scriptKey);
+// 			if (scriptValue != null) {
+// 				var script = Path.of(scriptValue);
+// 				if (Files.exists(script)) {
 
+// 					ProcessBuilder processBuilder = new ProcessBuilder("perl", script.toString(), out.toString());
+// 					processBuilder.redirectOutput(svg.toFile());
+// 					processBuilder.redirectError(err.toFile());
 
+// 					Process process = processBuilder.start();
+// 					try {
+// 						process.waitFor();
+// 					} catch (InterruptedException e) {
+// 						// Ignore; doesn't matter
+// 					}
+// 				}
+// 			}
 
-
-
-
-
-
-
-class FlameGraph {
-	private final Map<String, Count> counts = new HashMap<>();
-
-	void sample(Evaluator eval) {
-		var frames = eval.getCallStack().stream();
-		var folded = frames.map(FlameGraph::getFrameTitle).collect(Collectors.joining(";"));
-		var count = counts.computeIfAbsent(folded, k -> new Count());
-		count.increment();
-	}
-
-	private static String getFrameTitle(IRascalFrame frame) {
-		var title = frame.getName();
-		var callerLocation = frame.getCallerLocation();
-		if (callerLocation != null) {
-			title += " at " + callerLocation;
-		}
-		return title;
-	}
-
-	void write() {
-		var name = "flameGraph";
-		var out = Path.of(name + ".out");
-		var err = Path.of(name + ".err");
-		var svg = Path.of(name + ".svg");
-
-		try {
-			Files.writeString(out, "");
-			for (var e : counts.entrySet()) {
-				 // Newlines must be `\n` for `flamegraph.pl` to work
-				var csq = String.format("%s %d\n", e.getKey(), e.getValue().getTicks());
-				Files.writeString(out, csq, StandardOpenOption.APPEND);
-			}
-
-			var scriptKey = "org.rascalmpl.profiling.flameGraph.script";
-			var scriptValue = System.getProperty(scriptKey);
-			if (scriptValue != null) {
-				var script = Path.of(scriptValue);
-				if (Files.exists(script)) {
-
-					ProcessBuilder processBuilder = new ProcessBuilder("perl", script.toString(), out.toString());
-					processBuilder.redirectOutput(svg.toFile());
-					processBuilder.redirectError(err.toFile());
-
-					Process process = processBuilder.start();
-					try {
-						process.waitFor();
-					} catch (InterruptedException e) {
-						// Ignore; doesn't matter
-					}
-				}
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-}
+// 		} catch (IOException e) {
+// 			e.printStackTrace();
+// 		}
+// 	}
+// }
 
 public class Profiler extends Thread {
 	private Evaluator eval;
@@ -420,7 +413,6 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
 	private final FlameGraph flameGraph = new FlameGraph();
-	private final Cpuinfo cpuinfo = new Cpuinfo();
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
@@ -433,17 +425,14 @@ public class Profiler extends Thread {
 	
 	@Override
 	public void run(){
-		// cpuinfo.start();
 		while(running) {
 			AbstractAST current = eval.getCurrentAST();
 			Environment env = eval.getCurrentEnvt();
 			String name = env.getName();
-
-			flameGraph.sample(eval);
-			// cpuinfo.addStackTrace(eval.getStackTrace());
-			cpuinfo.tick(eval);
 			
 			if (current != null) {
+				flameGraph.tick(eval);
+
 				ISourceLocation stat = current.getLocation();
 				if(stat != null){
 					Count currentCount = ast.get(stat);
@@ -474,7 +463,6 @@ public class Profiler extends Thread {
 				e.printStackTrace();
 			}
 		}
-		// cpuinfo.end();
 	}
 	
 	public void pleaseStop(){
@@ -507,14 +495,11 @@ public class Profiler extends Thread {
 	}
 	
 	public void report() {
-		var path = cpuinfo.write();
-		if (path != null) {
-			System.out.println("Profile: " + path);
-		}
-		flameGraph.write();
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
+		eval.getOutPrinter().println();
+		reportFlameGraph();
 	}
 	
 	private void report(String title, Map<ISourceLocation, Count> data) {
@@ -556,4 +541,10 @@ public class Profiler extends Thread {
 	  out.flush();
 	}
 
+	private void reportFlameGraph() {
+		var path = flameGraph.write();
+		var out = eval.getOutPrinter();
+		out.printf("FLAMEGRAPH: %s\n", path == null ? "N/A" : path);
+		out.flush();
+	}
 }
