@@ -537,6 +537,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				    }
 				  }
 				}
+				eval.setCurrentAST(this); // Rewind current AST from the last argument back to the whole call
 				Result<IValue> res = null;
 				try {
 					res = function.call(types, actuals, kwActuals);
