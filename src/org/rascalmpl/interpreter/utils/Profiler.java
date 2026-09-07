@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -84,6 +83,19 @@ class Count {
 	}
 }
 
+/**
+ * Representation of a flame graph for a single profile, populated with raw
+ * samples while the profiler is running. To take a raw sample, call
+ * {@link FlameGraph#tick(Evaluator)}; it takes a snapshot of the current call
+ * stack of the provided evaluator and stores it in memory. To write the flame
+ * graph, call {@link FlameGraph#write()}; it converts the raw samples in memory
+ * into the {@code .cpuprofile} format of the Chrome Dev Tools protocol and
+ * writes them to disk. The resulting file can be opened, for instance, in VS
+ * Code using the "Flame Chart Visualizer for JavaScript Profiles" extension, or
+ * in Chrome using the built-in developer tools.
+ *
+ * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/
+ */
 class FlameGraph {
 	private final List<Tick> ticks = new ArrayList<>();
 
@@ -108,7 +120,7 @@ class FlameGraph {
 		}
 
 		try {
-			var path = Path.of("profile" + dateTime + hint + ".cpuprofile");
+			var path = Path.of("rascal" + dateTime + hint + ".cpuprofile");
 			var csq = Profile.of(ticks).toJson(0);
 			Files.writeString(path, csq);
 			return path;
@@ -118,6 +130,9 @@ class FlameGraph {
 		}
 	}
 
+	/**
+	 * Representation of a raw sample
+	 */
 	public static class Tick {
 		public final long timestamp; // Microseconds
 		public final List<CallFrame> stackTrace;
@@ -140,7 +155,7 @@ class FlameGraph {
 
 			// Instead of calling `evaluator.getStackTrace`,The following bit of
 			// custom code to traverse the stack of environments is useful to
-			// immediately get the right data in the right iteration order
+			// immediately get the stack trace in the right iteration order
 			// (bottom-to-top instead of top-to-bottom).
 			var e = evaluator.getCurrentEnvt();
 			while (e != null) {
@@ -150,8 +165,6 @@ class FlameGraph {
 
 			return stackTrace.isEmpty() ? null : new Tick(timeStamp, stackTrace);
 		}
-
-		// Utility methods
 
 		public static long timeDelta(Tick early, Tick late) {
 			return (early == null || late == null) ? 0 : (late.timestamp - early.timestamp);
@@ -168,13 +181,17 @@ class FlameGraph {
 		}
 	}
 
-	// https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
+	/**
+	 * Representation of a profile in the format of the Chrome DevTools protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
+	 */
 	public static class Profile {
-		public final Set<ProfileNode> nodes;
-		public final long startTime;
-		public final long endTime;
-		public final List<Integer> samples;
-		public final List<Long> timeDeltas;
+		public final Set<ProfileNode> nodes; // CDT protocol
+		public final long startTime; // CDT protocol
+		public final long endTime; // CDT protocol
+		public final List<Integer> samples; // CDT protocol
+		public final List<Long> timeDeltas; // CDT protocol
 
 		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
 			this.nodes = nodes;
@@ -199,7 +216,7 @@ class FlameGraph {
 		}
 
 		public static Profile of(List<Tick> ticks) {
-			ticks.removeIf(Tick::isInitializer);
+			ticks.removeIf(Tick::isInitializer); // Avoid a bit of pollution
 			assert !ticks.isEmpty();
 			
 			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
@@ -208,62 +225,81 @@ class FlameGraph {
 			var samples = new ArrayList<Integer>();
 			var timeDeltas = Tick.timeDeltas(ticks);
 
-			// Convert ticks to nodes and samples
+			// Initialize `nodes` and `samples` by converting lists of call
+			// frames (stack traces) to a more efficient tree representation
+			// (prefix sharing), rooted at `root`, required by the CDT protocol.
 			var root = new ProfileNode(null); // Dummy root node
-			for (var current : ticks) {
-				var lineage = root.addLineage(current.stackTrace.iterator());
-				nodes.addAll(lineage);
-				samples.add(lineage.get(lineage.size() - 1).id);
+			for (var tick : ticks) {
+
+				// Update the tree representation by iteratively adding children
+				// to nodes for the list of call frames (stack trace)
+				var node = root;
+				for (var callFrame : tick.stackTrace) {
+					node = node.addChildIfAbsent(callFrame);
+					nodes.add(node);
+				}
+
+				// Register the last call frame (top of the stack trace)
+				samples.add(node.id);
 			}
 
 			return new Profile(nodes, startTime, endTime, samples, timeDeltas);
 		}
 	}
 
-	// https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
+	/**
+	 * Representation of a profile node in the format of the Chrome DevTools
+	 * protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
+	 */
 	private static class ProfileNode {
 		private static int nextId = 0;
 
-		public final int id = nextId++;
-		public final CallFrame frame;
-		public final List<Integer> children = new ArrayList<>();
+		public final int id = nextId++; // CDT protocol
+		public final CallFrame callFrame; // CDT protocol
+		public final List<Integer> children = new ArrayList<>(); // CDT protocol
 
-		private final Map<CallFrame, ProfileNode> nodes = new LinkedHashMap<>();
+		// Internal map to keep track of the (non-)existence of child nodes for
+		// call frames. Needs to be kept consistent with `children`.
+		private final Map<CallFrame, ProfileNode> childNodes = new LinkedHashMap<>();
 
-		public ProfileNode(CallFrame frame) {
-			this.frame = frame;
+		public ProfileNode(CallFrame callFrame) {
+			this.callFrame = callFrame;
 		}
 
-		public List<ProfileNode> addLineage(Iterator<CallFrame> frames) {
-			if (frames.hasNext()) {
-				var node = nodes.computeIfAbsent(frames.next(), ProfileNode::new);
-				var lineage = node.addLineage(frames);
+		public ProfileNode addChildIfAbsent(CallFrame callFrame) {
+			var node = childNodes.computeIfAbsent(callFrame, ProfileNode::new);
+			if (children.size() != childNodes.size()) { // `node` was newly created
 				children.add(node.id);
-				lineage.add(0, node);
-				return lineage;
-			} else {
-				return new ArrayList<>();
 			}
+			return node;
 		}
 
 		public String toJson(int tabs) {
 			var b = new StringBuilder();
 			appendln(b, tabs, "{");
 			appendln(b, tabs + 1, "\"id\": " + id + ",");
-			appendln(b, tabs + 1, "\"callFrame\": " + frame.toJson(tabs + 1).strip() + ",");
+			appendln(b, tabs + 1, "\"callFrame\": " + callFrame.toJson(tabs + 1).strip() + ",");
 			appendln(b, tabs + 1, "\"children\": " + children);
 			appendln(b, tabs, "}");
 			return b.toString();
 		}
 	}
 
-	// https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
+
+	/**
+	 * Representation of a call frame in the format of the Chrome DevTools
+	 * protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
+	 */
 	public static class CallFrame {
-		public final String functionName;
-		public final String scriptId;
-		public final String url;
-		public final int lineNumber; // 0-based
-		public final int columnNumber; // 0-based
+		public final String functionName; // CDT protocol
+		public final String scriptId; // CDT protocol
+		public final String url; // CDT protocol
+		public final int lineNumber; // CDT protocol (0-based)
+		public final int columnNumber; // CDT protocol (0-based)
 
 		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
 			this.functionName = functionName;
@@ -324,11 +360,17 @@ class FlameGraph {
 			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
 		}
 
-		public static String functionNameOf(Environment e) {
+		private static String functionNameOf(Environment e) {
+			// Conceptually, each call frame in a stack trace of the interpreter
+			// is itself represented as a linked list of environments. To get
+			// the "right" name of a call frame for the purpose of constructing
+			// a flame graph, we need to find the name of the *penultimate*
+			// environment in the list (as the final environment represents the
+			// module), unless the call frame concerns an anonymous function.
 			var name = e.getName();
 			var parent = e.getParent();
 			if (Objects.equals("Anonymous Function", name)) {
-				return "Anonymous Function (" + e.getCreatorLocation() + ")"; 
+				return name + " (" + e.getCreatorLocation() + ")"; 
 			} else if (parent == null || parent == e.getRoot()) {
 				return name;
 			} else {
@@ -337,73 +379,13 @@ class FlameGraph {
 		}
 	}
 
-	private static final int TAB_SIZE = 2;
-
 	private static StringBuilder appendln(StringBuilder b, int tabs, String s) {
-		b.append(" ".repeat(tabs * TAB_SIZE));
+		b.append(" ".repeat(tabs * 2));
 		b.append(s);
 		b.append(System.lineSeparator());
 		return b;
 	}
 }
-
-// class FlameGraph {
-// 	private final Map<String, Count> counts = new HashMap<>();
-
-// 	void sample(Evaluator eval) {
-// 		var frames = eval.getCallStack().stream();
-// 		var folded = frames.map(FlameGraph::getFrameTitle).collect(Collectors.joining(";"));
-// 		var count = counts.computeIfAbsent(folded, k -> new Count());
-// 		count.increment();
-// 	}
-
-// 	private static String getFrameTitle(IRascalFrame frame) {
-// 		var title = frame.getName();
-// 		var callerLocation = frame.getCallerLocation();
-// 		if (callerLocation != null) {
-// 			title += " at " + callerLocation;
-// 		}
-// 		return title;
-// 	}
-
-// 	void write() {
-// 		var name = "flameGraph";
-// 		var out = Path.of(name + ".out");
-// 		var err = Path.of(name + ".err");
-// 		var svg = Path.of(name + ".svg");
-
-// 		try {
-// 			Files.writeString(out, "");
-// 			for (var e : counts.entrySet()) {
-// 				 // Newlines must be `\n` for `flamegraph.pl` to work
-// 				var csq = String.format("%s %d\n", e.getKey(), e.getValue().getTicks());
-// 				Files.writeString(out, csq, StandardOpenOption.APPEND);
-// 			}
-
-// 			var scriptKey = "org.rascalmpl.profiling.flameGraph.script";
-// 			var scriptValue = System.getProperty(scriptKey);
-// 			if (scriptValue != null) {
-// 				var script = Path.of(scriptValue);
-// 				if (Files.exists(script)) {
-
-// 					ProcessBuilder processBuilder = new ProcessBuilder("perl", script.toString(), out.toString());
-// 					processBuilder.redirectOutput(svg.toFile());
-// 					processBuilder.redirectError(err.toFile());
-
-// 					Process process = processBuilder.start();
-// 					try {
-// 						process.waitFor();
-// 					} catch (InterruptedException e) {
-// 						// Ignore; doesn't matter
-// 					}
-// 				}
-// 			}
-
-// 		} catch (IOException e) {
-// 			e.printStackTrace();
-// 		}
-// 	}
-// }
 
 public class Profiler extends Thread {
 	private Evaluator eval;
@@ -544,7 +526,7 @@ public class Profiler extends Thread {
 	private void reportFlameGraph() {
 		var path = flameGraph.write();
 		var out = eval.getOutPrinter();
-		out.printf("FLAMEGRAPH: %s\n", path == null ? "N/A" : path);
+		out.printf("FLAME GRAPH: %s\n", path == null ? "N/A" : path);
 		out.flush();
 	}
 }
