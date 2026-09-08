@@ -4,10 +4,11 @@ import util::Explode;
 import analysis::m3::AST;
 import IO;
 import lang::json::IO;
+import util::IDEServices;
 
 data Record(loc src=|unknown:///|) = record(Name name, Age age);
-data Name = name(str x);
-data Age = age(str a);
+data Name(loc src=|unknown:///|) = name(str x);
+data Age(loc src=|unknown:///|) = age(str a);
 data Rolodex(loc src=|unknown:///|) = rolodex(list[Record] records);
 
 Rolodex exampleAsTerm = rolodex([
@@ -47,12 +48,35 @@ test bool explodeVisit() {
     return astRecordCount == treeRecordCount;
 }
 
-@ignore
+bool showDiff(str a, str b) {
+    showInteractiveContent(html("\<table\>\<tr\>\<td\>
+                                '\<pre\>
+                                '<a>
+                                '\</pre\>\</td\>\<td\>
+                                '\<pre\>
+                                '<b>
+                                '\</pre\>\</td\>\</tr\>\</table\>"));
+    return a == b;
+}
+
 test bool explodeYieldContract() {
     Rolodex ast = setupExample();
     syntax[Rolodex] tree = explode(ast);
-    iprintln(tree);
     
-    return readFile(exampleFile) == "<tree>";
+    // get all the AST nodes
+    asts     = [a  | /node a := ast];
+    
+    // get all the Tree nodes can coincide with abstract data-type nodes
+    trees    = [x  | /Tree x := tree, syntax[&T] _ := x];
+
+    together = zip2(asts, trees);
+
+    // abstract nodes and concrete nodes align per src field
+    assert (true | it && a.src == b.src           | <a, b> <- together);
+
+    // the concrete nodes yield equals to the substring of the file that is indicated by the src field
+    assert (true | it && readFile(b.src) == "<b>" | b <- trees);
+
+    return size(asts) == size(trees);
 }
 

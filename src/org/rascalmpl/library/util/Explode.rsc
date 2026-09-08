@@ -55,18 +55,18 @@ Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, i
    Symbol allCharsStar = \iter-star(allChars);
    
    rule = prod(\syntax(def),[allCharsStar],{});
-   // println(rule);
+   
    return appl(rule, 
       [appl(regular(allCharsStar), [char(ch) | ch <- chars(contents[offset..offset+length])])]);
 }
 
 @synopsis{Special case for empty lists}
 Tree explode([], Symbol def, str contents, loc top, int offset, int length) 
-   = appl(regular(\syntax(def), []));
+   = appl(regular(\syntax(def), [])) && bprintln("empty list");
 
 @synopsis{Special case for singleton lists (can never be a list of lists)}
 Tree explode([data[&T] elem], Symbol def, str contents, loc top, int offset, int length) 
-   = appl(regular(\syntax(def)), [explode(elem, def.symbol, contents, offset, length)]);
+   = appl(regular(\syntax(def)), [explode(elem, def.symbol, contents, offset, length)]) && bprintln("singleton");
 
 @synopsis{Abstract lists become concrete lists}
 Tree explode(list[value] children, Symbol def, str contents, loc top, int offset, int length) {
@@ -82,8 +82,8 @@ Tree explode(list[value] children, Symbol def, str contents, loc top, int offset
       *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
       *[ 
          explode(c, elem, contents, top, pos.offset, pos.length)[src=pos], // element
-         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, loc next> := work[i + 1]], // middle
-         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count, <_, loc lp> := work[i]]   // last
+         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, loc next>> := work[i + 1]], // middle
+         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count - 1, <_, <_, loc lp>> := work[i]]   // last
       | <int i, <value c, loc pos>> <- work
       ]
    ];
@@ -102,19 +102,19 @@ Tree explode(data[&T] ast: _(), Symbol def, str contents, loc _pos, int offset, 
 }
 
 @synopsis{AST nodes with a single child}
-Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc pos, int offset, int length) {
+Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc top, int offset, int length) {
    list[value]  children = [child];
    list[loc]    pox      = positions(ast.src, children);
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
 
    rule = prod(\syntax(cons.def), [layouts("*seps*"), \syntax(symbols[0]), layouts("*seps")],  {});
-   // println(rule);
+   
    return appl(rule, [
       separatorTree(contents, offset, pox[0].offset),
-      explode(child, unlabel(cons.symbols[0]), contents, pos, pox[0].offset, pox[0].length)[src=pox[0]],
+      explode(child, unlabel(cons.symbols[0]), contents, top, pox[0].offset, pox[0].length)[src=pox[0]],
       separatorTree(contents, pox[0].offset + pox[0].length, offset + length)
-   ]);
+   ], src=top(offset, length));
 }
 
 
