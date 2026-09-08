@@ -34,6 +34,11 @@ import java.util.stream.Collectors;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.semantics.dynamic.Statement.Expression;
+import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Expression.QualifiedName;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -83,19 +88,19 @@ class Count {
 }
 
 /**
- * Representation of a flame graph for a single profile, populated with raw
+ * Representation of a flame chart of a profile, to be populated with raw
  * samples while the profiler is running. To take a raw sample, call
- * {@link FlameGraph#tick(Evaluator)}; it takes a snapshot of the current call
+ * {@link FlameChart#tick(Evaluator)}; it takes a snapshot of the current call
  * stack of the provided evaluator and stores it in memory. To write the flame
- * graph, call {@link FlameGraph#write()}; it converts the raw samples in memory
- * into the {@code .cpuprofile} format of the Chrome Dev Tools protocol and
- * writes them to disk. The resulting file can be opened, for instance, in VS
- * Code using the "Flame Chart Visualizer for JavaScript Profiles" extension, or
- * in Chrome using the built-in developer tools.
+ * chart, call {@link FlameChart#write()}; it converts the raw samples in memory
+ * into the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol
+ * and writes them to disk. The resulting file can be opened, for instance, in
+ * VS Code using the "Flame Chart Visualizer for JavaScript Profiles" extension,
+ * or in Chrome using the built-in developer tools.
  *
  * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/
  */
-class FlameGraph {
+class FlameChart {
 	private final List<Tick> ticks = new ArrayList<>();
 
 	public void tick(Evaluator evaluator) {
@@ -105,21 +110,34 @@ class FlameGraph {
 		}
 	}
 
-	public Path write() {
+	public Path write(Evaluator evaluator) {
+		if (ticks.isEmpty()) {
+			return null;
+		}
+
 		var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
 		dateTime = dateTime.replaceAll("[:\\-]", "");
 		dateTime = dateTime.substring(0, 15);
 		dateTime = "-" + dateTime;
 		
-		var hint = ""; // Name of root function call (i.e., second call frame of the first stack trace)
-		if (!ticks.isEmpty() && ticks.get(0).stackTrace.size() > 1) {
-			hint = ticks.get(0).stackTrace.get(1).functionName; // Skip first call frame (`$`)
-			hint = hint.replaceAll("[\\\\]", "");
-			hint = "-" + hint;
+		var hint = ""; // Name of root function call, if any
+		if (evaluator.getCurrentAST() instanceof Expression) {
+			var expression = (Expression) evaluator.getCurrentAST();
+			if (expression.hasExpression() && expression.getExpression() instanceof CallOrTree) {
+				var call = (CallOrTree) expression.getExpression();
+				if (call.hasExpression() && call.getExpression() instanceof QualifiedName) {
+					var name = (QualifiedName) call.getExpression();
+					if (name.hasQualifiedName() && name.getQualifiedName() instanceof Default) {
+						hint = ((Default) name.getQualifiedName()).lastName();
+						hint = hint.replaceAll("[\\\\]", "");
+						hint = "-" + hint;
+					}
+				}
+			}
 		}
 
 		try {
-			var path = Path.of("rascal" + dateTime + hint + ".cpuprofile");
+			var path = Path.of("flame-chart" + dateTime + hint + ".cpuprofile");
 			var csq = Profile.of(ticks).toJson(0);
 			Files.writeString(path, csq);
 			return path;
@@ -286,7 +304,6 @@ class FlameGraph {
 		}
 	}
 
-
 	/**
 	 * Representation of a call frame in the format of the Chrome DevTools
 	 * protocol
@@ -363,7 +380,7 @@ class FlameGraph {
 			// Conceptually, each call frame in a stack trace of the interpreter
 			// is itself represented as a linked list of environments. To get
 			// the "right" name of a call frame for the purpose of constructing
-			// a flame graph, we need to find the name of the *penultimate*
+			// a flame chart, we need to find the name of the *penultimate*
 			// environment in the list (as the final environment represents the
 			// module), unless the call frame concerns an anonymous function.
 			var name = e.getName();
@@ -393,7 +410,7 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation,Count> ast;
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
-	private final FlameGraph flameGraph = new FlameGraph();
+	private final FlameChart flameChart = new FlameChart();
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
@@ -412,7 +429,7 @@ public class Profiler extends Thread {
 			String name = env.getName();
 			
 			if (current != null) {
-				flameGraph.tick(eval);
+				flameChart.tick(eval);
 
 				ISourceLocation stat = current.getLocation();
 				if(stat != null){
@@ -480,7 +497,7 @@ public class Profiler extends Thread {
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
 		eval.getOutPrinter().println();
-		reportFlameGraph();
+		reportFlameChart();
 	}
 	
 	private void report(String title, Map<ISourceLocation, Count> data) {
@@ -522,10 +539,10 @@ public class Profiler extends Thread {
 	  out.flush();
 	}
 
-	private void reportFlameGraph() {
-		var path = flameGraph.write();
+	private void reportFlameChart() {
+		var path = flameChart.write(eval);
 		var out = eval.getOutPrinter();
-		out.printf("FLAME GRAPH: %s\n", path == null ? "N/A" : path);
+		out.printf("FLAME CHART: %s\n", path == null ? "n/a" : path);
 		out.flush();
 	}
 }
