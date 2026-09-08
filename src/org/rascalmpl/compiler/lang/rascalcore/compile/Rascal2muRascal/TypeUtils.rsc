@@ -291,6 +291,11 @@ list[AType] dummyFormalsInType(AType t){
     return result;
 }
 
+rel[loc, loc] getUseDef(TModel tm) {
+    map[loc, loc] id2define = invertUnique(tm.define2id);
+    return { <u, getLogicalLocIfPossible(id2define[d] ? d)> | <loc u, loc d> <- tm.useDef };
+}
+
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
     current_tmodel = tm;
@@ -302,10 +307,10 @@ void extractScopes(TModel tm){
     facts = tm.facts;
     specializedFacts = tm.specializedFacts;
     defines = tm.defines;
-    definitions = ( def.defined : def | Define def <- defines );
+    definitions = ( def.defined: def | Define def <- defines );
     position_in_container = ();
     vars_per_scope = ();
-    useDef = tm.useDef;
+    useDef = getUseDef(tm);
     defUses = invert(useDef);
     set[loc] modules = {};
     //setModuleScope(tm.moduleLocs[tm.modelName]);
@@ -676,6 +681,10 @@ loc getLogicalLoc(loc src){
     throw "getLogicalLoc: no logical loc found for <src>";
 }
 
+loc getLogicalLocIfPossible(loc src){
+    return src in physical2logical ? physical2logical[src] : src;
+}
+
 public int getTupleFieldIndex(AType s, str fieldName) =
     indexOf(getTupleFieldNames(s), fieldName);
 
@@ -837,8 +846,8 @@ bool occursBefore(loc before, loc after){
 // Generate a MuExp to access a variable
 
 MuExp mkVar(str name, loc l) {
-//   println("<name>, <l>");
-  if(l in physical2logical) l = physical2logical[l];
+  //println("<name>, <l>");
+  l = getLogicalLocIfPossible(l);
 
   uqname = asUnqualifiedName(name);
   name_type = getType(l);
@@ -864,6 +873,7 @@ MuExp mkVar(str name, loc l) {
     }
   } else {
     uid = getFirstFrom(defs);
+    uid = getLogicalLocIfPossible(uid);
     def = definitions[uid];
   }
 

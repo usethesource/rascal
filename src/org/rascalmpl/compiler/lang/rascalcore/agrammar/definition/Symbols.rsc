@@ -133,6 +133,16 @@ public AType defsym2AType(Sym sym, SyntaxRole sr) {
   }
 }
 
+public Tree defsym2IdTree(Sym sym) = top-down-break visit (sym) {
+  case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n): return n;
+  case \parametrized(Nonterminal n, _): return n;
+  case \start(Nonterminal n): return n;
+  default: {
+    iprintln(sym);
+    throw "defsym2IdTree, missed a case <sym>";
+  }
+};
+
 public list[AType] args2ATypes(Sym* args) {
   return [sym2AType(s) | Sym s <- args];
 }

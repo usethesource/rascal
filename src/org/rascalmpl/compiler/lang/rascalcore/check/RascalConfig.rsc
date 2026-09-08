@@ -323,23 +323,25 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
 }
 
 bool rascalReportUnused(loc def, TModel tm){
+    return rascalFilterUnused([def], tm) == [def];
+}
+
+list[loc] rascalFilterUnused(list[loc] defs, TModel tm) {
     config = tm.config;
-    if(!config.warnUnused) return false;
+    if(!config.warnUnused) return [];
 
+    // Lookup fields only once to save interpreter time (significant)
+    warnUnusedFormals = config.warnUnusedFormals;
+    moduleLocs = tm.moduleLocs;
+    modelName = tm.modelName;
+    logical2physical = tm.logical2physical;
     definitions = tm.definitions;
-
-    if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
-
-    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName], tm.logical2physical)){
-        return false;
-    }
-
     scopes = tm.scopes;
     facts = tm.facts;
 
     bool reportFormal(Define define){
-       if(!config.warnUnusedFormals || isWildCard(define.id[0])) return false;
-       container = tm.definitions[findContainer(def, definitions, scopes)];
+       if(!warnUnusedFormals || isWildCard(define.id[0])) return false;
+       container = definitions[findContainer(define.defined, definitions, scopes)];
        if(container.idRole == functionId()){
           if(isOverloadedFunction(container.defined, definitions, facts)) return false;
           return  "java" notin container.defInfo.modifiers;
@@ -347,8 +349,8 @@ bool rascalReportUnused(loc def, TModel tm){
        return false;
     }
 
-    define = definitions[def];
-    try {
+    bool filterFormal(loc def) {
+        define = definitions[def];
         switch(define.idRole){
             case moduleId():            return false;
             case dataId():              return false;
@@ -383,9 +385,25 @@ bool rascalReportUnused(loc def, TModel tm){
             case layoutId():            return false;
             case keywordId():           return false;
         }
-    } catch NoSuchKey(_): return false;
+        return true;
+    }
 
-    return true;
+    bool tryFilterFormal(loc def) {
+        try {
+            return filterFormal(def);
+        } catch NoSuchKey(_): {
+            return false;
+        }
+    }
+
+    if (modelName in moduleLocs) {
+        moduleLoc = moduleLocs[modelName];
+        moduleLoc = logical2physical[moduleLoc] ? moduleLoc;
+        // Assumption: `logical2physical` has already been applied to each `def`
+        return [def | loc def <- defs, isContainedIn(def, moduleLoc), tryFilterFormal(def)];
+    } else {
+        return [];
+    }
 }
 
 // Extend the path relation by
@@ -663,6 +681,7 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
         reportUnused                  = rascalReportUnused,
+        filterUnused                  = rascalFilterUnused,
         createLogicalLoc              = rascalCreateLogicalLoc,
         similarNames                  = rascalSimilarNames
     );

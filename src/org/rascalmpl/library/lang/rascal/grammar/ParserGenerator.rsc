@@ -12,46 +12,72 @@
 module lang::rascal::grammar::ParserGenerator
 
 import Grammar;
-import lang::rascal::grammar::definition::Parameters;
-import lang::rascal::grammar::definition::Regular;
-import lang::rascal::grammar::definition::Productions;
-import lang::rascal::grammar::definition::Modules;
-import lang::rascal::grammar::definition::Priorities;
-import lang::rascal::grammar::definition::Literals;
-import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::definition::Keywords;
-import lang::rascal::grammar::Lookahead;
-
-import util::Monitor;
-import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::ConcreteSyntax;
-import ParseTree;
-import String;
+import IO;
 import List;
 import Node;
+import ParseTree;
 import Set;
+import String;
+import lang::rascal::\syntax::Rascal;
+import lang::rascal::grammar::ConcreteSyntax;
+import lang::rascal::grammar::Lookahead;
+import lang::rascal::grammar::definition::Keywords;
+import lang::rascal::grammar::definition::Literals;
+import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Priorities;
+import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::definition::Regular;
+import lang::rascal::grammar::definition::Symbols;
+import util::Monitor;
   
 // TODO: replace this complex data structure with several simple ones
 alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 
 data Symbol(int id = 0, str prefix = "");
 
-public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
-str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
-str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
-default str getParserMethodName(Symbol s) = value2id(s);
+str getParserMethodName(Sym sym, bool withLayout=false)                   
+    = getParserMethodName(sym2symbol(sym, withLayout=withLayout));
+
+str getParserMethodName(\start(sort(str name)), bool withLayout=false)         
+    = "$start_<name>";
+
+str getParserMethodName(layouts(str name), bool withLayout=false)         
+    = "$l_<name>";
+
+str getParserMethodName(sort(str name), bool withLayout=false)         
+    = "<name>";
+
+str getParserMethodName(lex(str name), bool withLayout=false)         
+    = "<name>"; // has to be the same as "sort" to allow for temporary ambiguity
+
+str getParserMethodName(keywords(str name), bool withLayout=false)         
+    = "$k_<name>";
+
+str getParserMethodName(label(_,Symbol s), bool withLayout=false)         
+    = getParserMethodName(s, withLayout=withLayout);
+
+str getParserMethodName(conditional(Symbol s, _), bool withLayout=false)  
+    = getParserMethodName(s, withLayout=withLayout);
+
+// NB! regular prefix is checked in Java code to special case top-level regular parsing
+str getParserMethodName(Symbol s, bool withLayout=false)          
+    = "regular_<value2id(s)>" when s is iter || s is \iter-seps || s is \iter-star || s is \iter-star-seps || s is alt || s is opt || s is seq || s is empty;
+
+default str getParserMethodName(Symbol s, bool withLayout=false)          
+    = "<value2id(s)>";
 
 public str newGenerate(str package, str name, Grammar gr) {	
     return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
-    int newItem() { uniqueItem += 1; return uniqueItem; };
+    int newItem() { uniqueItem += 1; return uniqueItem; }; // we use only the odd numbers to reserve the even numbers for top-level regular prods
   
     worked("expanding parameterized symbols", 1);
     gr = expandParameterizedSymbols(gr);
-    
+     
     worked("generating stubs for regular", 1);
     gr = makeRegularStubs(gr);
-    
+  
     worked("generating syntax for holes", 1);
     gr = addHoles(gr);
  
@@ -78,18 +104,14 @@ public str newGenerate(str package, str name, Grammar gr) {
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
-    //println("computing lookahead sets", 1);
-    //gr = computeLookaheads(gr, extraLookaheads);
-    
-    //println("optimizing lookahead automaton", 1);
-    //gr = compileLookaheads(gr);
-   
     worked("source code template", 1);
     
     return "package <package>;
            '
            'import java.io.IOException;
            'import java.io.StringReader;
+           'import java.io.PrintWriter;
+           'import java.util.function.Supplier;
            '
            'import io.usethesource.vallang.type.TypeFactory;
            'import io.usethesource.vallang.IConstructor;
@@ -98,6 +120,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import io.usethesource.vallang.IValueFactory;
            'import io.usethesource.vallang.exceptions.FactTypeUseException;
            'import io.usethesource.vallang.io.StandardTextReader;
+           'import io.usethesource.vallang.io.StandardTextWriter;
            'import org.rascalmpl.parser.gtd.stack.*;
            'import org.rascalmpl.parser.gtd.stack.filter.*;
            'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
@@ -108,8 +131,11 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.ValueFactoryFactory;
+           'import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+           'import org.rascalmpl.parser.uptr.UPTRNodeFactory;
            'import org.rascalmpl.values.RascalValueFactory;
            'import org.rascalmpl.values.parsetrees.ITree;
+           'import org.rascalmpl.values.parsetrees.TreeAdapter;
            '
            '@SuppressWarnings(\"all\")
            'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
@@ -212,25 +238,34 @@ public str newGenerate(str package, str name, Grammar gr) {
 		       }
 	         }>
            '	
-           '  protected static class <value2id(s)> {
+           '  protected static class <getParserMethodName(s)> {
            '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
+           '
            '    static{
            '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_dontNest, _resultStoreIdMappings);
            '      init(builder);
-           '      EXPECTS = builder.buildExpectArray();
+          '       EXPECTS = builder.buildExpectArray();
            '    }
-           '    <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '
+           '    <for(Production alt <- alts.prods, alt is prod) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
-           '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
+           '      <for (Item i <- sort(lhses, bool (Item l, Item r) { return l.index < r.index;})) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
-           '	}<}>
+           '	  }<}>
+           '    <for(Production alt <- alts.prods, alt is regular) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    // this is only for top-level regular symbols
+           '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
+           '      builder.addAlternative(<name>.<id>, new AbstractStackNode[] { <newItems[topRegular(alt.def)][item(alt, 0)].new> });
+           '	  }<}>
+           '
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
            '      <for(Production alt <- (alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
+           '
            '  }<}>
            '
            '  private int nextFreeStackNodeId = <newItem()>;
@@ -239,8 +274,9 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }
            '
            '  // Parse methods    
-           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
+           '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { uniqueItem = uniqueItem + 1; >
+           '  <generateParseMethod(gr, newItems, gr.rules[unsetRec(nont)], uniqueItem)><}>
+           '
            '}";
     }, totalWork=9);      
 }  
@@ -283,6 +319,7 @@ Symbol getType(label(str _, Symbol s)) = getType(s);
 Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
 default Symbol getType(Symbol s) = unsetRec(s);
 
+data Symbol = topRegular(Symbol symbol);
 
 @synopsis{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
@@ -306,6 +343,10 @@ map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
       us = unsetRec(s);
       p = unsetRec(p);
 
+      // first register the toplevel regulars
+      items[topRegular(us)]?fresh += (item(p,0): sym2newitem(g, s, 0));
+
+      // this is for nested regulars
       switch(s) {
         case \iter(Symbol elem) : 
           items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
@@ -363,15 +404,36 @@ bool isNonterminal(Symbol s) {
     case Symbol::\parameterized-lex(_,_) : return true;
     case Symbol::\start(_) : return true;
     case Symbol::\layouts(_) : return true;
+
+    // regulars too from now on:
+    case Symbol::\iter(_) : return true;
+    case Symbol::\iter-star(_) : return true;
+    case Symbol::\iter-seps(_,_) : return true;
+    case Symbol::\iter-star-seps(_,_) : return true;
+    case Symbol::seq(_) : return true; 
+    case Symbol::opt(_) : return true;
+    case Symbol::alt(_) : return true;
+    case Symbol::empty() : return true;
+
     default: return false;
   }
 }
 
-public str generateParseMethod(Items _, Production p) {
-  return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
-         '  return <sym2name(p.def)>.EXPECTS;
+public default str generateParseMethod(Grammar g, Items _, Production p, int _) 
+    =    "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(p.def)>() {
+         '    return <getParserMethodName(p.def)>.EXPECTS;
          '}";
-}
+
+
+// public str generateParseMethod(Grammar g, Items _, choice(Symbol def, {regular(def)}), int id) 
+// // TODO: here we have to work if we also want regular lexical/regular non-terminals at the top
+//   =      "public AbstractStackNode\<IConstructor\>[] <getParserMethodName(def, withLayout=true)>() {
+//          '    return new AbstractStackNode[] { 
+//          '        <sym2newitem(g, def, 0).new>
+//          '    };
+//          '}";
+
+
 
 str generateClassConditional(set[Symbol] classes) {
   if (eoi() in classes) {
@@ -458,7 +520,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       sym = sym1;
       
     itemId = sym.id;
-    assert itemId != 0;
+    // assert itemId != 0;
     
     list[str] enters = [];
     list[str] exits = [];
@@ -505,23 +567,23 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     
     switch (sym) {
         case Symbol::\sort(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\empty() : 
             return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
         case Symbol::\lex(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\keywords(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\layouts(_) :
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameterized-sort(_,_): 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameterized-lex(_,_): 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
-        case Symbol::\start(_) : 
-            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+        case Symbol::\start(_) :
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, <getParserMethodName(sym)>\", <filters>)", itemId>;
         case Symbol::\lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
@@ -603,18 +665,29 @@ str uu(value s) = escape(toBase64("<unsetRec(s)>"),("=":"00","+":"11","/":"22"))
 
 default str v2i(value v) {
     switch (v) {
+        // uncomment this for readable production names while debugging. does not work well with generated $MetaHole rules
+        // case prod(label(str x, Symbol s), _, _) : return "prod_<v2i(s)>_<v2i(x)>";
+        // case prod(Symbol s, list[Symbol] parts, _) : return "prod_<v2i(s)>_<for (Symbol part <- parts) {><v2i(part)>_<}>";
         case \start(Symbol s) : return "start__<v2i(s)>";
-        case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
-        case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
-        case layouts(str x) : return "layouts_<escId(x)>";
-        case conditional(Symbol s,_) : return v2i(s);
+        case \item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
+        case \label(str _x, Symbol u) : return v2i(u);
+        case \layouts(str _) : return  "$anylayout$";
+        case \conditional(Symbol s,_) : return v2i(s);
+        case \alt(set[Symbol] alts) : return "alt_<for (value elem <- sort(alts)) {><v2i(elem)>_<}>"[..-1];
+        case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
+        case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";
+        case \iter-seps(Symbol s, list[Symbol] seps) : return "_iter_seps_<v2i(s)>_<for (value elem <- seps) {><v2i(elem)>_<}>"[..-1];
+        case \iter-star-seps(Symbol s, list[Symbol] seps) : return "_iter_star_seps_<v2i(s)>_<for (value elem <- seps) {><v2i(elem)>_<}>"[..-1];
+        case \seq(list[Symbol] lst) : return "seq_<for (value elem <- lst) {><v2i(elem)>_<}>"[..-1];
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
+        case \empty() : return "empty_empty"; // avoid clash with non-terminals named empty
+        // TODO: with top-level regulars this might not be enough, need recursion?
         case \parameterized-sort(str s, list[Symbol] args) : return "<s>_<uu(args)>";
         case \parameterized-lex(str s, list[Symbol] args) : return "<s>_<uu(args)>";
-        case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
-	        case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
+        case cilit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "cilit_<escId(s)>";
+	      case lit(/<s:^[A-Za-z0-9\-\_]+$>/)   : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
         default            : return uu(v);

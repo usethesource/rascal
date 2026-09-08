@@ -7,5 +7,10 @@
 			"path": "../typepal"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.watcherExclude": {
+			"/target/": true,
+			"/.git/": true,
+		},
+	}
 }

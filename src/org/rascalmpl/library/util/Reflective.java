@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
@@ -98,13 +99,21 @@ public class Reflective {
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
     }
+
+	private static RascalConfigMode mapConstructorToConfigMode(IConstructor mode) {
+		switch (mode.getName()) {
+			case "compiler": return RascalConfigMode.COMPILER;
+			case "interpreter_external": return RascalConfigMode.INTERPRETER_EXTERNAL;
+			default: return RascalConfigMode.INTERPRETER;
+		}
+	}
 	
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
 	            return PathConfig.fromSourceProjectRascalManifest(
 					projectRoot, 
-					mode.getName().equals("compiler") ? RascalConfigMode.COMPILER : RascalConfigMode.INTERPRETER,
+					mapConstructorToConfigMode(mode),
 					true).asConstructor();
 	        }
 	        else {
@@ -244,6 +253,8 @@ public class Reflective {
 			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), INodeFlattener.UNLIMITED_AMB_DEPTH, new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e);
+		} catch (ParseError e) {
+			throw RuntimeExceptionFactory.parseError(e.getLocation());
 		}
 	}
 

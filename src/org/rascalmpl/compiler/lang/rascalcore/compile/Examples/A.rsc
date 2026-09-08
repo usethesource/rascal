@@ -50,3 +50,7 @@ int f(int n) = n;
 // java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
                          
  
+ 
+data X1 = z();
+// anno int X1@xz;
+// int doY(X1 x) = x@xz;        

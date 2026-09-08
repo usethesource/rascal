@@ -31,6 +31,10 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		this.allowAmb = allowAmbiguity;
 	}
 
+	public ITree createEmptyNode() {
+		return VF.appl(VF.constructor(RascalValueFactory.Production_Regular, VF.constructor(RascalValueFactory.Symbol_Empty)));
+	}
+
 	public ITree createCharNode(int charNumber){
 		return VF.character(charNumber);
 	}

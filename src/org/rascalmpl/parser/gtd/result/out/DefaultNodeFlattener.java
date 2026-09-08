@@ -17,6 +17,7 @@ import java.util.Map;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
@@ -61,6 +62,9 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 		}
 
 		switch(node.getTypeIdentifier()){
+			case EpsilonNode.ID:
+				result = nodeConstructorFactory.createEmptyNode();
+				break;
 			case CharNode.ID:
 				result = charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
 				break;
