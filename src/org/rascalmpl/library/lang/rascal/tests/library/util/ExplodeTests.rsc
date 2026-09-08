@@ -48,6 +48,7 @@ test bool explodeVisit() {
     return astRecordCount == treeRecordCount;
 }
 
+@synopsis{prints to strings next to each other in html for debugging purposes}
 bool showDiff(str a, str b) {
     showInteractiveContent(html("\<table\>\<tr\>\<td\>
                                 '\<pre\>
@@ -59,6 +60,7 @@ bool showDiff(str a, str b) {
     return a == b;
 }
 
+@synopsis{Makes sure each sub-ast aligns with each sub-tree and with each sub-string}
 test bool explodeYieldContract() {
     Rolodex ast = setupExample();
     syntax[Rolodex] tree = explode(ast);
