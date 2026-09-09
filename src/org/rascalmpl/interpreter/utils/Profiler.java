@@ -14,11 +14,13 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,6 +37,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.semantics.dynamic.Statement.Expression;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.QualifiedName;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
@@ -110,7 +113,7 @@ class FlameChart {
 		}
 	}
 
-	public Path write(Evaluator evaluator) {
+	public ISourceLocation write(Evaluator evaluator) {
 		if (ticks.isEmpty()) {
 			return null;
 		}
@@ -121,27 +124,29 @@ class FlameChart {
 		dateTime = "-" + dateTime;
 		
 		var hint = ""; // Name of root function call, if any
-		if (evaluator.getCurrentAST() instanceof Expression) {
-			var expression = (Expression) evaluator.getCurrentAST();
-			if (expression.hasExpression() && expression.getExpression() instanceof CallOrTree) {
-				var call = (CallOrTree) expression.getExpression();
-				if (call.hasExpression() && call.getExpression() instanceof QualifiedName) {
-					var name = (QualifiedName) call.getExpression();
-					if (name.hasQualifiedName() && name.getQualifiedName() instanceof Default) {
-						hint = ((Default) name.getQualifiedName()).lastName();
-						hint = hint.replaceAll("[\\\\]", "");
-						hint = "-" + hint;
-					}
-				}
-			}
+		var ast = evaluator.getCurrentAST();
+		if (ast instanceof Expression) {
+			ast = ((Expression) ast).hasExpression() ? ((Expression) ast).getExpression() : ast;
+		}
+		if (ast instanceof CallOrTree) {
+			ast = ((CallOrTree) ast).hasExpression() ? ((CallOrTree) ast).getExpression() : ast;
+		}
+		if (ast instanceof QualifiedName) {
+			ast = ((QualifiedName) ast).hasQualifiedName() ? ((QualifiedName) ast).getQualifiedName() : ast;
+		}
+		if (ast instanceof Default) {
+			hint = ((Default) ast).lastName();
+			hint = hint.replaceAll("[\\\\]", "");
+			hint = "-" + hint;
 		}
 
-		try {
-			var path = Path.of("flame-chart" + dateTime + hint + ".cpuprofile");
-			var csq = Profile.of(ticks).toJson(0);
-			Files.writeString(path, csq);
-			return path;
-		} catch (IOException e) {
+		try {		
+			var cwd = evaluator.getRascalResolver().getRegistry().logicalToPhysical(URIUtil.rootLocation("cwd")).getURI();
+			var path = Path.of(cwd.resolve("flame" + dateTime + hint + ".cpuprofile"));
+			var json = Profile.of(ticks).toJson(0);
+			Files.writeString(path, json);
+			return URIUtil.createFileLocation(path);
+		} catch (URISyntaxException | IOException e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -368,7 +373,7 @@ class FlameChart {
 			var location = e.getCallerLocation();
 			if (location != null && location.hasLineColumn()) {
 				scriptId = location.toString();
-				url = Objects.equals("file", location.getScheme()) ? location.getPath() : scriptId;
+				url = location.getURI().toString(); 
 				lineNumber = location.getBeginLine() - 1;
 				columnNumber = location.getBeginColumn();
 			}
@@ -387,7 +392,7 @@ class FlameChart {
 			var parent = e.getParent();
 			if (Objects.equals("Anonymous Function", name)) {
 				return name + " (" + e.getCreatorLocation() + ")"; 
-			} else if (parent == null || parent == e.getRoot()) {
+			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
 				return name;
 			} else {
 				return functionNameOf(parent);
