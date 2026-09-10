@@ -751,12 +751,12 @@ syntax Type
 	| modifier: SyntaxRoleModifier modifier
 	;
 
-syntax SyntaxRoleModifier // TODO @rodin zegt dat dit Type moet zijn en niet TypeArg
-	= \syntax: "syntax" "[" TypeArg arg "]"
-	| \lexical: "lexical" "[" TypeArg arg "]"
-	| \layout: "layout" "[" TypeArg arg "]"
-	| \keyword: "keyword" "[" TypeArg arg "]"
-	| \data: "data" "[" TypeArg arg "]"
+syntax SyntaxRoleModifier
+	= \syntax: "syntax" "[" Type arg "]"
+	| \lexical: "lexical" "[" Type arg "]"
+	| \layout: "layout" "[" Type arg "]"
+	| \keyword: "keyword" "[" Type arg "]"
+	| \data: "data" "[" Type arg "]"
 	;
 
 syntax Declaration

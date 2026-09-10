@@ -30,7 +30,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
     return false;
   }
 
-  public org.rascalmpl.ast.TypeArg getArg() {
+  public org.rascalmpl.ast.Type getArg() {
     throw new UnsupportedOperationException(this.src.toString());
   }
 
@@ -42,12 +42,12 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   static public class Data extends SyntaxRoleModifier {
-    // Production: sig("Data",[arg("org.rascalmpl.ast.TypeArg","arg")],breakable=false)
+    // Production: sig("Data",[arg("org.rascalmpl.ast.Type","arg")],breakable=false)
   
     
-    private final org.rascalmpl.ast.TypeArg arg;
+    private final org.rascalmpl.ast.Type arg;
   
-    public Data(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeArg arg) {
+    public Data(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type arg) {
       super(src, node);
       
       this.arg = arg;
@@ -96,7 +96,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.TypeArg getArg() {
+    public org.rascalmpl.ast.Type getArg() {
       return this.arg;
     }
   
@@ -116,12 +116,12 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   static public class Keyword extends SyntaxRoleModifier {
-    // Production: sig("Keyword",[arg("org.rascalmpl.ast.TypeArg","arg")],breakable=false)
+    // Production: sig("Keyword",[arg("org.rascalmpl.ast.Type","arg")],breakable=false)
   
     
-    private final org.rascalmpl.ast.TypeArg arg;
+    private final org.rascalmpl.ast.Type arg;
   
-    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeArg arg) {
+    public Keyword(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type arg) {
       super(src, node);
       
       this.arg = arg;
@@ -170,7 +170,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.TypeArg getArg() {
+    public org.rascalmpl.ast.Type getArg() {
       return this.arg;
     }
   
@@ -190,12 +190,12 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   static public class Layout extends SyntaxRoleModifier {
-    // Production: sig("Layout",[arg("org.rascalmpl.ast.TypeArg","arg")],breakable=false)
+    // Production: sig("Layout",[arg("org.rascalmpl.ast.Type","arg")],breakable=false)
   
     
-    private final org.rascalmpl.ast.TypeArg arg;
+    private final org.rascalmpl.ast.Type arg;
   
-    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeArg arg) {
+    public Layout(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type arg) {
       super(src, node);
       
       this.arg = arg;
@@ -244,7 +244,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.TypeArg getArg() {
+    public org.rascalmpl.ast.Type getArg() {
       return this.arg;
     }
   
@@ -264,12 +264,12 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   static public class Lexical extends SyntaxRoleModifier {
-    // Production: sig("Lexical",[arg("org.rascalmpl.ast.TypeArg","arg")],breakable=false)
+    // Production: sig("Lexical",[arg("org.rascalmpl.ast.Type","arg")],breakable=false)
   
     
-    private final org.rascalmpl.ast.TypeArg arg;
+    private final org.rascalmpl.ast.Type arg;
   
-    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeArg arg) {
+    public Lexical(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type arg) {
       super(src, node);
       
       this.arg = arg;
@@ -318,7 +318,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.TypeArg getArg() {
+    public org.rascalmpl.ast.Type getArg() {
       return this.arg;
     }
   
@@ -338,12 +338,12 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   }
 
   static public class Syntax extends SyntaxRoleModifier {
-    // Production: sig("Syntax",[arg("org.rascalmpl.ast.TypeArg","arg")],breakable=false)
+    // Production: sig("Syntax",[arg("org.rascalmpl.ast.Type","arg")],breakable=false)
   
     
-    private final org.rascalmpl.ast.TypeArg arg;
+    private final org.rascalmpl.ast.Type arg;
   
-    public Syntax(ISourceLocation src, IConstructor node , org.rascalmpl.ast.TypeArg arg) {
+    public Syntax(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Type arg) {
       super(src, node);
       
       this.arg = arg;
@@ -392,7 +392,7 @@ public abstract class SyntaxRoleModifier extends AbstractAST {
   
     
     @Override
-    public org.rascalmpl.ast.TypeArg getArg() {
+    public org.rascalmpl.ast.Type getArg() {
       return this.arg;
     }
   

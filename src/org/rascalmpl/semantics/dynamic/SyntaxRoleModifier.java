@@ -25,7 +25,7 @@ import io.usethesource.vallang.type.Type;
 public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleModifier {
 
 	static public class Syntax extends org.rascalmpl.ast.SyntaxRoleModifier.Syntax {
-		public Syntax(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.TypeArg __param2) {
+		public Syntax(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
 			super(__param1, tree, __param2);
 		}
 
@@ -41,7 +41,7 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 	}
 
 	static public class Lexical extends org.rascalmpl.ast.SyntaxRoleModifier.Lexical {
-		public Lexical(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.TypeArg __param2) {
+		public Lexical(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
 			super(__param1, tree, __param2);
 		}
 
@@ -57,7 +57,7 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 	}
 
 	static public class Layout extends org.rascalmpl.ast.SyntaxRoleModifier.Layout {
-		public Layout(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.TypeArg __param2) {
+		public Layout(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
 			super(__param1, tree, __param2);
 		}
 
@@ -73,7 +73,7 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 	}
 
 	static public class Keyword extends org.rascalmpl.ast.SyntaxRoleModifier.Keyword {
-		public Keyword(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.TypeArg __param2) {
+		public Keyword(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
 			super(__param1, tree, __param2);
 		}
 
@@ -89,7 +89,7 @@ public abstract class SyntaxRoleModifier extends org.rascalmpl.ast.SyntaxRoleMod
 	}
 
 	static public class Data extends org.rascalmpl.ast.SyntaxRoleModifier.Data {
-		public Data(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.TypeArg __param2) {
+		public Data(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2) {
 			super(__param1, tree, __param2);
 		}
 
