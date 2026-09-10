@@ -5,7 +5,7 @@ import util::Eval;
 import util::PathConfig;
 import Message;
 
-PathConfig init() = pathConfig(srcs=[|memory://LoadingErrorModules/|]);
+PathConfig init() = pathConfig(projectRoot=|cwd:///|, srcs=[|memory://LoadingErrorModules/|]);
 
 loc moduleFile(str name) = |memory://LoadingErrorModules/| + "<name>.rsc";
 

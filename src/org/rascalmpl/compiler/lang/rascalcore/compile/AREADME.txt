@@ -71,13 +71,13 @@ config			void config(						// Inspect type checker configuration file
             		Query select = none())			// Query to define what to show
 Examples:
 
-compile(|std:///experiments/Compiler/Examples/Fac.rsc|);
+compile(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|);
 
-execute(|std:///experiments/Compiler/Examples/Fac.rsc|, []);
-execute(|std:///experiments/Compiler/Examples/Fac.rsc|, [], recompile=true);
-execute(|std:///experiments/Compiler/Examples/Fac.rsc|, [], profile=true);
+execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|, []);
+execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|, [], recompile=true);
+execute(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|, [], profile=true);
 
-inspect(|std:///experiments/Compiler/Examples/Fac.rsc|)
+inspect(|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|)
 
 
 Directory structure:

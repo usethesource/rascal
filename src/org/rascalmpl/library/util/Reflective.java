@@ -99,13 +99,21 @@ public class Reflective {
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
     }
+
+	private static RascalConfigMode mapConstructorToConfigMode(IConstructor mode) {
+		switch (mode.getName()) {
+			case "compiler": return RascalConfigMode.COMPILER;
+			case "interpreter_external": return RascalConfigMode.INTERPRETER_EXTERNAL;
+			default: return RascalConfigMode.INTERPRETER;
+		}
+	}
 	
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
 	            return PathConfig.fromSourceProjectRascalManifest(
 					projectRoot, 
-					mode.getName().equals("compiler") ? RascalConfigMode.COMPILER : RascalConfigMode.INTERPRETER,
+					mapConstructorToConfigMode(mode),
 					true).asConstructor();
 	        }
 	        else {

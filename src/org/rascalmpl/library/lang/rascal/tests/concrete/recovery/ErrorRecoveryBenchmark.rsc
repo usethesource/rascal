@@ -23,15 +23,15 @@ void runTestJson() { testRecoveryJson(); }
 void runTestPico() { testRecoveryPico(); }
 void runTestRascal() { testRecoveryRascal(); }
 
-FileStats testRecoveryC() = testErrorRecovery(|std:///lang/c90/syntax/C.rsc|, "TranslationUnit", |std:///lang/c90/examples/hello-world.c|);
-FileStats testRecoveryDiff() = testErrorRecovery(|std:///lang/diff/unified/UnifiedDiff.rsc|, "DiffFile", |std:///lang/diff/unified/examples/example.diff|);
-FileStats testRecoveryDot() = testErrorRecovery(|std:///lang/dot/syntax/Dot.rsc|, "DOT", |std:///lang/dot/examples/parser-state.dot|);
-FileStats testRecoveryJava() = testErrorRecovery(|std:///lang/java/syntax/Java15.rsc|, "CompilationUnit", zippedFile("m3/snakes-and-ladders-project-source.zip", "src/snakes/LastSquare.java"));
-FileStats testRecoveryJson() = testErrorRecovery(|std:///lang/json/syntax/JSON.rsc|, "JSONText", |std:///lang/json/examples/ex01.json|);
-FileStats testRecoveryPico() = testErrorRecovery(|std:///lang/pico/syntax/Main.rsc|, "Program", |std:///lang/pico/examples/fac.pico|);
-FileStats testRecoveryRascal() = testErrorRecovery(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///lang/rascal/vis/ImportGraph.rsc|);
+FileStats testRecoveryC() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/c90/syntax/C.rsc|, "TranslationUnit", |project://rascal/src/org/rascalmpl/library/lang/c90/examples/hello-world.c|);
+FileStats testRecoveryDiff() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/diff/unified/UnifiedDiff.rsc|, "DiffFile", |project://rascal/src/org/rascalmpl/library/lang/diff/unified/examples/example.diff|);
+FileStats testRecoveryDot() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/dot/syntax/Dot.rsc|, "DOT", |project://rascal/src/org/rascalmpl/library/lang/dot/examples/parser-state.dot|);
+FileStats testRecoveryJava() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/java/syntax/Java15.rsc|, "CompilationUnit", zippedFile("m3/snakes-and-ladders-project-source.zip", "src/snakes/LastSquare.java"));
+FileStats testRecoveryJson() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/json/syntax/JSON.rsc|, "JSONText", |project://rascal/src/org/rascalmpl/library/lang/json/examples/ex01.json|);
+FileStats testRecoveryPico() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/pico/syntax/Main.rsc|, "Program", |project://rascal/src/org/rascalmpl/library/lang/pico/examples/fac.pico|);
+FileStats testRecoveryRascal() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|, "Module", |project://rascal/src/org/rascalmpl/library/lang/rascal/vis/ImportGraph.rsc|);
 
-FileStats testMemoBug() = testErrorRecovery(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///lang/rascal/tests/concrete/PostParseFilter.rsc|);
+FileStats testMemoBug() = testErrorRecovery(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|, "Module", |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/concrete/PostParseFilter.rsc|);
 
 void runLanguageTests() {
     testRecoveryC();
@@ -50,5 +50,5 @@ int main(list[str] args) {
     return 0;
 }
 
-int rascalSmokeTest() = main(["source-loc=|std:///|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1", "count-nodes=true"]);
-int rascalStandardTest() = main(["source-loc=|std:///|", "max-files=1000", "max-file-size=5120"]);
+int rascalSmokeTest() = main(["source-loc=|project://rascal/src/org/rascalmpl/library/|", "max-amb-depth=2", "max-files=3", "max-file-size=500", "sample-window=3", "random-seed=1", "count-nodes=true"]);
+int rascalStandardTest() = main(["source-loc=|project://rascal/src/org/rascalmpl/library/|", "max-files=1000", "max-file-size=5120"]);

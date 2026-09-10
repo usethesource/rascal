@@ -202,7 +202,7 @@ Providing locations as node identities automatically transforms them to node lin
 ```rascal-shell
 import vis::Graphs;
 import IO;
-d = [<|std:///|, e> | e <- |std:///|.ls];
+d = [<|project://rascal/src/org/rascalmpl/library/|, e> | e <- |project://rascal/src/org/rascalmpl/library/|.ls];
 d += [<e,f> | <_, e> <- d, isDirectory(e), f <- e.ls];
 graph(d, \layout=defaultDagreLayout());
 // here we adapt the node labeler to show only the last file name in the path of the location:

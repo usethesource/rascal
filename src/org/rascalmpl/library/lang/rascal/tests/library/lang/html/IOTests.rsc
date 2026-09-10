@@ -3,7 +3,7 @@ module lang::rascal::tests::library::lang::html::IOTests
 import lang::html::IO;
 import IO;
 
-private loc exampleHTML = |std:///lang/html/examples/example.html|;
+private loc exampleHTML = |project://rascal/src/org/rascalmpl/library/lang/html/examples/example.html|;
 
 test bool simpleParseTest() 
     = html(_) := readHTMLFile(exampleHTML);

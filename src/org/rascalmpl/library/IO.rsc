@@ -204,7 +204,7 @@ import IO;
 
 Does the library file `IO.rsc` exist?
 ```rascal-shell,continue
-exists(|std:///IO.rsc|);
+exists(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -218,7 +218,7 @@ import IO;
 ```
 Find the file `IO.rsc` in the standard library:
 ```rascal-shell,continue
-find("IO.rsc", [|std:///|]);
+find("IO.rsc", [|project://rascal/src/org/rascalmpl/library/|]);
 ```
 }
 public loc find(str name, list[loc] path) throws PathNotFound {
@@ -367,7 +367,7 @@ import IO;
 ```
 Determine the last modification date of the Rascal standard library:
 ```rascal-shell,continue
-lastModified(|std:///IO.rsc|);
+lastModified(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -384,7 +384,7 @@ import IO;
 ```
 Determine the last modification date of the Rascal standard library:
 ```rascal-shell,continue
-created(|std:///IO.rsc|);
+created(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -412,7 +412,7 @@ import IO;
 ```
 List all entries in the standard library:
 ```rascal-shell,continue
-listEntries(|std:///|);
+listEntries(|project://rascal/src/org/rascalmpl/library/|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
