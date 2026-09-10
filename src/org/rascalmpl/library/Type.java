@@ -36,7 +36,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class Type {
 	private final IRascalValueFactory vf;
 
-	public Type(IRascalValueFactory vf, TypeFactory tf) {
+	public Type(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	  
