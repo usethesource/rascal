@@ -14,12 +14,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 @synopsis{Explode lifts abstract syntax trees to parse trees}
 @description{
 The explode function is used to lift abstract syntax trees to concrete syntax trees.
-The main difference is that all whitespace and comments are retrieved from the original
-files and placed inside of the parse tree.    
+The important difference is that all whitespace and comments are retrieved from the original
+files and placed inside of the parse tree. 
 }
 @benefits{
-* when analyzing a parse tree all information including layout and comments is preservation
-* when transforming parse trees, the original layout and comments are transformed along; moroever things that remain the same, remain the same.
+* when analyzing a parse tree all information including layout and comments is preserved.
+* when transforming parse trees, the original layout and comments are transformed along; moreover things that remain the same, remain the same.
 * unparsing a parse tree returns the exact original input file
 * using the `explode` function we can reuse an external parser that produces ASTs, and still have Hi-fidelity source code analyses and transformations.
 * the explode function is "type name preserving", such that a data-type named "Expression" becomes a concrete syntax tree type named "Expression"
@@ -49,10 +49,11 @@ syntax[&T] explode(data[&T] ast) {
    throw "unexpected problem while exploding <ast>";
 }
 
+private Symbol allChars = \char-class([range(1,1114111)]);
+private Symbol allCharsStar = \iter-star(allChars);
+   
 @synopsis{singleton str nodes are lexicals (identifiers and constants)}
 Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, int offset, int length) {
-   Symbol allChars = \char-class([range(1,1114111)]);
-   Symbol allCharsStar = \iter-star(allChars);
    
    rule = prod(\syntax(def),[allCharsStar],{});
    
@@ -101,6 +102,8 @@ Tree explode(data[&T] ast: _(), Symbol def, str contents, loc _pos, int offset, 
    return appl(rule, [separatorTree(contents, offset, offset + length)]);
 }
 
+private Tree emptyTree(loc src) = appl(regular(empty()), [], src=src);
+
 @synopsis{AST nodes with a single child}
 Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc top, int offset, int length) {
    list[value]  children = [child];
@@ -108,12 +111,14 @@ Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
 
-   rule = prod(\syntax(cons.def), [layouts("*seps*"), \syntax(symbols[0]), layouts("*seps")],  {});
+   rule = prod(\syntax(cons.def), [empty(), layouts("*seps*"), \syntax(symbols[0]), layouts("*seps"), empty()],  {});
    
    return appl(rule, [
+      emptyTree(top(offset, 0)),
       separatorTree(contents, offset, pox[0].offset),
       explode(child, unlabel(cons.symbols[0]), contents, top, pox[0].offset, pox[0].length)[src=pox[0]],
-      separatorTree(contents, pox[0].offset + pox[0].length, offset + length)
+      separatorTree(contents, pox[0].offset + pox[0].length, offset + length),
+      emptyTree(top(offset+length, 0))
    ], src=top(offset, length));
 }
 
@@ -125,20 +130,21 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
    
-   rule = prod(\syntax(cons.def), [layouts("*seps*"),  *[\syntax(c), layouts("*seps*") | Symbol c <- symbols]],  {});
-   // println(rule);
+   rule = prod(\syntax(cons.def), [empty(), layouts("*seps*"),  *[\syntax(c), layouts("*seps*") | Symbol c <- symbols], empty()],  {});
 
    work = zipi(zip3(children, symbols, pox));
    count = size(work);
    
    children = [
+      emptyTree(top(offset, 0)),
       *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
       *[ 
          explode(c, s, contents, top, pos.offset, pos.length)[src=pos], // element
          *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]], // middle
          *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count - 1] // last
       | <int i, <value c, Symbol s, loc pos>> <- work
-      ]
+      ],
+      emptyTree(top(offset+length, 0))
    ];
 
    return appl(rule, children);
@@ -146,9 +152,11 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
 
 @synopsis{Generate a layout tree with the separator content}
 Tree separatorTree(str contents, int \start, int end)
-   = appl(prod(layouts("*seps*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
-      [appl(regular(\iter-star(\char-class([range(1,1114111)]))),
-            [char(ch) | int ch <- chars(contents[\start..end])])]);
+   = appl(prod(layouts("*seps*"),[allCharsStar],{}),
+      [appl(regular(allCharsStar),
+            [char(ch) | int ch <- chars(contents[\start..end])])
+      ]
+   );
 
 @synopsis{Helper function to convert AST notions to their ParseTree equivalent.}
 @description{
