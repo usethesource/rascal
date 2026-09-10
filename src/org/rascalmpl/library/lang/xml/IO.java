@@ -69,14 +69,14 @@ public class IO {
         this.vf = vf;
     }
     
-    public IValue readXML(ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
+    public IValue readXML(ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset, IBool preserveTagCase, IBool preserveAttributeCase) {
         if (inferCharset.getValue()) {
             charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
         }
        
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
             Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(true, true))
+                .settings(new ParseSettings(preserveTagCase.getValue(), preserveAttributeCase.getValue()))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
@@ -92,7 +92,7 @@ public class IO {
         }
     }
 
-    public IFunction streamXML(ISourceLocation loc, IString elementName, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
+    public IFunction streamXML(ISourceLocation loc, IString elementName, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset, IBool preserveTagCase, IBool preserveAttributeCase) {
         if (inferCharset.getValue()) {
             charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
         }
@@ -100,7 +100,7 @@ public class IO {
         try {
             InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc);
             Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
+                .settings(new ParseSettings(preserveTagCase.getValue(), preserveAttributeCase.getValue()))
                 .setTrackPosition(trackOrigins.getValue());   
 
             StreamParser streamer = new StreamParser(xmlParser);
@@ -142,13 +142,13 @@ public class IO {
     }
 
 
-    public IValue readXML(IString string, ISourceLocation src, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace) {
+    public IValue readXML(IString string, ISourceLocation src, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace, IBool preserveTagCase, IBool preserveAttributeCase) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty XML document");
         }
 
         Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
+                .settings(new ParseSettings(preserveTagCase.getValue(), preserveAttributeCase.getValue()))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
              
