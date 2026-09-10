@@ -63,11 +63,7 @@ Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, i
 
 @synopsis{Special case for empty lists}
 Tree explode([], Symbol def, str contents, loc top, int offset, int length) 
-   = appl(regular(\syntax(def), [])) && bprintln("empty list");
-
-@synopsis{Special case for singleton lists (can never be a list of lists)}
-Tree explode([data[&T] elem], Symbol def, str contents, loc top, int offset, int length) 
-   = appl(regular(\syntax(def)), [explode(elem, def.symbol, contents, offset, length)]) && bprintln("singleton");
+   = appl(regular(\syntax(def), []));
 
 @synopsis{Abstract lists become concrete lists}
 Tree explode(list[value] children, Symbol def, str contents, loc top, int offset, int length) {
@@ -79,14 +75,10 @@ Tree explode(list[value] children, Symbol def, str contents, loc top, int offset
    work = zipi(zip2(children, pox));
    count = size(work);
 
-   children = [
-      *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
-      *[ 
-         explode(c, elem, contents, top, pos.offset, pos.length)[src=pos], // element
-         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, loc next>> := work[i + 1]], // middle
-         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count - 1, <_, <_, loc lp>> := work[i]]   // last
+   children = [ 
+      explode(c, elem, contents, top, pos.offset, pos.length)[src=pos], // element
+      *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, loc next>> := work[i + 1]], // middle
       | <int i, <value c, loc pos>> <- work
-      ]
    ];
 
    return appl(rule, children);
@@ -95,7 +87,7 @@ Tree explode(list[value] children, Symbol def, str contents, loc top, int offset
 @synopsis{do not further explode parse trees}
 Tree explode(Tree t, Symbol _, str _, int _, int _) = t;
 
-@synopsis{Null constructor}
+@synopsis{Nullary constructor}
 Tree explode(data[&T] ast: _(), Symbol def, str contents, loc _pos, int offset, int length) {
    rule = prod(\syntax(def), [layouts("*seps*")],  {});
    
@@ -123,7 +115,7 @@ Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc
 }
 
 
-@synopsis{main workhorse for AST nodes with more than one children}
+@synopsis{main workhorse for AST nodes with more than one child}
 default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offset, int length) {
    list[value]  children = getChildren(ast);
    list[loc]    pox      = positions(ast.src, children);
@@ -137,13 +129,13 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
    
    children = [
       emptyTree(top(offset, 0)),
-      *[separatorTree(contents, offset, pos.offset) | count > 0, <_, <_, _, loc pos>> := work[0]],
+      separatorTree(contents, offset, pos.offset),
       *[ 
          explode(c, s, contents, top, pos.offset, pos.length)[src=pos], // element
          *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]], // middle
-         *[separatorTree(contents, pos.offset + pos.length, offset + length) | i == count - 1] // last
       | <int i, <value c, Symbol s, loc pos>> <- work
       ],
+      separatorTree(contents, pos.offset + pos.length, offset + length)
       emptyTree(top(offset+length, 0))
    ];
 
@@ -227,16 +219,3 @@ private loc pos(loc _span, [node a, *_, node b]) = cover([\loc(a), \loc(b)]);
 private loc \loc(node n) = l when loc l := n.src;
 
 @synopsis{Infer positions of separators}
-private list[loc] sepPos([], loc ctx) = [];
-
-private list[loc] sepPos([loc single], loc ctx) 
-   = [ctx.top[length=endFirst], single, single.top[offset=startLast][length=endLength]]
-   when int lengthFirst := single.offset - ctx.offset,
-        int startLast := single.offset+single.length,
-        int endLength := ctx.offset + ctx.length - single.offset;
-
-private list[loc] sepPos([loc first, *loc rest], loc ctx)
-   = [ctx.top[length=endFirst], first, *sepPos(rest, first.top[offset=ctxStart][length=ctxLength])] 
-   when int lengthFirst := single.offset - ctx.offset,
-        int ctxStart := single.offset+single.length,
-        int ctxLength := ctx.length-first.length;

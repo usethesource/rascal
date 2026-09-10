@@ -908,13 +908,13 @@ void collect(current: (Type) `layout[<Type tp>]`, Collector c)
 
 private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, Collector c) {
     collect(tp, c);
-    par = c.getType(tp);
+    AType par = c.getType(tp);
 
     if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier) {
         c.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, or data, syntax, lexical, layout or keyword names like `Stat` are understood."));
     }
     else {
-        c.fact(current, asyntaxRoleModifier(role, c.getType(tp)));
+        c.fact(current, asyntaxRoleModifier(role, par));
     }
 }
 
