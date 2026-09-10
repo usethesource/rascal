@@ -26,7 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@bootstrapParser
+// @bootstrapParser commented out for bootstrapping purposes
 module lang::rascalcore::check::CollectType
 
 /*
