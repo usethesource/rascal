@@ -370,6 +370,17 @@ public class JavaBridge {
 		public Class<?> visitFunction(Type type) throws RuntimeException {
 		    return IFunction.class;
 		}
+
+		@Override
+		public Class<?> visitRoleModifier(RascalType type) throws RuntimeException {
+			if (type.isDataRoleModifier()) {
+				return IConstructor.class;
+			}
+			else { // the others are parse tree kinds
+				assert type.isSyntaxRoleModifier() || type.isKeywordRoleModifier() || type.isLayoutRoleModifier() || type.isLexicalRoleModifier();
+				return ITree.class;
+			}
+		}
 	}
 	
 	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, Reader in, IEvaluatorContext ctx) {

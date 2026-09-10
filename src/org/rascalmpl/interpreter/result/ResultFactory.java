@@ -240,6 +240,16 @@ public class ResultFactory {
 			else if (RascalType.isReified(externalType)) {
 				return new ConstructorResult(externalType, (IConstructor) value, ctx);
 			}
+			else if (RascalType.isRoleModifier(externalType)) {
+				RascalType modifier = (RascalType) externalType;
+				if (modifier.isDataRoleModifier()) {
+					return new ConstructorResult(externalType, (IConstructor) value, ctx);
+				}
+				else {
+					assert modifier.isSyntaxRoleModifier() || modifier.isLayoutRoleModifier() || modifier.isLexicalRoleModifier() || modifier.isKeywordRoleModifier() : "not expecting: " + externalType;
+					return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
+				}
+			}
 
 			return new ValueResult(declaredType, value, ctx);
 		}
