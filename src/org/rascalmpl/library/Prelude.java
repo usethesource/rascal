@@ -2602,7 +2602,7 @@ public class Prelude {
 					}
 				}
 				
-				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a matching constructor " + constructorName + " for lexical type " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
