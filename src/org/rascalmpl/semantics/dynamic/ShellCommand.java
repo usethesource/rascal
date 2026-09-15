@@ -24,6 +24,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.Configuration.ProfileFormat;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
@@ -225,6 +226,9 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 	private static void setOption(IEvaluator<Result<IValue>> __eval, String name, String value) {
 		switch (name) {
+			case Configuration.PROFILE_FORMAT_PROPERTY:
+			  __eval.getConfiguration().setProfileFormat(ProfileFormat.parseProfileFormat(value.replace("\"", "")));
+			  break;
 			case Configuration.GENERATOR_PROFILING_PROPERTY:
 				  __eval.getConfiguration().setGeneratorProfiling(Boolean.parseBoolean(value));
 				  __eval.getParserGenerator().setGeneratorProfiling(Boolean.parseBoolean(value));

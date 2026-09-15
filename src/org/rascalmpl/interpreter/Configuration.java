@@ -23,27 +23,43 @@ public class Configuration {
 	public static final String RASCAL_MODULE_SEP = "::";
 	public static final String RASCAL_PATH_SEP = "/";
 	
+	public final static String PROFILE_FORMAT_PROPERTY = "rascal.profileFormat";
 	public final static String PROFILING_PROPERTY = "rascal.profiling";
 	public final static String GENERATOR_PROFILING_PROPERTY = "rascal.generatorProfiling";
 	public final static String TRACING_PROPERTY = "rascal.tracing";
 	public final static String ERRORS_PROPERTY = "rascal.errors";
 	public final static String DEBUGGING_PROPERTY = "rascal.debugging";
 	
+  	private ProfileFormat profileFormat = getDefaultProfileFormat(PROFILE_FORMAT_PROPERTY, ProfileFormat.CPUPROFILE);
   	private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
   	private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
   	private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
   	private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
 	private boolean debugging = getDefaultBoolean(DEBUGGING_PROPERTY, false);
-	
+
+	private static ProfileFormat getDefaultProfileFormat(String property, ProfileFormat def) {
+		String prop = System.getProperty(property);
+		if (prop == null) {
+			return def;
+		}
+		else {
+			return ProfileFormat.parseProfileFormat(prop);
+		}
+	}
+
 	private static boolean getDefaultBoolean(String property, boolean def) {
 		String prop = System.getProperty(property);
 		if (prop == null) {
 			return def;
 		}
 		else {
-		return prop.equals("true");
+			return prop.equals("true");
 		}
   	}
+
+	public ProfileFormat getProfileFormat() {
+		return profileFormat;
+	}
 
 	public boolean getDebuggingProperty() {
 		return debugging;
@@ -65,6 +81,10 @@ public class Configuration {
 		return errors;
 	}
 	
+	public void setProfileFormat(ProfileFormat profileFormat) {
+		this.profileFormat = profileFormat;
+	}
+
 	public void setErrors(boolean errors) {
     	this.errors = errors;
   	}
@@ -83,5 +103,20 @@ public class Configuration {
 
 	public void setDebugging(boolean debugging) {
 		this.debugging = debugging;
+	}
+
+	public static enum ProfileFormat {
+		FOLDED, CPUPROFILE;
+
+		public static ProfileFormat parseProfileFormat(String s) {
+			switch (s) {
+				case "folded":
+					return FOLDED;
+				case "cpuprofile":
+					return CPUPROFILE;
+				default:
+					return CPUPROFILE;
+			}
+		}
 	}
 }
