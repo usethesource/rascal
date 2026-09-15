@@ -953,16 +953,6 @@ public AType aglb(afunc(AType lr, list[AType] lp, list[Keyword] kwl), afunc(ATyp
         return avalue();
 }
 
-@synopsis{Role is the same, different parameter}
-AType aglb(asyntaxRoleModifier(SyntaxRole role, p1:aparameter(_,_)),
-           asyntaxRoleModifier(           role, !p1))
-    = avoid();
-
-@synopsis{Role is different, same parameter: we keep the parameter}
-AType aglb(asyntaxRoleModifier(SyntaxRole _, p1:aparameter(_,_)),
-           asyntaxRoleModifier(SyntaxRole _, p1))
-    = p1;
-
 @synopsis{Node on the right, defaults to the syntax role modifier}
 AType aglb(a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_)), \anode(_)) = a;
 
