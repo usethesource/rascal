@@ -109,3 +109,11 @@ test bool leastUpperboundSyntaxRoles() {
     // substitution in the return type
     return data[E] _ := id(e(), (E) `e`);
 }
+
+test bool leastUpperboundSyntaxRolesDifferentOrder() {
+    syntax[&T] id(syntax[&T] x, data[&T] _) = x;
+
+    // this uses ?role[E] between matching two roles and
+    // substitution in the return type
+    return syntax[E] _ := id((E) `e`, e());
+}
