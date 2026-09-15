@@ -313,8 +313,7 @@ public abstract class ModifySyntaxRole extends RascalType {
             }
             else if (matched.isAbstractData()) {
                 // it's the data rule, but at last we can bind a placeholder with that name
-                bindings.put(arg, TF.namedPlaceholder(getName(), false));
-                return true;
+                return arg.match(TF.namedPlaceholder(getName(), true), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -487,8 +486,7 @@ public abstract class ModifySyntaxRole extends RascalType {
                 }
                 else {
                     // it's a different role, bind with a placeholder to keep the name
-                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
-                    return true;
+                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
                 }
             }
             else if (matched.isAbstractData()) {
@@ -661,8 +659,7 @@ public abstract class ModifySyntaxRole extends RascalType {
                 }
                 else {
                     // it's a different role, bind with a placeholder to keep the name
-                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
-                    return true;
+                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
                 }
             }
             else if (matched.isAbstractData()) {
@@ -831,8 +828,7 @@ public abstract class ModifySyntaxRole extends RascalType {
                 }
                 else {
                     // it's a different role, bind with a placeholder to keep the name
-                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
-                    return true;
+                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
                 }
             }
             else if (matched.isAbstractData()) {
@@ -989,8 +985,7 @@ public abstract class ModifySyntaxRole extends RascalType {
 
             if (matched instanceof NonTerminalType) {
                 // it's a different role, bind with a placeholder to keep the name
-                bindings.put(arg, TF.namedPlaceholder(getName(), false));
-                return true;
+                return arg.match(TF.namedPlaceholder(getName(), false), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the same role, so we can keep the type
