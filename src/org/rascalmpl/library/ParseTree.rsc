@@ -880,7 +880,8 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 ```
 }
-java data[&T] implode(type[data[&T]] t, syntax[&T] tree);
+// java data[&T] implode(type[data[&T]] t, syntax[&T] tree);
+java &T implode(type[&T] grammar, Tree tree);
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
