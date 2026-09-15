@@ -1097,4 +1097,8 @@ public class SymbolAdapter {
 	public static boolean isParametrizableType(IConstructor sort) {
 		return SymbolAdapter.isADT(sort) || SymbolAdapter.isParameterizedSort(sort) || SymbolAdapter.isParameterizedLex(sort);
 	}
+
+	public static boolean isNamed(IConstructor symbol) {
+		return isSort(symbol) || isLex(symbol) || isKeyword(symbol) || isLayouts(symbol) || isADT(symbol) || isParametrizableType(symbol);
+	}
 }

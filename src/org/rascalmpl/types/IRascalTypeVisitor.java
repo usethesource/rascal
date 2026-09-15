@@ -6,4 +6,5 @@ public interface IRascalTypeVisitor<T,E extends Throwable> extends ITypeVisitor<
   T visitReified(RascalType THIS) throws E;
   T visitNonTerminal(RascalType THIS) throws E;
   T visitRoleModifier(RascalType THIS) throws E;
+  T visitNamedPlaceHolder(RascalType THIS) throws E;
 }

@@ -381,6 +381,11 @@ public class JavaBridge {
 				return ITree.class;
 			}
 		}
+
+		@Override
+		public Class<?> visitNamedPlaceHolder(RascalType THIS) throws RuntimeException {
+			return INode.class;
+		}
 	}
 	
 	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, Reader in, IEvaluatorContext ctx) {

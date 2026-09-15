@@ -53,6 +53,10 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
+    protected boolean isSubtypeOfNamedPlaceholder(RascalType type) {
+        return false;
+    }
+
     protected Type lubWithNonTerminal(RascalType type) {
         return TF.valueType();
     }
@@ -66,6 +70,10 @@ public abstract class RascalType extends ExternalType {
     }
 
     protected Type lubWithModifySyntax(RascalType type) {
+        return TF.valueType();
+    }
+
+    protected Type lubWithNamedPlaceholder(RascalType type) {
         return TF.valueType();
     }
 
@@ -84,6 +92,10 @@ public abstract class RascalType extends ExternalType {
     protected Type glbWithModifySyntax(RascalType type) {
         return TF.voidType();
     }
+
+    protected Type glbWithNamedPlaceholder(RascalType type) {
+        return TF.voidType();
+    }
     
     protected boolean intersectsWithNonTerminal(RascalType type) {
         return false;
@@ -97,7 +109,11 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
-     protected boolean intersectsWithModifySyntax(RascalType type) {
+    protected boolean intersectsWithModifySyntax(RascalType type) {
+        return false;
+    }
+
+    protected boolean intersectsWithNamedPlaceholder(RascalType type) {
         return false;
     }
     
@@ -137,6 +153,10 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
+    public boolean isNamedPlaceholder() {
+        return false;
+    }
+
     public static boolean isNonterminal(Type type) {
         return type.isExternalType() && ((RascalType) type).isNonterminal();
     }
@@ -149,8 +169,11 @@ public abstract class RascalType extends ExternalType {
         return type.isExternalType() && ((RascalType) type).isFunction();
     }
 
-     public static boolean isRoleModifier(Type type) {
+    public static boolean isRoleModifier(Type type) {
         return type.isExternalType() && ((RascalType) type).isRoleModifier();
     }
 
+    public static boolean isNamedPlaceHolder(Type type) {
+        return type.isExternalType() && ((RascalType) type).isNamedPlaceholder();
+    }
 }

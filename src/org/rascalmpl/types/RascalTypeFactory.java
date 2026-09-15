@@ -161,4 +161,8 @@ public class RascalTypeFactory {
 		return tf.externalType(new ModifySyntaxRole.Layout(arg).apply());
 	}
 
+	public  Type namedPlaceholder(String name, boolean nonterminal) {
+		return tf.externalType(new NamedPlaceholder(name, nonterminal));
+	}
+
 }

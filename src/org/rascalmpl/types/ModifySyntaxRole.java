@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -113,6 +112,9 @@ public abstract class ModifySyntaxRole extends RascalType {
         if (arg.isParameter()) {
             return this;
         }
+        else if (arg instanceof NamedPlaceholder) {
+            return applyToPlaceholder((NamedPlaceholder) arg);
+        }
         else if (arg instanceof ModifySyntaxRole) {
             return applyToRole((ModifySyntaxRole) arg);
         }
@@ -139,12 +141,14 @@ public abstract class ModifySyntaxRole extends RascalType {
         throw new IllegalArgumentException("Do not know how to apply the " + getClass().getSimpleName() + " syntax role modifier to " + arg);
     }
 
+    protected abstract Type applyToPlaceholder(NamedPlaceholder ph);
     protected abstract Type applyToRole(ModifySyntaxRole role);
     protected abstract Type applyToSyntax(NonTerminalType role);
     protected abstract Type applyToLexical(NonTerminalType role);
     protected abstract Type applyToLayout(NonTerminalType role);
     protected abstract Type applyToKeyword(NonTerminalType role);
     protected abstract Type applyToData(Type role);
+
 
     /** intermediate layer for simulating the Tree.appl constructor type */
     public static abstract class NonterminalTypes extends ModifySyntaxRole {
@@ -212,7 +216,6 @@ public abstract class ModifySyntaxRole extends RascalType {
         public Type getKeywordParameterTypes() {
              return RascalFunctionValueFactory.Tree.getKeywordParameterTypes();
         }
-
     }
     /** this represents `syntax[&T]` */
     public static class Syntax extends NonterminalTypes {
@@ -237,31 +240,29 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return TF.modifyToSyntax(((ModifySyntaxRole) type).arg.lub(arg));
-            }
-            else if (type instanceof Lexical) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Layout) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Keyword) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Data) {
-                return tf.nodeType();
+            assert isOpen();
+
+            if (type instanceof ModifySyntaxRole) {
+                // we keep the parameter if its the same
+                if (((ModifySyntaxRole) type).arg == this.arg) {
+                    return this.arg;
+                }
+
+                // with data the union is `node`
+                if (type.isDataRoleModifier()) {
+                    return tf.nodeType();
+                }
+
+                // with all the other modifiers the union is `Tree`
+                return RascalFunctionValueFactory.Tree;
             }
 
-            return tf.nodeType();
+             // the other external types don't overlap
+            return tf.valueType();
         }
 
         @Override
         protected Type glbWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return TF.modifyToSyntax(((ModifySyntaxRole) type).arg.glb(arg));
-            }
-            
             return tf.voidType();
         }
 
@@ -301,8 +302,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
                 if (SymbolAdapter.isSort(sym) || SymbolAdapter.isParameterizedSort(sym)) {
+                    // it's the same role, bind with the matched non-terminal 
                     return arg.match(matched, bindings);
                 }
+                else {
+                    // it's a different role, bind with a placeholder to keep the name
+                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
+                    return true;
+                }
+            }
+            else if (matched.isAbstractData()) {
+                // it's the data rule, but at last we can bind a placeholder with that name
+                bindings.put(arg, TF.namedPlaceholder(getName(), false));
+                return true;
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -320,6 +332,11 @@ public abstract class ModifySyntaxRole extends RascalType {
         protected boolean isSubtypeOfAbstractData(Type type) {
             // syntax[T] <: Tree
             return type == RascalValueFactory.Tree;
+        }
+
+        @Override
+        protected Type applyToPlaceholder(NamedPlaceholder ph) {
+            return TF.syntaxType(ph.getName());
         }
 
         @Override
@@ -417,31 +434,29 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Lexical) {
-                return TF.modifyToLexical(((ModifySyntaxRole) type).arg.lub(arg));
-            }
-            else if (type instanceof Layout) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Keyword) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Data) {
-                return tf.nodeType();
+            assert isOpen();
+
+            if (type instanceof ModifySyntaxRole) {
+                // we keep the parameter if its the same
+                if (((ModifySyntaxRole) type).arg == this.arg) {
+                    return this.arg;
+                }
+
+                // with data the union is `node`
+                if (type.isDataRoleModifier()) {
+                    return tf.nodeType();
+                }
+
+                // with all the other modifiers the union is `Tree`
+                return RascalFunctionValueFactory.Tree;
             }
 
-            return tf.nodeType();
+             // the other external types don't overlap
+            return tf.valueType();
         }
 
-         @Override
+        @Override
         protected Type glbWithModifySyntax(RascalType type) {
-            if (type instanceof Lexical) {
-                return TF.modifyToLexical(((ModifySyntaxRole) type).arg.glb(arg));
-            }
-
             return tf.voidType();
         }
 
@@ -467,8 +482,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
                 if (SymbolAdapter.isLex(sym) || SymbolAdapter.isParameterizedLex(sym)) {
+                    // it's the same role, bind with the matched non-terminal 
                     return arg.match(matched, bindings);
                 }
+                else {
+                    // it's a different role, bind with a placeholder to keep the name
+                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
+                    return true;
+                }
+            }
+            else if (matched.isAbstractData()) {
+                // it's the data rule, but at last we can bind a placeholder with that name
+                bindings.put(arg, TF.namedPlaceholder(getName(), false));
+                return true;
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -485,6 +511,11 @@ public abstract class ModifySyntaxRole extends RascalType {
         @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToLexical(role.arg);
+        }
+
+        @Override
+        protected Type applyToPlaceholder(NamedPlaceholder ph) {
+            return TF.lexicalType(ph.getName());
         }
 
         @Override
@@ -571,31 +602,29 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Lexical) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Layout) {
-                return TF.modifyToLayout(((ModifySyntaxRole) type).arg.lub(arg));
-            }
-            else if (type instanceof Keyword) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Data) {
-                return tf.nodeType();
+            assert isOpen();
+
+            if (type instanceof ModifySyntaxRole) {
+                // we keep the parameter if its the same
+                if (((ModifySyntaxRole) type).arg == this.arg) {
+                    return this.arg;
+                }
+
+                // with data the union is `node`
+                if (type.isDataRoleModifier()) {
+                    return tf.nodeType();
+                }
+
+                // with all the other modifiers the union is `Tree`
+                return RascalFunctionValueFactory.Tree;
             }
 
-            return tf.nodeType();
+             // the other external types don't overlap
+            return tf.valueType();
         }
 
         @Override
         protected Type glbWithModifySyntax(RascalType type) {
-            if (type instanceof Layout) {
-                return TF.modifyToLayout(((ModifySyntaxRole) type).arg.glb(arg));  
-            }
-            
             return tf.voidType();
         }
 
@@ -627,8 +656,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
                 if (SymbolAdapter.isLayouts(sym)) {
+                    // it's the same role, bind with the matched non-terminal 
                     return arg.match(matched, bindings);
                 }
+                else {
+                    // it's a different role, bind with a placeholder to keep the name
+                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
+                    return true;
+                }
+            }
+            else if (matched.isAbstractData()) {
+                // it's the data rule, but at last we can bind a placeholder with that name
+                bindings.put(arg, TF.namedPlaceholder(getName(), false));
+                return true;
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -645,6 +685,11 @@ public abstract class ModifySyntaxRole extends RascalType {
         @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToLayout(role.arg);
+        }
+
+        @Override
+        protected Type applyToPlaceholder(NamedPlaceholder ph) {
+            return TF.layoutType(ph.getName());
         }
 
         @Override
@@ -713,32 +758,29 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Lexical) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Layout) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Keyword) {
-                 return TF.modifyToKeyword(((ModifySyntaxRole) type).arg.lub(arg));            
-            }
-            else if (type instanceof Data) {
-                return tf.nodeType();
+            assert isOpen();
+
+            if (type instanceof ModifySyntaxRole) {
+                // we keep the parameter if its the same
+                if (((ModifySyntaxRole) type).arg == this.arg) {
+                    return this.arg;
+                }
+
+                // with data the union is `node`
+                if (type.isDataRoleModifier()) {
+                    return tf.nodeType();
+                }
+
+                // with all the other modifiers the union is `Tree`
+                return RascalFunctionValueFactory.Tree;
             }
 
-            return tf.nodeType();
+             // the other external types don't overlap
+            return tf.valueType();
         }
 
         @Override
         protected Type glbWithModifySyntax(RascalType type) {
-            if (type instanceof Keyword) {
-                 return TF.modifyToKeyword(((ModifySyntaxRole) type).arg.glb(arg));            
-            }
-            
-
             return tf.voidType();
         }
 
@@ -778,12 +820,25 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            assert isOpen();
+
             if (matched instanceof NonTerminalType) {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
                 if (SymbolAdapter.isKeyword(sym)) {
+                    // it's the same role, bind with the matched non-terminal 
                     return arg.match(matched, bindings);
                 }
+                else {
+                    // it's a different role, bind with a placeholder to keep the name
+                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
+                    return true;
+                }
+            }
+            else if (matched.isAbstractData()) {
+                // it's the data rule, but at last we can bind a placeholder with that name
+                bindings.put(arg, TF.namedPlaceholder(getName(), false));
+                return true;
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -800,6 +855,11 @@ public abstract class ModifySyntaxRole extends RascalType {
         @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToKeyword(role.arg);
+        }
+
+        @Override
+        protected Type applyToPlaceholder(NamedPlaceholder ph) {
+            return TF.keywordType(ph.getName());
         }
 
         @Override
@@ -880,31 +940,23 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
-            if (type instanceof Syntax) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Lexical) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Layout) {
-                return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Keyword) {
-                 return RascalValueFactory.Tree;
-            }
-            else if (type instanceof Data) {
-                return this;
+            assert isOpen();
+
+            if (type instanceof ModifySyntaxRole) {
+                // we keep the parameter if its the same
+                if (((ModifySyntaxRole) type).arg == this.arg) {
+                    return this.arg;
+                }
+
+                return tf.nodeType();
             }
 
-            return tf.nodeType();
+             // the other external types don't overlap
+            return tf.valueType();
         }
 
         @Override
         protected Type glbWithModifySyntax(RascalType type) {
-            if (type instanceof Data) {
-                return this;
-            }
-
             return tf.voidType();
         }
 
@@ -933,17 +985,21 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            assert isOpen();
+
             if (matched instanceof NonTerminalType) {
-                // here a `syntax` or `lexical` or `keyword` or `layout` would match against a
-                // literal data[&T], and we need the &T to bind with `Tree` and not `Statement` or
-                // some non-terminal name. Note that this is correct because `Tree` is an
-                // algebraic `data` type.
-                return arg.match(RascalValueFactory.Tree, bindings);
+                // it's a different role, bind with a placeholder to keep the name
+                bindings.put(arg, TF.namedPlaceholder(getName(), false));
+                return true;
             }
-            else if (matched.isAbstractData() || matched.isBottom()) {
-                return arg.match(matched, bindings);    
+            else if (matched.isAbstractData()) {
+                // it's the same role, so we can keep the type
+                return arg.match(matched, bindings);
             }
-            
+            else if (matched.isBottom()) {
+                return arg.match(matched, bindings);
+            }
+
             return false;
         }
 
@@ -988,6 +1044,12 @@ public abstract class ModifySyntaxRole extends RascalType {
         }    
         
         @Override
+        protected Type applyToPlaceholder(NamedPlaceholder ph) {
+            // TODO: what about the type parameters
+            return tf.abstractDataType(new TypeStore(), ph.getName());
+        }
+
+        @Override
         protected Type lubWithAbstractData(Type type) {
             return type.lub(arg);
         }
@@ -1030,11 +1092,19 @@ public abstract class ModifySyntaxRole extends RascalType {
 
     @Override
     protected Type lub(RascalType type) {
+        if (type == this) {
+            return this;
+        }
+
         return type.lubWithModifySyntax(this);
     }
 
     @Override
     protected Type glb(RascalType type) {
+        if (type == this) {
+            return this;
+        }
+
         return type.glbWithModifySyntax(this);
     }
 
