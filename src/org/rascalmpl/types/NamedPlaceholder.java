@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Random;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IValue;
@@ -161,9 +162,37 @@ public class NamedPlaceholder extends RascalType {
     }
 
     @Override
+    protected Type lubWithAbstractData(Type type) {
+        if (getName().equals(type.getName())) {
+            return this;
+        }
+
+        return TypeFactory.getInstance().nodeType();
+    }
+
+    @Override
+    protected Type lubWithNonTerminal(RascalType type) {
+        NonTerminalType nt = (NonTerminalType) type;
+
+        if (SymbolAdapter.getName(nt.getSymbol()).equals(getName())) {
+            return this;
+        }
+        else if (isNonterminal) {
+            return RascalFunctionValueFactory.Tree;
+        }
+        else {
+            return TypeFactory.getInstance().nodeType();
+        }
+    }
+
+    @Override
     public IValue randomValue(Random random, RandomTypesConfig typesConfig, IValueFactory vf, TypeStore store,
         Map<Type, Type> typeParameters, int maxDepth, int maxBreadth) {
         throw new UnsupportedOperationException("Unimplemented method 'randomValue' on named syntax placeholders");
     }
     
+    @Override
+    public String toString() {
+        return "?role[" + name + "]";
+    }
 }

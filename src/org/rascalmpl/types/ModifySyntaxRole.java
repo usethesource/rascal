@@ -301,19 +301,11 @@ public abstract class ModifySyntaxRole extends RascalType {
             if (matched instanceof NonTerminalType) {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
-                if (SymbolAdapter.isSort(sym) || SymbolAdapter.isParameterizedSort(sym)) {
-                    // it's the same role, bind with the matched non-terminal 
-                    return arg.match(matched, bindings);
-                }
-                else {
-                    // it's a different role, bind with a placeholder to keep the name
-                    bindings.put(arg, TF.namedPlaceholder(getName(), true));
-                    return true;
-                }
+                return arg.match(TF.namedPlaceholder(SymbolAdapter.getName(sym), true), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the data rule, but at last we can bind a placeholder with that name
-                return arg.match(TF.namedPlaceholder(getName(), true), bindings);
+                return arg.match(TF.namedPlaceholder(matched.getName(), true), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -480,19 +472,11 @@ public abstract class ModifySyntaxRole extends RascalType {
             if (matched instanceof NonTerminalType) {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
-                if (SymbolAdapter.isLex(sym) || SymbolAdapter.isParameterizedLex(sym)) {
-                    // it's the same role, bind with the matched non-terminal 
-                    return arg.match(matched, bindings);
-                }
-                else {
-                    // it's a different role, bind with a placeholder to keep the name
-                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
-                }
+                return arg.match(TF.namedPlaceholder(SymbolAdapter.getName(sym), true), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the data rule, but at last we can bind a placeholder with that name
-                bindings.put(arg, TF.namedPlaceholder(getName(), false));
-                return true;
+                return arg.match(TF.namedPlaceholder(matched.getName(), false), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -653,19 +637,11 @@ public abstract class ModifySyntaxRole extends RascalType {
             if (matched instanceof NonTerminalType) {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
-                if (SymbolAdapter.isLayouts(sym)) {
-                    // it's the same role, bind with the matched non-terminal 
-                    return arg.match(matched, bindings);
-                }
-                else {
-                    // it's a different role, bind with a placeholder to keep the name
-                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
-                }
+                return arg.match(TF.namedPlaceholder(SymbolAdapter.getName(sym), true), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the data rule, but at last we can bind a placeholder with that name
-                bindings.put(arg, TF.namedPlaceholder(getName(), false));
-                return true;
+                return arg.match(TF.namedPlaceholder(matched.getName(), false), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -822,19 +798,11 @@ public abstract class ModifySyntaxRole extends RascalType {
             if (matched instanceof NonTerminalType) {
                 IConstructor sym = ((NonTerminalType) matched).getSymbol();
 
-                if (SymbolAdapter.isKeyword(sym)) {
-                    // it's the same role, bind with the matched non-terminal 
-                    return arg.match(matched, bindings);
-                }
-                else {
-                    // it's a different role, bind with a placeholder to keep the name
-                    return arg.match(TF.namedPlaceholder(getName(), true), bindings);
-                }
+                return arg.match(TF.namedPlaceholder(SymbolAdapter.getName(sym), true), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the data rule, but at last we can bind a placeholder with that name
-                bindings.put(arg, TF.namedPlaceholder(getName(), false));
-                return true;
+                return arg.match(TF.namedPlaceholder(getName(), false), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
@@ -985,11 +953,11 @@ public abstract class ModifySyntaxRole extends RascalType {
 
             if (matched instanceof NonTerminalType) {
                 // it's a different role, bind with a placeholder to keep the name
-                return arg.match(TF.namedPlaceholder(getName(), false), bindings);
+                return arg.match(TF.namedPlaceholder(SymbolAdapter.getName(((NonTerminalType) matched).getSymbol()), false), bindings);
             }
             else if (matched.isAbstractData()) {
                 // it's the same role, so we can keep the type
-                return arg.match(matched, bindings);
+                return arg.match(TF.namedPlaceholder(matched.getName(), false), bindings);
             }
             else if (matched.isBottom()) {
                 return arg.match(matched, bindings);
