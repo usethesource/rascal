@@ -8,7 +8,11 @@ syntax A = "a" | "b" "b";
 
 layout L = [\ ]*;
 
+syntax E = "e";
+
 data A = a();
+
+data E = e();
 
 test bool useOfDifferentModifierTypesWithinASingleScope() {
     data[A] anExample = a();
@@ -96,4 +100,12 @@ test bool dataIsANodeToo() {
 
     // this would fail the type-checker if `data[&T] `is not sub-type of `node`
     return washGeneric(x()) == x();
+}
+
+test bool leastUpperboundSyntaxRoles() {
+    data[&T] id(data[&T] x, syntax[&T] _) = x;
+
+    // this uses ?role[E] between matching two roles and
+    // substitution in the return type
+    return data[E] _ := id(e(), (E) `e`);
 }
