@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -20,7 +23,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,11 +32,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.Configuration.ProfileFormat;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.semantics.dynamic.Statement.Expression;
 import org.rascalmpl.uri.URIUtil;
@@ -42,10 +52,16 @@ import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.QualifiedName;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeStore;
+
 import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
@@ -408,6 +424,202 @@ class FlameChart {
 	}
 }
 
+class TempFile<T> implements Closeable {
+	private final ExecutorService runner;
+	private final Path path;
+	private final BufferedWriter writer;
+	private final Function<T, String> encode;
+	private final Function<String, T> decode;
+
+	public TempFile(Function<T, String> encoder, Function<String, T> decoder) throws IOException {
+		this.runner = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
+		this.path = Files.createTempFile("", "");
+		this.writer = Files.newBufferedWriter(path);
+		this.encode = encoder;
+		this.decode = decoder;
+	}
+
+	public void close() {
+		schedule(() -> {
+			writer.close();
+			Files.delete(path);
+			return null;
+		});
+
+		// Shutdown and await termination (or an interrupt)
+		try {
+			runner.shutdown();
+			while (!runner.awaitTermination(1, TimeUnit.SECONDS));
+			return;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	public void readLines(Consumer<T> action) {
+		schedule(() -> {
+			writer.flush();
+			try (var reader = Files.newBufferedReader(path)) {
+				reader.lines().map(decode).forEachOrdered(action);
+			}
+			return null;
+		});
+	}
+
+	public void writeLine(T value) {
+		schedule(() -> {
+			writer.write(encode.apply(value));
+			writer.newLine();
+			return null;
+		});
+	}
+
+	private void schedule(Callable<Void> c) {
+		runner.submit(() -> {
+			try {
+				c.call();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+}
+
+class Sampler implements Closeable {
+	private final Evaluator evaluator;
+	private final TempFile<Sample> tempFile;
+
+	public Sampler(Evaluator evaluator) throws IOException {
+		this.evaluator = evaluator;
+		this.tempFile = new TempFile<>(
+			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
+			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, new TypeStore()))
+		);
+	}
+
+	@Override
+	public void close() throws IOException {
+		tempFile.close();
+	}
+
+	public void addSample() throws IOException {
+		var sample = Sample.of(evaluator);
+		if (sample == null) {
+			return;
+		}
+		tempFile.writeLine(sample);
+	}
+
+	public void getSamples(Consumer<Sample> f) throws IOException {
+		tempFile.readLines(f);
+	}
+
+	public static class Sample {
+		public final long nanoTime;
+		public final List<Labeled<ISourceLocation>> stack;
+
+		public Sample(long timestamp, List<Labeled<ISourceLocation>> stack) {
+			assert !stack.isEmpty();
+			this.nanoTime = timestamp;
+			this.stack = stack;
+		}
+
+		public boolean isInitializer() {
+			var label = stack.get(0).label;
+			return Objects.equals("kwp initializer", label) ||
+				Objects.equals("keyword parameter initializer", label);
+		}
+
+		public IValue toIValue(IValueFactory vf) {
+			var list = vf.listWriter();
+			for (var frame : stack) {
+				list.append(frame.toIValue(vf));
+			}
+			return vf.tuple(vf.integer(nanoTime), list.done());
+		}
+
+		public static Sample of(IValue v) {
+			var nanoTime = ((IInteger) ((ITuple) v).get(0)).longValue();
+			var stack = ((IList) ((ITuple) v).get(1)).stream()
+				.map(Labeled::<ISourceLocation> of)
+				.collect(Collectors.toList());
+			return new Sample(nanoTime, stack);
+		}
+
+		public static Sample of(Evaluator evaluator) {
+			var nanoTime = System.nanoTime();
+			var stack = new ArrayList<Labeled<ISourceLocation>>();
+
+			// Instead of calling `evaluator.getStackTrace`,The following bit of
+			// custom code to traverse the stack of environments is useful to
+			// immediately get the stack trace in the right iteration order
+			// (bottom-to-top instead of top-to-bottom).
+			var e = evaluator.getCurrentEnvt();
+			while (e != null) {
+				stack.add(0, new Labeled<>(locationOf(e), functionNameOf(e)));
+				e = e.getCallerScope();
+			}
+
+			return stack.isEmpty() ? null : new Sample(nanoTime, stack);
+		}
+
+		private static final ISourceLocation NULL_LOCATION = URIUtil.unknownLocation();
+
+		private static ISourceLocation locationOf(Environment e) {
+			var location = e.getCallerLocation();
+			return location == null ? NULL_LOCATION : location;
+		}
+
+		private static String functionNameOf(Environment e) {
+			// Conceptually, each call frame in a stack trace of the interpreter
+			// is itself represented as a linked list of environments. To get
+			// the "right" name of a call frame for the purpose of constructing
+			// a flame chart, we need to find the name of the *penultimate*
+			// environment in the list (as the final environment represents the
+			// module), unless the call frame concerns an anonymous function.
+			var name = e.getName();
+			var parent = e.getParent();
+			if (Objects.equals("Anonymous Function", name)) {
+				return name + " (" + e.getCreatorLocation() + ")"; 
+			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
+				return name;
+			} else {
+				return functionNameOf(parent);
+			}
+		}
+	}
+
+	public static class Labeled<T extends IValue> {
+		public final T value;
+		public final String label;
+		
+		public Labeled(T value, String label) {
+			this.value = value;
+			this.label = label;
+		}
+
+		public IValue toIValue(IValueFactory vf) {
+			return vf.tuple(value, vf.string(label));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <T extends IValue> Labeled<T> of(IValue v) {
+			var value = (T) ((ITuple) v).get(0);
+			var label = ((IString) ((ITuple) v).get(1)).getValue();
+			return new Labeled<T>(value, label);
+		}
+	}
+
+	public static Sampler of(Evaluator evaluator) {
+		try {
+			return new Sampler(evaluator);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+}
+
 public class Profiler extends Thread {
 	private Evaluator eval;
 	private volatile boolean running;
@@ -416,6 +628,9 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
 	private final FlameChart flameChart = new FlameChart();
+	private final ProfileFormat profileFormat;
+
+	private final Sampler sampler;
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
@@ -423,7 +638,10 @@ public class Profiler extends Thread {
 		this.ast = new HashMap<>();
 		this.frame = new HashMap<>();
 		this.names = new HashMap<>();
+		this.profileFormat = ev.getConfiguration().getProfileFormat();
 		running = true;
+
+		this.sampler = Sampler.of(ev);
 	}
 	
 	@Override
@@ -435,6 +653,11 @@ public class Profiler extends Thread {
 			
 			if (current != null) {
 				flameChart.tick(eval);
+				try {
+					sampler.addSample();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
 				ISourceLocation stat = current.getLocation();
 				if(stat != null){
@@ -547,7 +770,17 @@ public class Profiler extends Thread {
 	private void reportFlameChart() {
 		var path = flameChart.write(eval);
 		var out = eval.getOutPrinter();
-		out.printf("FLAME CHART: %s\n", path == null ? "n/a" : path);
+		out.printf("FLAME CHART (%s): %s\n", profileFormat, path == null ? "n/a" : path);
 		out.flush();
+
+		try {
+			sampler.getSamples(s -> {
+				System.out.println(s.nanoTime + " " + s.stack);
+			});
+			sampler.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
