@@ -238,9 +238,12 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     fail;
 }
 
-// Open modifiers are sub-types of the kinds that they modify _to_.
-// It's good to remember that _closed_ syntax role modifiers are already rewritten
-// to the type they modify to in ATypeBase
+@synopsis{Semantics of asyntaxRoleModifier}
+@descripton{
+    Open modifiers are sub-types of the kinds that they modify _to_.
+    It's good to remember that _closed_ syntax role modifiers are already rewritten
+    to the type they modify to in ATypeBase
+}
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt(_, _, role)) = true;
 
 // All open syntax role modifiers are sub-types of `node`
@@ -252,6 +255,15 @@ private set[SyntaxRole] treeSyntaxRoles = {contextFreeSyntax(), lexicalSyntax(),
 // All context-free grammar-related syntax roles are sub-types of `Tree`
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
     when role in treeSyntaxRoles;
+
+@synopsis{Free variables are subtypes in two directions.}
+@description{
+Here we see that the modifiers are not types themselves. A value
+can never have this type. They are only selectors/modifiers for certain type kinds 
+when names become ambiguous or unbound.
+}
+bool asubtype(AType p:\aparameter(_), \asyntaxRoleModifier(SyntaxRole _, p)) = true;
+bool asubtype(\asyntaxRoleModifier(SyntaxRole _, AType p), p) = true;
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
@@ -756,14 +768,21 @@ AType alub(aadt("Tree",[], dataSyntax()), \asyntaxRoleModifier(SyntaxRole role, 
 
 // ---
 
-AType alub(\asyntaxRoleModifier(dataSyntax(), \aparameter(x, _)),
-           \asyntaxRoleModifier(SyntaxRole _, \aparameter(y, _))) = anode([]) when x != y;
+@synopsis{Different role, but same parameter, keep the parameter}
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(str x, _)),
+           \asyntaxRoleModifier(!role, \aparameter(x, _))) = \aparameter(x);
+           
+@synopsis{node is the least above data on the left}
+AType alub(\asyntaxRoleModifier(dataSyntax(), \aparameter(str x, _)),
+           \asyntaxRoleModifier(SyntaxRole _, \aparameter(!x, _))) = anode([]);
 
-AType alub(\asyntaxRoleModifier(SyntaxRole _, \aparameter(x, _)),
-           \asyntaxRoleModifier(dataSyntax(), \aparameter(y, _))) = anode([]) when x != y;
+@synopsis{node is the least above data on the right}
+AType alub(\asyntaxRoleModifier(SyntaxRole _, \aparameter(str x, _)),
+           \asyntaxRoleModifier(dataSyntax(), \aparameter(!x, _))) = anode([]);
 
+@synopsis{Tree is the least above all others}
 AType alub(\asyntaxRoleModifier(SyntaxRole a, \aparameter(x, _)),
-           \asyntaxRoleModifier(SyntaxRole b, \aparameter(y, _))) = aadt("Tree",[], dataSyntax()) 
+           \asyntaxRoleModifier(SyntaxRole b, \aparameter(!x, _))) = aadt("Tree",[], dataSyntax()) 
     when {a,b} < treeSyntaxRoles;
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
@@ -934,18 +953,30 @@ public AType aglb(afunc(AType lr, list[AType] lp, list[Keyword] kwl), afunc(ATyp
         return avalue();
 }
 
+@synopsis{Role is the same, different parameter}
 AType aglb(asyntaxRoleModifier(SyntaxRole role, p1:aparameter(_,_)),
-           asyntaxRoleModifier(           role, p2:aparameter(_,_)))
-    = asyntaxRoleModifier(r, glb(p1, p2)) when p1 != p2;
+           asyntaxRoleModifier(           role, !p1))
+    = avoid();
 
+@synopsis{Role is different, same parameter: we keep the parameter}
+AType aglb(asyntaxRoleModifier(SyntaxRole _, p1:aparameter(_,_)),
+           asyntaxRoleModifier(SyntaxRole _, p1))
+    = p1;
+
+@synopsis{Node on the right, defaults to the syntax role modifier}
 AType aglb(a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_)), \anode(_)) = a;
+
+@synopsis{Node on the left, defaults to the syntax role modifier}
 AType aglb(\anode(_), a:asyntaxRoleModifier(SyntaxRole _, aparameter(_,_))) = a;
 
+@synopsis{Tree on the left, defaults to the syntax role modifier}
 AType aglb(a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_)), aadt("Tree", [], dataSyntax())) = a
     when role in treeSyntaxRoles;
 
+@synopsis{Tree on the right, defaults to the syntax role modifier}
 AType aglb(aadt("Tree", [], dataSyntax()), a:asyntaxRoleModifier(SyntaxRole role, aparameter(_,_))) = a
     when role in treeSyntaxRoles;
+
 
 public list[AType] aglbList(list[AType] l, list[AType] r) = [aglb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r);
 public default list[AType] aglbList(list[AType] l, list[AType] r) = [avalue()];
