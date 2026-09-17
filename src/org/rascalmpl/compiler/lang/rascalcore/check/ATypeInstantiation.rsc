@@ -201,6 +201,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         }
         return b;
     }
+
+    if (asyntaxRoleModifier(SyntaxRole role, p1) := r && asyntaxRoleModifier(role, p2) := s) {
+        return matchRascalTypeParams0(p1, p2, b);
+    }
     
     if(comparable(r, s)) return b;
     

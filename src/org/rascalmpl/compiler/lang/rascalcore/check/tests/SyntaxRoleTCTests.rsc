@@ -44,6 +44,15 @@ test bool MiniTest() = checkModuleOK(
    "
 );
 
+test bool MiniTestFail() = unexpectedTypeInModule(
+   "module MiniTest
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  syntax[E] exData = e();
+   "
+);
+
+
 test bool TestSimpleModificationOfRoles() = checkModuleOK(
    "module TestSimpleModificationOfRoles
    '  <exampleGrammar>

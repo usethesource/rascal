@@ -256,6 +256,9 @@ private set[SyntaxRole] treeSyntaxRoles = {contextFreeSyntax(), lexicalSyntax(),
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
     when role in treeSyntaxRoles;
 
+bool asubtype(asyntaxRoleModifier(SyntaxRole role, aparameter(str name, _, closed=true)),
+              asyntaxRoleModifier(role, aparameter(name, _, closed=false))) = true;
+
 @synopsis{Free variables are subtypes in two directions.}
 @description{
 Here we see that the modifiers are not types themselves. A value
