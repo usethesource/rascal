@@ -37,6 +37,13 @@ private str exampleGrammar
      'data E = e();
      ";
 
+test bool MiniTest() = checkModuleOK(
+   "module MiniTest
+   '  data E = e();
+   '  data[E] exData = e();
+   "
+);
+
 test bool TestSimpleModificationOfRoles() = checkModuleOK(
    "module TestSimpleModificationOfRoles
    '  <exampleGrammar>
