@@ -44,11 +44,19 @@ test bool MiniTest() = checkModuleOK(
    "
 );
 
+test bool OverloadingTest0()         = unexpectedTypeInModule(
+   "module OverloadingTest1
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  E ex1 = e(); // E is ambiguous here (not good) and e() should have type data[E] not syntax[E]
+   ");
+
+
 test bool OverloadingTest1()         = checkModuleOK(
    "module OverloadingTest1
    '  syntax E = \"e\";
    '  data E = e();
-   '  data[E] ex1 = e();
+   '  data[E] ex1 = e(); // e() should have type data[E] not syntax[E]
    ");
 
 test bool OverloadingTest2()         = checkModuleOK(

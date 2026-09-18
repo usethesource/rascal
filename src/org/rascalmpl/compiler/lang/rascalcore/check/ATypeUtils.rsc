@@ -154,6 +154,12 @@ private str prettyAssoc(\aassoc()) = "assoc";
 private str prettyAssoc(\a-non-assoc()) = "non-assoc";
 private default str prettyAssoc(v) = "<v>";
 
+str prettyAType(asyntaxRoleModifier(contextFreeSyntax(), AType arg)) = "syntax[<prettyAType(arg)>]";
+str prettyAType(asyntaxRoleModifier(lexicalSyntax(), AType arg)) = "lexical[<prettyAType(arg)>]";
+str prettyAType(asyntaxRoleModifier(dataSyntax(), AType arg)) = "data[<prettyAType(arg)>]";
+str prettyAType(asyntaxRoleModifier(keywordSyntax(), AType arg)) = "keyword[<prettyAType(arg)>]";
+str prettyAType(asyntaxRoleModifier(layoutSyntax(), AType arg)) = "layout[<prettyAType(arg)>]";
+
 @doc{Rascal abstract types to classic Symbols}
 Symbol atype2symbol(AType tp){
     //println("atype2symbol: <tp>");

@@ -467,8 +467,10 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
+            println("type lookup: <s.getType(n)>");
             <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
+            println("type name @<current.src> is <result>");
             return result;
         });
 }
@@ -917,6 +919,7 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, 
             return par;
         }
         else {
+            println("SYNTAX ROLE: <current.src>: <asyntaxRoleModifier(role, par)>");
             return asyntaxRoleModifier(role, par);
         }
     });

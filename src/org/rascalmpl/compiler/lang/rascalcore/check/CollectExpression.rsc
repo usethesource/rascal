@@ -859,8 +859,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         iactualTypesU[i] = actual_i;
     }
 
-    try
+    try {
         bindings = unifyRascalTypeParams(iformalTypesU, iactualTypesU, bindings);
+    }
     catch invalidMatch(str reason):
         s.report(error(current, reason));
           //s.report(error(i < size(actuals)  ? actuals[i] : current, reason))

@@ -256,8 +256,8 @@ private set[SyntaxRole] treeSyntaxRoles = {contextFreeSyntax(), lexicalSyntax(),
 bool asubtype(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), aadt("Tree", [], dataSyntax())) = true
     when role in treeSyntaxRoles;
 
-bool asubtype(asyntaxRoleModifier(SyntaxRole role, aparameter(str name, _, closed=true)),
-              asyntaxRoleModifier(role, aparameter(name, _, closed=false))) = true;
+bool asubtype(asyntaxRoleModifier(SyntaxRole role, p1:aparameter(str name, _)),
+              asyntaxRoleModifier(role, aparameter(name, _))) = true;
 
 @synopsis{Free variables are subtypes in two directions.}
 @description{
@@ -267,6 +267,8 @@ when names become ambiguous or unbound.
 }
 bool asubtype(AType p:\aparameter(_), \asyntaxRoleModifier(SyntaxRole _, p)) = true;
 bool asubtype(\asyntaxRoleModifier(SyntaxRole _, AType p), p) = true;
+
+bool asubtype(a:\adt(str _, SyntaxRole role), asyntaxRoleModifier(role, AType par)) = asubtype(a, par);
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
@@ -756,6 +758,7 @@ AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_)), a:aadt(_, _, role)) = a;
+
 AType alub(a:aadt(_, _, role), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_,_))) = a;
 
 AType alub(\asyntaxRoleModifier(_, \aparameter(_, _)), anode(l))  = \anode(l);
@@ -768,6 +771,8 @@ AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _)), aadt("Tree"
 AType alub(aadt("Tree",[], dataSyntax()), \asyntaxRoleModifier(SyntaxRole role, \aparameter(_, _))) 
     = aadt("Tree",[], dataSyntax())
     when role in treeSyntaxRoles;
+
+AType alub(\asyntaxRoleModifier(SyntaxRole role, p:\aparameter(_,_)), \asyntaxRoleModifier(!role, p)) = p;
 
 // ---
 
