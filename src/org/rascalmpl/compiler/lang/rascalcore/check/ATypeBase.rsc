@@ -356,6 +356,21 @@ data AType
      | \start(AType atype)
      ;
 
+@synopsis{These are the syntax role modifier constructors}
+data AType = \asyntaxRoleModifier(SyntaxRole role, AType modified);
+
+@synopsis{this is the core modifier feature: force the "role", keep the rest}
+@description{
+Note that when the oldRole is `illegalSyntax()` it will be overwritten and corrected here,
+before that ends up triggering a user error. This happens in return types where
+a &T parameter was modifier to different roles in the signature earlier.
+}
+AType asyntaxRoleModifier(SyntaxRole newRole, aadt(n, ps, SyntaxRole _oldRole)) = aadt(n, ps, newRole);
+
+@synopsis{The outermost modifier eventually always wins, even on open modified types.}
+AType asyntaxRoleModifier(SyntaxRole role, asyntaxRoleModifier(_, AType s))
+  = asyntaxRoleModifier(role, s);
+
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
 

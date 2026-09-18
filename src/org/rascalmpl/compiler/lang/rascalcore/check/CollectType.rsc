@@ -26,7 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@bootstrapParser
+// @bootstrapParser commented out for bootstrapping purposes
 module lang::rascalcore::check::CollectType
 
 /*
@@ -467,8 +467,10 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
+            println("type lookup: <s.getType(n)>");
             <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
+            println("type name @<current.src> is <result>");
             return result;
         });
 }
@@ -889,7 +891,42 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     collect(tp, c);
 }
 
-@doc{A parsing function, useful for generating test cases.}
+// syntax type modifiers
+
+void collect(current: (Type) `data[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(dataSyntax(), current, tp, c);
+
+void collect(current: (Type) `syntax[<Type tp>]`, Collector c) 
+    = collectSyntaxRoleModifiers(contextFreeSyntax(), current, tp, c);
+
+void collect(current: (Type) `lexical[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(lexicalSyntax(), current, tp, c);
+
+void collect(current: (Type) `keyword[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(keywordSyntax(), current, tp, c);
+
+void collect(current: (Type) `layout[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c);
+
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, Collector c) {
+    collect(tp, c);
+    
+    c.calculate("syntax role", current, [tp], AType(Solver s) {
+        AType par = s.getType(tp);
+
+        if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier) {
+            c.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
+            return par;
+        }
+        else {
+            println("SYNTAX ROLE: <current.src>: <asyntaxRoleModifier(role, par)>");
+            return asyntaxRoleModifier(role, par);
+        }
+    });
+}
+
+
+@synopsis{A parsing function, useful for generating test cases.}
 public Type parseType(str s) {
     return parse(#Type, s);
 }

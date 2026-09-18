@@ -138,12 +138,7 @@ public class SymbolAdapter {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_Start;
 	}  
-	
-//	public static boolean isStart(IConstructor tree) {
-//		tree = delabel(tree);
-//		return tree.getConstructorType() == Factory.Symbol_START;
-//	}
-	  
+		  
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
 			tree = delabel(tree);
@@ -1101,5 +1096,9 @@ public class SymbolAdapter {
 
 	public static boolean isParametrizableType(IConstructor sort) {
 		return SymbolAdapter.isADT(sort) || SymbolAdapter.isParameterizedSort(sort) || SymbolAdapter.isParameterizedLex(sort);
+	}
+
+	public static boolean isNamed(IConstructor symbol) {
+		return isSort(symbol) || isLex(symbol) || isKeyword(symbol) || isLayouts(symbol) || isADT(symbol) || isParametrizableType(symbol);
 	}
 }

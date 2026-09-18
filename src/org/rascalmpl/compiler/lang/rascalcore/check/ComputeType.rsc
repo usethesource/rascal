@@ -239,7 +239,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
 }
 
 AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
-    //println("---- <current>, identicalFormals: <identicalFormals>");
+    println("---- compute ADT type <current>, identicalFormals: <identicalFormals>");
     requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
@@ -269,8 +269,8 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
 
     for(int i <- index_formals){
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
-            //println("computeADTType: <current>");
-            //iprintln(overloads);
+            println("computeADTType: <current>");
+            iprintln("overloads: <overloads>");
             returnTypeForOverloadedActuals = {};
             for(<key, idr, tp> <- overloads){
                 try {
@@ -289,6 +289,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
 }
 
 AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] formalTypes, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
+    println("computeADTReturnType <current.src>: <current> <adtName> <formalTypes> <actualTypes>");
     Bindings bindings = ();
     fsuffix = "f";
     asuffix = "a";
@@ -317,7 +318,10 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         }
         s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
+
+    println("getting type in scope info for <adtName>, <scope>, <dataOrSyntaxRoles>");
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
+    println("the ADT type is <adtType>");
 
     switch(keywordArguments){
     case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
@@ -368,6 +372,8 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     } else {
         return instantiateRascalTypeParameters(current, adtType, bindings, s);
     }
+
+    println("returning <adtType>");
     return adtType;
 }
 
@@ -1123,7 +1129,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
 }
 
 AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
-    // println("instantiateAndCompare: <current>, <patType>, <subjectType>");
+    println("instantiateAndCompare: <current>, <patType>, <subjectType>");
     if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
       s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
       s.fact(current, patType); // <====
