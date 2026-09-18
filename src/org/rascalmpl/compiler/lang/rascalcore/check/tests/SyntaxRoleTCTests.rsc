@@ -44,6 +44,34 @@ test bool MiniTest() = checkModuleOK(
    "
 );
 
+test bool OverloadingTest1()         = checkModuleOK(
+   "module OverloadingTest1
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  data[E] ex1 = e();
+   ");
+
+test bool OverloadingTest2()         = checkModuleOK(
+   "module OverloadingTest2
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  syntax[E] ex2 = (E) `e`;
+   ");
+
+test bool OverloadingTest3()         = unexpectedTypeInModule(
+   "module OverloadingTest3
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  syntax[E] ex2 = e();
+   ");
+
+test bool OverloadingTest4()         = unexpectedTypeInModule(
+   "module OverloadingTest4
+   '  syntax E = \"e\";
+   '  data E = e();
+   '  data[E] ex2 = (E) `e`;
+   ");
+
 test bool MiniTestFail() = unexpectedTypeInModule(
    "module MiniTest
    '  syntax E = \"e\";
@@ -73,8 +101,9 @@ test bool GenericUseOfModifiers()         = checkModuleOK(
    "module GenericUseOfModifiers
    '  syntax E = \"e\";
    '  data E = e();
+   '  data[E] test = e();
    '  data[&T] id(data[&T] a, syntax[&T] b) = a;
-   '  data[E] example = implode(e(), (E) `e`);
+   '  data[E] example = id(e(), (E) `e`);
    ");
 
 test bool WrongGenericUseOfModifiers()         = unexpectedTypeInModule(
