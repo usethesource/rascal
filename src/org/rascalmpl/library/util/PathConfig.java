@@ -587,12 +587,18 @@ public class PathConfig {
             if (rascalFromPom.isPresent()) {
                 return rascalFromPom.get();
             } else {
-                var pomXml = vf.sourceLocation(URIUtil.getChildLocation(manifestRoot, "pom.xml"), 0, 6, 1, 1, 0, 5);
-                var msg = Messages.warning("Missing required Rascal dependency in project " + URIUtil.getLocationName(manifestRoot), pomXml);
-                messages.append(Messages.addAddRascalDependencyFix(msg, pomXml));
+                messages.append(makeMissingRascalMessage(manifestRoot));
             }
         }
         return resolveCurrentRascalRuntime();
+    }
+
+    private static IConstructor makeMissingRascalMessage(ISourceLocation manifestRoot) {
+        // The `pomXml` location is given an artificial range on the second line to make sure that the hover remains within the bounds of the editor
+        // Otherwise, the quick-fix pop-up immediately disappears as the editor loses focus
+        var pomXml = vf.sourceLocation(URIUtil.getChildLocation(manifestRoot, "pom.xml"), 0, 0, 2, 2, 0, 8);
+        var msg = Messages.warning("Missing required Rascal dependency in project " + URIUtil.getLocationName(manifestRoot), pomXml);
+        return Messages.addAddRascalDependencyFix(msg, pomXml);
     }
 
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
