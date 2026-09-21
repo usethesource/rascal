@@ -529,7 +529,7 @@ private str pomXml(str name, str group, str version)
     '      \<plugin\>
     '        \<groupId\>org.rascalmpl\</groupId\>
     '        \<artifactId\>rascal-maven-plugin\</artifactId\>
-    '        \<version\>0.8.2\</version\>
+    '        \<version\>0.30.3\</version\>
     '        \<configuration\>
     '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
     '          \<bin\>${project.build.outputDirectory}\</bin\>
