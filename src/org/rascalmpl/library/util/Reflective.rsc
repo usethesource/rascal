@@ -529,7 +529,7 @@ private str pomXml(str name, str group, str version)
     '      \<plugin\>
     '        \<groupId\>org.rascalmpl\</groupId\>
     '        \<artifactId\>rascal-maven-plugin\</artifactId\>
-    '        \<version\>0.30.3\</version\>
+    '        \<version\><getRascalMavenPluginVersion()>\</version\>
     '        \<configuration\>
     '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
     '          \<bin\>${project.build.outputDirectory}\</bin\>
@@ -551,6 +551,16 @@ private str pomXml(str name, str group, str version)
     '  \</build\>
     '\</project\>
     ";
+
+private str getRascalMavenPluginVersion() {
+    try { // Best-effort attempt to get the latest version
+        loc l = |https://api.github.com/repos/usethesource/rascal-maven-plugin/releases/latest|;
+        if (/"tag_name":\s*"v<version:[0-9]+\.[0-9]+\.[0-9]+>"/ := readFile(l)) {
+            return version;
+        }
+    } catch _: ;
+    return "0.31.0"; // 2 March 2026
+}
 
 private str vscodeSettings() = "{
                                '    \"search.exclude\": {
