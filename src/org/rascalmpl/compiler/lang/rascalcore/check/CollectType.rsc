@@ -921,7 +921,6 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, 
             return par;
         }
         else {
-            println("SYNTAX ROLE: <current.src>: <asyntaxRoleModifier(role, par)>");
             return asyntaxRoleModifier(role, par);
         }
     });
