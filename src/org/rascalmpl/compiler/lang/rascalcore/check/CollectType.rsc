@@ -917,7 +917,7 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, 
         AType par = s.getType(tp);
 
         if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier) {
-            c.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
+            s.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
             return par;
         }
         else {
