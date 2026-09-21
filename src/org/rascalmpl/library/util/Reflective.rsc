@@ -537,6 +537,15 @@ private str pomXml(str name, str group, str version)
     '            \<src\>${project.basedir}/src/main/rascal\</src\>
     '          \</srcs\>
     '        \</configuration\>
+    '        \<executions\>
+    '          \<execution\>
+    '            \<id\><name>-compile\</id\>
+    '            \<phase\>compile\</phase\>
+    '            \<goals\>
+    '              \<goal\>compile\</goal\>
+    '            \</goals\>
+    '          \</execution\>
+    '        \</executions\>
     '      \</plugin\>
     '    \</plugins\>
     '  \</build\>
