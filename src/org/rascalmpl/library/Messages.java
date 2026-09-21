@@ -3,6 +3,7 @@ package org.rascalmpl.library;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -101,6 +102,30 @@ public class Messages {
             ;
             
         return msg.asWithKeywordParameters().setParameter("causes", causes);
+    }
+
+    public static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
+        var title = "Add Rascal dependency to pom.xml";
+        var codeAction = vf.constructor(Messages.Command_addRascalDependencyToPom, new IValue[] { pomXml }, Map.of(
+            "title", vf.string(title)
+        ));
+        var fix = vf.constructor(Messages.CodeAction_action, new IValue[]{}, Map.of(
+            "command", codeAction,
+            "title", vf.string(title),
+            "edits", vf.list()));
+        return addFix(msg, fix);
+    }
+
+    public static IConstructor addFix(IConstructor msg, IConstructor fix) {
+        if (fix == null) {
+            return msg;
+        }
+        
+        var kw = msg.asWithKeywordParameters();
+        IList fixes = (IList) kw.getParameter("fixes");
+        fixes = fixes == null ? vf.list(fix) : fixes.append(fix);
+
+        return kw.setParameter("fixes", fixes);
     }
 
     public static boolean isError(IValue v) {
