@@ -28,6 +28,12 @@ import org.rascalmpl.repl.streams.StreamUtil;
 
 public class RascalShell  {
 
+    static {
+        // Log4j is disabled here to prevent an error from being shown in every Rascal shell
+        // See https://github.com/usethesource/rascal/issues/2436
+        System.setProperty("log4j.provider", "org.apache.logging.log4j.simple.internal.SimpleProvider");
+    }
+
     public static void main(String[] args) throws IOException {
         int ideServicesPort = -1;
         checkIfHelp(args);

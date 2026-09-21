@@ -21,7 +21,6 @@ import org.rascalmpl.values.IRascalValueFactory;
 import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
@@ -46,9 +45,8 @@ public class RascalTest extends AbstractCommandlineTool {
             var parser = new CommandlineParser(out);
             var parsedArgs = parser.parseKeywordCommandLineArgs("RascalTest", args, parameterTypes());  
             var pcfgCons = (IConstructor) parsedArgs.get("pcfg");
-            PathConfig pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig();
+            var pcfg = pcfgCons != null ? new PathConfig(pcfgCons) : new PathConfig(URIUtil.rootLocation("cwd"));
 
-            var projectRoot = pcfg.getProjectRoot().getScheme().equals("unknown") ? URIUtil.rootLocation("cwd") : pcfg.getProjectRoot();
             boolean reporting = vf.bool(true).equals(parsedArgs.get("reporting"));
             boolean isParallel = isTrueParameter(parsedArgs, "parallel");
             int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
@@ -58,10 +56,10 @@ public class RascalTest extends AbstractCommandlineTool {
             IList modules = allRascalSourceFiles(pcfg.getSrcs(), pcfg.getIgnores());
 
             if (isParallel && parAmount > 1) {
-                System.exit(runParallelTests(modules, preChecks, monitor, projectRoot, pcfg, term, err, out, reporting, parAmount));
+                System.exit(runParallelTests(modules, preChecks, monitor, pcfg, term, err, out, reporting, parAmount));
             }
             else {
-                System.exit(runTestsForModules(modules, monitor, projectRoot, pcfg, term, err, out, reporting));
+                System.exit(runTestsForModules(modules, monitor, pcfg, term, err, out, reporting));
             }
         }
         catch (IOException | URISyntaxException e) {
@@ -70,11 +68,11 @@ public class RascalTest extends AbstractCommandlineTool {
         } 
     }
 
-    private static int runParallelTests(IList modules, IList preChecks, IRascalMonitor monitor, ISourceLocation projectRoot,
+    private static int runParallelTests(IList modules, IList preChecks, IRascalMonitor monitor,
         PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting, int parAmount) throws URISyntaxException {
         // first we run the pre-checks
         if (preChecks.size() > 0) {
-            if (runTestsForModules(preChecks, monitor, projectRoot, pcfg, term, err, out, reporting) != 0) {
+            if (runTestsForModules(preChecks, monitor, pcfg, term, err, out, reporting) != 0) {
                 return 1;
             }
         }
@@ -95,7 +93,7 @@ public class RascalTest extends AbstractCommandlineTool {
 			
 			workers.add(exec.submit(() -> {
 				out.println("Starting worker " + index + " on " + chunk.size() + " modules.");
-				return runTestsForModules(chunk, monitor, projectRoot, pcfg, term, err, out, reporting);
+				return runTestsForModules(chunk, monitor, pcfg, term, err, out, reporting);
 			}));
 		}
 		
@@ -109,12 +107,13 @@ public class RascalTest extends AbstractCommandlineTool {
      * Thread-safe execution of tests in given modules in a specific project
      * @return exit code where 0 means all test succeeded and not 0 means at least one test failed or error'ed
      */
-    private static int runTestsForModules(IList modules, IRascalMonitor monitor, ISourceLocation projectRoot, PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting) {
+    private static int runTestsForModules(IList modules, IRascalMonitor monitor, PathConfig pcfg, Terminal term, PrintWriter err, PrintWriter out, boolean reporting) {
         try {
             var modNames = sourceFilesToModuleNames(modules, pcfg);
+            var projectRoot = pcfg.getProjectRoot();
 
             // using our own evaluator makes this thread safe.
-            var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(projectRoot, pcfg, term.reader(), out, err, monitor);
+            var eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, term.reader(), out, err, monitor);
             if (modNames.size() == 0) {
                 eval.warning("The module list for testing is empty.", projectRoot);
             }

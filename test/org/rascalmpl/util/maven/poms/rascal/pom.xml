@@ -141,7 +141,6 @@
                         <src>${project.basedir}/src/org/rascalmpl/compiler</src>
                         -->
                     </srcs>
-                    <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
                     <citation>${project.basedir}/CITATION.md</citation>
                     <issues>|https://github.com/usethesource/rascal/issues|</issues>
@@ -392,7 +391,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.15.1</version>
+            <version>0.17.0-RC3</version>
             <scope>provided</scope>
         </dependency>
 

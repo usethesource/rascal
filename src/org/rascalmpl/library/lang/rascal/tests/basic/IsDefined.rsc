@@ -19,8 +19,8 @@ test bool isDefinedLoc1() = |project://x/y.txt|(5,4,<1,5>,<1,9>).begin?;
 test bool isDefinedLoc2() = |project://x/y.txt|(5,4,<1,5>,<1,9>).end?;
 test bool isDefinedLoc3() = !(|project://x/y.txt|(5,4,<1,5>,<1,9>).host?);
 
-test bool isDefinedLoc4() = !(|std:///List.rsc|.ls?);
-test bool isDefinedLoc5() = |std:///util|.ls?;
+test bool isDefinedLoc4() = !(|project://rascal/src/org/rascalmpl/library/List.rsc|.ls?);
+test bool isDefinedLoc5() = |project://rascal/src/org/rascalmpl/library/util|.ls?;
 
 // Lists
 

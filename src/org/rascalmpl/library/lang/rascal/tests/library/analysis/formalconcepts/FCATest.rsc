@@ -71,7 +71,7 @@ bool checkNoUnRelatedConcepts(rel[&TObject, &TAttribute] input) {
 }
 
 test bool fcaHasExpectedOutput() {
-	result = fca(readCxt(|std:///lang/rascal/tests/library/analysis/formalconcepts/FCxt1.cxt|));
-	reference = readBinaryValueFile(#ConceptLattice[str,str], |std:///lang/rascal/tests/library/analysis/formalconcepts/FCxt1.fca|);
+	result = fca(readCxt(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/analysis/formalconcepts/FCxt1.cxt|));
+	reference = readBinaryValueFile(#ConceptLattice[str,str], |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/analysis/formalconcepts/FCxt1.fca|);
 	return result == reference;
 }

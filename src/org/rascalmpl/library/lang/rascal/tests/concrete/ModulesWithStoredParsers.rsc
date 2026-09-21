@@ -29,7 +29,7 @@ PathConfig getTestPathConfig(loc root) {
     pcfg = getProjectPathConfig(root);
     pcfg.bin = root + "target/classes";
     // remove std to avoid generating parsers for all modules in the library that contain syntax definitions
-    pcfg.srcs -= [|std:///|];
+    pcfg.srcs -= [|project://rascal/src/org/rascalmpl/library/|];
     return pcfg;
 }
 

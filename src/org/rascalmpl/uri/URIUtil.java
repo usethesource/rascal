@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -66,30 +67,43 @@ public class URIUtil {
 		}
 		return fixUnicode(file.toURI());
 	}
-	
+
+	private static final Set<String> CONTAINER_SCHEMES = Set.of("jar", "zip", "compressed");
+
 	/**
-	 * Some URLs exist which are not strictly in compliance with RFC 2396. Their toURI() method will then produce
-	 * bad URI syntax leading to IO exceptions later. This method tries to circumvent the problem by decoding
-	 * the content of the URL first back to basic UTF8 characters and then recoding the URI from scratch.
-	 *  
-	 * @param  url a possibly non-rfc-2396 compliant URL
+	 * Some URLs exist which are not strictly in compliance with RFC 2396. Their toURI() method will
+	 * then produce bad URI syntax leading to IO exceptions later. This method tries to circumvent the
+	 * problem by decoding the content of the URL first back to basic UTF8 characters and then recoding
+	 * the URI from scratch.
+	 *
+	 * @param url a possibly non-rfc-2396 compliant URL
 	 * @return (hopefully) a correctly encoded URI
 	 * @throws URISyntaxException when either the decoder of URLs or the encoder of URIs finds a bad input.
 	 */
 	public static URI fromURL(URL url) throws URISyntaxException {
-	    try {
-	        return create(
-	            url.getProtocol(), 
-	            decodeURLPart(url.getAuthority()),
-	            decodeURLPart(url.getPath()),
-	            url.getQuery() == null ? null : decodeURLPart(url.getQuery()),
-	            url.getRef() == null ? null : decodeURLPart(url.getRef()));
-	    }
-        catch (UnsupportedEncodingException e) {
-            throw new URISyntaxException(url.toString(), e.getMessage());
-        }
+		try {
+			var scheme = url.getProtocol();
+			var path = decodeURLPart(url.getPath());
+
+			// Fix URLs like `jar:file:/C:/`, where the protocol is `jar`, but we want scheme `jar+file`
+			if (url.getAuthority() == null || url.getAuthority().isEmpty()) {
+				var schemePart = scheme;
+				int schemeEnd;
+				while (CONTAINER_SCHEMES.contains(schemePart) && (schemeEnd = path.indexOf(':')) > 0) {
+					schemePart = path.substring(0, schemeEnd);
+					scheme += "+" + schemePart;
+					path = path.substring(schemeEnd + 1);
+				}
+			}
+			return create(scheme, decodeURLPart(url.getAuthority()), path,
+				url.getQuery() == null ? null : decodeURLPart(url.getQuery()),
+				url.getRef() == null ? null : decodeURLPart(url.getRef()));
+		}
+		catch (UnsupportedEncodingException e) {
+			throw new URISyntaxException(url.toString(), e.getMessage());
+		}
 	}
-	
+
     private static String decodeURLPart(String part) throws UnsupportedEncodingException {
         return part == null || part.isEmpty() ? "" : URLDecoder.decode(part, StandardCharsets.UTF_8.name());
     }

@@ -12,7 +12,7 @@ This tests the slowest error recovery in all tests < 10kb
 */
 bool testFCA() {
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true, maxAmbDepth=1000);
-    loc source = |std:///analysis/formalconcepts/FCA.rsc?deletedUntilEol=54:2242:2261|;
+    loc source = |project://rascal/src/org/rascalmpl/library/analysis/formalconcepts/FCA.rsc?deletedUntilEol=54:2242:2261|;
     str input = getTestInput(source);
     //println("input: <input>");
     Tree result = recoveryParser(input, source);

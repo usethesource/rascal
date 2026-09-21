@@ -1,13 +1,4 @@
-@synopsis{Demonstrates ((Tree2Box)), ((Box2Text)) and ((HiFiLayoutDiff)) for constructing a declarative and HiFi Pico formatting pipeline}
-@description{
-Using four generic or generated, "language parametric", building blocks we construct a Pico formatting pipeline:
-
-* ((ParseTree)) is used to _generate_ a parser for Pico.   
-* ((Tree2Box)) provides the extensible/overridable and declarative ((toBox)) function which maps language constructs to Box expressions. 
-The ((toBox)) function combines generic language-parametric rules, as well as bespoke language specific rules..
-* ((Box2Text)) is a _generic_ reusable algorithm for two-dimensional string layout.
-* Finally, ((HiFiLayoutDiff)) _generically_ extracts ((TextEdit))s from two trees which are equal modulo whitespace and comments.
-}
+@synopsis{Demonstrates the use of ((util::Formatting)) for constructing a declarative and HiFi Pico formatting pipeline}
 @benefits{
 * The formatting is style is programmed _declaratively_ by mapping language patterns to Box expressions.
 * The pipeline never loses source code comments, and this requires no attention from the language engineer.
@@ -20,45 +11,60 @@ module lang::pico::format::Formatting
 
 extend lang::box::util::Tree2Box;
 
+import IO;
 import ParseTree;
-import analysis::diff::edits::ExecuteTextEdits;
-import analysis::diff::edits::HiFiLayoutDiff;
-import lang::box::\syntax::Box;
-import lang::box::util::Box2Text;
 import lang::pico::\syntax::Main;
+import util::Formatters;
+import analysis::diff::edits::TextEdits;
 
 @synopsis{In-place formatting of an entire Pico file}
-void formatPicoFile(loc file) {
-    edits = formatPicoTree(parse(#start[Program], file));
-    executeFileSystemChanges([changed(file, edits)]);
-}
+public void (loc) formatPicoFile = fileFormatter(#start[Program], toBox);
 
 @synopsis{Format a string that contains an entire Pico program}
-str formatPicoString(str file) {
-    start[Program] tree = parse(#start[Program], file, |unknown:///|);
-    return executeTextEdits(file, formatPicoTree(tree));
-}
-
+public str (str file) formatPicoString = stringFormatter(#start[Program], toBox);
+    
 @synopsis{Pico Format function for reuse in file, str or IDE-based formatting contexts}
-list[TextEdit] formatPicoTree(start[Program] file) {
-    formatted = format(toBox(file));
-    return layoutDiff(file, parse(#start[Program], formatted, file.src.top));
-}
-
+public list[TextEdit] (start[Program] file) formatPicoTree = treeEditFormatter(#start[Program], toBox);
+    
 @synopsis{Format while}
-Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`, FO opts = fo())
+Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`)
     = V(
-        H(L("while"), HV(toBox(e, opts=opts)), L("do")),
-        I(toClusterBox(block, opts=opts)),
+        H(L("while"), HV(toBox(e)), L("do")),
+        I(toBox(block)),
         L("od")
     ); 
 
 @synopsis{Format if-then-else }
-Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`, FO opts = fo())
+Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`)
     = V(
-        H(L("if"), HV(toBox(e, opts=opts)), L("then")),
-            I(toClusterBox(thenPart, opts=opts)),
+        H(L("if"), HV(toBox(e)), L("then")),
+            I(toBox(thenPart)),
         L("else"),
-            I(toClusterBox(elsePart, opts=opts)),
+            I(toBox(elsePart)),
         L("fi")
     ); 
+
+@synopsis{Format if-then }
+Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> fi`)
+    = V(
+        H(L("if"), HV(toBox(e)), L("then")),
+            I(toBox(thenPart)),
+        L("fi")
+    );
+
+Box toBox((Declarations) `declare <{IdType ","}* decls>;`)
+    = V(
+        L("declare"),
+        I(V(SL([toBox(d) | d <- decls], L(","), op=H0()))),
+        L(";")
+    );
+
+Box toBox((Program) `begin <Declarations decls> <{Statement  ";"}* body> end`)
+    = V(
+        L("begin"),
+        V(
+            I(toBox(decls)),
+            I(V(toBox(body)))
+        , vs=1),
+        L("end")
+    );

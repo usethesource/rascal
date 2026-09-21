@@ -13,7 +13,7 @@ import IO;
 This tests the slowest error recovery in all tests < 10kb
 */
 bool testPatterns3() {
-    loc source = |std:///lang/rascal/tests/concrete/Patterns3.rsc?deletedUntilEol=85:2133:2136|;
+    loc source = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/concrete/Patterns3.rsc?deletedUntilEol=85:2133:2136|;
     str input = getTestInput(source);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true, maxRecoveryAttempts=50, maxRecoveryTokens=30);
 

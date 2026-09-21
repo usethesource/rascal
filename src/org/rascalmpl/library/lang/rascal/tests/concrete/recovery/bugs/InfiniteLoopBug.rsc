@@ -18,7 +18,7 @@ import ParseTree;
 import IO;
 
 test bool testInfiniteLoop() {
-    str input = readFile(|std:///lang/rascal/tests/concrete/recovery/bugs/InfiniteLoopInput.txt|);
+    str input = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/concrete/recovery/bugs/InfiniteLoopInput.txt|);
     p = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
     println("starting parse");
     p(input, |unknown:///?visualize=false|);

@@ -66,7 +66,7 @@ int ProdMatch(Tree tr) {
     }
  }
 value main(){
-    m = parseModuleWithSpaces(|std:///List.rsc|);
+    m = parseModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/List.rsc|);
     warmup(m);
     println("ProdMatch:");
     a = ProdMatch(m);
