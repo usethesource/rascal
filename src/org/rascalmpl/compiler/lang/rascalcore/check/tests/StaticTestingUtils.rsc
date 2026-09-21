@@ -181,16 +181,14 @@ bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = f
      	println("Expected one of these messages:
 		        '<for (e <- expected) {>* <e>
 			    '<}>");
-		println("But got only these messages:
-		        '<for (m <- msgs) {>* <m>
-				'<}>");
+		println("But got only these messages:");
+		println(write([*msgs]));
 		return false;
 	 }
 	 else {
 		println("Checked <mlocs>,");
-		println("Unexpected messages:
-		        '<for (m <- msgs) {>* <m>
-				'<}>");
+		println("Unexpected messages:");
+		println(write([*msgs]));
 		return false;
 	 }
 }

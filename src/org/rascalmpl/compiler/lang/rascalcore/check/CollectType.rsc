@@ -896,25 +896,32 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
 // syntax type modifiers
 
 void collect(current: (Type) `data[<Type tp>]`, Collector c)
-    = collectSyntaxRoleModifiers(dataSyntax(), current, tp, c);
+    = collectSyntaxRoleModifiers(dataSyntax(), current, tp, c, dataId());
 
 void collect(current: (Type) `syntax[<Type tp>]`, Collector c) 
-    = collectSyntaxRoleModifiers(contextFreeSyntax(), current, tp, c);
+    = collectSyntaxRoleModifiers(contextFreeSyntax(), current, tp, c, nonterminalId());
 
 void collect(current: (Type) `lexical[<Type tp>]`, Collector c)
-    = collectSyntaxRoleModifiers(lexicalSyntax(), current, tp, c);
+    = collectSyntaxRoleModifiers(lexicalSyntax(), current, tp, c, lexicalId());
 
 void collect(current: (Type) `keyword[<Type tp>]`, Collector c)
-    = collectSyntaxRoleModifiers(keywordSyntax(), current, tp, c);
+    = collectSyntaxRoleModifiers(keywordSyntax(), current, tp, c, keywordId());
 
 void collect(current: (Type) `layout[<Type tp>]`, Collector c)
-    = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c);
+    = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c, layoutId());
 
-private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, Collector c) {
-    collect(tp, c);
-    
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `<QualifiedName n>`, Collector c, IdRole id) {
+    <qualifier, base> = splitQualifiedName(n);
+    if (isEmpty(qualifier)){
+        c.use(n, {id});
+    } else {
+        c.useQualified([qualifier, base], n, {id});
+    }
+
+    scope = c.getScope();
+
     c.calculate("syntax role", current, [tp], AType(Solver s) {
-        AType par = s.getType(tp);
+        AType par = s.getTypeInScope(tp, scope, {id});
 
         if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier && overloadedAType({<_, _, aadt(_,_,_)>, *_}) !:= par) {
             s.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
@@ -923,6 +930,15 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, 
         else {
             return asyntaxRoleModifier(role, par);
         }
+    });
+}
+
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `&<Name n>`, Collector c, IdRole id) {
+    c.use(n, {parameterId()});
+    scope = c.getScope();
+
+    c.calculate("syntax role", current, [tp], AType(Solver s) {
+        return asyntaxRoleModifier(role, s.getTypeInScope(tp, scope, {parameterId()}));
     });
 }
 

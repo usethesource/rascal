@@ -54,7 +54,7 @@ test bool OverloadingTest0()         = unexpectedTypeInModule(
 
 test bool OverloadingTest1()         = checkModuleOK(
    "module OverloadingTest1
-   '  syntax E = \"e\";
+   '  syntax E = \"foo\";
    '  data E = e();
    '  data[E] ex1 = e(); // e() should have type data[E] not syntax[E]
    ");
