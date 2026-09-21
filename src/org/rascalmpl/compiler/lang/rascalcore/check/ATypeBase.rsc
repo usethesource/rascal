@@ -107,7 +107,6 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
       syntaxRole = overloadSyntaxRole(synRoles);
       if(syntaxRole == illegalSyntax()) fail overloadedAType;
 
-
       return aadt(adtName, adtParams, syntaxRole);
     } else {
         otypes = overloads<2>;
@@ -203,9 +202,17 @@ data SyntaxRole
     | illegalSyntax()
     ;
 
+str prettySyntaxRole(str name, dataSyntax()) = "data[<name>]";
+str prettySyntaxRole(str name, contextFreeSyntax()) = "syntax[<name>]";
+str prettySyntaxRole(str name, lexicalSyntax()) = "lexical[<name>]";
+str prettySyntaxRole(str name, keywordSyntax()) = "keyword[<name>]";
+str prettySyntaxRole(str name, layoutSyntax()) = "layout[<name>]";
+str prettySyntaxRole(str name, illegalSyntax()) = "?role?[<name>]";
+
 SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
    if({SyntaxRole sr} := syntaxRoles) return sr;
-   if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr;
+  // this hides ambiguity between data syntax and normal syntax roles, producing broken type assignments instead of clear errors
+  //  if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr;
    return illegalSyntax();
 }
 
