@@ -43,6 +43,36 @@ public class Messages {
     private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
 
+    // These declarations mirror the data definitions in the `util::IDEServices` module of the standard library
+    private static final io.usethesource.vallang.type.Type CodeAction = tf.abstractDataType(ts, "CodeAction");
+    private static final io.usethesource.vallang.type.Type CodeAction_action = tf.constructor(ts, CodeAction, "action");
+
+    private static final io.usethesource.vallang.type.Type Command = tf.abstractDataType(ts, "Command");
+    private static final io.usethesource.vallang.type.Type Command_noop = tf.constructor(ts, Command, "noop");
+
+    // These declarations mirror the data definition in the `analysis::diff::edits::FileSystemChanges` module of the standard library
+    private static final io.usethesource.vallang.type.Type FileSystemChange = tf.abstractDataType(ts, "FileSystemChange");
+    private static final io.usethesource.vallang.type.Type FileSystemChange_removed = tf.constructor(ts, FileSystemChange, "removed", tf.sourceLocationType(), "file");
+    private static final io.usethesource.vallang.type.Type FileSystemChange_created = tf.constructor(ts, FileSystemChange, "created", tf.sourceLocationType(), "file");
+    private static final io.usethesource.vallang.type.Type FileSystemChange_renamed = tf.constructor(ts, FileSystemChange, "renamed", tf.sourceLocationType(), "from", tf.sourceLocationType(), "to");
+    private static final io.usethesource.vallang.type.Type FileSystemChange_changed = tf.constructor(ts, FileSystemChange, "changed", tf.sourceLocationType(), "file");
+
+    // This declaration does not mirror a constructor from the standard library; it is here to be able to send the command, but the declaration must live in the implementing project (e.g., `rascal-lsp`)
+    public static final io.usethesource.vallang.type.Type Command_addRascalDependencyToPom = tf.constructor(ts, Command, "addRascalDependencyToPom", tf.sourceLocationType(), "pomLoc");
+
+    static {
+        // data Message(list[CodeAction] fixes = []]);
+        ts.declareKeywordParameter(Message, "fixes", tf.listType(CodeAction));
+
+        // data CodeAction(list[FileSystemChange] edits = [], Command command = noop(), str title = command.title);
+        ts.declareKeywordParameter(CodeAction, "edits", tf.listType(FileSystemChange));
+        ts.declareKeywordParameter(CodeAction, "command", Command);
+        ts.declareKeywordParameter(CodeAction, "title", tf.stringType());
+
+        // data Command(str title="");
+        ts.declareKeywordParameter(CodeAction, "title", tf.stringType());
+    }
+
     public static IConstructor info(String message, ISourceLocation loc) {
         return message(Message_info, message, loc);
     }
