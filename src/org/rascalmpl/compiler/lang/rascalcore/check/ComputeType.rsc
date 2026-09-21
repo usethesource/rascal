@@ -1358,7 +1358,10 @@ private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Patt
 
 private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
     getPatternType(p, avalue(), scope, s); // to force nested type calculations
-    return s.getType(tp);
+    // only lookup nonterminal names, not data types
+    res =  s.getTypeInScope(tp, scope, {lexicalId(), nonterminalId(), layoutId(), keywordId()});
+    println("type is scope for [<tp>] .. is <res>");
+    return res;
 }
 
 // ---- anti

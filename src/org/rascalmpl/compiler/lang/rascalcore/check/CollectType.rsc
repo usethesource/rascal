@@ -446,9 +446,10 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
            msgs += error(n, "Type variables in aliased type %t are unbound", aliased);
         return<msgs, aliased>;
     } else if (overloadedAType({<_,_,aadt(str name, ps, _)>, *_}) := baseType) {
-        return <[error(n, "<n> is not uniquely resolvable.", 
-                    causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
-                aadt(name, ps, illegalSyntax())>;
+        // return <[error(n, "<n> is not uniquely resolvable.", 
+        //             causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
+        //         aadt(name, ps, illegalSyntax())>;
+        return <[], aadt(name, ps, illegalSyntax())>;
     } else {
         return <[], baseType>;
     }
@@ -471,7 +472,9 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
+            println("solving <current> at <current.src>");
             <msgs, result> = handleUserType(n, s.getType(n));
+            // throw "debug <current> <current.src> <n>";
             for(m <- msgs) s.report(m);
             return result;
         });
@@ -934,11 +937,11 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type)
 }
 
 private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `&<Name n>`, Collector c, IdRole id) {
-    c.use(n, {parameterId()});
+    c.use(n, {typeVarId()});
     scope = c.getScope();
 
     c.calculate("syntax role", current, [tp], AType(Solver s) {
-        return asyntaxRoleModifier(role, s.getTypeInScope(tp, scope, {parameterId()}));
+        return asyntaxRoleModifier(role, s.getTypeInScope(tp, scope, {typeVarId()}));
     });
 }
 

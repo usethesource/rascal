@@ -109,7 +109,7 @@ test bool GenericUseOfModifiers()         = checkModuleOK(
    "module GenericUseOfModifiers
    '  syntax E = \"e\";
    '  data E = e();
-   '  data[E] test = e();
+   '  data[E] tst = e();
    '  data[&T] id(data[&T] a, syntax[&T] b) = a;
    '  data[E] example = id(e(), (E) `e`);
    ");
