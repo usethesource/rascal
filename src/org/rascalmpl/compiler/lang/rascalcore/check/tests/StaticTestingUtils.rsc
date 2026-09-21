@@ -196,19 +196,22 @@ bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = f
 }
 
 bool checkOK(str stmts) {
-     errors = getErrorMessages(checkStatements(stmts));
-     if(size(errors) == 0)
+    errors = getErrorMessages(checkStatements(stmts));
+    if(size(errors) == 0)
         return true;
-     throw errors;
+	println(write([*errors]));
+    return false;
 }
 
 bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) = checkModulesOK([moduleToCheck], pathConfig = pathConfig);
 
 bool checkModulesOK(list[loc] modulesToCheck, PathConfig pathConfig = pathConfigForTesting()) {
-     errors = getErrorMessages(rascalTModelForLocs(modulesToCheck, rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));
-     if(size(errors) == 0)
-        return true;
-     throw abbrev("<errors>");
+    errors = getErrorMessages(rascalTModelForLocs(modulesToCheck, rascalCompilerConfig(pathConfig)[infoModuleChecked=true][verbose=verbose], dummy_compile1));
+    if(size(errors) == 0)
+       return true;
+
+	println(write([*errors]));
+    return false;
 }
 
 bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting()){

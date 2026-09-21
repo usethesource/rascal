@@ -374,6 +374,9 @@ a &T parameter was modifier to different roles in the signature earlier.
 }
 AType asyntaxRoleModifier(SyntaxRole newRole, aadt(n, ps, SyntaxRole _oldRole)) = aadt(n, ps, newRole);
 
+@synopsis{A modifier can resolve the conflict between names which are not uniquely resolvable, using the role}
+AType asyntaxRoleModifier(SyntaxRole role, overloadedAType({<_, _, match:aadt(_,_, role)>, *_})) = match;
+
 @synopsis{The outermost modifier eventually always wins, even on open modified types.}
 AType asyntaxRoleModifier(SyntaxRole role, asyntaxRoleModifier(_, AType s))
   = asyntaxRoleModifier(role, s);

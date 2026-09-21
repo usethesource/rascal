@@ -916,7 +916,7 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, Type tp, 
     c.calculate("syntax role", current, [tp], AType(Solver s) {
         AType par = s.getType(tp);
 
-        if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier) {
+        if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier && overloadedAType({<_, _, aadt(_,_,_)>, *_}) !:= par) {
             s.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
             return par;
         }
