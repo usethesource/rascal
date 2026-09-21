@@ -445,6 +445,10 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
         if(!isEmpty(neededTypeParams))
            msgs += error(n, "Type variables in aliased type %t are unbound", aliased);
         return<msgs, aliased>;
+    } else if (overloadedAType({<_,_,aadt(str name, ps, _)>, *_}) := baseType) {
+        return <[error(n, "<n> is not uniquely resolvable.", 
+                    causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
+                aadt(name, ps, illegalSyntax())>;
     } else {
         return <[], baseType>;
     }
@@ -467,10 +471,8 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
-            println("type lookup: <s.getType(n)>");
             <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
-            println("type name @<current.src> is <result>");
             return result;
         });
 }
