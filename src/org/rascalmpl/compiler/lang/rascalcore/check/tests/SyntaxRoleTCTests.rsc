@@ -46,9 +46,9 @@ test bool MiniTest() = checkModuleOK(
 
 test bool OverloadingTest0()         = unexpectedTypeInModule(
    "module OverloadingTest1
-   '  syntax E = \"e\";
+   '  syntax E = \"foo\";
    '  data E = e();
-   '  E ex1 = e(); // E is ambiguous here (not good) and e() should have type data[E] not syntax[E]
+   '  E ex1 = e(); // E is ambiguous here (not good) and e() should always have type data[E] not syntax[E]
    ");
 
 
