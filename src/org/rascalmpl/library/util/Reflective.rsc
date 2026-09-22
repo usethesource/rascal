@@ -23,6 +23,7 @@ import Message;
 
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
+import lang::json::IO;
 
 @synopsis{Returns the system-dependent line separator string}
 @javaClass{org.rascalmpl.library.util.Reflective}
@@ -540,7 +541,7 @@ private str pomXml(str name, str group, str version)
     '        \</configuration\>
     '        \<executions\>
     '          \<execution\>
-    '            \<id\><name>-compile\</id\>
+    '            \<id\>default-compile\</id\>
     '            \<phase\>compile\</phase\>
     '            \<goals\>
     '              \<goal\>compile\</goal\>
@@ -555,8 +556,7 @@ private str pomXml(str name, str group, str version)
 
 private str getRascalMavenPluginVersion() {
     try { // Best-effort attempt to get the latest version
-        loc l = |https://api.github.com/repos/usethesource/rascal-maven-plugin/releases/latest|;
-        if (/"tag_name":\s*"v<version:[0-9]+\.[0-9]+\.[0-9]+>"/ := readFile(l)) {
+        if (str s := readJSON(#map[str, value], |https://api.github.com/repos/usethesource/rascal-maven-plugin/releases/latest|)["tag_name"], /v<version:[0-9]+\.[0-9]+\.[0-9]+>/ := s) {
             return version;
         }
     } catch _: ;
