@@ -46,9 +46,9 @@ test bool MiniTest() = checkModuleOK(
 
 test bool MiniTest2() = unexpectedTypeInModule(
    "module MiniTest2
-   '  data E = e();
    '  syntax E = \"foo\";
-   '  E exData = e(); // we do not know what E it is on the left.
+   '  data E = e();
+   '  E exData = e(); // E is not uniquely resolvable
    '"
 );
 
