@@ -202,20 +202,27 @@ private AType do_computeSpliceType(Tree current, AType t1, Solver s){
 
 // ---- asType
 
-void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
+void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c) {
     scope = c.getScope();
+    roleIds = {lexicalId(), nonterminalId(), keywordId(), layoutId()};
+
+    collectNameInRoleContext(t, c, roleIds);
+    collect(e, c);
 
     c.calculate("asType", current, [t, e],
         AType(Solver s) { 
-            if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
+            if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) {
+                s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
+            }
             // only look for syntax names, not data
-            res = s.getTypeInScope(t, scope, {lexicalId(), nonterminalId(), keywordId(), layoutId()});
+            res = s.getTypeInScope(t, scope, roleIds);
+            // res = s.getType(t);
             println("calc on asType: <t.src> = <res>");
             return res;
         });
         
     checkSupportedByParserGenerator(t, c);
-    collect(t, e, c);
+    
 }
 
 // ---- composition

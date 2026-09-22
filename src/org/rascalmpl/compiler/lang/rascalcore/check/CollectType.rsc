@@ -433,9 +433,11 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 // ---- user defined type -----------------------------------------------------
 
 tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){
+    println("based type to handle is <baseType>");
     if(aadt(adtName, _, _) := baseType){
         nformals = size(baseType.parameters);
         if(nformals > 0) return <[error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName)], baseType>;
+        println("simply returing <baseType>");
         return <[], baseType>;
     } else if(aalias(aname, _, aliased) := baseType){
         nformals = size(baseType.parameters);
@@ -446,16 +448,16 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
            msgs += error(n, "Type variables in aliased type %t are unbound", aliased);
         return<msgs, aliased>;
     } else if (overloadedAType({<_,_,aadt(str name, ps, _)>, *_}) := baseType) {
-        // return <[error(n, "<n> is not uniquely resolvable.", 
-        //             causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
-        //         aadt(name, ps, illegalSyntax())>;
-        return <[], aadt(name, ps, illegalSyntax())>;
+        return <[error(n, "<n> is not uniquely resolvable.", 
+                     causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
+                 aadt(name, ps, illegalSyntax())>;
     } else {
+        println("simply returing <baseType>");
         return <[], baseType>;
     }
 }
 
-@doc{Convert Rascal user types into their abstract representation.}
+@synopsis{Convert Rascal user types into their abstract representation.}
 void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
@@ -475,6 +477,44 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
             println("solving <current> at <current.src>");
             <msgs, result> = handleUserType(n, s.getType(n));
             // throw "debug <current> <current.src> <n>";
+            for(m <- msgs) s.report(m);
+            return result;
+        });
+}
+
+@synopsis{special casing without using defaults}
+void collectNameInRoleContext(Type t:!(Type) `<UserType u>`, Collector c, set[IdRole] roles) = collect(t, c);
+void collectNameInRoleContext(Type t: (Type) `<UserType u>`, Collector c, set[IdRole] roles) = collectNameInRoleContext(u, c, roles);
+
+// TODO: parametrized user types
+void collectNameInRoleContext(UserType u:!(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles) = collect(u, c);
+
+@synopsis{Convert Rascal user types into their abstract representation, but with a given IdRole context}
+void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles){
+    println("collectNameInRoleContext <current.src>");
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        println("using <n> with <roles>");
+        c.use(n, roles);
+    } else {
+        c.useQualified([qualifier, base], n, roles);
+    }
+
+    scope = c.getScope();
+
+   try {
+        <msgs, result> = handleUserType(n,  c.getType(n));
+        println("collect getType: <result>");
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): println("currently unavailable <n>");
+
+    c.calculate("type without parameters", current, [n],
+        AType(Solver s){            
+            println("Solving <current> at <current.src>");
+            <msgs, result> = handleUserType(n, s.getTypeInScope(n, scope, roles));
+            // throw "debug <current> <current.src> <n> <result> <msgs>";
+            println("RESULT <result> <msgs>");
             for(m <- msgs) s.report(m);
             return result;
         });
