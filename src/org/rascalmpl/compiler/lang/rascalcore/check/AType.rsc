@@ -224,7 +224,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
         case acons(AType a, list[AType] _, list[Keyword] _):
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, a);
         /////////
-        case aadt(n, list[AType] r, _):
+        case aadt(n, list[AType] r, sr):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
             if(isConcreteSyntaxRole(sr)) return true;
