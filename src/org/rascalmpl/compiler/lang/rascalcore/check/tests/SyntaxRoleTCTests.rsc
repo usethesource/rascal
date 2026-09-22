@@ -118,7 +118,7 @@ test bool WrongGenericUseOfModifiers()         = unexpectedTypeInModule(
    "module GenericUseOfModifiers
    '  syntax E = \"e\";
    '  data E = e();
-   '  &T id(data[&T] a, syntax[&T] b) = a; // return type is unmodified
-   '  data[E] example = implode(e(), (E) `e`);
+   '  &T id(data[&T] a, syntax[&T] _b) = a; // return type is unmodified
+   '  data[E] example = id(e(), (E) `e`);
    ");
    
