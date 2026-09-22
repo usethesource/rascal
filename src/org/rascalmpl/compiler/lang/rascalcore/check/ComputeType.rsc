@@ -76,7 +76,10 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
 }
 
 AType(Solver) makeGetSyntaxType(Type varType)
-    = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
+    = AType(Solver s) { 
+        Tree t = varType; 
+        return getSyntaxType(t, s); 
+    };
 
 rel[loc key, IdRole idRole, AType atype]
     checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
@@ -1360,7 +1363,6 @@ private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AT
     getPatternType(p, avalue(), scope, s); // to force nested type calculations
     // only lookup nonterminal names, not data types
     res =  s.getTypeInScope(tp, scope, {lexicalId(), nonterminalId(), layoutId(), keywordId()});
-    println("type is scope for [<tp>] .. is <res>");
     return res;
 }
 

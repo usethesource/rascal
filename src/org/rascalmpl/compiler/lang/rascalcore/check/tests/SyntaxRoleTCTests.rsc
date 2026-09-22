@@ -70,24 +70,15 @@ test bool OverloadingTest3()         = unexpectedTypeInModule(
    "module OverloadingTest3
    '  syntax E = \"e\";
    '  data E = e();
-   '  syntax[E] ex2 = e();
+   '  syntax[E] ex2 = e(); // this is not a compatible assignment
    ");
 
 test bool OverloadingTest4()         = unexpectedTypeInModule(
    "module OverloadingTest4
    '  syntax E = \"e\";
    '  data E = e();
-   '  data[E] ex2 = (E) `e`;
+   '  data[E] ex2 = (E) `e`; // this is not a compatible assignment
    ");
-
-test bool MiniTestFail() = unexpectedTypeInModule(
-   "module MiniTest
-   '  syntax E = \"e\";
-   '  data E = e();
-   '  syntax[E] exData = e();
-   "
-);
-
 
 test bool TestSimpleModificationOfRoles() = checkModuleOK(
    "module TestSimpleModificationOfRoles

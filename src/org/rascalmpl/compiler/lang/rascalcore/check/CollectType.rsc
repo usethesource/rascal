@@ -433,11 +433,9 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 // ---- user defined type -----------------------------------------------------
 
 tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){
-    println("based type to handle is <baseType>");
     if(aadt(adtName, _, _) := baseType){
         nformals = size(baseType.parameters);
         if(nformals > 0) return <[error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName)], baseType>;
-        println("simply returing <baseType>");
         return <[], baseType>;
     } else if(aalias(aname, _, aliased) := baseType){
         nformals = size(baseType.parameters);
@@ -452,7 +450,6 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
                      causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
                  aadt(name, ps, illegalSyntax())>;
     } else {
-        println("simply returing <baseType>");
         return <[], baseType>;
     }
 }
@@ -474,9 +471,7 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
-            println("solving <current> at <current.src>");
             <msgs, result> = handleUserType(n, s.getType(n));
-            // throw "debug <current> <current.src> <n>";
             for(m <- msgs) s.report(m);
             return result;
         });
@@ -491,10 +486,8 @@ void collectNameInRoleContext(UserType u:!(UserType) `<QualifiedName n>`, Collec
 
 @synopsis{Convert Rascal user types into their abstract representation, but with a given IdRole context}
 void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles){
-    println("collectNameInRoleContext <current.src>");
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
-        println("using <n> with <roles>");
         c.use(n, roles);
     } else {
         c.useQualified([qualifier, base], n, roles);
@@ -504,17 +497,13 @@ void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector 
 
    try {
         <msgs, result> = handleUserType(n,  c.getType(n));
-        println("collect getType: <result>");
         for(m <- msgs) c.report(m);
         c.fact(current, result);
-    } catch TypeUnavailable(): println("currently unavailable <n>");
+    } catch TypeUnavailable():
 
     c.calculate("type without parameters", current, [n],
-        AType(Solver s){            
-            println("Solving <current> at <current.src>");
+        AType(Solver s){
             <msgs, result> = handleUserType(n, s.getTypeInScope(n, scope, roles));
-            // throw "debug <current> <current.src> <n> <result> <msgs>";
-            println("RESULT <result> <msgs>");
             for(m <- msgs) s.report(m);
             return result;
         });

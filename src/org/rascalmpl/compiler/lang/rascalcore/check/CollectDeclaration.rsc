@@ -182,6 +182,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
     }
     scope = c.getScope();
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
+        
         for(var <- variables){
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
