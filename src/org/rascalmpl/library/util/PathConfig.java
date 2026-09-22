@@ -596,7 +596,7 @@ public class PathConfig {
     // This declaration does not mirror a constructor from the standard library; it is here to be able to send the command, but the declaration must live in the implementing project (e.g., `rascal-lsp`)
     private static final io.usethesource.vallang.type.Type Command_addRascalDependencyToPom = tf.constructor(store, Messages.Command, "addRascalDependencyToPom", tf.sourceLocationType(), "pomLoc");
 
-    public static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
+    private static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
         var title = "Add Rascal dependency to pom.xml";
         var codeAction = vf.constructor(Command_addRascalDependencyToPom, new IValue[] { pomXml }, Map.of("title", vf.string(title)));
         var fix = vf.constructor(Messages.CodeAction_action, new IValue[]{}, Map.of("command", codeAction));
