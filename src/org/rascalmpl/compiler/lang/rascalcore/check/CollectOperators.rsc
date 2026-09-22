@@ -214,10 +214,7 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c) {
             if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) {
                 s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
             }
-            // only look for syntax names, not data
             res = s.getTypeInScope(t, scope, roleIds);
-            // res = s.getType(t);
-            println("calc on asType: <t.src> = <res>");
             return res;
         });
         

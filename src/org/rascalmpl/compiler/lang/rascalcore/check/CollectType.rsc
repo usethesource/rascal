@@ -954,13 +954,7 @@ void collect(current: (Type) `layout[<Type tp>]`, Collector c)
     = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c, layoutId());
 
 private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `<QualifiedName n>`, Collector c, IdRole id) {
-    <qualifier, base> = splitQualifiedName(n);
-    if (isEmpty(qualifier)){
-        c.use(n, {id});
-    } else {
-        c.useQualified([qualifier, base], n, {id});
-    }
-
+    collectNameInRoleContext(tp, c, {id});
     scope = c.getScope();
 
     c.calculate("syntax role", current, [tp], AType(Solver s) {
@@ -976,12 +970,16 @@ private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type)
     });
 }
 
+// TODO: this is broken
+
 private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `&<Name n>`, Collector c, IdRole id) {
     c.use(n, {typeVarId()});
     scope = c.getScope();
 
+    collect(tp, c);
+
     c.calculate("syntax role", current, [tp], AType(Solver s) {
-        return asyntaxRoleModifier(role, s.getTypeInScope(tp, scope, {typeVarId()}));
+        return asyntaxRoleModifier(role, s.getType(tp));
     });
 }
 
