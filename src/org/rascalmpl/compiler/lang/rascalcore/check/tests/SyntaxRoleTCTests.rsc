@@ -35,13 +35,21 @@ private str exampleGrammar
      'syntax E = \"e\"; 
      'data A = a();
      'data E = e();
-     ";
+     '";
 
 test bool MiniTest() = checkModuleOK(
    "module MiniTest
    '  data E = e();
    '  data[E] exData = e();
-   "
+   '"
+);
+
+test bool MiniTest2() = unexpectedTypeInModule(
+   "module MiniTest2
+   '  data E = e();
+   '  syntax E = \"foo\";
+   '  E exData = e(); // we do not know what E it is on the left.
+   '"
 );
 
 test bool OverloadingTest0()         = unexpectedTypeInModule(
@@ -49,7 +57,7 @@ test bool OverloadingTest0()         = unexpectedTypeInModule(
    '  syntax E = \"foo\";
    '  data E = e();
    '  E ex1 = e(); // E is ambiguous here (not good) and e() should always have type data[E] not syntax[E]
-   ");
+   '");
 
 
 test bool OverloadingTest1()         = checkModuleOK(
