@@ -52,12 +52,13 @@ test bool MiniTest2() = unexpectedTypeInModule(
    '"
 );
 
-test bool OverloadingTest0()         = unexpectedTypeInModule(
-   "module OverloadingTest1
+test bool MiniTest3() = unexpectedTypeInModule(
+   "module MiniTest2
    '  syntax E = \"foo\";
    '  data E = e();
-   '  E ex1 = e(); // E is ambiguous here (not good) and e() should always have type data[E] not syntax[E]
-   '");
+   '  E exData = (E) `foo`; // E is not uniquely resolvable
+   '"
+);
 
 
 test bool OverloadingTest1()         = checkModuleOK(
