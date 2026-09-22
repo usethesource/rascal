@@ -46,9 +46,9 @@ public class Messages {
 
     // These declarations mirror the data definitions in the `util::IDEServices` module of the standard library
     private static final io.usethesource.vallang.type.Type CodeAction = tf.abstractDataType(ts, "CodeAction");
-    private static final io.usethesource.vallang.type.Type CodeAction_action = tf.constructor(ts, CodeAction, "action");
+    public static final io.usethesource.vallang.type.Type CodeAction_action = tf.constructor(ts, CodeAction, "action");
 
-    private static final io.usethesource.vallang.type.Type Command = tf.abstractDataType(ts, "Command");
+    public static final io.usethesource.vallang.type.Type Command = tf.abstractDataType(ts, "Command");
     private static final io.usethesource.vallang.type.Type Command_noop = tf.constructor(ts, Command, "noop");
 
     // These declarations mirror the data definition in the `analysis::diff::edits::FileSystemChanges` module of the standard library
@@ -57,9 +57,6 @@ public class Messages {
     private static final io.usethesource.vallang.type.Type FileSystemChange_created = tf.constructor(ts, FileSystemChange, "created", tf.sourceLocationType(), "file");
     private static final io.usethesource.vallang.type.Type FileSystemChange_renamed = tf.constructor(ts, FileSystemChange, "renamed", tf.sourceLocationType(), "from", tf.sourceLocationType(), "to");
     private static final io.usethesource.vallang.type.Type FileSystemChange_changed = tf.constructor(ts, FileSystemChange, "changed", tf.sourceLocationType(), "file");
-
-    // This declaration does not mirror a constructor from the standard library; it is here to be able to send the command, but the declaration must live in the implementing project (e.g., `rascal-lsp`)
-    public static final io.usethesource.vallang.type.Type Command_addRascalDependencyToPom = tf.constructor(ts, Command, "addRascalDependencyToPom", tf.sourceLocationType(), "pomLoc");
 
     static {
         // data Message(list[CodeAction] fixes = []]);
@@ -102,18 +99,6 @@ public class Messages {
             ;
             
         return msg.asWithKeywordParameters().setParameter("causes", causes);
-    }
-
-    public static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
-        var title = "Add Rascal dependency to pom.xml";
-        var codeAction = vf.constructor(Messages.Command_addRascalDependencyToPom, new IValue[] { pomXml }, Map.of(
-            "title", vf.string(title)
-        ));
-        var fix = vf.constructor(Messages.CodeAction_action, new IValue[]{}, Map.of(
-            "command", codeAction,
-            "title", vf.string(title),
-            "edits", vf.list()));
-        return addFix(msg, fix);
     }
 
     public static IConstructor addFix(IConstructor msg, IConstructor fix) {

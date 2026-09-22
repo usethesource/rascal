@@ -593,12 +593,22 @@ public class PathConfig {
         return resolveCurrentRascalRuntime();
     }
 
+    // This declaration does not mirror a constructor from the standard library; it is here to be able to send the command, but the declaration must live in the implementing project (e.g., `rascal-lsp`)
+    private static final io.usethesource.vallang.type.Type Command_addRascalDependencyToPom = tf.constructor(store, Messages.Command, "addRascalDependencyToPom", tf.sourceLocationType(), "pomLoc");
+
+    public static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
+        var title = "Add Rascal dependency to pom.xml";
+        var codeAction = vf.constructor(Command_addRascalDependencyToPom, new IValue[] { pomXml }, Map.of("title", vf.string(title)));
+        var fix = vf.constructor(Messages.CodeAction_action, new IValue[]{}, Map.of("command", codeAction));
+        return Messages.addFix(msg, fix);
+    }
+
     private static IConstructor makeMissingRascalMessage(ISourceLocation manifestRoot) {
         // The `pomXml` location is given an artificial range on the second line to make sure that the hover remains within the bounds of the editor
         // Otherwise, the quick-fix pop-up immediately disappears as the editor loses focus
         var pomXml = vf.sourceLocation(URIUtil.getChildLocation(manifestRoot, "pom.xml"), 0, 0, 2, 2, 0, 8);
         var msg = Messages.warning("Missing required Rascal dependency in project " + URIUtil.getLocationName(manifestRoot), pomXml);
-        return Messages.addAddRascalDependencyFix(msg, pomXml);
+        return addAddRascalDependencyFix(msg, pomXml);
     }
 
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
