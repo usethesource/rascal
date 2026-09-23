@@ -476,7 +476,7 @@ and a pom.xml file will be generated and written.
 
 The folder is created if it does not exist already.
 }
-void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT", str rascalSrcRoot="/src/main/rascal") {
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT", str rascalSrcRoot="src/main/rascal") {
     mkDirectory(folder);
     writeFile(pomFile(folder), pomXml(name, group, version, rascalSrcRoot));
 } 
@@ -536,7 +536,7 @@ private str pomXml(str name, str group, str version, str rascalSrcRoot)
     '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
     '          \<bin\>${project.build.outputDirectory}\</bin\>
     '          \<srcs\>
-    '            \<src\>${project.basedir}<rascalSrcRoot>\</src\>
+    '            \<src\>${project.basedir}/<rascalSrcRoot>\</src\>
     '          \</srcs\>
     '        \</configuration\>
     '        \<executions\>
