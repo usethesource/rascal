@@ -476,12 +476,12 @@ and a pom.xml file will be generated and written.
 
 The folder is created if it does not exist already.
 }
-void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT", str rascalSrcRoot="/src/main/rascal") {
     mkDirectory(folder);
-    writeFile(pomFile(folder), pomXml(name, group, version));
+    writeFile(pomFile(folder), pomXml(name, group, version, rascalSrcRoot));
 } 
 
-private str pomXml(str name, str group, str version)  
+private str pomXml(str name, str group, str version, str rascalSrcRoot)
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
     '  \<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
     '  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\>
@@ -536,7 +536,7 @@ private str pomXml(str name, str group, str version)
     '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
     '          \<bin\>${project.build.outputDirectory}\</bin\>
     '          \<srcs\>
-    '            \<src\>${project.basedir}/src/main/rascal\</src\>
+    '            \<src\>${project.basedir}<rascalSrcRoot>\</src\>
     '          \</srcs\>
     '        \</configuration\>
     '        \<executions\>
