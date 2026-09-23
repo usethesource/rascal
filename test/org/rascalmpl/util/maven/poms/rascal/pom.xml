@@ -34,7 +34,7 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
-        <jline.version>3.27.0</jline.version>
+        <jline.version>3.30.15</jline.version>
     </properties>
 
     <licenses>
