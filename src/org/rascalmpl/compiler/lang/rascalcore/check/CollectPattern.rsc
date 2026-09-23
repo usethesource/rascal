@@ -390,7 +390,7 @@ void collect(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> 
 // ---- asType
 void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
     // only syntax types here, no data.
-    c.fact(current, tp, {lexicalId(), contextFreeId(), layoutId(), keywordId()});
+    c.fact(current, tp);
 
     // If pattern is of type string, the string will be parsed using the non-terminal tp.
     // If the pattern has another type, then it must be a subtype of tp 
