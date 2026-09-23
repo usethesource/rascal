@@ -490,11 +490,8 @@ void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector 
     if(isEmpty(qualifier)){
         c.use(n, roles);
     } else {
-        println(roles);
         c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
     }
-
-    scope = c.getScope();
 
    try {
         <msgs, result> = handleUserType(n,  c.getType(n));
@@ -504,7 +501,7 @@ void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector 
 
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
-            <msgs, result> = handleUserType(n, s.getTypeInScope(n, scope, roles));
+            <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
             return result;
         });

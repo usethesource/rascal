@@ -605,7 +605,7 @@ test bool Issue465c2(){
 	writeModule("module MMM
                     lexical IntegerLiteral = [0-9]+;           
 					start syntax Exp = con: IntegerLiteral;");
-	return checkModuleOK("
+	return unexpectedTypeInModule("
         module Issue465c
             import MMM;
             data Exp = con(int n);
