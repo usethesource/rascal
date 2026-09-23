@@ -597,9 +597,22 @@ test bool Issue465c(){
         module Issue465c
             import MMM;
             data Exp = con(int n);
-            void main() { Exp c = con(5); }
+            void main() { data[Exp] c = con(5); }
         ");
 }
+
+test bool Issue465c2(){			                                     								
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+        module Issue465c
+            import MMM;
+            data Exp = con(int n);
+            void main() { Exp c = con(5); } // should trigger an error
+        ");
+}
+
 
 test bool Issue465d(){			                                     								
 	writeModule("module MMM
@@ -609,7 +622,19 @@ test bool Issue465d(){
         module Issue465d
             import MMM;
             data Exp = con(int n);
-            void main() { MMM::Exp c = [MMM::Exp] \"3\"; }
+            void main() { MMM::Exp c = [MMM::Exp] \"3\"; } // should work because data Exp is not in MMM
+        ");
+}
+
+test bool Issue465d2(){			                                     								
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+        module Issue465d
+            import MMM;
+            data Exp = con(int n);
+            void main() { syntax[Exp] c = [Exp] \"3\"; }
         ");
 }
 

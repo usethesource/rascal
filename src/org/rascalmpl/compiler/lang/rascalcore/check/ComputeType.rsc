@@ -241,7 +241,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
     return computeType(current, t1, t2, t3, s);
 }
 
-AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
+AType computeADTType(Tree current, str adtName, SyntaxRole role, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
     // println("---- compute ADT type <current>, identicalFormals: <identicalFormals>");
     requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
@@ -276,7 +276,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
             for(<key, idr, tp> <- overloads){
                 try {
                     actualTypes[i] = tp;
-                    returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
+                    returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, role, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
                 } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                   catch NoBinding(): /* continue with next overload */;
              }
@@ -285,10 +285,18 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
         }
     }
 
-    return computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s);
+    return computeADTReturnType(current, adtName, role, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s);
 }
 
-AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] formalTypes, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
+IdRole toIdRole(dataSyntax()) = dataId();
+IdRole toIdRole(contextFreeSyntax()) = nonterminalId();
+IdRole toIdRole(lexicalSyntax()) = lexicalId();
+IdRole toIdRole(keywordSyntax())  = keywordId();
+IdRole toIdRole(layoutSyntax()) = layoutId();
+
+
+AType computeADTReturnType(Tree current, str adtName, SyntaxRole role, loc scope, list[AType] formalTypes, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
+//    println("--- computeADTReturnType <current.src> <adtName> in <scope>");
     Bindings bindings = ();
     fsuffix = "f";
     asuffix = "a";
@@ -318,7 +326,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
 
-    adtType = s.getTypeInScopeFromName(adtName, scope, {dataId()});
+    adtType = s.getTypeInScopeFromName(adtName, scope, {toIdRole(role)});
 
     switch(keywordArguments){
     case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
@@ -356,7 +364,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         } catch TypeUnavailable(): /* ignore */ ;
           catch invalidInstantiation(str _msg): /* nothing to instantiate */ ;
         try {
-            res = deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(s.getTypeInScopeFromName(adtName, scope, {dataId()}), fsuffix), bindings, s));
+            res = deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(s.getTypeInScopeFromName(adtName, scope, {toIdRole(role)}), fsuffix), bindings, s));
             res = visit(res){ case ap:aparameter(_,_) => unset(ap, "closed") };
             return res;
         } catch invalidInstantiation(str msg):
@@ -1225,9 +1233,9 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
          validOverloads = {};
          next_cons:
          for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] _, _), list[AType] fields, list[Keyword] kwFields) := tp){
+            if(acons(adtType:aadt(adtName, list[AType] _, SyntaxRole role), list[AType] fields, list[Keyword] kwFields) := tp){
                try {
-                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
+                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, role, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
                     } catch _: checkFailed(list[FailMessage] _): {
                             continue next_cons;
@@ -1246,8 +1254,8 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
       }
     }
 
-    if(acons(adtType:aadt(adtName, list[AType] _, _), list[AType] fields, list[Keyword] kwFields) := texp){
-       return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int _ <- index(fields)], s);
+    if(acons(adtType:aadt(adtName, list[AType] _, SyntaxRole role), list[AType] fields, list[Keyword] kwFields) := texp){
+       return computeADTType(current, adtName, role, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int _ <- index(fields)], s);
     }
     s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
     return avalue();

@@ -490,7 +490,8 @@ void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector 
     if(isEmpty(qualifier)){
         c.use(n, roles);
     } else {
-        c.useQualified([qualifier, base], n, roles);
+        println(roles);
+        c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
     }
 
     scope = c.getScope();
