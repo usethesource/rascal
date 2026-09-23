@@ -114,11 +114,16 @@ test bool GenericUseOfModifiers()         = checkModuleOK(
    '  data[E] example = id(e(), (E) `e`);
    ");
 
-test bool WrongGenericUseOfModifiers()         = unexpectedTypeInModule(
+test bool WrongGenericUseOfModifiers1()         = unexpectedTypeInModule(
+   "module GenericUseOfModifiers
+   '  &T id(data[&T] a, syntax[&T] _b) = a; // return type is unmodified
+   ");
+
+test bool WrongGenericUseOfModifiers2()         = unexpectedTypeInModule(
    "module GenericUseOfModifiers
    '  syntax E = \"e\";
    '  data E = e();
    '  &T id(data[&T] a, syntax[&T] _b) = a; // return type is unmodified
    '  data[E] example = id(e(), (E) `e`);
    ");
-   
+

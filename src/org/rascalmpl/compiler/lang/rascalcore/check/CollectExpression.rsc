@@ -876,8 +876,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     }
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
 
-    if(isEmpty(bindings))
+    if(isEmpty(bindings)) {
        return retType;
+    }
 
     try {
         res = instantiateRascalTypeParameters(current, retTypeU, bindings, s);

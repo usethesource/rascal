@@ -205,6 +205,11 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if (asyntaxRoleModifier(SyntaxRole role, p1) := r && asyntaxRoleModifier(role, p2) := s) {
         return matchRascalTypeParams0(p1, p2, b);
     }
+
+    if (asyntaxRoleModifier(_, _) := r && aparameter(_, _) := s) {
+        // the parameter misses a role
+        throw invalidMatch("Type parameter <prettyAType(deUnique(s))> misses an explicit syntax role like data[<prettyAType(deUnique(s))>] or syntax[<prettyAType(deUnique(s))>]");
+    }
     
     if(comparable(r, s)) return b;
     

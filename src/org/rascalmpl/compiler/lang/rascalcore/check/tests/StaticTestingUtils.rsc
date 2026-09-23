@@ -344,7 +344,8 @@ list[str] unexpectedTypeMsgs = [
 		"Constructor _ is overloaded",
 		"Expression _ is overloaded",
 		"Base expression _ of field selection should have a unique type",
-		"_ is not uniquely resolvable"
+		"_ is not uniquely resolvable",
+		"Type parameter _ misses an explicit syntax role like data[_] or syntax[_]"
 ];
 
 bool unexpectedTypeInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
