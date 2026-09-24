@@ -148,6 +148,9 @@ extend Type;
 
 import Node;
 import Set;
+extend Message;
+extend Type;
+
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -313,8 +316,12 @@ data Symbol
 data Symbol // <19>
      = \conditional(Symbol symbol, set[Condition] conditions);
 
-bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
-
+data Symbol
+    = \syntax(Symbol modified)
+    | \lexical(Symbol modified)
+    | \keyword(Symbol modified)
+    | \layout(Symbol modified)
+    ;
 
 @synopsis{Datatype for declaring preconditions and postconditions on symbols}
 @description{
@@ -785,7 +792,8 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 ```
 }
-java &T<:value implode(type[&T<:value] t, Tree tree);
+// java data[&T] implode(type[data[&T]] t, syntax[&T] tree);
+java &T implode(type[&T] grammar, Tree tree);
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();

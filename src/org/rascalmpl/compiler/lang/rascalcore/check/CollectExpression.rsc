@@ -629,9 +629,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
-                    if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
+                    if(acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                              continue next_cons;
@@ -665,8 +665,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                }
                return res;
             }
-            if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
+            if(acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr), list[AType] fields, list[Keyword] kwFields) := texp){
+               res =  computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
                return res;
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
@@ -859,8 +859,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         iactualTypesU[i] = actual_i;
     }
 
-    try
+    try {
         bindings = unifyRascalTypeParams(iformalTypesU, iactualTypesU, bindings);
+    }
     catch invalidMatch(str reason):
         s.report(error(current, reason));
           //s.report(error(i < size(actuals)  ? actuals[i] : current, reason))
@@ -875,8 +876,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     }
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
 
-    if(isEmpty(bindings))
+    if(isEmpty(bindings)) {
        return retType;
+    }
 
     try {
         res = instantiateRascalTypeParameters(current, retTypeU, bindings, s);

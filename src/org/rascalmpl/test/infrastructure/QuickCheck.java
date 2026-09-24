@@ -21,6 +21,7 @@ import java.util.Random;
 import java.util.function.BiFunction;
 
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
@@ -210,8 +211,9 @@ public class QuickCheck {
         @Override
         public void writeMessage(PrintWriter out) {
             super.writeMessage(out);
-            out.println("Exception:");
+            
             if (thrownException instanceof Throw) {
+                out.println("Rascal exception:");
                 out.println(((Throw)thrownException).getMessage());
                 try {
                     ((Throw) thrownException).getTrace().prettyPrintedString(out, new StandardTextWriter(true));
@@ -220,8 +222,12 @@ public class QuickCheck {
                     // should not happen
                 }
             }
+            else if (thrownException instanceof StaticError) {
+                out.println("Rascal static error:");
+                out.println(thrownException.getMessage());
+            }
             else {
-                // out.println(thrownException.toString());
+                out.println("Java exception:");
                 thrownException.printStackTrace(out);
             }
             out.flush();

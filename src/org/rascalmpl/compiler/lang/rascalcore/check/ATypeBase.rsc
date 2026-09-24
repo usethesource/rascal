@@ -107,7 +107,6 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
       syntaxRole = overloadSyntaxRole(synRoles);
       if(syntaxRole == illegalSyntax()) fail overloadedAType;
 
-
       return aadt(adtName, adtParams, syntaxRole);
     } else {
         otypes = overloads<2>;
@@ -203,9 +202,17 @@ data SyntaxRole
     | illegalSyntax()
     ;
 
+str prettySyntaxRole(str name, dataSyntax()) = "data[<name>]";
+str prettySyntaxRole(str name, contextFreeSyntax()) = "syntax[<name>]";
+str prettySyntaxRole(str name, lexicalSyntax()) = "lexical[<name>]";
+str prettySyntaxRole(str name, keywordSyntax()) = "keyword[<name>]";
+str prettySyntaxRole(str name, layoutSyntax()) = "layout[<name>]";
+str prettySyntaxRole(str name, illegalSyntax()) = "?role?[<name>]";
+
 SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
    if({SyntaxRole sr} := syntaxRoles) return sr;
-   if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr;
+  // this hides ambiguity between data syntax and normal syntax roles, producing broken type assignments instead of clear errors
+  //  if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr;
    return illegalSyntax();
 }
 
@@ -355,6 +362,24 @@ data AType
      | \seq(list[AType] atypes)     // <18>
      | \start(AType atype)
      ;
+
+@synopsis{These are the syntax role modifier constructors}
+data AType = \asyntaxRoleModifier(SyntaxRole role, AType modified);
+
+@synopsis{this is the core modifier feature: force the "role", keep the rest}
+@description{
+Note that when the oldRole is `illegalSyntax()` it will be overwritten and corrected here,
+before that ends up triggering a user error. This happens in return types where
+a &T parameter was modifier to different roles in the signature earlier.
+}
+AType asyntaxRoleModifier(SyntaxRole newRole, aadt(n, ps, SyntaxRole _oldRole)) = aadt(n, ps, newRole);
+
+@synopsis{A modifier can resolve the conflict between names which are not uniquely resolvable, using the role}
+AType asyntaxRoleModifier(SyntaxRole role, overloadedAType({<_, _, match:aadt(_,_, role)>, *_})) = match;
+
+@synopsis{The outermost modifier eventually always wins, even on open modified types.}
+AType asyntaxRoleModifier(SyntaxRole role, asyntaxRoleModifier(_, AType s))
+  = asyntaxRoleModifier(role, s);
 
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
