@@ -22,6 +22,7 @@ module vis::Graphs
 
 import Content;
 import IO;
+import Node;
 import Set;
 import ValueIO;
 import lang::html::AST;
@@ -122,19 +123,27 @@ data CytoGraphConfig = cytoGraphConfig(
     NodeLabeler[&T]    nodeLabeler    = defaultNodeLabeler,
     NodeTipper[&T]     nodeTipper     = defaultNodeTipper, 
     NodeClassifier[&T] nodeClassifier = defaultNodeClassifier, 
+    NodeConfigurator[&T] nodeConfigurator = defaultNodeConfigurator,
 
     EdgeLabeler[&T]    edgeLabeler    = defaultEdgeLabeler, 
     EdgeTipper[&T]     edgeTipper     = defaultEdgeTipper,
     EdgeClassifier[&T] edgeClassifier = defaultEdgeClassifier,
     EdgeWeigher[&T]    edgeWeigher    = defaultEdgeWeigher,
+    EdgeConfigurator[&T] edgeConfigurator = defaultEdgeConfigurator,
     
-    CytoLayout \layout  = defaultCoseLayout(), 
+    CytoLayout \layout  = defaultDagreLayout(), 
 
     CytoStyle nodeStyle      = defaultNodeStyle(), 
     CytoStyle edgeStyle      = defaultEdgeStyle(), 
     list[CytoStyleOf] styles = [],
-    list[HTMLElement] header = [tooltipCSS()],
-    list[HTMLElement] footer = [toEditorClick(), hoverListeners(), tooltipListeners()]
+    list[HTMLElement] header = [tooltipCSS(), *fcoseHeaders(\layout.name)],
+    list[HTMLElement] footer = [
+        toEditorClick(), 
+        hoverListeners(),
+        tooltipListeners(),
+        *dynamicCoseProperties(\layout.name),
+        *relayoutOnDrop(\layout.name)
+    ]
 );
 
 
@@ -149,7 +158,20 @@ default loc defaultNodeLinker(&T _) = |nothing:///|;
 alias NodeLabeler[&T]= str (&T _id2);
 
 @synopsis{A NodeTipper maps node identities to extended information about a node which is shown on demand}
-alias NodeTipper[&T]= str (&T _id2);
+alias NodeTipper[&T] = str (&T _id2);
+
+@synopsis{A NodeConfig produces layour configuration per node}
+@description{
+Different layout engines can store additional configuration information
+here for later use during layout. For example: which nodes are in the same layer,
+or how "sticky" a node is compared to others.
+}
+alias NodeConfigurator[&T] = NodeConfig (&T id);
+
+@synopsis{To be extended for storing node specific layout information}
+data NodeConfig = nodeConfig();
+
+default NodeConfig defaultNodeConfigurator(&T _n) = nodeConfig();
 
 @synopsis{The default node labeler searches for any `str`` in the identity, or otherwise a file name of a `loc`}
 str defaultNodeLabeler(/str s) = s;
@@ -189,13 +211,20 @@ alias EdgeWeigher[&T] = int(&T _source, &T _target);
 @synopsis{The default edge weigher returns 1 for all edges, so that each edge has the same importance in the optimization criterion.}
 int defaultEdgeWeigher(&T _source, &T _target) = 1;
 
+@synopsis{To be extended for storing node specific layout information}
+data EdgeConfig = edgeConfig();
+
+@synopsis{An EdgeConfig produces layout configuration information per edge}
+alias EdgeConfigurator[&T] = EdgeConfig (&T _from, &T _to);
+
+default EdgeConfig defaultEdgeConfigurator(&T _from, &T _to) = edgeConfig();
 
 @synopsis{A graph plot from a binary list relation.}
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph([<x,x+1> | x <- [1..100]] + [<100,1>])
-graph([<x,x+1> | x <- [1..100]] + [<100,1>], cfg=cytoGraphConfig(\layout=\defaultCircleLayout()))
+graph([<x,x+1> | x <- [1..10]] + [<10,1>])
+graph([<x,x+1> | x <- [1..10]] + [<10,1>], cfg=cytoGraphConfig(\layout=\defaultCircleLayout()))
 ```
 
 Providing locations as node identities automatically transforms them to node links:
@@ -216,7 +245,7 @@ Content graph(lrel[&T x, &T y] v, CytoGraphConfig cfg = cytoGraphConfig())
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph([<x,2*x+1,x+1> | x <- [1..100]] + [<100,101,1>])
+graph([<x,2*x+1,x+1> | x <- [1..10]] + [<10,11,1>])
 ```
 }
 Content graph(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -226,7 +255,7 @@ Content graph(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph({<x,x+1> | x <- [1..100]} + {<100,1>})
+graph({<x,x+1> | x <- [1..10]} + {<10,1>})
 ``` 
 }
 Content graph(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -236,7 +265,7 @@ Content graph(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
 @examples{
 ```rascal-shell
 import vis::Graphs;
-graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
+graph({<x,2*x+1,x+1> | x <- [1..10]} + {<10,11,1>})
 ```
 }
 Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
@@ -246,7 +275,7 @@ Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
 @description{
 This data-structure is serialized to JSON and communicated directly to initialize cytoscape.js.
 The serialization is done by the generic ((lang::json::IO)) library under the hood of a ((util::Webserver)).
-}@synopsis{Produces an overall cytoscape.js wrapper which is sent as JSON to the client side.}
+}
 Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
     = cytoscape(
         elements=\data,        
@@ -262,50 +291,123 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(
+            \node("<e>", 
+                label=cfg.nodeLabeler(e), 
+                tip=cfg.nodeTipper(e), 
+                editor="<cfg.nodeLinker(e)>", 
+                \node-config=cfg.nodeConfigurator(e)
+            ), 
+            classes=flattenClasses(cfg.nodeClassifier(e)
+        )) | e <- {*v<x>, *v<y>}] +
+      [cytodata(
+            \edge(
+                "<from>", 
+                "<to>", 
+                weight=cfg.edgeWeigher(from, to), 
+                label=cfg.edgeLabeler(from, to), 
+                tip=cfg.edgeTipper(from, to), 
+                \edge-config=cfg.edgeConfigurator(from, to)
+            ), 
+            classes=flattenClasses(cfg.edgeClassifier(from,to)
+        )) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>", \node-config=cfg.nodeConfigurator(e)), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to), \edge-config=cfg.edgeConfigurator(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", weight=cfg.edgeWeigher(from, to), label="<e>", tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>", \node-config=cfg.nodeConfigurator(e)), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(
+        edge("<from>", "<to>", 
+            weight=cfg.edgeWeigher(from, to), 
+            label="<e>", tip=cfg.edgeTipper(from, to), 
+            \edge-config=cfg.edgeConfigurator(from, to)
+        ), 
+        classes=flattenClasses(cfg.edgeClassifier(from,to)
+        )) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(
+        \node("<e>", 
+            label=cfg.nodeLabeler(e), 
+            tip=cfg.nodeTipper(e), 
+            editor="<cfg.nodeLinker(e)>", \node-config=cfg.nodeConfigurator(e)), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), \edge-config=cfg.edgeConfigurator(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>", \node-config=cfg.nodeConfigurator(e)), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to), \edge-config=cfg.edgeConfigurator(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(
+        \node("<e>", 
+            label=cfg.nodeLabeler(e), 
+            tip=cfg.nodeTipper(e), 
+            editor="<cfg.nodeLinker(e)>", 
+            \node-config=cfg.nodeConfigurator(e)
+        ), 
+        classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(
+        \edge("<from>", "<to>",  
+            weight=cfg.edgeWeigher(from, to), 
+            label=cfg.edgeLabeler(from, to), 
+            tip=cfg.edgeTipper(from, to), 
+            \edge-config=cfg.edgeConfigurator(from, to)
+        ), 
+        classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>",  weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(
+        \node("<e>", 
+            label=cfg.nodeLabeler(e), 
+            tip=cfg.nodeTipper(e), 
+            editor="<cfg.nodeLinker(e)>", 
+            \node-config=cfg.nodeConfigurator(e)
+        ), 
+        classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(
+            \edge("<from>", "<to>", 
+                label="<e>",  
+                weight=cfg.edgeWeigher(from, to), 
+                label=cfg.edgeLabeler(from, to), 
+                tip=cfg.edgeTipper(from, to), 
+                \edge-config=cfg.edgeConfigurator(from, to)
+            ), 
+            classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), tip=cfg.nodeTipper(e), editor="<cfg.nodeLinker(e)>"), classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", weight=cfg.edgeWeigher(from, to), label=cfg.edgeLabeler(from, to), tip=cfg.edgeTipper(from, to)), classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(
+            \node("<e>", 
+                label=cfg.nodeLabeler(e), 
+                tip=cfg.nodeTipper(e), 
+                editor="<cfg.nodeLinker(e)>", 
+                \node-config=cfg.nodeConfigurator(e)
+            ), 
+            classes=flattenClasses(cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(
+        \edge("<from>", "<to>", 
+            label="<e>", 
+            weight=cfg.edgeWeigher(from, to), 
+            label=cfg.edgeLabeler(from, to), 
+            tip=cfg.edgeTipper(from, to), 
+            \edge-config=cfg.edgeConfigurator(from, to)
+        ), 
+        classes=flattenClasses(cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
 
@@ -351,8 +453,8 @@ data CytoData
   = cytodata(CytoElement \data, str classes="");
 
 data CytoElement
-  = \node(str id, str label=id, str tip = "", str editor="|none:///|")
-  | \edge(str source, str target, str id="<source>-<target>", str label="", str tip = "", int weight = 1)
+  = \node(str id, str label=id, str tip = "", str editor="|none:///|", NodeConfig \node-config = nodeConfig())
+  | \edge(str source, str target, str id="<source>-<target>", str label="", str tip = "", int weight = 1, EdgeConfig \edge-config = edgeConfig())
   ;
 
 data CytoHorizontalAlign
@@ -418,7 +520,7 @@ private str flattenClasses(list[str] classes) = "<for (cl <- classes) {><cl> <}>
 Because the JSON writer can not instantiate default values for keyword fields,
 we have to do it manually here.
 }
-CytoStyle defaultNodeStyle()
+default CytoStyle defaultNodeStyle(CytoLayoutName _layout=\dagre())
     = cytoNodeStyle(
         visibility        = "visible", /* hidden, collapse */
         opacity           = "1",
@@ -439,7 +541,7 @@ CytoStyle defaultNodeStyle()
 Because the JSON writer can not instantiate default values for keyword fields
 we have to do it manually here.
 }
-CytoStyle defaultEdgeStyle()
+default CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         visibility          = "visible", /* hidden, collapse */
         opacity             = "1",
@@ -701,16 +803,42 @@ data CytoLayoutName
     | circle()
     | breadthfirst()
     | cose()
+    | fcose()
     | dagre()
     ;
 
+data Position = pos(int x, int y);
+
+@synopsis{This property is added for cose and fcose, for every node differently.}
+data NodeConfig(int nodeRepulsion = 2048);
+
+@synopsis{These are added for cose and fcose, for every edge differently.}
+data EdgeConfig(int edgeElasticity= 100, int nestingFactor= 5);
+        
+data CoseNodeConstraint[&T]
+    = coseNodeConstraint(&T nodeId, Position position);
+
+data CoseAligmentConstraint
+    = coseAligmentConstraint(set[set[str]] horizontal, set[set[str]] vertical);
+    
+data CoseRelativeConstraint[&T]
+    = vertical(&T top, &T bottom, int gap)
+    | horizontal(&T left, &T right, int gap)
+    ;
+    
 @synopsis{An alias for dagre layout for documentation purposes.}
 @description{
 Dagre is a hierarchical graph layout.
 }
 CytoLayoutName hierarchical() = dagre();
 
-data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
+data CytoAnimate
+    = \true()
+    | \false()
+    | \end()
+    ;
+
+data CytoLayout(CytoLayoutName name = dagre(), CytoAnimate animate=\false(), real animateThreshold = 0.0, int animationDuration=500, bool animationEasing=false)
     = cytolayout()
     | breadthfirstLayout(
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
@@ -733,7 +861,48 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         num spacingFactor=.1
     )
     | coseLayout(
-        CytoLayoutName name = cose()
+        CytoLayoutName name = cose(),
+        CytoAnimate animate=\true(),
+        int idealEdgeLength= 100,
+        int nodeOverlap= 20,
+        int refresh= 1,
+        bool fit= true,
+        int padding= 30,
+        bool randomize= false,
+        int componentSpacing= 100,
+        int gravity= 80,
+        int numIter= 5000,
+        int initialTemp= 200,
+        real coolingFactor= 0.995,
+        real minTemp= 0.1
+    )
+    | fcoseLayout(
+        CytoLayoutName name = fcose(),
+        CytoAnimate animate=\true(),
+        CoseLayoutQuality quality = \default(),
+        bool randomize =  true, 
+        bool fit = true, 
+        int padding=  30,
+        bool nodeDimensionsIncludeLabels = true,
+        bool uniformNodeDimensions= !nodeDimensionsIncludeLabels,
+        bool packComponents= true,
+        bool samplingType= true,
+        int sampleSize =  25,
+        int nodeSeparation= 75,
+        real piTol= 0.0000001,
+        real nestingFactor = 0.1,
+        int numIter =  2500,
+        bool tile = true,  
+        int tilingPaddingVertical = 10,
+        int tilingPaddingHorizontal = 10,
+        real gravity = 0.25,
+        real gravityRangeCompound = 1.5,
+        real gravityCompound = 1.0,
+        real gravityRange = 3.8, 
+        real initialEnergyOnIncremental = 0.3,
+        list[CoseNodeConstraint[value]] fixedNodeConstraint = [],
+        CoseAligmentConstraint alignmentConstraint = coseAligmentConstraint({},{}),
+        list[CoseRelativeConstraint[value]] relativePlacementConstraint = []
     )
     | dagreLayout(
         CytoLayoutName name = dagre(),
@@ -744,8 +913,20 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         bool useDagreEdgeControlPoints = true,
         bool automaticDagreEdgeStyle = true,
         num spacingFactor = .1,
-        DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
+        DagreRanker ranker = \network-simplex() 
     )
+    ;
+
+data CoseLayoutStep
+    = \all()
+    | \transformed()
+    | \enforced()
+    ;
+
+data CoseLayoutQuality 
+    = draft()
+    | \default()
+    | proof()
     ;
 
 data DagreRanker
@@ -757,14 +938,83 @@ data DagreRanker
 CytoLayout defaultCoseLayout()
     = coseLayout(
         name=cose(),
-        animate=false
+        animate=\true(),
+        animateThreshold=0.1,
+        animationDuration=500,
+        idealEdgeLength= 100,
+        nodeOverlap= 20,
+        refresh= 1,
+        fit= true,
+        padding= 30,
+        randomize= false,
+        componentSpacing= 100,
+        gravity= 80,
+        numIter= 500,
+        initialTemp= 200,
+        coolingFactor= 0.9995,
+        minTemp= 0.1
     )
     ;
+
+@synopsis{Configured a pre-existing fcose layout based on which a node classifier and which classes are vertical and which are horizontal}
+@examples{
+```rascal-shell
+import vis::Graphs;
+gr = {<1,4>,<2,5>,<3,6>};
+// we classify 
+list[str] myClassifier(int i) = i % 2 == 0 ? ["even"] : ["odd"];
+// now we map the classes to horizontal or vertical constraints:
+myLayout = alignedFcoseLayout(defaultFcoseLayout(), myClassifier, gr<0> + gr<1>, {"even"}, {"odd"});
+// and we show the graph:
+graph(gr, cfg=cytoGraphConfig(nodeClassifier=myClassifier, \layout=myLayout));
+```
+}
+CytoLayout alignedFcoseLayout(CytoLayout fcoseLayout, NodeClassifier[&T] nodeClassifier, set[&T] nodes, set[str] horizontalClasses, set[str] verticalClasses) {
+    classed = {*({*nodeClassifier(id)} * {id}) | id <- nodes};
+    // iprintln(classed);
+
+    fcoseLayout.alignmentConstraint = coseAligmentConstraint(
+        { { "<cl>" | value cl <- classed[hcl] } | str hcl <- horizontalClasses },
+        { { "<cl>" | value cl <- classed[hcl] } | str hcl <- verticalClasses }
+    );
+
+    return fcoseLayout;
+}
+
+CytoLayout defaultFcoseLayout()
+    = fcoseLayout(
+        name=fcose(),
+        animate=\true(),
+        quality = \default(),
+        randomize =  false, 
+        fit = true, 
+        padding=  30,
+        nodeDimensionsIncludeLabels = true,
+        uniformNodeDimensions= false,
+        packComponents= true,
+        samplingType= true,
+        sampleSize =  25,
+        nodeSeparation= 75,
+        piTol= 0.0000001,
+        nestingFactor = 0.1,
+        numIter =  2500,
+        tile = true,  
+        tilingPaddingVertical = 10,
+        tilingPaddingHorizontal = 10,
+        gravity = 0.25,
+        gravityRangeCompound = 1.5,
+        gravityCompound = 1.0,
+        gravityRange = 3.8, 
+        initialEnergyOnIncremental = 0.3,
+        fixedNodeConstraint = [],
+        relativePlacementConstraint = [],
+        alignmentConstraint = coseAligmentConstraint({},{})
+    );
 
 CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
     = circleLayout(
         name = CytoLayoutName::circle(),
-        animate=false,
+        animate=\false(),
         avoidOverlap=avoidOverlap,
         spacingFactor=spacingFactor
     );
@@ -772,7 +1022,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
 CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=.1)
     = gridLayout(
         name=CytoLayoutName::grid(),
-        animate=false,
+        animate=\false(),
         rows=rows,
         cols=cols,
         avoidOverlap=avoidOverlap,
@@ -784,7 +1034,7 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bo
     = 
     breadthfirstLayout(
         name=CytoLayoutName::breadthfirst(),
-        animate=false,
+        animate=\false(),
         spacingFactor=spacingFactor,
         circle=circle,
         grid=grid,
@@ -794,7 +1044,7 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bo
 CytoLayout defaultDagreLayout(num spacingFactor=1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
-        animate=false,
+        animate=\false(),
         spacingFactor=spacingFactor,
         ranker=\network-simplex(),
         useDagreEdgeControlPoints=true,
@@ -861,6 +1111,8 @@ private HTMLElement plotHTML(list[HTMLElement] header = [], list[HTMLElement] fo
                     "window.cy = fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
                     '   cs.layout.edgeWeight = edge =\> edge.data(\'weight\') || 1;
+                    '   window.cs = cs;
+                    '
                     '   return cytoscape(cs);
                     '});")
             ], \type="text/javascript"),
@@ -884,6 +1136,43 @@ HTMLElement tooltipCSS()
         '    z-index: 9999
         '}"
     )]);
+
+list[HTMLElement] fcoseHeaders(fcose()) 
+    = [
+        script([], src="https://unpkg.com/layout-base/layout-base.js"),
+        script([], src="https://unpkg.com/cose-base/cose-base.js"),
+        script([], src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js")
+    ];
+
+default list[HTMLElement] fcoseHeaders(CytoLayoutName _) = [];
+        
+list[HTMLElement] dynamicCoseProperties(fcose()) 
+    = [
+        script([\data(
+        "window.cy.then(cy =\> {
+        '    cy.layout.nodeRepulsion = (node) =\> node.data(\'nodeConfig\')?.nodeRepulsion ?? 2048;
+        '    cy.layout.idealEdgeLength = (edge) =\> edge.data(\'edgeConfig\')?.idealEdgeLength ?? 50;
+        '    cy.layout.edgeElasticity = (edge) =\> edge.data(\'edgeConfig\')?.edgeElasticity ?? 0.45;        
+        '    return cy;
+        '});"
+    )])];
+
+list[HTMLElement] dynamicCoseProperties(CytoLayoutName _) = []; 
+
+list[HTMLElement] relayoutOnDrop(CytoLayoutName \layout)
+    = [
+        script([\data(
+            "window.cy.then(cy =\> { 
+            '   cy.on(\'free\', \'node\', (evt) =\> {
+            '       cy.layout(window.cs.layout).run();
+            '   })
+            '   return cy;
+            '});"
+        )])
+    ]
+    when \layout in {cose(), fcose()};
+
+default list[HTMLElement] relayoutOnDrop(CytoLayoutName _) = [];
 
 HTMLElement hoverListeners()
     = script([\data(
@@ -924,14 +1213,14 @@ HTMLElement toEditorClick()
     = script([\data(
         "window.cy.then(cy =\> {
         '   cy.on(\'tap\', \'node\', function (evt) {
-        '   const n = evt.target;
-        '   if (n.data(\'editor\') !== undefined) {
-        '       fetch(\'/editor?\' + new URLSearchParams({
-        '            src: n.data(\'editor\')
-        '       })) ;
-        '   }
-        '});
-        'return cy;
+        '       const n = evt.target;
+        '       if (n.data(\'editor\') !== undefined) {
+        '           fetch(\'/editor?\' + new URLSearchParams({
+        '                src: n.data(\'editor\')
+        '           })) ;
+        '       }
+        '   });
+        '   return cy;
         '});"
     )]);
 
