@@ -394,8 +394,12 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            }
         }
-        availableKws = [ info("Available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>` in `<kw.definingModule>`", |unknown:///|) | Keyword kw <- kwFormals ];
-        msgs += error(kwa, "Undefined keyword argument %q", kwName, causes=availableKws);
+
+        availableKws = [ action(
+                            title="Change to available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>` in `<kw.definingModule>`",
+                            edits=[changed([replace(kwa.name.src, "<kw.fieldName>")])])
+                        | Keyword kw <- kwFormals ];
+        msgs += error(kwa, "Undefined keyword argument %q", kwName, fixes=availableKws);
     }
     s.reports(msgs);
 }
