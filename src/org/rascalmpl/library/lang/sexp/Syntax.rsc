@@ -2,7 +2,7 @@
 @synopsis{Syntax definition for S-Expressions, based on http://people.csail.mit.edu/rivest/Sexp.txt}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 
-module lang::sexp::\syntax::SExp
+module lang::sexp::Syntax
 
 import String;
 import IO;
