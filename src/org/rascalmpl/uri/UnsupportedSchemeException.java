@@ -19,4 +19,8 @@ public class UnsupportedSchemeException extends IOException {
 	public UnsupportedSchemeException(String scheme) {
 		super("Unsupported scheme '" + scheme + "'");
 	}
+
+	public UnsupportedSchemeException(String scheme, String authority) {
+		super("Unsupported scheme '" + scheme + "' and authority '" + authority + "'");
+	}
 }

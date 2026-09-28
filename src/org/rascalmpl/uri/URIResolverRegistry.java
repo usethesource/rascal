@@ -393,27 +393,46 @@ public class URIResolverRegistry {
 		return loc;
 	}
 
-	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
-		ISourceLocation original = loc;
-		while (loc != null && logicalResolvers.containsKey(loc.getScheme())) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
-			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
-			ILogicalSourceLocationResolver resolver = map.get(auth);
-			loc = resolveAndFixOffsets(loc, resolver, map.values());
-		}
-		
-		if (externalRegistry != null && original != null) {
-			try {
-				var externalResolve = loc == null ? original : loc;
-				if (externalRegistry.supportsLogical(externalResolve.getScheme())) {
-					var externalResult = resolveAndFixOffsets(externalResolve, externalRegistry, Collections.emptyList());
-					return externalResult == null ? loc : externalResult;
-				}
-			} catch (IOException e) {
-				// Ignore remote IO errors
+	/**
+	 * Computes the physical location for the provided location {@code loc}, according to the following rules:
+	 * <ul>
+	 * <li>If {@code loc} is logical, and a resolver does exists for its scheme/authority, and it can be resolved, then return that physical location.
+	 * <li>If {@code loc} is logical, and a resolver does exists for its scheme/authority, but it cannot be resolved, then return null.
+	 * <li>If {@code loc} is logical, but a resolver doesn't exist for its scheme/authority, then throw an exception.
+	 * <li>If {@code loc} is physical, then return {@code loc}.
+	 * </ul>
+	 */
+	private ISourceLocation physicalLocation(@NonNull ISourceLocation loc) throws IOException {
+		var scheme = loc.getScheme();
+
+		// Case: `loc` is a logical location with a local resolver
+		if (logicalResolvers.containsKey(scheme)) {
+			var auth = loc.getAuthority();
+			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());
+			var resolver = resolversByAuth.get(auth);
+			if (resolver == null) {
+				throw new UnsupportedSchemeException(scheme, auth);
 			}
+
+			var resolved = resolveAndFixOffsets(loc, resolver, resolversByAuth.values());
+			return resolved == null ? null : physicalLocation(resolved);
 		}
-		return loc;
+
+		// Case: `loc` is a logical location with a remote resolver
+		else if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
+			var resolved = resolveAndFixOffsets(loc, externalRegistry, Collections.emptyList());
+			return resolved == null ? null : physicalLocation(resolved);
+		}
+
+		// Case: `loc` is a physical location
+		else {
+			return loc;
+		}
+	}
+
+	private @NonNull ISourceLocation tryResolve(@NonNull ISourceLocation loc) throws IOException {
+		var resolved = physicalLocation(loc);
+		return resolved != null ? resolved : loc;
 	}
 
 	private @NonNull ISourceLocation safeResolve(@NonNull ISourceLocation loc) {
