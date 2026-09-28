@@ -584,7 +584,7 @@ public class URIResolverRegistry {
 	 * @throws IOException
 	 */
 	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
@@ -606,7 +606,7 @@ public class URIResolverRegistry {
 	}
 
 	public void mkDirectory(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -624,7 +624,7 @@ public class URIResolverRegistry {
 	}
 
 	public void remove(ISourceLocation uri, boolean recursive) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
 		if (out == null) {
@@ -658,8 +658,8 @@ public class URIResolverRegistry {
 	 * exists and overwrite was `false`.
 	 */
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
-		from = safeResolve(from);
-		to = safeResolve(to);
+		from = tryResolve(from);
+		to = tryResolve(to);
 
 		if (from.getScheme().equals(to.getScheme())) {
 			ISourceLocationOutput out = getOutputResolver(from.getScheme());
@@ -687,7 +687,7 @@ public class URIResolverRegistry {
 	}
 
 	public long lastModified(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -706,7 +706,7 @@ public class URIResolverRegistry {
 	}
 
 	public long created(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -725,7 +725,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean isWritable(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		var resolver = getOutputResolver(uri.getScheme());
 		if (resolver != null) {
 			return resolver.isWritable(uri);
@@ -737,7 +737,7 @@ public class URIResolverRegistry {
 		return false;
 	}
 	public boolean isReadable(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		var resolver = getInputResolver(uri.getScheme());
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -752,7 +752,7 @@ public class URIResolverRegistry {
 	 * @throws IOException
 	 */
 	public long size(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -767,7 +767,8 @@ public class URIResolverRegistry {
 			&& logicalResolvers.containsKey(uri.getScheme());
 	}
 
-	public String[] listEntries(ISourceLocation uri) throws IOException {		uri = safeResolve(uri);
+	public String[] listEntries(ISourceLocation uri) throws IOException {
+		uri = tryResolve(uri);
 		if (isRootLogical(uri)) {
 			// if it's a location without any path and authority
 			// we want to list possible authorities if it's a logical one
@@ -801,8 +802,8 @@ public class URIResolverRegistry {
 	 * when a source folder or file can not be read
 	 */
 	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
-		var sourceResolved = safeResolve(source);
-		var targetResolved = safeResolve(target);
+		var sourceResolved = tryResolve(source);
+		var targetResolved = tryResolve(target);
 		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
 			var commonResolver = getOutputResolver(sourceResolved.getScheme());
 			if (commonResolver != null && commonResolver.supportsCopy()) {
@@ -893,7 +894,7 @@ public class URIResolverRegistry {
 	}
 
 	public Reader getCharacterReader(ISourceLocation uri, Charset encoding) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		Reader res = new UnicodeInputStreamReader(getInputStream(uri), encoding);
 
 		if (uri.hasOffsetLength()) {
@@ -914,12 +915,12 @@ public class URIResolverRegistry {
 	 * @throws IOException 
 	 */
 	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
 	}
 
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
-		IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
+		IClassloaderLocationResolver resolver = getClassloaderResolver(tryResolve(uri).getScheme());
 
 		if (resolver != null) {
 			// we always try the most specific implementation for efficiency's sake
@@ -973,7 +974,7 @@ public class URIResolverRegistry {
 
 
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -984,7 +985,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null || !resolver.supportsReadableFileChannel()) {
@@ -1017,7 +1018,7 @@ public class URIResolverRegistry {
 	}
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null || (externalRegistry != null && resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
@@ -1028,7 +1029,7 @@ public class URIResolverRegistry {
 	}
 
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		boolean existedBefore = exists(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
@@ -1046,7 +1047,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileChannel getWriteableFileChannel(ISourceLocation uri, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null || !resolver.supportsWritableFileChannel()) {
@@ -1066,7 +1067,7 @@ public class URIResolverRegistry {
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocation parentURI = URIUtil.getParentLocation(uri);
 
 		if (parentURI != null && !parentURI.equals(uri) && !exists(parentURI)) {
@@ -1155,7 +1156,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
-		loc = safeResolve(loc);
+		loc = tryResolve(loc);
 		var resolver = getInputResolver(loc.getScheme());
 		if (resolver == null) {
 			throw new IOException("Unsupported scheme: " + loc.getScheme());
