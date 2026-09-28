@@ -334,7 +334,7 @@ public class URIResolverRegistry {
 			loc = resolver.resolve(loc);
 		}
 
-		if (loc == null && prev.hasOffsetLength()) {
+		if (loc == null && resolver != null && prev.hasOffsetLength()) {
 			loc = resolver.resolve(URIUtil.removeOffset(prev));
 			removedOffset = true;
 		}
