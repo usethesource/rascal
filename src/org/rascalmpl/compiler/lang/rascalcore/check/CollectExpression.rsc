@@ -629,9 +629,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
                  for(ovl: <key,idRole, tp> <- overloads){
-                    if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
+                    if(acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                              continue next_cons;
@@ -665,8 +665,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                }
                return res;
             }
-            if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
+            if(acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr), list[AType] fields, list[Keyword] kwFields) := texp){
+               res =  computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
                return res;
             }
             reportCallError(current, expression, actuals, keywordArguments, s);

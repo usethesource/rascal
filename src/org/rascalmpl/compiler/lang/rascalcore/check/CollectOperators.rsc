@@ -214,7 +214,7 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c) {
             if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) {
                 s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
             }
-            res = s.getTypeInScope(t, scope, roleIds);
+            res = s.getType(t);
             return res;
         });
         
