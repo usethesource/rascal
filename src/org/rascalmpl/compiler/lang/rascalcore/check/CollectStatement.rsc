@@ -707,6 +707,7 @@ private AType computeAssignmentRhsType(Statement current, AType lhsType, str ope
             return avalue();
         }
     }
+    
     s.requireComparable(lhsType, resultType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", resultType, lhsType));
     return resultType;
 }
@@ -733,7 +734,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
                 }));
             }
         } else {
-             if(c.isAlreadyDefined("<name>", name)){
+            if(c.isAlreadyDefined("<name>", name)) {
                 c.use(name, variableRoles);
             } else {
                 c.define(name.names[-1], variableId(), name, defLub([statement, name],  AType(Solver s){
@@ -765,14 +766,16 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
                             s.report(error(current, "Cannot instantiate rhs type `<prettyAType(asgType)>` of assignment: " + msg));
                         }
                    }
-                   if(operator == "=")
+                   if(operator == "=") {
                      s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>"));
+                   }
                    return asgType;
                  });
 }
 
 private AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, loc scope, Solver s){
-    return s.getType(name);
+    res = s.getType(name);
+    return res;
 }
 
 private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s){
