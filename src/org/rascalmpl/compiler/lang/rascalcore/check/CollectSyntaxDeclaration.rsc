@@ -28,8 +28,8 @@ POSSIBILITY OF SUCH DAMAGE.
 module lang::rascalcore::check::CollectSyntaxDeclaration
 
 /*
-    Check syntax declarations
-*/
+   Check syntax declarations
+ */
 
 extend lang::rascalcore::check::CheckerCommon;
 
@@ -62,9 +62,16 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 public int nalternatives = 0;
 public int syndefCounter = 0;
 
+
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
     // println("declareSyntax: <current>");
     Sym defined = current.defined;
+
+    if (defined is \start) {
+        c.report(error(defined, "Can not manually define a start non-terminal, because its syntax rule is already generated automatically."));
+        return;
+    }
+
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
 
@@ -76,7 +83,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType,closed=true)| tp <- typeParameters ]];
         }
 
-        dt = defType(/*current is language && current.\start is present ? \start(nonterminalType) : */nonterminalType);
+        dt = defType(nonterminalType);
         dt.vis = vis;
         dt.md5 = normalizedMD5Hash(current is language ? "<current.\start>" : "", adtName, syndefCounter, defined);
         syndefCounter += 1;
@@ -84,22 +91,61 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         // Define the syntax symbol itself and all labelled alternatives as constructors
         c.define(defsym2IdTree(defined), idRole, current, dt);
 
+        if (current is \language && current.\start is present) {
+            collectStartRule(current.\start, nonterminalType, c);
+        }
+
         adtParentScope = c.getScope();
         c.enterScope(current);
-            beginDefineOrReuseTypeParameters(c,closed=false);
-                collect(defined, c);
-            endDefineOrReuseTypeParameters(c);
+        beginDefineOrReuseTypeParameters(c,closed=false);
+        collect(defined, c);
+        endDefineOrReuseTypeParameters(c);
 
-            // visit all the productions in the parent scope of the syntax declaration
-            c.push(currentAdt, <current, [], 0, adtParentScope>);
-                beginUseTypeParameters(c,closed=true);
-                    collect(production, c);
-                endUseTypeParameters(c);
-            c.pop(currentAdt);
+        // visit all the productions in the parent scope of the syntax declaration
+        c.push(currentAdt, <current, [], 0, adtParentScope>);
+        beginUseTypeParameters(c,closed=true);
+        collect(production, c);
+        endUseTypeParameters(c);
+        c.pop(currentAdt);
         c.leaveScope(current);
     } else {
         c.report(error(defined, "Lhs of syntax definition not supported"));
     }
+}
+
+@synopsis{Declare a `top` field  for each `start` rule}
+@description{
+    For every `start syntax A = ...` which is being collected, we simulate the declaration
+        of a `top` field of the form `syntax start[A] = A top;`:
+        * a `start[A]` type
+        * a production rule `syntax start[A] = A top;`
+        * a field `A top` of `start[A]`
+
+        We don't include layout before and after the `top` field, because that is added much
+        later in the compilatiojn pipeline with the other layout non-terminals.
+}
+void collectStartRule(Start current, AType nonterminalType, Collector c) {  
+    str currentModuleName = str nm := c.top(key_current_module) ? nm : "";  
+    str md5prefix = "<currentModuleName>_start_<nonterminalType.adtName>";
+
+    aStartSym = \start(nonterminalType, contextFreeSyntax());
+    st = defType(aStartSym);
+    st.md5 = md5Hash("<md5prefix>_type");
+    c.define("<aStartSym>", nonterminalId(), current, st);
+
+    c.enterScope(current);
+    startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
+    startProd.md5 = md5Hash("<md5prefix>_prod");
+    sPos = current@\loc.top(current@\loc.offset, 1);
+    c.define("", productionId(), sPos, startProd);
+
+    tPos = current@\loc.top(current@\loc.offset + 1, 1);
+    fieldDef = defType(nonterminalType[alabel="top"]);
+
+    fieldDef.md5 = md5Hash("<md5prefix>_top");
+
+    c.define("top", fieldId(), tPos, fieldDef);
+    c.leaveScope(current);
 }
 
 // ---- Prod ------------------------------------------------------------------
@@ -147,7 +193,7 @@ private bool isTerminalSym((Sym) `<Sym _>  !\<\< <Sym symbol>`) = isTerminalSym(
 
 private bool isTerminalSym((Sym) `<Sym symbol>?`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`)
-    = isTerminalSym(first) && all(alt <- alternatives, isTerminalSym(alt));
+= isTerminalSym(first) && all(alt <- alternatives, isTerminalSym(alt));
 private bool isTerminalSym((Sym) `(<Sym symbol1> <Sym symbol2>)`) = isTerminalSym(symbol1) && isTerminalSym(symbol2);
 
 private bool isTerminalSym((Sym) `()`) = true;
@@ -164,14 +210,14 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
-            AType(Solver s) {
+                AType(Solver s) {
                 try {
-                    return s.getType(current);
-                 } catch _: {
-                    res = aprod(computeProd(current, uname, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
-                    return res;
-                 }
-            });
+                return s.getType(current);
+                } catch _: {
+                res = aprod(computeProd(current, uname, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
+                return res;
+                }
+                });
         inLexicalAdt = false;
         if(SyntaxDefinition sd := adt){
             inLexicalAdt = sd is \lexical;
@@ -180,26 +226,24 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         }
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<uname>";
 
-         // Define the constructor
+        // Define the constructor
         c.defineInScope(adtParentScope, name, constructorId(), name, defType([current],
-            AType(Solver s){
-                ptype = s.getType(current);
-                if(aprod(AProduction cprod) := ptype){
+                    AType(Solver s){
+                    ptype = s.getType(current);
+                    if(aprod(AProduction cprod) := ptype){
                     if(size(symbols) > 0){ // switch to size on concrete syntax
-                        s.fact(syms, ptype);
+                    s.fact(syms, ptype);
                     }
                     def = cprod.def;
                     fields = [ ((inLexicalAdt && isLexicalAType(stp)) ? astr() : stp)[alabel=tsym.alabel?"anonymous<uname>"] 
-                             | sym <- symbols,
-                               !isTerminalSym(sym),
-                               tsym := s.getType(sym),
-                               isNonTerminalAType(tsym),
-                               stp := getSyntaxType(removeChainRule(tsym), s)
-                             ];
+                    | sym <- symbols,
+                    !isTerminalSym(sym),
+                    tsym := s.getType(sym),
+                    isNonTerminalAType(tsym),
+                    stp := getSyntaxType(removeChainRule(tsym), s)
+                    ];
 
-                    def = \start(sdef) := def ? sdef : def;
-                    //def = \start(sdef) := def ? sdef : unset(def, "alabel");
-                    return acons(def, fields, [], alabel=uname);
+                    return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=normalizedMD5Hash(adt, current)]);
         beginUseTypeParameters(c,closed=true);
