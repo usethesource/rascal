@@ -63,7 +63,7 @@ Tree explode(data[&T] ast:str name(str _), Symbol def, str contents, loc _top, i
 
 @synopsis{Special case for empty lists}
 Tree explode([], Symbol def, str contents, loc top, int offset, int length) 
-   = appl(regular(\syntax(def), []));
+   = appl(regular(\syntax(def)), []);
 
 @synopsis{Abstract lists become concrete lists}
 Tree explode(list[value] children, Symbol def, str contents, loc top, int offset, int length) {
@@ -88,7 +88,7 @@ Tree explode(list[value] children, Symbol def, str contents, loc top, int offset
 Tree explode(Tree t, Symbol _, str _, int _, int _) = t;
 
 @synopsis{Nullary constructor}
-Tree explode(data[&T] ast: _(), Symbol def, str contents, loc _pos, int offset, int length) {
+Tree explode(data[&T] ast: str _(), Symbol def, str contents, loc _pos, int offset, int length) {
    rule = prod(\syntax(def), [layouts("*seps*")],  {});
    
    return appl(rule, [separatorTree(contents, offset, offset + length)]);
@@ -127,17 +127,16 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
    work = zipi(zip3(children, symbols, pox));
    count = size(work);
    
-   children = [
-      emptyTree(top(offset, 0)),
-      separatorTree(contents, offset, pos.offset),
-      *[ 
-         explode(c, s, contents, top, pos.offset, pos.length)[src=pos], // element
-         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]] // middle
-      | <int i, <value c, Symbol s, loc pos>> <- work
-      ],
-      separatorTree(contents, pos.offset + pos.length, offset + length),
-      emptyTree(top(offset+length, 0))
-   ];
+   children = [ 
+      // empty and sep before the first element:
+      *[emptyTree(top(offset, 0)), separatorTree(contents, offset, p.offset) | i == 0], 
+      // each AST element:
+      explode(c, s, contents, top, p.offset, p.length)[src=p], // element
+      // sep in between elements
+      *[separatorTree(contents, p.offset + p.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]], 
+      // sep and empty after the final element
+      *[separatorTree(contents, p.offset + p.length, offset + length), emptyTree(top(offset+length, 0)) | i + 1 == count] 
+   | <int i, <value c, Symbol s, loc p>> <- work];
 
    return appl(rule, children);
 }
