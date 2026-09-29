@@ -71,6 +71,7 @@ str prettyAType(avalue()) = "value";
 str prettyAType(aloc()) = "loc";
 str prettyAType(adatetime()) = "datetime";
 str prettyAType(alist(AType t)) = "list[<prettyAType(t)>]";
+str prettyAType(abag(AType t)) = "bag[<prettyAType(t)>]";
 str prettyAType(aset(AType t)) = "set[<prettyAType(t)>]";
 str prettyAType(atuple(AType ts)) = "tuple[<prettyAType(ts)>]";
 str prettyAType(amap(AType d, AType r)) = "map[<prettyAType(d)>, <prettyAType(r)>]";
@@ -92,6 +93,7 @@ str prettyAType(t: acons(AType adt, /*str consName,*/
                 list[AType] fields,
                 list[Keyword] kwFields))
                  = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(kw.fieldType)> <kw.fieldName>=..." | Keyword kw <- kwFields])>)";
+str prettyAType(aprod(AProduction production)) = prettyAType(production);
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
 str prettyAType(aparameter(str pn, AType t, closed=c)) =
@@ -108,7 +110,12 @@ str prettyAType(Keyword kw: kwField(fieldType, fieldName, _,defaultExp)) = "<pre
 str prettyAType(Keyword kw: kwField(fieldType,fieldName, _)) = "<prettyAType(fieldType) <kw.fieldName> = ?";
 
 // non-terminal symbols
-str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : (<intercalate(", ", [ prettyAType(f) | f <- fs ])>)"; //TODO others
+str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : <intercalate(" ", [ prettyAType(f) | f <- fs ])>";
+str prettyAType(regular(AType s)) = prettyAType(s);
+str prettyAType(priority(AType _s, list[AProduction] choices)) = "<intercalate(" \> ", [ prettyAType(a) | a <- choices ])>";
+str prettyAType(associativity(AType _s, AAssociativity \assoc, set[AProduction] alternatives)) = "<prettyAssoc(\assoc)> ( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )";
+str prettyAType(reference(AType s, str cons)) = ":<cons>";
+str prettyAType(\achoice(AType s, set[AProduction] alternatives)) = "<intercalate(" | ", [ prettyAType(a) | a <- alternatives ])>";
 
 // terminal symbols
 str prettyAType(alit(str string)) = string;
@@ -124,9 +131,9 @@ str prettyAType(\aempty()) = "()";
 str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
 str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
 str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
-str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ])>}+";
-str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ])>}*";
-str prettyAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
+str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = size(seps) == 0 ? prettyAType(iter(symbol)) : "{<prettyAType(symbol)> <intercalate(" ", seps)>}+" when seps := [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ];
+str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = size(seps) == 0 ? prettyAType(\iter-star(symbol)) :  "{<prettyAType(symbol)> <intercalate(" ", seps)>}*" when seps := [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ];
+str prettyAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )" when size(alternatives) > 0;
 str prettyAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyAType(a) | a <- sequence ])> )" when size(sequence) > 1;
 str prettyAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
 default str prettyAType(AType s) = "<s>"; //"<type(s,())>";
@@ -140,6 +147,12 @@ private str prettyPrintCond("a-at-column"(int column)) = "@<column>";
 private str prettyPrintCond("a-begin-of-line"()) = "^";
 private str prettyPrintCond("a-end-of-line"()) = "$";
 private str prettyPrintCond("a-except"(str label)) = "!<label>";
+
+private str prettyAssoc(\aleft()) = "left";
+private str prettyAssoc(\aright()) = "right";
+private str prettyAssoc(\aassoc()) = "assoc";
+private str prettyAssoc(\a-non-assoc()) = "non-assoc";
+private default str prettyAssoc(v) = "<v>";
 
 @doc{Rascal abstract types to classic Symbols}
 Symbol atype2symbol(AType tp){

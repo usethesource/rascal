@@ -48,7 +48,6 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.interpreter.utils.Names;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;

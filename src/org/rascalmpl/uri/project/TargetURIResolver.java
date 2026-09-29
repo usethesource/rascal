@@ -40,14 +40,12 @@ public class TargetURIResolver implements ILogicalSourceLocationResolver {
         ISourceLocation bin = URIUtil.getChildLocation(root, "bin");
         ISourceLocation targetClasses = URIUtil.getChildLocation(root, "target/classes");
 
-        if (reg.exists(bin)) {
-            if (!reg.exists(targetClasses)) {
-                return bin;
-            }
-        }
-        
         if (reg.exists(targetClasses)) {
             return targetClasses;
+        }
+
+        if (reg.exists(bin)) {
+            return bin;
         }
 
         if (reg.exists(URIUtil.getChildLocation(root, "pom.xml"))) {
@@ -59,7 +57,7 @@ public class TargetURIResolver implements ILogicalSourceLocationResolver {
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        if (!input.getAuthority().equals(name)) {
+        if (!input.getAuthority().equalsIgnoreCase(name)) {
             return null;
         }
         

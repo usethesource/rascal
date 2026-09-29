@@ -35,7 +35,7 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     return [moduleInfo(
       moduleName=moduleName, 
       name=name, 
-      src=m@\loc, 
+      src=m.src, 
       synopsis=synopsis, 
       docs=sortedDocTags(tags), 
       demo=(/demo|examples/ := moduleName),
@@ -70,7 +70,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`) {
      dtags = getTagContents(tags);
-     return [ aliasInfo(moduleName=moduleName, name="<user.name>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
+     return [ aliasInfo(moduleName=moduleName, name="<user.name>", signature="<base>", src=d.src, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  
@@ -94,7 +94,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
     adtName = "<user.name>";
 
     return [dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters>",
-      src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
+      src=d.src, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { 
@@ -104,12 +104,12 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
     infoVariants = [ genVariant(moduleName, variant) | variant <- variants ];
     
     return dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters> <align(variants)>",
-                                       src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags)) + infoVariants;
+                                       src=d.src, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags)) + infoVariants;
 }
 
 DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* _> <KeywordFormals _>)`) {
     signature = "<v>";
-    return constructorInfo(moduleName=moduleName, name="<name>", signature="<v>", src=v@\loc);
+    return constructorInfo(moduleName=moduleName, name="<name>", signature="<v>", src=v.src);
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
@@ -143,7 +143,7 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
    
   tags =  getTagContents(fd.tags);
   
-  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags), fullFunction="<removeTags(fd)>");
+  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd.src, synopsis=getSynopsis(tags), docs=sortedDocTags(tags), fullFunction="<removeTags(fd)>");
 }
 
 DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
@@ -152,7 +152,7 @@ DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
   signature =  "<fd.signature>";
   tags =  getTagContents(fd.tags);
   
-  return testInfo(moduleName=moduleName, name=fname, src=fd@\loc, synopsis=getSynopsis(tags), fullTest="<removeTags(fd)>");
+  return testInfo(moduleName=moduleName, name=fname, src=fd.src, synopsis=getSynopsis(tags), fullTest="<removeTags(fd)>");
 }
 
 private Tree removeTags(Tree x) = visit(x) {

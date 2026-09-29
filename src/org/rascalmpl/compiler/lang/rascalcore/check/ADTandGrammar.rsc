@@ -100,7 +100,7 @@ void addCommonKeywordFields(Solver s){
                 fieldName = "<kwf.name>";
                 fieldType = s.getType(kwf);
                 fieldType.alabel = fieldName;
-                moduleName = getRascalModuleName(kwf.expression@\loc, s.getConfig().typepalPathConfig);
+                moduleName = getRascalModuleName(kwf.expression.src, s.getConfig().typepalPathConfig);
                 commonKeywordFields += <adtType, kwField(fieldType, fieldName, moduleName, kwf.expression)>;
                 //commonKeywordFieldNames += <adtType, fieldName, fieldType>;
                 // TODO: reconsider this

@@ -17,7 +17,9 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
 public interface INodeConstructorFactory<T, P> {
-	
+
+	T createEmptyNode();
+
 	T createCharNode(int charNumber);
 	
 	T createLiteralNode(int[] characters, Object production);

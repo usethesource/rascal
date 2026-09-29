@@ -37,6 +37,7 @@ import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser;
 import org.jline.reader.SyntaxError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -264,7 +265,14 @@ public class RascalLineParser implements Parser {
                 throw new SyntaxError(pe.getBeginLine(), cursor, "Command not recognized");
             }
         } 
+        catch (ImplementationError e) {
+            // for diagnostic purposes we don't want to hide this with an EOF error,
+            // and we don't want to hide the original stack trace.
+            // This will break the jline protocol which is waiting for EOFError instead.
+            throw new ImplementationError(e.getMessage(), e);
+        }
         catch (Throwable e) {
+            // everything else is (probably) a user error, which will be presented by jline with the appropriate message
             throw new EOFError(1, 0, "Unexpected failure during parsing of the command: " + e.getMessage());
         }
     }

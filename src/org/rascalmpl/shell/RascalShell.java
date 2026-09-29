@@ -14,8 +14,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 package org.rascalmpl.shell;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -28,6 +28,12 @@ import org.rascalmpl.repl.streams.StreamUtil;
 
 public class RascalShell  {
 
+    static {
+        // Log4j is disabled here to prevent an error from being shown in every Rascal shell
+        // See https://github.com/usethesource/rascal/issues/2436
+        System.setProperty("log4j.provider", "org.apache.logging.log4j.simple.internal.SimpleProvider");
+    }
+
     public static void main(String[] args) throws IOException {
         int ideServicesPort = -1;
         checkIfHelp(args);
@@ -38,9 +44,6 @@ public class RascalShell  {
         for (; i < args.length; i++) {
             if (args[i].equals("--remoteIDEServicesPort")) {
                 ideServicesPort = Integer.parseInt(args[++i]);
-            } else if (args[i].equals("--vfsPort")) {
-                System.err.println("Ignored parameter --vfsPort and its argument");
-                i++; // skip the argument
             } else if (args[i].startsWith("--")) {
                 // Currently unknown named argument, skipping over this
                 System.err.println("Ignored parameter " + args[i]);

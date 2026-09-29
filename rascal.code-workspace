@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../typepal"
+		}
+	],
+	"settings": {
+		"files.watcherExclude": {
+			"/target/": true,
+			"/.git/": true,
+		},
+	}
+}

@@ -26,20 +26,19 @@
  */
 package org.rascalmpl.ideservices;
 
-import java.net.URI;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.type.TypeStore;
+import org.rascalmpl.ideservices.jsonrpc.ApplyDocumentsEditsRequest;
+import org.rascalmpl.ideservices.jsonrpc.BrowseRequest;
+import org.rascalmpl.ideservices.jsonrpc.EditRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDebugServerPortRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDiagnosticsRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterLocationsRequest;
+import org.rascalmpl.ideservices.jsonrpc.StartDebuggingSessionRequest;
+import org.rascalmpl.ideservices.jsonrpc.UnregisterDiagnosticsRequest;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
+import org.rascalmpl.uri.remote.jsonrpc.SourceLocationResponse;
 
 /**
  * This interface exposes functionality from `IDEServices` over IPC.
@@ -47,75 +46,30 @@ import io.usethesource.vallang.type.TypeStore;
  * itself to be run remotely in a nice way.
  */
 public interface IRemoteIDEServices {
+    @JsonRequest
+    CompletableFuture<Void> edit(EditRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> edit(ISourceLocation param, int viewColumn);
+    CompletableFuture<Void> browse(BrowseRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> browse(URI uri, IString title, IInteger viewColumn);
+    CompletableFuture<SourceLocationResponse> resolveProjectLocation(ISourceLocationRequest req);
 
     @JsonRequest
-    CompletableFuture<ISourceLocation> resolveProjectLocation(ISourceLocation param);
+    CompletableFuture<Void> applyDocumentsEdits(ApplyDocumentsEditsRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> applyDocumentsEdits(DocumentEditsParameter edits);
+    CompletableFuture<Void> registerLocations(RegisterLocationsRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> registerLocations(IString scheme, IString authority, ISourceLocation[][] mapping);
+    CompletableFuture<Void> registerDiagnostics(RegisterDiagnosticsRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> registerDiagnostics(RegisterDiagnosticsParameters param);
+    CompletableFuture<Void> unregisterDiagnostics(UnregisterDiagnosticsRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> unregisterDiagnostics(ISourceLocation[] locs);
+    CompletableFuture<Void> startDebuggingSession(StartDebuggingSessionRequest req);
 
     @JsonRequest
-    CompletableFuture<Void> startDebuggingSession(int serverPort);
-
-    @JsonRequest
-    CompletableFuture<Void> registerDebugServerPort(int processID, int serverPort);
-
-    public static class RegisterDiagnosticsParameters {
-        private String messages;
-
-        public RegisterDiagnosticsParameters(IList messages) {
-            this.messages = GsonUtils.base64Encode(messages);
-        }
-
-        public IList getMessages() {
-            return GsonUtils.base64Decode(messages, new TypeStore());
-        }
-    }
-
-    public static class DocumentEditsParameter {
-
-        private String edits;
-
-        public DocumentEditsParameter(IList edits) {
-            this.edits = GsonUtils.base64Encode(edits);
-        }
-
-        public IList getEdits() {
-            return GsonUtils.base64Decode(edits, new TypeStore());
-        }
-    }
-
-    /** 
-     * This function takes a map of type `map[loc, loc]` and converts it to a two-dimensional array of ISourceLocations
-     */
-    public static ISourceLocation[][] mapLocLocToLocArray(IMap mapping) {
-        return mapping.stream()
-                .map(ITuple.class::cast)
-                .map(e -> new ISourceLocation[] { (ISourceLocation) e.get(0), (ISourceLocation) e.get(1)})
-                .toArray(n -> new ISourceLocation[n][2]);
-    }
-
-    /** 
-     * This function takes a two-dimensional array of ISourceLocations and converts it to a map of type `map[loc, loc]`
-     */
-    public static IMap locArrayToMapLocLoc(ISourceLocation[][] mapping) {
-        var vf = ValueFactoryFactory.getValueFactory();
-        return Stream.of(mapping).map(e -> vf.tuple(e[0], e[1])).collect(vf.mapWriter());
-    }
-
+    CompletableFuture<Void> registerDebugServerPort(RegisterDebugServerPortRequest req);
 }

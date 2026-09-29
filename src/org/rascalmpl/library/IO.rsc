@@ -2,7 +2,7 @@
   Copyright (c) 2009-2022 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
+  which accompanies this distribution, and is available a
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
@@ -140,8 +140,9 @@ Append a textual representation of some values to an existing or a newly created
 *  All other values are printed as-is.
 *  Each value is terminated by a newline character.
 
-The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
-Else the same method of deciding the character set is used as in ((readFile)).
+The existing file can be stored using any character set possible. 
+If you know the character set, please use the `charset` keyword parameter.
+Otherwise, the same method of deciding the character set is used as in ((readFile)).
 }
 @pitfalls{
 *  The same encoding pitfalls as the ((readFile)) function.
@@ -203,7 +204,7 @@ import IO;
 
 Does the library file `IO.rsc` exist?
 ```rascal-shell,continue
-exists(|std:///IO.rsc|);
+exists(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -217,7 +218,7 @@ import IO;
 ```
 Find the file `IO.rsc` in the standard library:
 ```rascal-shell,continue
-find("IO.rsc", [|std:///|]);
+find("IO.rsc", [|project://rascal/src/org/rascalmpl/library/|]);
 ```
 }
 public loc find(str name, list[loc] path) throws PathNotFound {
@@ -239,6 +240,8 @@ public java bool isDirectory(loc file);
 See ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline
 and ((IO-iprintToFile)) for a version that prints to a file.
+
+With a negative `lineLimit` the limit is ignored and the entire value will be printed.
 }
 @examples{
 ```rascal-shell
@@ -308,6 +311,8 @@ and ((IO-iprint)) for a version that does not add a newline.
 
 By default we only print the first 1000 lines, if you want to print larger values, either 
 use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
+
+With a negative `lineLimit` the limit is ignored and the entire value will be printed.
 }
 @examples{
 ```rascal-shell
@@ -362,7 +367,7 @@ import IO;
 ```
 Determine the last modification date of the Rascal standard library:
 ```rascal-shell,continue
-lastModified(|std:///IO.rsc|);
+lastModified(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -379,7 +384,7 @@ import IO;
 ```
 Determine the last modification date of the Rascal standard library:
 ```rascal-shell,continue
-created(|std:///IO.rsc|);
+created(|project://rascal/src/org/rascalmpl/library/IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -407,7 +412,7 @@ import IO;
 ```
 List all entries in the standard library:
 ```rascal-shell,continue
-listEntries(|std:///|);
+listEntries(|project://rascal/src/org/rascalmpl/library/|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -523,9 +528,6 @@ public &T printlnExp(str msg, &T v) {
 
 
 @synopsis{Raw print of a value.}
-@description{
-
-}
 @pitfalls{
 This function is only available for internal use in the Rascal development team.
 }
@@ -535,9 +537,6 @@ public java void rprint(value arg);
     
 
 @synopsis{Raw print of a value followed by newline.}
-@description{
-
-}
 @pitfalls{
 This function is only available for internal use in the Rascal development team.
 }

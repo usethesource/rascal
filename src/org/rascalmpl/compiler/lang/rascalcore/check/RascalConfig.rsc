@@ -47,6 +47,8 @@ import lang::rascalcore::compile::util::Names;
 import analysis::typepal::StringSimilarity;
 import analysis::typepal::LocationChecks;
 
+import lang::rascalcore::check::DependencyViewer;
+
 import IO;
 import List;
 import Map;
@@ -55,6 +57,9 @@ import Relation;
 import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
+
+// Define the normalization function to be used in `define` and `defineInScope`
+str rascalNormalizeName(str name) = prettyPrintName(name);
 
 //Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
@@ -311,23 +316,25 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
 }
 
 bool rascalReportUnused(loc def, TModel tm){
+    return rascalFilterUnused([def], tm) == [def];
+}
+
+list[loc] rascalFilterUnused(list[loc] defs, TModel tm) {
     config = tm.config;
-    if(!config.warnUnused) return false;
+    if(!config.warnUnused) return [];
 
+    // Lookup fields only once to save interpreter time (significant)
+    warnUnusedFormals = config.warnUnusedFormals;
+    moduleLocs = tm.moduleLocs;
+    modelName = tm.modelName;
+    logical2physical = tm.logical2physical;
     definitions = tm.definitions;
-
-    if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
-
-    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName], tm.logical2physical)){
-        return false;
-    }
-
     scopes = tm.scopes;
     facts = tm.facts;
 
     bool reportFormal(Define define){
-       if(!config.warnUnusedFormals || isWildCard(define.id[0])) return false;
-       container = tm.definitions[findContainer(def, definitions, scopes)];
+       if(!warnUnusedFormals || isWildCard(define.id[0])) return false;
+       container = definitions[findContainer(define.defined, definitions, scopes)];
        if(container.idRole == functionId()){
           if(isOverloadedFunction(container.defined, definitions, facts)) return false;
           return  "java" notin container.defInfo.modifiers;
@@ -335,8 +342,8 @@ bool rascalReportUnused(loc def, TModel tm){
        return false;
     }
 
-    define = definitions[def];
-    try {
+    bool filterFormal(loc def) {
+        define = definitions[def];
         switch(define.idRole){
             case moduleId():            return false;
             case dataId():              return false;
@@ -371,9 +378,25 @@ bool rascalReportUnused(loc def, TModel tm){
             case layoutId():            return false;
             case keywordId():           return false;
         }
-    } catch NoSuchKey(_): return false;
+        return true;
+    }
 
-    return true;
+    bool tryFilterFormal(loc def) {
+        try {
+            return filterFormal(def);
+        } catch NoSuchKey(_): {
+            return false;
+        }
+    }
+
+    if (modelName in moduleLocs) {
+        moduleLoc = moduleLocs[modelName];
+        moduleLoc = logical2physical[moduleLoc] ? moduleLoc;
+        // Assumption: `logical2physical` has already been applied to each `def`
+        return [def | loc def <- defs, isContainedIn(def, moduleLoc), tryFilterFormal(def)];
+    } else {
+        return [];
+    }
 }
 
 // Extend the path relation by
@@ -396,6 +419,7 @@ rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
 // Enhance TModel before running Solver by 
 
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
+    // viewDependencies(m);
     return m[paths = enhancePathRelation(m.paths)];
 }
 
@@ -404,7 +428,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    moduleScopes = { t@\loc | t <- range(namedTrees) };
+    moduleScopes = { t.src | t <- range(namedTrees) };
 
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
@@ -431,7 +455,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                     r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
                     if(!comparable(r1, r2)){
-                        causes = [ info("ther declaration with comparable arguments", d2.defined) ];
+                        causes = [ info("the declaration with comparable arguments", d2.defined) ];
                         msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined, causes=causes) ];
                         s.addMessages(msgs);
                     }
@@ -507,9 +531,9 @@ void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, 
         ovl1 = coverloads[0];
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
-        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe <qualifyHint><argHint>",
-                         current@\loc);
+        argHint = "<isEmpty(qualifyHint) ? " " : " or ">make argument type(s) more precise";
+        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
+                         current.src);
         s.addMessages([msg]);
     }
 }
@@ -638,6 +662,8 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,
 
+        normalizeName                 = rascalNormalizeName,
+
         mayOverload                   = rascalMayOverload,
 
         getTypeNamesAndRole           = rascalGetTypeNamesAndRole,
@@ -648,6 +674,7 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
         reportUnused                  = rascalReportUnused,
+        filterUnused                  = rascalFilterUnused,
         createLogicalLoc              = rascalCreateLogicalLoc,
         similarNames                  = rascalSimilarNames
     );

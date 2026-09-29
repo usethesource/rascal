@@ -176,7 +176,7 @@ public abstract class $RascalModule {
 			var dirName = URIUtil.getLocationName(root);
 			var projectName = new RascalManifest().getProjectName(root);
 
-			if (!projectName.isEmpty() && !dirName.equals(projectName)) {
+			if (!projectName.isEmpty() && !dirName.equalsIgnoreCase(projectName)) {
 				var msg = "Project name in RASCAL.MF (" + projectName + ") must be equal to directory name (" + dirName;
 				$ERRWRITER.println(msg);
 				throw new IllegalArgumentException(msg);
@@ -3049,13 +3049,22 @@ public abstract class $RascalModule {
 		if(first != null){
 			firstIndex = first;
 			if(firstIndex < 0)
-				firstIndex += len;
+				firstIndex = Math.max(firstIndex+len, 0);
+		} else {
+			firstIndex = Math.min(firstIndex, len);
 		}
+
 		if(end != null){
 			endIndex = end;
 			if(endIndex < 0){
-				endIndex += len;
+				endIndex = Math.max(endIndex+len, 0);;
+			} else {
+				endIndex = Math.min(endIndex, len);
 			}
+		}
+
+		if(firstIndex == len && endIndex<firstIndex){
+			firstIndex = len - 1;
 		}
 
 		if(second == null){
@@ -3073,14 +3082,12 @@ public abstract class $RascalModule {
 		}
 
 		if(len == 0 || firstIndex >= len){
-			firstIndex = secondIndex = endIndex = 0;
-		} else if(endIndex > len){
-			endIndex = len;
-		} 
-		//		else if(endIndex == -1){
-		//			endIndex = 0;
-		//		}
+			return new SliceDescriptor(0, 1, 0);
 
+		} else if(endIndex > len){
+			return new SliceDescriptor(firstIndex, secondIndex, len);
+		} 
+	
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
 

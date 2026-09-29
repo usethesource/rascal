@@ -157,7 +157,7 @@ public class BasicIDEServices implements IDEServices {
 
   @Override
   public ISourceLocation resolveProjectLocation(ISourceLocation input) {
-    if (projectName != "" && input.getScheme().equals("project") && input.getAuthority().equals(projectName)) {
+    if (!projectName.isEmpty() && input.getScheme().equals("project") && input.getAuthority().equalsIgnoreCase(projectName)) {
       return URIUtil.getChildLocation(projectRoot, input.getPath());
     }
     

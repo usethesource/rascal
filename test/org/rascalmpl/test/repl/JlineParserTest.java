@@ -16,7 +16,7 @@ public class JlineParserTest {
     }
 
     private ParsedLine completeParser(String input, int cursor) {
-        var parser = new RascalLineParser(l -> { throw new ParseError("rascal parser not supported in the test yet", URIUtil.invalidURI(), 0, 0, 0, 0, 0, 0); });
+        var parser = new RascalLineParser(l -> { throw new ParseError("rascal parser not supported in the test yet", URIUtil.unknownLocation().getURI(), 0, 0, 0, 0, 0, 0); });
 
         return parser.parse(input, cursor, ParseContext.COMPLETE);
     }

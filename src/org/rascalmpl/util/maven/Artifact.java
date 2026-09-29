@@ -187,7 +187,7 @@ public class Artifact {
     /**
      * The state of the resolver. It contains the artifact and the transitive set of exclusions.
      */
-    static private class ResolveState {
+    private static class ResolveState {
         private final Artifact artifact;
         private final Set<WithoutVersion> exclusions;
 

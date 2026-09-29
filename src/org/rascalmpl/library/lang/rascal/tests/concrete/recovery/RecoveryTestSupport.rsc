@@ -716,7 +716,7 @@ RecoveryTestConfig createRecoveryTestConfig(list[str] args) {
 private RecoveryTestConfig createSyntaxConfig(str spec) {
     println("Determining test config based on syntax spec: <spec>");
     switch (spec) {
-        case "rascal": return recoveryTestConfig(syntaxFile=|std:///lang/rascal/syntax/Rascal.rsc|, topSort="Module", ext=".rsc");
+        case "rascal": return recoveryTestConfig(syntaxFile=|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|, topSort="Module", ext=".rsc");
         case "java18": return recoveryTestConfig(syntaxFile=|cwd:///src/lang/java/syntax/Java18.rsc|, topSort="CompilationUnit", ext=".java");
         case "java15": return recoveryTestConfig(syntaxFile=|cwd:///src/lang/java/syntax/Java15.rsc|, topSort="CompilationUnit", ext=".java");
         case "cobol": return recoveryTestConfig(syntaxModule="lang::vscobolii::Main", topSort="VSCobolII", ext=".CBL");

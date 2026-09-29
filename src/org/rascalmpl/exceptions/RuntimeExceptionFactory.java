@@ -696,6 +696,10 @@ public class RuntimeExceptionFactory {
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast != null ? ast.getLocation() : null, trace);
 	}	
+
+	public static Throw parseError(ISourceLocation loc, ISourceLocation caller, StackTrace trace) {
+		return new Throw(VF.constructor(ParseError, loc), caller, trace);
+	}
 	
 	// pathNotFound
 	

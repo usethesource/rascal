@@ -156,7 +156,7 @@ public class JavaMethod extends NamedFunction {
 
 		try {
 			ctx.pushEnv(getName());
-
+			ctx.setCurrentAST(getAst()); // otherwise it becomes the final parameter of the call site
 			Environment env = ctx.getCurrentEnvt();
 			Map<Type, Type> renamings = Collections.emptyMap();
 
@@ -327,10 +327,11 @@ public class JavaMethod extends NamedFunction {
 				trace.addAll(th.getTrace());
 				
 				ISourceLocation loc = th.getLocation();
-				if (loc == null || loc.getScheme().equals("TODO")) {
+				if (loc == null || loc.getScheme().equals(Throw.RASCAL_FILL_IN_LATER)) {
+				  // this happens when Throw is created without a current AST location and a trace.
 				  loc = getAst().getLocation();
 				}
-				trace.add(loc, null);
+				trace.add(loc, name);
 
 				th.setLocation(loc);
 				trace.addAll(eval.getStackTrace());

@@ -139,12 +139,6 @@ void(Solver) makeVarInitRequirement(Variable var)
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
 
-void(Solver) makeNonVoidNonOverloadedRequirement(Tree t, str msg)
-    = void(Solver s) {
-        checkNonVoid(t, s, msg ); 
-        if(isOverloadedAType(s.getType(t))) s.report(error(t, msg + " is ambiguous and should be resolved"));
-    };
-
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
 
     requireFullyInstantiated(s, t1);
@@ -401,8 +395,12 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            }
         }
-        availableKws = [ info("Available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>` in `<kw.definingModule>`", |unknown:///|) | Keyword kw <- kwFormals ];
-        msgs += error(kwa, "Undefined keyword argument %q", kwName, causes=availableKws);
+
+        availableKws = [ action(
+                            title="Change to available keyword parameter: `<prettyAType(kw.fieldType)> <kw.fieldName>` in `<kw.definingModule>`",
+                            edits=[changed([replace(kwa.name.src, "<kw.fieldName>")])])
+                        | Keyword kw <- kwFormals ];
+        msgs += error(kwa, "Undefined keyword argument %q", kwName, fixes=availableKws);
     }
     s.reports(msgs);
 }

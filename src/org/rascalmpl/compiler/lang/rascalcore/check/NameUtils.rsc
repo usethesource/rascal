@@ -50,7 +50,9 @@ public str prettyPrintName(Name nm){
 }
 
 public str prettyPrintName(str nm){
-    return replaceFirst(nm, "\\", "");
+    // In general, `nm` could be the string representation of a qualified name,
+    // which may contain multiple backslashes, all of which need to be removed.
+    return replaceAll(nm, "\\", "");
 }
 
 public str prettyPrintBaseName(QualifiedName qn){

@@ -212,9 +212,9 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
-    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins) {
+    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
         try {
-            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue(), normalise.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             
             return factory.string(doc.outerHtml());
@@ -230,10 +230,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
      */
-    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins ) {
+    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins, IBool normalise) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
-            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue(), normalise.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml());
         }
@@ -257,10 +257,11 @@ public class IO {
     /**
      * Translates a constructor tree to a jdom DOM tree, adding nodes where necessary to complete a html element.
      */
-    private Document createHTMLDocument(IConstructor cons, boolean dropOrigins) throws IOException {
+    private Document createHTMLDocument(IConstructor cons, boolean dropOrigins, boolean normalize) throws IOException {
         Document doc = new Document("http://localhost");
 
-        Node node = normalise(cons, createElement(cons, dropOrigins));
+        Node element = createElement(cons, dropOrigins);
+        Node node = normalize ? normalise(cons, element) : element;
         
         doc.appendChild(node);
         return doc;

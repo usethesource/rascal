@@ -18,7 +18,7 @@ public class JavaCompilation extends RuntimeException {
 	private final long column;
 
 	public JavaCompilation(String message, long line, long column, String source, Exception cause) {
-		super("Java compilation failed due to " + message, cause);
+		super("Java compilation failed due to " + message + " at " + line + ", " + column, cause);
 		this.source = source;
 		this.line = line;
 		this.column = column;

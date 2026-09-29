@@ -58,10 +58,10 @@ data PathConfig(loc generatedResources=|unknown:///|, loc generatedSources=|unkn
 data Project
     = project(str name, map[str moduleName, str moduleText] modules, PathConfig pcfg);
 
-void clearMemory() { remove(|memory:///|, recursive = true); }
+void clearMemory() { remove(testRoot, recursive = true); }
 
 loc projectDir(str pname)
-    = |memory://<pname>/|;
+    = testRoot + pname;
 
 loc src(str pname)
     = projectDir(pname) + "src/";

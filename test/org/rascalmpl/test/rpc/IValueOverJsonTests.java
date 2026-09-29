@@ -3,6 +3,7 @@ package org.rascalmpl.test.rpc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,12 +16,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
@@ -74,6 +77,8 @@ public class IValueOverJsonTests {
     private final PipedInputStream is0, is1;
     private final PipedOutputStream os0, os1;
     private final ExecutorService exec = Executors.newCachedThreadPool();
+    private final TestThread server;
+    private final TestClient client;
 
     @Parameters(name="{0}")
     public static Iterable<Object[]> modesAndConfig() {
@@ -94,31 +99,42 @@ public class IValueOverJsonTests {
             os0 = new PipedOutputStream();
             is1 = new PipedInputStream(os0);
             os1 = new PipedOutputStream(is0);
-            new TestThread(is0, os0, gsonConfig, exec).start();
-            new TestClient(is1, os1, gsonConfig);
+            server = new TestThread(is0, os0, gsonConfig, exec);
+            server.start();
+            client = new TestClient(is1, os1, gsonConfig);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @After
-    public void teardown() throws IOException {
-        exec.shutdown();
-        if (is0 != null) {
-            is0.close();
-        }
-        if (is1 != null) {
-            is1.close();
-        }
-        if (os0 != null) {
-            os0.close();
-        }
-        if (os1 != null) {
-            os1.close();
+    static void close(@Nullable Closeable cl) throws IOException {
+        if (cl != null) {
+            cl.close();
         }
     }
 
-    class TestClient {
+    @After
+    public void teardown() throws IOException {
+        close(client);
+        close(server);
+        // give the JSON-RPC server a bit of time to actually close everything before we jank away the streams
+        CompletableFuture.delayedExecutor(100, TimeUnit.MILLISECONDS).execute(() -> {
+            try {
+                close(is0);
+                close(is1);
+                close(os0);
+                close(os1);
+                exec.shutdown();
+            }
+            catch (IOException ignored) {
+                System.err.println("Closing the streams failed with: " + ignored.getMessage());
+                ignored.printStackTrace();
+             }
+        });
+    }
+
+    class TestClient implements Closeable {
+        private final Future<Void> connection;
         public TestClient(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig) {
             Launcher<JsonRpcTestInterface> clientLauncher = new Launcher.Builder<JsonRpcTestInterface>()
                 .setLocalService(this)
@@ -133,16 +149,23 @@ public class IValueOverJsonTests {
                 .setExecutorService(exec)
                 .create();
 
-            clientLauncher.startListening();
+            connection = clientLauncher.startListening();
             testServer = clientLauncher.getRemoteProxy();
+        }
+        @Override
+        public void close() throws IOException {
+            if (connection != null) {
+                connection.cancel(true);
+            }
         }
     }
 
-    static class TestThread extends Thread {
+    static class TestThread extends Thread implements Closeable {
         private final InputStream is;
         private final OutputStream os;
         private final Consumer<GsonBuilder> gsonConfig;
         private final ExecutorService exec;
+        private volatile Future<Void> socket;
         
         public TestThread(InputStream is, OutputStream os, Consumer<GsonBuilder> gsonConfig, ExecutorService exec) {
             this.is = is;
@@ -167,7 +190,14 @@ public class IValueOverJsonTests {
                 .setExecutorService(exec)
                 .create();
 
-            serverLauncher.startListening();
+            socket = serverLauncher.startListening();
+        }
+        
+        @Override
+        public void close() throws IOException {
+            if (socket != null) {
+                socket.cancel(true);
+            }
         }
     }
 

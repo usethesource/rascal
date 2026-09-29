@@ -11,7 +11,7 @@ import util::Benchmark;
 bool testDataType() {
     normalParser = parser(#start[Module], allowRecovery=false);
     recoveryParser = parser(#start[Module], allowRecovery=true, maxAmbDepth=1000);
-    loc source = |std:///lang/rascal/tests/functionality/DataType.rsc?deletedUntilEol=253:8344:8395|;
+    loc source = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/functionality/DataType.rsc?deletedUntilEol=253:8344:8395|;
     str input = getTestInput(source);
     //println("input: <input>");
 

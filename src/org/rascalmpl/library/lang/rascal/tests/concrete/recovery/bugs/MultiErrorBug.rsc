@@ -48,7 +48,7 @@ bool multiErrorBug() {
     println("<size(errors)> Errors");
     for (Tree error <- errors) {
         Tree skipped = getSkipped(error);
-        println("  <skipped@\loc>: <getErrorText(error)>");
+        println("  <skipped.src>: <getErrorText(error)>");
     }
     Tree disambiguated = disambiguateParseErrors(t);
     list[Tree] disambiguatedErrors = findAllParseErrors(disambiguated);
@@ -56,7 +56,7 @@ bool multiErrorBug() {
     println("<size(disambiguatedErrors)> Errors");
     for (Tree error <- disambiguatedErrors) {
         Tree skipped = getSkipped(error);
-        println("  <skipped@\loc>: <getErrorText(error)>");
+        println("  <skipped.src>: <getErrorText(error)>");
     }
     return true;
 }

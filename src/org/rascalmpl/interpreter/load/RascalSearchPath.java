@@ -17,6 +17,7 @@ package org.rascalmpl.interpreter.load;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -41,7 +43,8 @@ public class RascalSearchPath {
 	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
-		if(!contributors.contains(contrib)){
+		if (!contributors.contains(contrib)) {
+			// Later contributors take precedence over earlier ones. Insert at the front.
 			contributors.add(0, contrib);
 		}
 	}
@@ -103,12 +106,12 @@ public class RascalSearchPath {
 		}
 	}
 	
-	public List<ISourceLocation> collect() { 
-		List<ISourceLocation> paths = new LinkedList<ISourceLocation>();
+	public Collection<ISourceLocation> collect() {
+		var paths = new LinkedList<ISourceLocation>();
 		for (IRascalSearchPathContributor c : contributors) {
-			c.contributePaths(paths);
+			paths.addAll(c.contributePaths());
 		}
-		
+
 		return paths;
 	}
 	
