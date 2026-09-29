@@ -77,7 +77,7 @@ Tree explode(list[value] children, Symbol def, str contents, loc top, int offset
 
    children = [ 
       explode(c, elem, contents, top, pos.offset, pos.length)[src=pos], // element
-      *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, loc next>> := work[i + 1]], // middle
+      *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, loc next>> := work[i + 1]] // middle
       | <int i, <value c, loc pos>> <- work
    ];
 
@@ -103,7 +103,7 @@ Tree explode(data[&T] ast:str label(value child), Symbol _def, str contents, loc
    Production   cons     = getConstructor(ast);
    list[Symbol] symbols  = cons.symbols;
 
-   rule = prod(\syntax(cons.def), [empty(), layouts("*seps*"), \syntax(symbols[0]), layouts("*seps"), empty()],  {});
+   rule = prod(\syntax(cons.def), [empty(), layouts("*seps*"), \syntax(symbols[0]), layouts("*seps*"), empty()],  {});
    
    return appl(rule, [
       emptyTree(top(offset, 0)),
@@ -132,10 +132,10 @@ default Tree explode(data[&T] ast, Symbol _def, str contents, loc top, int offse
       separatorTree(contents, offset, pos.offset),
       *[ 
          explode(c, s, contents, top, pos.offset, pos.length)[src=pos], // element
-         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]], // middle
+         *[separatorTree(contents, pos.offset + pos.length, next.offset) | i + 1 < count, <_, <_, _, loc next>> := work[i + 1]] // middle
       | <int i, <value c, Symbol s, loc pos>> <- work
       ],
-      separatorTree(contents, pos.offset + pos.length, offset + length)
+      separatorTree(contents, pos.offset + pos.length, offset + length),
       emptyTree(top(offset+length, 0))
    ];
 
@@ -217,5 +217,3 @@ private loc pos(loc _span, [node a, *_, node b]) = cover([\loc(a), \loc(b)]);
 
 @synopsis{Waiting for `node.src` to be available in Rascal for good...}
 private loc \loc(node n) = l when loc l := n.src;
-
-@synopsis{Infer positions of separators}
