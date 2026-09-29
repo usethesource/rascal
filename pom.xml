@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.0-RC15-SNAPSHOT</version>
+    <version>0.43.0-RC16-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -157,7 +157,7 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
-                              <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
                             </ignores>
                         </configuration>
