@@ -478,6 +478,7 @@ public final class DebugHandler implements IDebugHandler, IRascalRuntimeEvaluati
 	    case SET:
 		  switch (message.getDetail()) {
 			case CONDITIONAL:
+				@SuppressWarnings("unchecked") 
 				Pair<ISourceLocation, String> payload = (Pair<ISourceLocation, String>) message.getPayload();		
 	      		addBreakpoint(payload.getFirst(), payload.getSecond());
 				break;

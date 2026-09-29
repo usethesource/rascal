@@ -302,41 +302,6 @@ public abstract class $RascalModule {
         }
     }
     
-    private static void $usage(String module, String error, Type kwargs) {
-        PrintWriter $ERR = new PrintWriter(System.err);
-        
-        if (!error.isEmpty() && !error.equals("help")) {
-            $ERR.println(error);
-        }
-        
-        $ERR.println("Usage: ");
-        $ERR.println("java -cp ... " + module + " <options>");
-
-        if (kwargs.getArity() > 0) {
-            $ERR.println(" [options]\n\nOptions:\n");
-
-            for (String param : kwargs.getFieldNames()) {
-                $ERR.print("\t-");
-                $ERR.print(param);
-                if (kwargs.getFieldType(param).isSubtypeOf(TypeFactory.getInstance().boolType())) {
-                    $ERR.println("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';");
-                }
-                else {
-                    $ERR.println("\t[arg]: " + kwargs.getFieldType(param) + " argument;");
-                }
-            }
-        }
-        else {
-            $ERR.println('\n');
-        }
-        
-        $ERR.flush();
-        
-        if (!error.equals("help")) {
-            throw new IllegalArgumentException();
-        }
-    }
-
     protected static Map<String, IValue> $parseCommandlineParameters(String module, String[] commandline, Type kwTypes) {
 		// reusing the same commandline parameter parser that the interpreter uses, based on the keyword parameter types
 		// of the function type of the `main` function.
