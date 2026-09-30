@@ -2,6 +2,8 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -14,7 +16,13 @@ import io.usethesource.vallang.ISourceLocation;
  * switch statement with non-fallthrough cases).
  */
 public interface ILogicalSourceLocationResolver {
-	ISourceLocation resolve(ISourceLocation input) throws IOException;
+
+	/**
+	 * @return A non-null location if this is an authority-specific resolver. Possibly null only if this is a default
+	 * resolver and a default for {@code input} isn't available.
+	 */
+	@Nullable ISourceLocation resolve(ISourceLocation input) throws IOException;
+
 	String scheme();
 
 	/**
