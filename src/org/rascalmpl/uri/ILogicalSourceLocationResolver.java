@@ -18,8 +18,8 @@ import io.usethesource.vallang.ISourceLocation;
 public interface ILogicalSourceLocationResolver {
 
 	/**
-	 * @return A non-null location if this is an authority-specific resolver. Possibly null only if this is a default
-	 * resolver and a default for {@code input} isn't available.
+	 * @return {@code null} only if the authority of {@code input} is not supported/covered by this resolver.
+	 * Non-{@code null} otherwise.
 	 */
 	@Nullable ISourceLocation resolve(ISourceLocation input) throws IOException;
 
