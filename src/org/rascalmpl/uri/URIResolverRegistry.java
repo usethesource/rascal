@@ -326,7 +326,7 @@ public class URIResolverRegistry {
 		return result;
 	}
 
-	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver, Iterable<ILogicalSourceLocationResolver> backups) throws IOException {
+	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver) throws IOException {
 		ISourceLocation prev = loc;
 		boolean removedOffset = false;
 
@@ -337,22 +337,6 @@ public class URIResolverRegistry {
 		if (loc == null && resolver != null && prev.hasOffsetLength()) {
 			loc = resolver.resolve(URIUtil.removeOffset(prev));
 			removedOffset = true;
-		}
-
-		if (loc == null || prev.equals(loc)) {
-			for (ILogicalSourceLocationResolver backup : backups) {
-				removedOffset = false;
-				loc = backup.resolve(prev);
-
-				if (loc == null && prev.hasOffsetLength()) {
-					loc = backup.resolve(URIUtil.removeOffset(prev));
-					removedOffset = true;
-				}
-
-				if (loc != null && !prev.equals(loc)) {
-					break; // continue to offset/length handling below with found location
-				}
-			}
 		}
 
 		if (loc == null || prev.equals(loc)) {
@@ -396,35 +380,40 @@ public class URIResolverRegistry {
 	/**
 	 * Computes the physical location for the provided location {@code loc}, according to the following rules:
 	 * <ul>
-	 * <li>If {@code loc} is logical, and a resolver does exists for its scheme/authority, and it can be resolved, then return that physical location.
-	 * <li>If {@code loc} is logical, and a resolver does exists for its scheme/authority, but it cannot be resolved, then return null.
-	 * <li>If {@code loc} is logical, but a resolver doesn't exist for its scheme/authority, then throw an exception.
-	 * <li>If {@code loc} is physical, then return {@code loc}.
+	 * <li>If {@code loc} is known to be logical, and a resolver does exists for its authority, and it can be resolved, then return that physical location.
+	 * <li>If {@code loc} is known to be logical, and a resolver does exists for its authority, but it cannot be resolved, then return null.
+	 * <li>If {@code loc} is known to be logical, but a resolver doesn't exist for its authority, then throw an exception.
+	 * <li>If {@code loc} is unknown to be logical, then return {@code loc}.
 	 * </ul>
 	 */
 	private ISourceLocation physicalLocation(@NonNull ISourceLocation loc) throws IOException {
 		var scheme = loc.getScheme();
 
-		// Case: `loc` is a logical location with a local resolver
+		// Case: `loc` is known to be logical and has a local resolver
 		if (logicalResolvers.containsKey(scheme)) {
 			var auth = loc.getAuthority();
-			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());
-			var resolver = resolversByAuth.get(auth);
+			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());	
+
+			var resolver = resolversByAuth.getOrDefault(auth, resolversByAuth.get(""));
 			if (resolver == null) {
-				throw new UnsupportedSchemeException(scheme, auth);
+				throw new UnsupportedAuthorityException(scheme, auth);
 			}
 
-			var resolved = resolveAndFixOffsets(loc, resolver, resolversByAuth.values());
-			return resolved == null ? null : physicalLocation(resolved);
+			var resolved = resolveAndFixOffsets(loc, resolver);
+			if (resolved == null && resolver != resolversByAuth.get(auth)) { // Tried default resolver, but it failed
+				throw new UnsupportedAuthorityException(scheme, auth);
+			}
+
+			return resolved != null ? physicalLocation(resolved) : null;
 		}
 
-		// Case: `loc` is a logical location with a remote resolver
+		// Case: `loc` is known to be logical and has a remote resolver
 		else if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
-			var resolved = resolveAndFixOffsets(loc, externalRegistry, Collections.emptyList());
-			return resolved == null ? null : physicalLocation(resolved);
+			var resolved = resolveAndFixOffsets(loc, externalRegistry);
+			return resolved != null ? physicalLocation(resolved) : null;
 		}
 
-		// Case: `loc` is a physical location
+		// Case: `loc` is unknown to be logical
 		else {
 			return loc;
 		}
