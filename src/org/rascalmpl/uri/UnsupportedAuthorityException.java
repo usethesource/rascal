@@ -32,6 +32,6 @@ public class UnsupportedAuthorityException extends IOException {
 	private static final long serialVersionUID = -3261531203667050736L;
 
 	public UnsupportedAuthorityException(String scheme, String authority) {
-		super("Unsupported authority '" + authority + "' for scheme '\" + scheme + \"'");
+		super("Unsupported authority '" + authority + "' for scheme '" + scheme + "'");
 	}
 }
