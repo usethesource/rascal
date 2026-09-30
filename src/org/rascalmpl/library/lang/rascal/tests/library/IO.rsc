@@ -63,8 +63,8 @@ test bool testLogicalLocationResolution() {
         assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://baz/x/y/z|); }) : cause;
         assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/|); }) : cause;
         assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/x/y/z|); }) : cause;
-        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>:///|); }) : cause;
-        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
 
         return true;
     }

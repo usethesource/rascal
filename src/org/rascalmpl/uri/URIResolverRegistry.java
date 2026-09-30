@@ -403,7 +403,7 @@ public class URIResolverRegistry {
 			}
 
 			var resolved = resolveAndFixOffsets(loc, resolver);
-			if (resolved == null && !auth.equals("")) {
+			if (resolved == null) {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
 
