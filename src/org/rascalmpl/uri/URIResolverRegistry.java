@@ -4,7 +4,7 @@
  * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * 
+ *
  * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Paul Klint - Paul.Klint@cwi.nl - CWI * Mark Hills
  * - Mark.Hills@cwi.nl (CWI) * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
@@ -80,7 +80,7 @@ public class URIResolverRegistry {
 	/**
 	 * Use with care! This (expensive) reinitialization method clears all caches of all resolvers by
 	 * reloading them from scratch.
-	 * 
+	 *
 	 * <p>
 	 * This can be beneficial if the state of a system changes outside of the scope of the resolvers
 	 * themselves, for example when projects open or close inside a workspace or when plugins are loaded
@@ -89,7 +89,7 @@ public class URIResolverRegistry {
 	 * from scratch. If such a URI re-defining event is detected, host environments (IDEs, app
 	 * containers, language servers) should call this method.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * CAVEAT: after this reinitialization all location caches have been removed and so the first
 	 * locations to be used may require expensive indexing and probing operations, for example
@@ -275,14 +275,14 @@ public class URIResolverRegistry {
 
 		if (original instanceof BufferedOutputStream || original instanceof ByteArrayOutputStream) {
 			return new NotifyingOutputStream(
-				original, 
-				loc, 
+				original,
+				loc,
 				existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 			);
 		}
 
-		return new NotifyingOutputStream(new BufferedOutputStream(original), 
-			loc, 
+		return new NotifyingOutputStream(new BufferedOutputStream(original),
+			loc,
 			existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 		);
 	}
@@ -313,7 +313,7 @@ public class URIResolverRegistry {
 	 * this mapping the registered {@link ILogicalSourceLocationResolver} collection is used. These are
 	 * indexed first by scheme and then by authority. If the scheme is registered but the authority is
 	 * not, then the same lookup is tried again without authority.
-	 * 
+	 *
 	 * @param loc logical source location
 	 * @return physical source location
 	 * @throws IOException when there is no registered resolver for the logical scheme provided
@@ -392,7 +392,7 @@ public class URIResolverRegistry {
 		// Case: `loc` is known to be logical and has a local resolver
 		if (logicalResolvers.containsKey(scheme)) {
 			var auth = loc.getAuthority();
-			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());	
+			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());
 
 			var resolver = resolversByAuth.getOrDefault(auth, resolversByAuth.get(""));
 			if (resolver == null) {
@@ -408,15 +408,13 @@ public class URIResolverRegistry {
 		}
 
 		// Case: `loc` is known to be logical and has a remote resolver
-		else if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
+		if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
 			var resolved = resolveAndFixOffsets(loc, externalRegistry);
 			return resolved != null ? physicalLocation(resolved) : null;
 		}
 
 		// Case: `loc` is unknown to be logical
-		else {
-			return loc;
-		}
+		return loc;
 	}
 
 	private @NonNull ISourceLocation tryResolve(@NonNull ISourceLocation loc) throws IOException {
@@ -568,7 +566,7 @@ public class URIResolverRegistry {
 
 	/**
 	 * set the last modification date of a file
-	 * 
+	 *
 	 * @param timestamp in millis since the epoch
 	 * @throws IOException
 	 */
@@ -639,7 +637,7 @@ public class URIResolverRegistry {
 
 	/**
 	 * Moves a file from source name to target name. If the source is a folder, then it is moved recursively.
-	 * 
+	 *
 	 * @param from       existing name of file or folder
 	 * @param to         new name of file or folder
 	 * @param overwrite  if `false` and the target folder or file already exists, throw an exception
@@ -735,7 +733,7 @@ public class URIResolverRegistry {
 	}
 
 	/**
-	 * This is byte size, and should not be exposed to the rascal users. 
+	 * This is byte size, and should not be exposed to the rascal users.
 	 * @param uri
 	 * @return
 	 * @throws IOException
@@ -812,7 +810,7 @@ public class URIResolverRegistry {
 					throw new IOException("can not make directory because file exists: " + target);
 				}
 			}
-			
+
 			mkDirectory(targetResolved);
 
 			for (String elem : URIResolverRegistry.getInstance().listEntries(sourceResolved)) {
@@ -838,7 +836,7 @@ public class URIResolverRegistry {
 		if (exists(target) && overwrite) {
 			remove(target, false);
 		}
-		
+
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target) && size(source) > 8*1024) {
 			try (FileChannel from = getReadableFileChannel(source)) {
 				try (FileChannel to = getWriteableFileChannel(target, false)) {
@@ -896,12 +894,12 @@ public class URIResolverRegistry {
 
 	/**
 	 * Return a character Writer for the given uri, using the given character encoding.
-	 * 
+	 *
 	 * @param uri       file to write to or append to
 	 * @param encoding  how to encode individual characters @see Charset
 	 * @param append    whether to append or start at the beginning.
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
 		uri = tryResolve(uri);
@@ -986,7 +984,7 @@ public class URIResolverRegistry {
 
 	public Charset detectCharset(ISourceLocation sloc) {
 		URIResolverRegistry reg = URIResolverRegistry.getInstance();
-		
+
 		// in case the file already has a encoding, we have to correctly append that.
 		Charset detected = null;
 		try (InputStream in = reg.getInputStream(sloc);) {
@@ -1000,8 +998,8 @@ public class URIResolverRegistry {
 			// we stick with the default if something happened above.
 			// if the writing hereafter fails as well, the exception will
 			// be just as descriptive
-			detected = null; 
-		} 
+			detected = null;
+		}
 
 		return detected != null ? Charset.forName(detected.name()) : Charset.defaultCharset();
 	}
@@ -1120,7 +1118,7 @@ public class URIResolverRegistry {
 		if (watchers.hasNativeSupport(scheme)) {
 			result.insert(vf.constructor(watchCap));
 		}
-	
+
 		return result.done();
 	}
 
