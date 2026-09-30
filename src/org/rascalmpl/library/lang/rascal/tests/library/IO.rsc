@@ -29,17 +29,18 @@ test bool testLogicalLocationResolution() {
         registerLocations(scheme, "foo", (|<scheme>://foo/|: |file:///|));
         registerLocations(scheme, "bar", (|<scheme>://bar/|: |<scheme>://foo/|));
 
-        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|);
-        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|);
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
 
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://foo/x/y/z|); });
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://bar/x/y/z|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://baz/|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://baz/x/y/z|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/x/y/z|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>:///|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>:///x/y/z|); });
+        str cause = "Resolution either unexpectedly succeeded or failed with an unexpected exception";
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://foo/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://bar/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://baz/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://baz/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
 
         // Register default authority
         registerLocations(scheme, "", (
@@ -47,17 +48,17 @@ test bool testLogicalLocationResolution() {
             |<scheme>://baz/x/y/z|: |file:///x/y/z|
         ));
 
-        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|);
-        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|);
-        assert lastModified(|<scheme>://baz/|) == lastModified(|file:///|);
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://baz/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
 
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://foo/x/y/z|); });
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://bar/x/y/z|); });
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://baz/x/y/z|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/|); });
-        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/x/y/z|); });
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>:///|); });
-        assert throwsExceptionDownstream(value() { lastModified(|<scheme>:///x/y/z|); });
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://foo/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://bar/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://baz/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>:///|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
 
         return true;
     }
