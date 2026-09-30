@@ -388,13 +388,16 @@ public class URIResolverRegistry {
 	 */
 	private ISourceLocation physicalLocation(@NonNull ISourceLocation loc) throws IOException {
 		var scheme = loc.getScheme();
+		var resolversByAuth = logicalResolvers.get(scheme);
 
 		// Case: `loc` is known to be logical and has a local resolver
-		if (logicalResolvers.containsKey(scheme)) {
+		if (resolversByAuth != null) {
 			var auth = loc.getAuthority();
-			var resolversByAuth = logicalResolvers.getOrDefault(scheme, Collections.emptyMap());
 
-			var resolver = resolversByAuth.getOrDefault(auth, resolversByAuth.get(""));
+			var resolver = resolversByAuth.get(auth);
+			if (resolver == null) {
+				resolver = resolversByAuth.get("");
+			}
 			if (resolver == null) {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
