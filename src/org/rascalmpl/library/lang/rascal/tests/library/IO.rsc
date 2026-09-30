@@ -5,7 +5,7 @@ import DateTime;
 import String;
 
 test bool testLogicalLocationResolution() {
-    str scheme = "test";
+    str scheme = "test-logical";
 
     value exceptionOf(value() f) {
         try {
@@ -60,7 +60,7 @@ test bool testLogicalLocationResolution() {
         assert throwsExceptionDownstream(value() { lastModified(|<scheme>:///x/y/z|); });
 
         return true;
-    }    
+    }
     catch false: // Catch block only to make finally block grammatical
         throw false;
     finally  {
@@ -88,9 +88,9 @@ test bool testFileCopyRecursive() {
 
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) {
         // this should trigger the failing test finally
-        remove(event.file); 
+        remove(event.file);
     });
     return true;
 }
