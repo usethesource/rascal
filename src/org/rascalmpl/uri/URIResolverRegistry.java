@@ -400,7 +400,7 @@ public class URIResolverRegistry {
 			}
 
 			var resolved = resolveAndFixOffsets(loc, resolver);
-			if (resolved == null && resolver != resolversByAuth.get(auth)) { // Tried default resolver, but it failed
+			if (resolved == null && !auth.equals("")) {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
 

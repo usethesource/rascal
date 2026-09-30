@@ -26,8 +26,14 @@ test bool testLogicalLocationResolution() {
 
     try {
         // Register authorities `foo` and `bar`
-        registerLocations(scheme, "foo", (|<scheme>://foo/|: |file:///|));
-        registerLocations(scheme, "bar", (|<scheme>://bar/|: |<scheme>://foo/|));
+        registerLocations(scheme, "foo", (
+            |<scheme>://foo/|: |file:///|,
+            |<scheme>://foo/x/y/z|: |file:///x/y/z|
+        ));
+        registerLocations(scheme, "bar", (
+            |<scheme>://bar/|: |<scheme>://foo/|,
+            |<scheme>://bar/x/y/z|: |<scheme>://foo/x/y/z|
+        ));
 
         assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
         assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
@@ -45,7 +51,7 @@ test bool testLogicalLocationResolution() {
         // Register default authority
         registerLocations(scheme, "", (
             |<scheme>://baz/|: |<scheme>://bar/|,
-            |<scheme>://baz/x/y/z|: |file:///x/y/z|
+            |<scheme>://baz/x/y/z|: |<scheme>://bar/x/y/z|
         ));
 
         assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
