@@ -4,6 +4,72 @@ import IO;
 import DateTime;
 import String;
 
+test bool testLogicalLocationResolution() {
+    str scheme = "test";
+
+    value exceptionOf(value() f) {
+        try {
+            f();
+            return "";
+        } catch e: {
+            return e;
+        }
+    }
+
+    bool throwsUnsupportedAuthority(value() f) {
+        return /Unsupported authority/ := "<exceptionOf(f)>";
+    }
+
+    bool throwsExceptionDownstream(value() f) {
+        return str s := "<exceptionOf(f)>" && "" != s && /Unsupported authority/ !:= s;
+    }
+
+    try {
+        // Register authorities `foo` and `bar`
+        registerLocations(scheme, "foo", (|<scheme>://foo/|: |file:///|));
+        registerLocations(scheme, "bar", (|<scheme>://bar/|: |<scheme>://foo/|));
+
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|);
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|);
+
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://foo/x/y/z|); });
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://bar/x/y/z|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://baz/|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://baz/x/y/z|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/x/y/z|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>:///|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>:///x/y/z|); });
+
+        // Register default authority
+        registerLocations(scheme, "", (
+            |<scheme>://baz/|: |<scheme>://bar/|,
+            |<scheme>://baz/x/y/z|: |file:///x/y/z|
+        ));
+
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|);
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|);
+        assert lastModified(|<scheme>://baz/|) == lastModified(|file:///|);
+
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://foo/x/y/z|); });
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://bar/x/y/z|); });
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>://baz/x/y/z|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/|); });
+        assert throwsUnsupportedAuthority(value() { lastModified(|<scheme>://qux/x/y/z|); });
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>:///|); });
+        assert throwsExceptionDownstream(value() { lastModified(|<scheme>:///x/y/z|); });
+
+        return true;
+    }    
+    catch false: // Catch block only to make finally block grammatical
+        throw false;
+    finally  {
+        unregisterLocations(scheme, "foo");
+        unregisterLocations(scheme, "bar");
+        unregisterLocations(scheme, "");
+    }
+}
+
 test bool testFileCopyCompletely() {
     writeFile(|tmp:///longFile|, "123456789");
     writeFile(|tmp:///shortFile|, "321");
