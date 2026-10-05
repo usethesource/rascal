@@ -2496,9 +2496,8 @@ public class Prelude {
 	}
 
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue implode(IValue reifiedType, IConstructor arg) {
-		ITree tree = (ITree) arg;
-		
+	public IValue implode(IValue reifiedType, IConstructor input) {
+		ITree tree = (ITree) input;
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {

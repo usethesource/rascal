@@ -1,10 +1,7 @@
 
 @synopsis{AST model for S-Expressions.}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
-module lang::sexp::SExp
-
-import lang::sexp::\syntax::SExp;
-import ParseTree;
+module lang::sexp::AST
 
 data SExp
   = string(String \str)
@@ -27,6 +24,3 @@ data SimpleString
 data Raw
   = raw(int size, str bytes)
   ;
-
-public SExp parseSExp(str src, loc l) 
-  = implode(#SExp, parse(#lang::sexp::\syntax::SExp::SExp, src, l));
