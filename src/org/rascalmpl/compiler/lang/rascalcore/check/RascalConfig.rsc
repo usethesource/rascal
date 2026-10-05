@@ -255,6 +255,10 @@ tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aadt(s
     return <isConcreteSyntaxRole(syntaxRole) ? [adtName, "Tree"] : [adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
+tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(at:\start(AType _adt, SyntaxRole _syntaxRole)){
+    return <["<at>", "Tree"], {dataId(), nonterminalId()}>;
+}
+
 tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
     return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordFieldId()}>;
 }
@@ -270,18 +274,7 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
     //println("rascalGetTypeInTypeFromDefine: <containerDef>, <selectorName>");
     //println("commonKeywordFields: <containerDef.defInfo.commonKeywordFields>");
     containerType = s.getType(containerDef.defined);
-    if(  fieldId() in idRolesSel
-       && selectorName == "top"
-       && isStartNonTerminalType(containerType)
-       ){
-        return getStartNonTerminalType(containerType);
-    }
-    if(   fieldId() in idRolesSel
-       && selectorName == "top"
-       && isTreeType(containerType)
-       ){
-        return containerType;
-    }
+    
     if(   keywordFieldId() in idRolesSel
        && selectorName == "src"
        && (isTreeType(containerType) || isNonTerminalAType(containerType))
