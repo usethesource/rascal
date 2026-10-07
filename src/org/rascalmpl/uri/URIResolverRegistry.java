@@ -4,7 +4,7 @@
  * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * 
+ *
  * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Paul Klint - Paul.Klint@cwi.nl - CWI * Mark Hills
  * - Mark.Hills@cwi.nl (CWI) * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
@@ -58,7 +58,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class URIResolverRegistry {
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String, ISourceLocationInput> inputResolvers = new ConcurrentHashMap<>();
@@ -81,7 +80,7 @@ public class URIResolverRegistry {
 	/**
 	 * Use with care! This (expensive) reinitialization method clears all caches of all resolvers by
 	 * reloading them from scratch.
-	 * 
+	 *
 	 * <p>
 	 * This can be beneficial if the state of a system changes outside of the scope of the resolvers
 	 * themselves, for example when projects open or close inside a workspace or when plugins are loaded
@@ -90,7 +89,7 @@ public class URIResolverRegistry {
 	 * from scratch. If such a URI re-defining event is detected, host environments (IDEs, app
 	 * containers, language servers) should call this method.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * CAVEAT: after this reinitialization all location caches have been removed and so the first
 	 * locations to be used may require expensive indexing and probing operations, for example
@@ -276,14 +275,14 @@ public class URIResolverRegistry {
 
 		if (original instanceof BufferedOutputStream || original instanceof ByteArrayOutputStream) {
 			return new NotifyingOutputStream(
-				original, 
-				loc, 
+				original,
+				loc,
 				existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 			);
 		}
 
-		return new NotifyingOutputStream(new BufferedOutputStream(original), 
-			loc, 
+		return new NotifyingOutputStream(new BufferedOutputStream(original),
+			loc,
 			existed ? ISourceLocationWatcher.modified(loc) : ISourceLocationWatcher.created(loc)
 		);
 	}
@@ -314,7 +313,7 @@ public class URIResolverRegistry {
 	 * this mapping the registered {@link ILogicalSourceLocationResolver} collection is used. These are
 	 * indexed first by scheme and then by authority. If the scheme is registered but the authority is
 	 * not, then the same lookup is tried again without authority.
-	 * 
+	 *
 	 * @param loc logical source location
 	 * @return physical source location
 	 * @throws IOException when there is no registered resolver for the logical scheme provided
@@ -327,7 +326,7 @@ public class URIResolverRegistry {
 		return result;
 	}
 
-	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver, Iterable<ILogicalSourceLocationResolver> backups) throws IOException {
+	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver) throws IOException {
 		ISourceLocation prev = loc;
 		boolean removedOffset = false;
 
@@ -335,25 +334,9 @@ public class URIResolverRegistry {
 			loc = resolver.resolve(loc);
 		}
 
-		if (loc == null && prev.hasOffsetLength()) {
+		if (loc == null && resolver != null && prev.hasOffsetLength()) {
 			loc = resolver.resolve(URIUtil.removeOffset(prev));
 			removedOffset = true;
-		}
-
-		if (loc == null || prev.equals(loc)) {
-			for (ILogicalSourceLocationResolver backup : backups) {
-				removedOffset = false;
-				loc = backup.resolve(prev);
-
-				if (loc == null && prev.hasOffsetLength()) {
-					loc = backup.resolve(URIUtil.removeOffset(prev));
-					removedOffset = true;
-				}
-
-				if (loc != null && !prev.equals(loc)) {
-					break; // continue to offset/length handling below with found location
-				}
-			}
 		}
 
 		if (loc == null || prev.equals(loc)) {
@@ -394,27 +377,52 @@ public class URIResolverRegistry {
 		return loc;
 	}
 
-	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
-		ISourceLocation original = loc;
-		while (loc != null && logicalResolvers.containsKey(loc.getScheme())) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
-			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
-			ILogicalSourceLocationResolver resolver = map.get(auth);
-			loc = resolveAndFixOffsets(loc, resolver, map.values());
-		}
-		
-		if (externalRegistry != null && original != null) {
-			try {
-				var externalResolve = loc == null ? original : loc;
-				if (externalRegistry.supportsLogical(externalResolve.getScheme())) {
-					var externalResult = resolveAndFixOffsets(externalResolve, externalRegistry, Collections.emptyList());
-					return externalResult == null ? loc : externalResult;
-				}
-			} catch (IOException e) {
-				// Ignore remote IO errors
+	/**
+	 * Computes the physical location for the provided location {@code loc}, according to the following rules:
+	 * <ul>
+	 * <li>If {@code loc} is known to be logical, and a resolver does exists for its authority, and it can be resolved, then return that physical location.
+	 * <li>If {@code loc} is known to be logical, and a resolver does exists for its authority, but it cannot be resolved, then return null.
+	 * <li>If {@code loc} is known to be logical, but a resolver doesn't exist for its authority, then throw an exception.
+	 * <li>If {@code loc} is unknown to be logical, then return {@code loc}.
+	 * </ul>
+	 */
+	private ISourceLocation physicalLocation(@NonNull ISourceLocation loc) throws IOException {
+		var scheme = loc.getScheme();
+		var resolversByAuth = logicalResolvers.get(scheme);
+
+		// Case: `loc` is known to be logical and has a local resolver
+		if (resolversByAuth != null) {
+			var auth = loc.getAuthority();
+
+			var resolver = resolversByAuth.get(auth);
+			if (resolver == null) {
+				resolver = resolversByAuth.get("");
 			}
+			if (resolver == null) {
+				throw new UnsupportedAuthorityException(scheme, auth);
+			}
+
+			var resolved = resolveAndFixOffsets(loc, resolver);
+			if (resolved == null) {
+				throw new UnsupportedAuthorityException(scheme, auth);
+			}
+
+			return resolved != null ? physicalLocation(resolved) : null;
 		}
+
+		// Case: `loc` is known to be logical and has a remote resolver
+		if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
+			var resolved = resolveAndFixOffsets(loc, externalRegistry);
+			return resolved != null ? physicalLocation(resolved) : null;
+		}
+
+		// Case: `loc` is unknown to be logical
 		return loc;
+	}
+
+	private @NonNull ISourceLocation tryResolve(@NonNull ISourceLocation loc) throws IOException {
+		var resolved = physicalLocation(loc);
+		return resolved != null ? resolved : loc;
 	}
 
 	private @NonNull ISourceLocation safeResolve(@NonNull ISourceLocation loc) {
@@ -561,12 +569,12 @@ public class URIResolverRegistry {
 
 	/**
 	 * set the last modification date of a file
-	 * 
+	 *
 	 * @param timestamp in millis since the epoch
 	 * @throws IOException
 	 */
 	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
@@ -588,7 +596,7 @@ public class URIResolverRegistry {
 	}
 
 	public void mkDirectory(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -606,7 +614,7 @@ public class URIResolverRegistry {
 	}
 
 	public void remove(ISourceLocation uri, boolean recursive) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
 		if (out == null) {
@@ -632,7 +640,7 @@ public class URIResolverRegistry {
 
 	/**
 	 * Moves a file from source name to target name. If the source is a folder, then it is moved recursively.
-	 * 
+	 *
 	 * @param from       existing name of file or folder
 	 * @param to         new name of file or folder
 	 * @param overwrite  if `false` and the target folder or file already exists, throw an exception
@@ -640,8 +648,8 @@ public class URIResolverRegistry {
 	 * exists and overwrite was `false`.
 	 */
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
-		from = safeResolve(from);
-		to = safeResolve(to);
+		from = tryResolve(from);
+		to = tryResolve(to);
 
 		if (from.getScheme().equals(to.getScheme())) {
 			ISourceLocationOutput out = getOutputResolver(from.getScheme());
@@ -669,7 +677,7 @@ public class URIResolverRegistry {
 	}
 
 	public long lastModified(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -688,7 +696,7 @@ public class URIResolverRegistry {
 	}
 
 	public long created(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -707,7 +715,7 @@ public class URIResolverRegistry {
 	}
 
 	public boolean isWritable(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		var resolver = getOutputResolver(uri.getScheme());
 		if (resolver != null) {
 			return resolver.isWritable(uri);
@@ -719,7 +727,7 @@ public class URIResolverRegistry {
 		return false;
 	}
 	public boolean isReadable(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		var resolver = getInputResolver(uri.getScheme());
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
@@ -728,13 +736,13 @@ public class URIResolverRegistry {
 	}
 
 	/**
-	 * This is byte size, and should not be exposed to the rascal users. 
+	 * This is byte size, and should not be exposed to the rascal users.
 	 * @param uri
 	 * @return
 	 * @throws IOException
 	 */
 	public long size(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -749,7 +757,8 @@ public class URIResolverRegistry {
 			&& logicalResolvers.containsKey(uri.getScheme());
 	}
 
-	public String[] listEntries(ISourceLocation uri) throws IOException {		uri = safeResolve(uri);
+	public String[] listEntries(ISourceLocation uri) throws IOException {
+		uri = tryResolve(uri);
 		if (isRootLogical(uri)) {
 			// if it's a location without any path and authority
 			// we want to list possible authorities if it's a logical one
@@ -783,8 +792,8 @@ public class URIResolverRegistry {
 	 * when a source folder or file can not be read
 	 */
 	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
-		var sourceResolved = safeResolve(source);
-		var targetResolved = safeResolve(target);
+		var sourceResolved = tryResolve(source);
+		var targetResolved = tryResolve(target);
 		if (sourceResolved.getScheme().equals(targetResolved.getScheme())) {
 			var commonResolver = getOutputResolver(sourceResolved.getScheme());
 			if (commonResolver != null && commonResolver.supportsCopy()) {
@@ -804,7 +813,7 @@ public class URIResolverRegistry {
 					throw new IOException("can not make directory because file exists: " + target);
 				}
 			}
-			
+
 			mkDirectory(targetResolved);
 
 			for (String elem : URIResolverRegistry.getInstance().listEntries(sourceResolved)) {
@@ -830,7 +839,7 @@ public class URIResolverRegistry {
 		if (exists(target) && overwrite) {
 			remove(target, false);
 		}
-		
+
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target) && size(source) > 8*1024) {
 			try (FileChannel from = getReadableFileChannel(source)) {
 				try (FileChannel to = getWriteableFileChannel(target, false)) {
@@ -875,7 +884,7 @@ public class URIResolverRegistry {
 	}
 
 	public Reader getCharacterReader(ISourceLocation uri, Charset encoding) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		Reader res = new UnicodeInputStreamReader(getInputStream(uri), encoding);
 
 		if (uri.hasOffsetLength()) {
@@ -888,20 +897,20 @@ public class URIResolverRegistry {
 
 	/**
 	 * Return a character Writer for the given uri, using the given character encoding.
-	 * 
+	 *
 	 * @param uri       file to write to or append to
 	 * @param encoding  how to encode individual characters @see Charset
 	 * @param append    whether to append or start at the beginning.
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
 	}
 
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
-		IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
+		IClassloaderLocationResolver resolver = getClassloaderResolver(tryResolve(uri).getScheme());
 
 		if (resolver != null) {
 			// we always try the most specific implementation for efficiency's sake
@@ -955,7 +964,7 @@ public class URIResolverRegistry {
 
 
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
@@ -966,7 +975,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null || !resolver.supportsReadableFileChannel()) {
@@ -978,7 +987,7 @@ public class URIResolverRegistry {
 
 	public Charset detectCharset(ISourceLocation sloc) {
 		URIResolverRegistry reg = URIResolverRegistry.getInstance();
-		
+
 		// in case the file already has a encoding, we have to correctly append that.
 		Charset detected = null;
 		try (InputStream in = reg.getInputStream(sloc);) {
@@ -992,14 +1001,14 @@ public class URIResolverRegistry {
 			// we stick with the default if something happened above.
 			// if the writing hereafter fails as well, the exception will
 			// be just as descriptive
-			detected = null; 
-		} 
+			detected = null;
+		}
 
 		return detected != null ? Charset.forName(detected.name()) : Charset.defaultCharset();
 	}
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null || (externalRegistry != null && resolver == externalRegistry && !externalRegistry.supportsGetCharset(uri.getScheme()))) {
@@ -1010,7 +1019,7 @@ public class URIResolverRegistry {
 	}
 
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		boolean existedBefore = exists(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
@@ -1028,7 +1037,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileChannel getWriteableFileChannel(ISourceLocation uri, boolean append) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
 
 		if (resolver == null || !resolver.supportsWritableFileChannel()) {
@@ -1048,7 +1057,7 @@ public class URIResolverRegistry {
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+		uri = tryResolve(uri);
 		ISourceLocation parentURI = URIUtil.getParentLocation(uri);
 
 		if (parentURI != null && !parentURI.equals(uri) && !exists(parentURI)) {
@@ -1112,7 +1121,7 @@ public class URIResolverRegistry {
 		if (watchers.hasNativeSupport(scheme)) {
 			result.insert(vf.constructor(watchCap));
 		}
-	
+
 		return result.done();
 	}
 
@@ -1137,7 +1146,7 @@ public class URIResolverRegistry {
 	}
 
 	public FileAttributes stat(ISourceLocation loc) throws IOException {
-		loc = safeResolve(loc);
+		loc = tryResolve(loc);
 		var resolver = getInputResolver(loc.getScheme());
 		if (resolver == null) {
 			throw new IOException("Unsupported scheme: " + loc.getScheme());

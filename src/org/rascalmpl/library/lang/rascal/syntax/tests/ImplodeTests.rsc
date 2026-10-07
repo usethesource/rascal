@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@ignore{This module does not work because of #2546 and #2547 and #2885}
 @synopsis{Tests the potential clashes among value constructors of different adts, plus, the identified clash with: bool eq(value, value);}
 module lang::rascal::\syntax::tests::ImplodeTests
 
