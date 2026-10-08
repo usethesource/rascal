@@ -88,7 +88,12 @@ public class TermREPL {
 
         BaseREPL baseRepl;
         try {
-            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)), term);
+            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)) {
+                @Override
+                public void disconnect() {
+                    // Do nothing. Closing the writer here would close it for the host REPL as well.
+                }
+            }, term) {};
         }
         catch (Throwable e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
