@@ -71,7 +71,7 @@ public class TermREPL {
                 err.println("Cannot resolve history file to file on disk");
                 return null;
             }
-            return Path.of(result.getPath());
+            return Path.of(result.getURI());
         }
         catch (IOException e) {
             return null;
