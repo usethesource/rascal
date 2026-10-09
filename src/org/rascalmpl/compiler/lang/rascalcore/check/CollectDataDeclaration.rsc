@@ -54,6 +54,7 @@ int dataCounter = 0;
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Collector c){
     userType = current.user;
+    currentModuleName = str s := c.top(key_current_module) ? s : "";
     adtName = prettyPrintName(userType.name);
     
     tagsMap = getTags(tags);
@@ -75,19 +76,36 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     c.define(userType.name, dataId(), current, dt);
        
     adtParentScope = c.getScope();
-    c.enterScope(current);
-        c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
-            beginDefineOrReuseTypeParameters(c, closed=true);
-                collect(typeParameters, c);
-                if(!isEmpty(commonKeywordParameterList)){
-                    collect(commonKeywordParameterList, c);
-                }
-            endDefineOrReuseTypeParameters(c);
-       
-            // visit all the variants in the parent scope of the data declaration
+
+    c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
+        NestedScopes nestedScopes = newNestedScopes(c);
+        beginDefineOrReuseTypeParameters(c, closed=true);
+            collect(typeParameters, c);
+            if(!isEmpty(commonKeywordParameterList)){
+                nestedScopes.enter(current.commonKeywordParameters);
+                    declaredFieldNames = {};
+                    for(KeywordFormal kwf <- commonKeywordParameterList){
+                        // Collect default expression (of current common keyword
+                        // field) in outer scope
+                        collect(kwf.\type, kwf.expression, c);
+                        // Define current common keyword field, and collect
+                        // next common keyword fields (in subsequent iterations,
+                        // if any), in inner scope(s)
+                        nestedScopes.enter(kwf);
+                            declaredFieldNames = defineField(
+                                c, kwf, keywordFieldId(), declaredFieldNames,
+                                moreHashContribs = [currentModuleName, adtName]);
+                            c.fact(kwf, kwf.\type);
+                    }
+            }
+        endDefineOrReuseTypeParameters(c);
+        // Note: Don't leave scopes of common keyword fields yet, so they are
+        // accessible in the variants.
+
+        nestedScopes.enter(current);
             collect(variants, c);
-        c.pop(currentAdt);
-    c.leaveScope(current);
+        nestedScopes.leaveAll();
+    c.pop(currentAdt);
 }
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
@@ -133,27 +151,14 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
            
         // Define all fields in the outer scope of the data declaration in order to be easily found there.
         
-        for(int i <- index(formals)){
-            ta = formals[i];
-            if(ta is named){
-                fieldName = prettyPrintName(ta.name);
-                if(fieldName in declaredFieldNames) c.report(error(ta, "Double declaration of field `%v`", fieldName));
-                declaredFieldNames += fieldName;
-                fieldType = ta.\type;
-                dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = normalizedMD5Hash(currentModuleName, adtName, name, current);
-                c.define(ta.name, fieldId(), ta.name, dt);
-            }
+        for(TypeArg ta <- formals, ta is named){
+            declaredFieldNames = defineField(c, ta, fieldId(), declaredFieldNames,
+                moreHashContribs = [currentModuleName, adtName, name, current]);
         }
         
         for(KeywordFormal kwf <- kwFormals){
-            fieldName = prettyPrintName(kwf.name);
-            if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
-            declaredFieldNames += fieldName;
-            kwfType = kwf.\type;
-            dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
-            dt.md5 = normalizedMD5Hash(currentModuleName, adtName, dataCounter, name, consArity, kwfType, fieldName);
-            c.define(kwf.name, keywordFieldId(), kwf.name, dt);  
+            declaredFieldNames = defineField(c, kwf, keywordFieldId(), declaredFieldNames,
+                moreHashContribs = [currentModuleName, adtName, dataCounter, name, consArity]);
         }
     
         scope = c.getScope();
@@ -176,4 +181,47 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     } else {
         throw "collect Variant: currentAdt not found";
     }
-} 
+}
+
+private alias NestedScopes = tuple[void(Tree) enter, void() leaveAll];
+
+private NestedScopes newNestedScopes(Collector c) {
+    str state = "ENTERING";
+    list[Tree] nestedScopes = [];
+
+    void enter(Tree t) {
+        assert state == "ENTERING";
+        c.enterScope(t);
+        nestedScopes += t;
+    }
+
+    void leaveAll() {
+        assert state == "ENTERING";
+        state = "LEAVING";
+        for (Tree t <- reverse(nestedScopes)) {
+            c.leaveScope(t);
+        };
+    }
+
+    return <enter, leaveAll>;
+}
+
+private set[str] defineField(Collector c, Tree fieldDef, IdRole fieldIdRole, set[str] declaredFieldIds, list[value] moreHashContribs = []) {
+    if ((TypeArg) `<Type fieldType> <Name name>` := fieldDef ||
+        (KeywordFormal) `<Type fieldType> <Name name> = <Expression _>` := fieldDef) {
+
+        str fieldOrgId = "<name>";
+        str fieldId = prettyPrintName(fieldOrgId);
+        if (fieldId in declaredFieldIds) c.report(error(fieldDef, "Double declaration of field `%v`", fieldId));
+        declaredFieldIds += fieldId;
+
+        DefInfo fieldDefInfo = defType([fieldType], makeFieldType(fieldId, fieldType));
+        fieldDefInfo.md5 = normalizedMD5Hash([fieldId, fieldType, *moreHashContribs]);
+
+        c.define(name, fieldIdRole, fieldDef, fieldDefInfo);
+    } else {
+        throw "Cannot define field: `<fieldDef>`";
+    }
+
+    return declaredFieldIds;
+}
