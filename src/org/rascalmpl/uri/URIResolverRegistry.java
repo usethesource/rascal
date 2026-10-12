@@ -387,6 +387,8 @@ public class URIResolverRegistry {
 	 * </ul>
 	 */
 	private ISourceLocation physicalLocation(@NonNull ISourceLocation loc) throws IOException {
+		ISourceLocation resolved = null;
+
 		var scheme = loc.getScheme();
 		var resolversByAuth = logicalResolvers.get(scheme);
 
@@ -402,7 +404,7 @@ public class URIResolverRegistry {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
 
-			var resolved = resolveAndFixOffsets(loc, resolver);
+			resolved = resolveAndFixOffsets(loc, resolver);
 			if (resolved == null) {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
@@ -411,13 +413,23 @@ public class URIResolverRegistry {
 		}
 
 		// Case: `loc` is known to be logical and has a remote resolver
-		if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
-			var resolved = resolveAndFixOffsets(loc, externalRegistry);
-			return resolved != null ? physicalLocation(resolved) : null;
+		else if (externalRegistry != null && externalRegistry.supportsLogical(scheme)) {
+			resolved = resolveAndFixOffsets(loc, externalRegistry);
+			if (resolved == null) {
+				return resolved;
+			}
 		}
 
 		// Case: `loc` is unknown to be logical
-		return loc;
+		else {
+			return loc;
+		}
+
+		// At this point, `resolved` cannot be null, but it could still be a logical location (e.g., logical location
+		// `foo:///` resolves to logical location `bar:///`, which in turn resolves to physical location `file:///`).
+		assert resolved != null;
+		var resolvedResolved = physicalLocation(resolved);
+		return resolvedResolved != null ? resolvedResolved : resolved;
 	}
 
 	private @NonNull ISourceLocation tryResolve(@NonNull ISourceLocation loc) throws IOException {
