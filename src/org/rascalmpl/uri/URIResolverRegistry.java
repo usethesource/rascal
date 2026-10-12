@@ -408,8 +408,6 @@ public class URIResolverRegistry {
 			if (resolved == null) {
 				throw new UnsupportedAuthorityException(scheme, auth);
 			}
-
-			return resolved != null ? physicalLocation(resolved) : null;
 		}
 
 		// Case: `loc` is known to be logical and has a remote resolver
