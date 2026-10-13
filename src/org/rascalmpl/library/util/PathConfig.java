@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -304,6 +305,18 @@ public class PathConfig {
         List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
         extendedlibs.add(dir);
         return new PathConfig(projectRoot, srcs, extendedlibs, bin, ignores, resources, messages);
+    }
+
+    public PathConfig addMessage(IConstructor newMessage) throws IOException {
+        List<IConstructor> extendedMessages = new ArrayList<IConstructor>(messages);
+        extendedMessages.add(newMessage);
+        return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, extendedMessages);
+    }
+
+    public PathConfig addMessages(Collection<IConstructor> newMessages) throws IOException {
+        List<IConstructor> extendedMessages = new ArrayList<IConstructor>(messages);
+        extendedMessages.addAll(newMessages);
+        return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, extendedMessages);
     }
 
     public PathConfig setBin(ISourceLocation bin) {
