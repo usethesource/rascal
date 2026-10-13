@@ -317,13 +317,25 @@ public class URIResolverRegistry {
 	 * @param loc logical source location
 	 * @return physical source location
 	 * @throws IOException when there is no registered resolver for the logical scheme provided
+	 * @deprecated in most cases you want to call {@link #resolveIfLogical} as it doesn't throw an exception
 	 */
+	@Deprecated
 	public ISourceLocation logicalToPhysical(ISourceLocation loc) throws IOException {
 		ISourceLocation result = physicalLocation(loc);
 		if (result == null) {
 			throw new FileNotFoundException(loc == null ? "null loc passed!" : loc.toString());
 		}
 		return result;
+	}
+
+	/**
+	 * If the location is a logical location, we try to resolve it, but if it could not be resolved
+	 * we return the original location. Which can be either a physical one, or an unsupported scheme.
+	 * @param loc the original location
+	 * @return either the resolved location or the original location
+	 */
+	public ISourceLocation resolveIfLogical(ISourceLocation loc) {
+		return safeResolve(loc);
 	}
 
 	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver) throws IOException {

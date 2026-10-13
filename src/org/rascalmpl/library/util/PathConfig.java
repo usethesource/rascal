@@ -491,7 +491,7 @@ public class PathConfig {
         if (reg.exists(typepal)) {
             // make sure to resolve the typepal location
             // such that in VS Code the full (local) path names are visible
-            typepal = reg.logicalToPhysical(typepal);
+            typepal = reg.resolveIfLogical(typepal);
         }
         else {
             // we might not be in a VS Code project, but instead running inside of the maven/junit plugin
@@ -874,16 +874,7 @@ public class PathConfig {
     }
 
     private static ISourceLocation safeResolve(ISourceLocation loc) {
-        try {
-            var result = URIResolverRegistry.getInstance().logicalToPhysical(loc);
-            if (result != null) {
-                return result;
-            }
-            return loc;
-        }
-        catch (IOException ignored) {
-            return loc;
-        }
+        return URIResolverRegistry.getInstance().resolveIfLogical(loc);
     }
 
 
@@ -894,7 +885,7 @@ public class PathConfig {
             ISourceLocation projectLoc = URIUtil.correctLocation("project", projectName, "");
 
             // we need this to get access to the parent folder, in case of `home:///` or `cwd:///`, etc.
-            manifestRoot = reg.logicalToPhysical(manifestRoot);
+            manifestRoot = reg.resolveIfLogical(manifestRoot);
             
             if (!projectLoc.equals(manifestRoot) && !projectName.equalsIgnoreCase(URIUtil.getLocationName(manifestRoot))) {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
@@ -954,19 +945,18 @@ public class PathConfig {
         }
     }
 
+    private static ISourceLocation getChildLoc(ISourceLocation project, String childPath) {
+        return URIResolverRegistry.getInstance().resolveIfLogical(
+            URIUtil.getChildLocation(project, childPath)
+        );
+    }
+
     public static ISourceLocation getRascalMfLocation(ISourceLocation project) {
-        return URIUtil.getChildLocation(project, RascalManifest.META_INF_RASCAL_MF);
+        return getChildLoc(project, RascalManifest.META_INF_RASCAL_MF);
     }
     
     public static ISourceLocation getPomXmlLocation(ISourceLocation project) {
-        try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(project, "pom.xml");
-            return URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-        }
-        catch (IOException e) {
-            assert false : e.getMessage();
-            return URIUtil.correctLocation("unknown", "", "pom.xml");
-        }
+        return getChildLoc(project, "pom.xml");
     }
 
     /**
@@ -983,7 +973,7 @@ public class PathConfig {
         try {
             var reg = URIResolverRegistry.getInstance();
             if (!manifestRoot.getScheme().equals("file")) {
-                var resolved = reg.logicalToPhysical(manifestRoot);
+                var resolved = reg.resolveIfLogical(manifestRoot);
                 if (resolved != null) {
                     if (!resolved.getScheme().equals("file")) {
                         return Collections.emptyList();
@@ -1010,7 +1000,7 @@ public class PathConfig {
             }
             return result;
         }
-        catch (RuntimeException | IOException | ModelResolutionError e) {
+        catch (RuntimeException | ModelResolutionError e) {
             return Collections.emptyList();
         }
     }

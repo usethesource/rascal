@@ -1351,7 +1351,7 @@ public class Prelude {
 		Reader postfix = null;
 		
 		try {
-			sloc = reg.logicalToPhysical(sloc);
+			sloc = reg.resolveIfLogical(sloc);
 
 			if (sloc.hasOffsetLength()) {
 				try {
@@ -3708,11 +3708,7 @@ public class Prelude {
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
-		try {
-			return REGISTRY.logicalToPhysical(loc);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.schemeNotSupported(loc);
-		}
+		return REGISTRY.resolveIfLogical(loc);
 	}
 
 	public ISourceLocation mavenize(ISourceLocation jar) {
