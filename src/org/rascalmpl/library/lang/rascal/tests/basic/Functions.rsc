@@ -638,3 +638,21 @@ test bool functionParameterNameEqualToFunctionName() {
     assert testFunction(bFunction) == 84; /* expect 42 when buggy */
     return true;
 }
+
+@ignoreCompiler{The type checker rejects a void initializer.}
+@expected{UnexpectedType}
+test bool voidInitializerIsRejected() {
+    void f() {}
+    int a = f();
+    return true;
+}
+
+data Article = article(str name);
+void article(value args...) {}
+
+@ignoreCompiler{The type checker rejects a void initializer.}
+@expected{UnexpectedType}
+test bool qualifiedVoidInitializerIsRejected() {
+    Article a = Article::article("Test");
+    return true;
+}
