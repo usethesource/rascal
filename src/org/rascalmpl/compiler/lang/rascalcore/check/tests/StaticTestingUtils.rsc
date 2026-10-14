@@ -247,6 +247,9 @@ bool validateUseDefs(str moduleName, map[str, tuple[int, set[int]]] defuses, Mod
 			if(!occ[u]?){
 				throw "Missing use <u> for <v>";
 			}
+			if(!any(use <- tm.uses, occ[u] == use.occ)){
+				throw "Missing `Use` value for use <u> of <v>";
+			}
 			potentialDefs = foundUseDefs[occ[u]];
 			if(isEmpty(potentialDefs) || !any(d <- potentialDefs, occ[def] == (tm.logical2physical[d] ? d))){
 				throw "Missing def for use <u> of <v>";
