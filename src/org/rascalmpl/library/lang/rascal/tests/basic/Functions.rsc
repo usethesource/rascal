@@ -656,3 +656,51 @@ test bool qualifiedVoidInitializerIsRejected() {
     Article a = Article::article("Test");
     return true;
 }
+
+@ignoreCompiler{The type checker rejects a void right-hand side.}
+@expected{NonVoidTypeRequired}
+test bool voidAssignmentIsRejected() {
+    void f() {}
+    a = f();
+    return true;
+}
+
+@ignoreCompiler{The type checker rejects a void interpolation.}
+@expected{NonVoidTypeRequired}
+test bool voidStringInterpolationIsRejected() {
+    void f() {}
+    str s = "a<f()>";
+    return true;
+}
+
+@ignoreCompiler{The type checker rejects a void append.}
+@expected{NonVoidTypeRequired}
+test bool voidAppendIsRejected() {
+    void f() {}
+    xs = for (_ <- [1]) append f();
+    return true;
+}
+
+@ignoreCompiler{The type checker rejects a void insert.}
+@expected{NonVoidTypeRequired}
+test bool voidInsertIsRejected() {
+    void f() {}
+    int n = visit(1) { case int _: insert f(); };
+    return true;
+}
+
+@ignoreCompiler{The type checker rejects a void throw.}
+@expected{NonVoidTypeRequired}
+test bool voidThrowIsRejected() {
+    void f() {}
+    throw f();
+}
+
+@ignoreCompiler{The type checker rejects a void keyword parameter default.}
+@expected{NonVoidTypeRequired}
+test bool voidKeywordParameterDefaultIsRejected() {
+    void f() {}
+    int g(int k = f()) = k;
+    g();
+    return true;
+}

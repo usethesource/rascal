@@ -40,6 +40,7 @@ import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.RascalValueFactory;
@@ -107,6 +108,9 @@ public class StringTemplateConverter {
 				
 				// TODO refactor this: pull up to Append
 				Result<IValue> result = this.getStatement().interpret(__eval);
+				if (result.getStaticType().isBottom()) {
+					throw new NonVoidTypeRequired(this.getStatement());
+				}
 				IValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
 				if (!(v instanceof IString)) {
