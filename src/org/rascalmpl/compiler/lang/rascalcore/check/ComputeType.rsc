@@ -49,6 +49,7 @@ void checkConditions(list[Expression] condList, Solver s){
             s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
             tcond = s.instantiate(tcond);
         }
+        checkNonVoid(cond, tcond, s, "Condition");
         s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
     }
 }
@@ -149,6 +150,8 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
     requireFullyInstantiated(s, t1);
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
+        // A void alternative would otherwise be silently dropped by the loop below
+        if(hasVoidAlternative(t1)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
@@ -167,6 +170,9 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
 
     requireFullyInstantiated(s, t1, t2);
+
+    // Checked before the overload loops below, since they would silently drop a void alternative
+    if(hasVoidAlternative(t1) || hasVoidAlternative(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
@@ -193,13 +199,15 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
     }
-    if(isVoidAType(t1) || isVoidAType(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, s);
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
 
     requireFullyInstantiated(s, t1, t2, t3);
+
+    // Checked before the overload loops below, since they would silently drop a void alternative
+    if(hasVoidAlternative(t1) || hasVoidAlternative(t2) || hasVoidAlternative(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
@@ -239,7 +247,6 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
-    if(isVoidAType(t1) || isVoidAType(t2) || isVoidAType(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, t3, s);
 }
 

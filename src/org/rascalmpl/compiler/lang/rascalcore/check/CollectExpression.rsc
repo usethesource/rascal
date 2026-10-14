@@ -54,7 +54,12 @@ void collect(current: (StringLiteral) `<PreStringChars pre><StringTemplate templ
 
 void collect(current: (StringLiteral) `<PreStringChars pre><Expression expression><StringTail tail>`, Collector c){
     c.fact(current, astr());
+    requireNonVoidInterpolation(expression, c);
     collect(expression, tail, c);
+}
+
+private void requireNonVoidInterpolation(Expression expression, Collector c){
+    c.require("non-void interpolation", expression, [expression], makeNonVoidRequirement(expression, "Interpolated expression"));
 }
 
 void collect(current: (StringConstant) `"<StringCharacter* chars>"`, Collector c){
@@ -66,6 +71,7 @@ void collect(current: (StringMiddle) `<MidStringChars mid><StringTemplate templa
 }
 
 void collect(current: (StringMiddle) `<MidStringChars mi><Expression expression><StringMiddle tail>`, Collector c){
+    requireNonVoidInterpolation(expression, c);
     collect(expression, tail, c);
 }
 
@@ -73,6 +79,7 @@ void collect(current: (MidStringChars) `\><StringCharacter* chars>\<`, Collector
 
 }
 void collect(current: (StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`, Collector c){
+    requireNonVoidInterpolation(expression, c);
     collect(expression, tail, c);
 }
 
@@ -174,6 +181,7 @@ void collect(current: (ProtocolPart) `<ProtocolChars protocolChars>`, Collector 
 }
 
 void collect(current: (ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`, Collector c){
+    requireNonVoidInterpolation(expression, c);
     collect(expression, c);
 }
 
@@ -182,10 +190,12 @@ void collect(current: (PathPart) `<PathChars pathChars >`, Collector c){
 }
 
 void collect(current: (PathPart) `<PrePathChars pre> <Expression expression> <PathTail tail>`, Collector c){
+    requireNonVoidInterpolation(expression, c);
     collect(expression, tail, c);
 }
 
 void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <PathTail tail>`, Collector c){
+    requireNonVoidInterpolation(expression, c);
     collect(expression, tail, c);
 }
 
@@ -1058,7 +1068,7 @@ void collect(current: (Expression) `<Expression expression> . <Name field>`, Col
             expType = s.getType(expression);
             fieldType = s.getType(field);
 
-            if(isVoidAType(expType)) s.report(error(expression, "Base expression of field selection should not have type `void`"));
+            checkNonVoid(expression, expType, s, "Base expression of field selection");
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType){
                 ovls  = overloads<2>;
                 if(any(ov1 <- ovls, ov2 <- ovls, ov1 != ov2, !comparable(ov1, ov2))){
