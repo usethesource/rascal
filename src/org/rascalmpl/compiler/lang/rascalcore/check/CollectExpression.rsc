@@ -518,8 +518,8 @@ void collect(current: (Expression) `it`, Collector c){
 // ---- set
 
 void checkNonVoidOrSplice(Expression e, Solver s, str msg){
-    if(isVoidAType(s.getType(e)) && !e is splice){
-        s.report(error(e, msg + " should not have type `void`"));
+    if(!e is splice){
+        checkNonVoid(e, s, msg);
     }
 }
 

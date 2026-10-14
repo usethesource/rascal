@@ -509,6 +509,26 @@ test bool O2() = checkModuleOK("
 		void main(){ int x = f(1, k=1); str y = f(\"a\"); z = f(true, \"a\"); z = f(\"a\", false); }
 	");
 	
+test bool voidFunctionInitializerIsRejected() = checkModuleAndFilter("
+    module VoidFunctionInitializerIsRejected
+        void f() {}
+        void main() { int a = f(); }
+    ", ["Variable initialization should not have type `void`"]);
+
+test bool overloadedVoidFunctionInitializerIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidFunctionInitializerIsRejected
+        int f(int x) = x;
+        void f(value x) {}
+        void main() { int a = f(1); }
+    ", ["Variable initialization should not have type `void`"]);
+
+test bool nonMatchingVoidOverloadInitializerIsAccepted() = checkModuleOK("
+    module NonMatchingVoidOverloadInitializerIsAccepted
+        int f(int x) = x;
+        void f(str x) {}
+        void main() { int a = f(1); }
+    ");
+
 test bool K1() = checkModuleOK("
 	module K1
 		data D(int n = 0) = d1();

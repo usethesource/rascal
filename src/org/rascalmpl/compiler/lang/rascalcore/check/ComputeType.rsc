@@ -60,20 +60,25 @@ void requireFullyInstantiated(Solver s, AType ts...){
 }
 
 void checkNonVoid(Tree e, Collector c, str msg){
-    if(isVoidAType(c.getType(e))) c.report(error(e, msg + " should not have type `void`"));
+    checkNonVoid(e, c.getType(e), c, msg);
 }
 
 void checkNonVoid(Tree e, AType t, Collector c, str msg){
-    if(isVoidAType(t)) c.report(error(e, msg + " should not have type `void`"));
+    if(hasVoidAlternative(t)) c.report(error(e, msg + " should not have type `void`"));
 }
 
 void checkNonVoid(Tree e, Solver s, str msg){
-    if(isVoidAType(s.getType(e))) s.report(error(e, msg + " should not have type `void`"));
+    checkNonVoid(e, s.getType(e), s, msg);
 }
 
 void checkNonVoid(Tree e, AType t, Solver s, str msg){
-    if(isVoidAType(t)) s.report(error(e, msg + " should not have type `void`"));
+    if(hasVoidAlternative(t)) s.report(error(e, msg + " should not have type `void`"));
 }
+
+private bool hasVoidAlternative(overloadedAType(overloads))
+    = any(<_, _, tp> <- overloads, hasVoidAlternative(tp));
+
+private default bool hasVoidAlternative(AType t) = isVoidAType(t);
 
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
