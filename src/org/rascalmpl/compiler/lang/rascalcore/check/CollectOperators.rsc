@@ -205,6 +205,7 @@ private AType do_computeSpliceType(Tree current, AType t1, Solver s){
 void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
     c.calculate("asType", current, [t, e],
         AType(Solver s) { 
+            checkNonVoid(e, s, "Argument of parse expression `[_] _`");
             if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
             return s.getType(t);
         });
@@ -671,6 +672,8 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
      etype = s.instantiate(etype);
      
      if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
+        // A void alternative would otherwise be silently dropped by the loop below
+        checkNonVoid(current, etype, s, "Enumerated expression");
         filtered_overloads = {};
         for(<key, role, tp> <- overloads){
             try {
@@ -842,6 +845,7 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
+                checkNonVoid(condition, s, "Condition in conditional expression");
                 s.requireComparable(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
                 checkNonVoid(thenExp, s, "Then part in conditional expression");
                 checkNonVoid(elseExp, s, "Else part in conditional expression");
