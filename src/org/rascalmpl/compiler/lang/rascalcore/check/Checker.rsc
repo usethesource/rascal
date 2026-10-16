@@ -428,6 +428,9 @@ bool usesOrExtendsADT(str modulePath, str importPath, rel[str, AType] factsByPat
 
 tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, ModuleStatus ms, Collector c, set[MODID] added){
     pcfg = ms.pathConfig;
+    
+    // Gather TModels to be added
+    list[TModel] tms = [];
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
         if(imp notin added, imp notin moduleIds){
             if(hasProperty(imp, ms, tpl_uptodate())){
@@ -437,13 +440,26 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
                     if(pathRole == importPath()){
                         tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
                     }
-                    c.addTModel(tm);
+                    tms += tm;
                 } catch wrongTplVersion(str reason): {
                     ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };
                 }
             }
         }
     }
+
+    // Sort TModels. This is a workaround for #2934. The starting observation is that merging of TModels using
+    // `c.addTModel` isn't commutative (because map union isn't, and the maps involved don't necessarily have disjoint
+    // keys). As a result, some orders in which TModels are merged cause problems (e.g., #2934), while other orders are
+    // harmless. The sorting below computes a harmless (supposedly) order of TModels in which TModels for indirectly
+    // (transitively) imported modules are added earlier, while TModels for directly imported modules are added later. A
+    // real fix for #2934 could be to ensure that merging of TModels is commutative.
+    map[loc, TModel] tmsByModuleLoc = (|rascal+module:///<replaceAll(tm.modelName, "::", "/")>|: tm | TModel tm <- tms);
+    rel[loc, loc] graph = {<from, to> | loc from <- tmsByModuleLoc, loc to <- tmsByModuleLoc, from != to, to in tmsByModuleLoc[from].logical2physical};
+    tms = [tmsByModuleLoc[l] | loc l <- order(graph)];
+
+    // Add TModels
+    for (TModel tm <- tms) c.addTModel(tm);
     return <added, ms>;
 }
 
