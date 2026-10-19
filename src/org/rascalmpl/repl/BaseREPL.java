@@ -159,7 +159,6 @@ public class BaseREPL {
             }
             
             err.println("Unexpected (uncaught) exception, closing the REPL: ");
-            err.print(e.toString());
             e.printStackTrace(err);
             
             err.flush();

@@ -21,10 +21,10 @@ import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.ast.OptionalTerminator;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.Configuration.ProfileFormat;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
@@ -36,6 +36,8 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.UnexpectedTypeException;
+import io.usethesource.vallang.impl.reference.ValueFactory;
 
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
@@ -205,7 +207,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
-			setOption(__eval, name, "true");
+			setOption(__eval, name, ValueFactory.getInstance().bool(true));
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();			
 		}
 	}
@@ -219,34 +221,49 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
-			setOption(__eval, name, "false");
+			setOption(__eval, name, ValueFactory.getInstance().bool(false));
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();			
 		}
 	}
 
-	private static void setOption(IEvaluator<Result<IValue>> __eval, String name, String value) {
-		switch (name) {
-			case Configuration.PROFILE_FORMAT_PROPERTY:
-			  __eval.getConfiguration().setProfileFormat(ProfileFormat.parseProfileFormat(value.replace("\"", "")));
-			  break;
-			case Configuration.GENERATOR_PROFILING_PROPERTY:
-				  __eval.getConfiguration().setGeneratorProfiling(Boolean.parseBoolean(value));
-				  __eval.getParserGenerator().setGeneratorProfiling(Boolean.parseBoolean(value));
-				  break;
-			case Configuration.PROFILING_PROPERTY: 
-			  __eval.getConfiguration().setProfiling(Boolean.parseBoolean(value));
-			  break;
-			case Configuration.ERRORS_PROPERTY:
-			  __eval.getConfiguration().setErrors(Boolean.parseBoolean(value));
-			  break;
-			case Configuration.TRACING_PROPERTY:
-			  __eval.getConfiguration().setTracing(Boolean.parseBoolean(value));
-			  break;
-			case Configuration.DEBUGGING_PROPERTY:
-			__eval.getConfiguration().setDebugging(Boolean.parseBoolean(value));
+	private static void setOption(IEvaluator<Result<IValue>> __eval, String name, IValue value) {
+		try{
+			switch (name) {
+				case Configuration.GENERATOR_PROFILING_PROPERTY:
+					__eval.getConfiguration().setGeneratorProfiling(toBoolean(value));
+					__eval.getParserGenerator().setGeneratorProfiling(toBoolean(value));
+					break;
+				case Configuration.PROFILING_PROPERTY: 
+					__eval.getConfiguration().setProfiling(toBoolean(value));
+					break;
+				case Configuration.PROFILE_FMT_PROPERTY:
+					__eval.getConfiguration().setProfileFmt(Configuration.toProfileFmt(value));
+					break;
+				case Configuration.PROFILE_DIR_PROPERTY:
+					__eval.getConfiguration().setProfileDir(Configuration.toProfileDir(value));
+					break;
+				case Configuration.ERRORS_PROPERTY:
+					__eval.getConfiguration().setErrors(toBoolean(value));
+					break;
+				case Configuration.TRACING_PROPERTY:
+					__eval.getConfiguration().setTracing(toBoolean(value));
+					break;
+				case Configuration.DEBUGGING_PROPERTY:
+					__eval.getConfiguration().setDebugging(toBoolean(value));
+					break;
+				default:
+					name = name.substring(name.startsWith("rascal.") ? 7 : 0); // Strip "rascal." prefix (if any)
+					throw RuntimeExceptionFactory.illegalArgument(ValueFactory.getInstance().string(name), "Unknown option", __eval.getCurrentAST(), null);
+			}
+		} catch (UnexpectedTypeException e) {
+			throw RuntimeExceptionFactory.illegalArgument(value, e.getMessage(), __eval.getCurrentAST(), null);
 		}
 
 		__eval.updateProperties();
+	}
+
+	private static boolean toBoolean(IValue value) {
+		return Boolean.parseBoolean(value.toString());
 	}
 
 	static public class SetOption extends
@@ -259,7 +276,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
-			String value = this.getExpression().interpret(__eval).getValue().toString();
+			IValue value = this.getExpression().interpret(__eval).getValue();
 
 			setOption(__eval, name, value);
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();

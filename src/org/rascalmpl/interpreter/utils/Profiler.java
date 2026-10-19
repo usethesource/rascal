@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,19 +34,24 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.Vector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.Configuration.ProfileFormat;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.Profiler.Fmt;
+import org.rascalmpl.interpreter.utils.Sampler.Labeled;
+import org.rascalmpl.interpreter.utils.Sampler.Sample;
 import org.rascalmpl.semantics.dynamic.Statement.Expression;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
@@ -106,520 +112,6 @@ class Count {
 	}
 }
 
-/**
- * Representation of a flame chart of a profile, to be populated with raw
- * samples while the profiler is running. To take a raw sample, call
- * {@link FlameChart#tick(Evaluator)}; it takes a snapshot of the current call
- * stack of the provided evaluator and stores it in memory. To write the flame
- * chart, call {@link FlameChart#write()}; it converts the raw samples in memory
- * into the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol
- * and writes them to disk. The resulting file can be opened, for instance, in
- * VS Code using the "Flame Chart Visualizer for JavaScript Profiles" extension,
- * or in Chrome using the built-in developer tools.
- *
- * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/
- */
-class FlameChart {
-	private final List<Tick> ticks = new ArrayList<>();
-
-	public void tick(Evaluator evaluator) {
-		var tick = Tick.of(evaluator);
-		if (tick != null) {
-			ticks.add(tick);
-		}
-	}
-
-	public ISourceLocation write(Evaluator evaluator) {
-		if (ticks.isEmpty()) {
-			return null;
-		}
-
-		var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
-		dateTime = dateTime.replaceAll("[:\\-]", "");
-		dateTime = dateTime.substring(0, 15);
-		dateTime = "-" + dateTime;
-		
-		var hint = ""; // Name of root function call, if any
-		var ast = evaluator.getCurrentAST();
-		if (ast instanceof Expression) {
-			ast = ((Expression) ast).hasExpression() ? ((Expression) ast).getExpression() : ast;
-		}
-		if (ast instanceof CallOrTree) {
-			ast = ((CallOrTree) ast).hasExpression() ? ((CallOrTree) ast).getExpression() : ast;
-		}
-		if (ast instanceof QualifiedName) {
-			ast = ((QualifiedName) ast).hasQualifiedName() ? ((QualifiedName) ast).getQualifiedName() : ast;
-		}
-		if (ast instanceof Default) {
-			hint = ((Default) ast).lastName();
-			hint = hint.replaceAll("[\\\\]", "");
-			hint = "-" + hint;
-		}
-
-		try {		
-			var cwd = evaluator.getRascalResolver().getRegistry().logicalToPhysical(URIUtil.rootLocation("cwd")).getURI();
-			var path = Path.of(cwd.resolve("flame" + dateTime + hint + ".cpuprofile"));
-			var json = Profile.of(ticks).toJson(0);
-			Files.writeString(path, json);
-			return URIUtil.createFileLocation(path);
-		} catch (URISyntaxException | IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	/**
-	 * Representation of a raw sample
-	 */
-	public static class Tick {
-		public final long timestamp; // Microseconds
-		public final List<CallFrame> stackTrace;
-
-		public Tick(long timestamp, List<CallFrame> stackTrace) {
-			assert !stackTrace.isEmpty();
-			this.timestamp = timestamp;
-			this.stackTrace = stackTrace;
-		}
-
-		public boolean isInitializer() {
-			var functionName = stackTrace.get(0).functionName;
-			return Objects.equals("kwp initializer", functionName) ||
-				Objects.equals("keyword parameter initializer", functionName);
-		}
-
-		public static Tick of(Evaluator evaluator) {
-			var timeStamp = System.nanoTime() / 1000;
-			var stackTrace = new ArrayList<CallFrame>();
-
-			// Instead of calling `evaluator.getStackTrace`,The following bit of
-			// custom code to traverse the stack of environments is useful to
-			// immediately get the stack trace in the right iteration order
-			// (bottom-to-top instead of top-to-bottom).
-			var e = evaluator.getCurrentEnvt();
-			while (e != null) {
-				stackTrace.add(0, CallFrame.of(e));
-				e = e.getCallerScope();
-			}
-
-			return stackTrace.isEmpty() ? null : new Tick(timeStamp, stackTrace);
-		}
-
-		public static long timeDelta(Tick early, Tick late) {
-			return (early == null || late == null) ? 0 : (late.timestamp - early.timestamp);
-		}
-
-		public static List<Long> timeDeltas(List<Tick> ticks) {
-			var timeDeltas = new ArrayList<Long>();
-			for (var i = 0; i < ticks.size(); i++) {
-				var early = i == 0 ? null : ticks.get(i - 1);
-				var late = ticks.get(i);
-				timeDeltas.add(timeDelta(early, late));
-			}
-			return timeDeltas;
-		}
-	}
-
-	/**
-	 * Representation of a profile in the format of the Chrome DevTools protocol
-	 *
-	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
-	 */
-	public static class Profile {
-		public final Set<ProfileNode> nodes; // CDT protocol
-		public final long startTime; // CDT protocol
-		public final long endTime; // CDT protocol
-		public final List<Integer> samples; // CDT protocol
-		public final List<Long> timeDeltas; // CDT protocol
-
-		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
-			this.nodes = nodes;
-			this.startTime = startTime;
-			this.endTime = endTime;
-			this.samples = samples;
-			this.timeDeltas = timeDeltas;
-		}
-
-		public String toJson(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"nodes\": [");
-			appendln(b, tabs + 2, nodes.stream().map(n -> n.toJson(tabs + 2).stripTrailing()).collect(Collectors.joining("," + System.lineSeparator())).strip());
-			appendln(b, tabs + 1, "],");
-			appendln(b, tabs + 1, "\"startTime\": " + startTime + ",");
-			appendln(b, tabs + 1, "\"endTime\": " + endTime + ",");
-			appendln(b, tabs + 1, "\"samples\": " + samples + ",");
-			appendln(b, tabs + 1, "\"timeDeltas\": " + timeDeltas);
-			appendln(b, tabs, "}");
-			return b.toString();
-		}
-
-		public static Profile of(List<Tick> ticks) {
-			ticks.removeIf(Tick::isInitializer); // Avoid a bit of pollution
-			assert !ticks.isEmpty();
-			
-			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
-			var startTime = ticks.get(0).timestamp;
-			var endTime = ticks.get(ticks.size() - 1).timestamp;
-			var samples = new ArrayList<Integer>();
-			var timeDeltas = Tick.timeDeltas(ticks);
-
-			// Initialize `nodes` and `samples` by converting lists of call
-			// frames (stack traces) to a more efficient tree representation
-			// (prefix sharing), rooted at `root`, required by the CDT protocol.
-			var root = new ProfileNode(null); // Dummy root node
-			for (var tick : ticks) {
-
-				// Update the tree representation by iteratively adding children
-				// to nodes for the list of call frames (stack trace)
-				var node = root;
-				for (var callFrame : tick.stackTrace) {
-					node = node.addChildIfAbsent(callFrame);
-					nodes.add(node);
-				}
-
-				// Register the last call frame (top of the stack trace)
-				samples.add(node.id);
-			}
-
-			return new Profile(nodes, startTime, endTime, samples, timeDeltas);
-		}
-	}
-
-	/**
-	 * Representation of a profile node in the format of the Chrome DevTools
-	 * protocol
-	 *
-	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
-	 */
-	private static class ProfileNode {
-		private static int nextId = 0;
-
-		public final int id = nextId++; // CDT protocol
-		public final CallFrame callFrame; // CDT protocol
-		public final List<Integer> children = new ArrayList<>(); // CDT protocol
-
-		// Internal map to keep track of the (non-)existence of child nodes for
-		// call frames. Needs to be kept consistent with `children`.
-		private final Map<CallFrame, ProfileNode> childNodes = new LinkedHashMap<>();
-
-		public ProfileNode(CallFrame callFrame) {
-			this.callFrame = callFrame;
-		}
-
-		public ProfileNode addChildIfAbsent(CallFrame callFrame) {
-			var node = childNodes.computeIfAbsent(callFrame, ProfileNode::new);
-			if (children.size() != childNodes.size()) { // `node` was newly created
-				children.add(node.id);
-			}
-			return node;
-		}
-
-		public String toJson(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"id\": " + id + ",");
-			appendln(b, tabs + 1, "\"callFrame\": " + callFrame.toJson(tabs + 1).strip() + ",");
-			appendln(b, tabs + 1, "\"children\": " + children);
-			appendln(b, tabs, "}");
-			return b.toString();
-		}
-	}
-
-	/**
-	 * Representation of a call frame in the format of the Chrome DevTools
-	 * protocol
-	 *
-	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
-	 */
-	public static class CallFrame {
-		public final String functionName; // CDT protocol
-		public final String scriptId; // CDT protocol
-		public final String url; // CDT protocol
-		public final int lineNumber; // CDT protocol (0-based)
-		public final int columnNumber; // CDT protocol (0-based)
-
-		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
-			this.functionName = functionName;
-			this.scriptId = scriptId;
-			this.url = url;
-			this.lineNumber = lineNumber;
-			this.columnNumber = columnNumber;
-		}
-
-		@Override
-		public int hashCode() {
-			return functionName.hashCode() + scriptId.hashCode() + url.hashCode() + lineNumber + columnNumber;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj instanceof CallFrame) {
-				var frame = (CallFrame) obj;
-				return Objects.equals(functionName, frame.functionName) &&
-					Objects.equals(scriptId, frame.scriptId) &&
-					Objects.equals(url, frame.url) &&
-					lineNumber == frame.lineNumber &&
-					columnNumber == frame.columnNumber;
-			}
-			return false;
-		}
-
-		public String toJson(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"functionName\": \"" + functionName + "\",");
-			appendln(b, tabs + 1, "\"scriptId\": \"" + scriptId + "\",");
-			appendln(b, tabs + 1, "\"url\": \"" + url + "\",");
-			appendln(b, tabs + 1, "\"lineNumber\": " + lineNumber + ",");
-			appendln(b, tabs + 1, "\"columnNumber\": " + columnNumber + "");
-			appendln(b, tabs, "}");
-			return b.toString();
-		}
-
-		public static CallFrame of(Environment e) {
-			var functionName = functionNameOf(e);
-			var scriptId = "";
-			var url = "";
-			var lineNumber = -1;
-			var columnNumber = -1;
-
-			var location = e.getCallerLocation();
-			if (location != null && location.hasLineColumn()) {
-				scriptId = location.toString();
-				url = location.getURI().toString(); 
-				lineNumber = location.getBeginLine() - 1;
-				columnNumber = location.getBeginColumn();
-			}
-
-			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
-		}
-
-		private static String functionNameOf(Environment e) {
-			// Conceptually, each call frame in a stack trace of the interpreter
-			// is itself represented as a linked list of environments. To get
-			// the "right" name of a call frame for the purpose of constructing
-			// a flame chart, we need to find the name of the *penultimate*
-			// environment in the list (as the final environment represents the
-			// module), unless the call frame concerns an anonymous function.
-			var name = e.getName();
-			var parent = e.getParent();
-			if (Objects.equals("Anonymous Function", name)) {
-				return name + " (" + e.getCreatorLocation() + ")"; 
-			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
-				return name;
-			} else {
-				return functionNameOf(parent);
-			}
-		}
-	}
-
-	private static StringBuilder appendln(StringBuilder b, int tabs, String s) {
-		b.append(" ".repeat(tabs * 2));
-		b.append(s);
-		b.append(System.lineSeparator());
-		return b;
-	}
-}
-
-class TempFile<T> implements Closeable {
-	private final ExecutorService runner;
-	private final Path path;
-	private final BufferedWriter writer;
-	private final Function<T, String> encode;
-	private final Function<String, T> decode;
-
-	public TempFile(Function<T, String> encoder, Function<String, T> decoder) throws IOException {
-		this.runner = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
-		this.path = Files.createTempFile("", "");
-		this.writer = Files.newBufferedWriter(path);
-		this.encode = encoder;
-		this.decode = decoder;
-	}
-
-	public void close() {
-		schedule(() -> {
-			writer.close();
-			Files.delete(path);
-			return null;
-		});
-
-		// Shutdown and await termination (or an interrupt)
-		try {
-			runner.shutdown();
-			while (!runner.awaitTermination(1, TimeUnit.SECONDS));
-			return;
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-	}
-
-	public void readLines(Consumer<T> action) {
-		schedule(() -> {
-			writer.flush();
-			try (var reader = Files.newBufferedReader(path)) {
-				reader.lines().map(decode).forEachOrdered(action);
-			}
-			return null;
-		});
-	}
-
-	public void writeLine(T value) {
-		schedule(() -> {
-			writer.write(encode.apply(value));
-			writer.newLine();
-			return null;
-		});
-	}
-
-	private void schedule(Callable<Void> c) {
-		runner.submit(() -> {
-			try {
-				c.call();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-}
-
-class Sampler implements Closeable {
-	private final Evaluator evaluator;
-	private final TempFile<Sample> tempFile;
-
-	public Sampler(Evaluator evaluator) throws IOException {
-		this.evaluator = evaluator;
-		this.tempFile = new TempFile<>(
-			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
-			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, new TypeStore()))
-		);
-	}
-
-	@Override
-	public void close() throws IOException {
-		tempFile.close();
-	}
-
-	public void addSample() throws IOException {
-		var sample = Sample.of(evaluator);
-		if (sample == null) {
-			return;
-		}
-		tempFile.writeLine(sample);
-	}
-
-	public void getSamples(Consumer<Sample> f) throws IOException {
-		tempFile.readLines(f);
-	}
-
-	public static class Sample {
-		public final long nanoTime;
-		public final List<Labeled<ISourceLocation>> stack;
-
-		public Sample(long timestamp, List<Labeled<ISourceLocation>> stack) {
-			assert !stack.isEmpty();
-			this.nanoTime = timestamp;
-			this.stack = stack;
-		}
-
-		public boolean isInitializer() {
-			var label = stack.get(0).label;
-			return Objects.equals("kwp initializer", label) ||
-				Objects.equals("keyword parameter initializer", label);
-		}
-
-		public IValue toIValue(IValueFactory vf) {
-			var list = vf.listWriter();
-			for (var frame : stack) {
-				list.append(frame.toIValue(vf));
-			}
-			return vf.tuple(vf.integer(nanoTime), list.done());
-		}
-
-		public static Sample of(IValue v) {
-			var nanoTime = ((IInteger) ((ITuple) v).get(0)).longValue();
-			var stack = ((IList) ((ITuple) v).get(1)).stream()
-				.map(Labeled::<ISourceLocation> of)
-				.collect(Collectors.toList());
-			return new Sample(nanoTime, stack);
-		}
-
-		public static Sample of(Evaluator evaluator) {
-			var nanoTime = System.nanoTime();
-			var stack = new ArrayList<Labeled<ISourceLocation>>();
-
-			// Instead of calling `evaluator.getStackTrace`,The following bit of
-			// custom code to traverse the stack of environments is useful to
-			// immediately get the stack trace in the right iteration order
-			// (bottom-to-top instead of top-to-bottom).
-			var e = evaluator.getCurrentEnvt();
-			while (e != null) {
-				stack.add(0, new Labeled<>(locationOf(e), functionNameOf(e)));
-				e = e.getCallerScope();
-			}
-
-			return stack.isEmpty() ? null : new Sample(nanoTime, stack);
-		}
-
-		private static final ISourceLocation NULL_LOCATION = URIUtil.unknownLocation();
-
-		private static ISourceLocation locationOf(Environment e) {
-			var location = e.getCallerLocation();
-			return location == null ? NULL_LOCATION : location;
-		}
-
-		private static String functionNameOf(Environment e) {
-			// Conceptually, each call frame in a stack trace of the interpreter
-			// is itself represented as a linked list of environments. To get
-			// the "right" name of a call frame for the purpose of constructing
-			// a flame chart, we need to find the name of the *penultimate*
-			// environment in the list (as the final environment represents the
-			// module), unless the call frame concerns an anonymous function.
-			var name = e.getName();
-			var parent = e.getParent();
-			if (Objects.equals("Anonymous Function", name)) {
-				return name + " (" + e.getCreatorLocation() + ")"; 
-			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
-				return name;
-			} else {
-				return functionNameOf(parent);
-			}
-		}
-	}
-
-	public static class Labeled<T extends IValue> {
-		public final T value;
-		public final String label;
-		
-		public Labeled(T value, String label) {
-			this.value = value;
-			this.label = label;
-		}
-
-		public IValue toIValue(IValueFactory vf) {
-			return vf.tuple(value, vf.string(label));
-		}
-
-		@SuppressWarnings("unchecked")
-		public static <T extends IValue> Labeled<T> of(IValue v) {
-			var value = (T) ((ITuple) v).get(0);
-			var label = ((IString) ((ITuple) v).get(1)).getValue();
-			return new Labeled<T>(value, label);
-		}
-	}
-
-	public static Sampler of(Evaluator evaluator) {
-		try {
-			return new Sampler(evaluator);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-}
-
 public class Profiler extends Thread {
 	private Evaluator eval;
 	private volatile boolean running;
@@ -627,9 +119,6 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation,Count> ast;
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
-	private final FlameChart flameChart = new FlameChart();
-	private final ProfileFormat profileFormat;
-
 	private final Sampler sampler;
 	
 	public Profiler(Evaluator ev){
@@ -638,10 +127,15 @@ public class Profiler extends Thread {
 		this.ast = new HashMap<>();
 		this.frame = new HashMap<>();
 		this.names = new HashMap<>();
-		this.profileFormat = ev.getConfiguration().getProfileFormat();
 		running = true;
 
-		this.sampler = Sampler.of(ev);
+		Sampler sampler = null;
+		try {
+			sampler = new Sampler(ev);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.sampler = sampler;
 	}
 	
 	@Override
@@ -652,11 +146,12 @@ public class Profiler extends Thread {
 			String name = env.getName();
 			
 			if (current != null) {
-				flameChart.tick(eval);
-				try {
-					sampler.addSample();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (sampler != null) {
+					try {
+						sampler.addSample();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
 				ISourceLocation stat = current.getLocation();
@@ -725,7 +220,7 @@ public class Profiler extends Thread {
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
 		eval.getOutPrinter().println();
-		reportFlameChart();
+		reportFormatted();
 	}
 	
 	private void report(String title, Map<ISourceLocation, Count> data) {
@@ -767,20 +262,500 @@ public class Profiler extends Thread {
 	  out.flush();
 	}
 
-	private void reportFlameChart() {
-		var path = flameChart.write(eval);
-		var out = eval.getOutPrinter();
-		out.printf("FLAME CHART (%s): %s\n", profileFormat, path == null ? "n/a" : path);
-		out.flush();
+	private void reportFormatted() {
+		if (sampler != null) {
+			// Prepare `dateTime` to put in the file name
+			var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
+			dateTime = dateTime.replaceAll("[:\\-]", "");
+			dateTime = dateTime.substring(0, 15);
+			dateTime = "-" + dateTime;
+			
+			// Prepare `hint` to put in the file name. It is the name of the root funciton call (if any).
+			var hint = "";
+			var ast = eval.getCurrentAST();
+			if (ast instanceof Expression) {
+				ast = ((Expression) ast).hasExpression() ? ((Expression) ast).getExpression() : ast;
+			}
+			if (ast instanceof CallOrTree) {
+				ast = ((CallOrTree) ast).hasExpression() ? ((CallOrTree) ast).getExpression() : ast;
+			}
+			if (ast instanceof QualifiedName) {
+				ast = ((QualifiedName) ast).hasQualifiedName() ? ((QualifiedName) ast).getQualifiedName() : ast;
+			}
+			if (ast instanceof Default) {
+				hint = ((Default) ast).lastName();
+				hint = hint.replaceAll("[\\\\]", "");
+				hint = "-" + hint;
+			}
 
-		try {
-			sampler.getSamples(s -> {
-				System.out.println(s.nanoTime + " " + s.stack);
-			});
+			// Compute the path to the file
+			var dir = Path.of(eval.getConfiguration().getProfileDirProperty());
+			var file = dir.resolve("profile" + dateTime + hint + ".cpuprofile");
+
+			// Compute the content of the file
+			var fmt = eval.getConfiguration().getProfileFmtProperty();
+			var formatted = sampler.getSamplesFormatted(fmt::format);
 			sampler.close();
+
+			// Write to file
+			String message = null;
+			try {
+				Files.writeString(file, formatted);
+				message = URIUtil.createFileLocation(file).toString();
+			} catch (URISyntaxException | IOException e) {
+				message = String.format("Failed to write data (%s)", file, e);
+				e.printStackTrace();
+			}
+
+			// Print to out
+			var out = eval.getOutPrinter();
+			out.printf("%s: %s\n", fmt.getFormatName().toUpperCase(), message);
+			out.flush();
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+	}
+
+	public static Fmt CPUPROFILE = new CpuprofileFormatter();
+
+	/**
+	 * Formatter of samples
+	 */
+	public static interface Fmt {
+	    public String format(Stream<Sample> samples);
+
+		public String getFormatName();
+	}
+}
+
+/**
+ * Sampler for the provided evaluator that temporarily stores samples on disk to avoid excessive memory usage (using an
+ * auxiliary thread that encodes, writes, reads, and decodes, to avoid stalling the main thread). To add a sample of the
+ * current state of the provided evaluator, use {@link #addSample()}. To get all samples added so far, use
+ * {@link #getSamplesFormatted(Function)}.
+ */
+class Sampler implements Closeable {
+	private final Evaluator evaluator;
+	private final TempFile<Sample> tempFile;
+
+	public Sampler(Evaluator evaluator) throws IOException {
+		this.evaluator = evaluator;
+		this.tempFile = new TempFile<>(
+			// Configure the temporary file handle to store samples on disk as base 64-encoded `IValue`s
+			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
+			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, new TypeStore()))
+		);
+	}
+
+	@Override
+	public void close() {
+		tempFile.close();
+	}
+
+	public void addSample() throws IOException {
+		var sample = Sample.of(evaluator);
+		if (sample == null) {
+			return;
 		}
+		tempFile.writeLine(sample);
+	}
+
+	public <T> T getSamplesFormatted(Function<Stream<Sample>, T> formatter) {
+		return tempFile.readLines().thenApply(samples -> {
+			var filtered = samples.filter(Predicate.not(Sample::isInitializer)); // Avoid a bit of sample pollution
+			var formatted = formatter.apply(filtered);
+			samples.close();
+			return formatted;
+		}).join();
+	}
+
+	/**
+	 * Representation of a sample. Each sample consists of the time it was taken in nanoseconds and a representation of
+	 * the call stack at that time.
+	 */
+	public static class Sample {
+		public final long nanoTime;
+		public final List<Labeled<ISourceLocation>> stack;
+
+		public Sample(long nanoTime, List<Labeled<ISourceLocation>> stack) {
+			assert !stack.isEmpty();
+			this.nanoTime = nanoTime;
+			this.stack = stack;
+		}
+
+		public boolean isInitializer() {
+			var label = stack.get(0).label;
+			return Objects.equals("kwp initializer", label) ||
+				Objects.equals("keyword parameter initializer", label);
+		}
+
+		public IValue toIValue(IValueFactory vf) {
+			var list = vf.listWriter();
+			for (var frame : stack) {
+				list.append(frame.toIValue(vf));
+			}
+			return vf.tuple(vf.integer(nanoTime), list.done());
+		}
+
+		public static Sample of(IValue v) {
+			var nanoTime = ((IInteger) ((ITuple) v).get(0)).longValue();
+			var stack = ((IList) ((ITuple) v).get(1)).stream()
+				.map(Labeled::<ISourceLocation> of)
+				.collect(Collectors.toList());
+			return new Sample(nanoTime, stack);
+		}
+
+		public static Sample of(Evaluator evaluator) {
+			var nanoTime = System.nanoTime();
+			var stack = new ArrayList<Labeled<ISourceLocation>>();
+
+			// Instead of calling `evaluator.getStackTrace`, the following bit of custom code to traverse the stack of
+			// environments is useful to immediately get the stack trace in the right iteration order (bottom-to-top
+			// instead of top-to-bottom).
+			var e = evaluator.getCurrentEnvt();
+			while (e != null) {
+				stack.add(0, new Labeled<>(locationOf(e), functionNameOf(e)));
+				e = e.getCallerScope();
+			}
+
+			return stack.isEmpty() ? null : new Sample(nanoTime, stack);
+		}
+
+		private static ISourceLocation locationOf(Environment e) {
+			var location = e.getCallerLocation();
+			return location == null ? URIUtil.unknownLocation() : location;
+		}
+
+		private static String functionNameOf(Environment e) {
+			// Each call frame in a stack trace of the interpreter is itself represented as a linked list of
+			// environments. To get the "right" name of a call frame (e.g., for the purpose of constructing a flame
+			// chart), we need to find the name of the *penultimate* environment in the list (as the final environment
+			// represents the module), unless the call frame concerns an anonymous function.
+			var name = e.getName();
+			var parent = e.getParent();
+			if (Objects.equals("Anonymous Function", name)) {
+				return name + " (" + e.getCreatorLocation() + ")"; 
+			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
+				return name;
+			} else {
+				return functionNameOf(parent);
+			}
+		}
+	}
+
+	/**
+	 * Representation of a labeled `IValue`
+	 */
+	public static class Labeled<T extends IValue> {
+		public final T value;
+		public final String label;
+		
+		public Labeled(T value, String label) {
+			this.value = value;
+			this.label = label;
+		}
+
+		public IValue toIValue(IValueFactory vf) {
+			return vf.tuple(value, vf.string(label));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <T extends IValue> Labeled<T> of(IValue v) {
+			var value = (T) ((ITuple) v).get(0);
+			var label = ((IString) ((ITuple) v).get(1)).getValue();
+			return new Labeled<T>(value, label);
+		}
+	}
+}
+
+/**
+ * Handle for a freshly created temporary file, internally coupled with a freshly created auxiliary thread dedicated to:
+ * (1) encoding and writing objects of type {@code T} to the temporary file; (2) reading and decoding objects.
+ */
+class TempFile<T> implements Closeable {
+	private final ExecutorService executor;
+	private final Path path;
+	private final BufferedWriter writer;
+	private final Function<T, String> encode;
+	private final Function<String, T> decode;
+
+	public TempFile(Function<T, String> encode, Function<String, T> decode) throws IOException {
+		this.executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
+		this.path = Files.createTempFile("", "");
+		this.writer = Files.newBufferedWriter(path);
+		this.encode = encode;
+		this.decode = decode;
+	}
+
+	@Override 
+	public void close() {
+		schedule(() -> {
+			writer.close();
+			Files.delete(path);
+			return null;
+		});
+
+		// Shutdown and await termination (or an interrupt)
+		try {
+			executor.shutdown();
+			while (!executor.awaitTermination(100, TimeUnit.MILLISECONDS));
+			return;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	public CompletableFuture<Stream<T>> readLines() {
+		return schedule(() -> {
+			writer.flush();
+			var reader = Files.newBufferedReader(path);
+			var values = reader.lines().map(decode); 
+
+			values.onClose(() -> {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				} 
+			});
+			
+			return values;
+		});
+	}
+
+	public void writeLine(T value) {
+		schedule(() -> {
+			writer.write(encode.apply(value));
+			writer.newLine();
+			return null;
+		});
+	}
+
+	private <U> CompletableFuture<U> schedule(Callable<U> c) {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return c.call();
+			} catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}, executor);
+	}
+}
+
+/**
+ * Formatter of a collection of samples into the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol.
+ * Files written in this format can be opened, for instance, in VS Code using the "Flame Chart Visualizer for JavaScript
+ * Profiles" extension, or in Chrome using the built-in developer tools.
+ *
+ * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/
+ */
+class CpuprofileFormatter implements Fmt {
+
+	@Override
+	public String format(Stream<Sample> samples) {
+		return Profile.of(samples).format(0);
+	}
+
+	@Override
+	public String getFormatName() {
+		return "Cpuprofile";
+	}
+
+	/**
+	 * Representation of a profile in the format of the Chrome DevTools protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
+	 */
+	public static class Profile {
+		public final Set<ProfileNode> nodes; // CDT protocol
+		public final long startTime; // CDT protocol
+		public final long endTime; // CDT protocol
+		public final List<Integer> samples; // CDT protocol
+		public final List<Long> timeDeltas; // CDT protocol
+
+		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
+			this.nodes = nodes;
+			this.startTime = startTime;
+			this.endTime = endTime;
+			this.samples = samples;
+			this.timeDeltas = timeDeltas;
+		}
+
+		public String format(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"nodes\": [");
+			appendln(b, tabs + 2, nodes.stream().map(n -> n.format(tabs + 2).stripTrailing()).collect(Collectors.joining("," + System.lineSeparator())).strip());
+			appendln(b, tabs + 1, "],");
+			appendln(b, tabs + 1, "\"startTime\": " + startTime + ",");
+			appendln(b, tabs + 1, "\"endTime\": " + endTime + ",");
+			appendln(b, tabs + 1, "\"samples\": " + samples + ",");
+			appendln(b, tabs + 1, "\"timeDeltas\": " + timeDeltas);
+			appendln(b, tabs, "}");
+			return b.toString();
+		}
+
+		public static Profile of(Stream<Sample> rawSamples) {
+			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
+			var startTime = 0L;
+			var endTime = 0L;
+			var samples = new ArrayList<Integer>();
+			var timeDeltas = new ArrayList<Long>();
+
+			// Auxiliary variables to help construct a tree representation of the call stacks in `rawSamples` (prefix
+			// sharing), rooted at dummy node `root`, with ids generated by `nextId`, as required by the CDT protocol.
+			var nextId = 0;
+			var rootNode = new ProfileNode(nextId++, null);
+			var prevTime = 0L;
+			var currTime = 0L;
+
+			var iterator = rawSamples.iterator();
+			while (iterator.hasNext()) {
+				var rawSample = iterator.next();
+				prevTime = currTime;
+				currTime = rawSample.nanoTime / 1000; // Microseconds
+
+				// Update `nodes` by inserting a node into the tree representation for each frame of the call stack
+				var node = rootNode;
+				for (var rawFrame : rawSample.stack) {
+					var child = new ProfileNode(nextId++, CallFrame.of(rawFrame));
+					node = node.addChildIfAbsent(child);
+					nodes.add(node);
+				}
+
+				// Update `startTime` and `endTime`
+				if (startTime == 0L) {
+					startTime = currTime;
+					prevTime = currTime;
+				}
+				if (!iterator.hasNext()) {
+					endTime = currTime;
+				}
+
+				// Update `samples` and `timeDeltas`
+				samples.add(node.id); // Id of the top frame of the call stack
+				timeDeltas.add(currTime - prevTime);
+			}
+
+			return new Profile(nodes, startTime, endTime, samples, timeDeltas);
+		}
+	}
+
+	/**
+	 * Representation of a profile node in the format of the Chrome DevTools protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
+	 */
+	private static class ProfileNode {
+		public final int id; // CDT protocol
+		public final CallFrame callFrame; // CDT protocol
+		public final List<Integer> children; // CDT protocol
+
+		// Internal map to keep track of the (non-)existence of child nodes for call frames. Needs to be kept consistent
+		// with `children`.
+		private final Map<CallFrame, ProfileNode> childNodes = new LinkedHashMap<>();
+
+		public ProfileNode(int id, CallFrame callFrame) {
+			this.id = id;
+			this.callFrame = callFrame;
+			this.children = new ArrayList<>();
+		}
+
+		public ProfileNode addChildIfAbsent(ProfileNode child) {
+			var put = childNodes.putIfAbsent(child.callFrame, child);
+			if (put == null) {
+				children.add(child.id); // Keep consistent
+				return child;
+			} else {
+				return put;
+			}
+		}
+
+		public String format(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"id\": " + id + ",");
+			appendln(b, tabs + 1, "\"callFrame\": " + callFrame.format(tabs + 1).strip() + ",");
+			appendln(b, tabs + 1, "\"children\": " + children);
+			appendln(b, tabs, "}");
+			return b.toString();
+		}
+	}
+
+	/**
+	 * Representation of a call frame in the format of the Chrome DevTools protocol
+	 *
+	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
+	 */
+	public static class CallFrame {
+		public final String functionName; // CDT protocol
+		public final String scriptId; // CDT protocol
+		public final String url; // CDT protocol
+		public final int lineNumber; // CDT protocol (0-based)
+		public final int columnNumber; // CDT protocol (0-based)
+
+		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
+			this.functionName = functionName;
+			this.scriptId = scriptId;
+			this.url = url;
+			this.lineNumber = lineNumber;
+			this.columnNumber = columnNumber;
+		}
+
+		@Override
+		public int hashCode() {
+			return functionName.hashCode() + scriptId.hashCode() + url.hashCode() + lineNumber + columnNumber;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj instanceof CallFrame) {
+				var frame = (CallFrame) obj;
+				return Objects.equals(functionName, frame.functionName) &&
+					Objects.equals(scriptId, frame.scriptId) &&
+					Objects.equals(url, frame.url) &&
+					lineNumber == frame.lineNumber &&
+					columnNumber == frame.columnNumber;
+			}
+			return false;
+		}
+
+		public String format(int tabs) {
+			var b = new StringBuilder();
+			appendln(b, tabs, "{");
+			appendln(b, tabs + 1, "\"functionName\": \"" + functionName + "\",");
+			appendln(b, tabs + 1, "\"scriptId\": \"" + scriptId + "\",");
+			appendln(b, tabs + 1, "\"url\": \"" + url + "\",");
+			appendln(b, tabs + 1, "\"lineNumber\": " + lineNumber + ",");
+			appendln(b, tabs + 1, "\"columnNumber\": " + columnNumber + "");
+			appendln(b, tabs, "}");
+			return b.toString();
+		}
+
+		public static CallFrame of(Labeled<ISourceLocation> rawCallFrame) {
+			var functionName = rawCallFrame.label;
+			var scriptId = "";
+			var url = "";
+			var lineNumber = -1;
+			var columnNumber = -1;
+
+			var location = rawCallFrame.value;
+			if (location != null && location.hasLineColumn()) {
+				scriptId = location.toString();
+				url = location.getURI().toString(); 
+				lineNumber = location.getBeginLine() - 1;
+				columnNumber = location.getBeginColumn();
+			}
+
+			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
+		}
+	}
+
+	private static StringBuilder appendln(StringBuilder b, int tabs, String s) {
+		b.append(" ".repeat(tabs * 2));
+		b.append(s);
+		b.append(System.lineSeparator());
+		return b;
 	}
 }
