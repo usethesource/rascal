@@ -164,10 +164,10 @@ public class ReadEvalPrintDialogMessages {
                 prettyPrinter.write(e.getException(), lros);
             }
 		}
-		catch(/*IOLimitReachedException*/ RuntimeException iolrex){
+		catch (/*IOLimitReachedException*/ RuntimeException iolrex){
 			// This is fine, ignore.
 		}
-		catch(IOException ioex){
+		catch (IOException ioex){
 			// This can/should never happen.
 		}
 		

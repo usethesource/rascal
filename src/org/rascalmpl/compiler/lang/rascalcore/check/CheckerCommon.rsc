@@ -394,7 +394,6 @@ ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded
          ms = deleteProperty(candidate, ms,  bom_update_needed());
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
-        //tm.messages = toList(toSet(tm.messages) + ms.messages[candidate]); // TODO needed ?
         ms = addProperty(candidate, ms, tpl_saved());
         if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
@@ -471,7 +470,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(MODID moduleId, ModuleStatu
         } catch e: {
             return <false, tmodel(modelName=moduleId2moduleName(moduleId), messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
         }
-        msg = "outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>)";
+        msg = "outdated Rascal TPL version <tmVersion != "0.0.0" ? tmVersion + " " : "">(required: <getCurrentRascalTplVersion()>; please update the `rascal` dependency in `pom.xml` to version <getMinimumRascalVersion()> or higher, and clear the `target` folder)";
         throw rascalTplVersionError(qualifiedModuleName, tplLoc, tmVersion, msg);
     }
     mloc = tplLoc;
@@ -493,9 +492,9 @@ rel[loc from, PathRole r, loc to] getPaths(rel[MODID from, PathRole r, MODID to]
     return paths;
 }
 
-int closureCounter = 0;
+private int closureCounter = 0;
 
-int nextClosure(){
+private int nextClosure(){
     counter = closureCounter;
     closureCounter += 1;
     return counter;
@@ -504,3 +503,5 @@ int nextClosure(){
 void resetClosureCounter(){
     closureCounter = 0;
 }
+
+str generateClosureName() = "$CLOSURE_<nextClosure()>";

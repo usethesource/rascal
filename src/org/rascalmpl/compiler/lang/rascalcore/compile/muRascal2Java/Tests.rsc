@@ -99,8 +99,9 @@ str generateTestMethod(MuFunction f, str _className, JGenie jg){
    
     if("test" notin f.modifiers) return "";
     
-    test_name = asJavaName(f.uniqueName);
-    test_name_uniq = "<test_name>_<f.src.begin.line>";
+    test_name = asJavaName(f.name);
+    test_name_uniq = asJavaName(f.funId);
+    // test_name_uniq = "<test_name>_<f.src.begin.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
    

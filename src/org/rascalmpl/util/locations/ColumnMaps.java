@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.util.Func;
+import org.rascalmpl.util.functional.ThrowingFunction;
 import org.rascalmpl.util.locations.impl.ArrayLineOffsetMap;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -47,7 +47,7 @@ public class ColumnMaps {
     private final LoadingCache<ISourceLocation, LineColumnOffsetMap> currentEntries;
     private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> activeWatches = new ConcurrentHashMap<>();
 
-    public ColumnMaps(Func<ISourceLocation, String, IOException> getContents) {
+    public ColumnMaps(ThrowingFunction<ISourceLocation, String, IOException> getContents) {
         currentEntries = Caffeine.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .softValues()

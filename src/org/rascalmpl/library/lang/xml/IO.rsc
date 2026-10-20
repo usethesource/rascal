@@ -10,7 +10,7 @@ module lang::xml::IO
 import util::Maybe;
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
+java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?), bool preserveTagCase=true, bool preserveAttributeCase=true);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Stream all the tags in a file, one-by-one, without ever having the entire XML file in memory.}
@@ -51,10 +51,10 @@ to store both  the internal DOM _and_ the Rascal `node` structure, ((streamXML))
 of the function call overhead for each next element. If you do run out of memory with ((readXML)) though, then ((streamXML)) reaches exponentially
 higher throughput than ((readXML)). 
 }
-java Maybe[value]() streamXML(loc file, str elementName, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
+java Maybe[value]() streamXML(loc file, str elementName, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?), bool preserveTagCase=true, bool preserveAttributeCase=true);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
+java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, bool preserveTagCase=true, bool preserveAttributeCase=true);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Pretty-print any value as an XML string}

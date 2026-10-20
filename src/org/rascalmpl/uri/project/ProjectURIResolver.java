@@ -35,7 +35,7 @@ public class ProjectURIResolver implements ILogicalSourceLocationResolver {
     
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        if (!input.getAuthority().equals(name)) {
+        if (!input.getAuthority().equalsIgnoreCase(name)) {
             return null;
         }
         

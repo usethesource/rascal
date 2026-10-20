@@ -97,9 +97,9 @@ str nextLabel(str prefix){
 // - append
 // - break/continue/fail
 
-private lrel[str label,str fuid] loops = []; // *** state
+private lrel[str label,loc fuid] loops = []; // *** state
 
-void enterLoop(str name, str fuid){
+void enterLoop(str name, loc fuid){
   loops = <name,fuid> + loops;
 }
 
@@ -114,14 +114,14 @@ str currentLoop(DataTarget target){
      return "<target.label>";
 }
 
-str getCurrentLoopScope() {
+loc getCurrentLoopScope() {
   return top(loops).fuid;
 }
 
 bool inLoop(str name)
     = name in domain(loops);
 
-str getCurrentLoopScope(DataTarget target) {
+loc getCurrentLoopScope(DataTarget target) {
   if(target is empty) {
       return getCurrentLoopScope();
   } else {
@@ -249,9 +249,9 @@ loc currentFunctionDeclaration(){
 // Administration of function scopes;
 // needed to translate 'visit' expressions and generate function declarations for 'visit' cases
 
-private lrel[str scope,int counter] functionScopes = []; // *** state
+private lrel[loc scope,int counter] functionScopes = []; // *** state
 
-str topFunctionScope() = isEmpty(functionScopes) ? "" : top(functionScopes)[0] /*.scope*/;
+loc topFunctionScope() = isEmpty(functionScopes) ? |global-scope:///| : top(functionScopes)[0] /*.scope*/;
 
 int nextVisit() {
 	int counter = top(functionScopes).counter;
@@ -259,7 +259,7 @@ int nextVisit() {
 	return counter;
 }
 
-void enterFunctionScope(str fuid) {
+void enterFunctionScope(loc fuid) {
 	functionScopes = <fuid,0> + functionScopes;
 }
 
@@ -315,9 +315,10 @@ void resetOrCounter() {
     orCounter = 0;
 }
 
+// TODO: duplicates in CheckerCommon
 private int closureCounter = 0;
 
-int getNextClosure(){
+private int getNextClosure(){
     int counter = closureCounter;
     closureCounter += 1;
     return counter;
@@ -326,3 +327,5 @@ int getNextClosure(){
 void resetClosureCounter(){
     closureCounter = 0;
 }
+
+str generateClosureName() = "$CLOSURE_<getNextClosure()>";

@@ -99,8 +99,11 @@ test bool tuplesWithVoidParametersDoNotExist2() = equivalent(type(\tuple([\void(
 // functions
 
 // there can exist no functions that take a void parameter, hence types with those void parameters represent an _empty set_ of values, hence such function types are equivalent to `void`
+@ignoreCompiler{Flagged as error by typechecker}
 test bool functionsWithVoidParametersDoNotExist1() = #int(void) == #void;
+@ignoreCompiler{Flagged as error by typechecker}
 test bool functionsWithVoidParametersDoNotExist2() = #int(void, void) == #void;
+@ignoreCompiler{Flagged as error by typechecker}
 test bool functionsWithVoidParametersDoNotExist3() = #int(void a, void b) == #void;
 
 test bool functionParametersAreCoVariant() = subtype(#int(int), #int(num));

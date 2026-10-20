@@ -26,31 +26,49 @@
  */
 package org.rascalmpl.ideservices;
 
-import engineering.swat.watch.DaemonThreadPool;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.ideservices.IRemoteIDEServices.DocumentEditsParameter;
-import org.rascalmpl.ideservices.IRemoteIDEServices.RegisterDiagnosticsParameters;
+import org.rascalmpl.ideservices.jsonrpc.ApplyDocumentsEditsRequest;
+import org.rascalmpl.ideservices.jsonrpc.BrowseRequest;
+import org.rascalmpl.ideservices.jsonrpc.EditRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDebugServerPortRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterDiagnosticsRequest;
+import org.rascalmpl.ideservices.jsonrpc.RegisterLocationsRequest;
+import org.rascalmpl.ideservices.jsonrpc.StartDebuggingSessionRequest;
+import org.rascalmpl.ideservices.jsonrpc.UnregisterDiagnosticsRequest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.remote.jsonrpc.ISourceLocationRequest;
 
+import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * This class enables interaction with an implementation of `IDEServices` that (potentially) runs in another thread or process
  */
 public class RemoteIDEServices extends BasicIDEServices {
     private final IRemoteIDEServices server;
+    /**
+     * This TypeStore contains definitions of the ADTs `Messages` (for {@link #registerDiagnostics}) and `FileSystemChanges` (for {@link #applyFileSystemEdits}).
+     * These definitions must be kept in sync with the Rascal definitions in `Messages` and `analysis::diff::edits::FileSystemChanges`.
+     * 
+     * (Note: the IList in {@link #unregisterDiagnostics} has element type `loc`).
+     */
+    public static final TypeStore ts;
 
     public RemoteIDEServices(int ideServicesPort, PrintWriter stderr, IRascalMonitor monitor, Terminal terminal, ISourceLocation projectRoot) {
         super(stderr, monitor, terminal, projectRoot);
@@ -64,7 +82,7 @@ public class RemoteIDEServices extends BasicIDEServices {
                 .setLocalService(this)
                 .setInput(socket.getInputStream())
                 .setOutput(socket.getOutputStream())
-                .configureGson(GsonUtils.complexAsJsonObject())
+                .configureGson(GsonUtils.complexAsBase64String(ts))
                 .setExecutorService(DaemonThreadPool.buildConstrainedCached("rascal-ide-services", Math.max(2, Math.min(6, Runtime.getRuntime().availableProcessors() - 2))))
                 .create();
 
@@ -75,20 +93,31 @@ public class RemoteIDEServices extends BasicIDEServices {
         }
     }
 
+    static {
+        ts = new TypeStore(Messages.ts);
+        var tf = TypeFactory.getInstance();
+
+        var fileSystemChangeType = tf.abstractDataType(ts, "FileSystemChange");
+        tf.constructor(ts, fileSystemChangeType, "removed", tf.sourceLocationType(), "file");
+        tf.constructor(ts, fileSystemChangeType, "created", tf.sourceLocationType(), "file");
+        tf.constructor(ts, fileSystemChangeType, "renamed", tf.sourceLocationType(), "from", tf.sourceLocationType(), "to");
+        tf.constructor(ts, fileSystemChangeType, "modified", tf.sourceLocationType(), "file");
+    }
+
     @Override
     public void edit(ISourceLocation loc, int viewColumn) {
-        server.edit(loc, viewColumn);
+        server.edit(new EditRequest(loc, viewColumn));
     }
 
     @Override
     public void browse(URI uri, IString title, IInteger viewColumn) {
-        server.browse(uri, title, viewColumn);
+        server.browse(new BrowseRequest(uri, title, viewColumn));
     }
 
     @Override
     public ISourceLocation resolveProjectLocation(ISourceLocation input) {
         try {
-            return server.resolveProjectLocation(input).get(1, TimeUnit.MINUTES);
+            return server.resolveProjectLocation(new ISourceLocationRequest(input)).get(1, TimeUnit.MINUTES).getLocation();
         } catch (TimeoutException e) {
             warning("Error resolving project location", URIUtil.unknownLocation());
         } catch (Throwable e) {}
@@ -97,33 +126,33 @@ public class RemoteIDEServices extends BasicIDEServices {
 
     @Override
     public void startDebuggingSession(int serverPort) {
-        server.startDebuggingSession(serverPort);
+        server.startDebuggingSession(new StartDebuggingSessionRequest(serverPort));
     }
 
     @Override
     public void registerDebugServerPort(int processID, int serverPort) {
-        server.registerDebugServerPort(processID, serverPort);
+        server.registerDebugServerPort(new RegisterDebugServerPortRequest(processID, serverPort));
     }
 
     @Override
     public void applyFileSystemEdits(IList edits) {
-        server.applyDocumentsEdits(new DocumentEditsParameter(edits));
+        server.applyDocumentsEdits(new ApplyDocumentsEditsRequest(edits));
     }
 
     @Override
     public void registerDiagnostics(IList messages, ISourceLocation projectRoot) {
-        server.registerDiagnostics(new RegisterDiagnosticsParameters(messages));
+        server.registerDiagnostics(new RegisterDiagnosticsRequest(messages));
     }
     
     @Override
     public void unregisterDiagnostics(IList resources) {
-        server.unregisterDiagnostics(resources.stream().map(ISourceLocation.class::cast).toArray(ISourceLocation[]::new));
+        server.unregisterDiagnostics(new UnregisterDiagnosticsRequest(resources));
     }
 
     @Override
     public void registerLocations(IString scheme, IString auth, IMap map) {
         // The mappings should be registered both in the REPL itself as well as in the IDE
         super.registerLocations(scheme, auth, map);
-        server.registerLocations(scheme, auth, IRemoteIDEServices.mapLocLocToLocArray(map));
+        server.registerLocations(new RegisterLocationsRequest(scheme, auth, map));
     }
 }

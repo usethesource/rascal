@@ -87,8 +87,7 @@ syntax Expression
 	        | Expression "\>\>=" Expression 
 	        | Expression "&=" Expression 
 	        | Expression "^=" Expression 
-	        | Expression "
-	        | =" Expression
+	        | Expression "|=" Expression
 			)
 	> left commaExpression: Expression "," Expression
 	;

@@ -57,61 +57,51 @@ public class ShellExec {
 	private IString toString(IValue o) {
 		var TF = TypeFactory.getInstance();
 
-		try {
-			if (o.getType().isSourceLocation()) {
-				ISourceLocation p = URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) o);
+		if (o.getType().isSourceLocation()) {
+			ISourceLocation p = URIResolverRegistry.getInstance().resolveIfLogical((ISourceLocation) o);
 
-				if (!"file".equals(p.getScheme())) {
-					throw RuntimeExceptionFactory.illegalArgument(o,
-						"only file:/// URI are supported or logical schemes that derived from file");
-				}
-
-				return vf.string(new File(p.getURI()).getAbsolutePath());
-			}
-			else if (o.getType().isSubtypeOf(TF.listType(TF.sourceLocationType()))) {
-				// a list of loc becomes a path with OS-specific path separators
-				return vf.string(((IList) o).stream()
-					.map(this::toString)
-					.map(IString::getValue)
-					.collect(Collectors.joining(File.pathSeparator))
-				);
-			}
-			else if (o.getType().isSubtypeOf(TF.setType(TF.sourceLocationType()))) {
-				// a set of loc becomes a path with OS-specific path separators
-				return vf.string(((IList) o).stream()
-					.map(this::toString)
-					.map(IString::getValue)
-					.collect(Collectors.joining(File.pathSeparator))
-				);
-			}
-			else if (o.getType().isString()) {
-				return (IString) o;
-			}
-			else {
-				return vf.string(o.toString());
-			}
+			if (!"file".equals(p.getScheme())) {
+				throw RuntimeExceptionFactory.illegalArgument(o,
+					"only file:/// URI are supported or logical schemes that derived from file");
 		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e);
+
+			return vf.string(new File(p.getURI()).getAbsolutePath());
+		}
+		else if (o.getType().isSubtypeOf(TF.listType(TF.sourceLocationType()))) {
+			// a list of loc becomes a path with OS-specific path separators
+			return vf.string(((IList) o).stream()
+				.map(this::toString)
+				.map(IString::getValue)
+				.collect(Collectors.joining(File.pathSeparator))
+			);
+		}
+		else if (o.getType().isSubtypeOf(TF.setType(TF.sourceLocationType()))) {
+			// a set of loc becomes a path with OS-specific path separators
+			return vf.string(((IList) o).stream()
+				.map(this::toString)
+				.map(IString::getValue)
+				.collect(Collectors.joining(File.pathSeparator))
+			);
+		}
+		else if (o.getType().isString()) {
+			return (IString) o;
+		}
+		else {
+			return vf.string(o.toString());
 		}
 	}
 
 	public IInteger createProcess(ISourceLocation processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
-		try {
-			processCommand = URIResolverRegistry.getInstance().logicalToPhysical(processCommand);
+		processCommand = URIResolverRegistry.getInstance().resolveIfLogical(processCommand);
 
-			arguments = arguments.stream().map(v -> toString(v)).collect(vf.listWriter());
-			envVars = envVars.stream().map(t -> vf.tuple(((ITuple) t).get(0), toString(((ITuple) t).get(1)))).collect(vf.mapWriter());
+		arguments = arguments.stream().map(v -> toString(v)).collect(vf.listWriter());
+		envVars = envVars.stream().map(t -> vf.tuple(((ITuple) t).get(0), toString(((ITuple) t).get(1)))).collect(vf.mapWriter());
 
-			if ("file".equals(processCommand.getScheme())) {
-				return createProcessInternal(toString(processCommand), arguments, envVars, workingDir);	
-			}
-			else {
-				throw RuntimeExceptionFactory.illegalArgument(processCommand, "createProcess only supports the file:/// scheme for command arguments, or logical schemes derived from it.");
-			}
+		if ("file".equals(processCommand.getScheme())) {
+			return createProcessInternal(toString(processCommand), arguments, envVars, workingDir);	
 		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(e);
+		else {
+			throw RuntimeExceptionFactory.illegalArgument(processCommand, "createProcess only supports the file:/// scheme for command arguments, or logical schemes derived from it.");
 		}
 	}
 	
@@ -188,7 +178,7 @@ public class ShellExec {
 				throw RuntimeExceptionFactory.permissionDenied(vf.string("Modifying environment variables is not allowed on this machine."), null, null);
 			}
 			
-			workingDir = URIResolverRegistry.getInstance().logicalToPhysical(workingDir);
+			workingDir = URIResolverRegistry.getInstance().resolveIfLogical(workingDir);
 			File cwd = null;
 			if (workingDir != null && workingDir.getScheme().equals("file")) {
 				cwd = new File(workingDir.getPath());

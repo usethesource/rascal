@@ -95,6 +95,7 @@ public class CommandlineParser {
                 Type expected = expectedTypes.get(label);
 
                 if (expected == null) {
+                    printMainHelpMessage(kwTypes);
                     throw new CommandlineError("unknown argument: " + label, kwTypes, name);
                 }
 
@@ -276,6 +277,8 @@ public class CommandlineParser {
             String explanation = parameterTypeExplanation(key, fields.get(key));
             out.println("    -" + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
         }
+
+        out.flush();
     }
 
     private String parameterTypeExplanation(String key, Type type) {

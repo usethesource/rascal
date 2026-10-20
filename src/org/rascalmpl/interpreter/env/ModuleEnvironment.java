@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -89,6 +90,7 @@ public class ModuleEnvironment extends Environment {
 	private Map<String, AbstractFunction> resourceImporters;
 	private Map<Type, Set<GenericKeywordParameters>> cachedGeneralKeywordParameters;
 	private Map<String, List<AbstractFunction>> cachedPublicFunctions;
+	private List<ModuleEnvironment> cachedImportedModulesResolved;
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -108,6 +110,7 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 
 	@Override
@@ -126,12 +129,14 @@ public class ModuleEnvironment extends Environment {
 		this.generalKeywordParameters = new HashMap<>();
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 
 	public void clearLookupCaches() {
 		importedModules.replaceAll((k, v) -> Optional.empty());
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 
 	/**
@@ -142,6 +147,10 @@ public class ModuleEnvironment extends Environment {
 	 */
 	public void clearLoadMessages() {
 		this.loadMessages.clear();
+	}
+
+	public Stream<IConstructor> streamLoadMessages() {
+		return loadMessages.stream();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -377,12 +386,14 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 
 	void removeModule(String name) {
 		importedModules.computeIfPresent(name, (k, v) -> Optional.empty());
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public void addExtend(String name) {
@@ -392,6 +403,7 @@ public class ModuleEnvironment extends Environment {
 		extended.add(name);
 		this.cachedGeneralKeywordParameters = null;
 		this.cachedPublicFunctions = null;
+		this.cachedImportedModulesResolved = null;
 	}
 	
 	public List<AbstractFunction> getTests() {
@@ -448,6 +460,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		cachedGeneralKeywordParameters = null;
 		cachedPublicFunctions = null;
+		cachedImportedModulesResolved = null;
 	}
 	
 	public void unExtend(String moduleName) {
@@ -517,7 +530,7 @@ public class ModuleEnvironment extends Environment {
 			super.storeVariable(name, value);
 		}
 		else {
-			for (ModuleEnvironment module : importedModulesResolved) {
+			for (ModuleEnvironment module : getImportedModulesResolved()) {
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -538,7 +551,7 @@ public class ModuleEnvironment extends Environment {
 			return var;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			
 			if (mod != null) { 
 			  var = mod.getLocalPublicVariable(name);
@@ -565,7 +578,7 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			Result<IValue> r = null;
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
@@ -587,7 +600,7 @@ public class ModuleEnvironment extends Environment {
 		var result = new ArrayList<AbstractFunction>();
 		super.getAllFunctions(name, result);
 			
-		for (ModuleEnvironment mod : importedModulesResolved)  {	
+		for (ModuleEnvironment mod : getImportedModulesResolved())  {	
 			if (mod != null) {
 				mod.getLocalPublicFunctions(name, result);
 			}
@@ -692,10 +705,6 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void declareAnnotation(Type onType, String label, Type valueType) {
-	    // TODO: simulating annotations still here
-	    if (RascalValueFactory.isLegacySourceLocationAnnotation(onType, label)) {
-	        label = RascalValueFactory.Location;
-	    }
 		typeStore.declareKeywordParameter(onType, label, valueType);
 	}
 	
@@ -782,7 +791,7 @@ public class ModuleEnvironment extends Environment {
 			result.add(new GenericKeywordParameters(this, list, getStore().getKeywordParameters(adt)));
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			
 			list = mod.generalKeywordParameters.get(adt);
 			if (list != null) {
@@ -883,24 +892,20 @@ public class ModuleEnvironment extends Environment {
 		return result.get();
 	}
 
-	private Iterable<ModuleEnvironment> importedModulesResolved = 
-		() -> new Iterator<ModuleEnvironment>() {
-			Iterator<Entry<String, Optional<ModuleEnvironment>>> iterator = importedModules.entrySet().iterator();
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-			@Override
-			public ModuleEnvironment next() {
-				var entry = iterator.next();
+	private List<ModuleEnvironment> getImportedModulesResolved() {
+		if (cachedImportedModulesResolved == null) {
+			cachedImportedModulesResolved = new ArrayList<>();
+			for (var entry : importedModules.entrySet()) {
 				var result = entry.getValue();
 				if (result.isEmpty()) {
 					result = Optional.ofNullable(heap.getModule(entry.getKey()));
 					entry.setValue(result);
 				}
-				return result.orElse(null);
+				cachedImportedModulesResolved.add(result.orElse(null));
 			}
-		};
+		}
+		return cachedImportedModulesResolved;
+	}
 	
 	@Override
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
@@ -939,7 +944,7 @@ public class ModuleEnvironment extends Environment {
 		Type type = concreteSyntaxTypes.get(name);
 		
 		if (type == null) {
-			for (ModuleEnvironment mod : importedModulesResolved) {
+			for (ModuleEnvironment mod : getImportedModulesResolved()) {
 				
 				if (mod == null) {
 				  continue;
@@ -1099,7 +1104,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}
@@ -1121,7 +1126,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (ModuleEnvironment mod : importedModulesResolved) {
+		for (ModuleEnvironment mod : getImportedModulesResolved()) {
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
 			}

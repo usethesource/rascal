@@ -1,10 +1,10 @@
 package org.rascalmpl.interpreter.load;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class SourceLocationListContributor implements IRascalSearchPathContributor {
@@ -18,10 +18,8 @@ public class SourceLocationListContributor implements IRascalSearchPathContribut
   }
   
   @Override
-  public void contributePaths(List<ISourceLocation> path) {
-    for (IValue elem : locs) {
-      path.add(((ISourceLocation) elem));
-    }
+  public Collection<ISourceLocation> contributePaths() {
+    return locs.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
   }
 
   @Override

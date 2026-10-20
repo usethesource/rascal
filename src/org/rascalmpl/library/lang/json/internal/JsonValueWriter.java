@@ -67,6 +67,7 @@ public class JsonValueWriter {
     private IFunction formatters;
     private boolean explicitConstructorNames = false;
     private boolean explicitDataTypes;
+    private boolean fileLocationsAsPathOnly = true;
 
     /** helper class for number serialization without quotes */
     private static class RascalNumber extends Number {
@@ -160,6 +161,11 @@ public class JsonValueWriter {
 
     public JsonValueWriter setExplicitDataTypes(boolean setting) {
         this.explicitDataTypes = setting;
+        return this;
+    }
+
+    public JsonValueWriter setFileLocationsAsPathOnly(boolean setting) {
+        this.fileLocationsAsPathOnly = setting;
         return this;
     }
 
@@ -262,7 +268,7 @@ public class JsonValueWriter {
                 }
                 else {
                     if (!o.hasOffsetLength()) {
-                        if ("file".equals(o.getScheme())) {
+                        if (fileLocationsAsPathOnly && "file".equals(o.getScheme())) {
                             out.value(o.getPath());
                         }
                         else {

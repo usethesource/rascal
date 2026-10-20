@@ -7,30 +7,33 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@synopsis{The old annotation feature has been replaced by the keyword field feature, but we kept the tests for reference.}
 module lang::rascal::tests::functionality::Annotation
 
 import Exception;
 
 data F = f() | f(int n) | g(int n) | deep(F f);
-anno int F@pos;
+ 
+data F(int pos = 0);
 data AN = an(int n);
 
-anno int F@notThere;
+ 
+data F(int notThere = 0);
   	
 // boolannotations
 
-test bool boolannotations1() = true ||  /*documentation of old behavior: */ f() [@pos=1] == f();
-test bool boolannotations2() = f() [@pos=1]@pos == 1;
-test bool boolannotations3() = f() [@pos=1][@pos=2]@pos == 2;
+test bool boolannotations1() = true ||  /*documentation of old behavior: */ f()[pos=1] == f();
+test bool boolannotations2() = f()[pos=1].pos == 1;
+test bool boolannotations3() = f()[pos=1][pos=2].pos == 2;
 
 // since annotations are simulated by kw params this is no longer true:  		
-test bool boolannotations4() = true || /*documentation of old behavior: */ f(5) [@pos=1] == f(5);
-test bool boolannotations5() = true || /*documentation of old behavior: */ f(5) [@pos=1]@pos == 1;
-test bool boolannotations6() = true || /*documentation of old behavior: */ f(5) [@pos=1][@pos=2]@pos == 2;
+test bool boolannotations4() = true || /*documentation of old behavior: */ f(5)[pos=1] == f(5);
+test bool boolannotations5() = true || /*documentation of old behavior: */ f(5)[pos=1].pos == 1;
+test bool boolannotations6() = true || /*documentation of old behavior: */ f(5)[pos=1][pos=2].pos == 2;
   		
 // since annotations are simulated by kw params this is no longer true  		
-test bool boolannotations7() = true || /*documentation of old behavior: */ deep(f(5) [@pos=1]) == deep(f(5));
-test bool boolannotations8() = true || /*documentation of old behavior: */ f(5) [@pos=1] == f(5) [@pos=2];	
+test bool boolannotations7() = true || /*documentation of old behavior: */ deep(f(5)[pos=1]) == deep(f(5));
+test bool boolannotations8() = true || /*documentation of old behavior: */ f(5)[pos=1] == f(5)[pos=2];	
   	
 // annotationsInSets
 // since annotations are simulated by kw params this is no longer true:  
@@ -44,21 +47,21 @@ test bool boolannotations8() = true || /*documentation of old behavior: */ f(5) 
 @ignoreCompiler{Annotations are not supported as keyword field}
 test bool accessAnnoAsKeywordField(){
     F example = f();
-    example@pos = 1;
+    example.pos = 1;
     return example.pos == 1;
 }
 
 @ignoreCompiler{Annotations are not supported as keyword field}
 test bool accessAnnoUpdateAsKeywordField(){
    F example = f();
-   example@pos = 1;
-   return example[@pos=2].pos == 2;
+   example.pos = 1;
+   return example[pos=2].pos == 2;
 }
 
 @ignoreCompiler{Annotations are not supported as keyword field}
 test bool checkAnnoExistsAsKeywordField(){
    F example = f();
-   example@pos = 1;
+   example.pos = 1;
    return example.pos?;
 }
 
@@ -67,33 +70,28 @@ test bool checkAnnoExistsAsKeywordField(){
 test bool KeywordFieldUpdateVisibleAsAnno(){
     F example = f();
    // keyword updates are visible to anno projection
-   return example[pos=3]@\pos == 3;
+   return example[pos=3].\pos == 3;
 }
 
 @ignoreCompiler{Annotations are not supported as keyword field}
 test bool KeywordAssignVisibleViaAnno1(){
     F example = f();
-    example@pos = 1;
+    example.pos = 1;
     example.pos = 4;
-    return example@pos == 4;
+    return example.pos == 4;
 }
 
 @ignoreCompiler{Annotations are not supported as keyword field}
 test bool KeywordAssignVisibleViaAnno2(){
     F example = f();
-    example@pos = 1;
+    example.pos = 1;
     example.pos += 4;
-    return example@pos == 5;
+    return example.pos == 5;
 }
 
 test bool unavailableAnno1(){
     F example = f();
-    try {
-     example@notThere;
-     return false;
-   }
-   catch NoSuchAnnotation("notThere"):
-      return true;
+    return example.notThere == 0 && !(example.notThere?);
 }
 
 test bool unavailableAnno2(){
@@ -105,7 +103,8 @@ test bool unavailableAnno2(){
      x.notThere;
      return false;
    }
-   catch NoSuchField("notThere"):
-     return true;
+   catch NoSuchField("notThere") :
+ // TODO: where annotations would often throw exceptions, keyword fields return their default.
+  return true;
 }
 

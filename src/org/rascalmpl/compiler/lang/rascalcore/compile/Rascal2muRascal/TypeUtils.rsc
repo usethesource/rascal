@@ -54,6 +54,7 @@ import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascalcore::check::ATypeInstantiation;
 import analysis::typepal::LocationChecks;
+import lang::rascalcore::check::LogicalLocations;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -228,9 +229,8 @@ AType getTypeFromDef(Define def){ // Move to Solver
     throw "getTypeFromDef: <def>";
 }
 
-
-private str getScope(UID uid){
-    return convert2fuid(declaredIn[uid]);
+private loc getScope(UID uid){
+    return declaredIn[uid];
 }
 
 bool is_formal(Define d) = d.idRole in formalRoles;
@@ -291,6 +291,11 @@ list[AType] dummyFormalsInType(AType t){
     return result;
 }
 
+rel[loc, loc] getUseDef(TModel tm) {
+    map[loc, loc] id2define = invertUnique(tm.define2id);
+    return { <u, getLogicalLocIfPossible(id2define[d] ? d)> | <loc u, loc d> <- tm.useDef };
+}
+
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
     current_tmodel = tm;
@@ -302,10 +307,10 @@ void extractScopes(TModel tm){
     facts = tm.facts;
     specializedFacts = tm.specializedFacts;
     defines = tm.defines;
-    definitions = ( def.defined : def | Define def <- defines );
+    definitions = ( def.defined: def | Define def <- defines );
     position_in_container = ();
     vars_per_scope = ();
-    useDef = tm.useDef;
+    useDef = getUseDef(tm);
     defUses = invert(useDef);
     set[loc] modules = {};
     //setModuleScope(tm.moduleLocs[tm.modelName]);
@@ -447,7 +452,7 @@ void extractScopes(TModel tm){
 //           };
 //}
 
-loc declareGeneratedFunction(str _name, str _fuid, AType _rtype, loc src){
+loc declareGeneratedFunction(str _name, loc _fuid, AType _rtype, loc src){
 	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = src;
     functions += {uid};
@@ -463,15 +468,23 @@ loc declareGeneratedFunction(str _name, str _fuid, AType _rtype, loc src){
 private AType getType0(loc l) {
    //println("getType(<l>)");
     //assert specializedFacts[l]? || facts[l]? : "getType for <l>";
-    if(specializedFacts[l]?){
+    if(l in specializedFacts){
         return specializedFacts[l];
     }
-    if(facts[l]?){
+    if(l in facts){
     	return facts[l];
     }
-    if(definitions[l]?){
+    if(l in definitions){
         return getDefType(l);
     }
+
+    if(l in physical2logical){
+        ll = physical2logical[l];
+        if(ll in definitions){
+            return getDefType(ll);
+        }
+    }
+    
     //println("*** getType0 ***");
     //iprintln(facts, lineLimit=10000);
     throw "getType0 cannot find type for <l>";
@@ -485,7 +498,7 @@ AType getType(loc l) {
 }
 
 AType getType(Tree e) {
-    return getType(e@\loc);
+    return getType(e.src);
 }
 
 // Get the type of an expression as string
@@ -493,7 +506,7 @@ AType getType(Tree e) {
 
 // Get the outermost type constructor of an expression as string
 str getOuterType(Tree e) {
-    tp = getType(e@\loc);
+    tp = getType(e.src);
 	if(aparameter(str _, AType bound) := tp) {
 		return "<getName(bound)>";
 	}
@@ -607,9 +620,6 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
 
     // Common kw field of concrete type?
     if(asubtype(adtType1, treeType)){
-        //if(fieldName == "src"){         // TODO: remove when @\loc is gone
-        //    return <"ParseTree", adtType1, true>;
-        //}
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
                 return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
@@ -629,12 +639,12 @@ KeywordParamMap getKeywords(Parameters parameters){
     return ("<kwf.name>" : kwtp | kwf <- kwfs.keywordFormalList, kwtp := getType(kwf));
 }
 
-list[MuExp] getExtendedFunctionFormals(loc funsrc, str scopeName){
+list[MuExp] getExtendedFunctionFormals(loc funsrc, loc scopeId){
     vars = vars_per_fun[funsrc];
-    return  [muVar(var.id, scopeName, i, unsetRec(getTypeFromDef(var), "alabel"), formalId()) | i <- index(vars), var := vars[i]];
+    return  [muVar(var.id, scopeId, i, unsetRec(getTypeFromDef(var), "alabel"), formalId()) | i <- index(vars), var := vars[i]];
 }
 
-tuple[str fuid, int pos] getVariableScope(str name, loc l) {
+tuple[loc fuid, int pos] getVariableScope(str name, loc l) {
   //iprintln(definitions);
   //println("getVariableScope: <name>, <l>, <definitions[l] ? "???">, <declaredIn[l] ? "???">, <useDef[l] ? "???">)");
   container = |global-scope:///|;
@@ -653,8 +663,8 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
   }
 
   cdef = definitions[container];
-  if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
-  if(cdef.idRole == moduleId()) return <replaceAll(cdef.id, "::", "_"), getPositionInScope(name, l)>;
+  if(cdef.idRole == functionId()) return <container, getPositionInScope(name, l)>;
+  if(cdef.idRole == moduleId()) return <container, getPositionInScope(name, l)>;
   throw "getVariableScope fails for <name>, <l>";
 }
 
@@ -665,24 +675,14 @@ int getPositionInScope(str _name, loc l){
     return res;
 }
 
-str convert2fuid(UID uid) {
-	if(uid == |global-scope:///|)
-	   return "global-scope";
+loc getLogicalLoc(loc src){
+    if(isRascalLogicalLoc(src)) return src;
+    if(src in physical2logical) return physical2logical[src];
+    throw "getLogicalLoc: no logical loc found for <src>";
+}
 
-	str name = definitions[uid]? ? definitions[uid].id : "XXX";
-
-    if(declaredIn[uid]?) {
-       def = definitions[uid];
-       if(physical2logical[def.defined]?){
-          lg = physical2logical[def.defined];
-          path = lg.path;
-          if(path[0] == "/"){
-            path = path[1..];
-          }
-          name = replaceAll(path, "/", "_");
-       }
-    }
-	return name;
+loc getLogicalLocIfPossible(loc src){
+    return src in physical2logical ? physical2logical[src] : src;
 }
 
 public int getTupleFieldIndex(AType s, str fieldName) =
@@ -691,7 +691,6 @@ public int getTupleFieldIndex(AType s, str fieldName) =
 public rel[loc fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) {
     locally_defined = { v.defined | sc <- td_reachable_scopes[block], v <- (vars_per_scope[sc] ? {}) };
     return { <declaredIn[decl], position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
-    //return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
 }
 
 set[loc] getDefiningScopes(AType root)
@@ -848,6 +847,7 @@ bool occursBefore(loc before, loc after){
 
 MuExp mkVar(str name, loc l) {
   //println("<name>, <l>");
+  l = getLogicalLocIfPossible(l);
 
   uqname = asUnqualifiedName(name);
   name_type = getType(l);
@@ -867,12 +867,13 @@ MuExp mkVar(str name, loc l) {
         uid = l;
         def = definitions[l];
     } else if(isWildCard(name)){
-        return muVar("_", "", -1, name_type, variableId());
+        return muVar("_", |global-scope:///|, -1, name_type, variableId());
     } else {
         throw "mkVar: <uqname> at <l>";
     }
   } else {
     uid = getFirstFrom(defs);
+    uid = getLogicalLocIfPossible(uid);
     def = definitions[uid];
   }
 

@@ -21,8 +21,10 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -31,10 +33,13 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.capsule.SetMultimap;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
 
@@ -176,6 +181,12 @@ public class GlobalEnvironment {
 		locationModules.put(location, name);
 	}
 	
+	public Map<String, ISourceLocation> moduleFiles() {
+		return moduleLocations.entrySet()
+			.stream()
+			.collect(Collectors.toMap(e -> e.getKey(), e -> URIUtil.assumeCorrectLocation(e.getValue().toASCIIString())));
+	}	
+
 	public URI getModuleURI(String name) {
 		return moduleLocations.get(name);
 	}
@@ -328,5 +339,12 @@ public class GlobalEnvironment {
 	 */
 	public void clearModuleLoadMessage() {
 		moduleEnvironment.values().forEach(ModuleEnvironment::clearLoadMessages);
+	}
+
+	public Stream<IConstructor> streamModuleLoadMessages() {
+		return moduleEnvironment
+			.values()
+			.stream()
+			.flatMap(me -> me.streamLoadMessages());
 	}
 }

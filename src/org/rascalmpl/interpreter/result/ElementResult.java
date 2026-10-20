@@ -24,8 +24,6 @@ import java.util.Iterator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.values.RascalValueFactory;
-
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INode;
@@ -153,14 +151,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	    // TODO: simulating annotations still here
 	    Type annoType;
 	    
-	    if (RascalValueFactory.isLegacySourceLocationAnnotation(getStaticType(), annoName)) {
-            annoName = RascalValueFactory.Location;
-            annoType = getTypeFactory().sourceLocationType();
-        }
-	    else {
-	        annoType = env.getKeywordParameterTypes(getStaticType()).get(annoName);
-	    }
-
+		annoType = env.getKeywordParameterTypes(getStaticType()).get(annoName);
+	    
 		if (getStaticType() != getTypeFactory().nodeType()) {
 			if (!anno.getStaticType().isSubtypeOf(annoType)) {
 				throw new UnexpectedType(annoType, anno.getStaticType(), ctx.getCurrentAST());

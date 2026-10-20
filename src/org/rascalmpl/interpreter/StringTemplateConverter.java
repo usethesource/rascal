@@ -41,6 +41,7 @@ import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -129,7 +130,7 @@ public class StringTemplateConverter {
 					b.append(org.rascalmpl.values.parsetrees.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
-					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
+					b.append(((ReifiedType) value.getType()).getTypeParameters().getFieldType(0).toString());
 				}
 				else if (value.getType().isString()) {
 					b.append((IString) value);

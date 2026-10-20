@@ -167,6 +167,7 @@ public class REPLContentServer extends NanoHTTPD {
         IValue formatters = kws.getParameter("formatter");
         IValue ecn = kws.getParameter("explicitConstructorNames");
         IValue edt = kws.getParameter("explicitDataTypes");
+        IValue fpo = kws.getParameter("fileLocationsAsPathOnly");
 
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
@@ -175,6 +176,7 @@ public class REPLContentServer extends NanoHTTPD {
             .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
             .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
             .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+            .setFileLocationsAsPathOnly(fpo != null ? ((IBool) fpo).getValue() : true);
             ;
 
         try {

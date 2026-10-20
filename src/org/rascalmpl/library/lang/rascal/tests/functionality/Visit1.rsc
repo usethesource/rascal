@@ -597,12 +597,13 @@ test bool order4()= order(h1(f1(1),g1([h1(f1(2),f1(3)),f1(4),f1(5)]))) == [1,2,3
 
 data NODE = nd(NODE left, NODE right) | leaf(int n);
 
-anno int NODE@pos;
+ 
+data NODE(int pos = 0);
 
-NODE N1 = nd(leaf(0)[@pos=0], leaf(1)[@pos=1])[@pos=2];
+NODE N1 = nd(leaf(0)[pos=0], leaf(1)[pos=1])[pos=2];
 
 test bool visitWithAnno1() {
-	return visit(leaf(1)[@pos=1]){
+	return visit(leaf(1)[pos=1]){
 		case leaf(1) => leaf(10)
 		default:;
 	}
@@ -624,7 +625,7 @@ test bool visitWithAnno3() {
 		default:;
 	}
 	==
-	nd(leaf(0)[@pos=0], leaf(10))[@pos=2];
+	nd(leaf(0)[pos=0], leaf(10))[pos=2];
 }
 
 test bool visitWithAnno4() {
@@ -634,7 +635,7 @@ test bool visitWithAnno4() {
 		default:;
 	}
 	==
-	nd(leaf(0), leaf(10))[@pos=2];
+	nd(leaf(0), leaf(10))[pos=2];
 }
 
 test bool visitWithAnno5() {
@@ -649,19 +650,19 @@ test bool visitWithAnno5() {
 }
 
 public &T delAnnotationsRec1(&T v) = visit(v) { 
-     case node n => delAnnotations(n) 
+     case node n => unset(n) 
   };
   
 public &T delAnnotationsRec2(&T v) = visit(v) { 
-     case node n: { insert delAnnotations(n); }
+     case node n: { insert unset(n); }
   };
 
 public NODE A1 = leaf(3);
-public NODE A2 = leaf(3)[@pos = 1];
+public NODE A2 = leaf(3)[pos=1];
 
-test bool visitWithAnno6() = !delAnnotationsRec1(A2)@pos?;
+test bool visitWithAnno6() = !delAnnotationsRec1(A2).pos?;
 
-test bool visitWithAnno7() = !delAnnotationsRec2(A2)@pos?;
+test bool visitWithAnno7() = !delAnnotationsRec2(A2).pos?;
 
 
 // StringVisit1a

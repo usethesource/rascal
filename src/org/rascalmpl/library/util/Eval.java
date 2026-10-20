@@ -20,7 +20,6 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -31,6 +30,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
@@ -40,6 +40,7 @@ import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -57,8 +58,9 @@ public class Eval {
 	public final Type TypeTyp = RascalTypeFactory.getInstance().reifiedType(param);
 	public final Type Result_void = tf.constructor(store, Result, "ok");
 	public final Type Result_value = tf.constructor(store, Result, "result", param, "val");
-	public final Type Exception = tf.abstractDataType(store, "Exception");
-	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "messages", tf.sourceLocationType(), "location");
+	public final Type Exception = tf.abstractDataType(store, "RuntimeException");
+	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "message", tf.sourceLocationType(), "location");
+	public final Type Exception_LoadMessages = tf.constructor(store, Exception, "ModuleLoadMessages", tf.listType(Messages.Message), "messages");
 	private final Type resetType = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
 	private final Type setTimeoutType = tf.functionType(tf.voidType(), tf.tupleType(tf.integerType()), tf.tupleEmpty());
 	private final Type evalType = tf.functionType(Result_value, tf.tupleType(TypeTyp, tf.stringType()), tf.tupleEmpty());
@@ -175,6 +177,11 @@ public class Eval {
 					throw new UnexpectedType(typ, result.getStaticType(), URIUtil.rootLocation("eval"));
 				}
 
+				IList loadMessages = exec.moduleLoadMessages();
+				if (loadMessages.stream().anyMatch(c -> ((IConstructor) c).getName().equals("error"))) {
+					throw new Throw(values.constructor(Exception_LoadMessages, loadMessages), null, null);
+				}
+
 				if (result.getStaticType().isBottom()) {
 					return values.constructor(Result_void);
 				}
@@ -196,6 +203,8 @@ public class Eval {
 			finally {
 				// very necessary to clean up the timer thread
 				timer.cancel();
+				// necessary to make sure only new messages are reported.
+				exec.clearLoadMessages();
 			}
 		});
 	}
@@ -209,7 +218,11 @@ public class Eval {
 		private int duration = -1;
 		
 		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
-			eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(URIUtil.rootLocation("cwd"), pcfg, input, stdout, stderr, services);
+			eval = ShellEvaluatorFactory.getDefaultEvaluatorForPathConfig(pcfg, input, stdout, stderr, services);
+		}
+
+		public void clearLoadMessages() {
+			eval.__getHeap().clearModuleLoadMessage();
 		}
 
 		public IValue staticTypeOf(String line) {
@@ -229,6 +242,10 @@ public class Eval {
 		public void reset() {
 			eval.getCurrentModuleEnvironment().reset();
 			eval.getHeap().clear();
+		}
+
+		public IList moduleLoadMessages() {
+			return eval.__getHeap().streamModuleLoadMessages().collect(eval.getValueFactory().listWriter());
 		}
 
 		public Result<IValue> eval(IRascalMonitor monitor, String line) throws InterruptedException, IOException {

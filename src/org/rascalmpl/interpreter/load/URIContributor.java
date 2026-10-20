@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
+import java.util.Collection;
 import java.util.List;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -30,8 +31,8 @@ public class URIContributor implements IRascalSearchPathContributor {
 	}
 	
 	@Override
-	public void contributePaths(List<ISourceLocation> path) {
-		path.add(0, uri);
+	public Collection<ISourceLocation> contributePaths() {
+		return List.of(uri);
 	}
 
 	@Override

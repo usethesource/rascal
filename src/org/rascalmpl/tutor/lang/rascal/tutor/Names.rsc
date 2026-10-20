@@ -34,8 +34,8 @@ str fragment(loc root, loc concept) = fragment(root, concept.parent + "index.md"
   when concept.parent?, concept.parent.file == concept[extension=""].file;
 
 str modulePath(/^<prefix:.*>::Index$/) = modulePath("<prefix>::module_Index");
-default str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
-default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
+default str modulePath(str moduleName) = "<replaceAll(replaceAll(moduleName, "\\", ""), "::", "/")>"; // Remove escaping from paths
+default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";                  // Do not remove escaping from headers
  
 @synopsis{keeps it as close to the original as possible}
 default str package(str input) = input;

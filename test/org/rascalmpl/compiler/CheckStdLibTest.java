@@ -54,17 +54,17 @@ public class CheckStdLibTest {
 
     private void simulateShadedTypePal() throws IOException {
         // the main runner assumes it's running inside of a shaded jar
-        // so intead we're going to copy the contents of typepal to 
+        // so instead we're going to copy the contents of typepal to 
         // the target folder of where this test is running
         var typepal = PathConfig.resolveProjectOnClasspath("typepal");
         typepal = MavenRepositoryURIResolver.mavenize(typepal);
         typepal = JarURIResolver.jarify(typepal);
         
-        URIResolverRegistry.getInstance().copy(typepal, URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntimeJar(), "org/rascalmpl/typepal"), true, true);
+        URIResolverRegistry.getInstance().copy(typepal, URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntime(), "org/rascalmpl/typepal"), true, true);
     }
 
     private void cleanSimulatedTypePal() throws IOException {
-        URIResolverRegistry.getInstance().remove(URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntimeJar(), "org/rascalmpl/typepal"), true);
+        URIResolverRegistry.getInstance().remove(URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntime(), "org/rascalmpl/typepal"), true);
     }
 
     private ISourceLocation rascalProjectRoot(ISourceLocation stdLibRoot) {

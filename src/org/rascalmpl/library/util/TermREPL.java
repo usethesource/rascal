@@ -65,17 +65,12 @@ public class TermREPL {
     }
 
     private Path resolveHistoryFile(ISourceLocation historyFile) {
-        try {
-            ISourceLocation result = URIResolverRegistry.getInstance().logicalToPhysical(historyFile);
-            if (result == null || !result.getScheme().equals("file")) {
-                err.println("Cannot resolve history file to file on disk");
-                return null;
-            }
-            return Path.of(result.getPath());
-        }
-        catch (IOException e) {
+        ISourceLocation result = URIResolverRegistry.getInstance().resolveIfLogical(historyFile);
+        if (result == null || !result.getScheme().equals("file")) {
+            err.println("Cannot resolve history file to file on disk");
             return null;
         }
+        return Path.of(result.getURI());
     }
 
     public ITuple newREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
@@ -88,7 +83,12 @@ public class TermREPL {
 
         BaseREPL baseRepl;
         try {
-            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)), term);
+            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)) {
+                @Override
+                public void disconnect() {
+                    // Do nothing. Closing the writer here would close it for the host REPL as well.
+                }
+            }, term) {};
         }
         catch (Throwable e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
@@ -286,6 +286,7 @@ public class TermREPL {
             IValue formatters = kws.getParameter("formatter");
             IValue ecn = kws.getParameter("explicitConstructorNames");
             IValue edt = kws.getParameter("explicitDataTypes");
+            IValue fpo = kws.getParameter("fileLocationsAsPathOnly");
 
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
@@ -294,6 +295,7 @@ public class TermREPL {
                 .setRationalsAsString(ras != null ? ((IBool) ras).getValue() : false)
                 .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
                 .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+                .setFileLocationsAsPathOnly(edt != null ? ((IBool) fpo).getValue() : true)
                 ;
 
             return new ICommandOutput() {

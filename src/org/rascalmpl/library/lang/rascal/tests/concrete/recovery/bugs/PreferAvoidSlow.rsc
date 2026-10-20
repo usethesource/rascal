@@ -9,7 +9,7 @@ import IO;
 
 bool testPreferAvoid() {
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true, maxAmbDepth=1000);
-    loc source = |std:///lang/sdf2/filters/PreferAvoid.rsc?deletedUntilEol=8:208:271|;
+    loc source = |project://rascal/src/org/rascalmpl/library/lang/sdf2/filters/PreferAvoid.rsc?deletedUntilEol=8:208:271|;
     str input = getTestInput(source);
     println("input: <input>");
     Tree result = recoveryParser(input, source);
