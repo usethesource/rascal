@@ -39,7 +39,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "vmArgs": "-Xss80m -Xmx2g '-Drascal.profileExt=\"cpuprofile\"' -Drascal.profileLoc=|cwd:///|",
             "console": "integratedTerminal"
         },
         {
