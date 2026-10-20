@@ -129,11 +129,13 @@ public class Profiler extends Thread {
 		this.names = new HashMap<>();
 		running = true;
 
-		Sampler sampler = null;
-		try {
-			sampler = new Sampler(ev);
-		} catch (IOException e) {
-			e.printStackTrace();
+		Sampler sampler = new DummySampler();
+		if (!(ev.getConfiguration().getProfileFmtProperty() instanceof DummyFormatter)) {
+			try {
+				sampler = new TempFileSampler(ev);
+			} catch (IOException e) {
+				// Problem with the temp file, so resort to dummy sampler.
+			}
 		}
 		this.sampler = sampler;
 	}
@@ -146,13 +148,7 @@ public class Profiler extends Thread {
 			String name = env.getName();
 			
 			if (current != null) {
-				if (sampler != null) {
-					try {
-						sampler.addSample();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+				sampler.addSample();
 
 				ISourceLocation stat = current.getLocation();
 				if(stat != null){
@@ -289,11 +285,11 @@ public class Profiler extends Thread {
 			}
 
 			// Compute the path to the file
+			var fmt = eval.getConfiguration().getProfileFmtProperty();
 			var dir = Path.of(eval.getConfiguration().getProfileDirProperty());
-			var file = dir.resolve("profile" + dateTime + hint + ".cpuprofile");
+			var file = dir.resolve("profile" + dateTime + hint + "." + fmt.getFormatExtension());
 
 			// Compute the content of the file
-			var fmt = eval.getConfiguration().getProfileFmtProperty();
 			var formatted = sampler.getSamplesFormatted(fmt::format);
 			sampler.close();
 
@@ -309,12 +305,14 @@ public class Profiler extends Thread {
 
 			// Print to out
 			var out = eval.getOutPrinter();
-			out.printf("%s: %s\n", fmt.getFormatName().toUpperCase(), message);
+			out.printf("FORMATTED (%s): %s\n", fmt.getFormatName().toUpperCase(), message);
 			out.flush();
 		}
 	}
 
-	public static Fmt CPUPROFILE = new CpuprofileFormatter();
+	public static Fmt FMT_NONE = new DummyFormatter();
+	public static Fmt FMT_FOLDED = new FoldedFormatter();
+	public static Fmt FMT_CPUPROFILE = new CpuprofileFormatter();
 
 	/**
 	 * Formatter of samples
@@ -323,49 +321,21 @@ public class Profiler extends Thread {
 	    public String format(Stream<Sample> samples);
 
 		public String getFormatName();
+
+		public String getFormatExtension();
 	}
 }
 
 /**
- * Sampler for the provided evaluator that temporarily stores samples on disk to avoid excessive memory usage (using an
- * auxiliary thread that encodes, writes, reads, and decodes, to avoid stalling the main thread). To add a sample of the
- * current state of the provided evaluator, use {@link #addSample()}. To get all samples added so far, use
- * {@link #getSamplesFormatted(Function)}.
+ * Representation of a sampler
  */
-class Sampler implements Closeable {
-	private final Evaluator evaluator;
-	private final TempFile<Sample> tempFile;
+interface Sampler extends Closeable {
 
-	public Sampler(Evaluator evaluator) throws IOException {
-		this.evaluator = evaluator;
-		this.tempFile = new TempFile<>(
-			// Configure the temporary file handle to store samples on disk as base 64-encoded `IValue`s
-			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
-			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, new TypeStore()))
-		);
-	}
+	public void close();
 
-	@Override
-	public void close() {
-		tempFile.close();
-	}
+	public void addSample();
 
-	public void addSample() throws IOException {
-		var sample = Sample.of(evaluator);
-		if (sample == null) {
-			return;
-		}
-		tempFile.writeLine(sample);
-	}
-
-	public <T> T getSamplesFormatted(Function<Stream<Sample>, T> formatter) {
-		return tempFile.readLines().thenApply(samples -> {
-			var filtered = samples.filter(Predicate.not(Sample::isInitializer)); // Avoid a bit of sample pollution
-			var formatted = formatter.apply(filtered);
-			samples.close();
-			return formatted;
-		}).join();
-	}
+	public String getSamplesFormatted(Function<Stream<Sample>, String> formatter);
 
 	/**
 	 * Representation of a sample. Each sample consists of the time it was taken in nanoseconds and a representation of
@@ -467,6 +437,67 @@ class Sampler implements Closeable {
 }
 
 /**
+ * Dummy sampler that does nothing
+ */
+class DummySampler implements Sampler {
+
+	@Override
+	public void close() {
+	}
+
+	@Override
+	public void addSample() {
+	}
+
+	@Override
+	public String getSamplesFormatted(Function<Stream<Sample>, String> formatter) {
+		return "N/A";
+	}
+}
+
+/**
+ * Sampler for the provided evaluator that temporarily stores samples on disk to avoid excessive memory usage (using an
+ * auxiliary thread that encodes, writes, reads, and decodes, to avoid stalling the main thread).
+ */
+class TempFileSampler implements Sampler {
+	private final Evaluator evaluator;
+	private final TempFile<Sample> tempFile;
+
+	public TempFileSampler(Evaluator evaluator) throws IOException {
+		this.evaluator = evaluator;
+		this.tempFile = new TempFile<>(
+			// Configure the temporary file handle to store samples on disk as base 64-encoded `IValue`s
+			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
+			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, new TypeStore()))
+		);
+	}
+
+	@Override
+	public void close() {
+		tempFile.close();
+	}
+
+	public void addSample() {
+		var sample = Sample.of(evaluator);
+		if (sample == null) {
+			return;
+		}
+		tempFile.writeLine(sample);
+	}
+
+	public String getSamplesFormatted(Function<Stream<Sample>, String> formatter) {
+		// The formatter runs on a lazily populated stream of samples, lazily read from the temporary file, to avoid the
+		// need to temporarily keep all samples in an auxiliary collection.
+		return tempFile.readLines().thenApply(samples -> {
+			var filtered = samples.filter(Predicate.not(Sample::isInitializer)); // Avoid a bit of sample pollution
+			var formatted = formatter.apply(filtered);
+			samples.close();
+			return formatted;
+		}).join();
+	}
+}
+
+/**
  * Handle for a freshly created temporary file, internally coupled with a freshly created auxiliary thread dedicated to:
  * (1) encoding and writing objects of type {@code T} to the temporary file; (2) reading and decoding objects.
  */
@@ -541,9 +572,56 @@ class TempFile<T> implements Closeable {
 }
 
 /**
- * Formatter of a collection of samples into the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol.
- * Files written in this format can be opened, for instance, in VS Code using the "Flame Chart Visualizer for JavaScript
- * Profiles" extension, or in Chrome using the built-in developer tools.
+ * Dummy formatter that does nothing
+ */
+class DummyFormatter implements Fmt {
+
+	@Override 
+	public String format(Stream<Sample> samples) {
+		return "N/A";
+	}
+
+	@Override 
+	public String getFormatName() {
+		return "N/A";
+	}
+
+	@Override
+	public String getFormatExtension() {
+		return "txt";
+	}
+}
+
+/**
+ * Formatter for the {@code .folded} format of Brendan Gregg's original `flamegraph.pl` script. Files written in this
+ * format can be post-processed by that script to SVG.
+ * 
+ * @see https://github.com/brendangregg/flamegraph
+ */
+class FoldedFormatter implements Fmt {
+
+	@Override 
+	public String format(Stream<Sample> samples) {
+		// TODO
+		throw new UnsupportedOperationException();
+	}
+
+	@Override 
+	public String getFormatName() {
+		// TODO
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getFormatExtension() {
+		return "folded";
+	}
+}
+
+/**
+ * Formatter for the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol. Files written in this format can
+ * be opened, for instance, in VS Code using the "Flame Chart Visualizer for JavaScript Profiles" extension, or in
+ * Chrome using the built-in developer tools.
  *
  * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/
  */
@@ -557,6 +635,11 @@ class CpuprofileFormatter implements Fmt {
 	@Override
 	public String getFormatName() {
 		return "Cpuprofile";
+	}
+
+	@Override
+	public String getFormatExtension() {
+		return "cpuprofile";
 	}
 
 	/**

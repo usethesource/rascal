@@ -51,7 +51,7 @@ public class Configuration {
 	public final static String DEBUGGING_PROPERTY = "rascal.debugging";
 	
   	private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
-  	private Fmt profileFmt = getDefaultProfileFmt(PROFILE_FMT_PROPERTY, Profiler.CPUPROFILE);
+  	private Fmt profileFmt = getDefaultProfileFmt(PROFILE_FMT_PROPERTY, Profiler.FMT_CPUPROFILE);
 	private URI profileDir = getDefaultProfileDir(PROFILE_DIR_PROPERTY, Path.of("").toAbsolutePath().toUri()); // CWD
   	private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
   	private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
@@ -172,12 +172,14 @@ public class Configuration {
     public static Fmt toProfileFmt(IValue v) {
         if (v instanceof IString) {
             switch (v.toString()) {
+				case "\"none\"":
+                    return Profiler.FMT_NONE;
                 case "\"folded\"":
-                    return null;
+                    return Profiler.FMT_FOLDED;
                 case "\"cpuprofile\"":
-                    return Profiler.CPUPROFILE;
+                    return Profiler.FMT_CPUPROFILE;
                 default:
-                    return null;
+                    return Profiler.FMT_NONE;
             }
         } else {
             throw new UnexpectedTypeException(TypeFactory.getInstance().stringType(), v.getType());
