@@ -156,7 +156,9 @@ jobs:
     steps: 
       - name: Change line endings to CRLF (Windows)
         if: contains(matrix.os, 'windows')
-        run: git config --global core.autocrlf true
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol crlf
 
       - uses: actions/checkout@v5
 
