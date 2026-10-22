@@ -21,6 +21,7 @@ import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -288,6 +289,7 @@ public class Profiler extends Thread {
 			var fmt = eval.getConfiguration().getProfileFmtProperty();
 			var dir = Path.of(eval.getConfiguration().getProfileDirProperty());
 			var file = dir.resolve("profile" + dateTime + hint + "." + fmt.getFormatExtension());
+			var link = dir.resolve("profile-latest." + fmt.getFormatExtension());
 
 			// Compute the content of the file
 			var formatted = sampler.getSamplesFormatted(fmt::format);
@@ -299,13 +301,24 @@ public class Profiler extends Thread {
 				Files.writeString(file, formatted);
 				message = URIUtil.createFileLocation(file).toString();
 			} catch (URISyntaxException | IOException e) {
-				message = String.format("Failed to write data (%s)", file, e);
-				e.printStackTrace();
+				message = String.format("Failed to write data (%s)", e);
+			}
+
+			// Create symbolic link (preferred) or copy (fallback) with a predictable name (e.g., useful if a separate
+			// post-processing script/tool needs to be run on the file, such as `flamegraph.pl` with the FOLDED format).
+			try {
+				Files.createSymbolicLink(link, file);
+			} catch (IOException e1) {
+				try {
+					Files.copy(file, link, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e2) {
+					// Minor inconvenience but not of crucial importance; ok to ignore.	
+				}
 			}
 
 			// Print to out
 			var out = eval.getOutPrinter();
-			out.printf("FORMATTED (%s): %s\n", fmt.getFormatName().toUpperCase(), message);
+			out.printf("FORMATTED PROFILE: %s\n", message);
 			out.flush();
 		}
 	}
@@ -602,14 +615,25 @@ class FoldedFormatter implements Fmt {
 
 	@Override 
 	public String format(Stream<Sample> samples) {
-		// TODO
-		throw new UnsupportedOperationException();
+		var folded = new HashMap<String, Integer>();
+		samples.map(FoldedFormatter::fold).forEach(s -> folded.merge(s, 1, Integer::sum));
+		
+		var formatted = new StringBuilder();
+		folded.forEach((k, v) -> formatted.append(k + " " + v + "\n")); // Newlines must be `\n` for `flamegraph.pl` to work
+		return formatted.toString();
+	}
+
+	private static String fold(Sample sample) {
+		return sample.stack.stream().map(FoldedFormatter::fold).collect(Collectors.joining(";"));
+	}
+
+	private static String fold(Labeled<ISourceLocation> callFrame) {
+		return callFrame.label + " at " + callFrame.value.toString();	
 	}
 
 	@Override 
 	public String getFormatName() {
-		// TODO
-		throw new UnsupportedOperationException();
+		return "Folded";
 	}
 
 	@Override
