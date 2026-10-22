@@ -58,7 +58,7 @@ public class Configuration {
   	private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
 	private boolean debugging = getDefaultBoolean(DEBUGGING_PROPERTY, false);
 
-	private static boolean getDefaultBoolean(String property, boolean def) {
+	public static boolean getDefaultBoolean(String property, boolean def) {
 		String prop = System.getProperty(property);
 		if (prop == null) {
 			return def;
@@ -68,7 +68,7 @@ public class Configuration {
 		}
 	}
 
-	private static Fmt getDefaultProfileFmt(String property, Fmt def) {
+	public static Fmt getDefaultProfileFmt(String property, Fmt def) {
 		String prop = System.getProperty(property);
 		if (prop == null) {
 			return def;
@@ -78,7 +78,7 @@ public class Configuration {
 		}
 	}
 
-	private static URI getDefaultProfileDir(String property, URI def) {
+	public static URI getDefaultProfileDir(String property, URI def) {
 		String prop = System.getProperty(property);
 		if (prop == null) {
 			return def;
