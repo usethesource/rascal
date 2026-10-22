@@ -18,6 +18,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.Vector;
@@ -291,6 +293,12 @@ public class Profiler extends Thread {
 			var file = dir.resolve("profile" + dateTime + hint + "." + fmt.getFormatExtension());
 			var link = dir.resolve("profile-latest." + fmt.getFormatExtension());
 
+			try (var writer = Files.newBufferedWriter(file)) {
+				sampler.consumeSampleStream(x -> fmt.formatAndWrite(x, writer));
+			} catch (IOException e){
+				e.printStackTrace();
+			} 
+
 			// Compute the content of the file
 			var formatted = sampler.getSamplesFormatted(fmt::format);
 			sampler.close();
@@ -333,9 +341,19 @@ public class Profiler extends Thread {
 	public static interface Fmt {
 	    public String format(Stream<Sample> samples);
 
+		public void formatAndWrite(Stream<Sample> samples, Writer writer);
+
 		public String getFormatName();
 
 		public String getFormatExtension();
+
+		public static Writer appendToUnchecked(Writer writer, CharSequence csq) {
+			try {
+				return writer.append(csq);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
 	}
 }
 
@@ -349,6 +367,8 @@ interface Sampler extends Closeable {
 	public void addSample();
 
 	public String getSamplesFormatted(Function<Stream<Sample>, String> formatter);
+
+	public void consumeSampleStream(Consumer<Stream<Sample>> action);
 
 	/**
 	 * Representation of a sample. Each sample consists of the time it was taken in nanoseconds and a representation of
@@ -466,6 +486,10 @@ class DummySampler implements Sampler {
 	public String getSamplesFormatted(Function<Stream<Sample>, String> formatter) {
 		return "N/A";
 	}
+
+	@Override
+	public void consumeSampleStream(Consumer<Stream<Sample>> action) {
+	}
 }
 
 /**
@@ -506,6 +530,15 @@ class TempFileSampler implements Sampler {
 			var formatted = formatter.apply(filtered);
 			samples.close();
 			return formatted;
+		}).join();
+	}
+
+	@Override
+	public void consumeSampleStream(Consumer<Stream<Sample>> action) {
+		tempFile.readLines().thenAccept(samples -> {
+			samples = samples.filter(Predicate.not(Sample::isInitializer)); // Avoid a bit of sample pollution
+			action.accept(samples);
+			samples.close();
 		}).join();
 	}
 }
@@ -603,6 +636,10 @@ class DummyFormatter implements Fmt {
 	public String getFormatExtension() {
 		return "txt";
 	}
+
+	@Override
+	public void formatAndWrite(Stream<Sample> samples, Writer writer) {
+	}
 }
 
 /**
@@ -621,6 +658,14 @@ class FoldedFormatter implements Fmt {
 		var formatted = new StringBuilder();
 		folded.forEach((k, v) -> formatted.append(k + " " + v + "\n")); // Newlines must be `\n` for `flamegraph.pl` to work
 		return formatted.toString();
+	}
+
+	@Override
+	public void formatAndWrite(Stream<Sample> samples, Writer writer) {
+		var folded = new HashMap<String, Integer>();
+		samples.map(FoldedFormatter::fold).forEach(s -> folded.merge(s, 1, Integer::sum));		
+
+		folded.forEach((k, v) -> Fmt.appendToUnchecked(writer, k + " " + v + "\n")); // Newlines must be `\n` for `flamegraph.pl` to work (also on Windows)
 	}
 
 	private static String fold(Sample sample) {
@@ -653,7 +698,7 @@ class CpuprofileFormatter implements Fmt {
 
 	@Override
 	public String format(Stream<Sample> samples) {
-		return Profile.of(samples).format(0);
+		return null;
 	}
 
 	@Override
@@ -664,6 +709,11 @@ class CpuprofileFormatter implements Fmt {
 	@Override
 	public String getFormatExtension() {
 		return "cpuprofile";
+	}
+
+	@Override
+	public void formatAndWrite(Stream<Sample> samples, Writer writer) {
+		Profile.of(samples).write(writer, 0);
 	}
 
 	/**
@@ -686,18 +736,24 @@ class CpuprofileFormatter implements Fmt {
 			this.timeDeltas = timeDeltas;
 		}
 
-		public String format(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"nodes\": [");
-			appendln(b, tabs + 2, nodes.stream().map(n -> n.format(tabs + 2).stripTrailing()).collect(Collectors.joining("," + System.lineSeparator())).strip());
-			appendln(b, tabs + 1, "],");
-			appendln(b, tabs + 1, "\"startTime\": " + startTime + ",");
-			appendln(b, tabs + 1, "\"endTime\": " + endTime + ",");
-			appendln(b, tabs + 1, "\"samples\": " + samples + ",");
-			appendln(b, tabs + 1, "\"timeDeltas\": " + timeDeltas);
-			appendln(b, tabs, "}");
-			return b.toString();
+		public void write(Writer w, int tabs) {
+			appendlnTo(w, tabs, "{");
+			appendlnTo(w, tabs, "  \"nodes\": [");
+
+			var iterator = nodes.iterator();
+			while (iterator.hasNext()) {
+				iterator.next().write(w, tabs + 2);
+				if (iterator.hasNext()) {
+					appendlnTo(w, tabs, "  ,");
+				}
+			}
+
+			appendlnTo(w, tabs, "  ]");
+			appendlnTo(w, tabs, ", \"startTime\": " + startTime + ",");
+			appendlnTo(w, tabs, ", \"endTime\": " + endTime + ",");
+			appendlnTo(w, tabs, ", \"samples\": " + samples + ",");
+			appendlnTo(w, tabs, ", \"timeDeltas\": " + timeDeltas);
+			appendlnTo(w, tabs, "}");
 		}
 
 		public static Profile of(Stream<Sample> rawSamples) {
@@ -776,14 +832,13 @@ class CpuprofileFormatter implements Fmt {
 			}
 		}
 
-		public String format(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"id\": " + id + ",");
-			appendln(b, tabs + 1, "\"callFrame\": " + callFrame.format(tabs + 1).strip() + ",");
-			appendln(b, tabs + 1, "\"children\": " + children);
-			appendln(b, tabs, "}");
-			return b.toString();
+		public void write(Writer w, int tabs) {
+			appendlnTo(w, tabs, "{");
+			appendlnTo(w, tabs, "  \"id\": " + id);
+			appendlnTo(w, tabs, ", \"callFrame\":");
+			callFrame.write(w, tabs + 2);
+			appendlnTo(w, tabs, ", \"children\": " + children);
+			appendlnTo(w, tabs, "}");
 		}
 	}
 
@@ -828,16 +883,14 @@ class CpuprofileFormatter implements Fmt {
 			return false;
 		}
 
-		public String format(int tabs) {
-			var b = new StringBuilder();
-			appendln(b, tabs, "{");
-			appendln(b, tabs + 1, "\"functionName\": \"" + functionName + "\",");
-			appendln(b, tabs + 1, "\"scriptId\": \"" + scriptId + "\",");
-			appendln(b, tabs + 1, "\"url\": \"" + url + "\",");
-			appendln(b, tabs + 1, "\"lineNumber\": " + lineNumber + ",");
-			appendln(b, tabs + 1, "\"columnNumber\": " + columnNumber + "");
-			appendln(b, tabs, "}");
-			return b.toString();
+		public void write(Writer w, int tabs) {
+			appendlnTo(w, tabs, "{");
+			appendlnTo(w, tabs, "  \"functionName\": \"" + functionName + "\"");
+			appendlnTo(w, tabs, ", \"scriptId\": \"" + scriptId + "\"");
+			appendlnTo(w, tabs, ", \"url\": \"" + url + "\",");
+			appendlnTo(w, tabs, ", \"lineNumber\": " + lineNumber);
+			appendlnTo(w, tabs, ", \"columnNumber\": " + columnNumber);
+			appendlnTo(w, tabs, "}");
 		}
 
 		public static CallFrame of(Labeled<ISourceLocation> rawCallFrame) {
@@ -859,10 +912,11 @@ class CpuprofileFormatter implements Fmt {
 		}
 	}
 
-	private static StringBuilder appendln(StringBuilder b, int tabs, String s) {
-		b.append(" ".repeat(tabs * 2));
-		b.append(s);
-		b.append(System.lineSeparator());
-		return b;
+	// TODO: Rename and other refactorings
+
+	private static void appendlnTo(Writer w, int tabs, String s) {
+		Fmt.appendToUnchecked(w, " ".repeat(tabs * 2));
+		Fmt.appendToUnchecked(w, s);
+		Fmt.appendToUnchecked(w, System.lineSeparator());
 	}
 }
