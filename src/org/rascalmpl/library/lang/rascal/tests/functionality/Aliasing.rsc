@@ -68,6 +68,21 @@ test bool assignThroughListAlias() {
   values[0] = 3;
   return values == [3, 2];
 }
+
+alias Pair[&T] = tuple[&T first, int second];
+
+test bool assignFieldThroughParameterizedTupleAlias() {
+  Pair[str] p = <"a", 1>;
+  p.second = 2;
+  return p == <"a", 2>;
+}
+
+Pair[&T] incSecond(Pair[&T] p) {
+  p.second += 1;
+  return p;
+}
+
+test bool assignFieldThroughGenericTupleAlias() = incSecond(<"a", 1>) == <"a", 2>;
 		  
 alias trans = tuple[str, str, str]; 
 alias block = set[trans];
