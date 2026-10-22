@@ -192,6 +192,18 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         return matchRascalTypeParams0(getFunctionReturnType(r), getFunctionReturnType(s), b);
     }
     
+    // A constructor can be used as a function (and vice versa during unification):
+    // match the parameter types with the fields, and the return type with the ADT
+    if ( isFunctionAType(r) && isConstructorAType(s) ) {
+        b = matchRascalTypeParams0(getFunctionArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);
+        return matchRascalTypeParams0(getFunctionReturnType(r), getConstructorResultType(s), b);
+    }
+
+    if ( isConstructorAType(r) && isFunctionAType(s) ) {
+        b = matchRascalTypeParams0(getConstructorArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b);
+        return matchRascalTypeParams0(getConstructorResultType(r), getFunctionReturnType(s), b);
+    }
+
     // For tuples, check the arity then match the item types
     if ( isTupleAType(r) && isTupleAType(s) && getTupleFieldCount(r) == getTupleFieldCount(s) ) {
         rfields = getTupleFieldTypes(r);
