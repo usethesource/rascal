@@ -34,7 +34,7 @@ Box toBox((Statement) `while <Expression e> do <{Statement ";"}* block> od`)
         L("od")
     ); 
 
-@synopsis{Format if-then-else }
+@synopsis{Format if-then-else}
 Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <{Statement ";"}* elsePart> fi`)
     = V(
         H(L("if"), HV(toBox(e)), L("then")),
@@ -44,7 +44,7 @@ Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> else <
         L("fi")
     ); 
 
-@synopsis{Format if-then }
+@synopsis{Format if-then}
 Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> fi`)
     = V(
         H(L("if"), HV(toBox(e)), L("then")),
@@ -52,6 +52,7 @@ Box toBox((Statement) `if <Expression e> then <{Statement ";"}* thenPart> fi`)
         L("fi")
     );
 
+@synopsis{Format lists of declarations}
 Box toBox((Declarations) `declare <{IdType ","}* decls>;`)
     = V(
         L("declare"),
@@ -59,6 +60,7 @@ Box toBox((Declarations) `declare <{IdType ","}* decls>;`)
         L(";")
     );
 
+@synopsis{Format programs}
 Box toBox((Program) `begin <Declarations decls> <{Statement  ";"}* body> end`)
     = V(
         L("begin"),
