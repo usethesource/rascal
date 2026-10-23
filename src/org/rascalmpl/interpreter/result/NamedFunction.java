@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -30,6 +31,8 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -39,6 +42,7 @@ import org.rascalmpl.util.ExpiringFunctionResultCache;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -58,6 +62,8 @@ abstract public class NamedFunction extends AbstractFunction {
     private final int memoizationTimeout;
     private final int memoizationMaxEntries;
 
+    private static final Pattern EMPTY_TAG = Pattern.compile("^\\{\\w*\\}$");
+
     public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicType, List<KeywordFormal> initializers, String name,
             boolean varargs, boolean isDefault, boolean isTest, Environment env) {
         super(ast, eval, functionType, dynamicType, initializers, varargs, env);
@@ -73,6 +79,12 @@ abstract public class NamedFunction extends AbstractFunction {
             IValue memoTag = tags.get("memo");
             if (memoTag != null) {
                 this.hasMemoization = true;
+                if (memoTag instanceof IString) {
+                    var tagValue = ((IString)memoTag).getValue();
+                    if (!tagValue.isEmpty() && !EMPTY_TAG.matcher(tagValue).matches()) {
+                        throw RuntimeExceptionFactory.illegalArgument(memoTag, "Invalid memo configuration, in most cases @memo = {..} is needed instead of @memo{}", ((FunctionDeclaration)ast).getTags(), new StackTrace());
+                    }
+                }
                 if (!(memoTag instanceof ISet)) {
                     memoTag = vf.set(memoTag);
                 }
