@@ -35,6 +35,7 @@ import util::Reflective;
 import util::FileSystem;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::LogicalLocations;
+import util::Memo;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -101,7 +102,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-@memo{expireAfter(minutes=5),maximumSize(500)}
+@memo={expireAfter(minutes=5),maximumSize(500)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;

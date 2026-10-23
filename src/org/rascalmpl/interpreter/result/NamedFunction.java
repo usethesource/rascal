@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -60,8 +59,6 @@ abstract public class NamedFunction extends AbstractFunction {
     private final int memoizationTimeout;
     private final int memoizationMaxEntries;
 
-    private static final Pattern EMPTY_TAG = Pattern.compile("^\\{\\w*\\}$");
-
     public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicType, List<KeywordFormal> initializers, String name,
             boolean varargs, boolean isDefault, boolean isTest, Environment env) {
         super(ast, eval, functionType, dynamicType, initializers, varargs, env);
@@ -78,9 +75,8 @@ abstract public class NamedFunction extends AbstractFunction {
             if (memoTag != null) {
                 this.hasMemoization = true;
                 if (memoTag instanceof IString) {
-                    var tagValue = ((IString)memoTag).getValue();
-                    if (!tagValue.isEmpty() && !EMPTY_TAG.matcher(tagValue).matches()) {
-                        eval.warning("Ignored memo configuration " + tagValue + ", in most cases `@memo = {..}` is needed instead of `@memo{}`", ((FunctionDeclaration)ast).getTags().getLocation());
+                    if (!((IString)memoTag).getValue().isBlank()) {
+                        eval.warning("Ignored memo configuration " + memoTag + ", in most cases `@memo={..}` is needed instead of `@memo{..}`", ((FunctionDeclaration)ast).getTags().getLocation());
                     }
                 }
                 if (!(memoTag instanceof ISet)) {
