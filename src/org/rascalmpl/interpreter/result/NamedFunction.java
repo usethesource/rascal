@@ -31,8 +31,6 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.exceptions.ImplementationError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -82,7 +80,7 @@ abstract public class NamedFunction extends AbstractFunction {
                 if (memoTag instanceof IString) {
                     var tagValue = ((IString)memoTag).getValue();
                     if (!tagValue.isEmpty() && !EMPTY_TAG.matcher(tagValue).matches()) {
-                        throw RuntimeExceptionFactory.illegalArgument(memoTag, "Invalid memo configuration, in most cases @memo = {..} is needed instead of @memo{}", ((FunctionDeclaration)ast).getTags(), new StackTrace());
+                        eval.warning("Ignored memo configuration " + tagValue + ", in most cases `@memo = {..}` is needed instead of `@memo{}`", ((FunctionDeclaration)ast).getTags().getLocation());
                     }
                 }
                 if (!(memoTag instanceof ISet)) {
