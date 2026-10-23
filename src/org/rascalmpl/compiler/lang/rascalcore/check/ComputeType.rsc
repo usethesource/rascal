@@ -239,7 +239,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
 }
 
 AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
-    //println("---- <current>, identicalFormals: <identicalFormals>");
+    // println("---- <current>, identicalFormals: <identicalFormals>");
     requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
@@ -315,6 +315,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
             } else
                 continue;
         }
+        
         s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
@@ -468,9 +469,6 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     containerType = unwrapAType(containerType);
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
-    if(isNonTerminalAType(containerType) && fieldName == "top"){
-        return isStartNonTerminalType(containerType) ? getStartNonTerminalType(containerType) : containerType;
-    }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
 }
 
@@ -496,9 +494,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         }
     } else if(isSyntaxType(containerType)){
 
-        if(isStartNonTerminalType(containerType)){
-           return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
-        } else if(isIterType(containerType)){
+        if(isIterType(containerType)){
             if(containerType.alabel == fieldName){
                 return makeListType(getIterElementType(containerType));
             }
@@ -891,8 +887,6 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
         return numericArithTypes(t1, t2);
     }
     if(isDateTimeAType(t1) && isDateTimeAType(t2)) {
-        // TODO JV: why are we promoting the type parameter here?
-        // BTW, the difference between two DateTime's is _NOT_ a datetime but an integer or something that represents a Duration.
         return isSameTypeParameter(t1, t2) ? t1 : adatetime();
     }
     if(isListAType(t1) && isListAType(t2)){
@@ -901,8 +895,6 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
        return t1;
     }
 
-    // TODO JV: this is weird, what if it's a list of lists and you want to subtract something? Then the previous case already
-    // complains about incomparability...
     if(isListAType(t1)){
         s.requireComparable(getListElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isListRelAType(t1) ? "List Relation" : "List", t1, t2));
         return t1;
@@ -912,7 +904,6 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
         return t1;
     }
 
-    // TODO JV: same issue as with list
     if(isSetAType(t1)){
         s.requireComparable(getSetElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isRelAType(t1) ? "Relation" : "Set", t1, t2));
         return t1;
@@ -1194,10 +1185,6 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = s.instantiate(subjectType);
-
-    if(isStartNonTerminalType(subjectType)){
-        subjectType = getStartNonTerminalType(subjectType);
-    }
 
     if(isStrAType(texp)){
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
