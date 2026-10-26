@@ -63,7 +63,7 @@
                 <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>${project.build.directory}/generated-resources</directory>
+                <directory>generated/src/main/java</directory>
             </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
@@ -406,6 +406,25 @@
                                     <version>(3.8,)</version> <!-- ideally this would be 3.9+, but GH actions is still on 3.8 -->
                                 </requireMavenVersion>
                             </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>generated/src/main/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>

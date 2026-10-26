@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.runtime.RascalExecutionContext;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -44,43 +45,46 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import rascal.lang.rascal.grammar.$ConcreteSyntax;
+import rascal.lang.rascal.grammar.$ParserGenerator;
+import rascal.lang.rascal.grammar.definition.$Keywords;
+import rascal.lang.rascal.grammar.definition.$Literals;
+import rascal.lang.rascal.grammar.definition.$Modules;
+import rascal.lang.rascal.grammar.definition.$Parameters;
+import rascal.lang.rascal.grammar.definition.$Priorities;
+import rascal.lang.rascal.grammar.definition.$Regular;
+import rascal.lang.rascal.grammar.definition.$Symbols;
 
 public class ParserGenerator {
-	private final Evaluator evaluator;
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.test.parser";
 	private static final boolean debug = false;
 
+	private final $ParserGenerator parserGenerator;
+	private final $ConcreteSyntax concreteSyntax;
+	private final $Modules modules;
+	private final $Priorities priorities;
+	private final $Regular regular;
+	private final $Keywords keywords;
+	private final $Literals literals;
+	private final $Parameters parameters;
+	private final $Symbols symbols;
+
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		this.evaluator = ShellEvaluatorFactory.getBasicEvaluator(Reader.nullReader(), out, out, monitor, "$parsergenerator$");
-		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
-		this.evaluator.setBootstrapperProperty(true);
+		var rex = new RascalExecutionContext(null, out, out, null, null, $ParserGenerator.class);
+		var ms = rex.getModuleStore();
+		parserGenerator = new $ParserGenerator(rex);
+		concreteSyntax = ms.getModule($ConcreteSyntax.class);
+		modules = ms.getModule($Modules.class);
+		priorities = ms.getModule($Priorities.class);
+		regular = ms.getModule($Regular.class);
+		keywords = ms.getModule($Keywords.class);
+		literals = ms.getModule($Literals.class);
+		parameters = ms.getModule($Parameters.class);
+		symbols = ms.getModule($Symbols.class);
 		this.bridge = new JavaBridge(Collections.singletonList(Evaluator.class.getClassLoader()), factory, config);
 		this.vf = factory;
-		
-		evaluator.doImport(monitor, 
-	"lang::rascal::grammar::ParserGenerator",
-			"lang::rascal::grammar::ConcreteSyntax",
-			"lang::rascal::grammar::definition::Modules",
-			"lang::rascal::grammar::definition::Priorities", 
-			"lang::rascal::grammar::definition::Regular", 
-			"lang::rascal::grammar::definition::Keywords",
-			"lang::rascal::grammar::definition::Literals",
-			"lang::rascal::grammar::definition::Parameters",
-			"lang::rascal::grammar::definition::Symbols",
-			"analysis::grammars::Ambiguity"
-		);
-	}
-	
-	public void setGeneratorProfiling(boolean f) {
-		evaluator.getConfiguration().setGeneratorProfiling(f);
-	}
-	
-	public IValue diagnoseAmbiguity(IConstructor parseForest) {
-		synchronized(evaluator) {
-			return evaluator.call("diagnose", parseForest);
-		}
 	}
 	
 	private void debugOutput(String kind, Object thing, String file) {
@@ -88,7 +92,7 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
-			    evaluator.getErrorPrinter().println("\nWriting " + kind + " to " + file);
+			    System.err.println("\nWriting " + kind + " to " + file);
 
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
@@ -109,69 +113,37 @@ public class ParserGenerator {
 		}
 	}
 	
-	public IConstructor getGrammarFromModules(IRascalMonitor monitor, String main, IMap modules) {
-		synchronized(evaluator) {
-			return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), modules);
-		}
+	public IConstructor getGrammarFromModules(IRascalMonitor monitor, String main, IMap mods) {
+		return modules.modules2grammar(vf.string(main), mods);
 	}
 	
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
-		synchronized(evaluator) {
-			IConstructor g = getGrammarFromModules(monitor, main, definition);
-			g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
-			g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
-			g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
-			g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
-			g = (IConstructor) evaluator.call(monitor, "literals", g);
-			return g;
-		}
+		var g = getGrammarFromModules(monitor, main, definition);
+		g = keywords.expandKeywords(g);
+		g = (IConstructor) regular.makeRegularStubs(g);
+		g = regular.expandRegularSymbols(g);
+		g = parameters.expandParameterizedSymbols(g);
+		g = literals.literals(g);
+
+		return g;
 	}
 
-	public ISet getNestingRestrictions(IRascalMonitor monitor,
-			IConstructor g) {
-		synchronized (evaluator) {
-			return (ISet) evaluator.call(monitor, "doNotNest", g);
-		}
+	public ISet getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
+		return priorities.doNotNest(g);
 	}
 
 	/** 
 	 * Produces the name generated by the parser generator for a parse method for the given symbol
 	 */
 	public String getParserMethodName(IConstructor symbol) {
-		// we use a fast non-synchronized path for simple cases; 
-		// this is to prevent locking the evaluator in IDE contexts
-		// where many calls into the evaluator/parser are fired in rapid
-		// succession.
-
-		switch (symbol.getName()) {
-			case "start":
-				return "$start_" + getParserMethodName(SymbolAdapter.getStart(symbol));
-			case "layouts":
-				return "$l_" + SymbolAdapter.getName(symbol);
-			case "sort":
-				return SymbolAdapter.getName(symbol);
-			case "lex":
-				return SymbolAdapter.getName(symbol);
-			case "keywords":
-				return "$k_" + SymbolAdapter.getName(symbol);
-		}
-
-		synchronized (evaluator) {
-			// TODO we assume here this is a context-free non-terminal for now. 
-			// Later with the syntax role modifiers we can implement parsing for lexical regulars too
-			Map<String,IValue> kwArgs = Map.of("withLayout", vf.bool(true));
-			return ((IString) evaluator.call("getParserMethodName", "lang::rascal::grammar::ParserGenerator", kwArgs, symbol)).getValue();
-		}
+		return parserGenerator.getParserMethodName(symbol, symbol.asWithKeywordParameters().getParameters()).getValue(); // TODO (RA): check, different than JV's implementation
 	}
 	
 	/**
 	 * Converts the parse tree of a symbol to a UPTR symbol
 	 */
 	public IConstructor symbolTreeToSymbol(IConstructor symbol, boolean withLayout) {
-		synchronized (evaluator) {
-			Map<String,IValue> kws = Map.of("withLayout", vf.bool(withLayout));
-	  		return (IConstructor) evaluator.call("sym2symbol", "lang::rascal::grammar::definition::Symbols", kws, symbol);
-		}
+		return symbols.sym2symbol(symbol, symbol.asWithKeywordParameters().getParameters()); // TODO (RA): check, different than JV's implementation
 	}
 	
   /**
@@ -184,12 +156,7 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
-
 		try {
-			if (profiler != null) {
-				profiler.start();
-			}
 			IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 			debugOutput("grammar", grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
@@ -200,14 +167,6 @@ public class ParserGenerator {
 		catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
 		} 
-		finally {
-			if (profiler != null) {
-				profiler.pleaseStop();
-				evaluator.getOutPrinter().println("PROFILE:");
-				profiler.report();
-				profiler = null;
-			}
-		}
 	}
 
   /**
@@ -223,11 +182,8 @@ public class ParserGenerator {
 		try {
 			String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 			
-			IString classString;
-			synchronized (evaluator) {
-				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
-			}
-			debugOutput("java code", classString.getValue(), "./test/org/rascalmpl/test/parser/" + normName + ".java");
+			IString classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar);
+			debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
@@ -250,12 +206,9 @@ public class ParserGenerator {
   public void writeNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition, ISourceLocation target) throws IOException {
 	try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
 		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
-		IString classString;
 		IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
-
-		synchronized (evaluator) {
-			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
-		}
+		
+		IString classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar);
 		debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 		
 		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
@@ -267,8 +220,6 @@ public class ParserGenerator {
 }
 
 	public IString createHole(IConstructor part, IInteger size) {
-		synchronized (evaluator) {
-			return (IString) evaluator.call("createHole", part, size);
-		}
+		return concreteSyntax.createHole(part, size);
 	}
 }
