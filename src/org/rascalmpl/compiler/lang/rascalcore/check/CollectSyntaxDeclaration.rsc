@@ -136,10 +136,10 @@ void collectStartRule(Start current, AType nonterminalType, Collector c) {
     c.enterScope(current);
     startProd = defType(aprod(prod(aStartSym, [nonterminalType[alabel="top"]])));
     startProd.md5 = md5Hash("<md5prefix>_prod");
-    sPos = current@\loc.top(current@\loc.offset, 1);
+    sPos = current.src.top(current.src.offset, 1);
     c.define("", productionId(), sPos, startProd);
 
-    tPos = current@\loc.top(current@\loc.offset + 1, 1);
+    tPos = current.src.top(current.src.offset + 1, 1);
     fieldDef = defType(nonterminalType[alabel="top"]);
 
     fieldDef.md5 = md5Hash("<md5prefix>_top");
