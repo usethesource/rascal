@@ -453,6 +453,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         useDef = getUseDef(tm);
         logical2physical = tm.logical2physical;
         definitions = tm.definitions;
+        scopes = tm.scopes;
 
         componentScopesByUri = (s.uri: s | loc s <- componentScopes, loc s := logical2physical[s] ? s);
 
@@ -475,7 +476,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, logical2physical)];
         ms.messages[currentModule] = toSet(m1.messages);
 
-        m1.scopes = tm.scopes;
+        m1.scopes = (s1: scopes[s1] | s1 <- scopes, isContainedInFilteredModuleScopes(s1, logical2physical));
 
         m1.store
                 = (key_bom : bom);
@@ -523,7 +524,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
-        m1.logical2physical = logical2physical;
+        m1.logical2physical = (log: phys | log <- logical2physical, phys := logical2physical[log], isContainedInFilteredModuleScopes(phys, logical2physical));
         ms = deleteProperty(currentModule, ms, tpl_saved());
         ms = addTModel(currentModule, m1, ms);
     }
