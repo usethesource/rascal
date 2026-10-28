@@ -524,7 +524,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
-        m1.logical2physical = (log: phys | log <- logical2physical, phys := logical2physical[log], isContainedInFilteredModuleScopes(phys, logical2physical));
+        m1.logical2physical = (log: logical2physical[log] | log <- logical2physical, isContainedInFilteredModuleScopes(log, logical2physical));
         ms = deleteProperty(currentModule, ms, tpl_saved());
         ms = addTModel(currentModule, m1, ms);
     }
