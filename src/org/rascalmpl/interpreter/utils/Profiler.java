@@ -15,6 +15,11 @@ package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,14 +30,21 @@ import java.util.Vector;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.profiler.DummyFormatter;
 import org.rascalmpl.interpreter.utils.profiler.DummySampler;
 import org.rascalmpl.interpreter.utils.profiler.Sampler;
 import org.rascalmpl.interpreter.utils.profiler.TempFileSampler;
+import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Expression.QualifiedName;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+import org.rascalmpl.semantics.dynamic.Statement.Expression;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
 	int ticks;
@@ -182,6 +194,8 @@ public class Profiler extends Thread {
 		report("FRAMES", frame);
 		eval.getOutPrinter().println();
 		report("ASTS", ast);
+		eval.getOutPrinter().println();
+		reportSamples();
 	}
 	
 	private void report(String title, Map<ISourceLocation, Count> data) {
@@ -223,4 +237,67 @@ public class Profiler extends Thread {
 	  out.flush();
 	}
 
+	private void reportSamples() {
+		var fmt = eval.getConfiguration().getProfileFmtProperty();
+		var dir = eval.getConfiguration().getProfileDirProperty();
+		var file = dir.resolve("profile" + dateTimeHint() + functionNameHint(eval.getCurrentAST()) + "." + fmt.getExtension());
+		var link = dir.resolve("profile-latest." + fmt.getExtension());
+
+		// Create file
+		var message = "";
+		try (var writer = Files.newBufferedWriter(file)) {
+			sampler.consumeSamples(samples -> fmt.format(writer, samples));
+			message = URIUtil.createFileLocation(file).toString();
+		} catch (URISyntaxException | IOException e){
+			message = String.format("Failed to write data (%s)", e);
+		} finally {
+			sampler.close();
+		}
+
+		// Create symbolic link (preferred) or copy (fallback) with a predictable name (e.g., useful if a separate
+		// post-processing script/tool needs to be run on the file, such as `flamegraph.pl`).
+		try {
+			Files.createSymbolicLink(link, file);
+		} catch (IOException e1) {
+			try {
+				Files.copy(file, link, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e2) {
+				// Minor inconvenience but not of crucial importance; ok to ignore.	
+			}
+		}
+
+		// Print to out
+		var out = eval.getOutPrinter();
+		out.printf("FORMATTED PROFILE: %s\n", message);
+		out.flush();
+	}
+
+	private static String dateTimeHint() {
+		var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
+		dateTime = dateTime.replaceAll("[:\\-]", "");
+		dateTime = dateTime.substring(0, 15);
+		return "-" + dateTime;
+	}
+
+	private static String functionNameHint(AbstractAST ast) {
+		// Traverse `ast`
+		if (ast instanceof Expression) {
+			ast = ((Expression) ast).hasExpression() ? ((Expression) ast).getExpression() : ast;
+		}
+		if (ast instanceof CallOrTree) {
+			ast = ((CallOrTree) ast).hasExpression() ? ((CallOrTree) ast).getExpression() : ast;
+		}
+		if (ast instanceof QualifiedName) {
+			ast = ((QualifiedName) ast).hasQualifiedName() ? ((QualifiedName) ast).getQualifiedName() : ast;
+		}
+		
+		// Compute the hint (if possible)
+		var hint = "";
+		if (ast instanceof Default) {
+			hint = ((Default) ast).lastName();
+			hint = hint.replaceAll("[\\\\]", "");
+			hint = "-" + hint;
+		}
+		return hint;
+	}
 }
