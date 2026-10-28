@@ -347,12 +347,17 @@ public class Profiler extends Thread {
 
 		public String getFormatExtension();
 
-		public static Writer appendToUnchecked(Writer writer, CharSequence csq) {
+		public static Writer appendUnchecked(Writer writer, CharSequence csq) {
 			try {
 				return writer.append(csq);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
+		}
+
+		public static void appendlnUnchecked(Writer writer, CharSequence csq) {
+			Fmt.appendUnchecked(writer, csq);
+			Fmt.appendUnchecked(writer, System.lineSeparator());
 		}
 	}
 }
@@ -665,7 +670,7 @@ class FoldedFormatter implements Fmt {
 		var folded = new HashMap<String, Integer>();
 		samples.map(FoldedFormatter::fold).forEach(s -> folded.merge(s, 1, Integer::sum));		
 
-		folded.forEach((k, v) -> Fmt.appendToUnchecked(writer, k + " " + v + "\n")); // Newlines must be `\n` for `flamegraph.pl` to work (also on Windows)
+		folded.forEach((k, v) -> Fmt.appendUnchecked(writer, k + " " + v + "\n")); // Newlines must be `\n` for `flamegraph.pl` to work (also on Windows)
 	}
 
 	private static String fold(Sample sample) {
@@ -737,23 +742,23 @@ class CpuprofileFormatter implements Fmt {
 		}
 
 		public void write(Writer w, int tabs) {
-			appendlnTo(w, tabs, "{");
-			appendlnTo(w, tabs, "  \"nodes\": [");
+			Fmt.appendlnUnchecked(w, indent(tabs, "{"));
+			Fmt.appendlnUnchecked(w, indent(tabs, "  \"nodes\": ["));
 
 			var iterator = nodes.iterator();
 			while (iterator.hasNext()) {
 				iterator.next().write(w, tabs + 2);
 				if (iterator.hasNext()) {
-					appendlnTo(w, tabs, "  ,");
+					Fmt.appendlnUnchecked(w, indent(tabs, "  ,"));
 				}
 			}
 
-			appendlnTo(w, tabs, "  ]");
-			appendlnTo(w, tabs, ", \"startTime\": " + startTime + ",");
-			appendlnTo(w, tabs, ", \"endTime\": " + endTime + ",");
-			appendlnTo(w, tabs, ", \"samples\": " + samples + ",");
-			appendlnTo(w, tabs, ", \"timeDeltas\": " + timeDeltas);
-			appendlnTo(w, tabs, "}");
+			Fmt.appendlnUnchecked(w, indent(tabs, "  ]"));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"startTime\": " + startTime + ","));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"endTime\": " + endTime + ","));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"samples\": " + samples + ","));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"timeDeltas\": " + timeDeltas));
+			Fmt.appendlnUnchecked(w, indent(tabs, "}"));
 		}
 
 		public static Profile of(Stream<Sample> rawSamples) {
@@ -833,12 +838,12 @@ class CpuprofileFormatter implements Fmt {
 		}
 
 		public void write(Writer w, int tabs) {
-			appendlnTo(w, tabs, "{");
-			appendlnTo(w, tabs, "  \"id\": " + id);
-			appendlnTo(w, tabs, ", \"callFrame\":");
+			Fmt.appendlnUnchecked(w, indent(tabs, "{"));
+			Fmt.appendlnUnchecked(w, indent(tabs, "  \"id\": " + id));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"callFrame\":"));
 			callFrame.write(w, tabs + 2);
-			appendlnTo(w, tabs, ", \"children\": " + children);
-			appendlnTo(w, tabs, "}");
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"children\": " + children));
+			Fmt.appendlnUnchecked(w, indent(tabs, "}"));
 		}
 	}
 
@@ -884,13 +889,13 @@ class CpuprofileFormatter implements Fmt {
 		}
 
 		public void write(Writer w, int tabs) {
-			appendlnTo(w, tabs, "{");
-			appendlnTo(w, tabs, "  \"functionName\": \"" + functionName + "\"");
-			appendlnTo(w, tabs, ", \"scriptId\": \"" + scriptId + "\"");
-			appendlnTo(w, tabs, ", \"url\": \"" + url + "\",");
-			appendlnTo(w, tabs, ", \"lineNumber\": " + lineNumber);
-			appendlnTo(w, tabs, ", \"columnNumber\": " + columnNumber);
-			appendlnTo(w, tabs, "}");
+			Fmt.appendlnUnchecked(w, indent(tabs, "{"));
+			Fmt.appendlnUnchecked(w, indent(tabs, "  \"functionName\": \"" + functionName + "\""));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"scriptId\": \"" + scriptId + "\""));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"url\": \"" + url + "\","));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"lineNumber\": " + lineNumber));
+			Fmt.appendlnUnchecked(w, indent(tabs, ", \"columnNumber\": " + columnNumber));
+			Fmt.appendlnUnchecked(w, indent(tabs, "}"));
 		}
 
 		public static CallFrame of(Labeled<ISourceLocation> rawCallFrame) {
@@ -912,11 +917,7 @@ class CpuprofileFormatter implements Fmt {
 		}
 	}
 
-	// TODO: Rename and other refactorings
-
-	private static void appendlnTo(Writer w, int tabs, String s) {
-		Fmt.appendToUnchecked(w, " ".repeat(tabs * 2));
-		Fmt.appendToUnchecked(w, s);
-		Fmt.appendToUnchecked(w, System.lineSeparator());
+	private static String indent(int tabs, String s) {
+		return " ".repeat(tabs * 2) + s;
 	}
 }
