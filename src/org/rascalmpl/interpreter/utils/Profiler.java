@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,6 +25,9 @@ import java.util.Vector;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.profiler.DummySampler;
+import org.rascalmpl.interpreter.utils.profiler.Sampler;
+import org.rascalmpl.interpreter.utils.profiler.TempFileSampler;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -79,19 +83,35 @@ public class Profiler extends Thread {
 	private final Map<ISourceLocation,Count> ast;
 	private final Map<ISourceLocation, Count> frame;
 	private final Map<ISourceLocation, String> names;
+	private final Sampler sampler;
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
 		this.eval = ev;
+		this.sampler = createSampler(ev);
 		this.ast = new HashMap<>();
 		this.frame = new HashMap<>();
 		this.names = new HashMap<>();
 		running = true;
 	}
+
+	private static Sampler createSampler(Evaluator ev) {
+		if (ev.getConfiguration().getProfileFmtProperty() instanceof DummyFormatter) {
+			return new DummySampler(); // Don't sample when there won't be formatting
+		}
+
+		try {
+			return new TempFileSampler(ev);
+		} catch (IOException e) {
+			return new DummySampler(); // Don't sample when the temp file is problematic
+		}
+	}
 	
 	@Override
 	public void run(){
 		while(running) {
+			sampler.produceSample();
+
 			AbstractAST current = eval.getCurrentAST();
 			Environment env = eval.getCurrentEnvt();
 			String name = env.getName();
