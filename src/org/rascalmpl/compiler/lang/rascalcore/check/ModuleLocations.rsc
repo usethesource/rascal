@@ -207,6 +207,7 @@ For a source extension (typically "rsc" or "mu" but this can be configured) srcs
 @examples{
 ```rascal-shell
 import util::Reflective;
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedReadLoc("List", "rsc", pathConfig());
 getRascalModuleDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getRascalModuleDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
@@ -254,11 +255,13 @@ For other modules, a location for this path in bin will be returned.
 @examples{
 ```rascal-shell
 import util::Reflective;
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedWriteLoc("List", "rvm", pathConfig());
 getRascalModuleDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 ```
 
 ```rascal-shell,error
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
 ```
 }
