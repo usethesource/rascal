@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.utils.profiler.Sampler.Labeled;
 import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -54,7 +55,7 @@ public class CpuprofileFormatter implements Formatter {
 
 	@Override
 	public void format(Writer writer, Stream<Sample> samples) {
-		new GsonBuilder().setPrettyPrinting().create().toJson(Profile.of(samples), writer);
+		new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(Profile.of(samples), writer);
 	}
 
 	@Override
@@ -77,27 +78,32 @@ public class CpuprofileFormatter implements Formatter {
 		/**
 		 * CDT protocol: "The list of profile nodes. First item is the root node."
 		 */
+		@Expose
 		public final Set<ProfileNode> nodes;
 
 		/**
 		 * CDT protocol: "Profiling start timestamp in microseconds."
 		 */
+		@Expose
 		public final long startTime;
 
 		/**
 		 * CDT protocol: "Profiling end timestamp in microseconds."
 		 */
+		@Expose
 		public final long endTime;
 
 		/**
 		 * CDT protocol: "Ids of samples top nodes."
 		 */
+		@Expose
 		public final List<Integer> samples; // CDT protocol
 
 		/**
 		 * CDT protocol: "Time intervals between adjacent samples in microseconds. The first delta is relative to the
 		 * profile startTime."
 		 */
+		@Expose
 		public final List<Long> timeDeltas;
 
 		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
@@ -164,16 +170,19 @@ public class CpuprofileFormatter implements Formatter {
 		/**
 		 * CDT protocol: "Unique id of the node."
 		 */
+		@Expose
 		public final int id;
 
 		/**
 		 * CDT protocol: "Function location."
 		 */
+		@Expose
 		public final CallFrame callFrame;
 		
 		/**
 		 * CDT protocol: "Child node ids."
 		 */
+		@Expose
 		public final List<Integer> children;
 
 		/**
@@ -213,26 +222,31 @@ public class CpuprofileFormatter implements Formatter {
 		/**
 		 * CDT protocol: "JavaScript function name."
 		 */
+		@Expose
 		public final String functionName;
 
 		/**
 		 * CDT protocol: "JavaScript script id."
 		 */
+		@Expose
 		public final String scriptId;
 
 		/**
 		 * CDT protocol: "JavaScript script name or url."
 		 */
+		@Expose
 		public final String url;
 		
 		/**
 		 * CDT protocol: "JavaScript script line number (0-based)."
 		 */
+		@Expose
 		public final int lineNumber;
 
 		/**
 		 * CDT protocol: "JavaScript script column number (0-based)."
 		 */
+		@Expose
 		public final int columnNumber;
 
 		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
