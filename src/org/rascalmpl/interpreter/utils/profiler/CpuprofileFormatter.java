@@ -97,7 +97,7 @@ public class CpuprofileFormatter implements Formatter {
 		 * CDT protocol: "Ids of samples top nodes."
 		 */
 		@Expose
-		public final List<Integer> samples; // CDT protocol
+		public final List<Integer> samples;
 
 		/**
 		 * CDT protocol: "Time intervals between adjacent samples in microseconds. The first delta is relative to the
