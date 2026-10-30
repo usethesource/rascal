@@ -132,7 +132,7 @@ public class CpuprofileFormatter implements Formatter {
 				var node = rootNode;
 				for (var rawFrame : rawSample.callStack) {
 					var child = new ProfileNode(nextId++, CallFrame.of(rawFrame));
-					node = node.addChildIfAbsent(child);
+					node = node.lookupChild(child);
 					nodes.add(node);
 				}
 
@@ -188,13 +188,17 @@ public class CpuprofileFormatter implements Formatter {
 			this.children = new ArrayList<>();
 		}
 
-		public ProfileNode addChildIfAbsent(ProfileNode child) {
-			var put = childNodes.putIfAbsent(child.callFrame, child);
-			if (put == null) {
-				children.add(child.id); // Keep consistent
-				return child;
+		/**
+		 * Gets the existing child of this node that {@link #equals()} the provided node, if any. Adds and returns the
+		 * provided node as a new child of this node, otherwise.
+		 */
+		public ProfileNode lookupChild(ProfileNode node) {
+			var child = childNodes.putIfAbsent(node.callFrame, node);
+			if (child == null) {
+				children.add(node.id); // Keep consistent
+				return node;
 			} else {
-				return put;
+				return child;
 			}
 		}
 	}
