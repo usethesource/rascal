@@ -73,11 +73,32 @@ public class CpuprofileFormatter implements Formatter {
 	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
 	 */
 	public static class Profile {
-		public final Set<ProfileNode> nodes; // CDT protocol
-		public final long startTime; // CDT protocol
-		public final long endTime; // CDT protocol
+
+		/**
+		 * CDT protocol: "The list of profile nodes. First item is the root node."
+		 */
+		public final Set<ProfileNode> nodes;
+
+		/**
+		 * CDT protocol: "Profiling start timestamp in microseconds."
+		 */
+		public final long startTime;
+
+		/**
+		 * CDT protocol: "Profiling end timestamp in microseconds."
+		 */
+		public final long endTime;
+
+		/**
+		 * CDT protocol: "Ids of samples top nodes."
+		 */
 		public final List<Integer> samples; // CDT protocol
-		public final List<Long> timeDeltas; // CDT protocol
+
+		/**
+		 * CDT protocol: "Time intervals between adjacent samples in microseconds. The first delta is relative to the
+		 * profile startTime."
+		 */
+		public final List<Long> timeDeltas;
 
 		public Profile(Set<ProfileNode> nodes, long startTime, long endTime, List<Integer> samples, List<Long> timeDeltas) {
 			this.nodes = nodes;
@@ -139,12 +160,26 @@ public class CpuprofileFormatter implements Formatter {
 	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-ProfileNode
 	 */
 	private static class ProfileNode {
-		public final int id; // CDT protocol
-		public final CallFrame callFrame; // CDT protocol
-		public final List<Integer> children; // CDT protocol
 
-		// Internal map to keep track of the existence of child nodes for call frames. Needs to be kept consistent with
-		// `children`.
+		/**
+		 * CDT protocol: "Unique id of the node."
+		 */
+		public final int id;
+
+		/**
+		 * CDT protocol: "Function location."
+		 */
+		public final CallFrame callFrame;
+		
+		/**
+		 * CDT protocol: "Child node ids."
+		 */
+		public final List<Integer> children;
+
+		/**
+		 * Internal map to keep track of the existence of child nodes for call frames. Needs to be kept consistent with
+		 * {@link #children}.
+		 */
 		private final Map<CallFrame, ProfileNode> childNodes = new LinkedHashMap<>();
 
 		public ProfileNode(int id, CallFrame callFrame) {
@@ -170,11 +205,31 @@ public class CpuprofileFormatter implements Formatter {
 	 * @see https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#type-CallFrame
 	 */
 	public static class CallFrame {
-		public final String functionName; // CDT protocol
-		public final String scriptId; // CDT protocol
-		public final String url; // CDT protocol
-		public final int lineNumber; // CDT protocol (0-based)
-		public final int columnNumber; // CDT protocol (0-based)
+
+		/**
+		 * CDT protocol: "JavaScript function name."
+		 */
+		public final String functionName;
+
+		/**
+		 * CDT protocol: "JavaScript script id."
+		 */
+		public final String scriptId;
+
+		/**
+		 * CDT protocol: "JavaScript script name or url."
+		 */
+		public final String url;
+		
+		/**
+		 * CDT protocol: "JavaScript script line number (0-based)."
+		 */
+		public final int lineNumber;
+
+		/**
+		 * CDT protocol: "JavaScript script column number (0-based)."
+		 */
+		public final int columnNumber;
 
 		public CallFrame(String functionName, String scriptId, String url, int lineNumber, int columnNumber) {
 			this.functionName = functionName;
