@@ -127,18 +127,25 @@ public interface Sampler extends Closeable {
 		}
 
 		private static String functionNameOf(Environment e) {
+			assert e != null;
+
 			// Each call frame in the call stack is represented as a linked list of environments in the evaluator. To
 			// get the "right" name of a call frame (e.g., for the purpose of constructing a flame chart), the list of
-            // environments needs to be traversed until the right one is found.
-			var name = e.getName();
-			var parent = e.getParent();
-			if (Objects.equals("Anonymous Function", name)) {
-				return name + " (" + e.getCreatorLocation() + ")"; 
-			} else if (parent == null || parent.isRootScope() || e.isFunctionFrame()) {
-				return name;
-			} else {
-				return functionNameOf(parent);
+			// environments needs to be traversed until the right one is found.
+			while (e != null) {
+				var name = e.getName();
+				var parent = e.getParent();
+				if (Objects.equals("Anonymous Function", name)) {
+					return name + " (" + e.getCreatorLocation() + ")"; 
+				} 
+				if (parent == null || parent.isRootScope() || e.isFunctionFrame()) {
+					return name;
+				}
+				e = parent;
 			}
+
+			// This can happen only when the initial `e` was null, which shouldn't have happened.
+			throw new NullPointerException();
 		}
 	}
 
