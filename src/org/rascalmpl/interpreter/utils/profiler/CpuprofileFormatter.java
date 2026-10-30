@@ -26,8 +26,6 @@
  */
 package org.rascalmpl.interpreter.utils.profiler;
 
-import static org.rascalmpl.interpreter.utils.profiler.Formatter.appendlnUnchecked;
-
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,6 +38,8 @@ import java.util.stream.Stream;
 
 import org.rascalmpl.interpreter.utils.profiler.Sampler.Labeled;
 import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
+
+import com.google.gson.GsonBuilder;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -54,7 +54,7 @@ public class CpuprofileFormatter implements Formatter {
 
 	@Override
 	public void format(Writer writer, Stream<Sample> samples) {
-		Profile.of(samples).write(writer, 0);
+		new GsonBuilder().setPrettyPrinting().create().toJson(Profile.of(samples), writer);
 	}
 
 	@Override
@@ -85,26 +85,6 @@ public class CpuprofileFormatter implements Formatter {
 			this.endTime = endTime;
 			this.samples = samples;
 			this.timeDeltas = timeDeltas;
-		}
-
-		public void write(Writer w, int tabs) {
-			appendlnUnchecked(w, indent(tabs, "{"));
-			appendlnUnchecked(w, indent(tabs, "  \"nodes\": ["));
-
-			var iterator = nodes.iterator();
-			while (iterator.hasNext()) {
-				iterator.next().write(w, tabs + 2);
-				if (iterator.hasNext()) {
-					appendlnUnchecked(w, indent(tabs, "  ,"));
-				}
-			}
-
-			appendlnUnchecked(w, indent(tabs, "  ]"));
-			appendlnUnchecked(w, indent(tabs, ", \"startTime\": " + startTime));
-			appendlnUnchecked(w, indent(tabs, ", \"endTime\": " + endTime));
-			appendlnUnchecked(w, indent(tabs, ", \"samples\": " + samples));
-			appendlnUnchecked(w, indent(tabs, ", \"timeDeltas\": " + timeDeltas));
-			appendlnUnchecked(w, indent(tabs, "}"));
 		}
 
 		public static Profile of(Stream<Sample> rawSamples) {
@@ -182,15 +162,6 @@ public class CpuprofileFormatter implements Formatter {
 				return put;
 			}
 		}
-
-		public void write(Writer w, int tabs) {
-			appendlnUnchecked(w, indent(tabs, "{"));
-			appendlnUnchecked(w, indent(tabs, "  \"id\": " + id));
-			appendlnUnchecked(w, indent(tabs, ", \"callFrame\":"));
-			callFrame.write(w, tabs + 2);
-			appendlnUnchecked(w, indent(tabs, ", \"children\": " + children));
-			appendlnUnchecked(w, indent(tabs, "}"));
-		}
 	}
 
 	/**
@@ -234,16 +205,6 @@ public class CpuprofileFormatter implements Formatter {
 			return false;
 		}
 
-		public void write(Writer w, int tabs) {
-			appendlnUnchecked(w, indent(tabs, "{"));
-			appendlnUnchecked(w, indent(tabs, "  \"functionName\": \"" + functionName + "\""));
-			appendlnUnchecked(w, indent(tabs, ", \"scriptId\": \"" + scriptId + "\""));
-			appendlnUnchecked(w, indent(tabs, ", \"url\": \"" + url + "\""));
-			appendlnUnchecked(w, indent(tabs, ", \"lineNumber\": " + lineNumber));
-			appendlnUnchecked(w, indent(tabs, ", \"columnNumber\": " + columnNumber));
-			appendlnUnchecked(w, indent(tabs, "}"));
-		}
-
 		public static CallFrame of(Labeled<ISourceLocation> rawCallFrame) {
 			var functionName = rawCallFrame.label;
 			var scriptId = "";
@@ -261,9 +222,5 @@ public class CpuprofileFormatter implements Formatter {
 
 			return new CallFrame(functionName, scriptId, url, lineNumber, columnNumber);
 		}
-	}
-
-	private static String indent(int tabs, String s) {
-		return " ".repeat(tabs * 2) + s;
 	}
 }
