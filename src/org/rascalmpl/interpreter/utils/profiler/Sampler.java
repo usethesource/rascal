@@ -105,7 +105,10 @@ public interface Sampler extends Closeable {
 			var callStack = new ArrayList<Labeled<ISourceLocation>>();
 
 			// Instead of calling `evaluator.getStackTrace`, the following code to traverse the stack of environments is
-			// useful to get the call stack in the right iteration order (bottom-to-top instead of top-to-bottom).
+			// useful to get the call stack in the right iteration order (bottom-to-top instead of top-to-bottom). The
+			// traversal is thread-safe, as all relevant fields of `Environment` objects are final (i.e., the evaluator
+			// may proceed in a different thread, and update the call stack, but the representation of the current call
+			// stack remains unchanged as far as is relevant for the purpose here).
 			var e = evaluator.getCurrentEnvt();
 			while (e != null) {
                 var callFrame = new Labeled<>(locationOf(e), functionNameOf(e));
@@ -129,7 +132,7 @@ public interface Sampler extends Closeable {
 			var parent = e.getParent();
 			if (Objects.equals("Anonymous Function", name)) {
 				return name + " (" + e.getCreatorLocation() + ")"; 
-			} else if (parent == null || parent == e.getRoot() || e.isFunctionFrame()) {
+			} else if (parent == null || parent.isRootScope() || e.isFunctionFrame()) {
 				return name;
 			} else {
 				return functionNameOf(parent);
