@@ -131,7 +131,7 @@ public class TempFileSampler implements Sampler {
 
         public TempFile(Function<T, String> encode, Function<String, T> decode) throws IOException {
             this.executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
-            this.path = Files.createTempFile("", ""); // Prefix and suffix don't matter
+            this.path = Files.createTempFile("rascal-sampling-profiler", "");
             this.writer = Files.newBufferedWriter(path);
             this.encode = encode;
             this.decode = decode;
