@@ -28,6 +28,7 @@ package org.rascalmpl.interpreter.utils.profiler;
 
 import java.io.Closeable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -84,8 +85,8 @@ public interface Sampler extends Closeable {
 
 		public IValue toIValue(IValueFactory vf) {
 			var list = vf.listWriter();
-			for (var frame : callStack) {
-				list.append(frame.toIValue(vf));
+			for (var callFrame : callStack) {
+				list.append(callFrame.toIValue(vf));
 			}
 			return vf.tuple(vf.integer(nanoTime), list.done());
 		}
@@ -104,17 +105,18 @@ public interface Sampler extends Closeable {
 			var nanoTime = System.nanoTime();
 			var callStack = new ArrayList<Labeled<ISourceLocation>>();
 
-			// Instead of calling `evaluator.getStackTrace`, the following code to traverse the stack of environments is
-			// useful to get the call stack in the right iteration order (bottom-to-top instead of top-to-bottom). The
-			// traversal is thread-safe, as all relevant fields of `Environment` objects are final (i.e., the evaluator
-			// may proceed in a different thread, and update the call stack, but the representation of the current call
-			// stack remains unchanged as far as is relevant for the purpose here).
+			// The following traversal of the call stack is thread-safe, as all relevant fields of `Environment` objects
+			// are final (i.e., the evaluator may proceed and update the call stack in a different thread, but the
+			// representation of the current call stack remains unchanged as far as is relevant for the purpose here).
 			var e = evaluator.getCurrentEnvt();
 			while (e != null) {
                 var callFrame = new Labeled<>(locationOf(e), functionNameOf(e));
-				callStack.add(0, callFrame);
+				callStack.add(callFrame);
 				e = e.getCallerScope();
 			}
+
+			// Sort the call stack in bottom-to-top order
+			Collections.reverse(callStack);
 
 			return new Sample(nanoTime, callStack);
 		}
