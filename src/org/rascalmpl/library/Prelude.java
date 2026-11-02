@@ -79,6 +79,7 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -905,7 +906,7 @@ public class Prelude {
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
 			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+				currentOutStream.print(((ReifiedType) arg.getType()).getTypeParameters().getFieldType(0).toString());
 			}
 			else{
 				currentOutStream.print(arg.toString());
@@ -996,7 +997,7 @@ public class Prelude {
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}
 			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+				currentOutStream.print(((ReifiedType) arg.getType()).getTypeParameters().getFieldType(0).toString());
 			}
 			else{
 				currentOutStream.print(arg.toString());
@@ -1350,7 +1351,7 @@ public class Prelude {
 		Reader postfix = null;
 		
 		try {
-			sloc = reg.logicalToPhysical(sloc);
+			sloc = reg.resolveIfLogical(sloc);
 
 			if (sloc.hasOffsetLength()) {
 				try {
@@ -2601,7 +2602,7 @@ public class Prelude {
 					}
 				}
 				
-				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a matching constructor " + constructorName + " for lexical type " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -3707,11 +3708,7 @@ public class Prelude {
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
-		try {
-			return REGISTRY.logicalToPhysical(loc);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.schemeNotSupported(loc);
-		}
+		return REGISTRY.resolveIfLogical(loc);
 	}
 
 	public ISourceLocation mavenize(ISourceLocation jar) {

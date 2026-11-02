@@ -28,7 +28,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
@@ -43,10 +42,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;

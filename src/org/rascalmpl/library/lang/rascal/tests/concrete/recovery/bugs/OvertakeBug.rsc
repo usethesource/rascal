@@ -17,7 +17,7 @@ import ParseTree;
 import IO;
 
 bool testOvertakeBug() {
-    str input = readFile(|std:///lang/rascal/tests/concrete/recovery/bugs/OvertakeBugInput.txt|);
+    str input = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/concrete/recovery/bugs/OvertakeBugInput.txt|);
     parser(#Module, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=false|);
     // If the parse completes without crashing, the test succeeds
     return true;

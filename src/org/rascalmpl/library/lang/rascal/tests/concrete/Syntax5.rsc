@@ -20,7 +20,7 @@ test bool concreteFragmentHasSrc()
                
 test bool concreteFragmentHasLegacyLoc()
     = e:(Expression) `<Expression x> + <Expression _>` := (Expression) `1 + 2` &&
-               e@\loc? && x@\loc?;
+               e.src? && x.src?;
 
 test bool concreteFragmentHasCorrectSrcs()
   = e:(Expression) `<Expression x> + <Expression y>` := (Expression) `1 + 2` &&

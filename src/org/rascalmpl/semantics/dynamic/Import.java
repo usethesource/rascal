@@ -346,6 +346,7 @@ public abstract class Import {
 
       if (uri == null) {
           heap.setModuleURI(jobName, URIUtil.correctLocation("not-found", name, "").getURI());
+          heap.popModuleLoading();
           throw new ModuleImport(name, "can not find in search path", x);
       }
       else {
@@ -706,7 +707,8 @@ private static boolean isDeprecated(Module preModule){
     Map<String, ITree> antiquotes = new HashMap<>();
      
     try {
-      IConstructor reifiedSym = vf.reifiedType(vf.sym2symbol(symTree), vf.map());
+      // TODO: add support for lexical regulars
+      IConstructor reifiedSym = vf.reifiedType(vf.sym2symbol(symTree, true), vf.map());
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
       char[] input = replaceAntiQuotesByHoles(vf, lit, antiquotes, corrections);

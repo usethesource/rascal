@@ -183,8 +183,10 @@ bool isValidRascalTplVersion(str version)
     = equalVersion(version, currentRascalTplVersion);
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
+str getMinimumRascalVersion() = minimumRascalVersion;
 
 str currentRascalTplVersion = "3.0.0";
+str minimumRascalVersion = "0.42.2";
 
 data TModel (
     str rascalTplVersion = "3.0.0"

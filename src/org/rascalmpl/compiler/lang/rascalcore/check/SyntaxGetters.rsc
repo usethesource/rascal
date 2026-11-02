@@ -122,20 +122,25 @@ tuple[bool, TagString] getExpected(Tags tags){
    return <false, [TagString]"{None}">;
 }
 
-
 list[TypeVar] getTypeParams(Tree t){
-    res = [];
+    set[TypeVar] res = {};
     top-down-break visit(t){
         case TypeVar tp : {
                 res += tp;
-                if(tp is bounded) res += getTypeParams(tp.bound);
+                if(tp is bounded) res += toSet(getTypeParams(tp.bound));
             }
-        //case FunctionType tp: ;
-        //    // only type parameters in return type of a function type will be considered
-        //    res += getTypeParams(tp.\type);
+        case StructuredType tp: {
+            res += {*getTypeParams(t.\type) | TypeArg t <- tp.arguments };
+        }
+        case FunctionType tp:{
+           // only type parameters in return type of a function type will be considered
+           typeParamsInReturn = toSet(getTypeParams(tp.\type));
+           typeParamsInParameters = {*getTypeParams(t.\type) | TypeArg t <- tp.arguments };
+           typeParameterNamesInParameters  = { "<tp.name>" | TypeVar tp <- typeParamsInParameters };
+           res += { tp | TypeVar tp <- typeParamsInReturn, "<tp.name>" notin typeParameterNamesInParameters };
+        }
     }
-        
-    return res;
+    return toList(res);
 }
 
 set[Name] getTypeParamNames(Tree t){

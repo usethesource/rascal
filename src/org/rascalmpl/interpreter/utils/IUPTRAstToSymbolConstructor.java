@@ -123,6 +123,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		
 		if (name.equals("alt")) {
 			ISet set = vf.set();
+			
 			Expression.Set arg = (Set) x.getArguments().get(0);
 			for(Expression y: arg.getElements0()){
 				set = set.insert(y.accept(this));

@@ -27,6 +27,3 @@ POSSIBILITY OF SUCH DAMAGE.
 @bootstrapParser
 module lang::rascalcore::compile::Examples::Tst6
 
-data Symbol
-     = \label(str name, Symbol symbol);
-

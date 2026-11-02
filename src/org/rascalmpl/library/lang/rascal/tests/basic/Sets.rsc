@@ -144,7 +144,8 @@ test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && a
 test bool tst_toMap(rel[int, int] S) = isEmpty(S) || domain(S) == domain(toMap(S)) && range(S) == {*toMap(S)[k] | k <- toMap(S)};
 
 data X = y(int y);
-anno int X@z;
+ 
+data X(int z = 0);
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
  if(isEmpty(D) || isEmpty(R)) return true;

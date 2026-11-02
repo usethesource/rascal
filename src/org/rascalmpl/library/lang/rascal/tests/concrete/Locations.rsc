@@ -45,28 +45,28 @@ test bool parsedExpressionsHaveSourceLocations2c()
   = ([E] "(a+(a*a))").src.length == 9;  
   
 test bool concreteExpressionsHaveSourceLocationsLegacy1a() 
-  = (A) `a`@\loc?;
+  = (A) `a`.src?;
 
 test bool parsedExpressionsHaveSourceLocationsLegacy1a() 
-  = ([A] "a")@\loc?;    
+  = ([A] "a").src?;    
 
 test bool concreteExpressionsHaveSourceLocationsLegacy1b() 
-  = (E) `(a+a)`@\loc?; 
+  = (E) `(a+a)`.src?; 
 
 test bool parsedExpressionsHaveSourceLocationsLegacy1b() 
-  = ([E] "(a+a)")@\loc?; 
+  = ([E] "(a+a)").src?; 
     
 test bool concreteExpressionsHaveSourceLocationsLegacy1c() 
-  = (E) `(a+(a*a))`@\loc?;   
+  = (E) `(a+(a*a))`.src?;   
   
 test bool parsedExpressionsHaveSourceLocationsLegacy1c() 
-  = ([E] "(a+(a*a))")@\loc?;    
+  = ([E] "(a+(a*a))").src?;    
 
 test bool concreteExpressionsSourceLocationsLengthLegacy1a() 
-  = (A) `a`@\loc.length == 1;  
+  = (A) `a`.src.length == 1;  
 
 test bool parsedExpressionsSourceLocationsLengthLegacy1a() 
-  = ([A] "a")@\loc.length == 1;  
+  = ([A] "a").src.length == 1;  
   
 test bool concreteExpressionsSourceLocationsLength2a() 
   = (E) `(a+a)`.src.length == 5;
@@ -100,7 +100,7 @@ test bool concreteExpressionsAssignSourceLocation1() {
 
 test bool concreteExpressionsAssignSourceLocationLegacy1() {
     x = (A) `a`;
-    y = x@\loc[length = 100];
+    y = x.src[length = 100];
     return y.length == 100;
 }
     
@@ -111,7 +111,7 @@ test bool concreteExpressionsHaveSourceLocationsAfterVisitWithMatch()  {
      case int i => i + 1 
    }
 
-   return t@\loc?;   
+   return t.src?;   
 }  
 
 test bool concreteExpressionsHaveSourceLocationsAfterVisitWithNoMatch()  {
@@ -119,6 +119,6 @@ test bool concreteExpressionsHaveSourceLocationsAfterVisitWithNoMatch()  {
      case 1239461234912634 => 123498761234896123 
    }
 
-   return t@\loc?;   
+   return t.src?;   
 } 
   

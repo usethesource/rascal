@@ -82,7 +82,7 @@ class MavenProxySelector extends ProxySelector {
                     continue;
                 }
                 java.net.Proxy.Type type =
-                    mavenProxy.getProtocol() == "socks5" ? java.net.Proxy.Type.SOCKS : java.net.Proxy.Type.HTTP;
+                    mavenProxy.getProtocol().equals("socks5") ? java.net.Proxy.Type.SOCKS : java.net.Proxy.Type.HTTP;
                 java.net.Proxy proxy =
                     new java.net.Proxy(type, new InetSocketAddress(mavenProxy.getHost(), mavenProxy.getPort()));
                 filteredProxies.add(new FilteredProxy(proxy, mavenProxy.getNonProxyHosts()));
