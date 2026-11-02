@@ -672,7 +672,7 @@ default str v2i(value v) {
         case \item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case \label(str _x, Symbol u) : return v2i(u);
         case \layouts(str _) : return  "$anylayout$";
-        case \conditional(Symbol s,_) : return v2i(s);
+        case \conditional(Symbol s, set[Condition] cs) : return "<v2i(s)>_<uu(cs)>";
         case \alt(set[Symbol] alts) : return "alt_<for (value elem <- sort(alts)) {><v2i(elem)>_<}>"[..-1];
         case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
         case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";

@@ -1351,7 +1351,7 @@ public class Prelude {
 		Reader postfix = null;
 		
 		try {
-			sloc = reg.logicalToPhysical(sloc);
+			sloc = reg.resolveIfLogical(sloc);
 
 			if (sloc.hasOffsetLength()) {
 				try {
@@ -2602,7 +2602,7 @@ public class Prelude {
 					}
 				}
 				
-				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a matching constructor " + constructorName + " for lexical type " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -3708,11 +3708,7 @@ public class Prelude {
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
-		try {
-			return REGISTRY.logicalToPhysical(loc);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.schemeNotSupported(loc);
-		}
+		return REGISTRY.resolveIfLogical(loc);
 	}
 
 	public ISourceLocation mavenize(ISourceLocation jar) {

@@ -23,6 +23,7 @@ import Message;
 
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
+import lang::json::IO;
 
 @synopsis{Returns the system-dependent line separator string}
 @javaClass{org.rascalmpl.library.util.Reflective}
@@ -475,14 +476,14 @@ and a pom.xml file will be generated and written.
 
 The folder is created if it does not exist already.
 }
-void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT", str rascalSrcRoot="src/main/rascal") {
     mkDirectory(folder);
-    writeFile(pomFile(folder), pomXml(name, group, version));
+    writeFile(pomFile(folder), pomXml(name, group, version, rascalSrcRoot));
 } 
 
-private str pomXml(str name, str group, str version)  
+private str pomXml(str name, str group, str version, str rascalSrcRoot)
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
-    '  \<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+    '\<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
     '  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\>
     '  \<modelVersion\>4.0.0\</modelVersion\>
     '
@@ -530,19 +531,37 @@ private str pomXml(str name, str group, str version)
     '      \<plugin\>
     '        \<groupId\>org.rascalmpl\</groupId\>
     '        \<artifactId\>rascal-maven-plugin\</artifactId\>
-    '        \<version\>0.8.2\</version\>
+    '        \<version\><getRascalMavenPluginVersion()>\</version\>
     '        \<configuration\>
     '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
     '          \<bin\>${project.build.outputDirectory}\</bin\>
     '          \<srcs\>
-    '            \<src\>${project.basedir}/src/main/rascal\</src\>
+    '            \<src\>${project.basedir}/<rascalSrcRoot>\</src\>
     '          \</srcs\>
     '        \</configuration\>
+    '        \<executions\>
+    '          \<execution\>
+    '            \<id\>default-compile\</id\>
+    '            \<phase\>compile\</phase\>
+    '            \<goals\>
+    '              \<goal\>compile\</goal\>
+    '            \</goals\>
+    '          \</execution\>
+    '        \</executions\>
     '      \</plugin\>
     '    \</plugins\>
     '  \</build\>
     '\</project\>
     ";
+
+private str getRascalMavenPluginVersion() {
+    try { // Best-effort attempt to get the latest version
+        if (str s := readJSON(#map[str, value], |https://api.github.com/repos/usethesource/rascal-maven-plugin/releases/latest|)["tag_name"], /v<version:[0-9]+\.[0-9]+\.[0-9]+>/ := s) {
+            return version;
+        }
+    } catch _: ;
+    return "0.31.0"; // 2 March 2026
+}
 
 private str vscodeSettings() = "{
                                '    \"search.exclude\": {

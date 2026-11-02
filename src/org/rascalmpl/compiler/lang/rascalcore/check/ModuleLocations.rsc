@@ -35,6 +35,7 @@ import util::Reflective;
 import util::FileSystem;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::LogicalLocations;
+import util::Memo;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -101,7 +102,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-@memo{expireAfter(minutes=5),maximumSize(500)}
+@memo={expireAfter(minutes=5),maximumSize(500)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
@@ -206,6 +207,7 @@ For a source extension (typically "rsc" or "mu" but this can be configured) srcs
 @examples{
 ```rascal-shell
 import util::Reflective;
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedReadLoc("List", "rsc", pathConfig());
 getRascalModuleDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getRascalModuleDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
@@ -253,11 +255,13 @@ For other modules, a location for this path in bin will be returned.
 @examples{
 ```rascal-shell
 import util::Reflective;
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedWriteLoc("List", "rvm", pathConfig());
 getRascalModuleDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 ```
 
 ```rascal-shell,error
+import lang::rascalcore::check::ModuleLocations;
 getRascalModuleDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
 ```
 }

@@ -14,6 +14,17 @@ test bool lessVersion8() = lessVersion("1.0.0-beta",  "1.0.0-beta.2");
 test bool lessVersion9() = lessVersion("1.0.0-beta.2", "1.0.0-beta.11");
 test bool lessVersion10() = lessVersion("1.0.0-beta.11", "1.0.0-rc.1");
 test bool lessVersion11() = lessVersion("1.0.0-rc.1",  "1.0.0");
+test bool lessVersion12() = !lessVersion("1.0.0", "0.1.0");
+
+test bool greaterVersion1() = greaterVersion("2.0.0", "1.0.0");
+test bool greaterVersion2() = greaterVersion("1.1.0", "1.0.0");
+test bool greaterVersion3() = greaterVersion("1.1.0", "1.0.1");
+test bool greaterVersion4() = !greaterVersion("1.0.1", "1.1.0");
+test bool greaterVersion5() = !greaterVersion("1.1.0", "2.0.0");
+test bool greaterVersion6() = greaterVersion("1.0.1", "1.0.0");
+test bool greaterVersion7() = greaterVersion("2.0.0", "1.1.1");
+test bool greaterVersion8() = greaterVersion("2.0.0", "0.0.1");
+test bool greaterVersion9() = !greaterVersion("1.0.1", "2.0.0");
 
 test bool ge1() = satisfiesVersion("1.2.7", "\>=1.2.7");
 test bool ge2() = satisfiesVersion("1.2.8", "\>=1.2.7");

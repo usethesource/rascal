@@ -368,7 +368,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     public static ISourceLocation mavenize(ISourceLocation loc) {
         try {
             // the registry may not have been initialized yet.
-            var nloc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
+            var nloc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().resolveIfLogical(loc) : loc;
 
             if (!URIUtil.getExtension(nloc).equals("jar")) {
                 return loc;
@@ -391,7 +391,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
             return loc;
         }
-        catch (IOException | URISyntaxException e) {
+        catch (URISyntaxException e) {
             return loc;
         }
     }

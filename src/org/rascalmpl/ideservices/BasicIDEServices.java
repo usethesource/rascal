@@ -81,14 +81,14 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void edit(ISourceLocation loc, int viewColumn) {
     try {
-      loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+      loc = URIResolverRegistry.getInstance().resolveIfLogical(loc);
       
       if (!loc.getScheme().equals("file")) {
         ISourceLocation tmp = URIUtil.correctLocation("tmp", "", "rascal-edits");
         tmp = URIUtil.getChildLocation(tmp, loc.getScheme());
         tmp = URIUtil.getChildLocation(tmp, loc.getPath());
         URIResolverRegistry.getInstance().copy(loc, tmp, false, true);
-        loc = URIResolverRegistry.getInstance().logicalToPhysical(tmp);
+        loc = URIResolverRegistry.getInstance().resolveIfLogical(tmp);
       }
 
       edit(Paths.get(loc.getURI()));

@@ -4,6 +4,79 @@ import IO;
 import DateTime;
 import String;
 
+test bool testLogicalLocationResolution() {
+    str scheme = "test-logical";
+
+    value exceptionOf(value() f) {
+        try {
+            f();
+            return "";
+        } catch e: {
+            return e;
+        }
+    }
+
+    bool throwsUnsupportedAuthority(value() f) {
+        return /Unsupported authority/ := "<exceptionOf(f)>";
+    }
+
+    bool throwsExceptionDownstream(value() f) {
+        return str s := "<exceptionOf(f)>" && "" != s && /Unsupported authority/ !:= s;
+    }
+
+    try {
+        // Register authorities `foo` and `bar`
+        registerLocations(scheme, "foo", (
+            |<scheme>://foo/|: |file:///|,
+            |<scheme>://foo/x/y/z|: |file:///x/y/z|
+        ));
+        registerLocations(scheme, "bar", (
+            |<scheme>://bar/|: |<scheme>://foo/|,
+            |<scheme>://bar/x/y/z|: |<scheme>://foo/x/y/z|
+        ));
+
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+
+        str cause = "Resolution either unexpectedly succeeded or failed with an unexpected exception";
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://foo/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://bar/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://baz/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://baz/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
+
+        // Register default authority
+        registerLocations(scheme, "", (
+            |<scheme>://baz/|: |<scheme>://bar/|,
+            |<scheme>://baz/x/y/z|: |<scheme>://bar/x/y/z|
+        ));
+
+        assert lastModified(|<scheme>://foo/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://bar/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+        assert lastModified(|<scheme>://baz/|) == lastModified(|file:///|) : "Resolution unexpectedly failed";
+
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://foo/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://bar/x/y/z|); }) : cause;
+        assert throwsExceptionDownstream(value() { return lastModified(|<scheme>://baz/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>://qux/x/y/z|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///|); }) : cause;
+        assert throwsUnsupportedAuthority(value() { return lastModified(|<scheme>:///x/y/z|); }) : cause;
+
+        return true;
+    }
+    catch false: // Catch block only to make finally block grammatical
+        throw false;
+    finally  {
+        unregisterLocations(scheme, "foo");
+        unregisterLocations(scheme, "bar");
+        unregisterLocations(scheme, "");
+    }
+}
+
 test bool testFileCopyCompletely() {
     writeFile(|tmp:///longFile|, "123456789");
     writeFile(|tmp:///shortFile|, "321");
@@ -22,9 +95,9 @@ test bool testFileCopyRecursive() {
 
 test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) { 
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (FileSystemChange event) {
         // this should trigger the failing test finally
-        remove(event.file); 
+        remove(event.file);
     });
     return true;
 }

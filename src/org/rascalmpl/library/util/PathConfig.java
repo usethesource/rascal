@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -306,6 +307,18 @@ public class PathConfig {
         return new PathConfig(projectRoot, srcs, extendedlibs, bin, ignores, resources, messages);
     }
 
+    public PathConfig addMessage(IConstructor newMessage) throws IOException {
+        List<IConstructor> extendedMessages = new ArrayList<IConstructor>(messages);
+        extendedMessages.add(newMessage);
+        return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, extendedMessages);
+    }
+
+    public PathConfig addMessages(Collection<IConstructor> newMessages) throws IOException {
+        List<IConstructor> extendedMessages = new ArrayList<IConstructor>(messages);
+        extendedMessages.addAll(newMessages);
+        return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, extendedMessages);
+    }
+
     public PathConfig setBin(ISourceLocation bin) {
         return new PathConfig(projectRoot, srcs, libs, bin, ignores, resources, messages);
     }
@@ -491,7 +504,7 @@ public class PathConfig {
         if (reg.exists(typepal)) {
             // make sure to resolve the typepal location
             // such that in VS Code the full (local) path names are visible
-            typepal = reg.logicalToPhysical(typepal);
+            typepal = reg.resolveIfLogical(typepal);
         }
         else {
             // we might not be in a VS Code project, but instead running inside of the maven/junit plugin
@@ -520,7 +533,7 @@ public class PathConfig {
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
     private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        var rascalRuntime = getRelevantRascal(mavenClasspath, mode);
+        var rascalRuntime = getRelevantRascal(mavenClasspath, mode, manifestRoot, messages);
         var insideRascalJar = JarURIResolver.jarify(MavenRepositoryURIResolver.mavenize(rascalRuntime));
         var rascalLibrary = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/library");
         var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
@@ -576,7 +589,7 @@ public class PathConfig {
             && coord.getGroupId().equals("org.rascalmpl");
     }
 
-    private static ISourceLocation getRelevantRascal(List<Artifact> mavenClasspath, RascalConfigMode mode) throws IOException {
+    private static ISourceLocation getRelevantRascal(List<Artifact> mavenClasspath, RascalConfigMode mode, ISourceLocation manifestRoot, IListWriter messages) throws IOException {
         if (mode == RascalConfigMode.INTERPRETER_EXTERNAL || mode == RascalConfigMode.COMPILER) {
             var rascalFromPom = mavenClasspath.stream()
                 .filter(PathConfig::isRascalArtifact)
@@ -586,14 +599,34 @@ public class PathConfig {
                 .map(vf::sourceLocation);
             if (rascalFromPom.isPresent()) {
                 return rascalFromPom.get();
+            } else {
+                messages.append(makeMissingRascalMessage(manifestRoot));
             }
         }
         return resolveCurrentRascalRuntime();
     }
 
+    // This declaration does not mirror a constructor from the standard library; it is here to be able to send the command, but the declaration must live in the implementing project (e.g., `rascal-lsp`)
+    private static final io.usethesource.vallang.type.Type Command_addRascalDependencyToPom = tf.constructor(store, Messages.Command, "addRascalDependencyToPom", tf.sourceLocationType(), "pomLoc");
+
+    private static IConstructor addAddRascalDependencyFix(IConstructor msg, ISourceLocation pomXml) {
+        var title = "Add Rascal dependency to pom.xml";
+        var codeAction = vf.constructor(Command_addRascalDependencyToPom, new IValue[] { pomXml }, Map.of("title", vf.string(title)));
+        var fix = vf.constructor(Messages.CodeAction_action, new IValue[]{}, Map.of("command", codeAction));
+        return Messages.addFix(msg, fix);
+    }
+
+    private static IConstructor makeMissingRascalMessage(ISourceLocation manifestRoot) {
+        // The `pomXml` location is given an artificial range on the second line to make sure that the hover remains within the bounds of the editor
+        // Otherwise, the quick-fix pop-up immediately disappears as the editor loses focus
+        var pomXml = vf.sourceLocation(URIUtil.getChildLocation(manifestRoot, "pom.xml"), 0, 0, 2, 2, 0, 8);
+        var msg = Messages.warning("Missing required Rascal dependency in project " + URIUtil.getLocationName(manifestRoot), pomXml);
+        return addAddRascalDependencyFix(msg, pomXml);
+    }
+
     private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
         if (isRoot) {
-            var rascal = getRelevantRascal(mavenClasspath, mode);
+            var rascal = getRelevantRascal(mavenClasspath, mode, manifestRoot, messages);
             var insideRascal = JarURIResolver.jarify(MavenRepositoryURIResolver.mavenize(rascal));
 
             libs.append(rascal);
@@ -854,16 +887,7 @@ public class PathConfig {
     }
 
     private static ISourceLocation safeResolve(ISourceLocation loc) {
-        try {
-            var result = URIResolverRegistry.getInstance().logicalToPhysical(loc);
-            if (result != null) {
-                return result;
-            }
-            return loc;
-        }
-        catch (IOException ignored) {
-            return loc;
-        }
+        return URIResolverRegistry.getInstance().resolveIfLogical(loc);
     }
 
 
@@ -874,7 +898,7 @@ public class PathConfig {
             ISourceLocation projectLoc = URIUtil.correctLocation("project", projectName, "");
 
             // we need this to get access to the parent folder, in case of `home:///` or `cwd:///`, etc.
-            manifestRoot = reg.logicalToPhysical(manifestRoot);
+            manifestRoot = reg.resolveIfLogical(manifestRoot);
             
             if (!projectLoc.equals(manifestRoot) && !projectName.equalsIgnoreCase(URIUtil.getLocationName(manifestRoot))) {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
@@ -934,19 +958,18 @@ public class PathConfig {
         }
     }
 
+    private static ISourceLocation getChildLoc(ISourceLocation project, String childPath) {
+        return URIResolverRegistry.getInstance().resolveIfLogical(
+            URIUtil.getChildLocation(project, childPath)
+        );
+    }
+
     public static ISourceLocation getRascalMfLocation(ISourceLocation project) {
-        return URIUtil.getChildLocation(project, RascalManifest.META_INF_RASCAL_MF);
+        return getChildLoc(project, RascalManifest.META_INF_RASCAL_MF);
     }
     
     public static ISourceLocation getPomXmlLocation(ISourceLocation project) {
-        try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(project, "pom.xml");
-            return URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-        }
-        catch (IOException e) {
-            assert false : e.getMessage();
-            return URIUtil.correctLocation("unknown", "", "pom.xml");
-        }
+        return getChildLoc(project, "pom.xml");
     }
 
     /**
@@ -963,7 +986,7 @@ public class PathConfig {
         try {
             var reg = URIResolverRegistry.getInstance();
             if (!manifestRoot.getScheme().equals("file")) {
-                var resolved = reg.logicalToPhysical(manifestRoot);
+                var resolved = reg.resolveIfLogical(manifestRoot);
                 if (resolved != null) {
                     if (!resolved.getScheme().equals("file")) {
                         return Collections.emptyList();
@@ -990,7 +1013,7 @@ public class PathConfig {
             }
             return result;
         }
-        catch (RuntimeException | IOException | ModelResolutionError e) {
+        catch (RuntimeException | ModelResolutionError e) {
             return Collections.emptyList();
         }
     }
