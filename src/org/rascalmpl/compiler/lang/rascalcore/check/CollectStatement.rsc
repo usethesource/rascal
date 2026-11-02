@@ -662,7 +662,9 @@ void collect(current:(Assignable) `<Assignable receiver> ? <Expression defaultEx
     collect(receiver, defaultExpression, c);
 }
 
-// | constructor       : Name name "(" {Assignable ","}+ arguments ")"
+void collect(current:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, Collector c) {
+    collect(name, arguments, c);
+}
 
 void collect(current:(Assignable) `\< <{Assignable ","}+ elements> \>`, Collector c){
     collect(elements, c);
@@ -1056,7 +1058,6 @@ set[str] getNames(Statement s) = {prettyPrintName(nm) | /QualifiedName nm := s};
 
 private void checkAssignment(Statement current, constructor: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` , str operator, Statement rhs, Collector c){
     c.report(error(current, "Constructor assignable is not supported by the compiler"));
-    collect(name, arguments, c);    
 }
 
 private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
