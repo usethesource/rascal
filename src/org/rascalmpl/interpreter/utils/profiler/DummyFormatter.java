@@ -29,7 +29,7 @@ package org.rascalmpl.interpreter.utils.profiler;
 import java.io.Writer;
 import java.util.stream.Stream;
 
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawSample;
 
 /**
  * Dummy formatter that does nothing
@@ -37,7 +37,7 @@ import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
 public class DummyFormatter implements Formatter {
 
 	@Override
-	public void format(Writer writer, Stream<Sample> samples) {
+	public void format(Writer writer, Stream<RawSample> samples) {
 	}
 
 	@Override 

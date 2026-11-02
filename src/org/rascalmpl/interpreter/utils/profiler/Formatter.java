@@ -31,14 +31,14 @@ import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.stream.Stream;
 
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawSample;
 
 /**
  * Formatter of samples
  */
 public interface Formatter {
 
-    public void format(Writer writer, Stream<Sample> samples);
+    public void format(Writer writer, Stream<RawSample> samples);
 
     public String getName();
 

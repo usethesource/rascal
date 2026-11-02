@@ -43,6 +43,6 @@ public class DummySampler implements Sampler {
 	}
 
 	@Override
-	public void consumeSamples(Consumer<Stream<Sample>> action) {
+	public void consumeSamples(Consumer<Stream<RawSample>> action) {
 	}
 }

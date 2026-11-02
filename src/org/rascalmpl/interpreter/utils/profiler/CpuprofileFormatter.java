@@ -36,13 +36,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Labeled;
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawCallFrame;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawSample;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-
-import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Formatter for the {@code .cpuprofile} format of the Chrome Dev Tools (CDT) protocol. Files written in this format can
@@ -54,7 +52,7 @@ import io.usethesource.vallang.ISourceLocation;
 public class CpuprofileFormatter implements Formatter {
 
 	@Override
-	public void format(Writer writer, Stream<Sample> samples) {
+	public void format(Writer writer, Stream<RawSample> samples) {
 		new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(Profile.of(samples), writer);
 	}
 
@@ -114,7 +112,7 @@ public class CpuprofileFormatter implements Formatter {
 			this.timeDeltas = timeDeltas;
 		}
 
-		public static Profile of(Stream<Sample> rawSamples) {
+		public static Profile of(Stream<RawSample> rawSamples) {
 			var nodes = new LinkedHashSet<ProfileNode>(); // Iterable by insertion order
 			var startTime = 0L;
 			var endTime = 0L;
@@ -131,13 +129,14 @@ public class CpuprofileFormatter implements Formatter {
 			var iterator = rawSamples.iterator();
 			while (iterator.hasNext()) {
 				var rawSample = iterator.next();
+				var rawCallFrames = (Iterable<RawCallFrame>) rawSample.callStack.bottomToTop()::iterator;
 				prevTime = currTime;
 				currTime = rawSample.nanoTime / 1000; // Microseconds
 
 				// Update `nodes` by inserting a node into the tree representation for each frame of the call stack
 				var node = rootNode;
-				for (var rawFrame : rawSample.callStack) {
-					var child = new ProfileNode(nextId++, CallFrame.of(rawFrame));
+				for (var rawCallFrame : rawCallFrames) {
+					var child = new ProfileNode(nextId++, CallFrame.of(rawCallFrame));
 					node = node.lookupChild(child);
 					nodes.add(node);
 				}
@@ -278,14 +277,14 @@ public class CpuprofileFormatter implements Formatter {
 			return false;
 		}
 
-		public static CallFrame of(Labeled<ISourceLocation> rawCallFrame) {
-			var functionName = rawCallFrame.label;
+		public static CallFrame of(RawCallFrame rawCallFrame) {
+			var functionName = rawCallFrame.name;
 			var scriptId = "";
 			var url = "";
 			var lineNumber = -1;
 			var columnNumber = -1;
 
-			var location = rawCallFrame.value;
+			var location = rawCallFrame.caller;
 			if (location != null && location.hasLineColumn()) {
 				scriptId = location.toString();
 				url = location.getURI().toString(); 

@@ -48,6 +48,7 @@ import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.interpreter.Evaluator;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -60,11 +61,11 @@ import io.usethesource.vallang.type.TypeStore;
 public class TempFileSampler implements Sampler {
 	private final Evaluator evaluator;
     private final TypeStore typeStore;
-	private final TempFile<Sample> tempFile;
+	private final TempFile<RawSample> tempFile;
 
     // To avoid pressuring the task queue of the auxiliary thread with excessively many tiny tasks, samples are buffered
     // up to a certain threshold before they are scheduled for encoding and writing. 
-    private final List<Sample> buffer;
+    private final List<RawSample> buffer;
     private final int bufferSize;
 
 	public TempFileSampler(Evaluator evaluator) throws IOException {
@@ -72,8 +73,8 @@ public class TempFileSampler implements Sampler {
         this.typeStore = new TypeStore();
 		this.tempFile = new TempFile<>(
 			// Configure the handle to store samples on disk as base 64-encoded `IValue`s
-			decoded -> GsonUtils.base64Encode(decoded.toIValue(evaluator.getValueFactory())),
-			encoded -> Sample.of(GsonUtils.<IValue> base64Decode(encoded, typeStore))
+			decoded -> GsonUtils.base64Encode(decoded.toIValue()),
+			encoded -> RawSample.of(GsonUtils.<ITuple> base64Decode(encoded, typeStore))
 		);
 
         this.buffer = new ArrayList<>();
@@ -86,8 +87,8 @@ public class TempFileSampler implements Sampler {
 	}
 
 	public void produceSample() {
-		var sample = Sample.of(evaluator);
-		if (sample.callStack.isEmpty() || sample.isInitializer()) {
+		var sample = RawSample.of(evaluator);
+		if (sample.isEmpty() || sample.isInitializer()) {
 			return;
 		}
 
@@ -98,7 +99,7 @@ public class TempFileSampler implements Sampler {
 	}
 
 	@Override
-	public void consumeSamples(Consumer<Stream<Sample>> action) {
+	public void consumeSamples(Consumer<Stream<RawSample>> action) {
         tempFile.writeLines(flushBuffer());
 		tempFile.readLines().thenAccept(samples -> {
             // `samples` is a lazily populated stream, iteratively read from the temporary file and decoded, to avoid
@@ -111,8 +112,8 @@ public class TempFileSampler implements Sampler {
 		}).join(); // The caller of this method should wait until consumption is done to avoid prematurely reporting completion in the REPL.
     }
 
-    private Sample[] flushBuffer() {
-        var flushed = new Sample[this.buffer.size()];
+    private RawSample[] flushBuffer() {
+        var flushed = new RawSample[this.buffer.size()];
         buffer.toArray(flushed);
         buffer.clear();
         return flushed;

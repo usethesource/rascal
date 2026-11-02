@@ -28,15 +28,13 @@ package org.rascalmpl.interpreter.utils.profiler;
 
 import java.io.Writer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Labeled;
-import org.rascalmpl.interpreter.utils.profiler.Sampler.Sample;
-
-import io.usethesource.vallang.ISourceLocation;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawCallFrame;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawCallStack;
+import org.rascalmpl.interpreter.utils.profiler.Sampler.RawSample;
 
 /**
  * Formatter for the {@code .folded} format of Brendan Gregg's original `flamegraph.pl` script. Files written in this
@@ -47,7 +45,7 @@ import io.usethesource.vallang.ISourceLocation;
 public class FoldedFormatter implements Formatter {
 
 	@Override
-	public void format(Writer writer, Stream<Sample> samples) {
+	public void format(Writer writer, Stream<RawSample> samples) {
         // Count for each "folded sample" how many times it occurs
 		var counts = new HashMap<String, Integer>();
 		var incVal = (Consumer<String>) foldedSample -> counts.merge(foldedSample, 1, Integer::sum);
@@ -61,16 +59,16 @@ public class FoldedFormatter implements Formatter {
         }
 	}
 
-	private static String fold(Sample sample) {
+	private static String fold(RawSample sample) {
 		return fold(sample.callStack);
 	}
 
-    private static String fold(List<Labeled<ISourceLocation>> callStack) {
-        return callStack.stream().map(FoldedFormatter::fold).collect(Collectors.joining(";"));
+    private static String fold(RawCallStack callStack) {
+        return callStack.bottomToTop().map(FoldedFormatter::fold).collect(Collectors.joining(";"));
     }
 
-	private static String fold(Labeled<ISourceLocation> callFrame) {
-		return callFrame.label + " at " + callFrame.value.toString();
+	private static String fold(RawCallFrame callFrame) {
+		return callFrame.name + " at " + callFrame.caller.toString();
 	}
 
 	@Override 
