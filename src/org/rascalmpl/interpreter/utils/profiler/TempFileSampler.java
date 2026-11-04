@@ -76,8 +76,9 @@ public class TempFileSampler implements Sampler {
 
     // To avoid pressuring the task queue of the auxiliary thread with excessively many tiny tasks, samples are buffered
     // up to a certain threshold before they are scheduled for encoding and writing. 
-    private final List<RawSample> buffer;
-    private final int bufferSize;
+    private List<RawSample> buffer;
+
+    private static final int BUFFER_SIZE = 1000;
 
     private static final ValueFactory VF = ValueFactory.getInstance();
 
@@ -85,8 +86,7 @@ public class TempFileSampler implements Sampler {
 		this.evaluator = evaluator;
         this.tempFile = new TempFile();
 
-        this.buffer = new ArrayList<>();
-        this.bufferSize = 1000;
+        this.buffer = new ArrayList<>(BUFFER_SIZE);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class TempFileSampler implements Sampler {
 		}
 
         buffer.add(sample);
-        if (buffer.size() == bufferSize) {
+        if (buffer.size() == BUFFER_SIZE) {
             tempFile.write(flushBuffer());
         }
 	}
@@ -120,10 +120,9 @@ public class TempFileSampler implements Sampler {
 		}).join(); // The caller of this method should wait until consumption is done to avoid prematurely reporting completion in the REPL.
     }
 
-    private RawSample[] flushBuffer() {
-        var flushed = new RawSample[this.buffer.size()];
-        buffer.toArray(flushed);
-        buffer.clear();
+    private List<RawSample> flushBuffer() {
+        var flushed = buffer;
+        buffer = new ArrayList<>(BUFFER_SIZE);
         return flushed;
     }
 
@@ -181,7 +180,7 @@ public class TempFileSampler implements Sampler {
             });
         }
 
-        public void write(RawSample[] samples) {
+        public void write(List<RawSample> samples) {
             schedule(() -> {
                 writer.write(samples);
                 return null; // Void
@@ -219,14 +218,14 @@ public class TempFileSampler implements Sampler {
                 return count.get();
             }
 
-            public void write(RawSample[] samples) throws IOException {
+            public void write(List<RawSample> samples) throws IOException {
                 // Write the next values in a batch (to take advantage of the sharing features of the underlying stream)
                 var batch = VF.listWriter();
                 for (var sample : samples) {
                     batch.append(sample.toIValue());
                 }
                 IValueWriter.write(stream, VF, WindowSizes.NORMAL_WINDOW, batch.done());
-                count.addAndGet(samples.length);
+                count.addAndGet(samples.size());
             }
         }
 
