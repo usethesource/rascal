@@ -155,7 +155,11 @@ public class TempFileSampler implements Sampler {
             // Next, shutdown and await termination of all scheduled tasks
             executor.shutdown();
             try {
-                while (!executor.awaitTermination(100, TimeUnit.MILLISECONDS));
+                int n = 100;
+                while (n-- > 0 && !executor.awaitTermination(100, TimeUnit.MILLISECONDS));
+                if (n <= 0 || !executor.isTerminated()) {
+                    throw new RuntimeException("Failed to terminate auxiliary thread in a timely fashion");
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
