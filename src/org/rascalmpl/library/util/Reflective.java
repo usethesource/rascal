@@ -103,7 +103,7 @@ public class Reflective {
 	private static RascalConfigMode mapConstructorToConfigMode(IConstructor mode) {
 		switch (mode.getName()) {
 			case "compiler": return RascalConfigMode.COMPILER;
-			case "interpreter_external": return RascalConfigMode.INTERPRETER_EXTERNAL;
+			case "interpreterExternal": return RascalConfigMode.INTERPRETER_EXTERNAL;
 			default: return RascalConfigMode.INTERPRETER;
 		}
 	}
