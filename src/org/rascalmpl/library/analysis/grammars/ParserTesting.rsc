@@ -60,6 +60,7 @@ This functions returns true if and only if none of the files in the corpus exhib
 @pitfalls{
 * the parser must not `allowAmbiguity=true` 
 * the parser must not `allowRecovery=true` either
+* the parser must accept whitespace and comments at the beginning and end of the file
 }
 bool testCorpusForParseErrorsAndAmbiguity(FileParser[&T] parser, list[loc] corpus, str jobLabel="Testing parser ", bool abort=false) { 
     int success = 0;
