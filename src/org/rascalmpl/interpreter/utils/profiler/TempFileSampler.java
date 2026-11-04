@@ -26,13 +26,13 @@
  */
 package org.rascalmpl.interpreter.utils.profiler;
 
-import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -40,42 +40,50 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import org.rascalmpl.ideservices.GsonUtils;
 import org.rascalmpl.interpreter.Evaluator;
 
+import com.github.luben.zstd.ZstdInputStream;
+import com.github.luben.zstd.ZstdOutputStream;
+
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
+import io.usethesource.vallang.io.binary.message.IValueReader;
+import io.usethesource.vallang.io.binary.message.IValueWriter;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
+import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
+import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
- * Sampler that temporarily stores samples on disk to avoid excessive memory usage. Samples are stored as base64-encoded
- * {@link IValue} objects (to be able to work directly with {@link ISourceLocation} objects, without additional
- * pretty-printing/parsing). To avoid blocking the main thread, an auxiliary thread is used to encode, write, read, and
- * decode samples.
+ * Sampler that temporarily stores samples on disk to avoid excessive memory usage. Samples are stored as {@link IValue}
+ * objects (to be able to work directly with {@link ISourceLocation} objects, without additional
+ * pretty-printing/parsing). To avoid blocking the main thread, an auxiliary thread is used to write/read samples
+ * to/from disk.
  */
 public class TempFileSampler implements Sampler {
 	private final Evaluator evaluator;
-    private final TypeStore typeStore;
-	private final TempFile<RawSample> tempFile;
+	private final TempFile tempFile;
 
     // To avoid pressuring the task queue of the auxiliary thread with excessively many tiny tasks, samples are buffered
     // up to a certain threshold before they are scheduled for encoding and writing. 
     private final List<RawSample> buffer;
     private final int bufferSize;
 
+    private static final ValueFactory VF = ValueFactory.getInstance();
+
 	public TempFileSampler(Evaluator evaluator) throws IOException {
 		this.evaluator = evaluator;
-        this.typeStore = new TypeStore();
-		this.tempFile = new TempFile<>(
-			// Configure the handle to store samples on disk as base 64-encoded `IValue`s
-			decoded -> GsonUtils.base64Encode(decoded.toIValue()),
-			encoded -> RawSample.of(GsonUtils.<ITuple> base64Decode(encoded, typeStore))
-		);
+        this.tempFile = new TempFile();
 
         this.buffer = new ArrayList<>();
         this.bufferSize = 1000;
@@ -94,19 +102,19 @@ public class TempFileSampler implements Sampler {
 
         buffer.add(sample);
         if (buffer.size() == bufferSize) {
-            tempFile.writeLines(flushBuffer());
+            tempFile.write(flushBuffer());
         }
 	}
 
 	@Override
 	public void consumeSamples(Consumer<Stream<RawSample>> action) {
-        tempFile.writeLines(flushBuffer());
-		tempFile.readLines().thenAccept(samples -> {
-            // `samples` is a lazily populated stream, iteratively read from the temporary file and decoded, to avoid
-            // the need to keep the whole sample population in a collection in memory during consumption. Consumption
-            // happens in the auxiliary thread of the temporary file handle. After consumption, the stream must be
-            // closed to free resources. To ensure that `close` is called, `samples` should be considered private to
-            // this object and not returned to the caller of this method.
+        tempFile.write(flushBuffer());
+		tempFile.read().thenAccept(samples -> {
+            // `samples` is a lazily populated stream, iteratively read from the temporary file, to avoid the need to
+            // keep the whole sample population in a collection in memory during consumption. Consumption happens in the
+            // auxiliary thread of the temporary file handle. After consumption, the stream must be closed to free
+            // resources. To ensure that `close` is called, `samples` should be considered private to this object and
+            // not returned to the caller of this method.
 			action.accept(samples);
 			samples.close();
 		}).join(); // The caller of this method should wait until consumption is done to avoid prematurely reporting completion in the REPL.
@@ -121,21 +129,17 @@ public class TempFileSampler implements Sampler {
 
     /**
     * Handle for a freshly created temporary file, internally coupled with a freshly created auxiliary thread dedicated
-    * to: (1) encoding and writing objects of type {@code T} to the temporary file; (2) reading and decoding objects.
+    * to write/read samples to that file.
     */
-    private static class TempFile<T> implements Closeable {
+    private static class TempFile implements Closeable {
         private final ExecutorService executor; // Auxiliary thread and internal task queue
         private final Path path;
-        private final BufferedWriter writer;
-        private final Function<T, String> encode;
-        private final Function<String, T> decode;
+        private final SampleWriter writer;
 
-        public TempFile(Function<T, String> encode, Function<String, T> decode) throws IOException {
+        public TempFile() throws IOException {
             this.executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory());
             this.path = Files.createTempFile("rascal-sampling-profiler", "");
-            this.writer = Files.newBufferedWriter(path);
-            this.encode = encode;
-            this.decode = decode;
+            this.writer = new SampleWriter(path);
         }
 
         @Override 
@@ -158,14 +162,14 @@ public class TempFileSampler implements Sampler {
             }
         }
 
-        public CompletableFuture<Stream<T>> readLines() {     
+        public CompletableFuture<Stream<RawSample>> read() {     
             return schedule(() -> {
-                writer.flush();
-                var reader = Files.newBufferedReader(path);
-                var values = reader.lines().map(decode); // Lazily populated
+                writer.close(); // Cannot write and read at the same time
+                var reader = new SampleReader(path, writer.getCount());
+                var samples = StreamSupport.stream(reader.spliterator(), false);
 
                 // The reader can be closed only when the stream has been fully consumed (outside this method)
-                values.onClose(() -> {
+                samples.onClose(() -> {
                     try {
                         reader.close();
                     } catch (IOException e) {
@@ -173,16 +177,13 @@ public class TempFileSampler implements Sampler {
                     }
                 });
                 
-                return values;
+                return samples;
             });
         }
 
-        public void writeLines(T[] values) {
+        public void write(RawSample[] samples) {
             schedule(() -> {
-                for (T value : values) {
-                    writer.write(encode.apply(value));
-                    writer.newLine();
-                }
+                writer.write(samples);
                 return null; // Void
             });
         }
@@ -195,6 +196,92 @@ public class TempFileSampler implements Sampler {
                     throw new CompletionException(e);
                 }
             }, executor);
+        }
+
+        /**
+         * Wrapper around {@link IValueWriter} that counts the number of samples that have been written
+         */
+        private static class SampleWriter implements Closeable {
+            private final AtomicInteger count;
+            private final IWireOutputStream stream;
+
+            public SampleWriter(Path path) throws IOException {
+                this.count = new AtomicInteger();
+                this.stream = new BinaryWireOutputStream(new ZstdOutputStream(Files.newOutputStream(path), 3), WindowSizes.NORMAL_WINDOW.stringsWindow); // Buffered internally
+            }
+
+            @Override
+            public void close() throws IOException {
+                stream.close();
+            }
+
+            public int getCount() {
+                return count.get();
+            }
+
+            public void write(RawSample[] samples) throws IOException {
+                // Write the next values in a batch (to take advantage of the sharing features of the underlying stream)
+                var batch = VF.listWriter();
+                for (var sample : samples) {
+                    batch.append(sample.toIValue());
+                }
+                IValueWriter.write(stream, VF, WindowSizes.NORMAL_WINDOW, batch.done());
+                count.addAndGet(samples.length);
+            }
+        }
+
+        /**
+         * Wrapper around {@link IValueReader} that reads the number of samples as indicated by the provided count. If
+         * the file at the provided path doesn't have that many values, then an exception will be thrown.
+         */
+        private static class SampleReader implements Closeable, Iterable<RawSample> {
+            private final AtomicInteger count;
+            private final IWireInputStream stream;
+            private final TypeStore typeStore;
+
+            private Iterator<IValue> batch; // Values are written in batches (of type `IList`), so they need to be read in batches, too.
+
+            public SampleReader(Path path, int count) throws IOException {
+                this.count = new AtomicInteger(count);
+                this.stream = new BinaryWireInputStream(new ZstdInputStream(Files.newInputStream(path))); // Buffered internally
+                this.typeStore = new TypeStore();
+            }
+
+            @Override
+            public void close() throws IOException {
+                stream.close();            
+            }
+
+            @Override
+            public Iterator<RawSample> iterator() {
+                return new Iterator<RawSample>() {
+                    @Override
+                    public boolean hasNext() {
+                        return count.get() > 0;
+                    }
+                    @Override
+                    public RawSample next() {
+                        try {
+                            return read();
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    }
+                };
+            }
+
+            public RawSample read() throws IOException {
+                if (count.getAndDecrement() > 0) {
+                    // Read the next non-empty batch from the file
+                    while (batch == null || !batch.hasNext()) {
+                        batch = ((IList) IValueReader.readValue(stream, VF, () -> typeStore)).iterator();
+                    }
+                    // Read the next value from the batch
+                    return RawSample.of((ITuple) batch.next());
+                } else {
+                    throw new IllegalStateException("Cannot read more samples than the provided count");
+                }
+            }
         }
     }
 }
