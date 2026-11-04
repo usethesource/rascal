@@ -40,13 +40,13 @@ This functions returns true if and only if none of the files in the corpus exhib
 @pitfalls{
 * the grammar is best if it's a start symbol (since we are parsing files we need spaces before and after the top sort).
 }
-bool testCorpusForParseErrorsAndAmbiguity(type[&T <: Tree] grammar, list[loc] corpus, str jobLabel="Testing <grammar>") {
+bool testCorpusForParseErrorsAndAmbiguity(type[&T <: Tree] grammar, list[loc] corpus, str jobLabel="Testing <grammar>", bool abort=false) {
     &T (value,loc) generated = parser(grammar, allowAmbiguity=false, allowRecovery=false);
     FileParser[&T] wrapped = &T (loc src) { 
         return generated(src, src); 
     };
 
-    return testCorpusForParseErrorsAndAmbiguity(wrapped, corpus, jobLabel=jobLabel);
+    return testCorpusForParseErrorsAndAmbiguity(wrapped, corpus, jobLabel=jobLabel, abort=abort);
 }
 
 @synopsis{Run a parser on a corpus and print errors, diagnostics and summary statistics}
@@ -61,30 +61,45 @@ This functions returns true if and only if none of the files in the corpus exhib
 * the parser must not `allowAmbiguity=true` 
 * the parser must not `allowRecovery=true` either
 }
-bool testCorpusForParseErrorsAndAmbiguity(FileParser[&T] parser, list[loc] corpus, str jobLabel="Testing parser ") { 
+bool testCorpusForParseErrorsAndAmbiguity(FileParser[&T] parser, list[loc] corpus, str jobLabel="Testing parser ", bool abort=false) { 
     int success = 0;
     int errors = 0;
     int ambs = 0;
+    int total = 0;
     
-    loopVoidJob(corpus, (loc src) {
-        try {
-            pt = parser(src);
-            success += 1;
-        }
-        catch Ambiguity(loc l, str sym, str txt): {
-            println("[ERROR] ambiguity: <l>");
-            println("[INFO]    symbol : <sym>");
-            println("[INFO]    source : `<txt>`");
-            
-            ambs += 1;
-        }
-        catch ParseError(loc l): {
-            println("[ERROR] parse error: <l>");
-            errors += 1;
-        }
-    }, label=jobLabel);
+    try {
+        loopVoidJob(corpus, (loc src) {
+            try {
+                total += 1;
+                pt = parser(src);
+                success += 1;
+            }
+            catch Ambiguity(loc l, str sym, str txt): {
+                println("[ERROR] ambiguity: <l>");
+                println("[INFO]    symbol : <sym>");
+                println("[INFO]    source : `<txt>`");
+                
+                ambs += 1;
+
+                if (abort) {
+                    throw "aborted";
+                }
+            }
+            catch ParseError(loc l): {
+                println("[ERROR] parse error: <l>");
+                errors += 1;
+
+                if (abort) {
+                    throw "aborted";
+                }
+            }
+        }, label=jobLabel);
+    }
+    catch "aborted": {
+        println("[INFO] aborted after <total> of <size(corpus)> files.");
+    }
     
-    println("[INFO] #total  : <size(corpus)>");
+    println("[INFO] #total  : <total>");
     println("[INFO] #ok     : <success>");
     println("[INFO] #errors : <errors>");
     println("[INFO] #ambs   : <ambs>");
