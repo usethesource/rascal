@@ -112,3 +112,27 @@ test bool SyntaxConstructorAsArgNotOk(){
 
       void main(){ f(a);  }");
 }
+// https://github.com/usethesource/rascal/issues/2908
+test bool ADTConstructorAsArgToHigherOrderGenericFunctionOk(){
+   return checkModuleOK("
+      module ADTConstructorAsArgToHigherOrderGenericFunctionOk
+         data Msg = editField(str field, str val);
+
+         &T(&V) partial(&T(&U0, &V) f, &U0 u0) = &T(&V v) { return f(u0, v); };
+
+         void show(Msg(str) _) { }
+
+      void main(){ show(partial(editField, \"x\"));  }");
+}
+
+test bool ADTConstructorAsArgToHigherOrderGenericFunctionNotOk(){
+   return argumentMismatchInModule("
+      module ADTConstructorAsArgToHigherOrderGenericFunctionNotOk
+         data Msg = editField(str field, str val);
+
+         &T(&V) partial(&T(&U0, &V) f, &U0 u0) = &T(&V v) { return f(u0, v); };
+
+         void show(int(str) _) { }
+
+      void main(){ show(partial(editField, \"x\"));  }");
+}
