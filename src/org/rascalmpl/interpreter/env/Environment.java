@@ -106,11 +106,11 @@ public class Environment implements IRascalFrame {
 	protected Map<Type, Type> dynamicTypeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
-	protected ISourceLocation callerLocation; // different from the scope location (more precise)
+	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
 	protected final String name;
 	private Environment myRoot;
-	private boolean isFunctionFrame;
+	private final boolean isFunctionFrame;
 
 	
 	@Override
@@ -185,6 +185,10 @@ public class Environment implements IRascalFrame {
 	}
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
+		this(parent, callerScope, callerLocation, loc, name, false);
+	}
+
+	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name, boolean isFunctionFrame) {
 		this.parent = parent;
 		this.loc = loc;
 		this.name = name;
@@ -193,6 +197,7 @@ public class Environment implements IRascalFrame {
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
+		this.isFunctionFrame = isFunctionFrame;
 	}
 
 	/**
@@ -1186,10 +1191,6 @@ public class Environment implements IRascalFrame {
     @Override
     public Set<String> getFrameVariables() {
         return getVariables().keySet();
-    }
-
-    public void markAsFunctionFrame() {
-		this.isFunctionFrame = true;
     }
 
 	public boolean isFunctionFrame() {

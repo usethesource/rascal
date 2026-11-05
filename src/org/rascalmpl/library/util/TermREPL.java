@@ -65,17 +65,12 @@ public class TermREPL {
     }
 
     private Path resolveHistoryFile(ISourceLocation historyFile) {
-        try {
-            ISourceLocation result = URIResolverRegistry.getInstance().logicalToPhysical(historyFile);
-            if (result == null || !result.getScheme().equals("file")) {
-                err.println("Cannot resolve history file to file on disk");
-                return null;
-            }
-            return Path.of(result.getPath());
-        }
-        catch (IOException e) {
+        ISourceLocation result = URIResolverRegistry.getInstance().resolveIfLogical(historyFile);
+        if (result == null || !result.getScheme().equals("file")) {
+            err.println("Cannot resolve history file to file on disk");
             return null;
         }
+        return Path.of(result.getURI());
     }
 
     public ITuple newREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
@@ -88,7 +83,12 @@ public class TermREPL {
 
         BaseREPL baseRepl;
         try {
-            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)), term);
+            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)) {
+                @Override
+                public void disconnect() {
+                    // Do nothing. Closing the writer here would close it for the host REPL as well.
+                }
+            }, term) {};
         }
         catch (Throwable e) {
             throw RuntimeExceptionFactory.io(e.getMessage());

@@ -381,11 +381,11 @@ private str ci(toUpper(), str word) = toUpperCase(word);
 private str ci(toCapitalized(), str word) = capitalize(word);
 private str ci(asIs(), str word) = word;
 
-@synopsis{Removing production labels helps with case distinctions on ((Symbol)) kinds.}
+@synopsis{Removing production labels helps with case distinctions on ((ParseTree-Symbol)) kinds.}
 private Production delabel(prod(Symbol s, list[Symbol] syms, set[Attr] attrs)) = prod(delabel(s), [delabel(x) | x <- syms], attrs);
 private Production delabel(regular(Symbol s)) = regular(delabel(s));
 
-@synopsis{Removing symbol labels helps with case distinctions on ((Symbol)) kinds.}
+@synopsis{Removing symbol labels helps with case distinctions on ((ParseTree-Symbol)) kinds.}
 private Symbol delabel(label(_, Symbol s)) = delabel(s);
 private Symbol delabel(conditional(Symbol s, _)) = delabel(s);
 private default Symbol delabel(Symbol s) = s;

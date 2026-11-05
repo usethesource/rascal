@@ -145,7 +145,7 @@ void compileTestSources(PathConfig pcfg) {
    //  total += d;
    //}
      
-   testFolder = |std:///lang/rascal/|;
+   testFolder = |project://rascal/src/org/rascalmpl/library/lang/rascal/|;
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files

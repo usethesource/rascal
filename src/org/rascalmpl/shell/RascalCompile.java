@@ -4,31 +4,23 @@ import engineering.swat.watch.DaemonThreadPool;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.util.functional.ThrowingConsumer;
-import org.rascalmpl.util.functional.ThrowingFunction;
 import org.rascalmpl.values.IRascalValueFactory;
 
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -66,18 +58,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 			System.exit(1);
 		}
     }
-
-	private static void removeParallelismArguments(Map<String, IValue> parsedArgs) {
-		parsedArgs.remove("parallel");
-		parsedArgs.remove("parallelMax");
-		parsedArgs.remove("parallelPreChecks");
-	}
 	
-	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException, URISyntaxException {
 			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
-			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax").intValue());
+			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
 			IList modules = listParameter(parsedArgs, "modules");
 			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
+			preChecks = allRascalSourceFiles(preChecks, vf.list());
 			removeParallelismArguments(parsedArgs);
 
 			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
@@ -88,7 +75,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 			}
 	}
 
-	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
+	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws URISyntaxException, IOException {
 		IList modules = (IList) parsedArgs.get("modules");
 
 		if (modules.isEmpty()) {
@@ -156,21 +143,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 
 	}
 
-	private static boolean isTrueParameter(Map<String, IValue> args, String arg) {
-		return isTrue(args.get(arg));
-	}
-
-	private static IList listParameter(Map<String, IValue> args, String arg) {
-		return args.get(arg) == null ? vf.list() : (IList) args.get(arg);
-	}
-
-	private static IInteger intParameter(Map<String, IValue> args, String arg) {
-		return args.get(arg) == null ? vf.integer(0) : (IInteger) args.get(arg);
-	}
-
-	private static boolean isTrue(IValue x) {
-		return x != null ? ((IBool) x).getValue() : false;
-	}
+	
 	
 	/**
 	 * Warning: this method has to be kept up-to-date with the commandline parameters of Checkes::main.
@@ -203,72 +176,5 @@ public class RascalCompile extends AbstractCommandlineTool {
 			b, "parallel",
 			i, "parallelMax",
 			ll, "parallelPreChecks");
-	}
-
-    private static int parallelAmount(int parallelMax) {
-	    // check available CPUs
-		long result = Runtime.getRuntime().availableProcessors();
-		if (result < 2) {
-			return 1;
-		}
-		// check available memory
-		result = Math.min(result, Runtime.getRuntime().maxMemory() / (2 * 1024 * 1024));
-		if (result < 2) {
-			return 1;
-		}
-		return (int) Math.min(parallelMax, result);
-	}
-
-	private static List<IList> splitTodoList(int procs, IList modules) {
-		List<ISourceLocation> todoList = modules.stream().map(ISourceLocation.class::cast).collect(Collectors.toList());
-		todoList.sort((a,b) -> a.getPath().compareTo(b.getPath())); // improves cohesion of a chunk
-		int chunkSize = todoList.size() / procs;
-		int remainder = todoList.size() % procs;
-		List<IList> result = new ArrayList<>((todoList.size() / chunkSize) + 1);
-
-		// Divide the work evenly. The remainder elements are distributed
-		// one-by-one over the prefix of the result list.
-		for (int from = 0; from < todoList.size(); from += chunkSize + ((remainder-- > 0 ? 1 : 0))) {
-			int to = from + chunkSize + ((remainder > 0) ? 1 : 0);
-			result.add(toIList(todoList.subList(from, to)));
-		}
-
-		return result;
-	}
-
-	private static <T extends IValue> IList toIList(Collection<T> coll) {
-		return toList(coll.stream());
-	}
-
-	private static <T extends IValue> IList toList(Stream<T> stream) {
-		return stream.collect(vf.listWriter());
-	}
-
-    /**
-     * Utility function for handling exceptions while streaming. Any checked exception is caught
-     * and rethrown as a RuntimeException with the original exception as the cause.
-     */
-    private static <T, R, E extends Exception> Function<T, R> handleExceptions(ThrowingFunction<T, R, E> fe) {
-        return arg -> {
-            try {
-                return fe.apply(arg);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-		};
-	}
-
-	/**
-     * Utility function for handling exceptions while streaming. Any checked exception is caught
-     * and rethrown as a RuntimeException with the original exception as the cause.
-     */
-    private static <T, E extends Exception> Consumer<T> handleConsumerExceptions(ThrowingConsumer<T, E> fe) {
-        return arg -> {
-            try {
-                fe.accept(arg);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-		};
 	}
 }

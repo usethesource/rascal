@@ -45,13 +45,13 @@ value main()
 
 value measure(){
 
-     //moduleLoc = |std:///lang/rascal/syntax/Rascal.rsc|;
-    moduleLoc = |std:///experiments/Compiler/RVM/AST.rsc|;
-    //moduleLoc = |std:///experiments/Compiler/RVM/Syntax.rsc|;
-    //moduleLoc = |std:///experiments/Compiler/muRascal/Syntax.rsc|;
-     //moduleLoc = |std:///experiments/Compiler/muRascal/AST.rsc|;
-    //moduleLoc = |std:///demo/lang/Pico/Syntax.rsc|;
-    //moduleLoc = |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|;
+     //moduleLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|;
+    moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/RVM/AST.rsc|;
+    //moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/RVM/Syntax.rsc|;
+    //moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal/Syntax.rsc|;
+     //moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/muRascal/AST.rsc|;
+    //moduleLoc = |project://rascal/src/org/rascalmpl/library/demo/lang/Pico/Syntax.rsc|;
+    //moduleLoc = |project://rascal/src/org/rascalmpl/library/demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|;
     m = parse(#start[Module], moduleLoc).top;
     stats = ();
     nonterm = {};

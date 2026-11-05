@@ -197,16 +197,27 @@ public class SemVer {
 	 * @return true if this SemVer is less than other
 	 */
 	public boolean lessVersion(SemVer other){
-		return less(major, other.major) || less(minor, other.minor) || less(patch, other.patch) ||
-				(!prerelease.equals(other.prerelease) && lessPrerelease(other));
+		if (less(major, other.major)) return true;
+		if (less(other.major, major)) return false;
+		if (less(minor, other.minor)) return true;
+		if (less(other.minor, minor)) return false;
+		if (less(patch, other.patch)) return true;
+		if (less(other.patch, patch)) return false;
+		return !prerelease.equals(other.prerelease) && lessPrerelease(other);
 	}
-	
+
 	/**
 	 * @param other SemVer
 	 * @return true if this SemVer is greater than other
 	 */
 	public boolean greaterVersion(SemVer other){
-		return greater(major, other.major) || greater(minor, other.minor) || greater(patch, other.patch) || (!prerelease.equals(other.prerelease) && !lessPrerelease(other));
+		if (greater(major, other.major)) return true;
+		if (greater(other.major, major)) return false;
+		if (greater(minor, other.minor)) return true;
+		if (greater(other.minor, minor)) return false;
+		if (greater(patch, other.patch)) return true;
+		if (greater(other.patch, patch)) return false;
+		return !prerelease.equals(other.prerelease) && !lessPrerelease(other);
 	}
 	
 	/**

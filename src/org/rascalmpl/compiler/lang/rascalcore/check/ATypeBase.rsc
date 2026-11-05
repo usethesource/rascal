@@ -39,6 +39,7 @@ extend lang::rascal::\syntax::Rascal;
 import List;
 import Set;
 //import Node;
+import util::Memo;
 import String;
 
 data Keyword
@@ -89,7 +90,7 @@ data AType (str alabel = "")
      | avalue()
      ;
 
-@memo{expireAfter(minutes=5),maximumSize(1000)}
+@memo={expireAfter(minutes=5),maximumSize(1000)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
     if(all(<loc _, IdRole _, AType t> <- overloads, aadt(_, _, _) := t)){
       str adtName = "";
@@ -115,6 +116,38 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
     }
     fail;
 }
+
+// // Reduce afunc to avoid when one of the formals is avoid
+// AType afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,
+//              bool varArgs=false,
+//              str deprecationMessage="",     // Only used during compilation of the current module
+//              bool isConcreteArg=false,      // Only used during compilation of the current module
+//              bool isDefault=false,          // Only used during compilation of the current module
+//              bool isTest=false,             // Only used during compilation of the current module
+//              bool returnsViaAllPath = false,// Only used during compilation of the current module
+//              int abstractFingerprint=0,     // Only used during compilation of the current module
+//              int concreteFingerprint=0) {    // Only used during compilation of the current module
+//     if(any(fm <- formals, isVoidAType(fm))){
+//       return avoid();
+//     } else {
+//         fail;
+//     }
+// }
+
+// // Reduce atuple to avoid when one of the elements is avoid
+// AType atuple(atypeList(list[AType] l)){
+//     if(any(elm <- l, isVoidAType(elm))){
+//       return avoid();
+//     } else {
+//         fail;
+//     }
+// }
+
+// Duplicated isVoidAType from ATypeUtils (to avoid circular dependency)
+bool isVoidAType(aparameter(_,AType tvb)) = isVoidAType(tvb);
+bool isVoidAType(avoid()) = true;
+default bool isVoidAType(AType _) = false;
+
 
 data AProduction
      = \achoice(AType def, set[AProduction] alternatives)

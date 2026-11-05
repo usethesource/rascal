@@ -110,7 +110,7 @@ bool originTest(loc example) {
 }
 
 test bool originTracking() {
-    files = [ l | loc l <- |std:///lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
+    files = [ l | loc l <- |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json|.ls, l.extension == "json"];
 
     return (true | it && originTest(example) | loc example <- files);
 }
@@ -185,7 +185,7 @@ value toDefaultValue(real r) = r - round(r) == 0
 default value toDefaultValue(value x) = x;
 
 test bool accurateParseErrors() {
-   ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+   ex = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
 
    try {

@@ -75,14 +75,14 @@ public loc testModulesRoot = testRoot + "src";
 private int npc = 0;
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}
 @description{
-* gets source files exclusively from |memory://test-modules/| and |std:///| (for library code)
+* gets source files exclusively from |memory://test-modules/| and |project://rascal/src/org/rascalmpl/library/| (for library code)
 * generates bin files in the in-memory file system
 }
 public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(
-        srcs = [ testModulesRoot, |std:///|  ],
+        srcs = [ testModulesRoot, |project://rascal/src/org/rascalmpl/library/|  ],
         bin = testRoot + "rascal-tests-bin-<snpc>",
         generatedSources = testRoot + "generated-test-sources-<snpc>",
         generatedResources = testRoot + "generated-test-resources-<snpc>",
@@ -170,7 +170,7 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
                             REPO + "typepal/src",
                             LSP_REPO + "src/main/rascal/library",
                             LSP_REPO + "src/main/rascal/lsp",
-                            LSP_REPO + "src/test/rascal",
+                            //LSP_REPO + "src/test/rascal",
                             REPO + "php-analysis/src/main/rascal"
                         ],
                         [ ], 
