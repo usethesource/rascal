@@ -115,16 +115,25 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	@Override
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
 		if (isFile(from) || (isDirectory(from) && list(from).length == 0)) {
-			if (exists(to) && !overwrite) {
-				throw new IOException("file exists " + to);
+			// single file or empty dir are okay to move
+			var fromFile = resolveToFile(from);
+			var toFile = resolveToFile(to);
+			if (toFile.exists()) {
+				if (!overwrite) {
+					throw new IOException("file exists " + to);
+				}
+				if (!toFile.delete()) { // jdk cannot (atomically) rename if the target exist, so we have to remove it first
+					throw new IOException("Could not overwrite " + to);
+				}
 			}
 
 			// fast path
-			if (!resolveToFile(from).renameTo(resolveToFile(to))) {
+			if (!fromFile.renameTo(toFile)) {
 				throw new IOException("rename failed: " + from + " to " + to);
 			}
 		}
 		else {
+			// but dir with entries cannot be moved atomically 
 			ISourceLocationInputOutput.super.rename(from, to, overwrite);
 		}
 	}
