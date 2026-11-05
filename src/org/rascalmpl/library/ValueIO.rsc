@@ -60,12 +60,20 @@ public value readTextValueString(str input) {
 @synopsis{Parse a textual string representation of a value and validate it against the given type.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readTextValueString(type[&T] result, str input);
-	
+
 
 @synopsis{Write a value to a file using an efficient binary file format.}
+@description{
+Write any Rascal value to a binary file. Reading that file with ((readBinaryValueFile)) returns the same value.
+
+The default enabled `compression` parameter tries to maintain the same in-memory size as the original value.
+This should only in very rare cases be disabled.
+The `optimizeSharing` parameter further reduces the file (and thus memory) size by recognizing equal values and storing them only once.
+This should not be enabled for deeply recursive values such as parse trees or ASTs.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java void writeBinaryValueFile(loc file, value val, bool compression = true);
-	
+public java void writeBinaryValueFile(loc file, value val, bool compression = true, bool optimizeSharing = false);
+
 
 @synopsis{Write a value to a file using a textual file format.}
 @javaClass{org.rascalmpl.library.Prelude}
