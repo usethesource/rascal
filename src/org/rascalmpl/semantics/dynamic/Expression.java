@@ -1103,6 +1103,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
+			if (result.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getArgument());
+			}
 			Type expected = getType().typeOf(__eval.getCurrentEnvt(), __eval, instantiateTypeParameters);
 
 			if (!(expected instanceof NonTerminalType)) {

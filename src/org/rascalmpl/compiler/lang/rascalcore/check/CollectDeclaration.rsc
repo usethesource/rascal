@@ -257,6 +257,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             expType = s.getType(expression);
+            checkNonVoid(expression, expType, s, "Default expression");
             // reduce any type parameters in default expression to avoid
             expType = visit(expType) {
                 case p:aparameter(pname, _) => avoid()
@@ -422,6 +423,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                         s.requireUnify(condType, abool(), error(cond, "Cannot unify condition with `bool`, found %t", cond));
                         condType = s.instantiate(condType);
                     }
+                    checkNonVoid(cond, condType, s, "Condition");
                     s.requireSubType(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                 }
             });

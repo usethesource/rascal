@@ -32,6 +32,7 @@ import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
@@ -665,6 +666,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	                env.declareVariable(kwType, kwparam);
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
 	                Result<IValue> kwResult = def.interpret(eval);
+	                if (kwResult.getStaticType().isBottom()) {
+	                    throw new NonVoidTypeRequired(def);
+	                }
 	                env.storeVariable(kwparam, ResultFactory.makeResult(kwType, kwResult.getValue(), ctx));
 	                env.storeVariable(isSetName, ResultFactory.makeResult(TF.boolType(), getValueFactory().bool(false), ctx));
 	            }
