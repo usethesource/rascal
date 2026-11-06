@@ -102,6 +102,33 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
+
+str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
+    if (isModuleId(lloc)) {
+        // Logical module location
+        return getRascalModuleName(lloc, pcfg);
+    }
+    if (!isRascalLogicalLoc(lloc)) {
+        // Physical location
+        return getRascalModuleName(lloc, pcfg);
+    }
+
+    // Logical non-module location
+    <modulePathNoExt, ext> = splitFileExtension(lloc.path);
+    while(modulePathNoExt[0] == "/"){
+        modulePathNoExt = modulePathNoExt[1..];
+    }
+
+    modulePathAsList = split("/", modulePathNoExt);
+    lastName = modulePathAsList[-1];
+    if(lastName[0] == "$"){
+        modulePathAsList = [*modulePathAsList[..-1], lastName[1..]];
+    }
+
+    println(modulePathAsList);
+    return intercalate("::", modulePathAsList[size(modulePathAsList)..]);
+}
+
 @memo={expireAfter(minutes=5),maximumSize(500)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
 str getRascalModuleName(loc moduleLoc, PathConfig pcfg){
