@@ -50,8 +50,8 @@ and the right ((data:PathConfig)) instance.
 }
 bool reportParserTestModule(loc m, PathConfig pcfg=pathConfig()) {
     messages = runParserTestModule(m, pcfg=pcfg);
-    write(messages);
-    return /error(_,_) := messages;
+    println(write(messages));
+    return /error(_,_) !:= messages;
 }
 
 @synopsis{Run the tests embedded in a parser test module file and return true iff all the tests succeeded.}
