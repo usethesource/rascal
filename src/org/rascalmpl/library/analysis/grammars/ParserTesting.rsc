@@ -141,17 +141,19 @@ private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree],
     }
 
     // need number of escaped curlies to shift error positions in the spec
-    int countEscapedCurlies(int off) {
+    int countEscapedCurliesAndPrefixWhitespace(int off) {
+        str input = "<testCase.content>"[1..off];
+        int white = /^<w:[\ \t\n]*>.*$/ := input ? size(w) : 0;
         int result = 0;
         visit ("<testCase.content>"[1..off]) {
             case "\\{": result += 1;
             case "\\}": result += 1;
         }
 
-        return result;
+        return result + white;
     }
     // shifts a parse error in an example string to the location of the spec in the module
-    loc errorLoc(loc e) = testCase.src.top(testCase.content.src.offset + 1 /* skip { */ + e.offset + countEscapedCurlies(e.offset), 1);
+    loc errorLoc(loc e) = testCase.src.top(testCase.content.src.offset + 1 /* skip { */ + e.offset + countEscapedCurliesAndPrefixWhitespace(e.offset), 1);
 
     try {
         if (type[Tree] nt := type(sym2symbol(sym), ())) {
