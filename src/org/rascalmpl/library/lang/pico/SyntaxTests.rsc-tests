@@ -1,0 +1,19 @@
+module lang::pico::tests::SyntaxTests
+
+import lang::pico::\syntax::Main;
+
+syntax test exp1 expects ok {
+    1 + 1 + 1
+}
+
+syntax test exp2 expects ok {
+    1 * 1 * 1
+}
+
+syntax test exp3 expects ok {
+    1 + 1 * 1
+}
+
+syntax test exp3 expects ok {
+    1 * 1 + 1
+}
