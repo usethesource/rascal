@@ -37,6 +37,8 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::LogicalLocations;
 import util::Memo;
 
+import lang::rascal::\syntax::Rascal;
+
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
     int n = findLast(qnameSlashes, "/");
