@@ -10,7 +10,7 @@ module lang::pico::tests::SyntaxTests
 import lang::pico::\syntax::Main;
 
 syntax test exp1 (Expression) expects ok {
-1 #+ 1 + 1
+1 + 1 + 1
 }
 
 syntax test exp2 (Expression) expects ok {

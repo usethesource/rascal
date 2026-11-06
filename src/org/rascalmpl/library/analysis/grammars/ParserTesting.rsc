@@ -179,7 +179,7 @@ private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree],
             return info("test <testCase.label> has an expected ambiguity.", errorLoc(l));
         }
         else {
-            return error("unexpected parse error in <testCase.label> test.", errorLoc(l));    
+            return error("unexpected ambiguity in <testCase.label> test.", errorLoc(l));    
         }
     }
     
