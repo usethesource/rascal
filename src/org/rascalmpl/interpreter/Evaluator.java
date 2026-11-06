@@ -710,7 +710,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             throw new UndeclaredFunction(Names.fullName(qualifiedName), types, this, getCurrentAST());
         }
 
-        return func.call(getMonitor(), types, args, kwArgs).getValue();
+        return call(getMonitor(), func, types, args, kwArgs).getValue(); // Ensure profiler runs if configured
     }
 
     @Override

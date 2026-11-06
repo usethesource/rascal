@@ -55,6 +55,7 @@ import Map;
 import Set;
 import Relation;
 import String;
+import util::Memo;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
@@ -136,7 +137,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 
 set[IdRole] defBeforeUseRoles = {variableId(), moduleVariableId(), formalId(), keywordFormalId(), patternVariableId()};
 
-@memo{expireAfter(minutes=5),maximumSize(1000)}
+@memo={expireAfter(minutes=5),maximumSize(1000)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
     Define d = s.getDefine(def);
@@ -577,7 +578,7 @@ loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
      return def.defined;
 }
 
-@memo{expireAfter(minutes=5),maximumSize(1000)}
+@memo={expireAfter(minutes=5),maximumSize(1000)}
 rel[str shortName, str longName] getRascalModuleNames(PathConfig pcfg){
     longNames = {};
     for(srcdir <- pcfg.srcs){

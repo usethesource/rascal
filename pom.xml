@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.43.1-SNAPSHOT</version>
+    <version>0.43.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -473,7 +473,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.17.2</version>
+            <version>0.17.3</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
@@ -487,7 +487,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
