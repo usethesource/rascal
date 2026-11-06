@@ -55,7 +55,6 @@ bool reportParserTestModule(loc m, PathConfig pcfg=pathConfig()) {
 }
 
 @synopsis{Run the tests embedded in a parser test module file and return true iff all the tests succeeded.}
-@synopsis{Run the tests embedded in a parser test module file and return true iff all the tests succeeded.}
 @benefits{
 * all failing tests are reported in standard fashion as a `list[Message]`, which can be processed further downstream
 by communicating to IDE diagnostics views, or as editor annotations, for example.
