@@ -397,7 +397,7 @@ ModuleStatus removeTModel(MODID candidate, ModuleStatus ms, bool updateBOMneeded
         ms = addProperty(candidate, ms, tpl_saved());
         if(ms.compilerConfig.verbose) println("Saving tmodel for <moduleId2moduleName(candidate)> before removing from cache");
         try {
-            writeBinaryValueFile(tplLoc, tm);
+            writeBinaryValueFile(tplLoc, tm, optimizeSharing = true);
             if(traceTPL) println("Written <tplLoc>");
         } catch value e: {
             mloc = ms.moduleLocs[candidate] ? |unknown:///|;
