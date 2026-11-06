@@ -29,10 +29,32 @@ module lang::rascalcore::check::tests::ImportTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
+import IO;
+import util::PathConfig;
+import lang::rascalcore::check::TestConfigs;
+
 test bool ImportError() = missingModuleInModule("
 	module ImportError
 		import zap;
 	");
+
+test bool ModuleNameMismatch1() {
+	pcfg = getDefaultTestingPathConfig();
+	remove(pcfg.bin);
+	remove(pcfg.srcs[0]);
+
+	m = writeModule("module B", altName = "A");
+	return unexpectedDeclarationInModule(m, pathConfig=pcfg);
+}
+
+test bool ModuleNameMismatch2() {
+	pcfg = getDefaultTestingPathConfig();
+	remove(pcfg.bin);
+	remove(pcfg.srcs[0]);
+
+	m = writeModule("module B\n\nimport IO;", altName = "A");
+	return unexpectedDeclarationInModule(m, pathConfig=pcfg);
+}
 
 test bool UndefinedPrivateVar1(){
 	writeModule("module M private int m = 3;");

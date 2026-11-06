@@ -132,15 +132,13 @@ ModuleStatus rascalTModelForLocs(
 
     if(isEmpty(mlocs)) return ms;
 
+    // More defensive check with all locations?
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
     list[str] mnames = [];
     mids = 
         for(mloc <- mlocs){
-            if(isRascalLogicalLoc(mloc)){
-                mnames += moduleId2moduleName(mloc);
-                append mloc;
-            } else 
+            assert !isRascalLogicalLoc(mloc) : "Unexpected logical location <mloc>";
             if(exists(mloc)){
                 try {
                     mname = getRascalModuleName(mloc, pcfg);
