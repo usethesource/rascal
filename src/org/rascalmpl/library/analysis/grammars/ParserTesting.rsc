@@ -151,7 +151,6 @@ private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree],
         return result;
     }
     // shifts a parse error in an example string to the location of the spec in the module
-    // TODO: account for de-escaped \{ and \} for `e.offset`
     loc errorLoc(loc e) = testCase.src.top(testCase.content.src.offset + 1 /* skip { */ + e.offset + countEscapedCurlies(e.offset), 1);
 
     try {
