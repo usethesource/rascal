@@ -133,7 +133,7 @@ private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree],
 
     content = content[1..-1]; // drop the outermost { }
     content = replaceAll(content, "\\}", "}"); // deescape \}
-    content = replaceAll(content, "\\{", "{"); // deescapoe \{
+    content = replaceAll(content, "\\{", "{"); // deescape \{
 
     if (!(sym is \start)) {
         // only start non-terminals can start and end with whitespace or comments
