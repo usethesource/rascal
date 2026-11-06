@@ -145,7 +145,7 @@ private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree],
         str input = "<testCase.content>"[1..off];
         int white = /^<w:[\ \t\n]*>.*$/ := input ? size(w) : 0;
         int result = 0;
-        visit ("<testCase.content>"[1..off]) {
+        visit (input) {
             case "\\{": result += 1;
             case "\\}": result += 1;
         }
