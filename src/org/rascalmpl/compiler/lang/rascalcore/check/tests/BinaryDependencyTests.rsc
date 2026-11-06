@@ -150,7 +150,7 @@ Project setTPLVersionOfProject(str v, Project pd){
         for(loc f <- find(bin(pd.name), "tpl")){
             tm = readBinaryValueFile(#TModel, f);
             tm.rascalTplVersion = v;
-            writeBinaryValueFile(f, tm);
+            writeBinaryValueFile(f, tm, optimizeSharing = true);
         }
     } catch e: throw "setTPLVersionOfProject: <e>";
     return pd;

@@ -25,13 +25,16 @@ alias X[&T] = list[&T];
 alias Y = int;
 
 loc value_io_test = |memory://test-tmp/value-io-<"<uuidi()>">.test|;
+loc value_io_test2 = |memory://test-tmp/value-io-<"<uuidi()>">2.test|;
 
 /*TODO: cleanup generated files as in Java version */
 
-private bool  binaryWriteRead(type[&T] _, value exp) {
+private bool  binaryWriteRead(type[&T] tp, value exp) {
    writeBinaryValueFile(value_io_test,exp);
-   if (&T N := readBinaryValueFile(value_io_test) && N == exp) return true;
-   return false;
+   writeBinaryValueFile(value_io_test2, exp, optimizeSharing = true);
+   if (readBinaryValueFile(tp, value_io_test) != exp) return false;
+   if (readBinaryValueFile(tp, value_io_test2) != exp) return false;
+   return true;
    }
    
 test bool binBool() = binaryWriteRead(#bool, true);

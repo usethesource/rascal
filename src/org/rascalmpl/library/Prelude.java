@@ -3828,10 +3828,22 @@ public class Prelude {
         }
 	}
 
-    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
+    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression, IBool maximalSharing){
         if(trackIO) System.err.println("_writeBinaryValueFile: " + loc);
-		try (IValueOutputStream writer = constructValueWriter(loc, CompressionRate.Normal)) {
-		    writer.write(value);
+		CompressionRate compRate;
+		if (compression.getValue()) {
+			if (maximalSharing.getValue()) {
+				compRate = CompressionRate.StrongWithSharing;
+			}
+			else {
+				compRate = CompressionRate.Normal;
+			}
+		}
+		else {
+			compRate = CompressionRate.None;
+		}
+		try (IValueOutputStream writer = constructValueWriter(loc, compRate)) {
+			writer.write(value);
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(ioex);
@@ -3847,29 +3859,6 @@ public class Prelude {
             }
         }
         return new IValueOutputStream(registry.getOutputStream(loc, false), values, compression);
-    }
-	
-    
-    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
-    	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-        // ready for after new boot
-		try (IValueOutputStream writer = constructValueWriter(loc, translateCompression(compression))) {
-		    writer.write(value);
-		}
-		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(ioex);
-		}
-	}
-
-    private CompressionRate translateCompression(IConstructor compression) {
-        switch (compression.getName()) {
-            case "disabled": return CompressionRate.None;
-            case "light": return CompressionRate.Light;
-            case "normal": return CompressionRate.Normal;
-            case "strong": return CompressionRate.Strong;
-            case "extreme": return CompressionRate.Extreme;
-            default: return CompressionRate.Normal;
-        }
     }
 
     public void writeTextValueFile(ISourceLocation loc, IValue value){

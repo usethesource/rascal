@@ -84,7 +84,7 @@ void rewriteTypeFiles(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) 
     for (loc file <- find(bin, "tpl")) {
         model = readBinaryValueFile(file);
         model = rewriteTypeModel(model, paths(srcs), sourceLookup);
-        writeBinaryValueFile(relocated + relativize(bin, file).path, model);
+        writeBinaryValueFile(relocated + relativize(bin, file).path, model, optimizeSharing = true);
     }
 }
 
