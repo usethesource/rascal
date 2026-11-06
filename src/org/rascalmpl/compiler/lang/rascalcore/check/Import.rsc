@@ -94,26 +94,20 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
     return ms;
 }
 
-// Complete a ModuleStatus 
-//- by adding transitive edges for extend paths
+// Complete a ModuleStatus
 //- by checking circular dependencies
-// TODO: reuse enhancePathRelation from RascalConfig here
+//- by adding transitive edges for extend paths and the imports they imply (see enhancePathRelation)
 ModuleStatus completeModuleStatus(ModuleStatus ms){
-    pcfg = ms.pathConfig;
     paths = ms.paths;
     ms = reportSelfImport(paths, ms);
-    
-    imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
+
     extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
     paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus };
 
+    // Report cycles on the declared (plus transitive extend) paths, before derived imports are added
     ms = reportCycles(paths, extendPlus, ms);
 
-    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
-             | < MODID c, MODID b> <- imports 
-             };
-
-    ms.paths = paths;                                
+    ms.paths = enhancePathRelation(paths);                              
     return ms;
 }
 
