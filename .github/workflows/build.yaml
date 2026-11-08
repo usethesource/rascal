@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v5
         id: java
         with:
-          java-version: 11
+          java-version: 21
           distribution: 'temurin'
           cache: 'maven'
           overwrite-settings: false
@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/setup-java@v5
         with:
-          java-version: 11
+          java-version: 21
           distribution: 'temurin'
           cache: 'maven'
           overwrite-settings: false
@@ -158,7 +158,7 @@ jobs:
 
       - uses: actions/setup-java@v5
         with:
-          java-version: 11
+          java-version: 21
           distribution: 'temurin'
           cache: 'maven'
           overwrite-settings: false
@@ -190,7 +190,7 @@ jobs:
 
       - uses: actions/setup-java@v5
         with:
-          java-version: 11
+          java-version: 21
           distribution: 'temurin'
           cache: 'maven'
           overwrite-settings: false

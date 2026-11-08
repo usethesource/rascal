@@ -525,7 +525,7 @@ private str pomXml(str name, str group, str version, str rascalSrcRoot)
     '        \<version\>3.8.0\</version\>
     '        \<configuration\>
     '          \<compilerArgument\>-parameters\</compilerArgument\> 
-    '          \<release\>11\</release\>
+    '          \<release\>21\</release\>
     '        \</configuration\>
     '      \</plugin\>
     '      \<plugin\>
