@@ -35,6 +35,7 @@ import util::Reflective;
 import util::FileSystem;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::LogicalLocations;
+import lang::rascalcore::check::NameUtils;
 import util::Memo;
 
 import lang::rascal::\syntax::Rascal;
@@ -152,11 +153,11 @@ str getRascalModuleName(loc moduleLoc, PathConfig pcfg){
         try {
             m = parseModuleWithSpaces(moduleLoc);
             if ((start[Module]) `<Header header> <Body _>` := m) {
-                return "<header.name>";
+                return prettyPrintName(header.name);
             }
         } catch _: { ; }
     }
-    
+
     // Find longest matching .tpl file in library directories
   
     <modulePathNoExt, ext> = splitFileExtension(modulePath);
