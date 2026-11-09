@@ -56,6 +56,13 @@ test bool ModuleNameMismatch2() {
 	return unexpectedDeclarationInModule(m, pathConfig=pcfg);
 }
 
+test bool EscapedModuleName()
+	= checkModuleOK("module foo::\\bar::A");
+
+test bool ImportEscapedModuleName()
+	= checkModuleOK("module foo::\\bar::B")
+	&& checkModuleOK("module foo::\\bar::C import foo::\\bar::B;");
+
 test bool UndefinedPrivateVar1(){
 	writeModule("module M private int m = 3;");
 	return undeclaredVariableInModule("
