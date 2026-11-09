@@ -253,10 +253,9 @@ tuple[bool,ModuleStatus] isModuleModified(MODID moduleId, datetime timestamp, Pa
 
 bool tplOutdated(MODID moduleId, PathConfig pcfg){
     try {
-        qualifiedModuleName = moduleId2moduleName(moduleId);
-        mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+        mloc = getRascalModuleLocation(moduleId, pcfg);
         if(endsWith(mloc.path, "tpl")) return false;
-        <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
+        <found, tpl> = getTPLReadLoc(moduleId, pcfg);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
         res = !found || lmMloc > lmTpl;
