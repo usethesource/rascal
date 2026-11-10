@@ -192,7 +192,10 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
        return use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
 
-    if(afunc(AType _ret, list[AType] _formals, list[Keyword] _kwFormals) := atype){
+    // Qualifier is an ADT and the function is a smart constructor for it,
+    // i.e. it returns a value of that ADT. This excludes void, value, node, ...
+    if(afunc(AType ret, list[AType] _formals, list[Keyword] _kwFormals) := atype
+       && isADTAType(ret) && getADTName(ret) == use.ids[0]){
         return acceptBinding();
     }
 
