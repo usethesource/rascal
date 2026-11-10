@@ -109,7 +109,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
 str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
     if (isModuleId(lloc)) {
         // Logical module location
-        return getRascalModuleName(lloc, pcfg);
+        return moduleId2moduleName(lloc);
     }
     if (!isRascalLogicalLoc(lloc)) {
         // Physical location
@@ -138,7 +138,7 @@ str getRascalModuleName(loc moduleLoc, PathConfig pcfg)
 
 @memo={expireAfter(minutes=5),maximumSize(500)}
 private str _getRascalModuleName(loc moduleLoc, PathConfig pcfg){
-    if(isRascalLogicalLoc(moduleLoc)){
+    if(isModuleId(moduleLoc)){
         return moduleId2moduleName(moduleLoc);
     }
 
