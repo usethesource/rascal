@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -49,33 +51,44 @@ public abstract class AbstractCommandlineTool {
      */
     public static int main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
         try {   
-            var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
-            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntime());
+            var eval = initializeEvaluator(mainModule, sourceFolders, term, monitor, err, out);
+            return runMain(eval, mainModule, "main", args, monitor, err);
+        }
+        catch (Throwable e) {
+            e.printStackTrace(err);
+            return 1;
+        }
+    }
 
-            for (String folder : sourceFolders) {
-                var src = URIUtil.getChildLocation(rascalJar, folder);
-                if (URIResolverRegistry.getInstance().exists(src)) {
-                    eval.addRascalSearchPath(src);
-                }
-                else {
-                    throw new FileNotFoundException(src.toString());
-                }
-            }
+    protected static Evaluator initializeEvaluator(String mainModule, String[] sourceFolders, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException {
+        var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
+        var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntime());
 
-            eval.doImport(monitor, mainModule);
-            
-            IValue result = eval.main(monitor, mainModule, "main", args);
-            
-            if (result == null) {
-                // void main
-                return 0;
-            }
-            else if (result.getType().isInteger()) {
-                return ((IInteger) result).intValue();
+        for (String folder : sourceFolders) {
+            var src = URIUtil.getChildLocation(rascalJar, folder);
+            if (URIResolverRegistry.getInstance().exists(src)) {
+                eval.addRascalSearchPath(src);
             }
             else {
-                return 0;
+                throw new FileNotFoundException(src.toString());
             }
+        }
+
+        eval.doImport(monitor, mainModule);
+        return eval;
+    }
+
+    protected static int runMain(Evaluator eval, String module, String mainName, String[] args, IRascalMonitor monitor, PrintWriter err) {
+        return runMain(() -> eval.main(monitor, module, mainName, args), err);
+
+    }
+    protected static int runMain(Evaluator eval, String module, String mainName, Map<String, IValue> args, IRascalMonitor monitor, PrintWriter err) {
+        return runMain(() -> eval.main(monitor, module, mainName, args), err);
+    }
+
+    protected static <T> T run(Supplier<T> run, T errorResult, PrintWriter err) {
+        try {   
+            return run.get();
         }
         catch (Throw e) {
             try {
@@ -85,12 +98,23 @@ public abstract class AbstractCommandlineTool {
             catch (IOException ioe) {
                 err.println(ioe.getMessage());
             }
-
-            return 1;
+            return errorResult;
         }
-        catch (Throwable e) {
-            e.printStackTrace();
-            return 1;
+
+    }
+
+    private static int runMain(Supplier<IValue> run, PrintWriter err) {
+        IValue result = run(run, vf.integer(1), err);
+        
+        if (result == null) {
+            // void main
+            return 0;
+        }
+        else if (result.getType().isInteger()) {
+            return ((IInteger) result).intValue();
+        }
+        else {
+            return 0;
         }
     }
 
@@ -99,47 +123,11 @@ public abstract class AbstractCommandlineTool {
      */
     public static int main(String mainModule, String[] sourceFolders, Map<String, IValue> args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
         try {   
-            var eval = ShellEvaluatorFactory.getBasicEvaluator(term.reader(), out, err, monitor);
-            var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntime());
-
-            for (String folder : sourceFolders) {
-                var src = URIUtil.getChildLocation(rascalJar, folder);
-                if (URIResolverRegistry.getInstance().exists(src)) {
-                    eval.addRascalSearchPath(src);
-                }
-                else {
-                    throw new FileNotFoundException(src.toString());
-                }
-            }
-
-            eval.doImport(monitor, mainModule);
-            
-            IValue result = eval.main(monitor, mainModule, "main", args);
-            
-            if (result == null) {
-                // void main
-                return 0;
-            }
-            else if (result.getType().isInteger()) {
-                return ((IInteger) result).intValue();
-            }
-            else {
-                return 0;
-            }
-        }
-        catch (Throw e) {
-            try {
-                err.println(e.getException());
-                e.getTrace().prettyPrintedString(err, new StandardTextWriter());
-            }
-            catch (IOException ioe) {
-                err.println(ioe.getMessage());
-            }
-
-            return 1;
+            var eval = initializeEvaluator(mainModule, sourceFolders, term, monitor, err, out);
+            return runMain(eval, mainModule, "main", args, monitor, err);
         }
         catch (Throwable e) {
-            e.printStackTrace();
+            e.printStackTrace(err);
             return 1;
         }
     }
