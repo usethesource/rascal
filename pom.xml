@@ -143,6 +143,8 @@
                         </goals>
                         <configuration>
                             <parallel>true</parallel>
+                            <parallelMax>4</parallelMax>
+                            <memory>4G</memory>
                             <parallelPreChecks>
                                <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                             </parallelPreChecks>

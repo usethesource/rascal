@@ -5,10 +5,11 @@ import IO;
 import Exception;
 import Set;
 import ParseTree;
+import String;
 import analysis::graphs::Graph;
 import util::PathConfig;
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Modules;
+
 
 Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) {
     dependencies = moduleDependencies({*modules}, pcfg);
@@ -30,11 +31,17 @@ private Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     return result;
 }
 
+// this is copy of reflective, as reflective is slow to load
+@javaClass{org.rascalmpl.library.util.Reflective}
+private java start[Module] parseModuleWithSpaces(loc location);
+
+private str deslash(str s) = replaceAll(s, "\\", "");
+
+private set[str] getImports(start[Module] m) = { deslash("<i.\module.name>") | /Import i := m.top, i has \module };
+
 private Graph[loc] moduleDependencies(loc file, PathConfig pcfg) {
-    Module m = parse(#start[Module], file).top;
-    <_, imps, exts> = getModuleMetaInf(m);
     imports = {};
-    for (i <- imps + exts) {
+    for (i <- getImports(parseModuleWithSpaces(file))) {
         // if the module is on the source path
         // add it to the graph
         try {

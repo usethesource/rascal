@@ -145,7 +145,7 @@ public abstract class AbstractCommandlineTool {
 	}
 
 	protected static boolean isTrue(IValue x) {
-		return x != null ? ((IBool) x).getValue() : false;
+		return x != null && ((IBool) x).getValue();
 	}
 
     protected static int parallelAmount(int parallelMax) {
@@ -155,7 +155,7 @@ public abstract class AbstractCommandlineTool {
 			return 1;
 		}
 		// check available memory
-		result = Math.min(result, Runtime.getRuntime().maxMemory() / (2 * 1024 * 1024));
+		result = Math.min(result, Runtime.getRuntime().maxMemory() / (700 * 1024 * 1024));
 		if (result < 2) {
 			return 1;
 		}

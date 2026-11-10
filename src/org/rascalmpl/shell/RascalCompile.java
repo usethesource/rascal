@@ -1,8 +1,5 @@
 package org.rascalmpl.shell;
 
-import engineering.swat.watch.DaemonThreadPool;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -14,9 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,13 +21,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -40,18 +31,14 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.impl.persistent.SetWriter;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -155,15 +142,15 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
 	}
 
-	private static class Runner {
+	private static class ChunkRunner {
 		private final ISourceLocation commonBin;
 		private final ISourceLocation bin;
 		private final IConstructor pcfg;
 		private final BlockingQueue<ModuleDependencyNode> tasks;
-		private final BlockingQueue<ModuleDependencyNode> completed;
+		private final Queue<ModuleDependencyNode> completed;
 		private final Queue<Integer> doneRunning;
 
-		public Runner(IConstructor pcfg, BlockingQueue<ModuleDependencyNode> tasks, BlockingQueue<ModuleDependencyNode> completed, Queue<Integer> doneRunning) throws URISyntaxException, IOException {
+		public ChunkRunner(IConstructor pcfg, BlockingQueue<ModuleDependencyNode> tasks, Queue<ModuleDependencyNode> completed, Queue<Integer> doneRunning) throws URISyntaxException, IOException {
 			this.tasks = tasks;
 			this.completed = completed;
 			this.doneRunning = doneRunning;
@@ -254,34 +241,33 @@ public class RascalCompile extends AbstractCommandlineTool {
 		var moduleDependencyGraph = calculateModuleDependencies(modules, pcfg, term, monitor, err, out);
 		monitor.jobEnd("Calculate dependency graph", true);
 
-		var tasks = new LinkedBlockingQueue<ModuleDependencyNode>();
+		// we order the work based on how many upstream modules depend on it
+		// in that way we optimize for the most work impactfull modules first
+		var tasks = new PriorityBlockingQueue<>(parAmount, Comparator.comparingInt(ModuleDependencyNode::upstreamSize).reversed());
 		var finished = new LinkedBlockingQueue<ModuleDependencyNode>();
 		var done = new LinkedBlockingQueue<Integer>();
 
 		// startup the runners
 		for (int c = 0; c < parAmount; c++) {
-			var runner = new Runner(pcfg, tasks, finished, done);
-			var t = new Thread(() -> runner.start(mainModule, imports, parsedArgs, term, monitor, err, out), "compiler-" + c);
+			var runner = new ChunkRunner(pcfg, tasks, finished, done);
+			var t = new Thread(() -> runner.start(mainModule, imports, parsedArgs, term, monitor, err, out), "Rascal Compiler " + (c + 1));
 			t.setDaemon(true);
 			t.start();
 		}
 
-		// start scheduling work for the runners
-		var readyForPickup = moduleDependencyGraph.stream()
-			.filter(ModuleDependencyNode::readyForChecking)
-			.sorted(Comparator.comparingInt(ModuleDependencyNode::upstreamSize))
-			.collect(Collectors.toCollection(ArrayList::new));
 
+		// start scheduling work for the runners
 		return monitor.job("Compiling modules in parallel", moduleDependencyGraph.size(), (name, step) -> {
+			// start with all the leafs
+			for (var mod : moduleDependencyGraph) {
+				if (mod.readyForChecking()) {
+					tasks.add(mod);
+				}
+			}
+			
+			// we keep track of the crashed to know if all runners are "out"
 			int crashed = 0;
 			while (!moduleDependencyGraph.isEmpty()) {
-				// process new work ready for pickup
-				if (!readyForPickup.isEmpty()) {
-					readyForPickup.sort(Comparator.comparingInt(ModuleDependencyNode::upstreamSize));
-					tasks.addAll(readyForPickup);
-					readyForPickup.clear();
-				}
-
 				// we now watch for finished jobs
 				// but sometimes they can crash, so detect that as well
 				// especially if all of them have crashed
@@ -292,7 +278,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 						for (var u: jobDone.dependants) {
 							u.finishedChecking(jobDone);
 							if (u.readyForChecking()) {
-								readyForPickup.add(u);
+								tasks.add(u);
 							}
 						}
 						step.accept("", 1);
@@ -330,113 +316,6 @@ public class RascalCompile extends AbstractCommandlineTool {
 			return crashed;
 		});
 	}
-
-
-
-	private static int parallelMain(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws URISyntaxException, IOException {
-		IList modules = (IList) parsedArgs.get("modules");
-
-		if (modules.isEmpty()) {
-			return 0;
-		}
-
-		// first run the pre-checks
-		parsedArgs.put("modules", preChecks);
-		out.println("Prechecking " + preChecks.size() + " modules ");
-		if (main(mainModule, imports, parsedArgs, term, monitor, err, out) != 0) {
-			System.exit(1);
-		}
-		out.println("Precheck is done.");
-		out.flush();
-
-		// Split the remaining work as evenly as possible
-		modules = modules.subtract(preChecks);
-		final var chunks = splitTodoList(parAmount, modules);
-		final var bins = chunks.stream()
-			.map(handleExceptions(l -> Files.createTempDirectory("rascal-checker")))
-			.map(handleExceptions(p -> URIUtil.createFileLocation(p)))
-			.collect(vf.listWriter());
-		final var bin = (ISourceLocation) parsedArgs.get("pcfg").asWithKeywordParameters().getParameter("bin");
-
-		out.println("After prelude:");
-		printTpls(bin, out);
-		out.flush();
-
-		// Copy the pre-checked bin files to the temp bins for incremental reuse.
-		// Note there may be more output modules than listed in the preChecks list.
-		bins.stream()
-			.map(ISourceLocation.class::cast)
-			.forEach(handleConsumerExceptions(b -> reg.copy(bin, b, true, true)));
-
-		// a cachedThreadPool lazily spins-up threads, but eagerly cleans them up
-		// this might help with left-over threads to get more memory and finish sooner.
-		final ExecutorService exec = DaemonThreadPool.buildConstrainedCached("rascal-compile", parAmount);
-
-		// the for loop eagerly spawns `parAmount` workers, one for each chunk
-		List<Future<Integer>> workers = new ArrayList<>(parAmount);
-		for (int i = 0; i < parAmount; i++) {
-			final int index = i;
-			final var chunk = chunks.get(index);
-			final var chunkBin = bins.get(index);
-			final Map<String,IValue> chunkArgs = new HashMap<>(parsedArgs);
-			chunkArgs.put("modules", chunk);				
-			// update pcfg with new our bin folder
-			var pcfg = chunkArgs.get("pcfg");
-			pcfg = pcfg.asWithKeywordParameters().setParameter("bin", chunkBin);
-			chunkArgs.put("pcfg", pcfg);
-
-			workers.add(exec.submit(() -> {
-				out.println("Starting worker " + index + " on " + chunk.size() + " modules.");
-				return main(mainModule, imports, chunkArgs, term, monitor, err, out);
-			}));
-		}
-		
-		// wait for all the workers and reduce their integer return values to a sum
-		var sum = workers.stream()
-			.map(handleExceptions(f -> f.get()))
-			.reduce(0, Integer::sum);
-
-		// copy the resulting binary files to the main bin folder
-		bins.stream()
-			.map(ISourceLocation.class::cast)
-			.forEach(handleConsumerExceptions(b -> {
-				printTpls(b, out);
- 				reg.copy(b, bin, true, true);
-			}));
-
-		out.flush();
-
-		return sum;
-
-	}
-
-	private static void printTpls(ISourceLocation root, PrintWriter out) {
-		try {
-			var st = IRascalValueFactory.getInstance().setWriter();
-			printTpls(root, root, st);
-			new StandardTextWriter(false).write(st.done(), out);
-			out.flush();
-		}
-		catch (IOException e) {
-		}
-	}
-	private static void printTpls(ISourceLocation root, ISourceLocation current, ISetWriter out) throws IOException {
-		var reg = URIResolverRegistry.getInstance();
-		for (var e: reg.list(current)) {
-			if (reg.isFile(e)) {
-				if (URIUtil.getExtension(e).equals("tpl")) {
-					out.append(URIUtil.relativize(root, e));
-				}
-			}
-			else {
-				printTpls(root, e, out);
-			}
-		}
-	}
-
-
-
-	
 	
 	/**
 	 * Warning: this method has to be kept up-to-date with the commandline parameters of Checkes::main.
