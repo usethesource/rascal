@@ -506,22 +506,24 @@ bool missingModuleInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPa
 bool missingModule(str stmts) =
 	checkStatementsAndFilter(stmts, missingModuleMsgs);
 
-// ---- illegalUse ------------------------------------------------------------
 
-list[str] illegalUseMsgs = [
-	"Append outside a while",
-	"Right-hand side of assignment does not always have a value"
+
+
+// ---- ignored ------------------------------------------------------------
+
+list[str] ignoredMsgs = [
+	"Ignoring _"
 ];
 
-bool illegalUseInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
-	= checkModuleAndFilter(moduleText, illegalUseMsgs, pathConfig=pathConfig);
+bool ignoredInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, ignoredMsgs, pathConfig=pathConfig);
 
-bool illegalUseInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
-	= checkModuleAndFilter([mloc], illegalUseMsgs, pathConfig=pathConfig);
+bool ignoredInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], ignoredMsgs, pathConfig=pathConfig);
 
 
-bool illegalUse(str stmts) =
-    checkStatementsAndFilter(stmts, illegalUseMsgs);
+bool ignored(str stmts) =
+    checkStatementsAndFilter(stmts, ignoredMsgs);
 
 // ---- nonVoidType ----------------------------------------------------------
 
