@@ -128,7 +128,6 @@ str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
         modulePathAsList = [*modulePathAsList[..-1], lastName[1..]];
     }
 
-    println(modulePathAsList);
     return intercalate("::", modulePathAsList[size(modulePathAsList)..]);
 }
 
