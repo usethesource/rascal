@@ -136,6 +136,7 @@ str getRascalModuleName(loc moduleLoc, PathConfig pcfg)
     = _getRascalModuleName(moduleLoc.top, pcfg);
 
 @memo={expireAfter(minutes=5),maximumSize(500)}
+@synopsis{A memoized variant of ((getRascalModuleName)), which normalizes the location argument for maximum hit rate.}
 private str _getRascalModuleName(loc moduleLoc, PathConfig pcfg){
     if(isModuleId(moduleLoc)){
         return moduleId2moduleName(moduleLoc);
