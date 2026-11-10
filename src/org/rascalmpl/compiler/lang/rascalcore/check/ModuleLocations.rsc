@@ -132,11 +132,12 @@ str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
     return intercalate("::", modulePathAsList[size(modulePathAsList)..]);
 }
 
-@memo={expireAfter(minutes=5),maximumSize(500)}
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
-str getRascalModuleName(loc moduleLoc, PathConfig pcfg){
-    moduleLoc = moduleLoc.top;
+str getRascalModuleName(loc moduleLoc, PathConfig pcfg)
+    = _getRascalModuleName(moduleLoc.top, pcfg);
 
+@memo={expireAfter(minutes=5),maximumSize(500)}
+private str _getRascalModuleName(loc moduleLoc, PathConfig pcfg){
     if(isRascalLogicalLoc(moduleLoc)){
         return moduleId2moduleName(moduleLoc);
     }
@@ -151,6 +152,8 @@ str getRascalModuleName(loc moduleLoc, PathConfig pcfg){
 
     if (rscFile && exists(moduleLoc)) {
         try {
+            // We cannot use the cached lang::rascalcore::check::CheckerCommon::getModuleParseTree
+            // here, since that requires that we know the logical location of a module.
             m = parseModuleWithSpaces(moduleLoc);
             if ((start[Module]) `<Header header> <Body _>` := m) {
                 return prettyPrintName(header.name);
