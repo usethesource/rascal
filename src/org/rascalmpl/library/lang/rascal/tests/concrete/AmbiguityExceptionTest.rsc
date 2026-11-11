@@ -126,13 +126,17 @@ test bool testIsOnError() = errorTree() is a;
 test bool testIsOnAmbError() = !(ambErrorTree() is a);
 
 test bool testNamedFieldOnValid() = "<validTree().n>" == "x y z $";
-@ignore
 @expected{Ambiguity}
 test bool testNamedFieldOnAmb() = "<ambTree().n>" == "x y z $";
 test bool testNamedFieldOnError() = "<errorTree().n>" == "x v z $";
-@ignore
-@expected{ParseErrorRecovery}
-test bool testNamedFieldOnAmbError() = "<ambErrorTree().n>" == "x v z $";
+test bool testNamedFieldOnAmbError() {
+    try {
+        "<ambErrorTree().n>" == "x v z $";
+        return false;
+    } catch ParseErrorRecovery(NoSuchField("n"), _): {
+        return true;
+    }
+}
 
 test bool testFieldAssignmentOnValid() {
     S s = validTree();
@@ -140,7 +144,6 @@ test bool testFieldAssignmentOnValid() {
     return true;
 }
 
-@ignore
 @expected{Ambiguity}
 test bool testFieldAssignmentOnAmb() {
     S s = ambTree();
@@ -157,12 +160,14 @@ test bool testFieldAssignmentOnError() {
     return true;
 }
 
-@ignore
-@expected{ParseErrorRecovery}
 test bool testFieldAssignmentOnAmbError() {
-    S s = ambErrorTree();
-    s.n = validTree().n;
-    return true;
+    try {
+        S s = ambErrorTree();
+        s.n = validTree().n;
+        return false;
+    } catch ParseErrorRecovery(NoSuchField("n"), _): {
+        return true;
+    }
 }
 
 test bool testAltOnValid() = "<(validTree().n ? (A)`x$`)>" == "x y z $";
@@ -172,7 +177,6 @@ test bool testAltOnAmbError() = "<(ambErrorTree().n ? (A)`x$`)>" == "x$";
 
 test bool testBrackedFieldAssignmentOnValid() = "<validTree()[n=(A)`x$`]>"  == "x$";
 
-@ignore
 @expected{Ambiguity}
 test bool testBrackedFieldAssignmentOnAmb() = "<ambTree()[n=(A)`x$`]>"  == "x$";
 
@@ -184,8 +188,6 @@ test bool testBrackedFieldAssignmentOnError() {
     return "<t>" == "x$";
 }
 
-@ignore
-@expected{ParseErrorRecovery}
 test bool testBrackedFieldAssignmentOnAmbError() {
     try {
         "<ambErrorTree()[n=(A)`x$`]>"  == "x$";
@@ -196,33 +198,33 @@ test bool testBrackedFieldAssignmentOnAmbError() {
 }
 
 /**
- * These "illegal bracket field assignment" tests already work correctly but we need to make sure
- * they will not break once we implement the "bracket field assignment" semantics from the previous tests.
+ * These "illegal field assignment" tests already work correctly but we need to make sure
+ * they will not break once we implement the "field assignment" semantics from the previous tests.
  */
 @ignoreCompiler{"UndeclaredField is a static error"}
 @expected{UndeclaredField}
-test bool testIllegalBrackedFieldAssignmentOnValid() {
+test bool testIllegalFieldAssignmentOnValid() {
     q = validTree().q;
     return true;
 }
 
 @ignoreCompiler{"UndeclaredField is a static error"}
 @expected{UndeclaredField}
-test bool testIllegalBrackedFieldAssignmentOnAmb() {
+test bool testIllegalFieldAssignmentOnAmb() {
     q = ambTree().q;
     return true;
 }
 
 @ignoreCompiler{"UndeclaredField is a static error"}
 @expected{UndeclaredField}
-test bool testIllegalBrackedFieldAssignmentOnError() {
+test bool testIllegalFieldAssignmentOnError() {
     q = errorTree().q;
     return true;
 }
 
 @ignoreCompiler{"UndeclaredField is a static error"}
 @expected{UndeclaredField}
-test bool testIllegalBrackedFieldAssignmentOnAmbError() {
+test bool testIllegalFieldAssignmentOnAmbError() {
     q = ambErrorTree().q;
     return true;
 }
