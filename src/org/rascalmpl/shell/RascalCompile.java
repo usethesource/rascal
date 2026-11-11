@@ -106,13 +106,30 @@ public class RascalCompile extends AbstractCommandlineTool {
 		}
 		return new HashSet<>(result.values());
 	}
+
+	private static double log2(double number) {
+		return Math.log(number) / Math.log(2);
+
+	}
 	private static class ModuleDependencyNode {
 		private final IList myModules;
 		private final List<ModuleDependencyNode> dependants = new ArrayList<>();
 		private final Set<ModuleDependencyNode> dependencies = ConcurrentHashMap.newKeySet();
+		private final long fileSize;
 
 		public ModuleDependencyNode(ISet myModules) {
 			this.myModules = myModules.stream().collect(vf.listWriter());
+			this.fileSize = myModules.stream()
+				.map(ISourceLocation.class::cast)
+				.mapToLong(value -> {
+					try {
+						return reg.size(value);
+					}
+					catch (IOException e) {
+						return 0;
+					}
+				})
+				.sum();
 		}
 
 		public void addDependency(ModuleDependencyNode on) {
@@ -139,6 +156,11 @@ public class RascalCompile extends AbstractCommandlineTool {
 			return myModules.size();
 		}
 
+
+		public int fileSizeBucket() {
+			return (int)Math.round(log2(fileSize));
+
+		}
 		public int upstreamSize() {
 			return dependants.size();
 		}
@@ -222,7 +244,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 					var chunkArgs = new HashMap<>(originalArguments);
 					chunkArgs.put("modules", modules);
 					chunkArgs.put("pcfg", this.pcfg);
+					var start = System.currentTimeMillis();
 					result += runMain(eval, mainModule, "main", chunkArgs, monitor, err);
+					var took = System.currentTimeMillis() - start;
+					if (took > (10 * 1000)) {
+						err.println("*** ⌛ Type checking: " + modules + " took " + String.format("%.1f", took / 1000.) + "s");
+						err.flush();
+					}
 					promoteTpls();
 					completed.add(newTask);
 				}
@@ -253,7 +281,9 @@ public class RascalCompile extends AbstractCommandlineTool {
 
 		// we order the work based on how many upstream modules depend on it
 		// in that way we optimize for the most work impactfull modules first
-		var tasks = new PriorityBlockingQueue<>(parAmount, Comparator.comparingInt(ModuleDependencyNode::upstreamSize).reversed());
+		var tasks = new PriorityBlockingQueue<>(parAmount,
+			Comparator.comparingInt(ModuleDependencyNode::fileSizeBucket).reversed()
+				.thenComparing(Comparator.comparingInt(ModuleDependencyNode::upstreamSize).reversed()));
 		var finished = new LinkedBlockingQueue<ModuleDependencyNode>();
 		var done = new LinkedBlockingQueue<Integer>();
 
