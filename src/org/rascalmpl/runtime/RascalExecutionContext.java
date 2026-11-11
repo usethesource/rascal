@@ -82,7 +82,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = errwriter;
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		ISourceLocation projectRoot = inferProjectRoot(clazz);
+		ISourceLocation projectRoot = URIUtil.rootLocation("cwd");
 		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$TF = TypeFactory.getInstance();
