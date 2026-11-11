@@ -32,6 +32,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.debug.NullRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
@@ -83,7 +84,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
 		ISourceLocation projectRoot = URIUtil.rootLocation("cwd");
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null, projectRoot) : ideServices;
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, new NullRascalMonitor(), null, projectRoot) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$TF = TypeFactory.getInstance();
 		$RTF = RascalTypeFactory.getInstance();
