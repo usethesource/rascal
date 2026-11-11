@@ -99,32 +99,32 @@ public class RascalExecutionContext implements IRascalMonitor {
 	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 	    }
 	    
-	    String projectPath =  projectRoot.getPath();
-	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
+	    // String projectPath =  projectRoot.getPath();
+	    // String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
 	    
-		try {
-			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
-			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
-			if (entries != null) {
-				//System.err.print("INFO adding projects: ");
-				for(String entryName : entries) {
-					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
-						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
-						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
-							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
-							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
-							//System.err.print(entryName + " ");
-						}
-					}
-				}
-				//System.err.println("");
-			}
-		} catch (IOException e) {
-			return;
-		} catch (URISyntaxException e) {
-			return;
-		}
+		// try {
+		// 	ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
+		// 	String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
+		// 	if (entries != null) {
+		// 		//System.err.print("INFO adding projects: ");
+		// 		for(String entryName : entries) {
+		// 			if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
+		// 				ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
+		// 				if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
+		// 					reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
+		// 					reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
+		// 					rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
+		// 					//System.err.print(entryName + " ");
+		// 				}
+		// 			}
+		// 		}
+		// 		//System.err.println("");
+		// 	}
+		// } catch (IOException e) {
+		// 	return;
+		// } catch (URISyntaxException e) {
+		// 	return;
+		// }
 	}
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
