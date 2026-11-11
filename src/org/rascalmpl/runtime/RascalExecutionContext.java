@@ -93,8 +93,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		rascalSearchPath = new RascalSearchPath();
 		
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
-		reg.registerLogical(new IDEProjectURIResolver(ideServices::resolveProjectLocation));
-		reg.registerLogical(new IDETargetURIResolver(ideServices::resolveProjectLocation));
+		reg.registerLogical(new IDEProjectURIResolver(this.ideServices::resolveProjectLocation));
+		reg.registerLogical(new IDETargetURIResolver(this.ideServices::resolveProjectLocation));
 	}
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
