@@ -518,9 +518,24 @@ bool illegalUseInModule(str moduleText, PathConfig pathConfig = getDefaultTestin
 bool illegalUseInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter([mloc], illegalUseMsgs, pathConfig=pathConfig);
 
-
 bool illegalUse(str stmts) =
     checkStatementsAndFilter(stmts, illegalUseMsgs);
+
+// ---- ignored ------------------------------------------------------------
+
+list[str] ignoredMsgs = [
+	"Ignoring _"
+];
+
+bool ignoredInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, ignoredMsgs, pathConfig=pathConfig);
+
+bool ignoredInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], ignoredMsgs, pathConfig=pathConfig);
+
+
+bool ignored(str stmts) =
+    checkStatementsAndFilter(stmts, ignoredMsgs);
 
 // ---- nonVoidType ----------------------------------------------------------
 
