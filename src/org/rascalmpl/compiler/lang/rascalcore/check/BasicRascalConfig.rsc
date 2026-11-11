@@ -209,14 +209,16 @@ data TypePalConfig(
     bool warnUnusedPatternFormals   = true,
     bool infoModuleChecked          = false,
 
-    loc reloc                       = |noreloc:///|,  // Unused
+    loc reloc                       = |noreloc:///|,// Unused
 
     // Debugging options
-    bool verbose                    = true,    // for each compiled module, module name and compilation time
-    bool logImports                 = false,   // log all imported files
-    bool logWrittenFiles            = false,   // log all files written by compiler
-    bool logPathConfig              = false,    // log PathConfig that is used
+    bool verbose                    = true,         // for each compiled module, module name and compilation time
+    bool logImports                 = false,        // log all imported files
+    bool logWrittenFiles            = false,        // log all files written by compiler
+    bool logPathConfig              = false,        // log PathConfig that is used
 
-    bool optimizeVisit              = true,     // Options for compiler developer
-    bool enableAsserts              = true
+    bool optimizeVisit              = true,         // Options for compiler developer
+    bool enableAsserts              = true,
+
+    loc license                     = |unknown:///| // License header for generated code
 );
