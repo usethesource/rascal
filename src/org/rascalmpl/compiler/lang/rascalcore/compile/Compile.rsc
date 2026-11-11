@@ -176,7 +176,8 @@ int main(
     bool warnUnusedPatternFormals = true,
     bool infoModuleChecked        = false,
     bool errorsAsWarnings         = false,
-    bool warningsAsErrors         = false
+    bool warningsAsErrors         = false,
+    loc license                   = |unknown:///|
     ) {
 
     pcfg.generatedResources = pcfg.bin;
@@ -190,7 +191,8 @@ int main(
         warnUnusedFormals        = warnUnusedFormals,
         warnUnusedVariables      = warnUnusedVariables,
         warnUnusedPatternFormals = warnUnusedPatternFormals,
-        infoModuleChecked        = infoModuleChecked
+        infoModuleChecked        = infoModuleChecked,
+        license                  = license
     );
 
     list[Message] messages = [];
