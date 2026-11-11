@@ -217,8 +217,8 @@ data TypePalConfig(
     bool logWrittenFiles            = false,        // log all files written by compiler
     bool logPathConfig              = false,        // log PathConfig that is used
 
+    // Code generation options
     bool optimizeVisit              = true,         // Options for compiler developer
     bool enableAsserts              = true,
-
     loc license                     = |unknown:///| // License header for generated code
 );
