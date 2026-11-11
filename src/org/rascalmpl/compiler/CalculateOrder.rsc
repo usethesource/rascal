@@ -14,7 +14,10 @@ import lang::rascal::\syntax::Rascal;
 Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) {
     dependencies = moduleDependencies({*modules}, pcfg);
     components = stronglyConnectedComponents(dependencies);
-    return {<fc, tc> | <loc from, loc to> <- dependencies, fc:{*_, from} <- components, tc:{*_, to} <- components, fc != tc};
+    return {<fc, tc> | <loc from, loc to> <- dependencies, fc:{*_, from} <- components, tc:{*_, to} <- components, fc != tc} +
+    // add module that have no imports and are not imported
+    { <{i}, {}> | i <- {*modules} - (dependencies<0> + dependencies<1>) }
+    ;
 }
 
 private Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {

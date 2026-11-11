@@ -99,8 +99,10 @@ public class RascalCompile extends AbstractCommandlineTool {
 			var from = (ISet)(((ITuple)e).get(0));
 			var to = (ISet)(((ITuple)e).get(1));
 			var nodeFrom = result.computeIfAbsent(from, ModuleDependencyNode::new);
-			var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
-			nodeFrom.addDependency(nodeTo);
+			if (!to.isEmpty()) {
+				var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
+				nodeFrom.addDependency(nodeTo);
+			}
 		}
 		return new HashSet<>(result.values());
 	}
@@ -207,13 +209,20 @@ public class RascalCompile extends AbstractCommandlineTool {
 						// we should stop
 						return;
 					}
-					var chunkArgs = new HashMap<>(originalArguments);
-					chunkArgs.put("modules", newTask.getModules());
-					chunkArgs.put("pcfg", this.pcfg);
-					result = runMain(eval, mainModule, "main", chunkArgs, monitor, err);
-					if (result != 0) {
-						return;
+					// as we've just build a full import graph
+					// we need to filter out modules that were not requested to build
+					// we cannot do this earlier, as it might be in the middle of a chain of dependencies that we do not want to miss
+					var modules = newTask.getModules().intersect((IList)originalArguments.get("modules"));
+					if (modules.isEmpty()) {
+						// we do not have to do anything, as the module never needed to be checked
+						completed.add(newTask);
+						continue;
 					}
+					
+					var chunkArgs = new HashMap<>(originalArguments);
+					chunkArgs.put("modules", modules);
+					chunkArgs.put("pcfg", this.pcfg);
+					result += runMain(eval, mainModule, "main", chunkArgs, monitor, err);
 					promoteTpls();
 					completed.add(newTask);
 				}
@@ -222,6 +231,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 				err.println("The compiler crashed: " + ex.getMessage());
 				err.println(ex);
 				ex.printStackTrace(err);
+				err.flush();
 			} finally {
 				doneRunning.add(result);
 			}
@@ -289,6 +299,8 @@ public class RascalCompile extends AbstractCommandlineTool {
 				}
 				while (done.poll() != null) {
 					// early exits
+					err.println("One of the compiler crashed early");
+					err.flush();
 					crashed++;
 				}
 				if (crashed == parAmount) {
