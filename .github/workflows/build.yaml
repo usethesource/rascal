@@ -191,6 +191,8 @@ jobs:
       MAVEN_OPTS: "-Xmx512M -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v5
         with:
