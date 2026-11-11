@@ -70,7 +70,7 @@ public class ParserGenerator {
 	private final $Symbols symbols;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		var rex = new RascalExecutionContext(Reader.nullReader(), out, out, null, monitor instanceof IDEServices ? (IDEServices) monitor : null, $ParserGenerator.class);
+		var rex = new RascalExecutionContext(Reader.nullReader(), out, out, null, monitor instanceof IDEServices ? (IDEServices) monitor : null);
 		var ms = rex.getModuleStore();
 		parserGenerator = new $ParserGenerator(rex);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);

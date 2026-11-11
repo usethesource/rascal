@@ -72,8 +72,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			PrintWriter outwriter,
 			PrintWriter errwriter, 
 			PathConfig pcfg, 
-			IDEServices ideServices,
-			Class<?> clazz
+			IDEServices ideServices
 			){
 		
 		currentModuleName = "UNDEFINED";
