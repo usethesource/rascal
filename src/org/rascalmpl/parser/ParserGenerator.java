@@ -25,17 +25,15 @@ import java.util.Map;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.utils.JavaBridge;
-import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.runtime.RascalExecutionContext;
-import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -72,7 +70,7 @@ public class ParserGenerator {
 	private final $Symbols symbols;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		var rex = new RascalExecutionContext(null, out, out, null, null, $ParserGenerator.class);
+		var rex = new RascalExecutionContext(Reader.nullReader(), out, out, null, monitor instanceof IDEServices ? (IDEServices) monitor : null, $ParserGenerator.class);
 		var ms = rex.getModuleStore();
 		parserGenerator = new $ParserGenerator(rex);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);

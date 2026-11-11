@@ -31,12 +31,10 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
 
-import java.io.IOException;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.runtime.traverse.Traverse;
@@ -46,6 +44,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -165,40 +164,33 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
-		errwriter.println(name + " ends");
-		return 0;
-		//return ideServices.jobEnd(name, succeeded);
+		return ideServices.jobEnd(name, succeeded);
 	}
 
 	@Override
 	public void jobStep(String name, String message, int worked) {
-		//errstream.println(name + ": " + message);
-		//ideServices.jobStep(name, message, worked);
+		ideServices.jobStep(name, message, worked);
 	}
 
 	@Override
 	public void jobStart(String name, int workShare, int totalWork) {
-		errwriter.println(name + " starts");
-		//ideServices.jobStart(name, workShare, totalWork);
+		ideServices.jobStart(name, workShare, totalWork);
 	}
 
 
 	@Override
 	public void jobTodo(String name, int work) {
-		//ideServices.jobTodo(name, work);
+		ideServices.jobTodo(name, work);
 	}
 
 	@Override
 	public boolean jobIsCanceled(String name) {
-		errwriter.println(name + " canceled");
-		return true;
-		//return ideServices.jobIsCanceled(name);
+		return ideServices.jobIsCanceled(name);
 	}
 
 	@Override
 	public void warning(String message, ISourceLocation src) {
-		errwriter.println(message);
-		//ideServices.warning(message,  src);;
+		ideServices.warning(message,  src);;
 	}
 	
 	 public static ISourceLocation inferProjectRoot(Class<?> clazz) {
