@@ -275,7 +275,7 @@ public abstract class $RascalModule {
 							try {
 								for (URL found : Collections.list(getClass().getClassLoader().getResources(fileName))) {
 									try {
-										result.add($RVF.sourceLocation(found.toURI()));
+										result.add($RVF.sourceLocation(URIUtil.fromURL(found)));
 									} catch (URISyntaxException e) {
 										$MONITOR.warning("WARNING: skipping " + found + " due to URI syntax exception", URIUtil.rootLocation("module-init"));
 									}
@@ -467,7 +467,7 @@ public abstract class $RascalModule {
 			if(url == null) {
 				throw RuntimeExceptionFactory.io($RVF.string("Cannot find resource " + path));
 			}
-			loc = $RVF.sourceLocation(url.toURI());
+			loc = $RVF.sourceLocation(URIUtil.fromURL(url));
 		} catch (URISyntaxException e) {
 			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
 		}
