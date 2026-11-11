@@ -70,6 +70,8 @@ jobs:
       - run: which chromedriver
 
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v5
         with:
