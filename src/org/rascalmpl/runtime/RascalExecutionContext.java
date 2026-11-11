@@ -41,6 +41,8 @@ import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.IDEProjectURIResolver;
+import org.rascalmpl.uri.project.IDETargetURIResolver;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -92,38 +94,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		rascalSearchPath = new RascalSearchPath();
 		
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
-	    String projectName = new RascalManifest().getProjectName(projectRoot);
-	    if(!projectName.isEmpty()) {
-	    	reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-	    }
-	    
-	    // String projectPath =  projectRoot.getPath();
-	    // String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
-	    
-		// try {
-		// 	ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
-		// 	String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
-		// 	if (entries != null) {
-		// 		//System.err.print("INFO adding projects: ");
-		// 		for(String entryName : entries) {
-		// 			if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
-		// 				ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
-		// 				if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
-		// 					reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
-		// 					reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-		// 					rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
-		// 					//System.err.print(entryName + " ");
-		// 				}
-		// 			}
-		// 		}
-		// 		//System.err.println("");
-		// 	}
-		// } catch (IOException e) {
-		// 	return;
-		// } catch (URISyntaxException e) {
-		// 	return;
-		// }
+		reg.registerLogical(new IDEProjectURIResolver(ideServices::resolveProjectLocation));
+		reg.registerLogical(new IDETargetURIResolver(ideServices::resolveProjectLocation));
 	}
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
