@@ -117,18 +117,13 @@ str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
     }
 
     // Logical non-module location
-    <modulePathNoExt, ext> = splitFileExtension(lloc.path);
-    while(modulePathNoExt[0] == "/"){
-        modulePathNoExt = modulePathNoExt[1..];
+    defPath = lloc.path;
+    while(defPath[0] == "/"){
+        defPath = defPath[1..];
     }
 
-    modulePathAsList = split("/", modulePathNoExt);
-    lastName = modulePathAsList[-1];
-    if(lastName[0] == "$"){
-        modulePathAsList = [*modulePathAsList[..-1], lastName[1..]];
-    }
-
-    return intercalate("::", modulePathAsList[size(modulePathAsList)..]);
+    defPathAsList = split("/", defPath);
+    return intercalate("::", defPathAsList[..-1]);
 }
 
 @synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
