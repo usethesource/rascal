@@ -51,7 +51,7 @@ private S ambTree() = parse(#S, "x", allowAmbiguity=true);
     │     └─ skipped
     │        ├─ v
     │        ├─ ⎵
-    │        └─ z
+    │        └─ ztest
     └─ "$"?
 */
 private S errorTree() = parse(#S, "x v z $", allowRecovery=true);
