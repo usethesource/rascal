@@ -94,26 +94,20 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
     return ms;
 }
 
-// Complete a ModuleStatus 
-//- by adding transitive edges for extend paths
+// Complete a ModuleStatus
 //- by checking circular dependencies
-// TODO: reuse enhancePathRelation from RascalConfig here
+//- by adding transitive edges for extend paths and the imports they imply (see enhancePathRelation)
 ModuleStatus completeModuleStatus(ModuleStatus ms){
-    pcfg = ms.pathConfig;
     paths = ms.paths;
     ms = reportSelfImport(paths, ms);
-    
-    imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
+
     extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
     paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus };
 
+    // Report cycles on the declared (plus transitive extend) paths, before derived imports are added
     ms = reportCycles(paths, extendPlus, ms);
 
-    paths += { *{<c, importPath(), a> | a <- extendPlus[b], c != a} 
-             | < MODID c, MODID b> <- imports 
-             };
-
-    ms.paths = paths;                                
+    ms.paths = enhancePathRelation(paths);                              
     return ms;
 }
 
@@ -453,6 +447,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         useDef = getUseDef(tm);
         logical2physical = tm.logical2physical;
         definitions = tm.definitions;
+        scopes = tm.scopes;
 
         componentScopesByUri = (s.uri: s | loc s <- componentScopes, loc s := logical2physical[s] ? s);
 
@@ -475,7 +470,7 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
         m1.messages = [msg | msg <- tm.messages, isContainedIn(msg.at, currentModule, logical2physical)];
         ms.messages[currentModule] = toSet(m1.messages);
 
-        m1.scopes = tm.scopes;
+        m1.scopes = (s1: scopes[s1] | s1 <- scopes, isContainedInFilteredModuleScopes(s1, logical2physical));
 
         m1.store
                 = (key_bom : bom);
@@ -523,7 +518,8 @@ ModuleStatus doSaveModule(set[MODID] component, map[MODID,set[MODID]] m_imports,
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
-        m1.logical2physical = logical2physical;
+        // We need locations from connected components as well as reachable scopes
+        m1.logical2physical = (log: logical2physical[log] | log <- logical2physical, isContainedInComponentScopes(log, logical2physical) || isContainedInFilteredModuleScopes(log, logical2physical));
         ms = deleteProperty(currentModule, ms, tpl_saved());
         ms = addTModel(currentModule, m1, ms);
     }

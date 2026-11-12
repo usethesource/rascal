@@ -412,18 +412,26 @@ list[loc] rascalFilterUnused(list[loc] defs, TModel tm) {
 
 // Extend the path relation by
 // - adding transitive edges for extend
-// - adding imports via these extends
+// - adding imports of modules extended by an imported module:
+//     C imports B, B extends A ==> C imports A
+// - adding imports inherited from extended modules:
+//     C extends B, B imports A ==> C imports A
 rel[loc, PathRole,loc] enhancePathRelation(rel[MODID, PathRole, MODID] paths){
     extendPlus = {<from, to> | <MODID from, extendPath(), MODID to> <- paths}+;
     paths += { <from, extendPath(), to> | <MODID from, MODID to> <- extendPlus};
 
     imports = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
-    delta = { <from, importPath(), to2> 
-            | <MODID from, MODID to2> <- extendPlus o imports, 
-              <from, extendPath(), to2> notin paths, 
-              from != to2
-            };
-    paths += delta;
+    paths += { <from, importPath(), to>
+             | <MODID from, MODID to> <- imports o extendPlus,
+               from != to
+             };
+
+    importPlus = {<from, to> | <MODID from, importPath(), MODID to> <- paths};
+    paths += { <from, importPath(), to>
+             | <MODID from, MODID to> <- extendPlus o importPlus,
+               <from, extendPath(), to> notin paths,
+               from != to
+             };
     return paths;
 }
 

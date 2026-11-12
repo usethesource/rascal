@@ -339,6 +339,32 @@ test bool indirectExtendOk(){
 	return checkModuleOK("module C extend B; int main() = f();");
 }
 
+test bool importViaExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module B import A;");
+	return checkModuleOK("module C extend B; int b = a + 1;");
+}
+
+test bool importViaIndirectExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module B import A;");
+	writeModule("module C extend B;");
+	return checkModuleOK("module D extend C; int b = a + 1;");
+}
+
+test bool importViaExtendOfImportedExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module X extend A;");
+	writeModule("module B import X;");
+	return checkModuleOK("module C extend B; int b = a + 1;");
+}
+
+test bool importViaExtendPrivateVariableNotOk(){
+	writeModule("module A int a = 0;");
+	writeModule("module B import A;");
+	return undeclaredVariableInModule("module C extend B; int b = a + 1;");
+}
+
 test bool extendWithImportCycleOK(){
 	writeModule("module Base alias INTEGER = int;");
 	writeModule("module BaseExtended extend Base;");

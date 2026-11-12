@@ -843,7 +843,7 @@ test bool I8(){
 	writeModule("module A public int N = 0;");
 	writeModule("module B import A;");
 
-	return unexpectedTypeInModule("
+	return checkModuleOK("
         module I8
            	extend B;
            	int X = N;

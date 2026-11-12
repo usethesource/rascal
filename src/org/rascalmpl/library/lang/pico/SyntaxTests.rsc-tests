@@ -1,0 +1,51 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+module lang::pico::tests::SyntaxTests
+
+import lang::pico::\syntax::Main;
+
+syntax test exp1 (Expression) expects ok {
+1 + 1 + 1
+}
+
+syntax test exp2 (Expression) expects ok {
+1 || 1 || 1
+}
+
+syntax test exp3 (Expression)  expects ok {
+1 + 1 || 1
+}
+
+syntax test exp3 (Expression) expects ok {
+1 || 1 + 1
+}
+
+syntax test p1 (Program) expects ok {
+begin
+    declare a : natural;
+    a := 10
+end
+}
+
+syntax test p2 (Program) expects error {
+%% illegal comment before Program
+begin
+    declare a : natural;
+    a := 10
+end
+}
+
+
+syntax test s1 (start[Program]) expects ok {
+% comment at the start %
+begin
+    declare a : natural;
+    a := 10
+end
+%% comment at the end
+}
