@@ -44,8 +44,9 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[MODID] imports, set[MODID] extends, map[MODID,TModel] tmodels, PathConfig pcfg, JGenie jg){
-    return "<if(!isEmpty(packageName)){>package <packageName>;<}>
+str generateInterface(str preambule, str moduleName, str packageName, list[MuFunction] functions, set[MODID] imports, set[MODID] extends, map[MODID,TModel] tmodels, PathConfig pcfg, JGenie jg){
+    return "<preambule>
+           '<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.runtime.function.*;
            '
