@@ -33,7 +33,7 @@ Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg, 
         if (desiredClusterSize < 2) {
             desiredClusterSize = 2;
         }
-        return iprintlnExp(mergeHighlyConnectedCluster(scc, desiredClusterSize));
+        return mergeHighlyConnectedCluster(scc, desiredClusterSize);
     }, totalWork = 3);
 
 }
@@ -99,20 +99,21 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int amountOf) {
     }
 
 
-    bestGraphs = [];
-    bestRemain = scc;
-    // find a minimum cut
-    for (i <- [0..20]) {
-        <graphs, remain> = splitGraph(scc, amountOf, i);
-        if (balancedScore(graphs) > balancedScore(bestGraphs) && size(graphs) > size(bestGraphs)) {
-            bestGraphs = graphs;
-            bestRemain = remain;
-        }
-    }
+    // bestGraphs = [];
+    // bestRemain = scc;
+    // // find a minimum cut
+    // for (i <- [0..20]) {
+    //     <graphs, remain> = splitGraph(scc, amountOf, i);
+    //     if (balancedScore(graphs) > balancedScore(bestGraphs) && size(graphs) > size(bestGraphs)) {
+    //         bestGraphs = graphs;
+    //         bestRemain = remain;
+    //     }
+    // }
 
-    //  println("best:");
-    //  iprintln(bestGraphs);
-    // iprintln(bestRemain);
+    // //  println("best:");
+    // //  iprintln(bestGraphs);
+    // // iprintln(bestRemain);
+    <bestGraphs, bestRemain> = splitGraph(scc, amountOf, 0);
 
     return calculateMergedGraphs(bestGraphs, bestRemain);
 }
@@ -149,50 +150,35 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int amountOf) {
 private int sizes(set[set[&T]] sets) = (0 | it + size(s) | s <- sets);
 
 
+
 private tuple[list[Graph[set[&T]]], Graph[set[&T]]] splitGraph(Graph[set[&T]] scc, int amountOf, int seed) {
     list[set[set[&T]]] subs = [];
     set[set[&T]] current = {};
     currentSize = 0;
 
-    sccInverted = invert(scc)+;
+    sccCopy = scc;
     candidates = verts(scc);
-    int tries = 0;
     while (candidates != {}) {
-        vSingle = getOneFrom(candidates);
-        //set[set[&T]] importees = { a | <a,{*_, vSingle}> <- scc};// sccInverted[vSingle];
-        set[set[&T]] importees = { a | <vSingle, a> <- sccInverted };
-        //println("importees: <vSingle> <importees>");
-        if (importees & candidates != importees) {
-            tries += 1;
-            if (tries % 100 == 0) {
-                // retry with a different set
-                candidates += current;
-                current = {};
-                currentSize = 0;
-            }
-            else if (tries > 2000) {
-                println("not possible, lets continue");
-                break;
-            }
-            continue;
+        sccInverted = invert(sccCopy);
+        // collect 3 level deep imports
+        leafs = top(sccInverted);
+        sccInverted1 = sccInverted o sccInverted;
+        leafs += top(sccInverted1); 
+        leafs += top(sccInverted o sccInverted1);
+        if (leafs == {}) {
+            subs += candidates;
+            println("Nothing left:<candidates>: <sccInverted1>");
+            break;
         }
-        v = importees + {vSingle}; // everyone that imports me should be in my set
-        candidates -= v;
-        if (currentSize + sizes(v) > amountOf && current != {}) {
-            // new subgraph
-            subs += current;
-            current = {};
-            currentSize = 0;
-        }
-        current += v;
-        currentSize += size(v);
-    }
-    if (currentSize > 0) {
-        subs += current;
+        subs += leafs;
+        candidates -= leafs;
+        sccCopy = {t | t:<set[&T] a, set[&T] b> <- sccCopy, a notin leafs, b notin leafs};
     }
     //iprintln(subs);
     // now split the domain, lets make the subgraphs and reconstuct the cross graph edges
-    subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && (to in sub || to == {}) } | sub <- subs] - [{}];
+    subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && (to in sub || to == {}) } + (sub * {{}}) | sub <- subs];
+
+    iprintln(subg);
 
     outside = scc - {*g | g <- subg};
     return <subg, outside>;
@@ -204,7 +190,7 @@ private Graph[set[&T]] calculateMergedGraphs(list[Graph[set[&T]]] subGraphs, Gra
     map[set[&T], set[&T]] subV = ();
     for (s <- subGraphs) {
         vs = verts(s);
-        fl = {*v | v <- vs}; // flatten
+        fl = {*v | v <- vs, v != {}}; // flatten
         if (fl == {}) {
             println("flatt??: <s>");
         }
