@@ -612,35 +612,28 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 rel[AType, AType] validReturnTypeOverloadTypes = {};
                 set[AType] validOverloadTypes = {};
 
-                next_fun:
-                for (tp <- overloads.atype) {
-                    // TODO Inline pattern match in iteration above
-                    if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp) {
-                       try {
-                            validReturnTypeOverloadTypes += <tp, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloadTypes += tp;
-                            if(ft.deprecationMessage?){
-                                s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
-                            }
-                       } catch checkFailed(list[FailMessage] _):
-                            continue next_fun;
-                         catch NoBinding():
-                            continue next_fun;
-                    }
+                for (tp:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) <- overloads.atype) {
+                    try {
+                        validReturnTypeOverloadTypes += <tp, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, tp.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                        validOverloadTypes += tp;
+                        if(tp.deprecationMessage?){
+                            s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
+                        }
+                    } catch checkFailed(list[FailMessage] _):
+                        continue;
+                    catch NoBinding():
+                        continue;
                  }
                  reportMissingNonTerminalCases(current, overloads.atype, validOverloadTypes, actuals, s);
-                 next_cons:
-                 for(tp <- overloads.atype){
-                    // TODO Inline pattern match in iteration above
-                    if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
-                       try {
-                            validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloadTypes += tp;
-                       } catch checkFailed(list[FailMessage] _):
-                             continue next_cons;
-                         catch NoBinding():
-                             continue next_cons;
-                    }
+
+                 for (tp:acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) <- overloads.atype) {
+                    try {
+                        validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                        validOverloadTypes += tp;
+                    } catch checkFailed(list[FailMessage] _):
+                        continue;
+                    catch NoBinding():
+                        continue;
                  }
 
                  // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
