@@ -132,7 +132,6 @@ ModuleStatus rascalTModelForLocs(
 
     if(isEmpty(mlocs)) return ms;
 
-    // More defensive check with all locations?
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
     list[str] mnames = [];

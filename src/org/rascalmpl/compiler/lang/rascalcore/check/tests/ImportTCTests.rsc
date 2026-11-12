@@ -59,9 +59,13 @@ test bool ModuleNameMismatch2() {
 test bool EscapedModuleName()
 	= checkModuleOK("module foo::\\bar::A");
 
-test bool ImportEscapedModuleName()
+test bool ImportEscapedModuleName1()
 	= checkModuleOK("module foo::\\bar::B")
 	&& checkModuleOK("module foo::\\bar::C import foo::\\bar::B;");
+
+test bool ImportEscapedModuleName2()
+	= checkModuleOK("module foo::\\bar::B")
+	&& checkModuleOK("module foo::\\bar::C import foo::bar::B;");
 
 test bool UndefinedPrivateVar1(){
 	writeModule("module M private int m = 3;");
