@@ -137,10 +137,7 @@ ModuleStatus rascalTModelForLocs(
     list[str] mnames = [];
     mids = 
         for(mloc <- mlocs){
-            if(isRascalLogicalLoc(mloc)){
-                mnames += moduleId2moduleName(mloc);
-                append mloc;
-            } else 
+            assert !isRascalLogicalLoc(mloc) : "Unexpected logical location <mloc>";
             if(exists(mloc)){
                 try {
                     mname = getRascalModuleName(mloc, pcfg);
@@ -256,7 +253,7 @@ ModuleStatus rascalTModelForLocs(
             }
 
             compatible_with_all_imports = true;
-            any_tpl_outdated = any(m <- component, tplOutdated(m, pcfg));
+            any_tpl_outdated = any(m <- component, tplOutdated(m, ms));
             if(any_tpl_outdated){
                 for(m <- component){
                     ms = deleteProperty(m, ms, tpl_uptodate(), checked());
@@ -266,7 +263,7 @@ ModuleStatus rascalTModelForLocs(
                     m_compatible = false;
                     try {
                         <found, tm, ms> = getTModelForModule(m, ms);
-                        if(found && !tplOutdated(m, pcfg)){
+                        if(found && !tplOutdated(m, ms)){
                             imports_extends_m = imports_and_extends[m];
                    
                             <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);

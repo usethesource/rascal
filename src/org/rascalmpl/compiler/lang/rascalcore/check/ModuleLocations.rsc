@@ -35,7 +35,10 @@ import util::Reflective;
 import util::FileSystem;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::LogicalLocations;
+import lang::rascalcore::check::NameUtils;
 import util::Memo;
+
+import lang::rascal::\syntax::Rascal;
 
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
@@ -102,39 +105,57 @@ int commonPrefix(list[str] rdir, list[str] rm){
     }
     return size(rm);
 }
-@memo={expireAfter(minutes=5),maximumSize(500)}
-@synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
-str getRascalModuleName(loc moduleLoc,  PathConfig pcfg){
-    modulePath = moduleLoc.path;
 
+str getRascalModuleNameForDefinition(loc lloc, PathConfig pcfg) {
+    if (isModuleId(lloc)) {
+        // Logical module location
+        return moduleId2moduleName(lloc);
+    }
+    if (!isRascalLogicalLoc(lloc)) {
+        // Physical location
+        return getRascalModuleName(lloc, pcfg);
+    }
+
+    // Logical non-module location
+    defPath = lloc.path;
+    while(defPath[0] == "/"){
+        defPath = defPath[1..];
+    }
+
+    defPathAsList = split("/", defPath);
+    return intercalate("::", defPathAsList[..-1]);
+}
+
+@synopsis{Find the module name corresponding to a given module location via its (src, tpl or logical) location}
+str getRascalModuleName(loc moduleLoc, PathConfig pcfg)
+    = _getRascalModuleName(moduleLoc.top, pcfg);
+
+@memo={expireAfter(minutes=5),maximumSize(500)}
+@synopsis{A memoized variant of ((getRascalModuleName)), which normalizes the location argument for maximum hit rate.}
+private str _getRascalModuleName(loc moduleLoc, PathConfig pcfg){
+    if(isModuleId(moduleLoc)){
+        return moduleId2moduleName(moduleLoc);
+    }
+
+    modulePath = moduleLoc.path;
     rscFile = endsWith(modulePath, "rsc");
     tplFile = endsWith(modulePath, "tpl");
-    if(isRascalLogicalLoc(moduleLoc)){
-        path = moduleLoc.path;
-        if(path[0] == "/"){
-            path = path[1..];
-        }
-        return replaceAll(path, "/", "::");
-    }
+
     if(!( rscFile || tplFile )){
         throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
-    
-    // Find matching .rsc file in source directories
-    if(rscFile){
-        for(loc dir <- pcfg.srcs){
-            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
-                moduleName = replaceFirst(modulePath, dir.path, "");
-                <moduleName, ext> = splitFileExtension(moduleName);
-                if(moduleName[0] == "/"){
-                    moduleName = moduleName[1..];
-                }
-                moduleName = replaceAll(moduleName, "/", "::");
-                return moduleName;
+
+    if (rscFile && exists(moduleLoc)) {
+        try {
+            // We cannot use the cached lang::rascalcore::check::CheckerCommon::getModuleParseTree
+            // here, since that requires that we know the logical location of a module.
+            m = parseModuleWithSpaces(moduleLoc);
+            if ((start[Module]) `<Header header> <Body _>` := m) {
+                return prettyPrintName(header.name);
             }
-        }
+        } catch _: { ; }
     }
-    
+
     // Find longest matching .tpl file in library directories
   
     <modulePathNoExt, ext> = splitFileExtension(modulePath);

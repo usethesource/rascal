@@ -66,8 +66,8 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
     extendCycle = { m | <m, m> <- extendPlus };
     if(size(extendCycle) > 0){
         for(mid <- extendCycle){
-            mname = getRascalModuleName(mid, ms.pathConfig);
-            causes = [ info("Part of extend cycle <getRascalModuleName(emid, ms.pathConfig)>", emid) | emid <- extendCycle ];
+            mname = moduleId2moduleName(mid);
+            causes = [ info("Part of extend cycle <moduleId2moduleName(emid)>", emid) | emid <- extendCycle ];
             ms.messages[mid] ? {} += {error("Extend cycle not allowed", mid, causes=causes)};
             ms = addProperty(mid, ms, check_error());
         }
@@ -85,7 +85,7 @@ ModuleStatus reportCycles(rel[MODID, PathRole, MODID]paths, rel[MODID,MODID] ext
         set[loc] cycle = { mid2 |  <mid1, mid2> <- pathsPlus, mid1 == mid, mid2 in cyclicMixed } +
                          { mid1 |  <mid1, mid2> <- pathsPlus, mid2 == mid , mid1 in cyclicMixed };
         if(size(cycle) > 0){
-            causes = [ info("Part of mixed import/extend cycle <getRascalModuleName(eloc, ms.pathConfig)>", eloc) | eloc <- cycle ];
+            causes = [ info("Part of mixed import/extend cycle <moduleId2moduleName(eloc)>", eloc) | eloc <- cycle ];
 
             ms.messages[mid] ? {} += { error("Mixed import/extend cycle not allowed", mid, causes=causes) };
             ms = addProperty(mid, ms, check_error());
