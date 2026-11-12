@@ -45,6 +45,7 @@ import org.rascalmpl.interpreter.staticErrors.IllegalQualifiedDeclaration;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
@@ -218,8 +219,8 @@ public class TypeDeclarationEvaluator {
 				declareAlias(trial, env);
 				countdown = todo.size();
 			}
-			catch (UndeclaredType e) {
-				if (countdown == 0) {	
+			catch (UndeclaredType | UndeclaredModule e) {
+				if (countdown == 0) {
 					// Cycle
 				    if (!ignoreErrors) {
 				        throw e;
