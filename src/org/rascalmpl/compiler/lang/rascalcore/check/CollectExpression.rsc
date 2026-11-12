@@ -643,6 +643,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     }
                  }
 
+                 // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
                  validOverloads = {<def, idRole, atype> | atype <- validOverloadTypes, <loc def, IdRole idRole, AType at> <- overloads, atype == at};
                  if({<_, _, tp>} := validOverloads){
                     texp = tp;
@@ -653,6 +654,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
+                    // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
                     validReturnTypeOverloads = {<def, idRole, retType> | <funcType, retType> <- validReturnTypeOverloadTypes, <loc def, IdRole idRole, AType at> <- overloads, funcType == at};
                     //checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
