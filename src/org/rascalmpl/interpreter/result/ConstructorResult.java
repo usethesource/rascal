@@ -34,11 +34,18 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.util.ParseErrorRecovery;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
@@ -96,39 +103,70 @@ public class ConstructorResult extends NodeResult {
 	}
 
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-	    Type consType = getValue().getConstructorType();
+    public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
+        Type consType = getValue().getConstructorType();
 
-	    try {
-	        if (getStaticType().hasField(name, store)) {
-	            return positionalFieldAccess(consType, name);
-	        }
-	        else if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
-	            return keywordFieldAccess(consType, name, store);
-	        }
-	        else {
-	            // If the keyword field was defined on any of the other constructors, then 
-	            // we see this as a dynamic error. (the programmer could not have known since
-	            // constructor types are not first class citizens in Rascal). Otherwise the programmer
-	            // used a completely unknown field name and we flag it as static error.
-	            for (Type alt : store.lookupAlternatives(getValue().getUninstantiatedConstructorType().getAbstractDataType())) {
-	                if (store.hasKeywordParameter(alt, name)) {
-	                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
-	                }
-	            }
+        try {
+            if (getStaticType().hasField(name, store)) {
+                return positionalFieldAccess(consType, name);
+            }
+            if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
+                return keywordFieldAccess(consType, name, store);
+            }
+            if (consType == RascalValueFactory.Tree_Amb) {
+                throwOnAmbFieldAccess(name); // Will never return
+            }
 
-	            throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
-	        }
-	    }
-	    catch (UndeclaredAbstractDataTypeException e) {
-	        // this may happen when a value leaks via another module via a run-time dependency (a function call),
-	        // while the type of the value has not actually been defined (via import or extend). It happens
-	        // for example when "import" is used instead of "extend" and the programmer accidentally expected
-	        // names to be transitively imported.
-	        
-	        throw new UndeclaredType(getStaticType().getName(), ctx.getCurrentAST());
-	    }
-	}
+            // If the keyword field was defined on any of the other constructors, then
+            // we see this as a dynamic error. (the programmer could not have known since
+            // constructor types are not first class citizens in Rascal). Otherwise the programmer
+            // used a completely unknown field name and we flag it as static error.
+            for (Type alt : store
+                .lookupAlternatives(getValue().getUninstantiatedConstructorType().getAbstractDataType())) {
+                if (store.hasKeywordParameter(alt, name)) {
+                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
+                }
+            }
+
+            throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
+        }
+        catch (UndeclaredAbstractDataTypeException e) {
+            // this may happen when a value leaks via another module via a run-time dependency (a function
+            // call),
+            // while the type of the value has not actually been defined (via import or extend). It happens
+            // for example when "import" is used instead of "extend" and the programmer accidentally expected
+            // names to be transitively imported.
+
+            throw new UndeclaredType(getStaticType().getName(), ctx.getCurrentAST());
+        }
+    }
+
+    private void throwOnAmbFieldAccess(String name) {
+        ITree tree = (ITree) getValue();
+        ISet alts = (ISet) getValue().get(0);
+        for (IValue alt : alts) {
+            if (TreeAdapter.getLabeledField((ITree) alt, name) != null) {
+                // At least one of the alternatives has the field, throw aruntime exception
+                IRascalValueFactory vf = (IRascalValueFactory) ctx.getValueFactory();
+
+                // If the ambiguity is generated by error recovery we throw an ParseErrorRecovery exception,
+                // otherwise we throw an Ambiguity exception
+                if ((new ParseErrorRecovery(vf)).hasParseErrors(tree).getValue()) {
+                    throw RuntimeExceptionFactory.parseErrorRecoveryNoSuchField(name, TreeAdapter.getLocation(tree));
+                }
+                else {
+                    IString typeString = vf.string(SymbolAdapter.toString(getValue(), false));
+                    IString treeString = vf.string(TreeAdapter.yield(getValue()));
+                    throw RuntimeExceptionFactory.ambiguity(ctx.getCurrentAST().getLocation(), typeString, treeString,
+                        ctx.getCurrentAST(), ctx.getEvaluator().getStackTrace());
+                }
+            }
+        }
+
+        // None of the alternatives have the field, generate a static `UndeclaredField` error
+        throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
+    }
+
 	
 	public <U extends IValue> Result<U> positionalFieldAccess(Type consType, String name) {
 	    if (consType.hasField(name)) {
@@ -231,19 +269,17 @@ public class ConstructorResult extends NodeResult {
 
     @Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
-		ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(
-				getValue().getConstructorType());
-		Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
+        Type consType = getValue().getConstructorType();
 
+		ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
 		if (!getStaticType().hasField(name, store) && store.hasKeywordParameter(getStaticType(), name)) {
+            if (consType == RascalValueFactory.Tree_Amb) {
+                throwOnAmbFieldAccess(name); // Will never return
+            }
 			throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 		}
 
-		Type nodeType = getValue().getConstructorType();
-		if (!nodeType.hasField(name) && !kwTypes.hasField(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
-		}
-
+		Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
 		if (kwTypes.hasField(name)) {
 			Type fieldType = kwTypes.getFieldType(name);
 			if (!repl.getStaticType().isSubtypeOf(fieldType)) {
@@ -252,7 +288,10 @@ public class ConstructorResult extends NodeResult {
 			}
 
 			return makeResult(getStaticType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
-		} else {
+		}
+
+        Type nodeType = getValue().getConstructorType();
+        if (nodeType.hasField(name)) {
 		    // normal field
 			int index = nodeType.getFieldIndex(name);
 			Type fieldType = nodeType.getFieldType(index);
@@ -264,6 +303,12 @@ public class ConstructorResult extends NodeResult {
 			return makeResult(getStaticType(),
 					getValue().set(index, repl.getValue()), ctx);
 		}
+        
+        if (consType == RascalValueFactory.Tree_Amb) {
+            throwOnAmbFieldAccess(name); // Will never return
+        }
+        
+        throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
 	}
 
 	@Override

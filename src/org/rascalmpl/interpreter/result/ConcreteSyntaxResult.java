@@ -22,10 +22,13 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.library.util.ParseErrorRecovery;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
@@ -38,6 +41,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
@@ -89,21 +93,21 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
-		
-		FieldResult field = TreeAdapter.getLabeledField(tree, name); 
-		
-		if (field == null) {
-			return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
-		}
 
-		Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
-		return makeResult(symbolType, field.tree, ctx);
+        FieldResult field = TreeAdapter.getLabeledField(tree, name);
+        if (field == null) {
+            return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
+        }
+        Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+        return makeResult(symbolType, field.tree, ctx);
 	}
+
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
-		FieldResult field = TreeAdapter.getLabeledField(tree, name);
+
+        FieldResult field = TreeAdapter.getLabeledField(tree, name);
 		
 		if (field != null) {
 		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
