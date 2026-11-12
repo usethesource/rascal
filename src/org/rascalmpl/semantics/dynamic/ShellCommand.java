@@ -235,7 +235,6 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			switch (name) {
 				case Configuration.GENERATOR_PROFILING_PROPERTY:
 					__eval.getConfiguration().setGeneratorProfiling(toBoolean(value));
-					__eval.getParserGenerator().setGeneratorProfiling(toBoolean(value));
 					break;
 				case Configuration.PROFILING_PROPERTY: 
 					__eval.getConfiguration().setProfiling(toBoolean(value));

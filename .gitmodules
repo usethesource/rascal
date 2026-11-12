@@ -1,0 +1,3 @@
+[submodule "generated"]
+	path = generated
+	url = git@github.com:usethesource/rascal-generated-java.git
