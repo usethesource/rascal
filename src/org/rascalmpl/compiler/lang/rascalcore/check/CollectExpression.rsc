@@ -601,22 +601,24 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
             }
 
-            if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
+            if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := texp){
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
               if({<_, _, tp>} := filteredOverloads){
                 texp = tp;
                 s.specializedFact(expression, tp);
               } else {
                 overloads = filteredOverloads;
-                validReturnTypeOverloads = {};
-                validOverloads = {};
+
+                rel[AType, AType] validReturnTypeOverloadTypes = {};
+                set[AType] validOverloadTypes = {};
+
                 next_fun:
-                for(ovl: <key, idRole, tp> <- overloads){
-                    if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
+                for (tp <- overloads.atype) {
+                    // TODO Inline pattern match in iteration above
+                    if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp) {
                        try {
-                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
-                            // TODO: turn this on after review of all @deprecated uses in the Rascal library library
+                            validReturnTypeOverloadTypes += <tp, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validOverloadTypes += tp;
                             if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
@@ -626,28 +628,32 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             continue next_fun;
                     }
                  }
-                 reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
+                 reportMissingNonTerminalCases(current, overloads.atype, validOverloadTypes, actuals, s);
                  next_cons:
-                 for(ovl: <key,idRole, tp> <- overloads){
+                 for(tp <- overloads.atype){
+                    // TODO Inline pattern match in iteration above
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
+                            validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                            validOverloadTypes += tp;
                        } catch checkFailed(list[FailMessage] _):
                              continue next_cons;
                          catch NoBinding():
                              continue next_cons;
                     }
                  }
+
+                 validOverloads = {<def, idRole, atype> | atype <- validOverloadTypes, <loc def, IdRole idRole, AType at> <- overloads, atype == at};
                  if({<_, _, tp>} := validOverloads){
                     texp = tp;
                     s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
-                 } else if(isEmpty(validReturnTypeOverloads)) {
+                 } else if(isEmpty(validReturnTypeOverloadTypes)) {
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
+                    validReturnTypeOverloads = {<def, idRole, retType> | <funcType, retType> <- validReturnTypeOverloadTypes, <loc def, IdRole idRole, AType at> <- overloads, funcType == at};
                     //checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
@@ -710,14 +716,14 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     }
 }
 
-void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRole, AType atype] overloads, rel[loc def, IdRole idRole, AType atype] validOverloads, list[Expression] actuals, Solver s){
+void reportMissingNonTerminalCases(Expression current, set[AType] overloadTypes, set[AType] validOverloadTypes, list[Expression] actuals, Solver s){
     for(int i <- index(actuals)){
         actual_type = s.getType(actuals[i]);
         if(isNonTerminalAType(actual_type)){
-            if(!isEmpty(validOverloads) && all(ovl <- validOverloads,
-                                               arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),
+            if(!isEmpty(validOverloadTypes) && all(atype <- validOverloadTypes,
+                                               arg_types := getFunctionOrConstructorArgumentTypes(atype),
                                                size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){
-                nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
+                nont = [atype | atype <- overloadTypes, arg_types := getFunctionOrConstructorArgumentTypes(atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
                     s.report(info(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }
