@@ -91,9 +91,9 @@ public class RascalCompile extends AbstractCommandlineTool {
 	}
 
 
-	private static Set<ModuleDependencyNode> calculateModuleDependencies(IList modules, IConstructor pcfg, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException {
+	private static Set<ModuleDependencyNode> calculateModuleDependencies(IList modules, IConstructor pcfg, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out, int parAmount) throws IOException {
 		var eval = initializeEvaluator("CalculateOrder", imports, term, monitor, err, out);
-		var order = run(() -> (ISet)eval.call(monitor, "calculateModuleDependencies", modules, pcfg), vf.set(), err);
+		var order = run(() -> (ISet)eval.call(monitor, "calculateModuleDependencies", modules, pcfg, vf.integer(parAmount)), vf.set(), err);
 		var result = new HashMap<ISet, ModuleDependencyNode>();
 		for (var e: order) {
 			var from = (ISet)(((ITuple)e).get(0));
@@ -276,7 +276,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 		var pcfg = (IConstructor)parsedArgs.get("pcfg");
 
 		monitor.jobStart("Calculate dependency graph");
-		var moduleDependencyGraph = calculateModuleDependencies(modules, pcfg, term, monitor, err, out);
+		var moduleDependencyGraph = calculateModuleDependencies(modules, pcfg, term, monitor, err, out, parAmount);
 		monitor.jobEnd("Calculate dependency graph", true);
 
 		// we order the work based on how many upstream modules depend on it
