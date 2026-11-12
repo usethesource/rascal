@@ -64,8 +64,12 @@ test bool ImportEscapedModuleName1()
 	&& checkModuleOK("module foo::\\bar::C import foo::\\bar::B;");
 
 test bool ImportEscapedModuleName2()
-	= checkModuleOK("module foo::\\bar::B")
-	&& checkModuleOK("module foo::\\bar::C import foo::bar::B;");
+	= checkModuleOK("module foo::\\bar::D")
+	&& checkModuleOK("module E import foo::bar::D;");
+
+test bool ImportEscapedModuleName3()
+	= checkModuleOK("module foo::bar::F")
+	&& checkModuleOK("module G import foo::\\bar::F;");
 
 test bool UndefinedPrivateVar1(){
 	writeModule("module M private int m = 3;");
