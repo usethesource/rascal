@@ -98,10 +98,12 @@ public class RascalCompile extends AbstractCommandlineTool {
 		for (var e: order) {
 			var from = (ISet)(((ITuple)e).get(0));
 			var to = (ISet)(((ITuple)e).get(1));
-			var nodeFrom = result.computeIfAbsent(from, ModuleDependencyNode::new);
-			if (!to.isEmpty()) {
-				var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
-				nodeFrom.addDependency(nodeTo);
+			if (!from.isEmpty()) {
+				var nodeFrom = result.computeIfAbsent(from, ModuleDependencyNode::new);
+				if (!to.isEmpty()) {
+					var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
+					nodeFrom.addDependency(nodeTo);
+				}
 			}
 		}
 		return new HashSet<>(result.values());

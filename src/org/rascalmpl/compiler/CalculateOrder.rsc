@@ -186,11 +186,14 @@ private tuple[list[Graph[set[&T]]], Graph[set[&T]]] splitGraph(Graph[set[&T]] sc
     candidates = verts(scc);
     while (candidates != {}) {
         sccInverted = invert(sccCopy);
-        // collect 3 level deep imports
+        // collect 4 level deep imports
         leafs = top(sccInverted);
         sccInverted1 = sccInverted o sccInverted;
         leafs += top(sccInverted1); 
-        leafs += top(sccInverted o sccInverted1);
+        sccInverted1 = sccInverted o sccInverted1;
+        leafs += top(sccInverted1); 
+        sccInverted1 = sccInverted o sccInverted1;
+        leafs += top(sccInverted1); 
         if (leafs == {}) {
             println("Nothing left:<candidates>: <sccInverted1>");
             subs += split(scc, amountOf, candidates);
@@ -226,5 +229,5 @@ private Graph[set[&T]] calculateMergedGraphs(list[Graph[set[&T]]] subGraphs, Gra
     }
     connections = { <subV[from]?from, subV[to]?to> | <set[&T] from, set[&T] to> <- remain};
     missing = newV - verts(connections);
-    return connections + {<m, {}> | m <- missing};
+    return (connections + {<m, {}> | m <- missing}) - {<{},{}>};
 }
