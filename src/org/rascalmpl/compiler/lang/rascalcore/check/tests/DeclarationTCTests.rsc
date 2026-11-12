@@ -47,6 +47,32 @@ test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1
 
 test bool shadowingDeclaration3() = checkOK("int N = 3; int N := 3;");
 
+// Module name in module declaration
+test bool moduleNameAndPlaceOK1(){
+	loc mloc = writeModule("module MMM");
+	return checkModuleOK(mloc);
+}
+
+test bool moduleNameAndPlaceOK2(){
+	loc mloc = writeModule("module testing::MMM");
+	return checkModuleOK(mloc);
+}
+
+test bool moduleNameNotOK1(){
+	loc mloc = writeModule("module MMM", altName="M");
+	return unexpectedDeclarationInModule(mloc);
+}
+
+test bool moduleNameNotOK2(){
+	loc mloc = writeModule("module MMM", altPath="a/b/c");
+	return unexpectedDeclarationInModule(mloc);
+}
+
+test bool moduleNameNotOK3(){
+	loc mloc = writeModule("module MMM", altName="M", altPath="a/b/c");
+	return unexpectedDeclarationInModule(mloc);
+}
+
 // Variable declaration in imported module
 
 test bool PrivateVarDeclarationNotVisible(){ 
@@ -817,7 +843,7 @@ test bool I8(){
 	writeModule("module A public int N = 0;");
 	writeModule("module B import A;");
 
-	return unexpectedTypeInModule("
+	return checkModuleOK("
         module I8
            	extend B;
            	int X = N;
@@ -903,3 +929,78 @@ test bool Issue435() {
 			import MMM;
 		");
 }
+
+// Ignore
+
+test bool ignoreModule1() =
+	ignoredInModule("
+		@ignore{}
+		module Ignore1
+	");
+
+test bool ignoreModule2() =
+	ignoredInModule("
+		@Ignore{}
+		module Ignore1
+	");
+
+test bool ignoreCompilerModule1() =
+	ignoredInModule("
+		@ignoreCompiler{}
+		module Ignore
+	");
+
+test bool ignoreCompilerModule2() =
+	ignoredInModule("
+		@IgnoreCompiler{}
+		module Ignore
+	");
+
+test bool ignoreVarDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignore{} int N = 0;
+	");
+
+test bool ignoreCompilerVarDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignoreCompiler{} int N = 0;
+	");
+
+
+test bool ignoreDataDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignore{} data D = d();
+	");
+
+test bool ignoreCompilerDataDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignoreCompiler{} data D = d();
+	");
+
+test bool ignoreAliasDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignore{} alias N = int;
+	");
+
+test bool ignoreCompilerAliasDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignoreCompiler{} alias N = int;
+	");
+
+test bool ignoreFunctionDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignore{} int f(int n) = n;
+	");
+
+test bool ignoreCompilerFunctionDecl() =
+	ignoredInModule("
+		module Ignore
+		@ignoreCompiler{} int f(int n) = n;
+	");

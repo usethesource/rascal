@@ -44,7 +44,7 @@ import String;
 
 // Generate a test class for a Rascal module
 
-str generateTestClass(str packageName, str className, list[MuFunction] functions, JGenie jg){
+str generateTestClass(str preamble, str packageName, str className, list[MuFunction] functions, JGenie jg){
     //jg.generatingTests(true);
     
     testMethods = "<for(f <- functions){>
@@ -52,7 +52,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
                   '";
     if(isEmpty(trim(testMethods))) return "";
     
-    res  = "<if(!isEmpty(packageName)){>package <packageName>;<}>
+    res  = "<preamble>
+           '<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;
            'import java.util.stream.Stream;
            'import io.usethesource.vallang.*;
@@ -99,8 +100,9 @@ str generateTestMethod(MuFunction f, str _className, JGenie jg){
    
     if("test" notin f.modifiers) return "";
     
-    test_name = asJavaName(f.uniqueName);
-    test_name_uniq = "<test_name>_<f.src.begin.line>";
+    test_name = asJavaName(f.name);
+    test_name_uniq = asJavaName(f.funId);
+    // test_name_uniq = "<test_name>_<f.src.begin.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
    

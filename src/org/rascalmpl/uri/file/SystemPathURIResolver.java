@@ -31,7 +31,7 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 
 	@Override
 	public String scheme() {
-		return "PATH";
+		return "path";
 	}
 
 	private Stream<ISourceLocation> pathStream() {

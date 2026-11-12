@@ -392,11 +392,14 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\" \' \< \> \\ b f n r t] 
-	| UnicodeEscape 
-	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
+	= esc			:  "\\" [\" \' \< \> \\ b f n r t] 
+	| unicode		: UnicodeEscape 
+	| anychar		: ![\" \' \< \> \\]
+	| continuation	: [\n] HorizontalSpace [\'] // margin 
 	;
+
+layout HorizontalSpace
+	= @manual [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]*;
 
 lexical JustTime
 	= "$T" TimePartNoTZ !>> [+\-] "$"

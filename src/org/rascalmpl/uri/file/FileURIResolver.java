@@ -28,7 +28,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
@@ -43,10 +42,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileAttributes;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -116,20 +112,36 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		resolveToFile(uri).delete();
 	} 
 
+	private static boolean isEmpty(Path directory) throws IOException {
+		try (var entries = Files.newDirectoryStream(directory)) {
+			return !entries.iterator().hasNext();
+		}
+
+	}
+
 	@Override
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
-		if (isFile(from) || (isDirectory(from) && list(from).length == 0)) {
-			if (exists(to) && !overwrite) {
-				throw new IOException("file exists " + to);
-			}
-
-			// fast path
-			if (!resolveToFile(from).renameTo(resolveToFile(to))) {
-				throw new IOException("rename failed: " + from + " to " + to);
-			}
+		var flags = overwrite ? new CopyOption[]{StandardCopyOption.REPLACE_EXISTING } : new CopyOption[0];
+		var src = resolveToFile(from).toPath();
+		var dst = resolveToFile(to).toPath();
+		if (Files.isRegularFile(src) || (Files.isDirectory(src) && isEmpty(src))) {
+			// single file or empty dir are okay to move
+			Files.move(src, dst, flags);
 		}
 		else {
-			ISourceLocationInputOutput.super.rename(from, to, overwrite);
+			// but dir with entries cannot be moved atomically 
+			// so we have to walk the tree, just like copy does
+			Files.walkFileTree(src, new SourceDestinationVisitor(true, src, dst) {
+				@Override
+				void processFile(Path original, Path destination, BasicFileAttributes attrs) throws IOException {
+					Files.move(original, destination, flags);
+				}
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Files.delete(dir); // cleanup after move
+					return FileVisitResult.CONTINUE;
+				}
+			});
 		}
 	}
 	
@@ -279,6 +291,37 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	}
 
 
+	private abstract static class SourceDestinationVisitor extends SimpleFileVisitor<Path> {
+		private final boolean recursive;
+		private final Path rootSource;
+		private final Path rootDest;
+
+		SourceDestinationVisitor(boolean recursive, Path rootSource, Path rootDest) {
+			this.recursive = recursive;
+			this.rootSource = rootSource;
+			this.rootDest = rootDest;
+		}
+
+		abstract void processFile(Path original, Path destination, BasicFileAttributes attrs) throws IOException;
+
+		private Path calculateDestination(Path cur) {
+			return rootDest.resolve(rootSource.relativize(cur));
+		}
+		@Override
+		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+			Files.createDirectories(calculateDestination(dir));
+			return (dir.equals(rootSource) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+		}
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			var dest = calculateDestination(file);
+			Files.createDirectories(dest.getParent());
+			processFile(file, dest, attrs);
+			return FileVisitResult.CONTINUE;
+		}
+
+	}
 
 	@Override
 	public void copy(ISourceLocation from, ISourceLocation to, boolean recursive, boolean overwrite)
@@ -293,34 +336,22 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		var copyOptions = overwrite 
 			? new CopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 			: new CopyOption[0];
-		
-		Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
-			private Path calculateDestination(Path cur) {
-				return dst.resolve(src.relativize(cur));
-			}
-			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-				Files.createDirectories(calculateDestination(dir));
-				return (dir.equals(src) || recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
-			}
 
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				var dest = calculateDestination(file);
-				Files.createDirectories(dest.getParent());
+		Files.walkFileTree(src, new SourceDestinationVisitor(recursive, src, dst) {
+
+			void processFile(Path original, Path destination, BasicFileAttributes attrs) throws IOException {
 				if (attrs.size() < 1024*1024) {
 					// Files.copy is 2x as slow for most files, unless they're big enough that the overhead
 					// of all the meta data mgmt is worth the kernel-level file-copy
-					try (var in = Files.newInputStream(file)) {
-						try (var out = Files.newOutputStream(dest, createOptions)) {
+					try (var in = Files.newInputStream(original)) {
+						try (var out = Files.newOutputStream(destination, createOptions)) {
 							in.transferTo(out);
 						}
 					}
 				}
 				else {
-					Files.copy(file, dest, copyOptions);
+					Files.copy(original, destination, copyOptions);
 				}
-				return FileVisitResult.CONTINUE;
 			}
 		});
 	}

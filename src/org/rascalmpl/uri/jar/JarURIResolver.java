@@ -40,15 +40,6 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
        return inputStream;
     }
     
-    private ISourceLocation safeResolve(ISourceLocation loc) {
-        try {
-            return registry.logicalToPhysical(loc);
-        }
-        catch (Throwable e) {
-            return loc;
-        }
-    }
-    
     private static String getInsideJarPath(ISourceLocation uri) {
         String path = uri.getPath();
         if (path != null && !path.isEmpty()) {
@@ -71,7 +62,7 @@ public class JarURIResolver implements ISourceLocationInput, IClassloaderLocatio
             if (path != null && !path.isEmpty()) {
                 int bang = path.lastIndexOf('!');
                 if (bang != -1) {
-                    return safeResolve(VF.sourceLocation(
+                    return registry.resolveIfLogical(VF.sourceLocation(
                         isWrapped ? uri.getScheme().substring("jar+".length()) : "file",
                         isWrapped ? uri.getAuthority() : "",
                         path.substring(path.indexOf("/"), bang)));

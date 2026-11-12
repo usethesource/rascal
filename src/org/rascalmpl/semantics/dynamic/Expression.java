@@ -537,6 +537,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				    }
 				  }
 				}
+				eval.setCurrentAST(this); // Rewind current AST from the last argument back to the whole call
 				Result<IValue> res = null;
 				try {
 					res = function.call(types, actuals, kwActuals);
@@ -967,7 +968,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
+			__eval.warning("Annotations are deprecated. Use keyword fields instead.", src);
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
@@ -982,10 +983,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			Result<?> lhs = getExpression().interpret(__eval);
 			Name annoName = getName();
-
-			if (lhs.getValue().getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(Names.name(annoName))) {
-				annoName = Names.toName("src", getName().getLocation());
-			}
 
 			return lhs.isDefined(annoName);
 		}
@@ -2500,7 +2497,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+			__eval.warning("Annotations are deprecated. Use keyword fields instead.", src);
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 

@@ -30,6 +30,7 @@ import engineering.swat.watch.DaemonThreadPool;
 import io.usethesource.vallang.ISourceLocation;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +57,7 @@ public class DebugSocketServer {
         this.services = services;
         this.promptLocation = promptLocation;
         try {
-            serverSocket = new ServerSocket(0);
+            serverSocket = new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

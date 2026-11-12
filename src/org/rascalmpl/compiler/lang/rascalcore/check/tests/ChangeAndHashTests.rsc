@@ -572,6 +572,7 @@ test bool normalizedHashIdentity1(str S1)
 
 test bool normalizedHashIdentity2(str S1, str S2)
     = normalizedMD5Hash(S1) == normalizedMD5Hash(S2)
-    ? removeWhitespace(S1) == removeWhitespace(S2)
+    /* If the normalized hashes are equal, expect the normalized strings to be equal, unless there is an actual MD5 collision for the input strings. */
+    ? removeWhitespace(S1) == removeWhitespace(S2) || md5Hash(S1) == md5Hash(S2)
     : S1 != S2
     ;

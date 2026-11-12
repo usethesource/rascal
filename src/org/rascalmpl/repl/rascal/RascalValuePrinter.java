@@ -48,6 +48,7 @@ import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
 import org.rascalmpl.repl.streams.ReplTextWriter;
+import org.rascalmpl.util.functional.ThrowingTriConsumer;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -79,12 +80,7 @@ public abstract class RascalValuePrinter {
      */
     protected abstract Function<IValue, IValue> liftProviderFunction(IFunction func);
 
-    @FunctionalInterface
-    public static interface ThrowingWriter {
-        void write(PrintWriter writer, StandardTextWriter prettyPrinter, boolean unicodeSupported) throws IOException;
-    }
-
-    public IErrorCommandOutput outputError(ThrowingWriter writer) {
+    public IErrorCommandOutput outputError(ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> writer) {
         return new IErrorCommandOutput() {
             @Override
             public ICommandOutput getError() {
@@ -98,7 +94,7 @@ public abstract class RascalValuePrinter {
         };
     }
 
-    public ICommandOutput prettyPrinted(ThrowingWriter writer) {
+    public ICommandOutput prettyPrinted(ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> writer) {
         return new IAnsiCommandOutput() {
             @Override
             public IOutputPrinter asAnsi() {
@@ -123,7 +119,7 @@ public abstract class RascalValuePrinter {
             return serveContent((IConstructor)value);
         }
 
-        ThrowingWriter resultWriter;
+        ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> resultWriter;
         if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
             resultWriter = (w, sw, _u) -> {
                 w.write("(" + type.toString() +") `");
@@ -171,10 +167,10 @@ public abstract class RascalValuePrinter {
             };
         }
 
-        ThrowingWriter typePrefixed = (w, sw, u) -> {
+        ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> typePrefixed = (w, sw, u) -> {
             w.write(type.toString());
             w.write(": ");
-            resultWriter.write(w, sw, u);
+            resultWriter.accept(w, sw, u);
             w.println();
         };
 
@@ -305,11 +301,11 @@ public abstract class RascalValuePrinter {
     
 
     private static class PrettyPrintedOutput implements IOutputPrinter {
-        private final ThrowingWriter internalWriter;
+        private final ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> internalWriter;
         private final StandardTextWriter prettyPrinter;
         private final String mimeType;
 
-        public PrettyPrintedOutput(ThrowingWriter internalWriter, StandardTextWriter prettyPrinter, String mimeType) {
+        public PrettyPrintedOutput(ThrowingTriConsumer<PrintWriter, StandardTextWriter, Boolean, IOException> internalWriter, StandardTextWriter prettyPrinter, String mimeType) {
             this.internalWriter = internalWriter;
             this.prettyPrinter = prettyPrinter;
             this.mimeType = mimeType;
@@ -323,7 +319,7 @@ public abstract class RascalValuePrinter {
         @Override
         public void write(PrintWriter target, boolean unicodeSupported) {
             try {
-                internalWriter.write(target, prettyPrinter, unicodeSupported);
+                internalWriter.accept(target, prettyPrinter, unicodeSupported);
             }
             catch (IOException e) {
                 target.println("Internal failure: printing exception failed with:");
