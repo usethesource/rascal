@@ -33,8 +33,7 @@ Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg, 
         if (desiredClusterSize < 2) {
             desiredClusterSize = 2;
         }
-        println(desiredClusterSize);
-        return mergeHighlyConnectedCluster(scc, desiredClusterSize);
+        return iprintlnExp(mergeHighlyConnectedCluster(scc, desiredClusterSize));
     }, totalWork = 3);
 
 }
@@ -111,8 +110,8 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int amountOf) {
         }
     }
 
-     println("best:");
-     iprintln(bestGraphs);
+    //  println("best:");
+    //  iprintln(bestGraphs);
     // iprintln(bestRemain);
 
     return calculateMergedGraphs(bestGraphs, bestRemain);
@@ -193,12 +192,7 @@ private tuple[list[Graph[set[&T]]], Graph[set[&T]]] splitGraph(Graph[set[&T]] sc
     }
     //iprintln(subs);
     // now split the domain, lets make the subgraphs and reconstuct the cross graph edges
-    subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && to in sub } | sub <- subs] - [{}];
-
-    if ({} in subg) {
-        println("I produced flats!!");
-    }
-    //iprintln(subg);
+    subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && (to in sub || to == {}) } | sub <- subs] - [{}];
 
     outside = scc - {*g | g <- subg};
     return <subg, outside>;
