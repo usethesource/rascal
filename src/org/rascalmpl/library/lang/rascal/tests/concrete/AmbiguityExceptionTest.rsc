@@ -80,7 +80,6 @@ private S ambErrorTree() = parse(#S, "x v z", allowAmbiguity=true, allowRecovery
 
 test bool testValidTree() {
     S s = validTree();
-    //println(prettyTree(s));
     assert !hasParseErrors(s);
     assert !isAmbCluster(s);
     return true;
@@ -88,7 +87,6 @@ test bool testValidTree() {
 
 test bool testAmbiguousTree() {
     S s = ambTree();
-    //println(prettyTree(s));
     assert !hasParseErrors(s);
     assert isAmbCluster(s);
     return true;
@@ -96,7 +94,6 @@ test bool testAmbiguousTree() {
 
 test bool testErrorTree() {
     S s = errorTree();
-    //println(prettyTree(s));
     assert hasParseErrors(s);
     assert !isAmbCluster(s);
     return true;
@@ -104,7 +101,6 @@ test bool testErrorTree() {
 
 test bool testAmbigousErrorTree() {
     S s = ambErrorTree();
-    //println(prettyTree(s));
     assert hasParseErrors(s);
     assert isAmbCluster(s);
     return true;
@@ -198,8 +194,7 @@ test bool testBrackedFieldAssignmentOnAmbError() {
 }
 
 /**
- * These "illegal field assignment" tests already work correctly but we need to make sure
- * they will not break once we implement the "field assignment" semantics from the previous tests.
+ * These should still throw "illegal field assignment" errors as `q` is not declared anywhere.
  */
 @ignoreCompiler{"UndeclaredField is a static error"}
 @expected{UndeclaredField}
