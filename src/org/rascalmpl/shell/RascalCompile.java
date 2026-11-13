@@ -27,10 +27,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.streams.StreamUtil;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.Lazy;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -226,7 +228,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 		void start(String mainModule, String[] imports, Map<String, IValue> originalArguments, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
 			int result = 0;
 			try {
-				var eval = initializeEvaluator(mainModule, imports, term, monitor, err, out);
+				var eval = Lazy.defer(() -> {
+					try {
+						return initializeEvaluator(mainModule, imports, term, monitor, err, out);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				});
 				while (true) {
 					var newTask = tasks.take();
 					if (newTask.size() == 0) {
@@ -247,7 +255,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 					chunkArgs.put("modules", modules);
 					chunkArgs.put("pcfg", this.pcfg);
 					var start = System.currentTimeMillis();
-					result += runMain(eval, mainModule, "main", chunkArgs, monitor, err);
+					result += runMain(eval.get(), mainModule, "main", chunkArgs, monitor, err);
 					var took = System.currentTimeMillis() - start;
 					if (took > (10 * 1000)) {
 						err.println("*** ⌛ Type checking: " + modules + " took " + String.format("%.1f", took / 1000.) + "s");
