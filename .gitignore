@@ -33,3 +33,5 @@ __pycache__
 
 *.iml
 .idea/
+
+*.cpuprofile
