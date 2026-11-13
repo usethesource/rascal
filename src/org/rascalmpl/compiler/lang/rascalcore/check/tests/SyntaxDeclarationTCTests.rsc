@@ -555,6 +555,52 @@ test bool WrongNonterminal2() = unexpectedTypeInModule("
     alias ZZZ = int;
 ");
 
+test bool StartSymbolTop() = checkModuleOK("
+    module StartSymbolTop
+    
+    start syntax A = \"A\";
+
+    void main() {
+        start[A] sa = [start[A]] \"A\";
+        A a = sa.top;
+    }
+");
+
+test bool TwoStartSymbolsTop() = checkModuleOK("
+    module StartSymbolTop
+    
+    start syntax A = \"A\";
+    start syntax B = \"B\";
+
+    void main() {
+        start[A] sa = [start[A]] \"A\";
+        start[B] sb = [start[B]] \"B\";
+        A a = sa.top;
+        B b = sb.top;
+    }
+");
+
+test bool StartNotSuperType() = unexpectedDeclarationInModule("
+    module StartNotSuperType
+
+    start syntax A = \"A\";
+
+    void main() {
+        A x = [A] \"A\";
+        start[A] a = x;
+    }
+");
+
+test bool StartNotSubType() = unexpectedDeclarationInModule("
+    module StartNotSubType
+
+    start syntax A = \"A\";
+
+    void main() {
+        A a = [start[A]] \"A\";
+    }
+");
+
 // https://github.com/cwi-swat/rascal/issues/442
 
 test bool Issue442() = checkModuleOK("
