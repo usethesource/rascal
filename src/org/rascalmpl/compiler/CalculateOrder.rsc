@@ -104,7 +104,7 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
             if (size(common) == size(bestCommon) && nestedSize(bestCommon) < nestedSize(common)) {
                 continue;
             }
-            if (balancedScore(bestCommon) > balancedScore(common)) {
+            if (balancedScore(bestCommon) < balancedScore(common)) {
                 continue;
             }
             // now we know that common is better
@@ -113,8 +113,6 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
                 bestCommon = common;
             }
         }
-        iprintln(bestSplit);
-        iprintln(bestCommon);
         return flatten(bestSplit, bestCommon, scc);
     }, totalWork = 1000);
 }
@@ -130,10 +128,13 @@ private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSiz
         candidates -= chunk;
         chunks[arbInt(chunkSize)] += chunk;
     }
-    shared = {s | s <- domain(scc), (0 | it + (s in c ? 1 : 0) | c <- chunks) > 1 };
+    shared = {s | s <- domain(scc), (0 | it + (s in c ? 1 : 0) | c <- chunks) > (chunkSize / 2) };
     shared += sccFull[shared];
     chunks = [newC | c <- chunks, newC := c - shared, newC != {}]; 
     splitShared = [*connectedComponents(scc & (shared*shared))];
+    if (size(splitShared) > 1) {
+        println("!!!: <size(splitShared[0])> <size(splitShared[1])>");
+    } 
     return <chunks, splitShared>;
 }
 
