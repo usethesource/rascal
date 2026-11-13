@@ -73,7 +73,9 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 						val, __eval);
 			}
 			catch (UnexpectedType e) {
-				e.setLocation(getLocation());
+				if (e.getLocation() == null) {
+					e.setLocation(getLocation());
+				}
 				throw e;
 			}
 			
