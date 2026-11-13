@@ -673,7 +673,10 @@ default str v2i(value v) {
         case \label(str _x, Symbol u) : return v2i(u);
         case \layouts(str _) : return  "$anylayout$";
         case \conditional(Symbol s, set[Condition] cs) : return "<v2i(s)>_<uu(cs)>";
-        case \alt(set[Symbol] alts) : return "alt_<for (value elem <- sort(alts)) {><v2i(elem)>_<}>"[..-1];
+        case \opt(Symbol s) : return "opt_<v2i(s)>";
+        // alt has a set which can lead to unpredictable orders, this we circumvent by sorting the _strings_ of the recursive elements.
+        // otherwise sorting on the Symbols could lead to strange differences in the presence of accidental hash collisions
+        case \alt(set[Symbol] alts) : return "alt_<for (str e <- sort([v2i(elem) | elem <- alts])) {><e>_<}>"[..-1];
         case \iter-seps(Symbol s, [_]) : return "_iter_seps_<v2i(s)>";
         case \iter-star-seps(Symbol s, [Symbol sep]) : return "_iter_star_seps_<v2i(s)>_<v2i(sep)>";
         case \iter-seps(Symbol s, list[Symbol] seps) : return "_iter_seps_<v2i(s)>_<for (value elem <- seps) {><v2i(elem)>_<}>"[..-1];
