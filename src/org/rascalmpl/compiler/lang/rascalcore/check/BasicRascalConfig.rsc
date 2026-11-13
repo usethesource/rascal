@@ -209,6 +209,9 @@ data TypePalConfig(
     bool warnUnusedPatternFormals   = true,
     bool infoModuleChecked          = false,
 
+    bool errorsAsWarnings           = false,
+    bool warningsAsErrors           = false,
+
     loc reloc                       = |noreloc:///|,// Unused
 
     // Debugging options
