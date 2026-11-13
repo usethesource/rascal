@@ -441,7 +441,8 @@ public class TraversalEvaluator {
 		  }
 		  catch (MatchFailed e) {
 			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
-			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
+			  var got = e.functionType != null ? e.functionType.getFieldTypes() : tf.tupleType(args);
+			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), got, (AbstractAST) null);
 		  }
 
 		  if (memoize) {

@@ -229,12 +229,12 @@ public class ConstructorFunction extends NamedFunction {
 
 		// first we match to see if the actual parameters can fit the constructor's parameter types:
 	    if (fieldTypes.getArity() != actuals.length) {
-	        throw new MatchFailed();
+	        throw new MatchFailed(constructorType);
 	    }
 	    
 		for (int i = 0; i < actuals.length; i++) {
 		    if (!actuals[i].getType().isSubtypeOf(fieldTypes.getFieldType(i))) {
-		        throw new MatchFailed();
+		        throw new MatchFailed(constructorType);
 		    }
 		}
 		
