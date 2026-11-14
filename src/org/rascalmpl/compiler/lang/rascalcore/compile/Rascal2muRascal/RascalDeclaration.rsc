@@ -245,7 +245,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
 
-      if(hasIgnoreCompilerTag(ttags)){
+      if(ignoreForCompiler(ttags)){
         return;
       }
       inScope = topFunctionScope();

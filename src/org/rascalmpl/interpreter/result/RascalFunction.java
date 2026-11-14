@@ -286,8 +286,7 @@ public class RascalFunction extends NamedFunction {
                 }
 
                 String label = isAnonymous() ? "Anonymous Function" : name;
-                Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
-                environment.markAsFunctionFrame();
+                Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label, true);
                 ctx.setCurrentEnvt(environment);
 
                 IMatchingResult[] matchers = prepareFormals(ctx);
