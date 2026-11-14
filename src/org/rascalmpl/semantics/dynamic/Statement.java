@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedAppend;
@@ -122,6 +123,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				target = __eval.__getAccumulators().peek();
 			}
 			Result<IValue> result = this.getStatement().interpret(__eval);
+			if (result.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getStatement());
+			}
 			target.append(result);
 			return result;
 
@@ -220,6 +224,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			
 			Result<IValue> right = this.getStatement().interpret(__eval);
+			if (right.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getStatement());
+			}
 //			if(this.getAssignable().isSlice() && !this.getOperator().isDefault()){
 //				throw new UnsupportedOperation("Slicing assignment only implemented for simple assignment operator (=)", __eval.getCurrentAST());
 //			}
@@ -780,8 +787,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 			
-			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this
-					.getStatement().interpret(__eval));
+			Result<IValue> result = this.getStatement().interpret(__eval);
+			if (result.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getStatement());
+			}
+			throw new org.rascalmpl.interpreter.control_exceptions.Insert(result);
 
 		}
 
@@ -1003,8 +1013,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			throw new org.rascalmpl.exceptions.Throw(this
-					.getStatement().interpret(__eval).getValue(), __eval
+			Result<IValue> result = this.getStatement().interpret(__eval);
+			if (result.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getStatement());
+			}
+			throw new org.rascalmpl.exceptions.Throw(result.getValue(), __eval
 					.getCurrentAST().getLocation(), __eval.getStackTrace());
 		}
 

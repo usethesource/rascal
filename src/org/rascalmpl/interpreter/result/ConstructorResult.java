@@ -27,6 +27,7 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
@@ -208,6 +209,9 @@ public class ConstructorResult extends NodeResult {
                     else {
                         Expression def = kwparam.getExpression();
                         kwResult = def.interpret(ctx.getEvaluator());
+                        if (kwResult.getStaticType().isBottom()) {
+                            throw new NonVoidTypeRequired(def);
+                        }
                     }
                     
                     if (name.equals(label)) {

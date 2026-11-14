@@ -509,6 +509,127 @@ test bool O2() = checkModuleOK("
 		void main(){ int x = f(1, k=1); str y = f(\"a\"); z = f(true, \"a\"); z = f(\"a\", false); }
 	");
 	
+test bool voidFunctionInitializerIsRejected() = checkModuleAndFilter("
+    module VoidFunctionInitializerIsRejected
+        void f() {}
+        void main() { int a = f(); }
+    ", ["Variable initialization should not have type `void`"]);
+
+test bool overloadedVoidFunctionInitializerIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidFunctionInitializerIsRejected
+        int f(int x) = x;
+        void f(value x) {}
+        void main() { int a = f(1); }
+    ", ["Variable initialization should not have type `void`"]);
+
+test bool nonMatchingVoidOverloadInitializerIsAccepted() = checkModuleOK("
+    module NonMatchingVoidOverloadInitializerIsAccepted
+        int f(int x) = x;
+        void f(str x) {}
+        void main() { int a = f(1); }
+    ");
+
+test bool voidKeywordParameterDefaultIsRejected() = checkModuleAndFilter("
+    module VoidKeywordParameterDefaultIsRejected
+        void v() {}
+        int f(int k = v()) = k;
+    ", ["Default expression should not have type `void`"]);
+
+test bool voidKeywordFieldDefaultIsRejected() = checkModuleAndFilter("
+    module VoidKeywordFieldDefaultIsRejected
+        void v() {}
+        data D(int k = v()) = d();
+    ", ["Default expression should not have type `void`"]);
+
+test bool voidStringInterpolationIsRejected() = checkModuleAndFilter("
+    module VoidStringInterpolationIsRejected
+        void v() {}
+        str f() = \"\<v()\>\";
+    ", ["Interpolated expression should not have type `void`"]);
+
+test bool voidLocationInterpolationIsRejected() = checkModuleAndFilter("
+    module VoidLocationInterpolationIsRejected
+        void v() {}
+        loc f() = |file:///\<v()\>|;
+    ", ["Interpolated expression should not have type `void`"]);
+
+test bool voidConditionIsRejected() = checkModuleAndFilter("
+    module VoidConditionIsRejected
+        void v() {}
+        void f() { if (v()) { ; } }
+    ", ["Condition should not have type `void`"]);
+
+test bool voidWhenConditionIsRejected() = checkModuleAndFilter("
+    module VoidWhenConditionIsRejected
+        void v() {}
+        int f() = 1 when v();
+    ", ["Condition should not have type `void`"]);
+
+test bool voidTernaryConditionIsRejected() = checkModuleAndFilter("
+    module VoidTernaryConditionIsRejected
+        void v() {}
+        value f() = v() ? 1 : 2;
+    ", ["Condition in conditional expression should not have type `void`"]);
+
+test bool voidThrowIsRejected() = checkModuleAndFilter("
+    module VoidThrowIsRejected
+        void v() {}
+        void f() { throw v(); }
+    ", ["Thrown value should not have type `void`"]);
+
+test bool voidInsertIsRejected() = checkModuleAndFilter("
+    module VoidInsertIsRejected
+        void v() {}
+        int f(int n) = visit(n) { case int _: insert v(); };
+    ", ["Inserted value should not have type `void`"]);
+
+test bool voidAppendIsRejected() = checkModuleAndFilter("
+    module VoidAppendIsRejected
+        void v() {}
+        void f() { for (_ \<- [1]) append v(); }
+    ", ["Appended value should not have type `void`"]);
+
+test bool voidParseExpressionIsRejected() = checkModuleAndFilter("
+    module VoidParseExpressionIsRejected
+        void v() {}
+        value f() = [int] v();
+    ", ["Argument of parse expression `[_] _` should not have type `void`"]);
+
+test bool overloadedVoidBinaryOperandIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidBinaryOperandIsRejected
+        int g(int x) = x;
+        void g(value x) {}
+        value f() = g(1) + 1;
+    ", ["`addition` cannot be applied to argument of type `void`"]);
+
+test bool overloadedVoidUnaryOperandIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidUnaryOperandIsRejected
+        int g(int x) = x;
+        void g(value x) {}
+        value f() = -g(1);
+    ", ["`negative` cannot be applied to argument of type `void`"]);
+
+test bool overloadedVoidSpliceIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidSpliceIsRejected
+        list[int] h(int x) = [x];
+        void h(value x) {}
+        value f() = [*h(1)];
+    ", ["`splice` cannot be applied to argument of type `void`"]);
+
+test bool overloadedVoidEnumerationIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidEnumerationIsRejected
+        list[int] h(int x) = [x];
+        void h(value x) {}
+        value f() = [x | x \<- h(1)];
+    ", ["Enumerated expression should not have type `void`"]);
+
+test bool overloadedVoidFieldSelectionIsRejected() = checkModuleAndFilter("
+    module OverloadedVoidFieldSelectionIsRejected
+        data Article = article(str name);
+        void article(value args...) {}
+        value f() = Article::article(\"a\").name;
+    ", ["Base expression of field selection should not have type `void`"]);
+
 test bool K1() = checkModuleOK("
 	module K1
 		data D(int n = 0) = d1();
