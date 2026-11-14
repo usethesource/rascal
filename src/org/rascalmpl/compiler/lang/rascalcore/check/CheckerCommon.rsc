@@ -251,12 +251,11 @@ tuple[bool,ModuleStatus] isModuleModified(MODID moduleId, datetime timestamp, Pa
     }
 }
 
-bool tplOutdated(MODID moduleId, PathConfig pcfg){
+bool tplOutdated(MODID moduleId, ModuleStatus ms){
     try {
-        qualifiedModuleName = moduleId2moduleName(moduleId);
-        mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+        mloc = getRascalModuleLocation(moduleId, ms);
         if(endsWith(mloc.path, "tpl")) return false;
-        <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
+        <found, tpl> = getTPLReadLoc(moduleId, ms.pathConfig);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
         res = !found || lmMloc > lmTpl;
@@ -274,7 +273,6 @@ Module dummyModule = [Module] "module DummyModule";
 tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatus ms){
     assert isModuleId(moduleId) : "getModuleParseTree: <moduleId>";
     pcfg = ms.pathConfig;
-    qualifiedModuleName = moduleId2moduleName(moduleId);
     if(ms.parseTrees[moduleId]?){
         if(traceParseTreeCache) println("*** using cached parse tree for <moduleId>");
         return <true, ms.parseTrees[moduleId], ms>;
@@ -289,12 +287,13 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(MODID moduleId, ModuleStatu
             mloc = moduleId;
             try {
                 mloc = getRascalModuleLocation(moduleId, ms);
-                // Make sure we found a real source module (as opposed to a tpl module in a library
+                // Make sure we found a real source module (as opposed to a tpl module in a library)
                 if(isModuleLocationInLibs(mloc, pcfg)) {
                     ms = addProperty(moduleId, ms, tpl_from_library());
                     throw "No src or library module";
                 }
             } catch e: {
+                qualifiedModuleName = moduleId2moduleName(moduleId);
                 ms.messages[moduleId] ? {} += {error("Module `<qualifiedModuleName>` not found", mloc)};
                 ms.moduleLocs[moduleId] = mloc;
                 return <false, dummyModule, ms>;

@@ -166,31 +166,49 @@ list[Message] compile(list[str] qualifiedModuleNames, RascalCompilerConfig compi
 int main(
     PathConfig pcfg               = pathConfig(), 
     list[loc] \modules            = [],
-    bool logPathConfig            = false,
-    bool logImports               = false,
-    bool verbose                  = false,
-    bool logWrittenFiles          = false,
+    // Control message level
     bool warnUnused               = true,
     bool warnUnusedFormals        = true,
     bool warnUnusedVariables      = true,
     bool warnUnusedPatternFormals = true,
     bool infoModuleChecked        = false,
+
     bool errorsAsWarnings         = false,
-    bool warningsAsErrors         = false
+    bool warningsAsErrors         = false,
+
+    // Debugging options
+    bool verbose                  = false,
+    bool logImports               = false,
+    bool logWrittenFiles          = false,
+    bool logPathConfig            = false,
+   
+   // Code generation options
+    bool optimizeVisit            = true,         // Options for compiler developer
+    bool enableAsserts            = true,    
+    loc license                   = |unknown:///|
     ) {
 
     pcfg.generatedResources = pcfg.bin;
     pcfg.generatedTestResources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
-        logPathConfig            = logPathConfig,
-        verbose                  = verbose,
-        logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
         warnUnusedFormals        = warnUnusedFormals,
         warnUnusedVariables      = warnUnusedVariables,
         warnUnusedPatternFormals = warnUnusedPatternFormals,
-        infoModuleChecked        = infoModuleChecked
+        infoModuleChecked        = infoModuleChecked,
+
+        errorsAsWarnings         = errorsAsWarnings,
+        warningsAsErrors         = warningsAsErrors,
+        
+        verbose                  = verbose,
+        logImports               = logImports,
+        logWrittenFiles          = logWrittenFiles,
+        logPathConfig            = logPathConfig,
+        
+        optimizeVisit            = optimizeVisit,
+        enableAsserts            = enableAsserts,
+        license                  = license
     );
 
     list[Message] messages = [];

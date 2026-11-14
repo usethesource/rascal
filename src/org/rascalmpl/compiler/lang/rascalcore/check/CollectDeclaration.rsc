@@ -82,7 +82,7 @@ void collect(Module current, Collector c){
 
     tagsMap = getTags(header.tags);
 
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(header.name, "Ignoring module <mname>"));
         return;
     }
@@ -112,7 +112,7 @@ list[CodeAction] moduleNameProposal(QualifiedName moduleName, str proposedName)
 FailMessage moduleNameMessage(loc mloc, QualifiedName qualifiedModuleName, str mname, PathConfig pcfg){
     msg = error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, mloc.top);
     try {
-        proposal = getRascalModuleName(mloc, pcfg);
+        proposal = moduleId2moduleName(mloc);
         msg.fixes = moduleNameProposal(qualifiedModuleName, proposal);
     } catch _: /* ignore any exceptions */;
     return msg;
@@ -176,7 +176,7 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(current, "Ignoring variable declaration"));
         return;
     }
@@ -226,7 +226,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     c.report(warning(current, "Annotations are deprecated, use keyword fields instead"));
 
     tagsMap = getTags(tags);
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(current, "Ignoring anno declaration for `<pname>`"));
         return;
     }
@@ -282,7 +282,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     ppfname = prettyPrintName(fname);
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(fname, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
@@ -755,7 +755,7 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name> = <Type base>;`, Collector c){
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
@@ -773,7 +773,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     aliasName = prettyPrintName(name);
     tagsMap = getTags(tags);
 
-    if(hasIgnoreCompilerTag(tagsMap)) {
+    if(ignoreForCompiler(tagsMap)) {
         c.report(info(name, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }

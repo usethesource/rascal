@@ -67,7 +67,7 @@ bool matches(str subject, str pat){
 
 tuple[str,str] extractModuleNameAndBody(str moduleText){
 	txt = trim(moduleText);
-	if(/module\s*<nm:[A-Za-z0-9:]*>\s*<body:.*$>/s := txt){
+	if(/module\s*<nm:[A-Za-z0-9:\\]*>\s*<body:.*$>/s := txt){
 		return <nm, body>;
 	}
 	throw "Cannot extract module name from <moduleText>";
@@ -86,7 +86,7 @@ void clearMemory() {
 	remove(testRoot, recursive = true);
 }
 str cleanName(str name)
-	= name[0] == "\\" ? name[1..] : name;
+	= replaceAll(name, "\\", "");
 
 loc writeModule(str moduleText, str altName="", str altPath=""){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
@@ -195,7 +195,6 @@ bool checkModulesOK(list[loc] modulesToCheck, PathConfig pathConfig = pathConfig
 }
 
 bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting()){
-	<mname, mbody> = extractModuleNameAndBody(moduleText);
 	pathConfig.srcs += pathConfigForTesting().srcs;
 	mloc = writeModule(moduleText);
 	return checkModuleOK(mloc, pathConfig=pathConfig);
@@ -519,9 +518,24 @@ bool illegalUseInModule(str moduleText, PathConfig pathConfig = getDefaultTestin
 bool illegalUseInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
 	= checkModuleAndFilter([mloc], illegalUseMsgs, pathConfig=pathConfig);
 
-
 bool illegalUse(str stmts) =
     checkStatementsAndFilter(stmts, illegalUseMsgs);
+
+// ---- ignored ------------------------------------------------------------
+
+list[str] ignoredMsgs = [
+	"Ignoring _"
+];
+
+bool ignoredInModule(str moduleText, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter(moduleText, ignoredMsgs, pathConfig=pathConfig);
+
+bool ignoredInModule(loc mloc, PathConfig pathConfig = getDefaultTestingPathConfig())
+	= checkModuleAndFilter([mloc], ignoredMsgs, pathConfig=pathConfig);
+
+
+bool ignored(str stmts) =
+    checkStatementsAndFilter(stmts, ignoredMsgs);
 
 // ---- nonVoidType ----------------------------------------------------------
 
