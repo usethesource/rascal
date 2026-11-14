@@ -650,6 +650,7 @@ test bool voidInitializerIsRejected() {
 data Article = article(str name);
 void article(value args...) {}
 
+// TODO: turn ignore into igoreCompiler after next release, now  rascal-0.43.3
 @ignoreCompiler{The type checker rejects a void initializer.}
 @expected{UnexpectedType}
 test bool qualifiedVoidInitializerIsRejected() {
