@@ -45,7 +45,7 @@ java HTMLElement readHTMLString(str content, loc base=|http://localhost|, bool t
 This function uses [JSoup's](http://www.jsoup.org) DOM functionality to 
 yield a syntactically correct (X)HTML string.
 
-* `normalise`: when true arbitrary HTML elements will be nested in a <body> and a <html> wrapper
+* `normalise`: when true arbitrary HTML elements will be nested in a `<body>` and a `<html>` wrapper
 * `dropOrigins`: any additional `src` origin attributes will not be serialized into the HTML document
 * the other options are JSoup options.
 }

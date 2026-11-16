@@ -13,22 +13,34 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Vector;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.Environment;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
+import org.rascalmpl.interpreter.utils.profiler.DummyFormatter;
+import org.rascalmpl.interpreter.utils.profiler.DummySampler;
+import org.rascalmpl.interpreter.utils.profiler.Sampler;
+import org.rascalmpl.interpreter.utils.profiler.TempFileSampler;
+import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Expression.QualifiedName;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+import org.rascalmpl.semantics.dynamic.Statement.Expression;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
 	int ticks;
@@ -43,6 +55,10 @@ class Count {
 	
 	public int getTicks(){
 		return ticks;
+	}
+
+	public double percentageOf(long nTicks){
+		return (ticks * 100.0) / nTicks;
 	}
 
 	@Override
@@ -76,51 +92,32 @@ public class Profiler extends Thread {
 	private Evaluator eval;
 	private volatile boolean running;
 	private long resolution = 1;
-	private final Map<ISourceLocation,Count> ast;
-	private final Map<ISourceLocation, Count> frame;
-	private final Map<ISourceLocation, String> names;
+	
+	private final Sampler sampler;
 	
 	public Profiler(Evaluator ev){
 		super("Rascal-Sampling-Profiler");
 		this.eval = ev;
-		this.ast = new HashMap<>();
-		this.frame = new HashMap<>();
-		this.names = new HashMap<>();
+		this.sampler = createSampler(ev);
 		running = true;
+	}
+
+	private static Sampler createSampler(Evaluator ev) {
+		if (ev.getConfiguration().getProfileFmtProperty() instanceof DummyFormatter) {
+			return new DummySampler(); // Don't sample when there won't be formatting
+		}
+
+		try {
+			return new TempFileSampler(ev);
+		} catch (IOException e) {
+			return new DummySampler(); // Don't sample when the temp file is problematic
+		}
 	}
 	
 	@Override
 	public void run(){
 		while(running) {
-			AbstractAST current = eval.getCurrentAST();
-			Environment env = eval.getCurrentEnvt();
-			String name = env.getName();
-			
-			if (current != null) {
-				ISourceLocation stat = current.getLocation();
-				if(stat != null){
-					Count currentCount = ast.get(stat);
-					if (currentCount == null) {
-						ast.put(stat, new Count());
-						names.put(stat, name);
-					} else {
-						currentCount.increment();
-					}
-				}
-					while (env.getParent() != null && !env.getParent().isRootScope() && !env.isFunctionFrame()) {
-						env = env.getParent();
-					}
-				if (env != null) {
-					Count currentCount = frame.get(env.getCreatorLocation());
-					if (currentCount == null) {
-						frame.put(env.getCreatorLocation(), new Count());
-						names.put(env.getCreatorLocation(), env.getName());
-					}
-					else {
-						currentCount.increment();
-					}
-				}
-			}
+			sampler.produceSample();
 			try {
 				sleep(resolution);
 			} catch (InterruptedException e) {
@@ -149,38 +146,76 @@ public class Profiler extends Thread {
 	  return sortedData;
 	}
 	
-	public IList getProfileData(){
-		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		IListWriter w = VF.listWriter();
-		for(Map.Entry<ISourceLocation, Count> e : sortData(ast)){
-			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
-		}
-		return w.done();
-	}
-	
 	public void report() {
-		report("FRAMES", frame);
+		var summaries = Summaries.of(sampler);
+		reportSummary("FRAMES", summaries.frames, summaries.names);
 		eval.getOutPrinter().println();
-		report("ASTS", ast);
+		reportSummary("ASTS", summaries.asts, summaries.names);
+		eval.getOutPrinter().println();
+		reportFormatted();
+		eval.getOutPrinter().println();
+
+		sampler.close();
+	}
+
+	private static class Summaries {
+		public final Map<ISourceLocation, Count> frames;
+		public final Map<ISourceLocation, Count> asts;
+		public final Map<ISourceLocation, String> names;
+
+		public Summaries(HashMap<ISourceLocation, Count> frames, HashMap<ISourceLocation, Count> asts, HashMap<ISourceLocation, String> names) {
+			this.frames = frames;
+			this.asts = asts;
+			this.names = names;
+		}
+
+		public static Summaries of(Sampler sampler) {
+			var frames = new HashMap<ISourceLocation, Count>();
+			var asts = new HashMap<ISourceLocation, Count>();
+			var names = new HashMap<ISourceLocation, String>();
+
+			sampler.consumeSamples(samples -> {
+				samples.forEach(s -> {
+					var frame = s.callStack.top().callee;
+					var ast = s.callStack.programCounter;
+					var name = s.callStack.top().name;
+					update(frames, names, frame, name);
+					update(asts, names, ast, name);
+				});
+			});
+
+			return new Summaries(frames, asts, names);
+		}
+
+		private static void update(Map<ISourceLocation, Count> data, Map<ISourceLocation, String> names, ISourceLocation key, String name) {
+			var count = data.get(key);
+			if (count == null) {
+				data.put(key, new Count());
+				names.put(key, name);
+			} else {
+				count.increment();
+			}
+		}
 	}
 	
-	private void report(String title, Map<ISourceLocation, Count> data) {
+	private void reportSummary(String title, Map<ISourceLocation, Count> data, Map<ISourceLocation, String> names) {
 	  List<Map.Entry<ISourceLocation, Count>> sortedData = sortData(data);
 
 	  int maxName = 1;
-	  long nTicks = 0;
+	  long nTicks = sortedData.stream().map(Map.Entry::getValue).collect(Collectors.summingLong(Count::getTicks));
+
+	  sortedData = sortedData.stream().filter(e -> e.getValue().percentageOf(nTicks) >= 1.0).collect(Collectors.toList());
 
 	  for(Map.Entry<ISourceLocation, Count> e : sortedData){
 	    int sz = names.get(e.getKey()).length();
 	    if(sz > maxName) {
 	      maxName = sz;
 	    }
-	    nTicks += e.getValue().getTicks();
 	  }
 	  
 	  PrintWriter out = eval.getOutPrinter();
 	  String nameFormat = "%" + maxName + "s";
-	  out.printf(title + " PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", ast.size(), nTicks, resolution);
+	  out.printf(title + " PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
 	  out.printf(nameFormat + "%8s%9s  %s\n", " Scope", "Ticks", "%", "Source");
 
 	  for (Map.Entry<ISourceLocation, Count> e : sortedData) {
@@ -188,12 +223,8 @@ public class Profiler extends Thread {
 	    String name = names.get(e.getKey());
 	    
 	    int ticks = e.getValue().getTicks();
-	    double perc = (ticks * 100.0)/nTicks;
-	    
-	    if (perc < 1.0) {
-	    	break;
-	    }
-	    
+	    double perc = e.getValue().percentageOf(nTicks);
+
 	    String source = String.format("%s", L);
 
 	    out.printf(nameFormat + "%8d%8.1f%%  %s\n", name, ticks, perc, source);
@@ -203,4 +234,65 @@ public class Profiler extends Thread {
 	  out.flush();
 	}
 
+	private void reportFormatted() {
+		var fmt = eval.getConfiguration().getProfileFmtProperty();
+		var dir = eval.getConfiguration().getProfileDirProperty();
+		var file = dir.resolve("profile" + dateTimeHint() + functionNameHint(eval.getCurrentAST()) + "." + fmt.getExtension());
+		var link = dir.resolve("profile-latest." + fmt.getExtension());
+
+		// Create file
+		var message = "";
+		try (var writer = Files.newBufferedWriter(file)) {
+			sampler.consumeSamples(samples -> fmt.format(writer, samples));
+			message = URIUtil.createFileLocation(file).toString();
+		} catch (URISyntaxException | IOException e){
+			message = String.format("Failed to write data (%s)", e);
+		}
+
+		// Create symbolic link (preferred) or copy (fallback) with a predictable name (e.g., useful if a separate
+		// post-processing script/tool needs to be run on the file, such as `flamegraph.pl`).
+		try {
+			Files.createSymbolicLink(link, file);
+		} catch (IOException e1) {
+			try {
+				Files.copy(file, link, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e2) {
+				// Minor inconvenience but not of crucial importance; ok to ignore.	
+			}
+		}
+
+		// Print to out
+		var out = eval.getOutPrinter();
+		out.printf("FORMATTED PROFILE: %s\n", message);
+		out.flush();
+	}
+
+	private static String dateTimeHint() {
+		var dateTime = Instant.now().atZone(ZoneId.systemDefault()).toString();
+		dateTime = dateTime.replaceAll("[:\\-]", "");
+		dateTime = dateTime.substring(0, 15);
+		return "-" + dateTime;
+	}
+
+	private static String functionNameHint(AbstractAST ast) {
+		// Traverse `ast`
+		if (ast instanceof Expression) {
+			ast = ((Expression) ast).hasExpression() ? ((Expression) ast).getExpression() : ast;
+		}
+		if (ast instanceof CallOrTree) {
+			ast = ((CallOrTree) ast).hasExpression() ? ((CallOrTree) ast).getExpression() : ast;
+		}
+		if (ast instanceof QualifiedName) {
+			ast = ((QualifiedName) ast).hasQualifiedName() ? ((QualifiedName) ast).getQualifiedName() : ast;
+		}
+		
+		// Compute the hint (if possible)
+		var hint = "";
+		if (ast instanceof Default) {
+			hint = ((Default) ast).lastName();
+			hint = hint.replaceAll("[\\\\]", "");
+			hint = "-" + hint;
+		}
+		return hint;
+	}
 }

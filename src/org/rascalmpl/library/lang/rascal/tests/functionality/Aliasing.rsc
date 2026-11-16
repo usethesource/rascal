@@ -60,6 +60,14 @@ test bool aliasAndADT2() {
     Transitions = {<1,2,3>}; 
     return true;
 }
+
+alias IntList = list[int];
+
+test bool assignThroughListAlias() {
+  IntList values = [1, 2];
+  values[0] = 3;
+  return values == [3, 2];
+}
 		  
 alias trans = tuple[str, str, str]; 
 alias block = set[trans];

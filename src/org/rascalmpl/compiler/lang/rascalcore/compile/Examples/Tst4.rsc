@@ -24,11 +24,14 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::compile::Examples::Tst4  
-
-import ParseTree;
-
-syntax A = "a";
-test bool optEmpty() = value _ := parse(#(A?), "");
-
-test bool empty() = value _ := parse(#(), "");
+module lang::rascalcore::compile::Examples::Tst4   
+      
+@synopsis{Pretty prints nodes and ADTs using ASCII art for the edges.}
+str prettyNode(bool keywords=true) { 
+  lrel[str,value] edges(node k)              = [] when keywords;
+  default lrel[str,value] edges(value _)     = [];
+         
+  return ppvalue(edges);
+}
+private str ppvalue(lrel[str,value](value) edges)   = ""; 
+           

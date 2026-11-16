@@ -61,7 +61,7 @@ public class SourceLocationClassLoader extends ClassLoader {
         for (IValue elem : locs) {
             try {
                 // for efficiency's sake, we try to resolve as many locations to the file:/// scheme
-                ISourceLocation loc = reg.logicalToPhysical((ISourceLocation) elem);
+                ISourceLocation loc = reg.resolveIfLogical((ISourceLocation) elem);
 
                 // because they all get `this` as the parent, the classloaders will be able to refer to each
                 // other like in normal JVM classpath also works. The order of lookup is defined by the current 

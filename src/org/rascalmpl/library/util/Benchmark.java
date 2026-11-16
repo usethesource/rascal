@@ -48,7 +48,7 @@ public class Benchmark {
 	
 	public void heapDump(ISourceLocation loc, IBool live) {
 	    try {
-	        loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+	        loc = URIResolverRegistry.getInstance().resolveIfLogical(loc);
 	        
 	        if (!"file".equals(loc.getScheme())) {
 	            throw RuntimeExceptionFactory.illegalArgument(loc, null, null);
