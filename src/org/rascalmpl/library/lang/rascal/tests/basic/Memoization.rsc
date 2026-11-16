@@ -38,7 +38,7 @@ test bool memoCalledCorrectly2(set[value] x) {
 test bool memoExpire() {
     int callCount2 = 0;
 
-    @memo=maximumSize(10)
+    @memo={maximumSize(10)}
     int call2(int i) {
         callCount2 += 1;
         return callCount2;

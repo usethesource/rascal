@@ -611,7 +611,14 @@ test bool mvnSchemeTest() {
 }
 
 
-test bool fileWorks() = testLocWorksRoot(resolveLocation(|home:///|));
+test bool fileWorks() {
+    loc safePlace = |tmp:///testing/writes/|;
+    mkDirectory(safePlace);
+    writeFile(safePlace + "a", "Hello");
+    writeFile(safePlace + "b/c", "Hello");
+    writeFile(safePlace + "b/d/e", "Hello");
+    return testLocWorksRoot(resolveLocation(safePlace));
+}
 
 test bool memoryWorks() {
     loc memTest = |memory://locations-loc-test|;
@@ -636,22 +643,22 @@ test bool mavenWorks() {
 private bool testLocWorksRoot(loc existing,bool isWritable = true) {
     println("Start file path: <existing>");
     assert exists(existing) : "Start loc should exist";
-    testLocWorks(existing, isWritable);
+    testLocWorks(existing, isWritable, false);
 
     loc subPath = findFile(existing);
     println("Sub path: <subPath>");
     assert exists(subPath) : "Subpath should exist";
-    testLocWorks(subPath, isWritable);
+    testLocWorks(subPath, isWritable, true);
 
     subPath = findDirectory(existing);
     println("Sub path: <subPath>");
     assert exists(subPath) : "Subpath should exist";
-    testLocWorks(subPath, isWritable);
+    testLocWorks(subPath, isWritable, false);
 
     loc nonExisting = existing + "not$__$there";
     println("Not existing: <nonExisting>");
     assert !exists(nonExisting) : "Subpath should exist";
-    testLocWorks(nonExisting, isWritable);
+    testLocWorks(nonExisting, isWritable, true);
 
     return true;
 }
@@ -676,7 +683,7 @@ private loc findDirectory(loc l) {
     throw "There should be at least a single directory inside of it";
 }
 
-private void testLocWorks(loc l, bool shouldWrite) {
+private void testLocWorks(loc l, bool shouldWrite, bool shouldBeFile) {
     println("\texists: <exists(l)>");
     println("\tisFile: <isFile(l)>");
     println("\tisDirectory: <isDirectory(l)>");
@@ -690,20 +697,39 @@ private void testLocWorks(loc l, bool shouldWrite) {
             println("\tisWriteable: <isWritable(l)>");
             println("\tisReadable: <isReadable(l)>");
         }
+        if (l.path != "/") {
+            newL = l.parent + "-new";
+            if (shouldWrite) {
+                rename(l, newL, overwrite = true);
+                println("\trename: <exists(newL)>");
+                // returning it
+                rename(newL, l, overwrite = true);
+
+            }
+            else {
+                failed = false;
+                try {
+                    rename(l, newL, overwrite = true);
+                }
+                catch IO(_): failed = true;
+                if (!failed) {
+                    throw "renaming should fail";
+                }
+            }
+        }
     }
     else if (shouldWrite) {
         try {
             remove(l);
         }
         catch IO(_): throw "Removing file that does not exist should not cause an exception";
-        if (isFile(l)) {
+        if (!shouldBeFile && l.path != "/") {
             copyLoc = l.parent + "nested";
             copy(l.parent, copyLoc, recursive=true, overwrite=true);
             sameContents = readFile(l) == readFile(copyLoc + l.file);
             println("\tcopy: <sameContents>");
             assert sameContents: "It should be possible to copy a file";
         }
-
     }
 
     if (!exists(l) || !isDirectory(l)) {

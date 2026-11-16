@@ -29,10 +29,47 @@ module lang::rascalcore::check::tests::ImportTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
+import IO;
+import util::PathConfig;
+import lang::rascalcore::check::TestConfigs;
+
 test bool ImportError() = missingModuleInModule("
 	module ImportError
 		import zap;
 	");
+
+test bool ModuleNameMismatch1() {
+	pcfg = getDefaultTestingPathConfig();
+	remove(pcfg.bin);
+	remove(pcfg.srcs[0]);
+
+	m = writeModule("module B", altName = "A");
+	return unexpectedDeclarationInModule(m, pathConfig=pcfg);
+}
+
+test bool ModuleNameMismatch2() {
+	pcfg = getDefaultTestingPathConfig();
+	remove(pcfg.bin);
+	remove(pcfg.srcs[0]);
+
+	m = writeModule("module B\n\nimport IO;", altName = "A");
+	return unexpectedDeclarationInModule(m, pathConfig=pcfg);
+}
+
+test bool EscapedModuleName()
+	= checkModuleOK("module foo::\\bar::A");
+
+test bool ImportEscapedModuleName1()
+	= checkModuleOK("module foo::\\bar::B")
+	&& checkModuleOK("module foo::\\bar::C import foo::\\bar::B;");
+
+test bool ImportEscapedModuleName2()
+	= checkModuleOK("module foo::\\bar::D")
+	&& checkModuleOK("module E import foo::bar::D;");
+
+test bool ImportEscapedModuleName3()
+	= checkModuleOK("module foo::bar::F")
+	&& checkModuleOK("module G import foo::\\bar::F;");
 
 test bool UndefinedPrivateVar1(){
 	writeModule("module M private int m = 3;");
@@ -337,6 +374,32 @@ test bool indirectExtendOk(){
 	writeModule("module A int f() = 42;");
 	writeModule("module B extend A;");
 	return checkModuleOK("module C extend B; int main() = f();");
+}
+
+test bool importViaExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module B import A;");
+	return checkModuleOK("module C extend B; int b = a + 1;");
+}
+
+test bool importViaIndirectExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module B import A;");
+	writeModule("module C extend B;");
+	return checkModuleOK("module D extend C; int b = a + 1;");
+}
+
+test bool importViaExtendOfImportedExtendPublicVariableOk(){
+	writeModule("module A public int a = 0;");
+	writeModule("module X extend A;");
+	writeModule("module B import X;");
+	return checkModuleOK("module C extend B; int b = a + 1;");
+}
+
+test bool importViaExtendPrivateVariableNotOk(){
+	writeModule("module A int a = 0;");
+	writeModule("module B import A;");
+	return undeclaredVariableInModule("module C extend B; int b = a + 1;");
 }
 
 test bool extendWithImportCycleOK(){

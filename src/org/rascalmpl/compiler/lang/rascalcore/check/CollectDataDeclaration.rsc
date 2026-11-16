@@ -57,8 +57,8 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     adtName = prettyPrintName(userType.name);
     
     tagsMap = getTags(tags);
-    if(hasIgnoreCompilerTag(tagsMap)) { 
-        c.report(info(adtName, "Ignoring declaration of `<adtName>`"));
+    if(ignoreForCompiler(tagsMap)) { 
+        c.report(info(userType.name, "Ignoring declaration of `<adtName>`"));
         return;
     }
     
