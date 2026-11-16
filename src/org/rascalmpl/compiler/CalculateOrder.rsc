@@ -114,26 +114,24 @@ private int totalSize(list[set[&T]] Vs, map[&T, int] sizes) = (0 | it + sizes[v]
 private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
     return job("Trying random clusters", Graph[set[&T]] (void (str msg, int worked) step) {
         bestSplit = [];
-        bestCommon = [verts(scc)];
-        sizes = ( c : (0 | it + __getFileSize(f) | f <- c) | c <- bestCommon[0]);
+        sizes = ( c : (0 | it + __getFileSize(f) | f <- c) | c <- verts(scc));
+        bestCommon = sum(range(sizes));
         for (_ <- [0..1000]) {
             step("", 1);
-            <chunks, common> = tryChunk(scc, parAmount, sizes);
-            if (totalSize(common, sizes) > totalSize(bestCommon, sizes)) {
-                continue;
-            }
-            if (size(common) == parAmount && balancedScore(common, sizes) > balancedScore(bestCommon, sizes)) {
+            <chunks, _> = tryChunk(scc, parAmount, sizes);
+            commonSize = totalSize((chunks[0] | it & c | c <- chunks), sizes);
+            if (commonSize > bestCommon) {
                 continue;
             }
             // now we know that common is better
             if (balancedScore(chunks, sizes) <= balancedScore(bestSplit, sizes)) {
                 bestSplit = chunks;
-                bestCommon = common;
+                bestCommon = commonSize;
             }
         }
         iprintln(bestSplit);
         iprintln(bestCommon);
-        return flatten(bestSplit, bestCommon, scc);
+        return flatten(bestSplit, [], scc);
     }, totalWork = 1000);
 }
 
