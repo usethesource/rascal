@@ -41,13 +41,14 @@ Graph[set[loc]] mergeHighlyConnectedCluster(Graph[set[loc]] scc, int clusterSize
 Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     done = {};
     todo = modules;
-    result = {};
+    Graph[loc] result = {};
     while (todo != {}) {
-        <current, todo> = takeOneFrom(todo);
-        newGraph = moduleDependencies(current, pcfg);
-        done += current;
-        todo += newGraph<1> - done;
-        result += newGraph;
+        nextRound = {};
+        for (current <- todo) {
+            result += moduleDependencies(current, pcfg);
+        }
+        done += todo;
+        todo = result<1> - done;
     }
     return result;
 }
@@ -73,6 +74,7 @@ Graph[loc] moduleDependencies(loc file, PathConfig pcfg) {
 }
 
 
+@memo
 private set[&T] verts(Graph[&T] G) = G<0> + G<1>;
 
 private Graph[set[&T]] chunkIt(Graph[set[&T]] scc, int amountOf) {
@@ -80,8 +82,11 @@ private Graph[set[&T]] chunkIt(Graph[set[&T]] scc, int amountOf) {
     return {*chunkCluster({t | t:<set[&T] a, set[&T] b> <- scc, a in c || b in c}, amountOf) | c <- clusters};
 }
 
+@memo
 private int nestedSize(Graph[set[&T]] component) = (0 | it + size(s) | s <- domain(component));
+@memo
 private int nestedSize(set[set[&T]] component) = (0 | it + size(s) | s <- component);
+@memo
 private int nestedSize(list[set[&T]] component) = (0 | it + size(s) | s <- component);
 
 int balancedScore([]) = 10000;
@@ -104,7 +109,7 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
             if (size(common) == size(bestCommon) && nestedSize(bestCommon) < nestedSize(common)) {
                 continue;
             }
-            if (balancedScore(bestCommon) < balancedScore(common)) {
+            if (size(common) > 1 && balancedScore(bestCommon) < balancedScore(common)) {
                 continue;
             }
             // now we know that common is better
@@ -117,25 +122,29 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
     }, totalWork = 1000);
 }
 
+@memo
+private Graph[&T] trans(Graph[&T] g) = g+; 
+
 private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSize) {
-    sccFull = scc+;
+    sccFull = trans(scc);
     candidates = verts(scc) - {{}};
     list[set[&T]] chunks = [ {} | _ <- [0..chunkSize]];
+    list[int] chunkSizes = [0 | _ <- [0..chunkSize]];
     while (candidates != {}) {
-        <c, candidates> = takeOneFrom(candidates);
+        c = getOneFrom(candidates);
+
         // take c and all of it's imports
         chunk = {c} + sccFull[{c}];
         candidates -= chunk;
-        chunks[arbInt(chunkSize)] += chunk;
+
+        smallest = ( 0 | chunkSizes[i] < chunkSizes[it] ? i : it | i <- [0..chunkSize]);
+        chunks[smallest] += chunk;
+        chunkSizes[smallest] += nestedSize(chunk);
     }
-    shared = {s | s <- domain(scc), (0 | it + (s in c ? 1 : 0) | c <- chunks) > (chunkSize / 2) };
+    shared = (chunks[0] | it & c | c <- chunks);
     shared += sccFull[shared];
     chunks = [newC | c <- chunks, newC := c - shared, newC != {}]; 
-    splitShared = [*connectedComponents(scc & (shared*shared))];
-    if (size(splitShared) > 1) {
-        println("!!!: <size(splitShared[0])> <size(splitShared[1])>");
-    } 
-    return <chunks, splitShared>;
+    return <chunks, [shared]>;
 }
 
 private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] common, Graph[set[&T]] scc) {
