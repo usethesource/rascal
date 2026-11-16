@@ -623,12 +623,19 @@ test bool overloadedVoidEnumerationIsRejected() = checkModuleAndFilter("
         value f() = [x | x \<- h(1)];
     ", ["Enumerated expression should not have type `void`"]);
 
-@ignore{Explore: why is the error message below not produced?}
+// The ADT qualifier excludes the void function, so only the constructor remains
+test bool qualifiedConstructorFieldSelectionIsAccepted() = checkModuleOK("
+    module QualifiedConstructorFieldSelectionIsAccepted
+        data Article = article(str name);
+        void article(value _...) {}
+        value f() = Article::article(\"a\").name;
+    ");
+
 test bool overloadedVoidFieldSelectionIsRejected() = checkModuleAndFilter("
     module OverloadedVoidFieldSelectionIsRejected
         data Article = article(str name);
-        void article(value args...) {}
-        value f() = Article::article(\"a\").name;
+        void article(value _...) {}
+        value f() = article(\"a\").name;
     ", ["Base expression of field selection should not have type `void`"]);
 
 test bool K1() = checkModuleOK("

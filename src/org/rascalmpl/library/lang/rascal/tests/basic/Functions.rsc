@@ -650,12 +650,16 @@ test bool voidInitializerIsRejected() {
 data Article = article(str name);
 void article(value args...) {}
 
-// TODO: turn ignore should be igoreCompiler.
-// TODO: Explore why this test fails
-@ignore{The type checker rejects a void initializer.}
-@expected{UnexpectedType}
-test bool qualifiedVoidInitializerIsRejected() {
+// The ADT qualifier excludes the void function, so only the constructor remains
+test bool qualifiedConstructorInitializerIsAccepted() {
     Article a = Article::article("Test");
+    return a.name == "Test";
+}
+
+@ignoreCompiler{The type checker rejects a void initializer.}
+@expected{UnexpectedType}
+test bool overloadedVoidInitializerIsRejected() {
+    Article a = article("Test");
     return true;
 }
 
