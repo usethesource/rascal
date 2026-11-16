@@ -96,20 +96,29 @@ default int balancedScore(list[set[set[&T]]] t) {
     return max(sizes) - min(sizes);
 }
 
+int balancedScore([], _) = 10000;
+int balancedScore([set[&T] single], map[&T, int] sizes) = totalSize(single, sizes);
+default int balancedScore(list[set[set[&T]]] t, map[set[&T], int] sizes ) {
+    allSizes = [ totalSize(tt, sizes) | tt <- t ];
+    return max(allSizes) - min(allSizes);
+}
+
+@javaClass{org.rascalmpl.library.Prelude}
+private java int __getFileSize(loc f);
+
+private int totalSize(set[&T] V, map[&T, int] sizes) = (0 | it + sizes[v] | v <- V);
+
+private int totalSize(list[set[&T]] Vs, map[&T, int] sizes) = (0 | it + sizes[v] | V <- Vs, v <- V);
+
 private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
     return job("Trying random clusters", Graph[set[&T]] (void (str msg, int worked) step) {
         bestSplit = [];
         bestCommon = [verts(scc)];
+        sizes = ( c : (0 | it + __getFileSize(f) | f <- c) | c <- bestCommon[0]);
         for (_ <- [0..1000]) {
             step("", 1);
-            <chunks, common> = tryChunk(scc, parAmount);
-            if (size(common) < size(bestCommon)) {
-                continue;
-            }
-            if (size(common) == size(bestCommon) && nestedSize(bestCommon) < nestedSize(common)) {
-                continue;
-            }
-            if (size(common) > 1 && balancedScore(bestCommon) < balancedScore(common)) {
+            <chunks, common> = tryChunk(scc, parAmount, sizes);
+            if (totalSize(common, sizes) > totalSize(bestCommon, sizes)) {
                 continue;
             }
             // now we know that common is better
@@ -118,6 +127,8 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
                 bestCommon = common;
             }
         }
+        iprintln(bestSplit);
+        iprintln(bestCommon);
         return flatten(bestSplit, bestCommon, scc);
     }, totalWork = 1000);
 }
@@ -125,7 +136,7 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
 @memo
 private Graph[&T] trans(Graph[&T] g) = g+; 
 
-private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSize) {
+private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSize, map[set[&T], int] sizes) {
     sccFull = trans(scc);
     candidates = verts(scc) - {{}};
     list[set[&T]] chunks = [ {} | _ <- [0..chunkSize]];
@@ -139,12 +150,12 @@ private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSiz
 
         smallest = ( 0 | chunkSizes[i] < chunkSizes[it] ? i : it | i <- [0..chunkSize]);
         chunks[smallest] += chunk;
-        chunkSizes[smallest] += nestedSize(chunk);
+        chunkSizes[smallest] += totalSize(chunk, sizes);
     }
     shared = (chunks[0] | it & c | c <- chunks);
     shared += sccFull[shared];
     chunks = [newC | c <- chunks, newC := c - shared, newC != {}]; 
-    return <chunks, [shared]>;
+    return <chunks, [{s} | s <- shared]>;
 }
 
 private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] common, Graph[set[&T]] scc) {
@@ -161,7 +172,7 @@ private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] com
             newGraph += newFrom * newTo;
         }
     }
-    return newGraph;
+    return newGraph + {<v, {}> | v <- (newVerts - verts(newGraph)), v != {}};
 }
 
 // // inspired by Highly Connected Subgraphs (HCS) clustering algorithm
