@@ -410,7 +410,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <plugin><!-- Configure Maven to add the directory containing the compiled Rascal modules as source directory (base Maven only supports a single source directory) -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.6.2</version>
