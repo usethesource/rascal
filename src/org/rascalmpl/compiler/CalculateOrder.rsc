@@ -156,34 +156,7 @@ private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSiz
         chunks[smallest] += chunk;
         chunkSizes[smallest] += totalSize(chunk, sizes);
     }
-    shared = (chunks[0] | it & c | c <- chunks);
-    shared += sccFull[shared];
-    chunks = [newC | c <- chunks, newC := c - shared, newC != {}]; 
-    sharedTotalSize = totalSize(shared, sizes);
-    if (nestedSize(shared) <= 20 && sharedTotalSize < (sum(range(sizes)) / 20)) {
-        // only a small set of modules, and they are not so big
-        // so let's split them using using the native scheduler
-        return <chunks, [{s} | s <- shared]>;
-    } else {
-        // we're gonna breakup the pre-phase in parAmount
-        list[set[&T]] newShared = [{}];
-        avgSize = sharedTotalSize / chunkSize;
-        candidates = shared;
-        currentSize = 0;
-        while (candidates != {}) {
-            c = getOneFrom(candidates);
-            chunk = {c} + sccFull[{c}];
-            candidates -= chunk;
-            newSize = totalSize(chunk, sizes);
-            if (currentSize + newSize > avgSize && newShared[-1] != {}) {
-                newShared += [{}];
-                currentSize = 0;
-            }
-            newShared[-1] += chunk;
-            currentSize += newSize;
-        }
-        return <chunks, newShared>;
-    }
+    return <chunks, []>;
 }
 
 private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] common, Graph[set[&T]] scc) {
