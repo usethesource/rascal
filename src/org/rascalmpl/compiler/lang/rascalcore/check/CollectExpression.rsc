@@ -728,44 +728,41 @@ void reportMissingNonTerminalCases(Expression current, set[AType] overloadTypes,
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     // println("filterOverloads: <overloads>, <arity>");
-    rel[loc, IdRole, AType] filteredOverloads = {};
+    set[AType] filteredOverloadTypes = {};
     list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
 
     // Filter constructors first to avoid issues with vararg functions
-    for(ovl:<_, _, tp> <- overloads){
-        if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
-           if(size(fields) == arity){
-              filteredOverloads += ovl;
-              if(isEmpty(prevFormals)){
-                 prevFormals = fields; //<1>;
-              } else {
-                 for(int i <- index(fields)) {
-                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
-                 }
-              }
+    for(tp:acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) <- overloads<2>){
+        if(size(fields) == arity){
+            filteredOverloadTypes += tp;
+            if(isEmpty(prevFormals)){
+                prevFormals = fields; //<1>;
+            } else {
+                for(int i <- index(fields)) {
+                    identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
+                }
             }
         }
     }
 
-    for(ovl:<_, _, tp> <- overloads){
-        if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
-           if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
-              filteredOverloads += ovl;
-              if(isEmpty(prevFormals)){
-                 prevFormals = formals;
-              } else {
-                 nRelevantFormals = size(formals) - (ft.varArgs ? 1 : 0);
-                 nPrevFormals =  size(prevFormals);
-                 for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
-                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
-                 }
-              }
-           }
+    for(ft:afunc(AType _, list[AType] formals, list[Keyword] _) <- overloads<2>){
+        if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
+            filteredOverloadTypes += ft;
+            if(isEmpty(prevFormals)){
+                prevFormals = formals;
+            } else {
+                nRelevantFormals = size(formals) - (ft.varArgs ? 1 : 0);
+                nPrevFormals =  size(prevFormals);
+                for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
+                    identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+                }
+            }
         }
         
     }
-    return <filteredOverloads, identicalFormals>;
+
+    return <filterOverloads(overloads, filteredOverloadTypes), identicalFormals>;
 }
 
 // TODO: in order to reuse the function below `keywordArguments` is passed as where `keywordArguments[&T] keywordArguments` would make more sense.
