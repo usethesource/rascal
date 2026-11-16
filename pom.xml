@@ -128,11 +128,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-<<<<<<< HEAD
                     <bootstrapRascalVersion>0.43.0-RC18-BOOT-PREVIEW-SYNTAX-ROLES</bootstrapRascalVersion>
-=======
-                    <bootstrapRascalVersion>0.43.2</bootstrapRascalVersion>
->>>>>>> main
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
