@@ -624,7 +624,7 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		for (var function: lookupCachedFunctions(name)) {
-			if (function.getReturnType().comparable(returnType)) {
+			if (canProduce(function.getReturnType(), returnType)) {
 				collection.add(function);
 			}
 		}
