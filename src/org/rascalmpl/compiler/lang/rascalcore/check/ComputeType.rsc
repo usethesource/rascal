@@ -84,31 +84,32 @@ private default bool hasVoidAlternative(AType t) = isVoidAType(t);
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
-rel[loc key, IdRole idRole, AType atype]
-    checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
-    
-    rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
-    rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
-    for(tup:<_, _, tp> <- overloads){
+rel[loc key, IdRole idRole, AType atype] checkAndFilterOverloads(Tree expr, rel[loc, IdRole, AType] overloads, AType expected, Solver s)
+    = filterOverloads(overloads, checkAndFilterOverloadTypes(expr, overloads, expected, s));
+
+set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s) {
+    set[AType] filteredTypes = {};
+    set[AType] unResolvedConstructorOverloads = {};
+    for(tp <- overloads<2>){
         if(isValueAType(expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
             if(isConstructorAType(tp) || isADTAType(tp)){
-                unResolvedConstructorOverloads += tup;
+                unResolvedConstructorOverloads += tp;
             }
         } else if(asubtype(tp, expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
         } else if(isConstructorAType(tp) || isADTAType(tp)){
-            unResolvedConstructorOverloads += tup;
+            unResolvedConstructorOverloads += tp;
         } 
     }
     if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
+        adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloads };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
         s.report(msg);
     }
-    return filteredOverloads;
+    return filteredTypes;
 }
 
 void(Solver) makeVarInitRequirement(Variable var)
@@ -128,8 +129,8 @@ void(Solver) makeVarInitRequirement(Variable var)
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){
-                    filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
-                    for(<_, _, tp> <- filteredOverloads){
+                    types = checkAndFilterOverloadTypes(var.initial, overloads, varTypeU, s);
+                    for(tp <- types){
                         s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
                     }
                 } else {
