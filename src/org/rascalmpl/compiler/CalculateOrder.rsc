@@ -4,6 +4,7 @@ module CalculateOrder
 import IO;
 import Exception;
 import List;
+import Map;
 import Set;
 import Relation;
 import ParseTree;
@@ -96,7 +97,7 @@ default int balancedScore(list[set[set[&T]]] t) {
     return max(sizes) - min(sizes);
 }
 
-int balancedScore([], _) = 10000;
+int balancedScore([], map[&T, int] sizes) = sum(range(sizes));
 int balancedScore([set[&T] single], map[&T, int] sizes) = totalSize(single, sizes);
 default int balancedScore(list[set[set[&T]]] t, map[set[&T], int] sizes ) {
     allSizes = [ totalSize(tt, sizes) | tt <- t ];
@@ -121,8 +122,11 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
             if (totalSize(common, sizes) > totalSize(bestCommon, sizes)) {
                 continue;
             }
+            if (size(common) == parAmount && balancedScore(common, sizes) > balancedScore(bestCommon, sizes)) {
+                continue;
+            }
             // now we know that common is better
-            if (balancedScore(chunks) <= balancedScore(bestSplit)) {
+            if (balancedScore(chunks, sizes) <= balancedScore(bestSplit, sizes)) {
                 bestSplit = chunks;
                 bestCommon = common;
             }
@@ -155,7 +159,31 @@ private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSiz
     shared = (chunks[0] | it & c | c <- chunks);
     shared += sccFull[shared];
     chunks = [newC | c <- chunks, newC := c - shared, newC != {}]; 
-    return <chunks, [{s} | s <- shared]>;
+    sharedTotalSize = totalSize(shared, sizes);
+    if (nestedSize(shared) <= 20 && sharedTotalSize < (sum(range(sizes)) / 20)) {
+        // only a small set of modules, and they are not so big
+        // so let's split them using using the native scheduler
+        return <chunks, [{s} | s <- shared]>;
+    } else {
+        // we're gonna breakup the pre-phase in parAmount
+        list[set[&T]] newShared = [{}];
+        avgSize = sharedTotalSize / chunkSize;
+        candidates = shared;
+        currentSize = 0;
+        while (candidates != {}) {
+            c = getOneFrom(candidates);
+            chunk = {c} + sccFull[{c}];
+            candidates -= chunk;
+            newSize = totalSize(chunk, sizes);
+            if (currentSize + newSize > avgSize && newShared[-1] != {}) {
+                newShared += [{}];
+                currentSize = 0;
+            }
+            newShared[-1] += chunk;
+            currentSize += newSize;
+        }
+        return <chunks, newShared>;
+    }
 }
 
 private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] common, Graph[set[&T]] scc) {
