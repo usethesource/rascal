@@ -184,10 +184,10 @@ public class ParserGenerator {
 		try {
 			String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 			
-			IString classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar);
-			debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+			var classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar).getValue();
+			debugOutput("java code", classString, System.getProperty("java.io.tmpdir") + "/parser.java");
 			
-			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
+			return bridge.compileJava(loc, packageName + "." + normName, classString);
 		} catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
@@ -210,10 +210,10 @@ public class ParserGenerator {
 		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 		IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 		
-		IString classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar);
-		debugOutput("java code", classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
+		var classString = parserGenerator.newGenerate(vf.string(packageName), vf.string(normName), grammar).getValue();
+		debugOutput("java code", classString, System.getProperty("java.io.tmpdir") + "/parser.java");
 		
-		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
+		bridge.compileJava(loc, packageName + "." + normName, classString, out);
 	} catch (ClassCastException e) {
 		throw new ImplementationError("parser generator:" + e.getMessage(), e);
 	} catch (Throw e) {
