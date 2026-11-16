@@ -64,7 +64,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[MODID] mo
                       (ov.idRole == functionId() || ov.idRole == constructorId()) 
                     } 
                   |  loc u <- tmodel.facts, 
-                     getRascalModuleName(u, pcfg) == mname/*jg.isContainedIn(u, mscope)*/, 
+                     moduleId2moduleName(u) == mname/*jg.isContainedIn(u, mscope)*/,
                      /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] 
                   };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>

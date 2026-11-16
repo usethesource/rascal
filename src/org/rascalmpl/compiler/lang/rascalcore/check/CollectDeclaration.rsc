@@ -112,7 +112,7 @@ list[CodeAction] moduleNameProposal(QualifiedName moduleName, str proposedName)
 FailMessage moduleNameMessage(loc mloc, QualifiedName qualifiedModuleName, str mname, PathConfig pcfg){
     msg = error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, mloc.top);
     try {
-        proposal = getRascalModuleName(mloc, pcfg);
+        proposal = moduleId2moduleName(mloc);
         msg.fixes = moduleNameProposal(qualifiedModuleName, proposal);
     } catch _: /* ignore any exceptions */;
     return msg;

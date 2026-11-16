@@ -637,7 +637,10 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         bool warnUnusedPatternFormals = true,
         bool infoModuleChecked        = false,
 
-        // Debugging
+        bool errorsAsWarnings         = false,
+        bool warningsAsErrors         = false,
+
+        // Debugging options
         bool verbose                  = false,    // for each compiled module, log module name and compilation time
         bool logImports               = false,
         bool logWrittenFiles          = false,   // log location of written files: .constants, .tpl, *.java
@@ -646,7 +649,8 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         loc reloc                     = |noreloc:///|, // Currently unused
 
         bool optimizeVisit            = true,   // Options for compiler developer
-        bool enableAsserts            = true
+        bool enableAsserts            = true,
+        loc license                   = |unknown:///| // License header for generated code
     )
     = tconfig(
         rascalTplVersion              = rascalTplVersion,
@@ -659,6 +663,9 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
         infoModuleChecked             = infoModuleChecked,
 
+        errorsAsWarnings              = errorsAsWarnings,
+        warningsAsErrors              = warningsAsErrors,
+
         verbose                       = verbose,
         logImports                    = logImports,
         logWrittenFiles               = logWrittenFiles,
@@ -667,6 +674,7 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         reloc                         = reloc,
         optimizeVisit                 = optimizeVisit,
         enableAsserts                 = enableAsserts,
+        license                       = license,
 
         // Basic TypePalConfig options
         typepalPathConfig             = pcfg,
