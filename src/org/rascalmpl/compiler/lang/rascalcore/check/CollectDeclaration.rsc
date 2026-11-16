@@ -636,7 +636,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
         }
     }
     if(!isEmpty(missing)){
-        missing = {"&<m>" | m <- missing };
+        missing = {"&<m>" | str m <- missing };
         c.report(error(signature, "Type parameter(s) %v in return type of function %q not bound by its formal parameters", missing, signature.name));
     }
 
