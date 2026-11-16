@@ -1508,4 +1508,4 @@ public default AType filterOverloads(AType t, set[IdRole] roles) = t;
 @synopsis{Filter overloads by ((AType)).}
 rel[loc, IdRole, AType] filterOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes)
     // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
-    = {<def, idRole, atype> | atype <- atypes, <loc def, IdRole idRole, AType at> <- overloads, atype == at};
+    = {t | t:<_, _, atype> <- overloads, atype in atypes};
