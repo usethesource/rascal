@@ -724,10 +724,10 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     for(int i <- index(actuals)){
         actual_type = s.getType(actuals[i]);
         if(isNonTerminalAType(actual_type)){
-            if(!isEmpty(validOverloads) && all(ovl <- validOverloads,
-                                               arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),
+            if(!isEmpty(validOverloads) && all(atype <- validOverloads<2>,
+                                               arg_types := getFunctionOrConstructorArgumentTypes(atype),
                                                size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){
-                nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
+                nont = [atype | atype <- overloads<2>, arg_types := getFunctionOrConstructorArgumentTypes(atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
                     s.report(info(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }

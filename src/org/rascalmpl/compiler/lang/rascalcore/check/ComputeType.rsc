@@ -344,7 +344,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
-       for(<_, _, tp> <- overloads){
+       for(tp <- overloads<2>){
         if(isADTAType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
@@ -472,7 +472,7 @@ list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), lo
 
 }
 
-list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
+list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | adt <- overloads<2> ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
 
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {

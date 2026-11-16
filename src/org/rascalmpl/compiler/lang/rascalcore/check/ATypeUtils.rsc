@@ -102,7 +102,7 @@ str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
 str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([prettyAType(t1) | t1 <- {t | <_, _, t> <- overloads} ]);
+                = intercalateOr([prettyAType(t1) | t1 <- {t | t <- overloads<2>} ]);
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
@@ -211,7 +211,7 @@ Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
 // overloaded types (union types) do not exist at the Rascal runtime level,
 // so we lub the alternatives here which is what happens at run-time as well.
 Symbol atype2symbol1(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = atype2symbol((\avoid() | alub(it, alt) | <_, _, alt> <- overloads));
+                = atype2symbol((\avoid() | alub(it, alt) | alt <- overloads<2>));
 
 list[Symbol] atypes2symbols(list[AType] atypes) = [atype2symbol(t) | t <- atypes];
 
@@ -658,7 +658,7 @@ bool hasKeywordParameters(acons(AType adt, list[AType] fields, list[Keyword] kwF
     = !isEmpty(kwFields);
     
 bool hasKeywordParameters(overloadedAType(overloads))
-    = any(<loc _, IdRole _, AType t> <- overloads, hasKeywordParameters(t));
+    = any(t <- overloads<2>, hasKeywordParameters(t));
 
 default bool hasKeywordParameters(AType t) = false;
 

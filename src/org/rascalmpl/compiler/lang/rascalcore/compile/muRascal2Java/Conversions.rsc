@@ -138,7 +138,7 @@ str atype2idpart(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields))
 str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
     formalsType = avoid();
-    for(<_, _, tp> <- overloads){
+    for(tp <- overloads<2>){
         resType = alub(resType, getResult(tp));
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }
@@ -264,7 +264,7 @@ str atype2IValue1(at:acons(AType adt, list[AType] fields, list[Keyword] kwFields
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
     resType = avoid();
     formalsType = avoid();
-    for(<_, _, tp> <- overloads){
+    for(tp <- overloads<2>){
         resType = alub(resType, getResult(tp));
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }

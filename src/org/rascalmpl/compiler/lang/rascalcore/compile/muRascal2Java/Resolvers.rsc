@@ -107,7 +107,7 @@ str varName(muVarKwp(str name, loc _, AType _)){            // duplicate, see Co
 //str vtypeisatype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 str vtypeisatype(str e, str etype, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
-    = "<e> instanceof IConstructor && <intercalate(" || ", ["((IConstructor)<e>).getConstructorType().equivalent(<jg.accessType(tp)>)" | <_, _, tp> <- overloads])>";
+    = "<e> instanceof IConstructor && <intercalate(" || ", ["((IConstructor)<e>).getConstructorType().equivalent(<jg.accessType(tp)>)" | tp <- overloads<2>])>";
 
 //str vtypeisatype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg)
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
