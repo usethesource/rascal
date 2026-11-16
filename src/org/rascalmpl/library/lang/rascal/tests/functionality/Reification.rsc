@@ -5,6 +5,9 @@ module lang::rascal::tests::functionality::Reification
 import ParseTree;
 import Set;
 
+// used by reifyParametrizedAdtNextToEmptySymbol
+syntax EmptyProg = "x" ();
+
 data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
 data D[&T] = d1(&T fld);
 
@@ -84,6 +87,10 @@ test bool axiomHasItsKwParam()
 @ignore{To be investigated}  
 test bool axiomsKwParamIsExclusive()
   =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
-  
-  
-  
+
+// Regression: reifying an instantiated parametrized ADT used to fail when the
+// definitions also contained a symbol without a name, such as empty()
+data ModelWithEmpty = modelWithEmpty(D[int] w, EmptyProg p);
+
+test bool reifyParametrizedAdtNextToEmptySymbol()
+  = #ModelWithEmpty.symbol == \adt("ModelWithEmpty", []);
