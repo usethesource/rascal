@@ -24,12 +24,12 @@ a specific language.
 *  the registry is a global store that will retain links to M3 models even when they are not in use anymore. The 
 programmer should take care to call ((unregisterProject)) to prevent memory leakage.
 }
-void registerProject(loc project, M3 model) {
+void registerProject(loc project, M3 model, str authority=project.authority) {
     rel[str scheme, loc name, loc src] perScheme 
       = {<name.scheme, name, src> | <name, src> <- model.declarations};
     
     for (str scheme <- perScheme<scheme>) {
-       registerLocations(scheme, project.authority, (name : src | <name, src> <- perScheme[scheme]));
+       registerLocations(scheme, authority, (name : src | <name, src> <- perScheme[scheme]));
     }
 }
 
