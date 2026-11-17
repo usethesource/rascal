@@ -545,11 +545,13 @@ void checkOverloadedConstructors(Tree t, Solver s){
 }
 
 void reportConstructorOverload(Expression current, overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads), Solver s){
-    if(atype <- overloads.atype, isConstructorAType(atype)){
+    coverloads = [ovl | ovl <- overloads, isConstructorAType(ovl.atype)];
+    if(size(coverloads) > 1) {
+        ovl1 = coverloads[0];
         adtNames = { adtName | acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) <- overloads<2>};
         qualifyHint = size(adtNames) > 1 ? " you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? " " : " or ">make argument type(s) more precise";
-        msg = error("Constructor `<atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
+        msg = error("Constructor `<ovl1.atype.alabel>` is overloaded, maybe<qualifyHint><argHint>",
                          current.src);
         s.addMessages([msg]);
     }
