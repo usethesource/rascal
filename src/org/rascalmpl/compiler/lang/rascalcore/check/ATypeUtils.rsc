@@ -102,7 +102,7 @@ str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
 str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([prettyAType(t1) | t1 <- {t | t <- overloads<2>} ]);
+                = intercalateOr([prettyAType(t1) | t1 <- overloads<2> ]);
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
