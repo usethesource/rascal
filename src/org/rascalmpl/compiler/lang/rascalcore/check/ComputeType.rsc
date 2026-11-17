@@ -1274,19 +1274,18 @@ private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
 
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
-    rel[loc, IdRole, AType] filteredOverloads = {};
+    set[AType] filteredTypes = {};
     list[bool] identicalFields = [true | int _ <- [0 .. arity]];
 
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
 
-    for(ovl:<loc _, IdRole _, AType tp> <- overloads){
-        if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
-            filteredOverloads += ovl;
-           }
+    for(tp:acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) <- overloads<2>, comparable(ret, subjectType)) {
+        if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
+            filteredTypes += tp;
         }
     }
-    return <filteredOverloads, identicalFields>;
+
+    return <filterOverloads(overloads, filteredTypes), identicalFields>;
 }
 
 AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){
