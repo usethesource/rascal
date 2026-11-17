@@ -44,13 +44,13 @@ public abstract class AbstractCommandlineTool {
     /**
      * This method should be called by a `public static void main(String[] args)` method directly.
      * It parses the commandline parametres according to the signature of the provided main function name (and module).
-     * 
+     *
      * @param mainModule     which main module must be imported to begin
      * @param sourceFolders  where to find Rascal source modules to load into the interpreter
      * @param args           the String[] args of the calling static main method
      */
     public static int main(String mainModule, String[] sourceFolders, String[] args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
-        try {   
+        try {
             var eval = initializeEvaluator(mainModule, sourceFolders, term, monitor, err, out);
             return runMain(eval, mainModule, "main", args, monitor, err);
         }
@@ -87,7 +87,7 @@ public abstract class AbstractCommandlineTool {
     }
 
     protected static <T> T run(Supplier<T> run, T errorResult, PrintWriter err) {
-        try {   
+        try {
             return run.get();
         }
         catch (Throw e) {
@@ -105,7 +105,7 @@ public abstract class AbstractCommandlineTool {
 
     private static int runMain(Supplier<IValue> run, PrintWriter err) {
         IValue result = run(run, vf.integer(1), err);
-        
+
         if (result == null) {
             // void main
             return 0;
@@ -122,7 +122,7 @@ public abstract class AbstractCommandlineTool {
      * A main for which the commandine parameters have already been parsed.
      */
     public static int main(String mainModule, String[] sourceFolders, Map<String, IValue> args, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
-        try {   
+        try {
             var eval = initializeEvaluator(mainModule, sourceFolders, term, monitor, err, out);
             return runMain(eval, mainModule, "main", args, monitor, err);
         }
@@ -165,6 +165,7 @@ public abstract class AbstractCommandlineTool {
     protected static void removeParallelismArguments(Map<String, IValue> parsedArgs) {
 		parsedArgs.remove("parallel");
 		parsedArgs.remove("parallelMax");
+		parsedArgs.remove("parallelGraphBased");
 		parsedArgs.remove("parallelPreChecks");
 	}
 

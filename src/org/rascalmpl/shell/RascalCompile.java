@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -37,6 +38,7 @@ import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
@@ -53,13 +55,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 	private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	private static final IRascalValueFactory vf = IRascalValueFactory.getInstance();
 
-    public static void main(String[] args) throws IOException {    
+    public static void main(String[] args) throws IOException {
         RascalShell.setupJavaProcessForREPL();
         var term = RascalShell.connectToTerminal();
 		var monitor = IRascalMonitor.buildConsoleMonitor(term);
 		var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
 		var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
-			
+
 		try {
 			var parser = new CommandlineParser(out);
 			var kwParams = reproduceCheckerMainParameterTypes();
@@ -75,40 +77,75 @@ public class RascalCompile extends AbstractCommandlineTool {
 			System.exit(1);
 		}
     }
-	
+
 	public static int runMain(Map<String,IValue> parsedArgs, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException, URISyntaxException {
 			boolean isParallel = isTrueParameter(parsedArgs, "parallel");
 			int parAmount = parallelAmount(intParameter(parsedArgs, "parallelMax", 10).intValue());
+		    boolean parallelGraphBased = isTrueParameter(parsedArgs, "parallelGraphBased");
 			IList modules = listParameter(parsedArgs, "modules");
 			IList preChecks = isParallel ? listParameter(parsedArgs, "parallelPreChecks") : vf.list();
 			preChecks = allRascalSourceFiles(preChecks, vf.list());
 			removeParallelismArguments(parsedArgs);
 
-			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {		
+			if (!isParallel || modules.size() <= 5 || parAmount <= 1) {
 				return main(mainModule, imports, parsedArgs, term, monitor, err, out);
 			}
 			else {
-				return parallelScheduler(parsedArgs, preChecks, parAmount, mainModule, imports , term, monitor, err, out);
+				return parallelScheduler(parsedArgs, preChecks, parallelGraphBased, parAmount, mainModule, imports , term, monitor, err, out);
 			}
 	}
 
 
-	private static Set<ModuleDependencyNode> calculateModuleDependencies(IList modules, IConstructor pcfg, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out, int parAmount) throws IOException {
+	private static Set<ModuleDependencyNode> calculateModuleDependencies(
+	        IList modules, IList preChecks, IConstructor pcfg, int parAmount, boolean useImportGraph,
+			Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws IOException {
 		var eval = initializeEvaluator("CalculateOrder", imports, term, monitor, err, out);
-		var order = run(() -> (ISet)eval.call(monitor, "calculateModuleDependencies", modules, pcfg, vf.integer(parAmount)), vf.set(), err);
-		var result = new HashMap<ISet, ModuleDependencyNode>();
+		var order = run(() -> (ISet)eval.call(monitor, "calculateModuleDependencies", modules, pcfg), vf.set(), err);
+		if (useImportGraph) {
+    		var result = new HashMap<ISet, ModuleDependencyNode>();
+    		for (var e: order) {
+    			var from = (ISet)(((ITuple)e).get(0));
+    			var to = (ISet)(((ITuple)e).get(1));
+    			if (!from.isEmpty()) {
+    				var nodeFrom = result.computeIfAbsent(from, ModuleDependencyNode::new);
+    				if (!to.isEmpty()) {
+    					var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
+    					nodeFrom.addDependency(nodeTo);
+    				}
+    			}
+    		}
+    		return new HashSet<>(result.values());
+		}
+		else {
+		    var sizes = calculateFileSizes(order);
+			var preChecksSet = preChecks.stream().collect(vf.setWriter());
+			var chunks = run(() -> (IList)eval.call(monitor, "chunkGraph", order, preChecksSet, sizes, pcfg, vf.integer(parAmount)), vf.list(), err);
+			var result = new HashSet<ModuleDependencyNode>();
+			var preCheck = new ModuleDependencyNode(preChecksSet);
+			result.add(preCheck);
+			chunks.stream()
+			    .map(ISet.class::cast)
+				.map(ModuleDependencyNode::new)
+				.map(m -> m.addDependency(preCheck))
+				.forEach(result::add);
+			return result;
+		}
+	}
+
+	private static IMap calculateFileSizes(ISet order) throws IOException {
+		var sizes = vf.mapWriter();
 		for (var e: order) {
 			var from = (ISet)(((ITuple)e).get(0));
 			var to = (ISet)(((ITuple)e).get(1));
-			if (!from.isEmpty()) {
-				var nodeFrom = result.computeIfAbsent(from, ModuleDependencyNode::new);
-				if (!to.isEmpty()) {
-					var nodeTo = result.computeIfAbsent(to, ModuleDependencyNode::new);
-					nodeFrom.addDependency(nodeTo);
-				}
-			}
+		    var newFiles = from.union(to).stream()
+		        .map(ISourceLocation.class::cast)
+		        .filter(f -> sizes.get(f) == null)
+		        .collect(Collectors.toSet());
+		    for (var f : newFiles) {
+		        sizes.put(f, vf.integer(reg.size(f)));
+		    }
 		}
-		return new HashSet<>(result.values());
+		return sizes.done();
 	}
 
 	private static double log2(double number) {
@@ -136,12 +173,14 @@ public class RascalCompile extends AbstractCommandlineTool {
 				.sum();
 		}
 
-		public void addDependency(ModuleDependencyNode on) {
+		public ModuleDependencyNode addDependency(ModuleDependencyNode on) {
 			dependencies.add(on);
 			on.addDependant(this);
+			return this;
 		}
-		private void addDependant(ModuleDependencyNode depender) {
+		private ModuleDependencyNode addDependant(ModuleDependencyNode depender) {
 			dependants.add(depender);
+			return this;
 		}
 
 		public void finishedChecking(ModuleDependencyNode node) {
@@ -228,7 +267,14 @@ public class RascalCompile extends AbstractCommandlineTool {
 		void start(String mainModule, String[] imports, Map<String, IValue> originalArguments, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) {
 			int result = 0;
 			try {
-				var eval = initializeEvaluator(mainModule, imports, term, monitor, err, out);
+				var eval = Lazy.defer(() -> {
+					try {
+						return initializeEvaluator(mainModule, imports, term, monitor, err, out);
+					}
+					catch (IOException e) {
+					    throw new RuntimeException(e);
+					}
+				});
 				while (true) {
 					var newTask = tasks.take();
 					if (newTask.size() == 0) {
@@ -244,12 +290,12 @@ public class RascalCompile extends AbstractCommandlineTool {
 						completed.add(newTask);
 						continue;
 					}
-					
+
 					var chunkArgs = new HashMap<>(originalArguments);
 					chunkArgs.put("modules", modules);
 					chunkArgs.put("pcfg", this.pcfg);
 					var start = System.currentTimeMillis();
-					result += runMain(eval, mainModule, "main", chunkArgs, monitor, err);
+					result += runMain(eval.get(), mainModule, "main", chunkArgs, monitor, err);
 					var took = System.currentTimeMillis() - start;
 					if (took > (10 * 1000)) {
 						err.println("*** ⌛ Type checking: " + modules + " took " + String.format("%.1f", took / 1000.) + "s");
@@ -268,11 +314,11 @@ public class RascalCompile extends AbstractCommandlineTool {
 				doneRunning.add(result);
 			}
 		}
-		
+
 
 	}
 
-	private static int parallelScheduler(Map<String, IValue> parsedArgs, IList preChecks, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws URISyntaxException, IOException {
+	private static int parallelScheduler(Map<String, IValue> parsedArgs, IList preChecks, boolean parallelGraphBased, int parAmount, String mainModule, String[] imports, Terminal term, IRascalMonitor monitor, PrintWriter err, PrintWriter out) throws URISyntaxException, IOException {
 		var modules = (IList) parsedArgs.get("modules");
 		if (modules.isEmpty()) {
 			return 0;
@@ -280,7 +326,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 		var pcfg = (IConstructor)parsedArgs.get("pcfg");
 
 		monitor.jobStart("Calculate dependency graph");
-		var moduleDependencyGraph = calculateModuleDependencies(modules, pcfg, term, monitor, err, out, parAmount);
+		var moduleDependencyGraph = calculateModuleDependencies(modules, preChecks, pcfg, parAmount, parallelGraphBased, term, monitor, err, out);
 		monitor.jobEnd("Calculate dependency graph", true);
 
 		// we order the work based on how many upstream modules depend on it
@@ -308,7 +354,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 					tasks.add(mod);
 				}
 			}
-			
+
 			// we keep track of the crashed to know if all runners are "out"
 			int crashed = 0;
 			while (!moduleDependencyGraph.isEmpty()) {
@@ -362,13 +408,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 			return crashed;
 		});
 	}
-	
+
 	/**
 	 * Warning: this method has to be kept up-to-date with the commandline parameters of Checkes::main.
-	 * @return all the keyword parameters and their types of Checker::main, 
+	 * @return all the keyword parameters and their types of Checker::main,
 	 * plus these additional ones:
-	 * * `int parallelMax = 5`, 
-	 * * `bool parallel = false` and 
+	 * * `int parallelMax = 5`,
+	 * * `bool parallel = false` and
 	 * * `list[loc] parallelPreChecks = []`.
 	 */
 	private static Type reproduceCheckerMainParameterTypes() {
@@ -380,8 +426,8 @@ public class RascalCompile extends AbstractCommandlineTool {
 		return tf.tupleType(
 			PathConfig.PathConfigType, "pcfg",
 			ll, "modules",
-			b, "logPathConfig", 
-			b, "logImports", 
+			b, "logPathConfig",
+			b, "logImports",
 			b, "verbose",
 			b, "logWrittenFiles",
 			b, "warnUnused",
@@ -389,9 +435,10 @@ public class RascalCompile extends AbstractCommandlineTool {
 			b, "warnUnusedVariables",
 			b, "warnUnusedPatternFormals",
 			b, "infoModuleChecked",
-			b, "errorsAsWarnings", 
+			b, "errorsAsWarnings",
 			b, "warningsAsErrors",
 			b, "parallel",
+			b, "parallelGraphBased",
 			i, "parallelMax",
 			ll, "parallelPreChecks");
 	}

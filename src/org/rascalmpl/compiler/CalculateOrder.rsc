@@ -17,26 +17,47 @@ import analysis::statistics::Descriptive;
 import lang::rascal::\syntax::Rascal;
 
 
-Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg, int parAmount) {
-    return job("calulate and chunk import graph", Graph[set[loc]] (void (str msg, int worked) step) {
+Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) {
+    return job("calulating import graph", Graph[set[loc]] (void (str msg, int worked) step) {
         step("Calculating import graph", 1);
 
         dependencies = moduleDependencies({*modules}, pcfg);
         step("Calculating SCC", 1);
         components = stronglyConnectedComponents(dependencies);
-        scc = {<fc, tc> | <loc from, loc to> <- dependencies, fc:{*_, from} <- components, tc:{*_, to} <- components, fc != tc} +
-        // add module that have no imports and are not imported
-        { <{i}, {}> | i <- {*modules} - (dependencies<0> + dependencies<1>) }
-        ;
-
-        step("Bundle into clusters", 1);
-        return mergeHighlyConnectedCluster(scc, parAmount);
+        step("Restoring graph", 1);
+        return {<fc, tc> | <loc from, loc to> <- dependencies, fc:{*_, from} <- components, tc:{*_, to} <- components, fc != tc} +
+            // add module that have no imports and are not imported
+            { <{i}, {}> | i <- {*modules} - (dependencies<0> + dependencies<1>) }
+            ;
     }, totalWork = 3);
 
 }
 
-Graph[set[loc]] mergeHighlyConnectedCluster(Graph[set[loc]] scc, int clusterSize) {
-    return chunkCluster(scc, clusterSize);
+list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, int] fileSizes, PathConfig pcfg, int amountOfClusters) {
+    return job("calulating parallel chunks", list[set[loc]] (void (str msg, int worked) step) {
+        // remove all precompute edges
+        // such that we can calculate without them in the mix
+        preCompute += (graph+)[preCompute];
+        graph = { <fromF, toF> | <from, to> <- graph, fromF := from - preCompute, toF := to - preCompute, fromF != {}, toF != {}, toF != fromF};
+        imports = graph+;
+        allClusters = graph<0> + graph<1>;
+        best = [{*c | c <- allClusters}];
+        bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
+        for (_ <- [0..1000]) {
+            step("", 1);
+            option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
+            if (size(option) < amountOfClusters) {
+                continue;
+            }
+            allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
+            score = max(allSizes) - min(allSizes);
+            if (score < bestScore) {
+                best = option;
+                bestScore = score;
+            }
+        }
+        return best;
+    }, totalWork = 1000);
 }
 
 Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
@@ -77,6 +98,21 @@ Graph[loc] moduleDependencies(loc file, PathConfig pcfg) {
 
 @memo
 private set[&T] verts(Graph[&T] G) = G<0> + G<1>;
+
+list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
+    list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
+    list[int] chunkSizes = [0 | _ <- [0..amountOfClusters]];
+    candidates = allClusters;
+    while (candidates != {}) {
+        c = getOneFrom(candidates);
+        ci = {c} + imports[{c}];
+        candidates -= ci;
+        smallest = (0 | chunkSizes[it] > chunkSizes[i] ? i : it | i <- [1..amountOfClusters]);
+        chunks[smallest] += { *c | set[loc] c <- ci };
+        chunkSizes[smallest] = (0 | it + fileSizes[i] | i <- chunks[smallest]);
+    }
+    return chunks;
+}
 
 private Graph[set[&T]] chunkIt(Graph[set[&T]] scc, int amountOf) {
     clusters = connectedComponents(scc);
@@ -136,7 +172,7 @@ private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
 }
 
 @memo
-private Graph[&T] trans(Graph[&T] g) = g+; 
+private Graph[&T] trans(Graph[&T] g) = g+;
 
 private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSize, map[set[&T], int] sizes) {
     sccFull = trans(scc);
@@ -272,11 +308,11 @@ private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] com
 //         // collect 4 level deep imports
 //         leafs = top(sccInverted);
 //         sccInverted1 = sccInverted o sccInverted;
-//         leafs += top(sccInverted1); 
+//         leafs += top(sccInverted1);
 //         sccInverted1 = sccInverted o sccInverted1;
-//         leafs += top(sccInverted1); 
+//         leafs += top(sccInverted1);
 //         sccInverted1 = sccInverted o sccInverted1;
-//         leafs += top(sccInverted1); 
+//         leafs += top(sccInverted1);
 //         if (leafs == {}) {
 //             println("Nothing left:<candidates>: <sccInverted1>");
 //             subs += split(scc, amountOf, candidates);
