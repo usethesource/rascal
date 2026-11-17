@@ -69,6 +69,7 @@ test bool assignThroughListAlias() {
   return values == [3, 2];
 }
 
+
 alias Pair[&T] = tuple[&T first, int second];
 
 test bool assignFieldThroughParameterizedTupleAlias() {
