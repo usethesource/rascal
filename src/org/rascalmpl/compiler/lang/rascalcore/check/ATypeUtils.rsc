@@ -1507,4 +1507,4 @@ public default AType filterOverloads(AType t, set[IdRole] roles) = t;
 
 @synopsis{Filter overloads by ((AType)).}
 rel[loc, IdRole, AType] filterOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes)
-    = {t | t:<_, _, atype> <- overloads, atype in atypes};
+    = {t | t:<loc _, IdRole _, AType atype> <- overloads, atype in atypes};
