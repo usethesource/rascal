@@ -64,6 +64,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[MODID] mo
                       (ov.idRole == functionId() || ov.idRole == constructorId()) 
                     } 
                   |  loc u <- tmodel.facts, 
+                     isModuleId(u),
                      moduleId2moduleName(u) == mname/*jg.isContainedIn(u, mscope)*/,
                      /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] 
                   };
