@@ -12,4 +12,6 @@ To start working on Rascal, execute the following steps.
 
 ## Updating the submodule
 
-After an update of the submodule's commit pointer, `git pull` will (by default) not update the submodule directory. To update the submodule, run `git submodule update`.
+After an update of the submodule's commit pointer, `git pull` will (by default) not update the submodule directory.
+The output of `git diff` will contain an entry indicating `"new commits"` in `generated`.
+To update the directory, navigate to `generated` and run `git pull` from there.
