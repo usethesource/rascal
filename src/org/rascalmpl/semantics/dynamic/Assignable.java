@@ -239,9 +239,9 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (receiver.getStaticType().isTuple()) {
+			if (receiver.getStaticUnaliasedType().isTuple()) {
 
-				int idx = receiver.getStaticType().getFieldIndex(label);
+				int idx = receiver.getStaticUnaliasedType().getFieldIndex(label);
 				if (idx < 0) {
 					throw new UndeclaredField(label, receiver.getStaticType(), this);
 				}
