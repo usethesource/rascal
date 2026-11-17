@@ -39,6 +39,7 @@ import org.rascalmpl.util.ExpiringFunctionResultCache;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -73,6 +74,11 @@ abstract public class NamedFunction extends AbstractFunction {
             IValue memoTag = tags.get("memo");
             if (memoTag != null) {
                 this.hasMemoization = true;
+                if (memoTag instanceof IString) {
+                    if (!((IString)memoTag).getValue().isBlank()) {
+                        eval.warning("Ignored memo configuration " + memoTag + ", in most cases `@memo={..}` is needed instead of `@memo{..}`", ((FunctionDeclaration)ast).getTags().getLocation());
+                    }
+                }
                 if (!(memoTag instanceof ISet)) {
                     memoTag = vf.set(memoTag);
                 }

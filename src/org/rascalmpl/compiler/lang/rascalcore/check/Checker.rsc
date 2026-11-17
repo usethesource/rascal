@@ -137,10 +137,7 @@ ModuleStatus rascalTModelForLocs(
     list[str] mnames = [];
     mids = 
         for(mloc <- mlocs){
-            if(isRascalLogicalLoc(mloc)){
-                mnames += moduleId2moduleName(mloc);
-                append mloc;
-            } else 
+            assert !isRascalLogicalLoc(mloc) : "Unexpected logical location <mloc>";
             if(exists(mloc)){
                 try {
                     mname = getRascalModuleName(mloc, pcfg);
@@ -256,7 +253,7 @@ ModuleStatus rascalTModelForLocs(
             }
 
             compatible_with_all_imports = true;
-            any_tpl_outdated = any(m <- component, tplOutdated(m, pcfg));
+            any_tpl_outdated = any(m <- component, tplOutdated(m, ms));
             if(any_tpl_outdated){
                 for(m <- component){
                     ms = deleteProperty(m, ms, tpl_uptodate(), checked());
@@ -266,7 +263,7 @@ ModuleStatus rascalTModelForLocs(
                     m_compatible = false;
                     try {
                         <found, tm, ms> = getTModelForModule(m, ms);
-                        if(found && !tplOutdated(m, pcfg)){
+                        if(found && !tplOutdated(m, ms)){
                             imports_extends_m = imports_and_extends[m];
                    
                             <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
@@ -476,7 +473,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[MODID] moduleIds, ModuleSt
         if(success){
             tagsMap = getTags(pt.header.tags);
 
-            if(hasIgnoreCompilerTag(tagsMap)) {
+            if(ignoreForCompiler(tagsMap)) {
                     ms.messages[mid] ? {} += { Message::info("Ignoring module <mid>", pt.header.name.src) };
                     ms = addProperty(mid, ms, ModuleProperty::ignored());
             }
@@ -617,17 +614,24 @@ we remove or rename keyword fields here, then they the client code must be adapt
 int main(
     list[loc] modules             = [],  // dirty modules to check 
     PathConfig pcfg               = pathConfig(),
-    bool logPathConfig            = false,
-    bool logImports               = false,
-    bool verbose                  = false,
-    bool logWrittenFiles          = false,
     bool warnUnused               = true,
     bool warnUnusedFormals        = true,
     bool warnUnusedVariables      = true,
     bool warnUnusedPatternFormals = true,
     bool infoModuleChecked        = false,
+
     bool errorsAsWarnings         = false,
-    bool warningsAsErrors         = false
+    bool warningsAsErrors         = false,
+
+    bool verbose                  = true,         // for each compiled module, module name and compilation time
+    bool logPathConfig            = false,
+    bool logImports               = false,
+    bool logWrittenFiles          = false,
+    
+   
+    bool optimizeVisit            = true,         // Options for compiler developer
+    bool enableAsserts            = true,
+    loc license                   = |unknown:///| // License header for generated code
 ) {
     if (verbose) {
         println("PathConfig:");
@@ -645,15 +649,23 @@ int main(
     pcfg.generatedTestSources   = pcfg.projectRoot + "gen/java";
 
     rascalConfig = rascalCompilerConfig(pcfg,
-        logPathConfig            = logPathConfig,
-        logImports               = logImports,
-        verbose                  = verbose,
-        logWrittenFiles          = logWrittenFiles,
         warnUnused               = warnUnused,
         warnUnusedFormals        = warnUnusedFormals,
         warnUnusedVariables      = warnUnusedVariables,
         warnUnusedPatternFormals = warnUnusedPatternFormals,
-        infoModuleChecked        = infoModuleChecked
+        infoModuleChecked        = infoModuleChecked,
+
+        errorsAsWarnings         = errorsAsWarnings,
+        warningsAsErrors         = warningsAsErrors,
+
+        verbose                  = verbose,
+        logImports               = logImports,
+        logWrittenFiles          = logWrittenFiles,
+        logPathConfig            = logPathConfig,
+
+        optimizeVisit            = optimizeVisit,
+        enableAsserts            = enableAsserts,
+        license                  = license
     );
 
     list[ModuleMessages] messages = [];

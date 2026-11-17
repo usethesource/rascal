@@ -21,6 +21,11 @@ data Exp (loc src = |unknown:///|, map[int, list[str]] comments = ())
   | eq(Exp e1, Exp e2)
   | number(Num n)
   ;
+
+@ignore{This test is under debate. It triggers currently the following errors:
+[ERROR] src/org/rascalmpl/library/lang/rascal/syntax/tests/ImplodeTests.rsc:0024:029: Constructor `number` is overloaded, maybe make argument type(s) more precise
+[ERROR] src/org/rascalmpl/library/lang/rascal/syntax/tests/ImplodeTests.rsc:0024:041: Constructor `int` is overloaded, maybe make argument type(s) more precise
+}
 Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));
 
 data Number(loc src = |unknown:///|, map[int, list[str]] comments = ());

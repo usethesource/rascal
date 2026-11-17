@@ -95,7 +95,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         Output::empty(),
         out("\<div class=\"theme-doc-version-badge badge badge--secondary\"\>rascal-<getRascalVersion()>\</div\><if (pcfg.isPackageCourse) {> \<div class=\"theme-doc-version-badge badge badge--secondary\"\><pcfg.packageName>-<pcfg.packageVersion>\</div\><}>"),
         Output::empty(),
-        *[out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[*compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         out("#### Usage"),
         Output::empty(),
         out("```rascal"),
@@ -121,7 +121,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        *[Output::empty(), out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[Output::empty(), *compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         empty(),
         out("```rascal"),
         *([ *[out(defLine) | str defLine <- split("\n", ov)], empty() | ov <- overloads][..-1]),
@@ -133,7 +133,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
 list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## test <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        *[Output::empty(), out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[Output::empty(), *compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         Output::empty(),
         out("```rascal"),
         *[out(defLine) | str defLine <- split("\n", d.fullTest)],
@@ -148,7 +148,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
  list[Output] declInfo2Doc(str parent, d:dataInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## data <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        *[out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[*compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         empty(),
         *[
             out("```rascal"),
@@ -163,7 +163,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
 list[Output] declInfo2Doc(str parent, d:syntaxInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## syntax <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        *[Output::empty(), out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[Output::empty(), *compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         empty(),
         *[
             out("```rascal"),
@@ -178,7 +178,7 @@ list[Output] declInfo2Doc(str parent, d:syntaxInfo(), list[str] overloads, PathC
 list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## alias <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        *[Output::empty(), out(synopsis.content) | synopsis:docTag(label="synopsis") <- d.docs],
+        *[Output::empty(), *compileMarkdown([synopsis.content], synopsis.src.begin.line, synopsis.src.offset, pcfg, exec, ind, dtls) | synopsis:docTag(label="synopsis") <- d.docs],
         empty(),
         out("```rascal"),
         *[out(removeNewlines(ov)), empty() | ov <- overloads][..-1],

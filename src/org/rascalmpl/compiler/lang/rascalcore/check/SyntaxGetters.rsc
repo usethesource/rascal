@@ -99,11 +99,8 @@ map[str,str] getTags(Tags tags){
 //map[str,str] getTags(Tags tags)
 //    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
-bool hasIgnoreCompilerTag(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignoreCompiler", "IgnoreCompiler"});
-
-bool hasIgnoreTag(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore"});
+bool ignoreForCompiler(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
 tuple[bool, str] getDeprecated(map[str,str] tagsMap){
     for(depr <- {"deprecated", "Deprecated"}){
