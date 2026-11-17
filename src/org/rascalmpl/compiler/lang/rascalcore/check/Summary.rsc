@@ -68,9 +68,13 @@ data ModuleSummary =
                    map[loc def, str synopsis] synopses = (),
                    map[loc def, loc docLoc] docLocs = ());
 
-private map[loc from, str tp] getLocationTypes(TModel tm)
-    = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
-    
+private map[loc from, str tp] getLocationTypes(TModel tm) {
+    // Share strings in memory to reduce summary memory pressure
+    @memo str cachedPrettyAType(AType tp) = prettyAType(tp);
+
+    return (key : cachedPrettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
+}
+
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
     if (!tm.usesPhysicalLocs) {
         tm = convertTModel2PhysicalLocs(tm);

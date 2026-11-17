@@ -537,6 +537,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				    }
 				  }
 				}
+				eval.setCurrentAST(this); // Rewind current AST from the last argument back to the whole call
 				Result<IValue> res = null;
 				try {
 					res = function.call(types, actuals, kwActuals);
@@ -1102,6 +1103,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
+			if (result.getStaticType().isBottom()) {
+				throw new NonVoidTypeRequired(this.getArgument());
+			}
 			Type expected = getType().typeOf(__eval.getCurrentEnvt(), __eval, instantiateTypeParameters);
 
 			if (!(expected instanceof NonTerminalType)) {
