@@ -791,24 +791,24 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
 
     int noverloaded = 0;
     for(int i <- index_formals){
-        if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
+        if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
             noverloaded += 1;
             if(noverloaded > 1){
                 s.report(error(current, "Cannot yet handle calls with multiple overloaded arguments"));
             }
             //println("checkArgsAndComputeReturnType: <current>");
             //iprintln(overloads);
-            returnTypeForOverloadedActuals = {};
-            for(<key, idr, tp> <- overloads){
+            rel[AType, AType] returnTypeForOverloadedActuals = {};
+            for(tp <- overloads.atype){
                 try {
                     actualTypes[i] = tp;
-                    returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
+                    returnTypeForOverloadedActuals += <tp, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
                     //println("succeeds: <ovl>");
                 } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                   catch NoBinding():/* continue with next overload */;
              }
              if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with %v arguments cannot be resolved", size(actuals)));}
-             else /*retType = */ return overloadedAType(returnTypeForOverloadedActuals);
+             else /*retType = */ return overloadedAType(filterAndRetypeOverloads(overloads, returnTypeForOverloadedActuals));
         }
     }
     //No overloaded actual
