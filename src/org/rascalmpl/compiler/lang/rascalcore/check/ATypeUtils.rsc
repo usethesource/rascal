@@ -1509,3 +1509,7 @@ public default AType filterOverloads(AType t, set[IdRole] roles) = t;
 rel[loc, IdRole, AType] filterOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes)
     // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
     = {t | t:<_, _, atype> <- overloads, atype in atypes};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
+    = {<def, idRole, atype<1>> | <def, idRole, ovlType> <- overloads, atype <- atypes, atype<0> == ovlType};

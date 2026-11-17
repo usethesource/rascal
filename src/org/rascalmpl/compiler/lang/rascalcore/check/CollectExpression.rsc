@@ -646,8 +646,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
-                    // This appears to be a pretty fast way to find the matching overloads, faster than e.g. building a map in advance and looking up here. Note that `==` is required because of keyword arg equality.
-                    validReturnTypeOverloads = {<def, idRole, retType> | <def, idRole, ovlType> <- overloads, <funcType, retType> <- validReturnTypeOverloadTypes, funcType == ovlType};
+                    validReturnTypeOverloads = filterAndRetypeOverloads(overloads, validReturnTypeOverloadTypes);
                     //checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
