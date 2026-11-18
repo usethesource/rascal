@@ -21,6 +21,15 @@ str moduleId2moduleName(loc mloc){
     return replaceAll(path, "/", "::");
 }
 
+str logicalLoc2moduleName(loc rll){
+    assert isRascalLogicalLoc(rll): "logicalLoc2moduleName: <rll>";
+
+    if(isModuleId(rll)) return moduleId2moduleName(rll);
+
+    k = findLast(rll.path, "/");
+    return replaceAll(rll.path[1..k], "/", "::");
+}
+
 alias FUNID = loc; // function identification
 
 bool isFunctionId(loc l) = l.scheme == "rascal+function";
@@ -34,12 +43,6 @@ str getFunctionName(FUNID fuid){
         name = name[..j];
     }
     return name;
-}
-
-str getModuleName(FUNID fuid){
-    assert isFunctionId(fuid);
-    k = findLast(fuid.path, "/");
-    return replaceAll(fuid.path[1..k], "/", "::");
 }
 
 alias CONSID = loc; // constructor identification

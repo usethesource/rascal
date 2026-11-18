@@ -623,7 +623,7 @@ int main(
     bool errorsAsWarnings         = false,
     bool warningsAsErrors         = false,
 
-    bool verbose                  = true,         // for each compiled module, module name and compilation time
+    bool verbose                  = false,         // for each compiled module, module name and compilation time
     bool logPathConfig            = false,
     bool logImports               = false,
     bool logWrittenFiles          = false,
