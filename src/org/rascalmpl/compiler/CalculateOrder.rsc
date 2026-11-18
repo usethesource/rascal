@@ -107,15 +107,21 @@ private set[&T] verts(Graph[&T] G) = G<0> + G<1>;
 
 list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
     list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
-    list[int] chunkSizes = [0 | _ <- [0..amountOfClusters]];
     candidates = allClusters;
+    assigned = 0;
     while (candidates != {}) {
         c = getOneFrom(candidates);
         ci = {c} + imports[{c}];
         candidates -= ci;
-        smallest = (0 | chunkSizes[it] > chunkSizes[i] ? i : it | i <- [1..amountOfClusters]);
-        chunks[smallest] += { *c | set[loc] c <- ci };
-        chunkSizes[smallest] = (0 | it + fileSizes[i] | i <- chunks[smallest]);
+        chunk = { *c | set[loc] c <- ci };
+        if (assigned < amountOfClusters) {
+            chunks[assigned] += chunk;
+        }
+        else {
+            smallest = (0 | size(chunks[it] & chunk) > size(chunks[i] & chunk) ? it : i | i <- [1..amountOfClusters]);
+            chunks[smallest] += chunk;
+        }
+        assigned += 1;
     }
     return chunks;
 }
