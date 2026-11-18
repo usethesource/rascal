@@ -33,6 +33,7 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.32.2</rascal-maven.version>
+        <rascal-maven.bootstrap.version>0.43.2</rascal-maven.bootstrap.version>
         <jline.version>3.29.0</jline.version> <!-- do not upgrade unless https://github.com/jline/jline3/issues/1445 is solved-->
     </properties>
 
@@ -128,7 +129,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.43.2</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>${rascal-maven.bootstrap.version}</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -600,6 +601,13 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.rascalmpl</groupId>
+                        <artifactId>rascal-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration> 
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <executions>
@@ -624,6 +632,55 @@
                                 <include>**/org/rascalmpl/compiler/**/*Test.java</include>
                             </includes>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>compiler-typecheck</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.rascalmpl</groupId>
+                        <artifactId>rascal-maven-plugin</artifactId>
+                        <configuration>
+                            <bootstrapRascalVersion>${rascal-maven.bootstrap.version}</bootstrapRascalVersion>
+                        </configuration> 
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <phase>none</phase> <!-- disable everything from the normal config-->
+                            </execution>
+                            <execution>
+                                <id>typechecker-compile</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <configuration>
+                                    <parallel>true</parallel>
+                                    <parallelMax>4</parallelMax>
+                                    <memory>6G</memory>
+                                    <parallelPreChecks>
+                                        <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
+                                        <pre>${project.basedir}/src/org/rascalmpl/compiler/lang/rascalcore/check/CheckerCommon.rsc</pre>
+                                    </parallelPreChecks>
+                                    <errorsAsWarnings>false</errorsAsWarnings> 
+                                    <bin>${project.build.outputDirectory}</bin>
+                                    <srcs>
+                                        <src>${project.basedir}/src/org/rascalmpl/library</src>
+                                        <src>${project.basedir}/src/org/rascalmpl/compiler</src>
+                                    </srcs>
+                                    <ignores>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                                    </ignores>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
