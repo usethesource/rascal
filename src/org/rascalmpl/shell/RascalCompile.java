@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.jline.terminal.Terminal;
@@ -229,11 +230,13 @@ public class RascalCompile extends AbstractCommandlineTool {
 		private final BlockingQueue<ModuleDependencyNode> tasks;
 		private final Queue<ModuleDependencyNode> completed;
 		private final Queue<Integer> doneRunning;
+		private final AtomicInteger active;
 
-		public ChunkRunner(IConstructor pcfg, BlockingQueue<ModuleDependencyNode> tasks, Queue<ModuleDependencyNode> completed, Queue<Integer> doneRunning) throws URISyntaxException, IOException {
+		public ChunkRunner(IConstructor pcfg, BlockingQueue<ModuleDependencyNode> tasks, Queue<ModuleDependencyNode> completed, Queue<Integer> doneRunning, AtomicInteger active) throws URISyntaxException, IOException {
 			this.tasks = tasks;
 			this.completed = completed;
 			this.doneRunning = doneRunning;
+			this.active= active;
 			this.bin = URIUtil.createFileLocation(Files.createTempDirectory("rascal-checker"));
 			var libs = (IList) pcfg.asWithKeywordParameters().getParameter("libs");
 			if (libs == null) {
@@ -304,11 +307,16 @@ public class RascalCompile extends AbstractCommandlineTool {
 						continue;
 					}
 
-					var chunkArgs = new HashMap<>(originalArguments);
-					chunkArgs.put("modules", modules);
-					chunkArgs.put("pcfg", this.pcfg);
-					result += runMain(eval.get(), mainModule, "main", chunkArgs, monitor, err);
-					promoteTpls();
+					try {
+						active.incrementAndGet();
+						var chunkArgs = new HashMap<>(originalArguments);
+						chunkArgs.put("modules", modules);
+						chunkArgs.put("pcfg", this.pcfg);
+						result += runMain(eval.get(), mainModule, "main", chunkArgs, monitor, err);
+						promoteTpls();
+					} finally {
+						active.decrementAndGet();
+					}
 					completed.add(newTask);
 				}
 			} catch(Throwable ex) {
@@ -343,10 +351,11 @@ public class RascalCompile extends AbstractCommandlineTool {
 				.thenComparing(Comparator.comparingInt(ModuleDependencyNode::upstreamSize).reversed()));
 		var finished = new LinkedBlockingQueue<ModuleDependencyNode>();
 		var done = new LinkedBlockingQueue<Integer>();
+		var activeRunners = new AtomicInteger(0);
 
 		// startup the runners
 		for (int c = 0; c < parAmount; c++) {
-			var runner = new ChunkRunner(pcfg, tasks, finished, done);
+			var runner = new ChunkRunner(pcfg, tasks, finished, done, activeRunners);
 			var t = new Thread(() -> runner.start(mainModule, imports, parsedArgs, term, monitor, err, out), "Rascal Compiler " + (c + 1));
 			t.setDaemon(true);
 			t.start();
@@ -390,7 +399,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 					err.flush();
 					crashed++;
 				}
-				if (crashed == parAmount) {
+				if (crashed == parAmount || (activeRunners.get() == 0 && !moduleDependencyGraph.isEmpty())) {
 					err.println("All parallel compilers crashed, exiting");
 					err.flush();
 					return crashed;
