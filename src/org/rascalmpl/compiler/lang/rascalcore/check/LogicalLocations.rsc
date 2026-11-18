@@ -2,6 +2,7 @@ module lang::rascalcore::check::LogicalLocations
 
 import String;
 import lang::rascalcore::check::ATypeUtils;
+import util::Reflective;
 
 bool isRascalLogicalLoc(loc l)
     = startsWith(l.scheme, "rascal+");
@@ -28,6 +29,11 @@ str logicalLoc2moduleName(loc rll){
 
     k = findLast(rll.path, "/");
     return replaceAll(rll.path[1..k], "/", "::");
+}
+
+str anyLoc2moduleName(loc l, PathConfig pcfg){
+    if(isRascalLogicalLoc(l)) return logicalLoc2moduleName(l);
+    return getModuleName(l, pcfg);
 }
 
 alias FUNID = loc; // function identification
