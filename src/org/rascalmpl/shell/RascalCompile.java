@@ -12,6 +12,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,8 +38,10 @@ import org.rascalmpl.util.Lazy;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
@@ -119,15 +122,16 @@ public class RascalCompile extends AbstractCommandlineTool {
 		else {
 		    var sizes = calculateFileSizes(order);
 			var preChecksSet = preChecks.stream().collect(vf.setWriter());
-			var chunks = run(() -> (IList)eval.call(monitor, "chunkGraph", order, preChecksSet, sizes, pcfg, vf.integer(parAmount)), vf.list(), err);
-			var result = new HashSet<ModuleDependencyNode>();
-			var preCheck = new ModuleDependencyNode(preChecksSet);
-			result.add(preCheck);
-			chunks.stream()
-			    .map(ISet.class::cast)
-				.map(ModuleDependencyNode::new)
-				.map(m -> m.addDependency(preCheck))
-				.forEach(result::add);
+			var chunks = run(() -> (IList)eval.call(monitor, "chunkGraph", order, preChecksSet, sizes, vf.integer(parAmount)), vf.list(), err);
+			var result = chunks.stream()
+				.map(ISet.class::cast)
+				.map(c -> new ModuleDependencyNode(c, sizes))
+				.collect(Collectors.toCollection(HashSet::new));
+			if (!preChecksSet.isEmpty()) {
+				var preCheck = new ModuleDependencyNode(preChecksSet);
+				result.forEach(n -> n.addDependency(preCheck));
+				result.add(preCheck);
+			}
 			return result;
 		}
 	}
@@ -137,13 +141,12 @@ public class RascalCompile extends AbstractCommandlineTool {
 		for (var e: order) {
 			var from = (ISet)(((ITuple)e).get(0));
 			var to = (ISet)(((ITuple)e).get(1));
-		    var newFiles = from.union(to).stream()
-		        .map(ISourceLocation.class::cast)
-		        .filter(f -> sizes.get(f) == null)
-		        .collect(Collectors.toSet());
-		    for (var f : newFiles) {
-		        sizes.put(f, vf.integer(reg.size(f)));
-		    }
+			var newFiles = from.union(to).stream()
+				.map(ISourceLocation.class::cast).filter(f -> sizes.get(f) == null)
+				.collect(Collectors.toSet());
+			for (var f : newFiles) {
+				sizes.put(f, vf.integer(reg.size(f)));
+			}
 		}
 		return sizes.done();
 	}
@@ -158,13 +161,23 @@ public class RascalCompile extends AbstractCommandlineTool {
 		private final Set<ModuleDependencyNode> dependencies = ConcurrentHashMap.newKeySet();
 		private final long fileSize;
 
+
 		public ModuleDependencyNode(ISet myModules) {
+			this(myModules, vf.map());
+
+		}
+		public ModuleDependencyNode(ISet myModules,IMap sizes) {
 			this.myModules = myModules.stream().collect(vf.listWriter());
 			this.fileSize = myModules.stream()
 				.map(ISourceLocation.class::cast)
-				.mapToLong(value -> {
+				.mapToLong(file -> {
+					var result = sizes.get(file);
+					if (result instanceof IInteger) {
+						return ((IInteger)result).longValue();
+					}
+					// otherwise fallback to the io lookup
 					try {
-						return reg.size(value);
+						return reg.size(file);
 					}
 					catch (IOException e) {
 						return 0;
@@ -294,13 +307,7 @@ public class RascalCompile extends AbstractCommandlineTool {
 					var chunkArgs = new HashMap<>(originalArguments);
 					chunkArgs.put("modules", modules);
 					chunkArgs.put("pcfg", this.pcfg);
-					var start = System.currentTimeMillis();
 					result += runMain(eval.get(), mainModule, "main", chunkArgs, monitor, err);
-					var took = System.currentTimeMillis() - start;
-					if (took > (10 * 1000)) {
-						err.println("*** ⌛ Type checking: " + modules + " took " + String.format("%.1f", took / 1000.) + "s");
-						err.flush();
-					}
 					promoteTpls();
 					completed.add(newTask);
 				}

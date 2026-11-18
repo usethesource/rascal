@@ -13,7 +13,6 @@ import util::Math;
 import util::Monitor;
 import analysis::graphs::Graph;
 import util::PathConfig;
-import analysis::statistics::Descriptive;
 import lang::rascal::\syntax::Rascal;
 
 
@@ -33,25 +32,28 @@ Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) 
 
 }
 
-list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, int] fileSizes, PathConfig pcfg, int amountOfClusters) {
+list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, int] fileSizes, int amountOfClusters) {
     return job("calulating parallel chunks", list[set[loc]] (void (str msg, int worked) step) {
-        // remove all precompute edges
-        // such that we can calculate without them in the mix
-        preCompute += { *p | p <- (graph+)[preCompute]};
-        graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
+        if (preCompute != {}) {
+            // remove all precompute edges
+            // such that we can calculate without them in the mix
+            preCompute += { *p | p <- (graph+)[preCompute]};
+            graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
+        }
         imports = graph+;
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
         bestCommonSize = bestScore;
         for (_ <- [0..1000]) {
-            step("", 1);
+            step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
             if (size(option) < amountOfClusters) {
                 continue;
             }
             allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
-            commonSize = (0 | it + fileSizes[c] | c <- (option[0] | it & op | op <- option[1..]));
+            common = (option[0] | it & clus | clus <- option[1..]);
+            commonSize = (0 | it + fileSizes[c] | c <- common);
 
             score = max(allSizes) - min(allSizes);
             if (commonSize <= bestCommonSize && score < bestScore) {
@@ -117,240 +119,3 @@ list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[
     }
     return chunks;
 }
-
-private Graph[set[&T]] chunkIt(Graph[set[&T]] scc, int amountOf) {
-    clusters = connectedComponents(scc);
-    return {*chunkCluster({t | t:<set[&T] a, set[&T] b> <- scc, a in c || b in c}, amountOf) | c <- clusters};
-}
-
-@memo
-private int nestedSize(Graph[set[&T]] component) = (0 | it + size(s) | s <- domain(component));
-@memo
-private int nestedSize(set[set[&T]] component) = (0 | it + size(s) | s <- component);
-@memo
-private int nestedSize(list[set[&T]] component) = (0 | it + size(s) | s <- component);
-
-int balancedScore([]) = 10000;
-int balancedScore([_]) = 10000;
-default int balancedScore(list[set[set[&T]]] t) {
-    sizes = [ nestedSize(tt) | tt <- t ];
-    return max(sizes) - min(sizes);
-}
-
-int balancedScore([], map[&T, int] sizes) = sum(range(sizes));
-int balancedScore([set[&T] single], map[&T, int] sizes) = totalSize(single, sizes);
-default int balancedScore(list[set[set[&T]]] t, map[set[&T], int] sizes ) {
-    allSizes = [ totalSize(tt, sizes) | tt <- t ];
-    return max(allSizes) - min(allSizes);
-}
-
-@javaClass{org.rascalmpl.library.Prelude}
-private java int __getFileSize(loc f);
-
-private int totalSize(set[&T] V, map[&T, int] sizes) = (0 | it + sizes[v] | v <- V);
-
-private int totalSize(list[set[&T]] Vs, map[&T, int] sizes) = (0 | it + sizes[v] | V <- Vs, v <- V);
-
-private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int parAmount) {
-    return job("Trying random clusters", Graph[set[&T]] (void (str msg, int worked) step) {
-        bestSplit = [];
-        sizes = ( c : (0 | it + __getFileSize(f) | f <- c) | c <- verts(scc));
-        bestCommon = sum(range(sizes));
-        for (_ <- [0..1000]) {
-            step("", 1);
-            <chunks, _> = tryChunk(scc, parAmount, sizes);
-            commonSize = totalSize((chunks[0] | it & c | c <- chunks), sizes);
-            if (commonSize > bestCommon) {
-                continue;
-            }
-            // now we know that common is better
-            if (balancedScore(chunks, sizes) <= balancedScore(bestSplit, sizes)) {
-                bestSplit = chunks;
-                bestCommon = commonSize;
-            }
-        }
-        iprintln(bestSplit);
-        iprintln(bestCommon);
-        return flatten(bestSplit, [], scc);
-    }, totalWork = 1000);
-}
-
-@memo
-private Graph[&T] trans(Graph[&T] g) = g+;
-
-private tuple[list[set[&T]], list[set[&T]]] tryChunk(Graph[&T] scc, int chunkSize, map[set[&T], int] sizes) {
-    sccFull = trans(scc);
-    candidates = verts(scc) - {{}};
-    list[set[&T]] chunks = [ {} | _ <- [0..chunkSize]];
-    list[int] chunkSizes = [0 | _ <- [0..chunkSize]];
-    while (candidates != {}) {
-        c = getOneFrom(candidates);
-
-        // take c and all of it's imports
-        chunk = {c} + sccFull[{c}];
-        candidates -= chunk;
-
-        smallest = ( 0 | chunkSizes[i] < chunkSizes[it] ? i : it | i <- [0..chunkSize]);
-        chunks[smallest] += chunk;
-        chunkSizes[smallest] += totalSize(chunk, sizes);
-    }
-    return <chunks, []>;
-}
-
-private Graph[set[&T]] flatten(list[set[set[&T]]] chunks, list[set[set[&T]]] common, Graph[set[&T]] scc) {
-    newVerts =  { { *c | c <- com } | com <- common} +
-        { {*v | v <- vv} | vv <- chunks}
-    ;
-    lookupV = { <c, v> | v <- newVerts, c <- v };
-    Graph[set[&T]] newGraph = {};
-    for (<from, to> <- scc) {
-        newFrom = lookupV[from];
-        newTo = lookupV[to];
-        if (newFrom & newTo == {}) {
-            // our dependencies are not local to our own clustering
-            newGraph += newFrom * newTo;
-        }
-    }
-    return newGraph + {<v, {}> | v <- (newVerts - verts(newGraph)), v != {}};
-}
-
-// // inspired by Highly Connected Subgraphs (HCS) clustering algorithm
-// private Graph[set[&T]] chunkCluster(Graph[set[&T]] scc, int amountOf) {
-//     if (nestedSize(scc) < amountOf) {
-//         // flatten to one chunk
-//         return {<{*v | v <- verts(scc)}, {}>};
-//     }
-
-
-//     // bestGraphs = [];
-//     // bestRemain = scc;
-//     // // find a minimum cut
-//     // for (i <- [0..20]) {
-//     //     <graphs, remain> = splitGraph(scc, amountOf, i);
-//     //     if (balancedScore(graphs) > balancedScore(bestGraphs) && size(graphs) > size(bestGraphs)) {
-//     //         bestGraphs = graphs;
-//     //         bestRemain = remain;
-//     //     }
-//     // }
-
-//     // //  println("best:");
-//     // //  iprintln(bestGraphs);
-//     // // iprintln(bestRemain);
-//     <bestGraphs, bestRemain> = splitGraph(scc, amountOf, 0);
-
-//     return calculateMergedGraphs(bestGraphs, bestRemain);
-// }
-
-
-// private tuple[list[Graph[set[&T]]], Graph[set[&T]]] splitGraph(Graph[set[&T]] scc, int amountOf, int seed) {
-//     list[set[set[&T]]] subs = [];
-//     set[set[&T]] current = {};
-//     currentSize = 0;
-//     for (v <- shuffle([*range(scc)], seed)) {
-//         if (currentSize + size(v) > amountOf && current != {}) {
-//             // new subgraph
-//             subs += current;
-//             current = {};
-//             currentSize = 0;
-//         }
-//         current += {v};
-//         currentSize += size(v);
-//     }
-//     if (currentSize > 0) {
-//         subs += current;
-//     }
-//     //iprintln(subs);
-//     // now split the domain, lets make the subgraphs and reconstuct the cross graph edges
-//     subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && to in sub } | sub <- subs] - [{}];
-
-//     if ({} in subg) {
-//         println("I produced flats!!");
-//     }
-//     outside = scc - {*g | g <- subg};
-//     return <subg, outside>;
-// }
-
-//private int sizes(set[set[&T]] sets) = (0 | it + size(s) | s <- sets);
-
-
-// private list[set[set[&T]]] split(Graph[set[&T]] scc, int amountOf, set[set[&T]] verts) {
-//     // inside the layer we can split things up a bit
-//     subset = (scc & (verts * verts));
-//     clusters = connectedComponents(subset);
-//     for (v <- verts, /v !:= clusters) {
-//         clusters += {{v}};
-//     }
-
-//     list[set[set[&T]]] result = [];
-//     set[set[&T]] current = {};
-//     currentSize = 0;
-//     for (c <- clusters) {
-//         if (currentSize + size(c) > amountOf && current != {}) {
-//             result += current;
-//             current = {};
-//             currentSize = 0;
-//         }
-//         current += c;
-//         currentSize += size(c);
-//     }
-//     if (current != {}) {
-//         result += current;
-//     }
-//     return result;
-
-// }
-
-// private tuple[list[Graph[set[&T]]], Graph[set[&T]]] splitGraph(Graph[set[&T]] scc, int amountOf, int seed) {
-//     list[set[set[&T]]] subs = [];
-//     set[set[&T]] current = {};
-//     currentSize = 0;
-
-//     sccCopy = scc;
-//     candidates = verts(scc);
-//     while (candidates != {}) {
-//         sccInverted = invert(sccCopy);
-//         // collect 4 level deep imports
-//         leafs = top(sccInverted);
-//         sccInverted1 = sccInverted o sccInverted;
-//         leafs += top(sccInverted1);
-//         sccInverted1 = sccInverted o sccInverted1;
-//         leafs += top(sccInverted1);
-//         sccInverted1 = sccInverted o sccInverted1;
-//         leafs += top(sccInverted1);
-//         if (leafs == {}) {
-//             println("Nothing left:<candidates>: <sccInverted1>");
-//             subs += split(scc, amountOf, candidates);
-//             break;
-//         }
-//         subs += split(scc, amountOf, leafs);
-//         candidates -= leafs;
-//         sccCopy = {t | t:<set[&T] a, set[&T] b> <- sccCopy, a notin leafs, b notin leafs};
-//     }
-//     //iprintln(subs);
-//     // now split the domain, lets make the subgraphs and reconstuct the cross graph edges
-//     subg = [ {t | t:<set[&T] from, set[&T] to> <- scc, from in sub && (to in sub || to == {}) } + (sub * {{}}) | sub <- subs];
-
-
-//     outside = scc - {*g | g <- subg};
-//     return <subg, outside>;
-// }
-
-
-// private Graph[set[&T]] calculateMergedGraphs(list[Graph[set[&T]]] subGraphs, Graph[set[&T]] remain) {
-//     set[set[&T]] newV = {};
-//     map[set[&T], set[&T]] subV = ();
-//     for (s <- subGraphs) {
-//         vs = verts(s);
-//         fl = {*v | v <- vs, v != {}}; // flatten
-//         if (fl == {}) {
-//             println("flatt??: <s>");
-//         }
-//         newV += {fl};
-//         for (v <- vs) {
-//             subV[v] = fl;
-//         }
-//     }
-//     connections = { <subV[from]?from, subV[to]?to> | <set[&T] from, set[&T] to> <- remain};
-//     missing = newV - verts(connections);
-//     return (connections + {<m, {}> | m <- missing}) - {<{},{}>};
-// }
