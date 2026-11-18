@@ -37,12 +37,13 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
     return job("calulating parallel chunks", list[set[loc]] (void (str msg, int worked) step) {
         // remove all precompute edges
         // such that we can calculate without them in the mix
-        preCompute += (graph+)[preCompute];
-        graph = { <fromF, toF> | <from, to> <- graph, fromF := from - preCompute, toF := to - preCompute, fromF != {}, toF != {}, toF != fromF};
+        preCompute += { *p | p <- (graph+)[preCompute]};
+        graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
         imports = graph+;
-        allClusters = graph<0> + graph<1>;
+        allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
+        bestCommonSize = bestScore;
         for (_ <- [0..1000]) {
             step("", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
@@ -50,10 +51,13 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
                 continue;
             }
             allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
+            commonSize = (0 | it + fileSizes[c] | c <- (option[0] | it & op | op <- option[1..]));
+
             score = max(allSizes) - min(allSizes);
-            if (score < bestScore) {
+            if (commonSize <= bestCommonSize && score < bestScore) {
                 best = option;
-                bestScore = score;
+                bestScore = score * (1 + (1/amountOfClusters));
+                bestCommonSize = commonSize;
             }
         }
         return best;
