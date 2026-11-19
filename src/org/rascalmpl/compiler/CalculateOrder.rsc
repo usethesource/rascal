@@ -44,7 +44,8 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
-        bestCommonSize = bestScore;
+        bestCommonSize = bestScore + 0.;
+        bestCommonSize1 = bestScore + 0.;
         for (_ <- [0..1000]) {
             step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
@@ -53,15 +54,20 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             }
             allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
             common = (option[0] | it & clus | clus <- option[1..]);
+            common1 = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= amountOfClusters - 1 };
             commonSize = (0 | it + fileSizes[c] | c <- common);
+            commonSize1 = (0 | it + fileSizes[c] | c <- common1);
 
             score = max(allSizes) - min(allSizes);
-            if (commonSize <= bestCommonSize && score < bestScore) {
+            if (commonSize <= bestCommonSize && score < bestScore && commonSize1 <= bestCommonSize1) {
+                println("Better option: <score> <commonSize> <commonSize1> == <allSizes>");
                 best = option;
                 bestScore = score * (1 + (1/amountOfClusters));
-                bestCommonSize = commonSize;
+                bestCommonSize = (commonSize + 1) * 1.1;
+                bestCommonSize1 = (commonSize1 + 1) * 1.1;
             }
         }
+        println("Split the work into clusters: <[size(b) | b <- best]>");
         return best;
     }, totalWork = 1000);
 }
@@ -105,20 +111,42 @@ Graph[loc] moduleDependencies(loc file, PathConfig pcfg) {
 @memo
 private set[&T] verts(Graph[&T] G) = G<0> + G<1>;
 
+private int totalFileSize(set[loc] files, map[loc, int] fileSizes) = (0 | it + fileSizes[f] | f <- files);
+
+@memo
+private set[loc] flatten(set[set[loc]] locs) {
+    if ({set[loc] single} := locs) {
+        return single;
+    }
+    return { *ll | ll <- locs};
+}
+
 list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
     list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
+    list[int] chunkSizes = [ 0 | _ <- [0..amountOfClusters]];
     candidates = allClusters;
     assigned = 0;
     while (candidates != {}) {
         c = getOneFrom(candidates);
         ci = {c} + imports[{c}];
         candidates -= ci;
-        chunk = { *c | set[loc] c <- ci };
+        chunk = flatten(ci);
         if (assigned < amountOfClusters) {
             chunks[assigned] += chunk;
+            chunkSizes[assigned] = totalFileSize(chunk, fileSizes);
         }
         else {
-            smallest = (0 | size(chunks[it] & chunk) > size(chunks[i] & chunk) ? it : i | i <- [1..amountOfClusters]);
+            smallest = 0;
+            if (size(chunk) == 1) {
+                // no imports, so throw it in the smallest bucket
+                smallest = (0 | chunkSizes[it] < chunkSizes[i] ? it : i  | i <- [1..amountOfClusters]);
+            }
+            else {
+                // look for the smallest new modules added
+                //
+                smallest = (<0, size(chunk - chunks[0])> | it[1] < sz ? it : <i, sz> | i <- [1..amountOfClusters], sz := size(chunk - chunks[i]))[0];
+            }
+            chunkSizes[smallest] += totalFileSize(chunk - chunks[smallest], fileSizes);
             chunks[smallest] += chunk;
         }
         assigned += 1;
