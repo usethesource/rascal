@@ -755,14 +755,15 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadsByArity(rel[lo
         }
     }
 
-    for(ft:afunc(AType _, list[AType] formals, list[Keyword] _) <- overloads<2>){
-        if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
+    for(ft:afunc(AType _, list[AType] formals, list[Keyword] _, varArgs=varArgs) <- overloads<2>) {
+        nFormals = size(formals);
+        if(varArgs ? (arity >= nFormals - 1) : (arity == nFormals)) {
             filteredOverloadTypes += ft;
-            if(isEmpty(prevFormals)){
+            nPrevFormals = size(prevFormals);
+            if(nPrevFormals == 0){
                 prevFormals = formals;
             } else {
-                nRelevantFormals = size(formals) - (ft.varArgs ? 1 : 0);
-                nPrevFormals =  size(prevFormals);
+                nRelevantFormals = nFormals - (varArgs ? 1 : 0);
                 for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
                     identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
                 }
