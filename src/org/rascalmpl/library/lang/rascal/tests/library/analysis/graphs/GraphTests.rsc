@@ -250,7 +250,12 @@ test bool reach4() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {4}) =={4};
 test bool reach5() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {3,4}) =={3,4};
 test bool reach6() = reach({<1,2>, <1,3>, <2,4>, <3,4>}, {2,3}) =={2, 3,4};
   	
-// TODO: shortestPathPair
+// shortestPathPair
+
+test bool shortestPathPair1() = shortestPathPair({}, 1, 1) == [1];
+test bool shortestPathPair2() = shortestPathPair({}, 1, 2) == [];
+test bool shortestPathPair3() = shortestPathPair(G10, 0, 9) == [0,1,4,5,9];
+test bool shortestPathPair4() = shortestPathPair(G1, 1, 9) == [];
   	
 // successors
   
