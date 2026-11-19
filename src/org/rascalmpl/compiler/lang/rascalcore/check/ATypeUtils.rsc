@@ -1507,9 +1507,17 @@ public AType filterOverloadsByRole(overloadedAType(rel[loc, IdRole, AType] overl
 public default AType filterOverloadsByRole(AType t, set[IdRole] roles) = t;
 
 @synopsis{Filter overloads by ((AType)).}
-rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] overloads, set[AType] atypes)
+rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] _overloads, set[AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)).}
+default rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] overloads, set[AType] atypes)
     = {t | t:<loc _, IdRole _, AType atype> <- overloads, atype in atypes};
 
 @synopsis{Filter overloads by ((AType)) and map their type.}
-rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
+rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] _overloads, rel[AType, AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+default rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
     = {<def, idRole, atype<1>> | <def, idRole, ovlType> <- overloads, atype <- atypes, atype<0> == ovlType};
