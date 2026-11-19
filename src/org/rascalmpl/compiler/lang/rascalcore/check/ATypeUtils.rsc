@@ -1508,3 +1508,11 @@ public default AType filterOverloads(AType t, set[IdRole] roles) = t;
 @synopsis{Filter overloads by ((AType)).}
 rel[loc, IdRole, AType] filterOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes)
     = {t | t:<loc _, IdRole _, AType atype> <- overloads, atype in atypes};
+
+int countOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes) {
+    int count = 0;
+    for (<_, _, atype> <- overloads, atype in atypes) {
+        count += 1;
+    }
+    return count;
+}

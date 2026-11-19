@@ -89,21 +89,22 @@ rel[loc key, IdRole idRole, AType atype] checkAndFilterOverloads(Tree expr, rel[
 
 set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s) {
     set[AType] filteredTypes = {};
-    set[AType] unResolvedConstructorOverloads = {};
+    set[AType] unResolvedConstructorOverloadTypes = {};
     for(tp <- overloads<2>){
         if(isValueAType(expected)){
             filteredTypes += tp;
             if(isConstructorAType(tp) || isADTAType(tp)){
-                unResolvedConstructorOverloads += tp;
+                unResolvedConstructorOverloadTypes += tp;
             }
         } else if(asubtype(tp, expected)){
             filteredTypes += tp;
         } else if(isConstructorAType(tp) || isADTAType(tp)){
-            unResolvedConstructorOverloads += tp;
+            unResolvedConstructorOverloadTypes += tp;
         } 
     }
-    if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloads };
+
+    if(countOverloads(overloads, unResolvedConstructorOverloadTypes) > 1) {
+        adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloadTypes };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
