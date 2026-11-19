@@ -41,6 +41,7 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
         }
         imports = graph+;
+        importees = {<t, f> | <set[loc] f, set[loc] t> <- graph, f != {}};
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
@@ -48,21 +49,27 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         bestCommonSize1 = bestScore + 0.;
         for (_ <- [0..1000]) {
             step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
-            option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
+            option = tryChunk(imports, importees, allClusters, fileSizes, amountOfClusters);
             if (size(option) < amountOfClusters) {
                 continue;
             }
-            allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
+            allSizes = sort([ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option]);
             common = (option[0] | it & clus | clus <- option[1..]);
-            common1 = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= amountOfClusters - 1 };
+            common1 = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= 2 };
             commonSize = (0 | it + fileSizes[c] | c <- common);
             commonSize1 = (0 | it + fileSizes[c] | c <- common1);
 
-            score = max(allSizes) - min(allSizes);
-            if (commonSize <= bestCommonSize && score < bestScore && commonSize1 <= bestCommonSize1) {
-                println("Better option: <score> <commonSize> <commonSize1> == <allSizes>");
+            if (allSizes[-1] / 5 > allSizes[-2]) {
+                // skipping cases where everything landed in one bucket
+                // as in those cases, it's better to just not use concurrency
+                continue;
+            }
+
+            score = allSizes[-1] - allSizes[0];
+            if (score * 5 < bestScore || (commonSize <= bestCommonSize && score < bestScore && commonSize1 <= bestCommonSize1)) {
+                println("Better option: <score> <commonSize> <commonSize1> \t <allSizes> \t <[size(b) | b <- option]>");
                 best = option;
-                bestScore = score * (1 + (1/amountOfClusters));
+                bestScore = score;// * (1 + (1/amountOfClusters));
                 bestCommonSize = (commonSize + 1) * 1.1;
                 bestCommonSize1 = (commonSize1 + 1) * 1.1;
             }
@@ -121,14 +128,15 @@ private set[loc] flatten(set[set[loc]] locs) {
     return { *ll | ll <- locs};
 }
 
-list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
+list[set[loc]] tryChunk(Graph[set[loc]] imports, Graph[set[loc]] importees, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
     list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
     list[int] chunkSizes = [ 0 | _ <- [0..amountOfClusters]];
     candidates = allClusters;
     assigned = 0;
     while (candidates != {}) {
         c = getOneFrom(candidates);
-        ci = {c} + imports[{c}];
+        ci = {c};// + importees[{c}];
+        ci += imports[ci];
         candidates -= ci;
         chunk = flatten(ci);
         if (assigned < amountOfClusters) {
