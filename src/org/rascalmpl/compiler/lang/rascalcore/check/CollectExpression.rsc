@@ -612,7 +612,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := texp){
-              <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
+              <filteredOverloads, identicalFormals> = filterOverloadsByArity(overloads, size(actuals));
               if({<_, _, tp>} := filteredOverloads){
                 texp = tp;
                 s.specializedFact(expression, tp);
@@ -646,7 +646,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         continue;
                  }
 
-                 validOverloads = filterOverloads(overloads, validOverloadTypes);
+                 validOverloads = filterOverloadsByAType(overloads, validOverloadTypes);
                  if({<_, _, tp>} := validOverloads){
                     texp = tp;
                     s.specializedFact(expression, tp);
@@ -735,8 +735,8 @@ void reportMissingNonTerminalCases(Expression current, set[AType] overloadTypes,
     }
 }
 
-private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
-    // println("filterOverloads: <overloads>, <arity>");
+private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadsByArity(rel[loc, IdRole, AType] overloads, int arity){
+    // println("filterOverloadsByArity: <overloads>, <arity>");
     set[AType] filteredOverloadTypes = {};
     list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
@@ -771,7 +771,7 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
         
     }
 
-    return <filterOverloads(overloads, filteredOverloadTypes), identicalFormals>;
+    return <filterOverloadsByAType(overloads, filteredOverloadTypes), identicalFormals>;
 }
 
 // TODO: in order to reuse the function below `keywordArguments` is passed as where `keywordArguments[&T] keywordArguments` would make more sense.
