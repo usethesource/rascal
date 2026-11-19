@@ -12,6 +12,7 @@ import String;
 import util::Math;
 import util::Monitor;
 import analysis::graphs::Graph;
+import analysis::statistics::Descriptive;
 import util::PathConfig;
 import lang::rascal::\syntax::Rascal;
 
@@ -32,6 +33,8 @@ Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) 
 
 }
 
+int RANDOM_TRIES = 2000;
+
 list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, int] fileSizes, int amountOfClusters) {
     return job("calulating parallel chunks", list[set[loc]] (void (str msg, int worked) step) {
         if (preCompute != {}) {
@@ -43,27 +46,35 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         imports = graph+;
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
+        totalModules = size(best[0]);
+        //bestScore = ((0 | it + fileSizes[f] | c <- allClusters, f <- c) / amountOfClusters) * 2;
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
         bestCommonSize = bestScore;
-        for (_ <- [0..1000]) {
+
+        combinations = [<a,b> | <a,b> <- [0..amountOfClusters] * [0..amountOfClusters], a < b];
+        for (_ <- [0..RANDOM_TRIES]) {
             step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
-            if (size(option) < amountOfClusters) {
+            if (size(option) < amountOfClusters || any(op <- option, size(op) <= totalModules / (amountOfClusters * 10))) {
                 continue;
             }
             allSizes = [ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option];
-            common = (option[0] | it & clus | clus <- option[1..]);
-            commonSize = (0 | it + fileSizes[c] | c <- common);
+            commonSizes = [(0 | it + fileSizes[c] | c <- option[a] & option[b]) | <a,b> <- combinations];
+            //common = (option[0] | it & clus | clus <- option[1..]);
+            //common = { f | c <- allClusters, f <- c, (0 | it + (f in op ? 1 : 0) | op <- option) >= amountOfClusters - 1};
+            //commonSize = (0 | it + fileSizes[c] | c <- common);
 
             score = max(allSizes) - min(allSizes);
+            commonSize = max(commonSizes);
             if (commonSize <= bestCommonSize && score < bestScore) {
+                println("Better option: <allSizes> <commonSize>");
                 best = option;
                 bestScore = score * (1 + (1/amountOfClusters));
-                bestCommonSize = commonSize;
+                bestCommonSize = commonSize;//  * (1 + (1/amountOfClusters));
             }
         }
         return best;
-    }, totalWork = 1000);
+    }, totalWork = RANDOM_TRIES);
 }
 
 Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
