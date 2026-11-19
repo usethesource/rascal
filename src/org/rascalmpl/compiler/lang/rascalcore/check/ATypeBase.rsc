@@ -92,7 +92,7 @@ data AType (str alabel = "")
 
 @memo={expireAfter(minutes=5),maximumSize(1000)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
-    if(all(aadt(_, _, _) <- overloads<2>)){
+    if(all(t <- overloads<2>, aadt(_, _, _) := t)){
       str adtName = "";
       list[AType] adtParams = [];
       synRoles = {};
