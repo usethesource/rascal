@@ -109,15 +109,14 @@ public class ConstructorResult extends NodeResult {
     public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
         Type consType = getValue().getConstructorType();
 
-<<<<<<< HEAD
-	    try {
-	        if (getStaticType().hasField(name, store)) {
-	            return positionalFieldAccess(consType, name);
-	        }
-	        else if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
-	            return keywordFieldAccess(consType, name, store);
-	        }
-			else if (getStaticType().isExternalType() && ((RascalType) getStaticType()).isRoleModifier()) {
+        try {
+            if (getStaticType().hasField(name, store)) {
+                return positionalFieldAccess(consType, name);
+            }
+            if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
+                return keywordFieldAccess(consType, name, store);
+            }
+			if (getStaticType().isExternalType() && ((RascalType) getStaticType()).isRoleModifier()) {
 				// if it's an open syntax role, we always have the src field
 				if ("src".equals(name)) {
 					return keywordFieldAccess(consType, name, store);
@@ -126,24 +125,6 @@ public class ConstructorResult extends NodeResult {
 					throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 				}
 			}
-	        else {
-	            // If the keyword field was defined on any of the other constructors, then 
-	            // we see this as a dynamic error. (the programmer could not have known since
-	            // constructor types are not first class citizens in Rascal). Otherwise the programmer
-	            // used a completely unknown field name and we flag it as static error.
-	            for (Type alt : store.lookupAlternatives(getValue().getUninstantiatedConstructorType().getAbstractDataType())) {
-	                if (store.hasKeywordParameter(alt, name)) {
-	                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
-	                }
-	            }
-=======
-        try {
-            if (getStaticType().hasField(name, store)) {
-                return positionalFieldAccess(consType, name);
-            }
-            if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
-                return keywordFieldAccess(consType, name, store);
-            }
             if (consType == RascalValueFactory.Tree_Amb) {
                 throwOnAmbFieldAccess(name); // Will never return
             }
@@ -197,8 +178,6 @@ public class ConstructorResult extends NodeResult {
         // None of the alternatives have the field, generate a static `UndeclaredField` error
         throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
     }
->>>>>>> main
-
 	
 	public <U extends IValue> Result<U> positionalFieldAccess(Type consType, String name) {
 	    if (consType.hasField(name)) {
