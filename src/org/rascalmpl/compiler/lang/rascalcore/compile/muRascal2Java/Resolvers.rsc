@@ -35,6 +35,8 @@ import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::util::Names;
 
+import lang::rascalcore::check::LogicalLocations;
+
 //import lang::rascalcore::compile::muRascal2Java::SameJavaType;
 
 import IO;
@@ -63,9 +65,9 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[MODID] mo
                     | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,
                       (ov.idRole == functionId() || ov.idRole == constructorId()) 
                     } 
-                  |  loc u <- tmodel.facts, 
-                     getRascalModuleName(u, pcfg) == mname/*jg.isContainedIn(u, mscope)*/, 
-                     /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] 
+                  | loc u <- tmodel.facts,
+                    /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u],
+                    anyLoc2moduleName(u, pcfg) == mname
                   };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def>
                                 | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0,
@@ -278,7 +280,7 @@ str generateResolver(MODID moduleId, str functionName, set[Define] fun_defs, map
     inner_scope = "";
 
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        for(def <- relevant_fun_defs, getModuleName(def.defined) == moduleName/*jg.isContainedIn(def.defined, module_scope)*/){
+        for(def <- relevant_fun_defs, logicalLoc2moduleName(def.defined) == moduleName/*jg.isContainedIn(def.defined, module_scope)*/){
             fun = fid2muFunction[def.defined];
             if(isFunctionId(fun.scopeIn)){
                 inner_scope = "<getFunctionName(fun.scopeIn)>_";

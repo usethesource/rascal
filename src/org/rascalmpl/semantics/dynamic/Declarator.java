@@ -53,6 +53,10 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 
 					Type declaredType = typeOf(__eval.getCurrentEnvt(), __eval, true);
 
+					if (v.getStaticType().isBottom()) {
+						throw new UnexpectedType(declaredType, v.getStaticType(), var);
+					}
+
 					if (!__eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariable(varAsString, var);
 					}

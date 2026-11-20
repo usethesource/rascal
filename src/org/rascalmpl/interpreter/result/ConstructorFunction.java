@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -110,6 +111,9 @@ public class ConstructorFunction extends NamedFunction {
 					else {
 						Expression def = kwparam.getExpression();
 						kwResult = def.interpret(eval);
+						if (kwResult.getStaticType().isBottom()) {
+							throw new NonVoidTypeRequired(def);
+						}
 					}
 					
 					// apply the static type we expect from the declaration:
@@ -160,7 +164,11 @@ public class ConstructorFunction extends NamedFunction {
 	            } 
 	            else {
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
-					IValue res = def.interpret(eval).getValue();
+					Result<IValue> defResult = def.interpret(eval);
+					if (defResult.getStaticType().isBottom()) {
+						throw new NonVoidTypeRequired(def);
+					}
+					IValue res = defResult.getValue();
 
 					if (!res.getType().isSubtypeOf(kwType)) {
 						throw new UnexpectedKeywordArgumentType(kwparam, kwType, res.getType(), ctx.getCurrentAST());

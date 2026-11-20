@@ -97,6 +97,7 @@ AType(Solver) makeKeywordFieldType(str fieldName, KeywordFormal kwf)
     = AType(Solver s) { 
         fldType = s.getType(kwf.\type);
         defType = s.getType(kwf.expression);
+        checkNonVoid(kwf.expression, defType, s, "Default expression");
         bindings = ();
         try   bindings = unifyRascalTypeParams(fldType, defType, bindings);
         catch invalidMatch(str reason):

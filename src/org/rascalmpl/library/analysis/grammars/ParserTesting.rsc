@@ -8,14 +8,183 @@
 @synopsis{Reusable test functions to run (generated) parsers on a test corpus}
 module analysis::grammars::ParserTesting
 
+extend lang::rascal::\syntax::Rascal;
+
 import Exception;
+import Grammar;
 import IO;
 import List;
+import Message;
 import ParseTree;
+import String;
 import analysis::grammars::Ambiguity;
+import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Symbols;
 import util::Monitor;
+import util::Reflective;
+
+start syntax ParserTestModule
+    = @synopsis{A syntax for files that can contain many small test cases for a parser} 
+    Tags tags "module" QualifiedName name Import* imports ParserTestCase* cases;
+
+syntax ParserTestCase
+    = "syntax" "test" Name? label "(" Sym symbol ")" "expects" ParserTestExpect expect TagString content;
+
+syntax ParserTestExpect
+    = ok: "ok"
+    | ambiguous:"ambiguous" 
+    | error: "error" 
+    ;
 
 alias FileParser[&T] = &T (loc org);
+
+
+@synopsis{Run the tests embedded in a parser test module file and return true iff all the tests succeeded.}
+@benefits{
+* all failing tests are reported in standard fashion on stdout
+* when grammars remain unchanged on disk, the tests reuse parsers from the previous run
+}
+@pitfalls{
+* parser test module files have to be loaded, as well as Rascal module files, and converted to a parser, which involves critical file IO
+and the right ((data:PathConfig)) instance.
+}
+bool reportParserTestModule(loc m, PathConfig pcfg=pathConfig()) {
+    messages = runParserTestModule(m, pcfg=pcfg);
+    println(write(messages));
+    return /error(_,_) !:= messages;
+}
+
+@synopsis{Run the tests embedded in a parser test module file and return true iff all the tests succeeded.}
+@benefits{
+* all failing tests are reported in standard fashion as a `list[Message]`, which can be processed further downstream
+by communicating to IDE diagnostics views, or as editor annotations, for example.
+* when grammars remain unchanged on disk, the tests reuse parsers from the previous run
+}
+@pitfalls{
+* parser test module files have to be loaded, as well as Rascal module files, and converted to a parser, which involves critical file IO
+and the right ((data:PathConfig)) instance.
+}
+list[Message] runParserTestModule(loc m, PathConfig pcfg=pathConfig()) {
+    try {
+        return doRunParserTestModule(parse(#start[ParserTestModule], m).top, pcfg=pcfg);
+    }
+    catch ParseError(loc l): {
+        return [error("parse error in test module", l)];
+    }
+}
+
+@synopsis{The workhorse parses the test specifications, composes the main grammar, and iterates over each individual test}
+private list[Message] doRunParserTestModule(ParserTestModule m, PathConfig pcfg=pathConfig()) {
+    str caseLabel (ParserTestCase w) { 
+        return "<w.label>@<w.src>"; 
+    }
+
+    try {
+        set[Module] rascalModules = collectRascalModules(m.imports, {}, pcfg=pcfg);
+        QualifiedName modName = m.name;
+        Import* imports = m.imports;
+        Module rascalMain = (Module) `module <QualifiedName modName> <Import* imports>`;
+        Grammar gr = modules2grammar(deslash("<modName>"), {rascalMain, *rascalModules});
+
+        if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
+            p = parsers(rt, allowAmbiguity=false, allowRecovery=false);
+        
+            return loopJob([c | c <- m.cases], Message (ParserTestCase c) {
+                return runParserTestCase(c, Tree (type[Tree] nt, str input) { return p(nt, input, m.src.top); });
+            }, 
+            stepLabel = caseLabel);
+        }
+        else {
+            return [error("unexpected error while generating parsers for <m.name>", m.src)];
+        }
+    }
+    catch value e: {
+        return [error("unexpected error while trying to test <m.name>: <e>", m.src)];
+    }
+}
+
+private str deslash(str input) = visit(input) {
+    case /\\/ => ""
+};
+
+private set[Module] collectRascalModules(Import* imports, set[str] done, PathConfig pcfg=pathConfig()) 
+    = { *collectRascalModules(i , done, pcfg=pcfg) | i <- imports };
+
+private set[Module] collectRascalModules((Import) `extend <QualifiedName name>;`, set[str] done, PathConfig pcfg=pathConfig()) 
+    = collectRascalModules((Import) `import <QualifiedName name>;`, done, pcfg=pcfg);
+
+private set[Module] collectRascalModules((Import) `import <QualifiedName name>;`, set[str] done, PathConfig pcfg=pathConfig()) {
+    if (deslash("<name>") in done) {
+        return {};
+    }
+    loc f = srcsFile(deslash("<name>"), pcfg.srcs, fileConfig());
+    Module m = parseModule(f);
+
+    return {m} + collectRascalModules(m.header.imports, done + deslash("<name>"), pcfg=pcfg);
+}
+
+private default set[Module] collectRascalModules(Import _, set[str] done, PathConfig pcfg=pathConfig()) 
+    = {};
+
+private Message runParserTestCase(ParserTestCase testCase, &T (type[&T <: Tree], str) theParser) {
+    expect = testCase.expect;
+    sym = testCase.symbol;
+    content = "<testCase.content>";
+
+    content = content[1..-1]; // drop the outermost { }
+    content = replaceAll(content, "\\}", "}"); // deescape \}
+    content = replaceAll(content, "\\{", "{"); // deescape \{
+
+    if (!(sym is \start)) {
+        // only start non-terminals can start and end with whitespace or comments
+        content = trim(content);
+    }
+
+    // need number of escaped curlies to shift error positions in the spec
+    int countEscapedCurliesAndPrefixWhitespace(int off) {
+        str input = "<testCase.content>"[1..off];
+        int white = /^<w:[\ \t\n]*>.*$/ := input ? size(w) : 0;
+        int result = 0;
+        visit (input) {
+            case "\\{": result += 1;
+            case "\\}": result += 1;
+        }
+
+        return result + white;
+    }
+    // shifts a parse error in an example string to the location of the spec in the module
+    loc errorLoc(loc e) = testCase.src.top(testCase.content.src.offset + 1 /* skip { */ + e.offset + countEscapedCurliesAndPrefixWhitespace(e.offset), 1);
+
+    try {
+        if (type[Tree] nt := type(sym2symbol(sym), ())) {
+            _forget = theParser(nt, content);
+            if (expect is ok) {
+                return info("test <testCase.label> ok", testCase.src);
+            }
+            else {
+                return error("test <testCase.label> is unexpectedly ok. Was waiting for an <expect>.", testCase.src);
+            }
+        }
+    }
+    catch ParseError(loc l): {
+        if (expect is error) {
+            return info("test <testCase.label> has an expected error.", errorLoc(l));
+        }
+        else {
+            return error("unexpected parse error in <testCase.label> test.", errorLoc(l));
+        }
+    }
+    catch Ambiguity(loc l, _, _): {
+        if (expect is ambiguous) {
+            return info("test <testCase.label> has an expected ambiguity.", errorLoc(l));
+        }
+        else {
+            return error("unexpected ambiguity in <testCase.label> test.", errorLoc(l));    
+        }
+    }
+    
+    return error("unexpected nil outcome of <testCase.label> test.", testCase.src);
+}
 
 @synopsis{Collect files of a specific extension from a folder recursively, while filtering ignored files and folders}
 list[loc] constructParsingTestCorpus(loc root, set[str] extensions, set[loc] ignores={}) {
