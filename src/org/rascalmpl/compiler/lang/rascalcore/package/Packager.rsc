@@ -34,6 +34,11 @@ import util::Reflective;
 import Location;
 import String;
 
+// TModels in TPL files can contain `FileSystemChange` values, which are traversed and modified by a visit expression in
+// this module (function `rewriteTypeModel`). The following import makes sure that the necessary `FileSystemChange`
+// constructors are visible; without it, an `UnexpectedType` error is thrown. See also: #2972 and #2993.
+import analysis::diff::edits::TextEdits;
+
 void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
       throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";

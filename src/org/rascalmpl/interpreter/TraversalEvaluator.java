@@ -30,6 +30,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -75,6 +76,12 @@ public class TraversalEvaluator {
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final List<IValue> traversalContext;
 	private io.usethesource.capsule.Map.Transient<IValue, TraverseResult> memoizedResults = io.usethesource.capsule.Map.Transient.of();
+
+	/**
+	 * AST of (the body of) the latest case that was successfully matched and evaluated, if any, or {@code null}
+	 * otherwise. This is useful to report errors at an accurate location.
+	 */
+	private AbstractAST latestCaseBody = null;
 	
 	public TraversalEvaluator(IEvaluator<Result<IValue>> eval) {
 		this.eval = eval;
@@ -441,7 +448,9 @@ public class TraversalEvaluator {
 		  }
 		  catch (MatchFailed e) {
 			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
-			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
+			  var got = e.functionType != null ? e.functionType.getFieldTypes() : tf.tupleType(args);
+			  var ast = latestCaseBody != null ? latestCaseBody : null;
+			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), got, ast);
 		  }
 
 		  if (memoize) {
@@ -667,11 +676,18 @@ public class TraversalEvaluator {
 					return subject;
 				}
 			}
+			catch (Insert e) {
+				tr.matched = true;
+				throw e;
+			}
 			catch (Failure e) {
 				// just continue with the next case
 				continue;
 			}
 			finally {
+				if (tr.matched) {
+					latestCaseBody = eval.getCurrentAST();
+				}
 				eval.unwind(old);
 				eval.setCurrentAST(prevAst);
 			}

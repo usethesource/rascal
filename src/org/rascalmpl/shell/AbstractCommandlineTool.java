@@ -17,6 +17,8 @@ import java.util.stream.Stream;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -86,6 +88,10 @@ public abstract class AbstractCommandlineTool {
                 err.println(ioe.getMessage());
             }
 
+            return 1;
+        }
+        catch (StaticError e) {
+            ReadEvalPrintDialogMessages.staticErrorMessage(out, e, new StandardTextWriter());
             return 1;
         }
         catch (Throwable e) {

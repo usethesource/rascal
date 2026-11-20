@@ -11,6 +11,22 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
+import io.usethesource.vallang.type.Type;
+
 public class MatchFailed extends ControlException {
 	private static final long serialVersionUID = -2730655862233487621L;
+
+	/**
+	 * Type of the function against which the match failed. Can be {@code null} when the match didn't happen in the
+	 * context of a function, or when it did, but the information wasn't passed yet to this exception.
+	 */
+	public final Type functionType;
+
+	public MatchFailed() {
+		this(null);
+	}
+
+	public MatchFailed(Type functionType) {
+		this.functionType = functionType;
+	}
 }
