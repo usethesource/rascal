@@ -1503,6 +1503,7 @@ public AType filterOverloadsByRole(overloadedAType(rel[loc, IdRole, AType] overl
     if({<_,_,t>} := reduced) return t;
     return overloadedAType(reduced);
 }
+
 public default AType filterOverloadsByRole(AType t, set[IdRole] roles) = t;
 
 @synopsis{Filter overloads by ((AType)).}
@@ -1520,11 +1521,3 @@ rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] _overlo
 @synopsis{Filter overloads by ((AType)) and map their type.}
 default rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
     = {<def, idRole, atype<1>> | <def, idRole, ovlType> <- overloads, atype <- atypes, atype<0> == ovlType};
-
-int countOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes) {
-    int count = 0;
-    for (<_, _, atype> <- overloads, atype in atypes) {
-        count += 1;
-    }
-    return count;
-}

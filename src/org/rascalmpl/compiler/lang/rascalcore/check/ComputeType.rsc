@@ -103,7 +103,7 @@ set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AT
         } 
     }
 
-    if(countOverloads(overloads, unResolvedConstructorOverloadTypes) > 1) {
+    if(size(filterOverloadsByAType(overloads, unResolvedConstructorOverloadTypes)) > 1) {
         adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloadTypes };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
