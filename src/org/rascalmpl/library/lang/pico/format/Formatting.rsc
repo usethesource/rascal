@@ -1,4 +1,4 @@
-@synopsis{Demonstrates the use of ((util::Formatting)) for constructing a declarative and HiFi Pico formatting pipeline}
+@synopsis{Demonstrates the use of ((util::Formatters)) for constructing a declarative and HiFi Pico formatting pipeline}
 @benefits{
 * The formatting is style is programmed _declaratively_ by mapping language patterns to Box expressions.
 * The pipeline never loses source code comments, and this requires no attention from the language engineer.

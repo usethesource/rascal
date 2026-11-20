@@ -90,7 +90,7 @@ import util::Monitor;
 import util::PathConfig;
 import util::Reflective;
 
-@synopsis{A style specification maps a ((Tree)) to a ((Box-Box)) expression.}
+@synopsis{A style specification maps a ((ParseTree-Tree)) to a ((Box-Box)) expression.}
 alias Style = Box(Tree);
 
 @synopsis{Additional formatter options}
@@ -106,7 +106,7 @@ data FormattingOptions(
 @synopsis{short-hand}
 private FormattingOptions fo() = formattingOptions();
 
-@synopsis{Repeats this option from ((util::LanguageServer)) to avoid a cyclic dependency.}
+@synopsis{Repeats this option from `util::LanguageServer` (from `rascal-lsp`) to avoid a cyclic dependency.}
 data FileSystemChange(bool needsConfirmation = false);
 
 @synopsis{Generates a file formatter that immediately applies the new style to the input.}
@@ -255,7 +255,7 @@ list[TextEdit](loc) fileEditFormatter(type[&G <: Tree] grammar, Style style, For
     };
 }
 
-@synopsis{Generates a file formatter that produces ((TextEdit))s from a ((Tree)) for downstream processing.}
+@synopsis{Generates a file formatter that produces ((TextEdit))s from a ((ParseTree-Tree)) for downstream processing.}
 @description{
 The formatter function this generates will produce a list of ((TextEdit))s. The edits change the original
 input to the formatted output. 

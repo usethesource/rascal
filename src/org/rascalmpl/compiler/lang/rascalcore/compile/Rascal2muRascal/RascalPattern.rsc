@@ -1070,12 +1070,12 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             if(isWildCard("<name>") || subjectAssigned){
                 return muIfElse(precond, trueCont, falseCont);
             }
-            return muIfElse(precond, trueCont, falseCont);
-            //ppname = prettyPrintName(name);
-            //<fuid, pos> = getVariableScope(ppname, name@\loc);
-            //var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
-            //return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-            //                         : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+            //return muIfElse(precond, trueCont, falseCont);
+            ppname = prettyPrintName(name);
+            <fuid, pos> = getVariableScope(ppname, name.src);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
+            return isSameVar(var, subjectExp) ? muIfElse(precond, trueCont, falseCont)
+                                              : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         
         } else {
             precond = muAndNativeBool(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), minSizeCheck);

@@ -42,7 +42,7 @@ public java start[Module] parseModuleWithSpaces(loc location);
 data RascalConfigMode
     = compiler()
     | interpreter()
-    | interpreter_external()
+    | interpreterExternal()
     ;
 
 @deprecated{not in use anymore}
