@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileExistsException;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
@@ -270,7 +271,9 @@ public class RascalCompile extends AbstractCommandlineTool {
 					}
 					@Override
 					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-						Files.move(file, toTarget(file), StandardCopyOption.REPLACE_EXISTING);
+						try {
+							Files.move(file, toTarget(file), StandardCopyOption.REPLACE_EXISTING);
+						} catch (FileExistsException _ignored) {} 
 						return super.visitFile(file, attrs);
 					}
 				});

@@ -136,7 +136,10 @@ public class CommandlineParser {
                         IListWriter writer = vf.listWriter();
 
                         while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                            writer.append(parseCommandlineOption(name, expected.getElementType(), commandline[++i]));
+                            var cmd = commandline[++i];
+                            if (!cmd.isBlank()) {
+                                writer.append(parseCommandlineOption(name, expected.getElementType(), cmd));
+                            }
                         }
 
                         params.put(label, writer.done());

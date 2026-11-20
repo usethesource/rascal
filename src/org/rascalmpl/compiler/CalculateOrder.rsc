@@ -41,7 +41,6 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
         }
         imports = graph+;
-        importees = {<t, f> | <set[loc] f, set[loc] t> <- graph, f != {}};
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
@@ -49,7 +48,7 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         bestCommonSize1 = bestScore + 0.;
         for (_ <- [0..1000]) {
             step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
-            option = tryChunk(imports, importees, allClusters, fileSizes, amountOfClusters);
+            option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
             if (size(option) < amountOfClusters) {
                 continue;
             }
@@ -128,15 +127,14 @@ private set[loc] flatten(set[set[loc]] locs) {
     return { *ll | ll <- locs};
 }
 
-list[set[loc]] tryChunk(Graph[set[loc]] imports, Graph[set[loc]] importees, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
+list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
     list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
     list[int] chunkSizes = [ 0 | _ <- [0..amountOfClusters]];
     candidates = allClusters;
     assigned = 0;
     while (candidates != {}) {
         c = getOneFrom(candidates);
-        ci = {c};// + importees[{c}];
-        ci += imports[ci];
+        ci = {c} + imports[{c}];
         candidates -= ci;
         chunk = flatten(ci);
         if (assigned < amountOfClusters) {
