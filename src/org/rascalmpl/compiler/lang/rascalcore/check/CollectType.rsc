@@ -463,6 +463,10 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
 
+    collectTypeWithoutParameters(current, c);
+}
+
+void collectTypeWithoutParameters(current:(UserType) `<QualifiedName n>`, Collector c) {
     try {
         <msgs, result> = handleUserType(n,  c.getType(n));
         for(m <- msgs) c.report(m);
@@ -474,14 +478,14 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
             <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
             return result;
-        });
+        }
+    );
 }
 
 @synopsis{special casing without using defaults}
 void collectNameInRoleContext(Type t:!(Type) `<UserType u>`, Collector c, set[IdRole] roles) = collect(t, c);
 void collectNameInRoleContext(Type t: (Type) `<UserType u>`, Collector c, set[IdRole] roles) = collectNameInRoleContext(u, c, roles);
 
-// TODO: parametrized user types
 void collectNameInRoleContext(UserType u:!(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles) = collect(u, c);
 
 @synopsis{Convert Rascal user types into their abstract representation, but with a given IdRole context}
@@ -493,27 +497,22 @@ void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector 
         c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
     }
 
-   try {
-        <msgs, result> = handleUserType(n,  c.getType(n));
-        for(m <- msgs) c.report(m);
-        c.fact(current, result);
-    } catch TypeUnavailable():
-
-    c.calculate("type without parameters", current, [n],
-        AType(Solver s){
-            <msgs, result> = handleUserType(n, s.getType(n));
-            for(m <- msgs) s.report(m);
-            return result;
-        });
+    collectTypeWithoutParameters(current, c);
 }
 
-void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
+void collectNameInRoleContext(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c, set[IdRole] roles) {
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
-        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+        c.use(n, roles);
     } else {
-        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
+        c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
     }
+    
+    collectTypeWithParameters(current, c);
+    collect(ts, c);
+}
+
+void collectTypeWithParameters(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c) {
     actuals = [t | t <- ts];
 
     c.calculate("parameterized type with parameters", current, n + actuals,
@@ -532,9 +531,20 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
                 return instantiateRascalTypeParameters(ts, aliased, bindings, s);
             }
-            s.report(error(n, "Type %t cannot be parameterized, found %v parameter(s)", n, nactuals));
+            s.report(error(n, "Type has no formal type parameters, found %v actual parameter(s)", nactuals));
             return avoid();
-        });
+    });
+}
+
+void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    } else {
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
+    }
+    
+    collectTypeWithParameters(current, c);
     collect(ts, c);
 }
 
