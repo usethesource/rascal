@@ -265,10 +265,10 @@ Here we see that the modifiers are not types themselves. A value
 can never have this type. They are only selectors/modifiers for certain type kinds 
 when names become ambiguous or unbound.
 }
-bool asubtype(AType p:\aparameter(_), \asyntaxRoleModifier(SyntaxRole _, p)) = true;
+bool asubtype(AType p:\aparameter(_,_), \asyntaxRoleModifier(SyntaxRole _, p)) = true;
 bool asubtype(\asyntaxRoleModifier(SyntaxRole _, AType p), p) = true;
 
-bool asubtype(a:\adt(str _, SyntaxRole role), asyntaxRoleModifier(role, AType par)) = asubtype(a, par);
+bool asubtype(a:\adt(str _, _, SyntaxRole role), asyntaxRoleModifier(role, AType par)) = asubtype(a, par);
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
@@ -777,8 +777,8 @@ AType alub(\asyntaxRoleModifier(SyntaxRole role, p:\aparameter(_,_)), \asyntaxRo
 // ---
 
 @synopsis{Different role, but same parameter, keep the parameter}
-AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(str x, _)),
-           \asyntaxRoleModifier(!role, \aparameter(x, _))) = \aparameter(x);
+AType alub(\asyntaxRoleModifier(SyntaxRole role, \aparameter(str x, AType b1)),
+           \asyntaxRoleModifier(!role, \aparameter(x, AType b2))) = \aparameter(x, aglb(b1, b2));
            
 @synopsis{node is the least above data on the left}
 AType alub(\asyntaxRoleModifier(dataSyntax(), \aparameter(str x, _)),
