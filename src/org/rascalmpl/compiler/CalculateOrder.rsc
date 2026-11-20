@@ -46,8 +46,8 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
-        bestAllCommonSize = bestScore + 0.;
-        bestSomeCommonSize = bestScore + 0.;
+        bestAllCommonSize = bestScore;
+        bestSomeCommonSize = bestScore;
         for (_ <- [0..1000]) {
             step("best unbalance: <bestScore> and <bestAllCommonSize> & <bestSomeCommonSize> commonSize", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
@@ -70,12 +70,12 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             someCommonSize = totalFileSize(someCommon, fileSizes);
 
             if (score * 5 < bestScore /*if the new one is soo much better */
-                ||/* or all the scores have "improved" */ (allCommonSize <= bestAllCommonSize && score < bestScore && someCommonSize <= bestSomeCommonSize)) {
+                ||/* or all the scores have "improved" */ (approxBetter(allCommonSize, bestAllCommonSize) && score < bestScore && approxBetter(someCommonSize, bestSomeCommonSize))) {
                 //println("Better option: <score> <commonSize> <commonSize1> \t <allSizes> \t <[size(b) | b <- option]>");
                 best = option;
                 bestScore = score;
-                bestAllCommonSize = (allCommonSize + 1) * 1.1; // we make the score 10% (and not 0) to leave room for some better options that are very close (but have a better `score`)
-                bestSomeCommonSize = (someCommonSize + 1) * 1.1;
+                bestAllCommonSize = allCommonSize;
+                bestSomeCommonSize = someCommonSize;
             }
         }
         println("Split the work into clusters: <[size(b) | b <- best]>");
@@ -83,7 +83,13 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
     }, totalWork = 1000);
 }
 
-Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
+private bool approxBetter(int newScore, int oldScore)
+    = newScore <= oldScore // it's lower
+        || (oldScore - newScore) < 10 // it's very close
+        || newScore <= (oldScore * 1.1) // it's within 10% of each other
+        ;
+
+private Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     done = {};
     todo = modules;
     Graph[loc] result = {};
