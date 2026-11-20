@@ -1170,7 +1170,7 @@ private AType computeAnnoAssignableType(Statement current, AType receiverType, N
     if (isNodeAType(receiverType) || isADTAType(receiverType) || isNonTerminalAType(receiverType)) {
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := annoNameType){
             anno_overloads = {};
-            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, asubtype(receiverType, onType)){
+            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, _) := tp1, asubtype(receiverType, onType)){
                anno_overloads += <key, annoId(), tp1>;
            }
             if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved from %t", receiverType, annoNameType));

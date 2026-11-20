@@ -92,12 +92,12 @@ data AType (str alabel = "")
 
 @memo={expireAfter(minutes=5),maximumSize(1000)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
-    if(all(<loc _, IdRole _, AType t> <- overloads, aadt(_, _, _) := t)){
+    if(all(t <- overloads<2>, aadt(_, _, _) := t)){
       str adtName = "";
       list[AType] adtParams = [];
       synRoles = {};
       nformals = -1;
-      for(<loc _, IdRole _, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
+      for(aadt(adtName1, params1, syntaxRole1) <- overloads<2>){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         if(nformals >= 0 && size(params1) != nformals) fail overloadedAType; else nformals = size(params1);  // different type parameter arities
 

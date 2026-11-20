@@ -84,31 +84,33 @@ private default bool hasVoidAlternative(AType t) = isVoidAType(t);
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
-rel[loc key, IdRole idRole, AType atype]
-    checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
-    
-    rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
-    rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
-    for(tup:<_, _, tp> <- overloads){
+rel[loc key, IdRole idRole, AType atype] checkAndFilterOverloads(Tree expr, rel[loc, IdRole, AType] overloads, AType expected, Solver s)
+    = filterOverloadsByAType(overloads, checkAndFilterOverloadTypes(expr, overloads, expected, s));
+
+set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s) {
+    set[AType] filteredTypes = {};
+    set[AType] unResolvedConstructorOverloadTypes = {};
+    for(tp <- overloads<2>){
         if(isValueAType(expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
             if(isConstructorAType(tp) || isADTAType(tp)){
-                unResolvedConstructorOverloads += tup;
+                unResolvedConstructorOverloadTypes += tp;
             }
         } else if(asubtype(tp, expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
         } else if(isConstructorAType(tp) || isADTAType(tp)){
-            unResolvedConstructorOverloads += tup;
+            unResolvedConstructorOverloadTypes += tp;
         } 
     }
-    if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
+
+    if(size(filterOverloadsByAType(overloads, unResolvedConstructorOverloadTypes)) > 1) {
+        adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloadTypes };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
         s.report(msg);
     }
-    return filteredOverloads;
+    return filteredTypes;
 }
 
 void(Solver) makeVarInitRequirement(Variable var)
@@ -128,8 +130,8 @@ void(Solver) makeVarInitRequirement(Variable var)
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){
-                    filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
-                    for(<_, _, tp> <- filteredOverloads){
+                    types = checkAndFilterOverloadTypes(var.initial, overloads, varTypeU, s);
+                    for(tp <- types){
                         s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
                     }
                 } else {
@@ -344,7 +346,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
-       for(<_, _, tp> <- overloads){
+       for(tp <- overloads<2>){
         if(isADTAType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
@@ -472,7 +474,7 @@ list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), lo
 
 }
 
-list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
+list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | adt <- overloads<2> ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
 
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
@@ -1273,19 +1275,18 @@ private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
 
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
-    rel[loc, IdRole, AType] filteredOverloads = {};
+    set[AType] filteredTypes = {};
     list[bool] identicalFields = [true | int _ <- [0 .. arity]];
 
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
 
-    for(ovl:<loc _, IdRole _, AType tp> <- overloads){
-        if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
-            filteredOverloads += ovl;
-           }
+    for(tp:acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) <- overloads<2>, comparable(ret, subjectType)) {
+        if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
+            filteredTypes += tp;
         }
     }
-    return <filteredOverloads, identicalFields>;
+
+    return <filterOverloadsByAType(overloads, filteredTypes), identicalFields>;
 }
 
 AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){
