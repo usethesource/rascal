@@ -1498,16 +1498,28 @@ default AType removeConditional(AType s) = s;
 
 // Filter potential overloads based on IdRole
 
-public AType filterOverloads(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
-    reduced = { <l, r, t> | <l, r, t> <- overloads, r in roles };
+public AType filterOverloadsByRole(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
+    reduced = { t | t:<loc _, IdRole r, AType _> <- overloads, r in roles };
     if({<_,_,t>} := reduced) return t;
     return overloadedAType(reduced);
 }
-public default AType filterOverloads(AType t, set[IdRole] roles) = t;
+public default AType filterOverloadsByRole(AType t, set[IdRole] roles) = t;
 
 @synopsis{Filter overloads by ((AType)).}
-rel[loc, IdRole, AType] filterOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes)
+rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] _overloads, set[AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)).}
+default rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] overloads, set[AType] atypes)
     = {t | t:<loc _, IdRole _, AType atype> <- overloads, atype in atypes};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] _overloads, rel[AType, AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+default rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
+    = {<def, idRole, atype<1>> | <def, idRole, ovlType> <- overloads, atype <- atypes, atype<0> == ovlType};
 
 int countOverloads(rel[loc, IdRole, AType] overloads, set[AType] atypes) {
     int count = 0;

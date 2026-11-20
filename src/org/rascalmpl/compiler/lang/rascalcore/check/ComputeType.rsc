@@ -85,7 +85,7 @@ AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
 rel[loc key, IdRole idRole, AType atype] checkAndFilterOverloads(Tree expr, rel[loc, IdRole, AType] overloads, AType expected, Solver s)
-    = filterOverloads(overloads, checkAndFilterOverloadTypes(expr, overloads, expected, s));
+    = filterOverloadsByAType(overloads, checkAndFilterOverloadTypes(expr, overloads, expected, s));
 
 set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s) {
     set[AType] filteredTypes = {};
@@ -1286,7 +1286,7 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
         }
     }
 
-    return <filterOverloads(overloads, filteredTypes), identicalFields>;
+    return <filterOverloadsByAType(overloads, filteredTypes), identicalFields>;
 }
 
 AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){

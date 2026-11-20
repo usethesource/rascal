@@ -611,53 +611,52 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
             }
 
-            if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
-              <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
+            if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := texp){
+              <filteredOverloads, identicalFormals> = filterOverloadsByArity(overloads, size(actuals));
               if({<_, _, tp>} := filteredOverloads){
                 texp = tp;
                 s.specializedFact(expression, tp);
               } else {
                 overloads = filteredOverloads;
-                validReturnTypeOverloads = {};
-                validOverloads = {};
-                next_fun:
-                for(ovl: <key, idRole, tp> <- overloads){
-                    if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
-                       try {
-                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
-                            // TODO: turn this on after review of all @deprecated uses in the Rascal library library
-                            if(ft.deprecationMessage?){
-                                s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
-                            }
-                       } catch checkFailed(list[FailMessage] _):
-                            continue next_fun;
-                         catch NoBinding():
-                            continue next_fun;
-                    }
+
+                rel[AType, AType] validReturnTypeOverloadTypes = {};
+                set[AType] validOverloadTypes = {};
+
+                for (tp:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) <- overloads.atype) {
+                    try {
+                        validReturnTypeOverloadTypes += <tp, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, tp.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                        validOverloadTypes += tp;
+                        if(tp.deprecationMessage?){
+                            s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
+                        }
+                    } catch checkFailed(list[FailMessage] _):
+                        continue;
+                    catch NoBinding():
+                        continue;
                  }
-                 reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
-                 next_cons:
-                 for(ovl: <key,idRole, tp> <- overloads){
-                    if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
-                       try {
-                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
-                            validOverloads += ovl;
-                       } catch checkFailed(list[FailMessage] _):
-                             continue next_cons;
-                         catch NoBinding():
-                             continue next_cons;
-                    }
+                 reportMissingNonTerminalCases(current, overloads.atype, validOverloadTypes, actuals, s);
+
+                 for (tp:acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) <- overloads.atype) {
+                    try {
+                        validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                        validOverloadTypes += tp;
+                    } catch checkFailed(list[FailMessage] _):
+                        continue;
+                    catch NoBinding():
+                        continue;
                  }
+
+                 validOverloads = filterOverloadsByAType(overloads, validOverloadTypes);
                  if({<_, _, tp>} := validOverloads){
                     texp = tp;
                     s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
-                 } else if(isEmpty(validReturnTypeOverloads)) {
+                 } else if(isEmpty(validReturnTypeOverloadTypes)) {
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
+                    validReturnTypeOverloads = filterAndRetypeOverloads(overloads, validReturnTypeOverloadTypes);
                     //checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
@@ -720,14 +719,14 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     }
 }
 
-void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRole, AType atype] overloads, rel[loc def, IdRole idRole, AType atype] validOverloads, list[Expression] actuals, Solver s){
+void reportMissingNonTerminalCases(Expression current, set[AType] overloadTypes, set[AType] validOverloadTypes, list[Expression] actuals, Solver s){
     for(int i <- index(actuals)){
         actual_type = s.getType(actuals[i]);
         if(isNonTerminalAType(actual_type)){
-            if(!isEmpty(validOverloads) && all(atype <- validOverloads<2>,
+            if(!isEmpty(validOverloadTypes) && all(atype <- validOverloadTypes,
                                                arg_types := getFunctionOrConstructorArgumentTypes(atype),
                                                size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){
-                nont = [atype | atype <- overloads<2>, arg_types := getFunctionOrConstructorArgumentTypes(atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
+                nont = [atype | atype <- overloadTypes, arg_types := getFunctionOrConstructorArgumentTypes(atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
                     s.report(info(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }
@@ -736,46 +735,44 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     }
 }
 
-private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
-    // println("filterOverloads: <overloads>, <arity>");
-    rel[loc, IdRole, AType] filteredOverloads = {};
+private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadsByArity(rel[loc, IdRole, AType] overloads, int arity){
+    // println("filterOverloadsByArity: <overloads>, <arity>");
+    set[AType] filteredOverloadTypes = {};
     list[AType] prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
 
     // Filter constructors first to avoid issues with vararg functions
-    for(ovl:<_, _, tp> <- overloads){
-        if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
-           if(size(fields) == arity){
-              filteredOverloads += ovl;
-              if(isEmpty(prevFormals)){
-                 prevFormals = fields; //<1>;
-              } else {
-                 for(int i <- index(fields)) {
-                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
-                 }
-              }
+    for(tp:acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) <- overloads<2>){
+        if(size(fields) == arity){
+            filteredOverloadTypes += tp;
+            if(isEmpty(prevFormals)){
+                prevFormals = fields; //<1>;
+            } else {
+                for(int i <- index(fields)) {
+                    identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
+                }
             }
         }
     }
 
-    for(ovl:<_, _, tp> <- overloads){
-        if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
-           if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
-              filteredOverloads += ovl;
-              if(isEmpty(prevFormals)){
-                 prevFormals = formals;
-              } else {
-                 nRelevantFormals = size(formals) - (ft.varArgs ? 1 : 0);
-                 nPrevFormals =  size(prevFormals);
-                 for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
-                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
-                 }
-              }
-           }
+    for(ft:afunc(AType _, list[AType] formals, list[Keyword] _, varArgs=varArgs) <- overloads<2>) {
+        nFormals = size(formals);
+        if(varArgs ? (arity >= nFormals - 1) : (arity == nFormals)) {
+            filteredOverloadTypes += ft;
+            nPrevFormals = size(prevFormals);
+            if(nPrevFormals == 0){
+                prevFormals = formals;
+            } else {
+                nRelevantFormals = nFormals - (varArgs ? 1 : 0);
+                for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
+                    identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+                }
+            }
         }
         
     }
-    return <filteredOverloads, identicalFormals>;
+
+    return <filterOverloadsByAType(overloads, filteredOverloadTypes), identicalFormals>;
 }
 
 // TODO: in order to reuse the function below `keywordArguments` is passed as where `keywordArguments[&T] keywordArguments` would make more sense.
@@ -805,24 +802,24 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
 
     int noverloaded = 0;
     for(int i <- index_formals){
-        if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
+        if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
             noverloaded += 1;
             if(noverloaded > 1){
                 s.report(error(current, "Cannot yet handle calls with multiple overloaded arguments"));
             }
             //println("checkArgsAndComputeReturnType: <current>");
             //iprintln(overloads);
-            returnTypeForOverloadedActuals = {};
-            for(<key, idr, tp> <- overloads){
+            rel[AType, AType] returnTypeForOverloadedActuals = {};
+            for(tp <- overloads.atype){
                 try {
                     actualTypes[i] = tp;
-                    returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
+                    returnTypeForOverloadedActuals += <tp, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
                     //println("succeeds: <ovl>");
                 } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                   catch NoBinding():/* continue with next overload */;
              }
              if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with %v arguments cannot be resolved", size(actuals)));}
-             else /*retType = */ return overloadedAType(returnTypeForOverloadedActuals);
+             else /*retType = */ return overloadedAType(filterAndRetypeOverloads(overloads, returnTypeForOverloadedActuals));
         }
     }
     //No overloaded actual
