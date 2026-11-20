@@ -72,7 +72,7 @@ public class JavaRunner {
     public ISourceLocation getJUnitClassPath(IConstructor version) {
         try {
             assert version.getName().equals("junit4");
-            return vf.sourceLocation(JUnit4.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return vf.sourceLocation(URIUtil.fromURL(JUnit4.class.getProtectionDomain().getCodeSource().getLocation()));
         }
         catch (URISyntaxException e) {
             throw RuntimeExceptionFactory.illegalArgument(vf.string(e.getMessage()));
