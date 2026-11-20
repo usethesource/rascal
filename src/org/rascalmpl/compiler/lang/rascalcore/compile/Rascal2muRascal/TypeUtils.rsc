@@ -929,17 +929,17 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
     }
 
     if(def.idRole == keywordFormalId()) {
-        return muAssign(muVarKwp(name, getScope(uid), filterOverloads(getType(l), {keywordFormalId()})), exp);
+        return muAssign(muVarKwp(name, getScope(uid), filterOverloadsByRole(getType(l), {keywordFormalId()})), exp);
     }
     if(def.idRole in positionalFormalRoles){
-        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), filterOverloads(getType(l), positionalFormalRoles), def.idRole), exp);   // TODO
+        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), filterOverloadsByRole(getType(l), positionalFormalRoles), def.idRole), exp);   // TODO
    }
 
     if(def.idRole in variableRoles){
          pos = def.scope in module_scopes ? -1 : getPositionInScope(name, uid);
 
-        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, filterOverloads(getType(l), variableRoles), def.idRole), exp)
-                                : muAssign(muVar(name, getScope(uid), pos, filterOverloads(getType(l), variableRoles), def.idRole), exp);
+        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, filterOverloadsByRole(getType(l), variableRoles), def.idRole), exp)
+                                : muAssign(muVar(name, getScope(uid), pos, filterOverloadsByRole(getType(l), variableRoles), def.idRole), exp);
     }
     iprintln(useDef[l]);
     throw "mkAssign fails for <name>, <l>, <exp>, <def>";
