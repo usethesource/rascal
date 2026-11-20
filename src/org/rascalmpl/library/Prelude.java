@@ -849,7 +849,7 @@ public class Prelude {
 		
 		pred = new HashMap<>();
 		settled = new HashSet<>();
-		Q = new PriorityQueue<>(G.size(), new NodeComparator(distance));
+		Q = new PriorityQueue<>(Math.max(1, G.size()), new NodeComparator(distance));
 		Q.add(start);
 		
 		while(!Q.isEmpty()){

@@ -112,7 +112,7 @@ list[CodeAction] moduleNameProposal(QualifiedName moduleName, str proposedName)
 FailMessage moduleNameMessage(loc mloc, QualifiedName qualifiedModuleName, str mname, PathConfig pcfg){
     msg = error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, mloc.top);
     try {
-        proposal = getRascalModuleName(mloc, pcfg);
+        proposal = moduleId2moduleName(mloc);
         msg.fixes = moduleNameProposal(qualifiedModuleName, proposal);
     } catch _: /* ignore any exceptions */;
     return msg;
@@ -258,6 +258,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             expType = s.getType(expression);
+            checkNonVoid(expression, expType, s, "Default expression");
             // reduce any type parameters in default expression to avoid
             expType = visit(expType) {
                 case p:aparameter(pname, _) => avoid()
@@ -423,6 +424,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                         s.requireUnify(condType, abool(), error(cond, "Cannot unify condition with `bool`, found %t", cond));
                         condType = s.instantiate(condType);
                     }
+                    checkNonVoid(cond, condType, s, "Condition");
                     s.requireSubType(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                 }
             });
@@ -635,7 +637,7 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
         }
     }
     if(!isEmpty(missing)){
-        missing = {"&<m>" | m <- missing };
+        missing = {"&<m>" | str m <- missing };
         c.report(error(signature, "Type parameter(s) %v in return type of function %q not bound by its formal parameters", missing, signature.name));
     }
 
