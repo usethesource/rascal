@@ -792,10 +792,11 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		for (ModuleEnvironment mod : getImportedModulesResolved()) {
-			
-			list = mod.generalKeywordParameters.get(adt);
-			if (list != null) {
-				result.add(new GenericKeywordParameters(mod, list, mod.getStore().getKeywordParameters(adt)));
+			if (mod.generalKeywordParameters != null) {
+				list = mod.generalKeywordParameters.get(adt);
+				if (list != null) {
+					result.add(new GenericKeywordParameters(mod, list, mod.getStore().getKeywordParameters(adt)));
+				}
 			}
 		}
 		
