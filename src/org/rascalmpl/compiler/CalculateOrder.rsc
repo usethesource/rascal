@@ -35,42 +35,47 @@ Graph[set[loc]] calculateModuleDependencies(list[loc] modules, PathConfig pcfg) 
 list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, int] fileSizes, int amountOfClusters) {
     return job("calulating parallel chunks", list[set[loc]] (void (str msg, int worked) step) {
         if (preCompute != {}) {
-            // remove all precompute edges
-            // such that we can calculate without them in the mix
+            // add preCompute imports (transitivly) to the set of precomputed modules
             preCompute += { *p | p <- (graph+)[preCompute]};
+            // now remove all imports that point to the preCompute set
+            // such that they don't influence the chunk calculations
+            // as they get scheduled by the runner automatically
             graph = { <fromF, to - preCompute> | <from, to> <- graph, fromF := from - preCompute, fromF != {}};
         }
         imports = graph+;
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
-        bestCommonSize = bestScore + 0.;
-        bestCommonSize1 = bestScore + 0.;
+        bestAllCommonSize = bestScore + 0.;
+        bestSomeCommonSize = bestScore + 0.;
         for (_ <- [0..1000]) {
-            step("best unbalance: <bestScore> and <bestCommonSize> commonSize", 1);
+            step("best unbalance: <bestScore> and <bestAllCommonSize> & <bestSomeCommonSize> commonSize", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
             if (size(option) < amountOfClusters) {
                 continue;
             }
             allSizes = sort([ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option]);
-            common = (option[0] | it & clus | clus <- option[1..]);
-            common1 = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= 2 };
-            commonSize = (0 | it + fileSizes[c] | c <- common);
-            commonSize1 = (0 | it + fileSizes[c] | c <- common1);
-
             if (allSizes[-1] / 5 > allSizes[-2]) {
-                // skipping cases where everything landed in one bucket
-                // as in those cases, it's better to just not use concurrency
+                // skipping cases where everything (or at least 5x as much as the 2nd largest) 
+                // landed in one bucket as in those cases, it's better to just not use concurrency
                 continue;
             }
-
+            // the score is the "spread" of size between the smallest and largest and the max, to optimize for some split
             score = allSizes[-1] - allSizes[0];
-            if (score * 5 < bestScore || (commonSize <= bestCommonSize && score < bestScore && commonSize1 <= bestCommonSize1)) {
-                println("Better option: <score> <commonSize> <commonSize1> \t <allSizes> \t <[size(b) | b <- option]>");
+
+            // next factor is how many modules are shared/common between the chunks
+            allCommon = (option[0] | it & clus | clus <- option[1..]);
+            someCommon = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= 2 };
+            allCommonSize = totalFileSize(allCommon, fileSizes);
+            someCommonSize = totalFileSize(someCommon, fileSizes);
+
+            if (score * 5 < bestScore /*if the new one is soo much better */
+                ||/* or all the scores have "improved" */ (allCommonSize <= bestAllCommonSize && score < bestScore && someCommonSize <= bestSomeCommonSize)) {
+                //println("Better option: <score> <commonSize> <commonSize1> \t <allSizes> \t <[size(b) | b <- option]>");
                 best = option;
-                bestScore = score;// * (1 + (1/amountOfClusters));
-                bestCommonSize = (commonSize + 1) * 1.1;
-                bestCommonSize1 = (commonSize1 + 1) * 1.1;
+                bestScore = score;
+                bestAllCommonSize = (allCommonSize + 1) * 1.1; // we make the score 10% (and not 0) to leave room for some better options that are very close (but have a better `score`)
+                bestSomeCommonSize = (someCommonSize + 1) * 1.1;
             }
         }
         println("Split the work into clusters: <[size(b) | b <- best]>");
@@ -113,10 +118,6 @@ Graph[loc] moduleDependencies(loc file, PathConfig pcfg) {
     return {file} * imports;
 }
 
-
-@memo
-private set[&T] verts(Graph[&T] G) = G<0> + G<1>;
-
 private int totalFileSize(set[loc] files, map[loc, int] fileSizes) = (0 | it + fileSizes[f] | f <- files);
 
 @memo
@@ -149,9 +150,10 @@ list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[
             }
             else {
                 // look for the smallest new modules added
-                //
+                // aka the chunk that has the most overlap with the current chunk
                 smallest = (<0, size(chunk - chunks[0])> | it[1] < sz ? it : <i, sz> | i <- [1..amountOfClusters], sz := size(chunk - chunks[i]))[0];
             }
+            // we keep track of the size such that we can find the smallest
             chunkSizes[smallest] += totalFileSize(chunk - chunks[smallest], fileSizes);
             chunks[smallest] += chunk;
         }
